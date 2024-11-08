@@ -18,7 +18,7 @@ from views import (
 from autonomous import log
 from autonomous.auth import AutoAuth
 from filters.model import in_list, organize_models
-from filters.page import filter_shuffle, roll_dice
+from filters.utils import filter_shuffle, roll_dice
 from models.user import User
 
 

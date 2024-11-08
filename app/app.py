@@ -43,8 +43,7 @@ from werkzeug.exceptions import HTTPException
 
 from autonomous import log
 from autonomous.auth import AutoAuth
-from filters.model import in_list, organize_models
-from filters.page import filter_shuffle, roll_dice
+from filters.utils import filter_shuffle, roll_dice
 from models.user import User
 
 
@@ -64,8 +63,6 @@ def create_app():
         app.jinja_env.add_extension("jinja2.ext.debug")
 
     # Configure Filters
-    app.jinja_env.filters["organize_models"] = organize_models
-    app.jinja_env.filters["in_list"] = in_list
     app.jinja_env.filters["roll_dice"] = roll_dice
     app.jinja_env.filters["filter_shuffle"] = filter_shuffle
 

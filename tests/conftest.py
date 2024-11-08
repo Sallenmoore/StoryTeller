@@ -5,11 +5,11 @@ import pytest
 
 from app import create_app
 from models.campaign.campaign import Campaign
-from models.campaign.session import Session
+from models.campaign.episode import Session
 from models.character import Character
 from models.city import City
 from models.creature import Creature
-from models.events.calendar import Calendar
+from models.calendar import Calendar
 from models.events.event import Event
 from models.faction import Faction
 from models.item import Item

@@ -22,7 +22,7 @@ from views.manage import childmanage
 
 from autonomous import log
 from models.campaign.campaign import Campaign
-from models.campaign.session import Session
+from models.campaign.episode import Session
 from models.user import User
 from models.world import World
 

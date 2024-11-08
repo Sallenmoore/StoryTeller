@@ -11,7 +11,7 @@ from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
 from models.campaign import Campaign
-from models.campaign.session import Session
+from models.campaign.episode import Session
 from models.character import Character
 from models.events.event import Event
 

@@ -16,10 +16,6 @@
               href="{{url_for('static', filename='images/favicon-16x16.png')}}">
 
         <!-- Vendor CSS-->
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-              crossorigin="" />
-        <link href="{{ url_for('static', filename='style/nouislider.min.css') }}" rel="stylesheet">
         <!-- Compiled and minified CSS-->
         <link rel="stylesheet" type="text/css"
               href="{{ url_for('static', filename='style/main.css') }}">
@@ -34,12 +30,6 @@
                 crossorigin="anonymous"></script>
         <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
         <script src="https://code.iconify.design/iconify-icon/1.0.3/iconify-icon.min.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-                crossorigin=""></script>
-        <script
-                src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
-        <script src="{{ url_for('static', filename='js/nouislider.min.js') }}"></script>
         <!-- JavaScript Libs -->
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
         {% endblock %}
@@ -56,7 +46,26 @@
             {% endblock %}
         </div>
         <div class="container has-no-padding is-full" id="content">
-            {% block page %}{% endblock %}
+            <div class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
+                 id='page-container'>
+                <div class="row has-no-padding-left slide-it-in" style='position:relative;'>
+                    <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in">
+                        <button id="mobile-menu-burger" class='button is-mobile-only'
+                                style='position:fixed; z-index:1002;border-radius:0 10px 10px 0;'>
+                            <iconify-icon icon="ci:hamburger-lg" width="1.5rem"></iconify-icon>
+                        </button>
+                        {{nav.sidemenu_active(user, obj)}}
+                    </div>
+                    <div class="column is-10 is-center is-mobile-full">
+                        <div class='panel has-bg-muted raise-it'
+                             style='border-radius: 0 0 5px 5px;' id="page-content"
+                             hx-get='{{page_url}}'
+                             hx-trigger='load'
+                             hx-indicator='#request-indicator'>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="image htmx-indicator has-text-muted has-bg-screen" id="request-indicator">
             <img src="/static/images/grid.svg" alt="loading">

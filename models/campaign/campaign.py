@@ -6,7 +6,7 @@ from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringA
 from autonomous.model.automodel import AutoModel
 from models.events.event import Event
 
-from .session import Session
+from .episode import Session
 
 
 class Campaign(AutoModel):

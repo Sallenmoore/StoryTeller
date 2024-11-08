@@ -8,7 +8,7 @@ from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from filters.model import in_list, organize_models
-from filters.page import filter_shuffle, roll_dice
+from filters.utils import filter_shuffle, roll_dice
 
 models = {
     "player": "Character",

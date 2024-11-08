@@ -14,22 +14,6 @@ export function random_int(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
-//====================== HTML Content ========================//
-export function from_html(html, trim = true) {
-    // Process the HTML string.
-    html = trim ? html.trim() : html;
-    if (!html) return null;
-
-    // Then set up a new template element.
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const result = template.content.children;
-
-    // Then return either an HTMLElement or HTMLCollection,
-    // based on whether the input HTML had one or more roots.
-    if (result.length === 1) return result[0];
-    return result;
-}
 
 export function strip_html(html) {
     let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -78,42 +62,6 @@ export function process_form_values(evt) {
     console.log(values);
     evt.detail.parameters = values;
 }
-
-//====================== AJAX ========================//
-
-export function post_data(url = "#", data = {}, fn = (response) => { console.log(response); }) {
-    fetch(url, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "same-origin", // no-cors, *cors, same-origin
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data), // body data type must match "Content-Type" header
-    })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            fn(data);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
-
-export function get_data(url = "#", fn = (response) => { console.log(response); }) {
-    fetch(url, { method: "GET" })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            fn(data);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
-
 
 //====================== Media ========================//
 export function ding() {

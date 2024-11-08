@@ -6,7 +6,7 @@ from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from models.campaign.campaign import Campaign
-from models.campaign.session import Session
+from models.campaign.episode import Session
 from models.character import Character
 from models.city import City
 from models.creature import Creature
