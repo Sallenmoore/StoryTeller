@@ -6,10 +6,8 @@
         <div class="row" id="create-world">
             <div class="column is-vertically-centered">
                 <div class="container has-text-center">
-                    <h2 class="is-subheading has-text-primary">A place to create and
-                        share
-                        your worlds
-                    </h2>
+                    <h2 class="is-subheading has-text-primary">A place to create and share your
+                        worlds</h2>
                     <button class="button has-text-secondary is-large"
                             hx-post="/api/world/build/form" hx-target="#create-world"
                             hx-swap='outerHTML show:#world-model:top'>
@@ -36,23 +34,6 @@
                             <p class='has-text-dark'>{{w.backstory_summary}}</p>
                         </div>
                     </div>
-                    {% for player in w.players | filter_shuffle(8) %}
-                    <div class="column has-text-center is-center is-shrink">
-                        <div class="image is-medium is-thumbnail is-margin-center">
-                            <img src="{{player.image.url(size='100')}}"
-                                 loading="lazy"
-                                 alt="{{player.name}}"
-                                 style="width:100%; height:100%;" />
-                        </div>
-                        <h4 class='has-text-dark'>
-                            {% if player.name %}
-                            {{player.name}}
-                            {% else %}
-                            {{player.title}}
-                            {% endif %}
-                        </h4>
-                    </div>
-                    {% endfor %}
                 </div>
             </a>
             <div class="row">
