@@ -1,0 +1,16 @@
+{
+    "title": "DC Difficulty",
+    "entries": [
+        {
+            "Very Easy": "0-4",
+            "Easy": "5-7",
+            "Average": "8-11",
+            "Tough": "12-16",
+            "Challenging": "17-20",
+            "Formidable": "21-25",
+            "Heroic": "26-30",
+            "Nearly Impossible": "35-40",
+            "Impossible": "41-50"
+        }
+    ]
+}

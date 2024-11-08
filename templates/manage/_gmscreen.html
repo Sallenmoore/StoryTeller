@@ -1,0 +1,357 @@
+{% macro screen(user, obj) -%}
+<div class="row has-bg-primary">
+    <div class="column is-half">
+        <h3 class='has-text-center'>
+            {% if user.current_screen %}
+            {{screen.name}}
+            {% else %}
+            You have not created any screens yet
+            {% endif %}
+        </h3>
+    </div>
+    <div class="column is-shrink is-end">
+        <button class="button is-small"
+                onclick="htmx.find('#screen-container').classList.remove('is-active');">
+            Hide
+        </button>
+    </div>
+    <div class="column is-3">
+        <div class="row">
+            <div class="column">
+                <h5 class='has-text-center has-text-primary'>Set GM Screen</h5>
+            </div>
+            <div class="column">
+                <div class="is-select has-text-primary">
+                    <select class="has-bg-secondary has-text-secondary" name='screenpk'
+                            hx-post='/api/gmscreen/display'
+                            hx-target='#screen-container'
+                            hx-trigger='change'>
+                        <option value=""></option>
+                        {%for s in user.screens %}
+                        <option value="{{s.pk}}" {% if user.current_screen and
+                                user.current_screen==s %} selected {%endif%}>
+                            {{s.name or "New Screen"}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" style='overflow:auto;'>
+    <div class="column is-full has-no-padding">
+        {% if user.current_screen %}
+        <div class="row has-space-around screen-area">
+            {% for area in user.current_screen.areas %}
+            <div class="column is-3">
+                <div class="row">
+                    <div class="column">
+                        <h5 class='has-text-primary  has-text-center'>
+                            {{area.name}}
+                        </h5>
+                    </div>
+                    {{ area.area() | safe }}
+                </div>
+                <hr class='has-bg-light'>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_gmscreens(user, obj, screen=None) -%}
+<h3 class='has-text-dark' id='manage-screens'>
+    Manage GM Screens
+</h3>
+<div class="row has-centered" id='manage-gmscreens-container'>
+    <div class="column is-half is-vertically-centered">
+        <div class="is-select">
+            <select class="has-bg-muted" name='screenpk' hx-post='/api/gmscreen/'
+                    hx-target='#manage-gmscreens-container'
+                    hx-select='#manage-gmscreens-container' hx-swap='outerHTML' hx-trigger='change'
+                    hx-indicator='#request-indicator'>
+                <option value="">- Select A Screen -</option>
+                {%for s in user.screens %}
+                <option value="{{s.pk}}" {% if screen and screen.pk==s.pk %} selected {%endif%}>
+                    {{s.name or "New Screen"}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="column is-shrink">
+        <button class="button is-primary is-small" hx-post='/api/gmscreen/add'
+                hx-target='#manage-gmscreens-container'
+                hx-select='#manage-gmscreens-container' hx-swap='outerHTML'
+                hx-confirm='Are you sure you want to add a new GM Screen?'>
+            Add New Screen
+        </button>
+    </div>
+    <div class="column is-full raise-it" id='manage-gmscreen'>
+        {% if screen %}
+        <div class="panel has-bg-primary">
+            <div class="row has-centered">
+                <div class="column is-full" id='manage-areas'>
+                    <div class="row">
+                        <div class="column is-shrink is-vertically-centered">
+                            <h5>Name</h5>
+                        </div>
+                        <div class="column">
+                            <input class="has-bg-light" type="text" name="name"
+                                   value="{{screen.name}}"
+                                   hx-post='/api/gmscreen/{{screen.pk}}/update'
+                                   hx-swap="none"
+                                   hx-trigger='input delay:700ms'>
+                        </div>
+                    </div>
+                    <hr>
+                    <form hx-post='/api/gmscreen/{{screen.pk}}/update'
+                          hx-target='#screen-area-container'
+                          hx-select='#screen-area-container' hx-swap="outerHTML">
+                        <div class="row">
+                            <div class="column is-shrink is-vertically-centered">
+                                <h5>Type</h5>
+                            </div>
+                            <div class="column">
+                                <div class="is-select has-bg-muted has-text-primary">
+                                    <select name='addarea'>
+                                        <optgroup label="General Areas">
+                                            <option value='note'>Text</option>
+                                            <option value='table'>Roll Table</option>
+                                            <option value='link'>World Links</option>
+                                            <option value='wildmagic'>
+                                                Wild Magic Table (Special)
+                                            </option>
+                                        </optgroup>
+                                        <optgroup label="D&D 5E">
+                                            <option value='dnd5e'>Reference</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <input class="button is-full is-small" type='submit'
+                                       value="Add New Area">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div id="screen-area-container" class="row screen-area">
+            {% for area in screen.areas %}
+            <div class="column is-4 ">
+                <div class="row">
+                    <div class="column">
+                        <input class="has-bg-light" type="text" name="name"
+                               value="{{area.name}}"
+                               hx-post='/api/gmscreen/{{screen.pk}}/area/{{area.pk}}/update'
+                               hx-swap="none"
+                               hx-trigger='input delay:700ms'>
+                    </div>
+                </div>
+                <hr>
+                {{ area.area() }}
+                <hr>
+                <div class="row">
+                    <div class="column is-shrink is-end">
+                        <a hx-post='/api/gmscreen/{{screen.pk}}/area/{{area.pk}}/remove'
+                           hx-swap='delete' hx-target='closest .screen-area'
+                           hx-confirm='Are you sure you want to remove this GM Screen Area?'>
+                            <iconify-icon icon="mdi:trash-outline"
+                                          width="1rem"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro screen_area(area, content=None) -%}
+<div class="panel has-bg-muted">
+    <h3 class='has-text-center has-text-dark'>{{area.name}}</h3>
+    <div class="row">
+        <div class="column is-full">
+            {{ content | safe }}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% import "components/_form.html" as form_components %}
+{% macro screen_note_area(screenarea) -%}
+<form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/note' hx-swap='none'
+      hx-trigger='change'>
+    {{form_components.texteditor(screenarea.screen.user, screenarea, 'note', content=screenarea.note)}}
+</form>
+{%- endmacro %}
+
+{% macro screen_table_area(screenarea) -%}
+<div id="table-{{screenarea.pk}}-item-list" class='panel has-bg-screen'>
+    <div class="row">
+        <div class="column">
+            <a hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/additem'
+               hx-target="#table-{{screenarea.pk}}-item-list"
+               hx-select="#table-{{screenarea.pk}}-item-list"
+               hx-swap='outerHTML'>Add Item</a>
+        </div>
+        <div class="column has-text-center">
+            <a class="button is-small has-text-center"
+               hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/random'
+               hx-target="#roll-table-{{screenarea.pk}}-selected"
+               hx-select="#roll-table-{{screenarea.pk}}-selected"
+               hx-swap='outerHTML'>Randomize</a>
+        </div>
+        <div class="column has-text-right">
+            <a hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/reset'
+               hx-target="#table-{{screenarea.pk}}-item-list"
+               hx-select="#table-{{screenarea.pk}}-item-list"
+               hx-swap='outerHTML'>Reset</a>
+        </div>
+        <div id="roll-table-{{screenarea.pk}}-selected" class="column is-full has-text-center">
+            {% if screenarea.selected%}
+            <div class="panel">
+                <h5>{{screenarea.selected}}</h5>
+            </div>
+            {%endif%}
+        </div>
+    </div>
+    <div class="row">
+        <div class="column is-full">
+            <form hx-post=' /api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table'
+                  hx-target="#table-{{screenarea.pk}}-item-list"
+                  hx-select="#table-{{screenarea.pk}}-item-list" hx-swap="outerHTML"
+                  hx-trigger='input delay:500ms'>
+                <ul class='has-bg-muted has-no-list-style' style='max-height:12rem;overflow:auto;'>
+                    {% for item in screenarea.itemlist %}
+                    <li style='padding: 0.1rem 0.5rem;'>
+                        <input name="itemlist[]" value="{{item}}" style='width:100%;'>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro screen_link_area(screenarea) -%}
+<div class="row screen-link-area">
+    <div class="column is-full">
+        <div class="has-dropdown" style="width:100%;">
+            <input autocomplete="off" class="has-bg-light has-text-dark"
+                   type="search" placeholder="Search to add quick link" name="query"
+                   hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/search"
+                   hx-target="#link-area-search-{{screenarea.pk}}"
+                   hx-trigger="input changed delay:750ms"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown has-bg-light" id="link-area-search-{{screenarea.pk}}"
+                hx-vals='{"areapk":"{{screenarea.pk}}"}'>
+            </ul>
+        </div>
+    </div>
+    {% for obj in screenarea.objs %}
+    <div class="column is-3 screen-link-item">
+        <div class="row">
+            <div class="column is-full has-no-padding-bottom">
+                <a href="/{{obj.path}}/details" target='_blank'>
+                    <div class="image is-tiny is-thumbnail is-margin-center"
+                         style="cursor: pointer">
+                        <img src="{{obj.image.url(size=50)}}" alt="{{obj.name}}" />
+                    </div>
+                    <h5 class='has-text-center has-text-dark'>{{obj.name}}</h5>
+                </a>
+            </div>
+            <div class="column is-shrink is-center is-mobile-center has-no-padding-top">
+                <a
+                   hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/remove/{{obj.path}}'
+                   hx-swap='delete' hx-target='closest .screen-link-item'>
+                    <iconify-icon icon="streamline:delete-1-solid" height='0.5rem'></iconify-icon>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro screen_link_area_dropdown(user, obj, screenarea, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-secondary"
+    hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/add/{{o.model_name()}}/{{o.pk}}'
+    hx-target='closest .row' hx-select='.screen-link-area' hx-swap="outerHTML"
+    onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+    <div class="row is-vertical">
+        <div class="column is-shrink has-centered">
+            <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                {%endif %}
+            </div>
+        </div>
+        <div class="column is-shrink has-centered">
+            {{o.name}}
+        </div>
+    </div>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro dnd5e_area(screenarea, selected=None) -%}
+<div class="row dnd5e-area">
+    <div class="column is-full">
+        <div class="is-input-group has-bg-secondary">
+            <span>
+                <iconify-icon class="has-text-secondary" icon="gala:search" width="1rem">
+                </iconify-icon>
+            </span>
+            <div class="has-dropdown" style="width:100%;">
+                <input autocomplete="off" class="has-bg-light has-text-dark"
+                       type="search" name="query"
+                       hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e/search"
+                       hx-target="next .dropdown"
+                       hx-trigger="input changed delay:500ms, search"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active');">
+                <ul id="dnd5e-search-{{screenarea.pk}}" class="dropdown has-bg-light">
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% if selected %}
+    <div class="column is-full">
+        <div class="panel" id="gm-screen-dnd5e-details-container">
+
+            <h3 class="has-text-center">{{selected.get('name')}}</h3>
+            <div class="row has-space-around">
+                <div class="column is-shrink">
+                    {{selected}}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro dnd5e_search(screenarea, results) -%}
+{% for res in results%}
+<li class="dropdown__link"
+    hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e"
+    hx-target='closest .dnd5e-area'
+    hx-select='.dnd5e-area'
+    hx-swap='outerHTML'
+    hx-vals='{"selected":"{{res.name}}"}'
+    onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+    {{res.name}}
+</li>res
+{% endfor %}
+{%- endmacro %}

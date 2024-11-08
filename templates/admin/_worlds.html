@@ -1,0 +1,57 @@
+{% macro manage(worlds) -%}
+<div class="row has-space-between">
+    {% for world in worlds %}
+    <div class="column is-3">
+        <div class="card">
+            <div class="card__header is-vertically-centered">
+                <h5>{{world.name}}</h5>
+            </div>
+            <div class="card__image">
+                <img src="{{world.image_url}}" alt="{{world.name}}">
+            </div>
+            <div class="card__content">
+                <div class="panel">
+                    <p>{{world.backstory_summary}}</p>
+                </div>
+                <ul class="has-no-list-style">
+                    <li>
+                        <h4 class="has-bg-primary has-text-primary">Users</h4>
+                        <ul>
+                            {% for user in world.users %}
+                            <li>
+                                {{user.name}}
+                                <br>
+                                {{user.email}}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li>
+                        <h4 class="has-bg-primary has-text-primary">Campaigns</h4>
+                        <ul>
+                            {% for campaign in world.campaigns %}
+                            <li>
+                                <h6>{{campaign.name}}</h6>
+                                <br>
+                                <p class="has-bg-light">{{campaign.summary}}</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li>
+                        <h5>Players</h5>
+                        <ul>
+                            {% for character in world.players %}
+                            <li>
+                                <a href="{{character.path}}">{{character.name}}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

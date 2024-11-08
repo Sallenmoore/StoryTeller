@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta charset="{{url_for('static', filename='images/favicon-32x32.png')}}">
+        <link rel="icon" href="data:,">
+        <link rel="apple-touch-icon" sizes="180x180"
+              href="{{url_for('static', filename='images/apple-touch-icon.png')}}">
+        <link rel="icon" type="image/png" sizes="32x32"
+              href="{{url_for('static', filename='images/favicon-32x32.png')}}">
+        <link rel="icon" type="image/png" sizes="16x16"
+              href="{{url_for('static', filename='images/favicon-16x16.png')}}">
+
+        <!-- Vendor CSS-->
+        <!-- Compiled and minified CSS-->
+        <link rel="stylesheet" type="text/css"
+              href="{{ url_for('static', filename='style/main.css') }}">
+
+        <!-- Vendor JavaScript Libs-->
+        <script src="https://code.iconify.design/iconify-icon/1.0.3/iconify-icon.min.js"></script>
+    </head>
+
+    <body>
+        <div class="container has-bg-light has-text-center"
+             id="content">
+            <h1 class='has-text-center has-bg-primary has-text-primary'>You rolled a Nat 1</h1>
+            <h2>{{error.name}} - {{error.code}}</h2>
+            <hr>
+            <div class="panel">
+                <h5 class='has-text-center'></h5>
+                <p class='has-text-center'>{{error.description}}</p>
+            </div>
+            <hr>
+            <a class="button is-primary" href="/">Cast Silvery Barbs to re-roll</a>
+        </div>
+    </body>
+
+</html>

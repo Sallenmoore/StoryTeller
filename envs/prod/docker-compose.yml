@@ -1,0 +1,82 @@
+services:
+  app:
+    image: ${APP_NAME}:latest
+    build:
+      context: .
+    working_dir: /var/app
+    env_file: .env
+    container_name: ${APP_NAME}
+    volumes:
+      - ./app:/var/app/
+      - ./models:/var/app/models/
+      - ./static:/var/app/static/
+      - ./templates:/var/app/templates/
+      - ./filters:/var/app/filters/
+      - ./logs:/var/app/logs/
+    command: ["/var/app/init.sh"]
+    ports:
+      - "${APP_PORT}:${COMM_PORT}"
+    depends_on:
+      - db
+      - api
+  api:
+    image: ${APP_NAME}_api:latest
+    build:
+      context: .
+    working_dir: /var/app
+    env_file: .env
+    container_name: ${APP_NAME}_api
+    volumes:
+      - ./api:/var/app/
+      - ./models:/var/app/models/
+      - ./static:/var/app/static/
+      - ./templates:/var/app/templates/
+      - ./filters:/var/app/filters/
+      - ./logs:/var/app/logs/
+    command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
+    ports:
+      - "${API_PORT}:${COMM_PORT}"
+    depends_on:
+      - db
+  db:
+    image: mongo:latest
+    container_name: ${APP_NAME}_db
+    env_file: .env
+    volumes:
+      - ./tables:/data/db
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+    logging:
+      driver: none
+  db-express:
+    image: mongo-express:latest
+    ports:
+      - ${DBDEBUG_PORT}:8081
+    env_file: .env
+    depends_on:
+      - db
+  tasks:
+    image: ${APP_NAME}_tasks:latest
+    build:
+      context: .
+    working_dir: /var/app
+    env_file: .env
+    container_name: ${APP_NAME}_tasks
+    volumes:
+      - ./tasks:/var/app/
+      - ./models:/var/app/models/
+      - ./static:/var/app/static/
+      - ./filters:/var/app/filters/
+      - ./logs:/var/app/logs/
+      - ./templates:/var/app/templates/
+    command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
+    depends_on:
+      - taskdb
+  taskdb:
+    image: redis/redis-stack-server:latest
+    container_name: ${APP_NAME}_taskdb
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+networks:
+  default:
+    name: ${APP_NAME}_net

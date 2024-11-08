@@ -1,0 +1,311 @@
+{% macro timelinemap(user, obj, events=None) -%}
+<h2 class="has-text-center">Timeline</h2>
+<hr>
+{{eventfilters(user, obj)}}
+<div id='timeline-map-container' class='section is-small' style='position:relative;'
+     data-mapurl='{{obj.get_world().map.url()}}'>
+    <div class="container is-full" id='timeline-map' style='height:80vh;'>
+    </div>
+    <hr>
+</div>
+<div class="tabs">
+    <ul class="tabs__list has-centered">
+        <li><a hx-get='/api/timeline/event/list' hx-target='#timeline_content'
+               hx-indicator='#request-indicator'>Timeline</a></li>
+        {% if user.world_user(obj) %}
+        <li><a hx-post='/api/timeline/event/add' hx-target='#timeline_content'
+               hx-indicator='#request-indicator'>Add Event</a></li>
+        <li><a hx-post='/api/timeline/event/unplaced' hx-target='#timeline_content'
+               hx-indicator='#request-indicator'>Unplaced Objects</a></li>
+        <li><a hx-post='/api/timeline/event/noncanon' hx-target='#timeline_content'
+               hx-indicator='#request-indicator'>Non-Canon Objects (no date)</a></li>
+        {% endif %}
+    </ul>
+</div>
+<div id='timeline_content'>
+    {{ eventlist(user, obj, events) }}
+</div>
+<script type="module" src='/static/js/timeline.js'></script>
+{%- endmacro %}
+
+{% macro eventfilters(user, obj) -%}
+<form id="timeline-filters-form">
+    <div class="row has-space-around" id="timeline-top">
+        {%if obj.model_name() == 'World' %}
+        <div class="column is-half">
+            <div class='panel has-bg-screen is-full'>
+                <h5 class='has-text-center'>Filter by Type</h5>
+                <div class="is-select">
+                    <select class='has-bg-muted' id="timeline-type-filter"
+                            name="mtype">
+                        <option value="">All</option>
+                        {% for cat in obj._models %}
+                        <option value="{{cat}}">
+                            {{obj.label(cat)}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="column is-half">
+            <div class='panel has-bg-screen'>
+                <h5 class='has-text-center'>Filter by Campaign</h5>
+                <div class="is-select">
+                    <select class='has-bg-muted' id="timeline-campaign-filter"
+                            name="campaignpk">
+                        <option value="">All</option>
+                        {% for cmp in obj.campaigns %}
+                        <option class="has-text-dark" value="{{cmp.pk}}">
+                            {{cmp.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class='panel has-bg-screen'>
+                <div class="row has-space-between">
+                    <div class="column is-shrink is-vertically-centered">
+                        <div class="panel has-bg-muted">
+                            <h6 id="slider-start-value" class='has-text-center has-text-dark'>
+                                {{obj.start_date.year}}
+                                {{obj.calendar.year_string}}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="column is-shrink">
+                        <h4 class='has-text-center'>Filter by Time Period</h4>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered">
+                        <div class="panel has-bg-muted">
+                            <h6 id="slider-end-value" class='has-text-center has-text-dark'>
+                                {{obj.end_date.year}}
+                                {{obj.calendar.year_string}}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="row has-centered">
+                    <div class="column is-10">
+                        <div id="timeline-range-filter"
+                             data-start='{{obj.start_date.year}}'
+                             data-end='{{obj.end_date.year}}'
+                             data-min='{{obj.start_date.year}}'
+                             data-max='{{obj.end_date.year}}'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{%- endmacro %}
+
+{% macro addevent(user, obj) -%}
+<div class="panel has-bg-screen">
+    <form hx-post="/api/timeline/event/add" hx-target='#timeline-event-list-container'
+          hx-select='#timeline-event-list-container' hx-swap='outerHTML'
+          hx-indicator='#request-indicator'>
+        <div class="row">
+            <div class="column is-2">
+                <div class="is-select has-bg-muted">
+                    <select name='date.day'>
+                        {% for i in range(1, obj.calendar.num_days_per_month+1) %}
+                        <option value='{{i}}'>{{i}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="is-select has-bg-muted">
+                    <select name='date.month'>
+                        {% for i in range(1, obj.calendar.num_months_per_year) %}
+                        <option value='{{i}}'>
+                            {{obj.calendar.get_month_str(i)}}
+                        </option>
+                        {% endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-2">
+                <div class="is-select has-bg-muted">
+                    <select name='date.year'>
+                        {% for i in range(obj.calendar.current_date.year | int,
+                        0, -1) %}
+                        <option value='{{i}}'>{{i}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+            </div>
+            {% if obj.possible_events %}
+            <div class="column is-5">
+                <div class="is-select has-bg-muted">
+                    <select name='name'>
+                        {% for event in obj.possible_events%}
+                        <option value='{{event}}'>{{event}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+            <div class="column is-full">
+                <button class="button is-primary is-small is-full"
+                        type="submit">
+                    Add Event
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{%- endmacro %}
+
+{% macro eventlist(user, obj, events=events) -%}
+<hr>
+<div id="timeline-event-list-container">
+    <h3 class='has-text-center'>Events</h3>
+    {% for event in events %}
+    <div class="panel">
+        <div class="row event-tag">
+            <div class="column is-5 is-vertically-centered">
+                <div class="row">
+                    <div class="column is-shrink is-vertically-centered">
+                        <span class="tag is-rounded">
+                            {{obj.calendar.stringify(event.date)}}
+                        </span>
+                        <hr>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered">
+                        <h5>
+                            {{event.obj.name}}:
+                        </h5>
+                    </div>
+                    <div class="column is-vertically-centered">
+                        <h5 class='has-text-muted'>
+                            {{event.name}}
+                            <iconify-icon icon="mdi:map" width="1rem"></iconify-icon>
+                        </h5>
+                    </div>
+                    {% if user.world_user(obj) %}
+                    <div class="column is-full is-vertically-centered">
+                        <form class="has-bg-light"
+                              hx-post="/api/timeline/event/{{event.pk}}/update"
+                              hx-target="#timeline-event-list-container"
+                              hx-select="#timeline-event-list-container"
+                              hx-swap="outerHTML"
+                              hx-trigger='change'
+                              hx-indicator='#request-indicator'>
+                            <div class="row">
+                                <div class="column is-full">
+                                    <select name="campaignpk">
+                                        <option value="">=== Select Campaign ===</option>
+                                        {% for cmp in obj.get_world().campaigns %}
+                                        <option class="has-text-dark" value="{{cmp.pk}}" {% if
+                                                event.episode
+                                                and
+                                                cmp.pk==event.episode.campaign.pk %} selected {%
+                                                endif %}>
+                                            {{cmp.name}}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="column is-full">
+                                    <select name="episodepk">
+                                        <option value="">==Select Session==</option>
+                                        {% if event.episode %}
+                                        {% for ep in event.episode.campaign.sessions %}
+                                        <option class="has-text-dark" value="{{ep.pk}}" {% if
+                                                event.episode
+                                                and
+                                                ep.pk==event.episode.pk %} selected {% endif %}>
+                                            {{ep.name}}
+                                        </option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column is-vertically-centered">
+                {%if event.episode %}
+                <div class="panel">
+                    {{event.episode.summary | safe}}
+                </div>
+                {% endif %}
+            </div>
+            {% if user.world_user(obj) %}
+            <div class="column is-shrink is-end is-vertically-centered">
+                <a hx-post="/api/timeline/event/{{event.pk}}/delete"
+                   hx-target="closest .event-tag" hx-swap="delete"
+                   hx-vals='{"event":"{{event["event"]}}"}'>
+                    <iconify-icon icon="mdi:remove">
+                    </iconify-icon>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro unplaced(user, obj, events) -%}
+<h4 class='has-text-center'>Click Unplaced Events to add to Timeline Map</h4>
+<div class="row has-space-between">
+    {% for event in events %}
+    <div id='{{event.pk}}' class="column is-shrink unplaced-event-icon">
+        <div class="panel has-bg-screen">
+            <div class="row">
+                <div class="column is-shrink">
+                    <div class="image is-tiny is-thumbnail is-margin-center ">
+                        <img src="{{event.obj.image.url(50)}}" loading="lazy">
+                    </div>
+                </div>
+                <div class="column is-shrink">
+                    <h5>{{event.obj.name}}</h5>
+                    <h6>{{event.name}}</h6>
+                    <h6 class='has-text-light-grey has-text-center'>
+                        {{event.datestr()}}
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro noncanon(user, obj, events) -%}
+<div class="row">
+    {% for event in events %}
+    <div id='{{event.pk}}' class="column is-shrink">
+        <a href='/{{event.obj.path}}'>
+            <div class="panel has-bg-screen">
+                <div class="row">
+                    <div class="column is-shrink">
+                        <div class="image is-tiny is-thumbnail is-margin-center ">
+                            <img src="{{event.obj.image.url(50)}}" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="column is-shrink">
+                        <h5>{{event.obj.name}}</h5>
+                        <h6>{{event.name}}</h6>
+                        <h6 class='has-text-light-grey has-text-center'>
+                            {{event.datestr()}}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

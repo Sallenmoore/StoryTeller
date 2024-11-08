@@ -1,0 +1,94 @@
+{% macro texteditor(user, obj, attr, content=None, limit=0) -%}
+<div onmouseout="tinyMCE.triggerSave();" data-max='{{limit}}'>
+    <textarea id="edit-{{obj.pk}}-{{attr}}" name="{{attr}}">
+        {% if content is not none %}
+            {{content | safe}}
+        {% elif obj %}
+            {{obj[attr] | safe}}
+        {% endif %}
+    </textarea>
+    <script>
+        tinyMCE.remove('#edit-{{obj.pk}}-{{attr}}');
+        tinyMCE.init({
+            selector: '#edit-{{obj.pk}}-{{attr}}',
+            toolbar: 'undo redo searchreplace | styles | bold italic blockquote link | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist | removeformat | fullscreen',
+            toolbar_sticky: true,
+            plugins: 'wordcount autoresize fullscreen lists link searchreplace',
+            resize: 'true',
+            min_height: 40,
+            content_style: "body {font-family:Open-Sans,sans-serif;font-size:1.25rem;line-height: 1.5;}",
+            menubar: false,
+            promotion: false,
+            license_key: 'gpl',
+            setup: function (editor) {
+                var max = parseInt(htmx.find("#edit-{{obj.pk}}-{{attr}}").parentElement.dataset.max);
+                editor.on('change', function (e) {
+                    var numChars = editor.plugins.wordcount.body.getCharacterCount();
+                    if (max && numChars > max) {
+                        alert("Maximum " + numChars + "/" + max + " characters allowed.");
+                        return false;
+                    } else {
+                        tinymce.triggerSave();
+                        htmx.trigger("#edit-{{obj.pk}}-{{attr}}", 'input');
+                        htmx.trigger("#edit-{{obj.pk}}-{{attr}}", 'change');
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+{%- endmacro %}
+
+{% macro listeditor(user, obj, attr, limit=0 ) -%}
+<div class="row is-vertical">
+    <div class="column is-shrink">
+        <button type="button" class="button is-small"
+                hx-post='/api/manage/details/add/listitem/{{attr}}' hx-target='#{{attr}}-item-list'
+                hx-select='#{{attr}}-item-list'
+                hx-swap='outerHTML' hx-trigger="click consume">
+            <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+            New {{attr | title}}
+        </button>
+    </div>
+</div>
+<div class="row is-vertical" id='{{attr}}-item-list' data-max='{{limit}}'>
+    {% for item in obj[attr] %}
+    <div class="column">
+        <div onmouseout="tinyMCE.triggerSave();">
+            <textarea id="edit-{{obj.pk}}-{{attr}}-{{loop.index}}"
+                      name="{{attr}}[]">{{item | safe}}</textarea>
+        </div>
+        <script>
+            tinyMCE.remove('#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}');
+            tinyMCE.init({
+                selector: '#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}',
+                toolbar: 'undo redo searchreplace | styles | bold italic blockquote link | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist | removeformat | fullscreen',
+                toolbar_sticky: true,
+                plugins: 'wordcount autoresize fullscreen lists link searchreplace',
+                resize: 'true',
+                min_height: 50,
+                content_style: "body {font - family:Open-Sans,sans-serif;font-size:1.25rem;line-height: 1.5;}",
+                menubar: false,
+                promotion: false,
+                license_key: 'gpl',
+                setup: function (editor) {
+                    var max = parseInt(htmx.find("#{{attr}}-item-list").dataset.max);
+                    editor.on('change', function (e) {
+                        console.log(max);
+                        var numChars = editor.plugins.wordcount.body.getCharacterCount();
+                        if (max && numChars > max) {
+                            alert("Maximum " + numChars + "/" + max + " characters allowed.");
+                            return false;
+                        } else {
+                            tinymce.triggerSave();
+                            htmx.trigger("#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}", 'input');
+                            htmx.trigger("#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}", 'change');
+                        }
+                    });
+                }
+            });
+        </script>
+    </div>
+    {%endfor%}
+</div>
+{%- endmacro %}

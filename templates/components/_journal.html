@@ -1,0 +1,120 @@
+{% macro journal(user, obj) -%}
+<title>{{obj.name or obj.title}} - Journal</title>
+<div class="row">
+    <div class="column is-vertically-centered">
+        <h2 class='has-text-dark'>Journal</h2>
+    </div>
+    <div class="column is-shrink is-end">
+        <div class="column is-mobile-shrink is-shrink is-end is-vertically-centered">
+            <button class="button is-primary is-small" hx-post="/api/manage/journal/entry/edit"
+                    hx-target="#page-content">
+                <iconify-icon icon="game-icons:quill-ink" width="2rem"></iconify-icon>
+                New Entry
+            </button>
+        </div>
+    </div>
+</div>
+<hr>
+
+<div class="accordian">
+    <ul class="accordion__list">
+        {% for entry in obj.journal.entries %}
+        <li class="accordion__item ">
+            <a class="accordion__title" href="#journal-entry-{{obj.pk}}">
+                <div class="row">
+                    <div class="column is-vertically-centered journal-entry-title"
+                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                        <h3 class='has-text-dark'>{{entry.title}}</h3>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered"
+                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                        <small>
+                            Last updated: {{entry.date.strftime("%d/%m/%Y")}}
+                        </small>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered"
+                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                        {%if entry.importance==0 %}
+                        <span class="tag">
+                            No Campaign Effects
+                        </span>
+                        {%elif entry.importance==1 %}
+                        <span class="tag has-bg-muted has-text-secondary">
+                            Possible Campaign Effects
+                        </span>
+                        {%elif entry.importance==2 %}
+                        <span class="tag has-bg-secondary has-text-secondary">
+                            Consequential Campaign Effects
+                        </span>
+                        {%elif entry.importance==3 %}
+                        <span class="tag has-bg-screen has-text-primary">
+                            Critical Campaign Effects
+                        </span>
+                        {%elif entry.importance==4 %}
+                        <span class="tag has-bg-primary has-text-primary">
+                            Main Campaign Event
+                        </span>
+                        {%endif%}
+                    </div>
+                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
+                        <button class="button is-small"
+                                hx-post="/api/manage/journal/entry/edit/{{entry.pk}}"
+                                hx-target="#page-content">
+                            Edit
+                        </button>
+                    </div>
+                    <div
+                         class="column is-shrink is-mobile-shrink is-vertically-centered">
+                        <button class="button is-small"
+                                hx-post="/api/manage/journal/entry/delete/{{entry.pk}}"
+                                hx-target='closest li'
+                                hx-swap="delete"
+                                hx-confirm='Are you sure you want to delete this entry?'>
+                            <iconify-icon icon="mdi:trash" width="1rem"
+                                          height="1rem"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </a>
+            <div class="accordion__content">
+                <hr class='has-bg-primary'>
+                <div class="panel has-bg-light">
+                    {{entry.text | safe}}
+                </div>
+                <hr>
+                <h4 class='has-text-dark has-text-center'>Associations</h4>
+                <div class="panel has-bg-light-grey">
+                    <div class="row has-space-around">
+                        {% if entry.associations %}
+                        {% for ass in entry.associations %}
+                        <div class="column has-text-center is-shrink">
+                            <a hx-get="/api/page/{{ass.path}}"
+                               hx-target="#page" hx-indicator="#request-indicator">
+                                <div
+                                     class="image is-medium is-tile is-margin-center">
+                                    <img src="{{ass.image.url(size='100')}}"
+                                         loading="lazy"
+                                         alt="{{ass.name}}"
+                                         style="width:100%;" />
+                                </div>
+                                <h4 class='has-text-dark'>
+                                    {% if ass.name %}
+                                    {{ass.name}}
+                                    {% else %}
+                                    {{ass.title}}
+                                    {% endif %}
+                                </h4>
+                            </a>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <hr class='has-bg-primary'>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{%- endmacro %}

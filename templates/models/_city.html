@@ -1,0 +1,66 @@
+{% import "components/_form.html" as form_components %}
+
+{% macro info(user, obj) -%}
+<div class="row has-space-around">
+    <div class="column is-4">
+        <div class="card ">
+            <div class="card__header is-vertically-centered has-bg-secondary">
+                <h3 class="has-text-secondary">Population</h3>
+            </div>
+            <div class="card__content is-vertically-centered has-bg-light has-text-center">
+                <h1 class='has-text-dark'>{{obj.population}}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="column is-4">
+        <div class="card has-bg-light">
+            <div class="card__header is-vertically-centered has-bg-secondary">
+                <h3 class="has-text-secondary">Districts</h3>
+            </div>
+            <div class="card__content ">
+                <div class="row is-vertical">
+                    {%for district in obj.districts %}
+                    <div class="column is-full has-text-dark">
+                        {{district | safe}}
+                        {% if 0 < loop.index0 < obj.abilities | length %} <hr>
+                            {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row has-space-around">
+        <div class="column is-4">
+            <div class="card has-bg-light">
+                <div class="card__header is-vertically-centered">
+                    <h3 class="has-text-dark">Population</h3>
+                </div>
+                <div class="card__content has-bg-secondary">
+                    <input class="has-text-center has-bg-light" type="number"
+                           value="{{obj.population}}"
+                           name="population" style='font-size: 3rem;'>
+                </div>
+            </div>
+        </div>
+        <div class="column is-4">
+            <div class="card has-bg-light">
+                <div class="card__header is-vertically-centered">
+                    <h3 class="has-text-dark">Districts</h3>
+                </div>
+                <div class="card__content has-bg-secondary">
+                    <div class="row is-vertical">
+                        {{form_components.listeditor(user, obj, "districts")}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{%- endmacro %}

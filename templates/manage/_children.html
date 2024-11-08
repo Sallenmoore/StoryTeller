@@ -1,0 +1,135 @@
+{% import "components/_elements.html" as element %}
+
+{% macro manage(user, obj, model=None, title=None, associations=[]) -%}
+<h2 class='has-text-dark'>Manage World Elements</h2>
+<div class="row has-space-between">
+    <div class="column is-vertically-centered">
+        <div class="select">
+            <select class='has-bg-muted' name="childmodel" hx-post="/api/manage/childmanage"
+                    hx-trigger="change"
+                    hx-target="#page-content" hx-indicator='#request-indicator'>
+                <option value="">--- Select Category ---</option>
+                {% for model in obj._models %}
+                <option value="{{model}}">{{obj.get_title(model)}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    {% if associations %}
+    <div class="column is-vertically-centered">
+        <input type="search" name="filter" placeholder="Begin typing to filter..."
+               style="border-bottom: solid #000;"
+               hx-post="/api/manage/childmanage"
+               hx-trigger="input changed delay:250ms, search"
+               hx-target='#associated-objects'
+               hx-select='#associated-objects'
+               hx-swap='outerHTML'>
+    </div>
+    {% endif %}
+</div>
+<hr>
+<div class="panel">
+    {% if model and title and associations %}
+    {{gallery(user, obj, model, title, associations )}}
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro gallery(user, obj, model, title, associations) -%}
+<div class="row has-space-between">
+    <div class="column is-shrink">
+        <button class="button is-primary" hx-post="/api/manage/add/{{model}}"
+                hx-target="#page-content"
+                hx-indicator="#request-indicator"
+                hx-vals='{"module":"manage/_children.html", "macro":"childmanage"}'>
+            Create {{title}}
+        </button>
+    </div>
+    <div class="column is-shrink">
+        <div class="row">
+            <div class="column is-shrink">
+                <h3>...or manage an existing {{title}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="column is-shrink">
+        <div hx-post="/api/{{obj.path}}/associations" hx-trigger="click"
+             hx-target="#page-content"
+             hx-push-url='/{{obj.path}}/associations'
+             hx-indicator='#request-indicator'>
+            <iconify-icon icon='material-symbols:close' width="3rem"
+                          style="color: white;"></iconify-icon>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="column is-full">
+        <hr>
+        <div class="row has-space-between has-bottom" style='align-items: stretch;'>
+            {% for a in associations %}
+            <div class="column is-3 is-mobile-6 card-container">
+                <div class="panel has-bg-muted is-small" style='height: 100%;'>
+                    <div class="row has-centered">
+                        <div class="column is-7">
+                            <a href="/{{a.path}}">
+                                <div class="image is-medium is-thumbnail is-margin-center">
+                                    {% if a.image %}
+                                    <img src="{{a.image.url(size='100')}}" loading="lazy"
+                                         alt="{{a.name}}"
+                                         style="width:100%; height:100%;" />
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </div>
+                        <div
+                             class="column is-5 is-mobile-shrink manage-card-container ">
+                            <button class="button is-small is-primary"
+                                    hx-post="/api/manage/copy/{{a.path}}"
+                                    hx-target="#page-content"
+                                    hx-swap='innerHTML show:top'
+                                    hx-vals='{"macro":"childmanage", "module":"manage/_children.html"}'>
+                                <iconify-icon
+                                              icon="game-icons:double-dragon"></iconify-icon>
+                                Copy
+                            </button>
+                            <br>
+                            <button class="button is-small is-primary"
+                                    hx-post="/api/manage/delete/{{a.path}}"
+                                    hx-target="closest .card-container"
+                                    hx-swap="delete">
+                                <iconify-icon
+                                              icon="material-symbols-light:delete-outline"></iconify-icon>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    <h6 class='is-subtitle has-text-light-grey has-text-center'>
+                        {% if a.start_date %}
+                        {{a.start_date.datestr()}}
+                        {% endif %}
+                        -
+                        {% if a.end_date %}
+                        {{a.end_date.datestr()}}
+                        {% endif %}
+                    </h6>
+                    <h4 class='has-text-center'>
+                        {% if a.name %}
+                        {{a.name}}
+                        {% else %}
+                        New {{a.title}}
+                        {% endif %}
+                    </h4>
+                    <h6 class='has-text-center has-text-dark-grey'>
+                        {% if a.parent %}
+                        {{a.parent.name}} ({{a.parent.title}})
+                        {% else %}
+                        No Parent
+                        {% endif %}
+                    </h6>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}

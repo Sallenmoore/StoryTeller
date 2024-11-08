@@ -1,0 +1,541 @@
+r"""
+# Management API Documentation
+"""
+
+import random
+
+from bs4 import BeautifulSoup
+from dmtoolkit import dmtools
+from flask import Blueprint, get_template_attribute, request
+from slugify import slugify
+
+from autonomous import log
+from models.character import Character
+from models.creature import Creature
+from models.item import Item
+from models.journal import JournalEntry
+from models.user import User
+from models.world import World
+
+from ._utilities import loader as _loader
+
+manage_endpoint = Blueprint("manage", __name__)
+
+
+# MARK: update route
+###########################################################
+##                    Update Routes                      ##
+###########################################################
+@manage_endpoint.route("/update", methods=("POST",))
+def update():
+    user, obj, world, macro, module = _loader()
+    macro = macro or "details"
+    module = module or "manage/_details.html"
+    for attr, value in request.json.items():
+        ########## SECURITY: remove any javascript tags for security reasons ############
+        if isinstance(value, str) and "<" in value:
+            parser = BeautifulSoup(value, "html.parser")
+            for script in parser.find_all("script"):
+                script.decompose()
+            value = parser.prettify()
+        if hasattr(obj, attr):
+            # log(f"setting {attr} to {value}")
+            setattr(obj, attr, value)
+        else:
+            log(f"Attribute or property for {obj.model_name()} not found: {attr}")
+    obj.save()
+    return get_template_attribute(module, macro)(user, obj)
+
+
+# MARK: title route
+###########################################################
+##                    Title Routes                      ##
+###########################################################
+@manage_endpoint.route("/title", methods=("POST",))
+def title():
+    user, obj, world, macro, module = _loader(
+        module="manage/_title.html", macro="title"
+    )
+    return get_template_attribute(module, macro)(user, obj)
+
+
+# MARK: image route
+###########################################################
+##                    Image Routes                      ##
+###########################################################
+@manage_endpoint.route("/image", methods=("POST",))
+def image():
+    user, obj, *_ = _loader()
+    return get_template_attribute("manage/_image.html", "image")(user, obj)
+
+
+# MARK: History route
+###########################################################
+##                    History Routes                      ##
+###########################################################
+@manage_endpoint.route("/history", methods=("POST",))
+def history():
+    user, obj, world, macro, module = _loader(module="_manage.html", macro="history")
+    return get_template_attribute("manage/_history.html", "history")(user, obj)
+
+
+# MARK: journal route
+###########################################################
+##                    Journal Routes                     ##
+###########################################################
+@manage_endpoint.route("/journal/entry/edit", methods=("POST",))
+@manage_endpoint.route("/journal/entry/edit/<string:entrypk>", methods=("POST",))
+def edit_journal_entry(entrypk=None):
+    user, obj, world, macro, module = _loader()
+    entry = obj.journal.get_entry(entrypk)
+    if not entry:
+        entry = JournalEntry(title=f"Entry #{len(obj.journal.entries)+1}")
+        entry.save()
+        obj.journal.entries.append(entry)
+        obj.journal.save()
+    return get_template_attribute("manage/_journal.html", "journal_entry")(
+        user, obj, entry
+    )
+
+
+@manage_endpoint.route("/journal/entry/update", methods=("POST",))
+@manage_endpoint.route("/journal/entry/update/<string:entrypk>", methods=("POST",))
+def update_journal_entry(entrypk=None):
+    user, obj, world, macro, module = _loader()
+    associations = []
+    for association in request.json.get("associations", []):
+        if obj := World.get_model(association.get("model"), association.get("pk")):
+            associations.append(obj)
+    kwargs = {
+        "title": request.json.get("name"),
+        "text": request.json.get("text"),
+        "importance": int(request.json.get("importance")),
+        "associations": associations,
+    }
+    entrypk = entrypk or request.json.get("entrypk")
+    # log(kwargs)
+    entry = obj.journal.update_entry(pk=entrypk, **kwargs)
+    return get_template_attribute("manage/_journal.html", "journal_entry")(
+        user, obj, entry
+    )
+
+
+@manage_endpoint.route("/journal/entry/delete/<string:entrypk>", methods=("POST",))
+def delete_journal_entry(entrypk):
+    """
+    ## Description
+    Deletes the world object's journal entry based on the provided primary keys.
+    """
+    user, obj, world, macro, module = _loader()
+    if entry := obj.journal.get_entry(entrypk):
+        obj.journal.entries.remove(entry)
+        obj.journal.save()
+        entry.delete()
+        return "<p>success</p>"
+    return "Not found"
+
+
+# MARK: Association route
+###########################################################
+##                 Associations Routes                   ##
+###########################################################
+@manage_endpoint.route("/associations", methods=("POST",))
+def associations():
+    user, obj, *_ = _loader()
+    log(request.json)
+    if filter_str := request.json.get("filter"):
+        associations = [
+            o for o in obj.associations if filter_str.lower() in o.name.lower()
+        ]
+    else:
+        associations = obj.associations
+    if sorter := request.json.get("sorter"):
+        reverse = True if request.json.get("order") == "desc" else False
+        if sorter == "date_ended":
+            associations = [a for a in associations if a.end_date]
+            associations.sort(key=lambda x: x.end_date, reverse=reverse)
+        if sorter == "date_started":
+            associations = [a for a in associations if a.start_date]
+            associations.sort(key=lambda x: x.start_date, reverse=reverse)
+        if sorter == "name":
+            associations.sort(key=lambda x: x.name.lower(), reverse=reverse)
+    else:
+        associations.sort(key=lambda x: x.name)
+    return get_template_attribute("components/_associations.html", "associations")(
+        user, obj, associations
+    )
+
+
+# MARK: details route
+###########################################################
+##                    Details Routes                     ##
+###########################################################
+@manage_endpoint.route("/details", methods=("POST",))
+def details():
+    user, obj, *_ = _loader()
+    info = get_template_attribute(
+        f"models/_{obj.model_name().lower()}.html", "manage_details"
+    )
+    response = get_template_attribute("manage/_details.html", "details")(
+        user, obj, info
+    )
+    return response
+
+
+@manage_endpoint.route("/details/add/listitem/<string:attr>", methods=("POST",))
+def addlistitem(attr):
+    user, obj, *_ = _loader()
+    if isinstance(getattr(obj, attr, None), list):
+        getattr(obj, attr).append("New Entry")
+        obj.save()
+    result = get_template_attribute("components/_form.html", "listeditor")(
+        user, obj, attr
+    )
+    # log(attr, elemid, result)
+    return result
+
+
+# MARK: childmanage routes
+###########################################################
+##                Child Manage Routes                    ##
+###########################################################
+@manage_endpoint.route("/childmanage", methods=("POST",))
+def childmanage():
+    user, obj, world, *_ = _loader()
+    kwargs = {}
+    if childmodel := request.json.get("childmodel"):
+        kwargs["model"] = childmodel
+        kwargs["title"] = obj.get_title(childmodel)
+        kwargs["associations"] = world.get_associations(childmodel)
+
+    # log(childmodel, title, list(a.pk for a in associations))
+    return get_template_attribute("manage/_children.html", "manage")(
+        user, obj, **kwargs
+    )
+
+
+@manage_endpoint.route("/add/<string:childmodel>", methods=("POST",))
+@manage_endpoint.route("/add/<string:childmodel>/<string:childpk>", methods=("POST",))
+def add(childmodel, childpk=None):
+    user, parent, world, *_ = _loader()
+
+    if childpk:
+        child = World.get_model(childmodel, childpk)
+    else:
+        child = World.get_model(childmodel)(world=world)
+        child.save()
+    parent.add_association(child)
+    return get_template_attribute("components/_associations.html", "associations")(
+        user=user, obj=parent, associations=parent.get_associations()
+    )
+
+
+@manage_endpoint.route("/associate/players", methods=("POST",))
+def addplayers():
+    user, obj, world, *_ = _loader()
+    for child in world.current_campaign.players:
+        obj.add_association(child)
+    return get_template_attribute("components/_associations.html", "associations")(
+        user=user,
+        obj=obj,
+        associations=obj.get_associations(),
+    )
+
+
+@manage_endpoint.route(
+    "/parent/<string:parentmodel>/<string:parentpk>", methods=("POST",)
+)
+def parent(parentmodel, parentpk):
+    user, child, *_ = _loader()
+    parent = World.get_model(parentmodel).get(parentpk)
+    child.add_association(parent)
+    parent.add_association(child)
+    child.parent = parent
+    child.save()
+    params = {
+        "user": user,
+        "obj": child,
+        "associations": child.get_associations(parentmodel),
+    }
+    return get_template_attribute("components/_associations.html", "associations")(
+        **params
+    )
+
+
+@manage_endpoint.route("/child/<string:childmodel>/<string:childpk>", methods=("POST",))
+def child(childmodel, childpk):
+    user, parent, *_ = _loader()
+    child = World.get_model(childmodel).get(childpk)
+    child.add_association(parent)
+    child.parent = parent
+    child.save()
+    params = {
+        "user": user,
+        "obj": parent,
+        "associations": parent.get_associations(childmodel),
+    }
+    return get_template_attribute("components/_associations.html", "associations")(
+        **params
+    )
+
+
+@manage_endpoint.route("/copy/<string:childmodel>/<string:childpk>", methods=("POST",))
+def copy(childmodel, childpk):
+    user, obj, *_ = _loader()
+    child = World.get_model(childmodel).get(childpk)
+    new_child = child.copy()
+    new_child.save()
+    associations = obj.add_association(new_child)
+    associations.sort(
+        key=lambda item: (item.name.startswith("_"), item.name == "", item.name)
+    )
+    params = {"user": user, "obj": obj, "associations": associations}
+    return get_template_attribute("components/_associations.html", "associations")(
+        **params
+    )
+
+
+@manage_endpoint.route(
+    "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
+)
+def unassociate(childmodel, childpk):
+    user, obj, *_ = _loader()
+    child = World.get_model(childmodel).get(childpk)
+    associations = obj.remove_association(child)
+    return get_template_attribute("components/_associations.html", "associations")(
+        user, obj, associations=associations
+    )
+
+
+@manage_endpoint.route("/delete/<string:model>/<string:pk>", methods=("POST",))
+def delete(model, pk):
+    user, _, world, *_ = _loader(model=model, pk=pk)
+    obj = world.get_model(model, pk)
+    obj.delete()
+    return "<p>Success</p>"
+
+
+# MARK: scene routes
+###########################################################
+##                    Scene Routes                       ##
+###########################################################
+@manage_endpoint.route(
+    "/scenes/<string:connectedmodel>/<string:connectedpk>", methods=("POST",)
+)
+def scenes(connectedmodel, connectedpk):
+    user, obj, *_ = _loader()
+    connect_obj = World.get_model(connectedmodel, connectedpk)
+    obj.add_scene(connect_obj)
+    # log([d.obj.name for d in obj.scenes if d])
+    params = {
+        "user": user,
+        "obj": obj,
+        "associations": obj.get_associations(),
+    }
+    return get_template_attribute("components/_associations.html", "associations")(
+        **params
+    )
+
+
+# MARK: Character routes
+###########################################################
+##                Character Routes                    ##
+###########################################################
+@manage_endpoint.route("/character/lineage/<string:pk>", methods=("POST",))
+def characterlineage(pk):
+    user, obj, world, macro, module = _loader()
+    character = Character.get(pk)
+    if macro == "lineage_form":
+        obj = character
+    elif request.json.get("relationship"):
+        obj.add_lineage(character, request.json.get("relationship"))
+    return get_template_attribute("models/_character.html", macro)(user, obj)
+
+
+@manage_endpoint.route("/character/lineage/remove/<string:pk>", methods=("POST",))
+def removecharacterlineage(pk):
+    user, obj, world, macro, module = _loader()
+    character = Character.get(pk)
+    obj.remove_lineage(character)
+    return "<p>Success</p>"
+
+
+@manage_endpoint.route("/character/hitpoints", methods=("POST",))
+def characterhitpoints():
+    user, obj, world, macro, module = _loader()
+    obj.current_hitpoints = int(request.json.get("current_hitpoints", obj.hitpoints))
+    obj.save()
+    return get_template_attribute("models/_character.html", "info")(user, obj)
+
+
+@manage_endpoint.route("/character/dndbeyond", methods=("POST",))
+def dndbeyondapi():
+    log(request.json)
+    user = User.get(request.json.pop("user"))
+    obj = Character.get(request.json.pop("pk"))
+    results = dmtools.get_dndbeyond_character(obj.dnd_beyond_id)
+    if results:
+        obj.name = results.get("name") or obj.name
+        obj.age = results.get("age") or obj.age
+        obj.gender = results.get("gender") or obj.gender
+        if results.get("desc") not in obj.desc:
+            obj.desc += (
+                f"\n\n***From DndBeyond Description: \n{results.get('desc', obj.desc)}"
+            )
+        if results.get("backstory"):
+            overwritten = False
+            for entry in obj.journal.entries:
+                if "DnD Beyond Backstory Import" in entry.title:
+                    entry.text = results.get("backstory")
+                    overwritten = True
+                    break
+            if not overwritten:
+                obj.journal.add_entry(
+                    title="DnD Beyond Backstory Import", text=results.get("backstory")
+                )
+        if results.get("inventory"):
+            inventory_list = "\n- ".join([i["name"] for i in results.get("inventory")])
+            overwritten = False
+            for entry in obj.journal.entries:
+                if "DnD Beyond Inventory Import" in entry.title:
+                    entry.text = inventory_list
+                    overwritten = True
+                    break
+            if not overwritten:
+                obj.journal.add_entry(
+                    title="DnD Beyond Inventory Import", text=inventory_list
+                )
+            for item in results.get("inventory"):
+                if item := Item.find(name=item["name"]):
+                    if not any(i for i in obj.items if i.name == item.name):
+                        copy_item = item.copy()
+                        obj.items.append(copy_item)
+        obj.race = results.get("race") or obj.race
+        obj.occupation = results.get("class_name") or obj.occupation
+        obj.hitpoints = results.get("hp") or obj.hitpoints
+        obj.strength = results.get("str") or obj.strength
+        obj.dexterity = results.get("dex") or obj.dexterity
+        obj.constitution = results.get("con") or obj.constitution
+        obj.intelligence = results.get("int") or obj.intelligence
+        obj.wisdom = results.get("wis") or obj.wisdom
+        obj.charisma = results.get("cha") or obj.charisma
+        obj.ac = max(int(results.get("ac", 0)), int(obj.ac))
+
+        if results.get("wealth"):
+            for currency, amount in results.get("wealth").items():
+                currency = f"<h4>{currency.upper()}</h4>"
+                text = f"{currency}<p>{amount}</p>"
+                found = False
+                for idx, w in enumerate(obj.wealth):
+                    if w.strip().startswith(currency):
+                        found = True
+                        obj.wealth[idx] = text
+                        break
+                if not found:
+                    obj.wealth.append(text)
+        obj.abilities = []
+        features_list = [i for i in results.get("features", [])]
+        for idx, feature in enumerate(features_list):
+            feature_entry = f"<h5>Feature: {feature.upper()}</h5>"
+            if feature_desc := dmtools.search_feature(slugify(feature)):
+                feature_entry += "</p><p>".join(
+                    random.choice(feature_desc).get("desc", "")
+                )
+            if feature_entry not in obj.abilities:
+                obj.abilities.append(feature_entry)
+        spells_list = [i for i in results.get("spells", [])]
+        for idx, spell in enumerate(spells_list):
+            spell_entry = f"<h5>Feature: {spell.upper()}</h5>"
+            if spell_desc := dmtools.search_spell(slugify(spell)):
+                spell_entry += "</p><p>".join(random.choice(spell_desc).get("desc", ""))
+            if spell_entry not in obj.abilities:
+                obj.abilities.append(spell_entry)
+        obj.save()
+    return get_template_attribute("models/_character.html", "manage_details")(user, obj)
+
+
+# MARK: Faction routes
+###########################################################
+##                Faction Routes                    ##
+###########################################################
+@manage_endpoint.route("/faction/leader/<string:leader_pk>", methods=("POST",))
+def factionleader(leader_pk):
+    user, obj, world, macro, module = _loader()
+    if character := Character.get(leader_pk):
+        obj.leader = character
+        obj.save()
+    return get_template_attribute("models/_faction.html", "info")(user, obj)
+
+
+# MARK: Monster routes
+###########################################################
+##                    Monster Routes                     ##
+###########################################################
+# MARK: Item routes
+###########################################################
+##                    Item Routes                        ##
+###########################################################
+
+
+@manage_endpoint.route("/creature/dnd5eapi_update", methods=("POST",))
+def dnd5eapi_creature_update():
+    log(request.json)
+    user = User.get(request.json.pop("user"))
+    obj = Creature.get(request.json.pop("pk"))
+    results = dmtools.get_monster(request.json.pop("url"))
+    obj.name = f"{obj.name} - {results.get('name')}"
+    obj.size = results.get("size") or obj.size
+    obj.type = f"{results.get('type', '')} {results.get('subtype', '')}"
+    obj.traits = results.get("alignment", "") or obj.trait
+    obj.hitpoints = results.get("hit_points", "") or obj.hitpoints
+    obj.strength = results.get("strength") or obj.strength
+    obj.dexterity = results.get("dexerity") or obj.dexterity
+    obj.constitution = results.get("constitution") or obj.constitution
+    obj.intelligence = results.get("intelligence") or obj.intelligence
+    obj.wisdom = results.get("wisdom") or obj.wisdom
+    obj.charisma = results.get("charisma") or obj.charisma
+    obj.abilities = []
+    features_list = [i for i in results.get("special_abilities", [])]
+    for idx, feature in enumerate(features_list):
+        feature_entry = f"""<h5>Special Ability: {feature['name'].upper()}</h5>
+        </p>{feature.get("desc", "")}<p>
+        """
+        if feature_entry not in obj.abilities:
+            obj.abilities.append(feature_entry)
+
+    features_list = [i for i in results.get("actions", [])]
+    for idx, feature in enumerate(features_list):
+        feature_entry = f"""<h5>Actions: {feature['name'].upper()}</h5>
+        </p>{feature.get("desc", "")}<p>
+        """
+        if feature_entry not in obj.abilities:
+            obj.abilities.append(feature_entry)
+    features_list = [i for i in results.get("legendary_actions", [])]
+    for idx, feature in enumerate(features_list):
+        feature_entry = f"""<h5>Legendary Actions: {feature['name'].upper()}</h5>
+        </p>{feature.get("desc", "")}<p>
+        """
+        if feature_entry not in obj.abilities:
+            obj.abilities.append(feature_entry)
+    obj.save()
+    return get_template_attribute("components/_details.html", "details")(user, obj)
+
+
+@manage_endpoint.route("/item/dnd5eapi_update", methods=("POST",))
+def dnd5eapi_item_update():
+    user = User.get(request.json.pop("user"))
+    obj = Item.get(request.json.pop("pk"))
+    results = dmtools.get_item(request.json.pop("url"))
+    log(results)
+    obj.name = results.get("name") or obj.name
+    obj.weight = results.get("weight") or obj.weight
+    if cost := results.get("cost"):
+        obj.cost = f"{cost.get('quantity')} {cost.get('unit')}"
+    if rarity := results.get("rarity"):
+        obj.rarity = rarity.get("name")
+    if desc := results.get("desc"):
+        features = f"<p>{'</p><br><p>'.join(desc)}</p>"
+        if features not in obj.features:
+            obj.features.append(features)
+    obj.save()
+    return get_template_attribute("components/_details.html", "details")(user, obj)

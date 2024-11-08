@@ -1,0 +1,558 @@
+{% import "manage/_gmscreen.html" as gmscreen_macros %}
+{% import "manage/_children.html" as children_macros %}
+{% import "manage/_campaign.html" as campaign_macros %}
+{% import "manage/_tabletop.html" as tabletop_macros %}
+{% import "manage/_details.html" as details_macros %}
+{% import "components/_elements.html" as element %}
+{% import "components/_form.html" as form_components %}
+
+{% macro worldbuild (user) -%}
+<div class="container">
+    <div class="row fade-it-in" id="create-world">
+        <div class="column is-center is-8 is-vertically-centered has-bg-primary"
+             style='position:relative;'>
+            <h2 class="has-text-center">Give your world some details</h2>
+            <div class="has-text-primary" style="position:absolute; top:10px; right:10px;"
+                 hx-get="/api/world/" hx-target="#content"
+                 hx-select='#content'>
+                <iconify-icon icon='material-symbols:close' width="3rem"></iconify-icon>
+            </div>
+            <hr class='has-bg-secondary'>
+            <form id="world-build-form" hx-get="/api/world/build" hx-target="#content"
+                  hx-indicator="#request-indicator" hx-select='#content'>
+                <input type="hidden" name="user" value="{{user.pk}}">
+                <div class="row">
+                    <div class="column is-half">
+                        <select class="has-bg-light has-text-dark" name="system">
+                            <option value="fantasy">Fantasy</option>
+                            <option value="sci-fi">Sci-Fi</option>
+                            <option value="horror">Horror</option>
+                            <option value="mystery">Mystery</option>
+                            <option value="historical">Historical</option>
+                            <option value="western">Western</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column is-full">
+                        <input class="has-bg-light has-text-dark" type="text" name="name"
+                               placeholder="World Name">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column is-full">
+                        <input class="has-bg-light has-text-dark" type="text" name="desc"
+                               placeholder="Brief World Description...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column is-full">
+                        <input class="has-bg-light has-text-dark" type="text" name="backstory"
+                               placeholder="Brief World History...">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column is-full">
+                        <input class="button rounded is-full" type="submit" value="Build"
+                               id="create-world-submit">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/players" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url=" /{{obj.path}}/players">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="game-icons:tabletop-players" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Players</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{% if user.world_user(obj) %}
+<div class="menu__divider"></div>
+<p class="menu__title is-mobile-only menu-anchor-text">GM Tools and Management</p>
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor" hx-post="/api/manage/childmanage" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url="/{{obj.path}}/childmanage">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="healthicons:world-care" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>World Manager</span>
+                </div>
+            </div>
+
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor" hx-post="/api/campaign/manager" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url="/{{obj.path}}/manage_campaigns">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="raphael:roadmap" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Campaign Manager</span>
+                </div>
+            </div>
+
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/gmscreen/" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url="/{{obj.path}}/manage_screens">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="carbon:gui-management" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>GM Screen Manager</span>
+                </div>
+            </div>
+
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/visualizations"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url="/{{obj.path}}/visualizations">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="oui:app-visualize" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Visualizations</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{% endif %}
+{%- endmacro %}
+
+{% macro info(user, obj) -%}
+{% if obj.calendar.current_date %}
+<div class="row">
+    <div class="column is-full">
+        <h3 class="has-text-dark-grey has-text-center">
+            Present Date:
+            {{obj.calendar.stringify(obj.calendar.current_date)}}
+        </h3>
+    </div>
+</div>
+{% endif %}
+<hr>
+<h3 class='has-text-center'>Statistics</h3>
+<div class="row">
+    {% for m in obj._models%}
+    <div class="column is-3">
+        <div class="card has-bg-muted">
+            <div class="card__header has-bg-screen">
+                <h4 class='has-text-light'>{{obj.get_title(m)}}</h4>
+            </div>
+            <div class="card__content">
+                <h5 class='has-text-dark'>Total: {{obj.get_associations(m) | length}}</h5>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro players(user, obj) -%}
+<title>{{obj.name}} - Players Panel</title>
+
+<h2 class="has-text-dark">Players</h2>
+{% for player in obj.players %}
+<a href="/character/{{player.pk}}">
+    <div class="panel has-bg-muted">
+        <div class="row cards-container has-center">
+            <div class="column  is-vertically-centered is-shrink">
+
+                <div class="image is-medium is-thumbnail is-margin-center">
+                    <img src="{{player.image.url(size='100')}}" loading="lazy" alt="{{player.name}}"
+                         style="width:100%; height:100%;" />
+                </div>
+            </div>
+            <div class="column">
+                <h4 class="has-text-dark" style='text-decoration:underline;'>
+                    {% if player.name %}
+                    {{player.name}}
+                    {% else %}
+                    {{player.title}}
+                    {% endif %}
+                </h4>
+                <div class="has-text-dark">
+                    {{player.backstory_summary | safe}}
+                </div>
+            </div>
+        </div>
+    </div>
+</a>
+<hr>
+{% endfor %}
+{%- endmacro %}
+
+{% macro associations(user, obj, filter=None) -%}
+<title>{{obj.name}} - Associations</title>
+<h2 class='has-text-dark'>Manage Associations</h2>
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <h4 class='has-text-secondary'>Filter by</h4>
+    </div>
+    <div class="column is-half">
+        <div class="select">
+            <select class='has-bg-secondary' name="filter" hx-get="/api/manage/associations"
+                    hx-trigger="change"
+                    hx-target="#associated-objects" hx-select="#associated-objects">
+                <option value="">All</option>
+                {% for model in obj._models %}
+                <option value="{{model}}" {% if filter==model %} selected {% endif %}>
+                    {{obj.get_title(model)}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+<hr>
+<div class="panel is-small has-bg-light">
+    <div id="associated-objects">
+        <div class="row has-space-around">
+            {% for a in obj.get_associations(filter) %}
+            <div class="column is-3 is-mobile-4 card-container">
+                <div class="row">
+                    <div class="column is-half">
+                        <a href="/{{a.model_name()|lower}}/{{a.pk}}">
+                            <div class="image is-medium is-thumbnail">
+                                <img src="{{a.image.url(size='100')}}" loading="lazy"
+                                     alt="{{a.name}}"
+                                     style="width:100%; height:100%;" />
+                            </div>
+                        </a>
+                    </div>
+                    <div class="column is-half">
+                        <div class="row is-vertical">
+                            <div class="column">
+                                <button class="button is-small"
+                                        hx-post="/api/manage/copy/{{a.model_name() | lower}}/{{a.pk}}"
+                                        hx-target="#page-content"
+                                        hx-vals='{"module":"_manage.html", "macro":"childmanage"}'
+                                        hx-indicator='#request-indicator'>
+                                    <iconify-icon
+                                                  icon="game-icons:double-dragon"></iconify-icon>
+                                    <span style="font-size:0.5rem">Copy</span>
+                                </button>
+                            </div>
+                            <div
+                                 class="column manage-card-container">
+                                <button class="button is-small"
+                                        hx-post="/api/manage/delete/{{a.model_name() | lower}}/{{a.pk}}"
+                                        hx-target="closest .card-container"
+                                        hx-swap="delete">
+                                    <iconify-icon
+                                                  icon="material-symbols-light:delete-outline"></iconify-icon>
+                                    <span style="font-size:0.5rem">Delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-full">
+                        <a href="/{{a.path}}">
+                            <h6 class='is-subtitle has-text-light-grey has-no-padding'>
+                                {% if a.start_date %}
+                                {{a.start_date.datestr()}}
+                                {% endif %}
+                                -
+                                {% if a.end_date %}
+                                {{a.end_date.datestr()}}
+                                {% endif %}
+                            </h6>
+                            <h5 class='has-text-secondary'>
+                                {{a.name}}
+                            </h5>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+<div class="row has-space-around">
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-small is-primary" href="#manage-image">
+            <iconify-icon icon="material-symbols:image" width="1rem" height="1rem"></iconify-icon>
+            Manage Image
+        </button>
+    </div>
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-small is-primary" href="#manage-calendar">
+            <iconify-icon icon="mdi:calendar" width="1rem" height="1rem"></iconify-icon>
+            Manage Calendar
+        </button>
+    </div>
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-small is-primary" href="#manage-users">
+            <iconify-icon icon="mdi:users" width="1rem" height="1rem"></iconify-icon>
+            Manage Users
+        </button>
+    </div>
+</div>
+<h2 class='has-text-center' id='manage-calendar'>
+    Manage Calendar
+</h2>
+<form hx-post="/api/world/calendar/update"
+      hx-target="#calendar-label-lists-container"
+      hx-select="#calendar-label-lists-container"
+      hx-swap="outerHTML"
+      hx-trigger="input delay:1s, change, submit"
+      hx-indicator='#request-indicator'>
+    <div class="row">
+        <div class="column is-4">
+            <div class="panel has-bg-primary is-small">
+                <label>Epoch Name</label>
+                <input class="has-bg-muted" type="text" name="year_string"
+                       value="{{obj.calendar.year_string}}">
+                <label>Number of Days / Year</label>
+                <input class="has-bg-muted has-text-dark" type="number"
+                       name="num_days_per_year"
+                       value="{{obj.calendar.num_days_per_year}}">
+                <hr>
+
+                <h4>Current Date</h4>
+                <p>{{obj.current_date.datestr()}}</p>
+                <button type="submit" class='button is-small'>
+                    Update Current Date
+                </button>
+            </div>
+        </div>
+        <div class="column">
+            <div id="calendar-label-lists-container" class="row">
+                <div class="column" id="month-names">
+                    <label>Number of Months / Year</label>
+                    <input class="has-bg-muted" type="number"
+                           name="num_months_per_year"
+                           id="num_months_per_year" value="{{obj.calendar.months | length}}">
+                    <h4>Month Names</h4>
+                    <div id="month-names-container">
+                        {% for month in obj.calendar.months %}
+                        <input class="has-bg-muted month-name-entry" type="text" name="months[]"
+                               value="{{month}}">
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="column" id="day-names">
+                    <label>Number of Days / Week</label>
+                    <input class="has-bg-muted has-text-dark" type="number"
+                           id="num_days_per_week"
+                           name="num_days_per_week" value="{{obj.calendar.days | length}}">
+                    <h4>Day Names</h4>
+                    <div id="day-names-container">
+                        {% for day in obj.calendar.days %}
+                        <input class="has-bg-muted day-name-entry" type="text" name="days[]"
+                               value="{{day}}">
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<hr>
+<h2 class='has-text-dark' id='manage-users'>Manage Users</h2>
+<div class="row">
+    <div class="column is-4">
+        <h4>Add Users</h4>
+        <form id="add_user_form" hx-post="/api/world/user/add" hx-target="closest .row"
+              hx-swap="outerHTML"
+              hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
+            <div class="row is-vertical">
+                <div class="column">
+                    <input class="has-bg-light" type="email" name="new_user" id="new_user"
+                           placeholder="enter user email">
+                </div>
+                <div class="column">
+                    <input class="button is-primary" type="submit" value="add">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="column">
+        <div class="panel has-bg-primary is-small">
+            <div class="row">
+                <div class="column">
+                    <h4>Primary User</h4>
+                    {{obj.user.name}}
+                </div>
+                <div class="column">
+                    <h4>Additional Users</h4>
+                    <ul class="has-no-list-style" id="userlist">
+                        {% for u in obj.subusers %}
+                        <li>{{u.name}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_world(user, obj) -%}
+{{children_macros.manage(user, obj)}}
+{%- endmacro %}
+
+{% macro manage_campaigns(user, obj, campaign=None) -%}
+{{campaign_macros.campaigns(user, obj, campaign_list=obj.campaigns, campaign=campaign or obj.current_campaign)}}
+{%- endmacro %}
+
+{% macro manage_tabletop(user, obj, campaign=None, episode=None) -%}
+{{tabletop_macros.tabletop(user, obj, campaign=campaign or obj.current_campaign)}}
+{%- endmacro %}
+
+{% macro manage_screens(user, obj, screen=None) -%}
+
+{{gmscreen_macros.manage_gmscreens(user, obj, screen)}}
+{%- endmacro %}
+
+{% macro visualizations(user, obj) -%}
+<title>{{obj.name | title}} - Visualize Your World</title>
+<h2 class='has-text-dark'>Visualizations</h2>
+<div class="row">
+    <div class="column">
+        <div class="tabs">
+            <ul class="tabs__list has-centered">
+                <li>
+                    <a hx-post='/api/world/webcomic'
+                       hx-target='#visualizations'>
+                        Webcomic Generator
+                    </a>
+                </li>
+                <li>
+                    <a hx-post='/api/world/characterrelations'
+                       hx-target='#visualizations'>
+                        Character Relationships
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="panel has-bg-muted">
+    <div class="row">
+        <div id="visualizations" class="column">
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro webcomic_generator(user, obj, episode=None) -%}
+<h3 class="has-text-center">GN Generator</h3>
+<h4 class='has-text-center'>Select Episode</h4>
+<div class="row" id="episode-select">
+    <div class="column is-half">
+        <div class="panel has-bg-primary is-small">
+            <h4>Select Campaign</h4>
+            <select id="campaign-select" class="has-bg-muted" name="campaignpk"
+                    hx-post="/api/world/webcomic" hx-target="#visualizations"
+                    hx-indicator="#request-indicator"
+                    hx-trigger='change'>
+                <option value="">=== select campaign ===</option>
+                {% for cmp in obj.campaigns %}
+                <option class="has-text-dark" value="{{cmp.pk}}" {% if episode and
+                        episode.campaign==cmp %}
+                        selected {% endif %}>
+                    {{cmp.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="column is-half">
+        <div class='panel has-bg-primary  is-small'>
+            <h4>Select Session</h4>
+            {% if episode %}
+            <select class="has-bg-muted" name="episodepk"
+                    hx-post="/api/world/webcomic" hx-target="#visualizations"
+                    hx-trigger='change'>
+                <option value="">=== select episode ===</option>
+                {% for ep in episode.campaign.episodes %}
+                <option class="has-text-dark" value="{{ep.pk}}" {%if episode and
+                        ep.pk==episode.pk %} selected {% endif %}>
+                    {{ep.name}}
+                </option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if episode %}
+<hr>
+<div class="row">
+    <div class="column is-full is-vertically-centered">
+        <div id="session-comic-details-container" class="panel has-bg-screen ">
+            <h4 class='has-text-center'>Scene Breakdown Notes</h4>
+            <button class="button has-bg-muted is-full"
+                    hx-post='/task/generate/webcomic/scenes/{{episode.pk}}'
+                    hx-target="closest .column"
+                    hx-confirm='Are you sure you want to generate a new scene-breakdown? This cannot be undone.'>
+                Generate Scene Breakdown
+            </button>
+            <div class="row">
+                <div class="column is-full">
+                    <form hx-post="/api/world/webcomic" hx-target="#session-comic-details-container"
+                          hx-swap='none' hx-trigger='input delay:1s, change'>
+                        <input type="hidden" name="episodepk" value="{{episode.pk}}">
+                        {{form_components.texteditor(user, episode, 'comic_prompt', limit=3900)}}
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <button class="button is-primary is-full"
+                    hx-post='/task/generate/webcomic/{{episode.pk}}'
+                    hx-target="closest .column"
+                    hx-confirm='Are you sure you want to generate a new graphic novel page? This cannot be undone.'>
+                Generate Graphic Novel Page
+            </button>
+            <div id="session-comic-image-container" class="row has-centered">
+                <div class="column is-4 has-no-padding">
+                    {% if episode.comic %}
+                    <div class="image">
+                        <img src="{{episode.comic.url()}}" alt="{{episode.name}}"
+                             style="width:100%; height:100%;" />
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro character_visualizations(user, obj) -%}
+<h3>Character Relationships TBD</h3>
+{%- endmacro %}

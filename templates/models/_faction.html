@@ -1,0 +1,87 @@
+{% import "components/_form.html" as form_components %}
+
+{% macro info(user=None, obj=None) -%}
+<div class="row">
+    <div id="model-goal" class="column">
+        <div class="panel has-bg-muted">
+            <h4 class="has-text-dark">Goal</h4>
+            {{obj.goal | safe}}
+        </div>
+    </div>
+    <div id="model-status" class="column">
+        <div class="panel has-bg-muted">
+            <h4 class="has-text-dark">Status</h4>
+            {{obj.status | safe}}
+        </div>
+    </div>
+</div>
+<hr>
+<div class="panel is-small has-bg-light-grey">
+    <div class="row">
+        {% if obj.leader %}
+        <div class="column is-shrink">
+            <div class="panel has-bg-primary">
+                <h4 class="has-text-primary has-text-center">Leader</h4>
+                <a href="{{obj.leader.path}}">
+                    <div class="image is-large is-thumbnail is-margin-center">
+                        {% if obj.leader.image %}
+                        <img src="{{obj.leader.image.url()}}" alt="{{obj.leader.name}}" />
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            <h4 class="has-text-dark has-text-center">
+                {{obj.leader.name}}
+            </h4>
+        </div>
+        {% endif %}
+        <div class="column">
+            <h3 class="has-text-dark has-text-center">Members</h3>
+            <div class="row">
+                {% for member in obj.associations %}
+                {% if member.model_name() == "Character" and member != obj.leader %}
+                <div class="column has-text-center is-3">
+                    <a href="/character/{{member.pk}}">
+                        <div class="image is-medium is-thumbnail is-margin-center">
+                            <img src="{{member.image.url(size='100')}}" loading="lazy"
+                                 alt="{{obj.name}}" style="width:100%; height:100%;" />
+                        </div>
+                        <h4 class="has-text-dark">
+                            {% if member.name %} {{member.name}} {% else %} {{member.title}} {%
+                            endif %}
+                        </h4>
+                    </a>
+                    {% if user.world_user(obj)%}
+                    <button class="button is-small is-secondary"
+                            hx-post="/api/manage/faction/leader/{{member.pk}}"
+                            hx-target='#page-content' hx-swap="innerHTML show:#page-content:top">
+                        Assign Leader
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user=None, obj=None) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+
+    <div class="row">
+        <div id="model-goal" class="column">
+            <h4 class='has-text-light has-text-center'>Goals and Secrets</h4>
+            {{form_components.texteditor(user, obj, "goal")}}
+        </div>
+    </div>
+    <div class="row">
+        <div id="model-goal" class="column">
+            <h4 class='has-text-light has-text-center'>Status</h4>
+            {{form_components.texteditor(user, obj, "status")}}
+        </div>
+    </div>
+</form>
+{%- endmacro %}

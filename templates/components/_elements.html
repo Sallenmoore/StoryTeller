@@ -1,0 +1,69 @@
+{% macro object_title(user, obj) -%}
+<div
+     class="has-bg-primary" style='position:relative; border-radius: 5px 5px 0 0; background-image: linear-gradient(
+    to bottom,
+    rgba(247, 247, 244, 0.5),
+    rgba(83, 83, 84, 0.5)
+  ), url("{{obj.get_world().image.url()}}"); background-size: cover;'>
+    <div class="row has-bg-muted" style='border-radius: 5px 5px 0 0'>
+        <div class="column has-no-padding is-vertically-centered">
+            <a href=' /{{obj.path}}'>
+                <h1 class="has-text-center">
+                    {{obj.name or obj.title}}
+                </h1>
+            </a>
+            {% if obj.model_name() != "World" %}
+            {% if obj.canon %}
+            <span class='tag'>Canonized</span>
+            {% else %}
+            <span class='tag'>Uncanonized</span>
+            {% endif %}
+            {% endif %}
+        </div>
+        {% if user.world_user(obj) %}
+        <div class="column is-shrink is-mobile-shrink"
+             style="position:absolute;right:0.5rem;">
+            <a class=" has-text-secondary" hx-post="/api/manage/details"
+               hx-target="#page-content" hx-indicator='#request-indicator'>
+                <iconify-icon icon="mdi:gear" width="1.5rem" height="1.5rem"></iconify-icon>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro object_display(obj, size="medium", dim="100") -%}
+<a href="/{{obj.path}}">
+    <div class="image is-{{size}} is-thumbnail is-margin-center">
+        {% if obj.image %}
+        <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}"
+             style="width:100%;height:100%;" />
+        {% endif %}
+    </div>
+
+    <h6 class='has-text-light-grey is-subtitle has-text-center'>
+        {% if obj.start_date and obj.start_date.year %}
+        {{obj.start_date}}
+        {%else%}
+        Unknown
+        {%endif%}
+        <iconify-icon class='has-text-dark-grey'
+                      icon="pepicons-print:line-x"
+                      width="1rem"
+                      height="1rem"></iconify-icon>
+        {% if obj.end_date and obj.end_date.year %}
+        {{obj.end_date}}
+        {%else%}
+        Unknown
+        {%endif%}
+    </h6>
+    <h5 class='has-text-center'>
+        {% if obj.name %}
+        {{obj.name}}
+        {% else %}
+        New {{obj.title}}
+        {% endif %}
+    </h5>
+</a>
+{% endmacro %}

@@ -1,0 +1,99 @@
+{% import "components/_form.html" as form_components %}
+
+{% macro info(user=None, obj=None) -%}
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <div class="panel">
+            <div class="row">
+                <div class="column is-shrink is-vertically-centered">
+                    <h4>Difficulty:</h4>
+                </div>
+                <div class="column is-vertically-centered">
+                    <h5 class='has-text-light-grey'>{{obj.difficulty}}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-shrink">
+        <div class="panel">
+            <div class="row">
+                <div class="column is-shrink is-vertically-centered">
+                    <h4>Enemy Type:</h4>
+                </div>
+                <div class="column is-vertically-centered">
+                    <h5 class='has-text-light-grey'>{{obj.enemy_type}}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% if user.world_owner(obj)%}
+    <div class="column">
+        <div class="panel has-bg-muted">
+            <h3 class="has-text-dark">Combat Scenario</h3>
+            <span class="has-text-dark">
+                {{obj.combat_scenario | safe}}
+            </span>
+        </div>
+        <hr>
+        <div class="panel has-bg-muted">
+            <h3 class="has-text-dark">Non-Combat Scenario</h3>
+            <span class="has-text-dark">
+                {{obj.noncombat_scenario | safe}}
+            </span>
+        </div>
+        <hr>
+        <div class="panel has-bg-muted">
+            <h3 class="has-text-dark">Complications</h3>
+            <span class="has-text-dark">
+                {{obj.complications | safe}}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user=None, obj=None) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row">
+        <div class="column">
+            <div class="row">
+                <div class="column">
+                    <h5 class='has-text-center has-text-dark'>Difficulty</h5>
+                    <div class="is-select">
+                        <select class="has-bg-muted has-text-center"
+                                name="difficulty">
+                            {% for diff in obj.difficulty_list %}
+                            <option value='{{diff}}' {% if diff==obj.difficulty %} selected {% endif
+                                    %}>{{diff | title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column">
+                    <h5 class='has-text-center  has-text-dark'>Enemy Type</h5>
+                    <input type="text" class="has-bg-muted"
+                           value="{{obj.enemy_type}}" name="enemy_type" style='width:100%;'>
+                </div>
+            </div>
+        </div>
+        {% if user.world_owner(obj)%}
+        <div class="column is-full" id="model-combat">
+            <h4 class="has-text-center">Combat Scenario</h4>
+            {{form_components.texteditor(user, obj, "combat_scenario")}}
+        </div>
+        <div class="column is-full" id="model-noncombat">
+            <h4 class="has-text-center">Non-Combat Scenario</h4>
+            {{form_components.texteditor(user, obj, "noncombat_scenario")}}
+        </div>
+        <div class="column is-full" id="model-complications">
+            <h4 class="has-text-center">Complications</h4>
+            {{form_components.texteditor(user, obj, "complications")}}
+        </div>
+        {% endif %}"
+    </div>
+</form>
+{%- endmacro %}

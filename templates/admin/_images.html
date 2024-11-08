@@ -1,0 +1,136 @@
+{% macro manage(images, tags, tag="") -%}
+
+<div class="row">
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-small is-light is-fullwidth has-text-dark"
+                hx-post="/api/admin/manage/images"
+                hx-target="#admin-manage-panel"
+                hx-indicator='#request-indicator' hx-vals='{"scan":true}'>
+            Refresh
+        </button>
+    </div>
+    <div class="column">
+        <div class="is-tag-group has-centered">
+            {% for t in tags %}
+            <span class="tag {%if t == tag %} is-primary {% endif %}"
+                  hx-post="/admin/images"
+                  hx-trigger="click" hx-vals='{"tag":"{{t}}"}'
+                  hx-target="#admin-manage-panel"
+                  hx-select="#admin-manage-panel"
+                  hx-swap='outerHTML'
+                  hx-push-url='/admin/images?tag={{t}}'
+                  hx-indicator='#request-indicator'>
+                {{t}}
+            </span>
+            {% endfor %}
+            <span class="tag {%if tag == '_NoGenre' %} is-primary {% endif %}"
+                  hx-post="/admin/images"
+                  hx-vals='{"tag":"_NoGenre"}'
+                  hx-trigger="click"
+                  hx-target="#admin-manage-panel"
+                  hx-select="#admin-manage-panel"
+                  hx-swap='outerHTML'
+                  hx-push-url='/admin/images?tag=_NoGenre'
+                  hx-indicator='#request-indicator'>
+                No Genre
+            </span>
+            <span class="tag {%if tag == '_NoType' %} is-primary {% endif %}"
+                  hx-post="/admin/images"
+                  hx-vals='{"tag":"_NoType"}'
+                  hx-trigger="click"
+                  hx-target="#admin-manage-panel"
+                  hx-select="#admin-manage-panel"
+                  hx-swap='outerHTML'
+                  hx-push-url='/admin/images?tag=_NoType'
+                  hx-indicator='#request-indicator'>
+                No Type
+            </span>
+            <span class="tag {%if tag == '_Missing' %} is-primary {% endif %}"
+                  hx-post="/admin/images"
+                  hx-vals='{"tag":"_Missing"}'
+                  hx-trigger="click"
+                  hx-target="#admin-manage-panel"
+                  hx-select="#admin-manage-panel"
+                  hx-swap='outerHTML'
+                  hx-push-url='/admin/images?tag=_Missing'
+                  hx-indicator='#request-indicator'>
+                Missing Tags
+            </span>
+        </div>
+    </div>
+</div>
+<div id="image-list-container" class="row">
+    {% for image in images %}
+    <div class="column is-3 image-container has-centered has-text-center
+         has-bg-light">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-medium is-thumbnail is-margin-center"
+                     style="overflow: hidden;">
+                    <img loading="lazy" alt="{{image.asset_id}}"
+                         style="height:100%;" src="{{image.url(100)}}" />
+                </div>
+            </div>
+            <div class="column">
+                <div class="row">
+                    <div class="column">
+                        <form hx-post="/api/admin/manage/image/{{image.pk}}"
+                              hx-target="#image-list-container" hx-select="#image-list-container"
+                              hx-swap='outerHTML'
+                              hx-vals='{"tag":"{{tag}}"}'
+                              hx-push-url='/admin/images?tag={{tag}}'
+                              hx-indicator='#request-indicator'>
+                            <div class="row">
+                                <div class="column">
+                                    <input list="tag-options" type="text" name="new_tag"
+                                           placeholder='add new tag...'>
+                                    <datalist id="tag-options">
+                                        {% for t in tags %}
+                                        <option value="{{t}}"></option>
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+                                <div class="column is-shrink">
+                                    <button class="button is-small" type="submit">
+                                        <iconify-icon icon="mdi:plus"
+                                                      width='0.75rem'></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column">
+                        {% for tag in image.tags %}
+                        <div class="is-addon-group is-rounded">
+                            <span class="tag">{{tag}}</span>
+                            <span class="tag is-dark has-text-light"
+                                  hx-post="/api/admin/manage/image/{{image.pk}}/tag/remove"
+                                  hx-target="closest .is-addon-group"
+                                  hx-swap="delete"
+                                  hx-vals='{"tag":"{{tag}}"}'>
+                                <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <button class="button is-small"
+                        hx-post="/api/admin/manage/image/{{image.pk}}/delete"
+                        hx-target="closest .image-container"
+                        hx-swap="delete"
+                        hx-confirm="Are you sure you want to delete this image?"
+                        hx-indicator='#request-indicator'>
+                    <iconify-icon icon="mdi:delete"></iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

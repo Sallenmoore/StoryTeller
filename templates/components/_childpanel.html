@@ -1,0 +1,56 @@
+{% import "components/_elements.html" as element %}
+
+{% macro childpanel(user, obj, model, children=[], associations=[]) -%}
+<title>{{obj.name | title}} - {{obj.get_title(model)}}</title>
+<div class="row has-space-between">
+    <div class="column is-shrink">
+        <h2 class='has-text-dark'>{{obj.get_title(model)}}</h2>
+    </div>
+    <div class="column is-3">
+        <input type="search" name="query" placeholder="Begin typing to filter..."
+               style="border-bottom: solid #000;"
+               hx-get="/api/{{obj.path}}/childpanel/{{model | lower}}"
+               hx-trigger="input changed delay:250ms, search"
+               hx-target='#children-container-panel'
+               hx-select='#children-container-panel'
+               hx-swap='outerHTML'>
+    </div>
+    {% if user.world_user(obj) %}
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-small is-primary"
+                hx-post="/api/manage/add/{{ model | lower}}" hx-target="#page-content"
+                hx-push-url="/{{obj.path}}/childpanel/{{model | lower}}"
+                hx-indicator='#request-indicator'>
+            Add {{obj.get_title(model)}}
+        </button>
+    </div>
+    {% endif %}
+</div>
+<hr>
+<div class="panel has-bg-screen is-small" id='children-container-panel'>
+    <div class="row has-space-around">
+        {% if obj.model_name() != 'World' and children %}
+        <div class="column is-full">
+            <h3 class='has-text-center'>Children</h3>
+        </div>
+        {%endif%}
+        {% for c in children %}
+        <div class="column is-3 is-mobile-6 has-text-center">
+            {{element.object_display(c)}}
+        </div>
+        {% endfor %}
+
+        {% if obj.model_name() != 'World' and associations %}
+        <div class="column is-full">
+            <hr>
+            <h3 class='has-text-center'>General Associations</h4>
+        </div>
+        {%endif%}
+        {% for a in associations %}
+        <div class="column is-3 is-mobile-6 has-text-center">
+            {{element.object_display(a)}}
+        </div>
+        {%endfor %}
+    </div>
+</div>
+{%- endmacro %}

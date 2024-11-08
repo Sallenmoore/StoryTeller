@@ -1,0 +1,86 @@
+{% macro map(user, obj) -%}
+<title>{{obj.name}} - Map</title>
+<h2 class='has-text-dark'>Map</h2>
+<hr>
+<div class="row fade-it-in" id='object-map-view'>
+    {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'POI'] and
+    user.world_user(obj) %}
+    <div class="column is-full">
+        <div class="row">
+            <div class="column">
+                <div class="row">
+                    {% if user.admin%}
+                    {% if obj.backstory_summary %}
+                    <div class="column">
+                        <button class="button is-full is-primary"
+                                hx-post="/task/generate/battlemap/{{obj.path}}"
+                                hx-target="closest .column"
+                                hx-confirm="Are you sure you want to generate and overwrite the current map?">
+                            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+                            AI Generated Image
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="column is-shrink is-vertically-centered">
+                        <button class='button' class="button is-primary"
+                                hx-post="/task/generate/history/{{obj.path}}"
+                                hx-target='closest .column'>
+                            Update History
+                        </button>
+                        <small style='color:darkred'>The {{obj.title}} must have a history to
+                            generate a map</small>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    <div class="column">
+                        <button class="button is-full is-primary" hx-post="/api/search/gallery/map"
+                                hx-target="#model-owner-map"
+                                hx-swap="innerHTML show:#model-owner-map:bottom"
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="game-icons:card-random"></iconify-icon>
+                            Select From Gallery
+                        </button>
+                    </div>
+                </div>
+                <hr class="has-bg-primary">
+                <div class="row">
+                    <div class="column">
+                        <form hx-post="/api/manage/update" hx-select='#model-owner-map'
+                              hx-target="#model-owner-map"
+                              hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <button class="button is-primary is-small" type="submit">
+                                        <iconify-icon icon="lucide:link"></iconify-icon>
+                                        Upload
+                                        from
+                                        URL
+                                    </button>
+                                </div>
+                                <div class="column">
+                                    <div class="inputlabel">
+                                        <input class="has-bg-muted has-text-secondary"
+                                               type="url" name="map"
+                                               placeholder="enter url....">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif%}
+    <div class="column is-full" id='model-owner-map'>
+        <div id="map-image-container" width="100%" height="100%">
+            <div class="image" width="100%">
+                {% if obj.map %}
+                <img src="{{obj.map.url()}}" alt="{{obj.name}} map"
+                     style='border-radius:5px;' />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}

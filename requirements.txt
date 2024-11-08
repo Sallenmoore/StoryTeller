@@ -1,0 +1,56 @@
+##################################
+#           PRODUCTION           #
+##################################
+
+##### Frameworks #####
+
+autonomous-app >= 0.3.8
+
+##### Configuration and Documentation #####
+pdoc
+
+##### System #####
+
+##### Database #####
+
+pymongo
+
+##### Frontend #####
+pillow
+
+##### Network #####
+
+requests
+gunicorn
+httpx
+
+##### Async #####
+
+rq
+rq-dashboard
+
+##### Security #####
+
+Authlib
+
+##### AI #####
+
+openai >= 1.35.6
+
+##### Parsing #####
+markdown
+python-slugify
+dateparser
+bs4
+validators
+
+##### Utility #####
+dmtoolkit >= 0.0.37
+
+##################################
+#           DEVELOPMENT          #
+##################################
+
+pytest
+pytest-cov
+requests-mock

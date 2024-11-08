@@ -1,0 +1,10 @@
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=autonomous -rx -l -x -s --log-level=INFO --ignore=src --no-cov-on-fail -v --pdb" # --cov-reset
+testpaths = [
+     "tests",
+]
+log_cli = 1
+log_auto_indent = true

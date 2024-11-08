@@ -1,0 +1,665 @@
+{% import "components/_form.html" as form_components %}
+{% import "components/_elements.html" as elements_components %}
+
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/lineage" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/lineage">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="mdi:family-tree" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Lineage</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% if user.world_user(obj) %}
+    <li>
+        <a href="" class="menu-anchor" hx-post="/api/{{obj.path}}/chats" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/chats">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="fluent:people-chat-20-filled" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>
+                        Chat
+                    </span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor" hx-post="/api/{{obj.path}}/autogm" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/autogm">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="la:dice-d20" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>
+                        Auto GM
+                    </span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+{%- endmacro %}
+
+{% macro info(user, obj) -%}
+
+<div class="panel has-bg-screen">
+    <div class="row has-space-around">
+        <div class="column is-shrink is-mobile-4">
+            <h4>STR</h4>
+            <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
+            <h4>DEX</h4>
+            <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
+            <h4>INT</h4>
+            <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
+            <h4>WIS</h4>
+            <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
+            <h4>CHA</h4>
+            <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
+            <h4>CON</h4>
+            <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
+        </div>
+    </div>
+</div>
+<div class="row has-space-around">
+    <div class="column is-3 is-mobile-4">
+        <div id="current-hitpoints" class="panel has-bg-muted">
+            <h4>Current HP</h4>
+            <input hx-get="/api/manage/character/hitpoints"
+                   hx-swap="none" hx-trigger="input delay:1s, change" type="number"
+                   value="{{obj.current_hitpoints}}" name="current_hitpoints">
+            <div class="row">
+                <div class="column is-shrink is-end">
+                    <button class="button is-small" hx-get="/api/manage/character/hitpoints"
+                            hx-target="#current-hitpoints" hx-select="#current-hitpoints"
+                            hx-swap="outerHTML">
+                        reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>MAX HP</h4>
+        <p>{{obj.hitpoints}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>Occupation</h4>
+        <p>{{obj.occupation}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>AC</h4>
+        <p>{{obj.ac}}</p>
+    </div>
+</div>
+<div class='row has-space-around'>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>Age</h4>
+        {% if obj.age %}
+        <p>{{obj.age}}</p>
+        {% else%}
+        <p>Unknown</p>
+        {% endif %}
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>Race</h4>
+        <p>{{obj.race}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-dark'>Gender</h4>
+        <p>{{obj.gender}}</p>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="column is-full">
+        <h3 class='has-text-center'>Goals and Secrets</h3>
+        <div class="panel has-bg-screen">
+            <p class='has-text-light'>{{obj.goal | safe}}</p>
+        </div>
+    </div>
+    {% if obj.abilities %}
+    <div id="model-abilities" class="column">
+        <h3 class="has-text-primary has-text-center">Abilities</h3>
+        <div class="panel has-bg-muted">
+
+            <div class="row">
+                {%for ability in obj.abilities%}
+                <div class="column is-full has-text-dark">
+                    {{ability | safe}}
+                    <hr>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if obj.wealth %}
+    <div id="model-wealth" class="column is-4">
+        <h4>Wealth</h4>
+        <div class="panel has-bg-primary">
+            {% for w in obj.wealth %}
+            <p>{{w | safe}}</p>
+            <hr>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row has-space-between">
+        <div class="column">
+            <h4 class="has-text-center">STR</h4>
+            <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
+        </div>
+        <div class="column ">
+            <h4 class="has-text-center">DEX</h4>
+            <input class="has-text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
+        </div>
+        <div class="column ">
+            <h4 class="has-text-center">INT</h4>
+            <input class="has-text-center" type="text" value="{{obj.intelligence}}"
+                   name="intelligence">
+        </div>
+        <div class="column ">
+            <h4 class="has-text-center">WIS</h4>
+            <input class="has-text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
+        </div>
+        <div class="column ">
+            <h4 class="has-text-center">CHA</h4>
+            <input class="has-text-center" type="text" value="{{obj.charisma}}" name="charisma">
+        </div>
+        <div class="column ">
+            <h4 class="has-text-center">CON</h4>
+            <input class="has-text-center" type="text" value="{{obj.constitution}}"
+                   name="constitution">
+        </div>
+    </div>
+    <hr>
+    <div class="row has-space-around">
+        <div class="column is-shrink ">
+            <h4 class="has-text-center" for="model-hitpoints">MAX HP</h4>
+            <input class="has-text-center" id="model-hitpoints" type="number"
+                   value="{{obj.hitpoints}}" name="hitpoints">
+        </div>
+        <div class="column is-shrink ">
+            <h4>Player/NPC</h4>
+            <div class="is-select">
+                <select class="has-no-border" name="is_player">
+                    <option value="False">NPC</option>
+                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
+                </select>
+            </div>
+        </div>
+        {% if obj.is_player %}
+        <div class="column is-shrink " id="dnd-beyond-id-input-container">
+            <h4>D&DBeyond ID</h4>
+            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
+        </div>
+        {% endif %}
+    </div>
+    <div class="row has-space-between">
+        <div class="column is-3">
+            <h4>Race</h4>
+            <input type="text" value="{{obj.race}}" name="race">
+        </div>
+        <div class="column is-2">
+            <h4>Gender</h4>
+            <input type="text" value="{{obj.gender}}" name="gender">
+        </div>
+        <div class="column is-2">
+            <h4>Age</h4>
+            <input type="number" value="{{obj.age}}" name="age">
+        </div>
+        <div class="column">
+            <h4>Occupation</h4>
+            <input type="text" value="{{obj.occupation}}" name="occupation">
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="column">
+            <h3 class='has-text-center'>Goals and Secrets</h3>
+            {{form_components.texteditor(user, obj, "goal")}}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div id="model-wealth" class="column is-4">
+            <h3 class='has-text-center'>Wealth</h3>
+            {{form_components.listeditor(user, obj, "wealth")}}
+        </div>
+        <div id="model-abilities" class="column is-8">
+            <h3 class='has-text-center'>Abilities</h3>
+            {{form_components.listeditor(user, obj, "abilities")}}
+        </div>
+    </div>
+</form>
+{%- endmacro %}
+
+{% macro lineage(user, obj) -%}
+<title>{{obj.name}}|Lineage</title>
+<h2 class='has-text-dark'>Lineage</h2>
+<div class="row">
+    {% if user.world_user(obj)%}
+    <div class="column is-half">
+        <h4 class="has-text-dark">Search Characters</h4>
+        <div class="has-dropdown" style="width:100%;">
+            <input type="search" name="query" placeholder="Begin Typing To Search..."
+                   style="border-bottom: solid #000;" hx-target="#lineage-search"
+                   hx-post="/api/search/" hx-trigger="input changed delay:500ms, search"
+                   hx-vals='{"module":"models/_character.html", "macro":"lineage_dropdown"}'
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown autocomplete-list has-bg-light is-full" id="lineage-search">
+            </ul>
+        </div>
+    </div>
+    <div class="column is-half" id="lineage-form"></div>
+    {% endif %}
+    <div class="column is-full" id="model-lineage-container">
+        {% for level, line in obj.lineage.items() %}
+        <div class="column lineage-object">
+            <h3 class="has-bg-primary has-text-primary has-text-center">{{level | title}}</h3>
+            <div class="row">
+                {% for o in line %}
+                <div class="column">
+                    <a href="/{{o.path}}">
+                        <div class="image is-medium is-thumbnail is-margin-center">
+                            {% if o.image %}
+                            <img src="{{o.image.url(size='100')}}" loading="lazy" alt="{{o.name}}"
+                                 style="width:100%; height:100%;" />
+                            {%endif %}
+                        </div>
+                        <h4 class="has-text-dark has-text-center">
+                            {{o.name}}
+                        </h4>
+                    </a>
+                    <div class="row has-centered">
+                        <div class="column is-shrink">
+                            <button class="button is-small is-circle has-bg-light-grey has-text-dark"
+                                    hx-post="/api/manage/character/lineage/remove/{{o.pk}}"
+                                    hx-swap="delete"
+                                    hx-target='closest .lineage-object'>
+                                <iconify-icon icon="material-symbols:close" width="0.66rem"
+                                              height="0.66rem">
+                                </iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro lineage_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+{% if o.model_name() in ['Character'] %}
+<li class="dropdown__link">
+    <a hx-post='/api/manage/character/lineage/{{o.pk}}' hx-target='#lineage-form'
+       hx-select='#lineage-form' hx-swap='outerHTML'
+       hx-vals='{"macro":"lineage_form", "module":"models/_character.html"}'>
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {%endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
+{% endfor %}
+{%- endmacro%}
+
+{% macro lineage_form(user, obj) -%}
+<div class="column is-half" id="lineage-form">
+    <form hx-post="/api/manage/character/lineage/{{obj.pk}}" hx-target="#page-content"
+          hx-vals='{"module":"models/_character.html", "macro": "lineage"}'>
+        <div class="panel">
+            <div class="row">
+                {{elements_components.object_display(obj)}}
+                <div class="column">
+                    <h4>Relationship</h4>
+                    <div class="is-select">
+                        <select class="has-bg-muted" name="relationship">
+                            <option value="ancestor">Ancestor</option>
+                            <option value="parents">Parent</option>
+                            <option value="partners">Spouse</option>
+                            <option value="siblings">Sibling</option>
+                            <option value="children">Child</option>
+                            <option value="descendant">Descendant</option>
+                        </select>
+                    </div>
+                    <button class="button is-primary is-full is-small" type="submit">Add</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{%- endmacro%}
+
+{% macro chats(user, obj) -%}
+<title>{{obj.name}}|Chats</title>
+<h2 class="has-text-dark">Chats</h2>
+
+<div class="row">
+    <div class="column">
+        <form class="form task-form" hx-post="/task/generate/chat/{{obj.pk}}"
+              hx-target="closest .column">
+            <textarea class="has-bg-light" col=6
+                      name="message"
+                      placeholder="What would you like to say to {{obj.name}}..."
+                      style="font-family:Open-Sans,sans-serif;
+                font-size:1.25rem;
+                line-height: 1.5;"></textarea>
+            <input class="button has-bg-screen has-text-primary is-full"
+                   type="submit"
+                   name="name" value="chat">
+        </form>
+    </div>
+</div>
+<hr>
+<div class="row has-text-secondarytext" id="character-chat-history">
+    <div class="column is-half">
+        <div class="panel is-small has-bg-dark-grey has-text-light">
+            <div class="card">
+                <div class="card__header has-text-centered">
+                    <h5 class="is-subheading">Summary</h5>
+                </div>
+                <div class="card__content">
+                    <hr>
+                    <p>{{obj.chats.summary}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-half">
+        <div class="row">
+            <div class="column is-full">
+                <div class="panel is-small has-bg-primary has-text-primary">
+                    <div class="card">
+                        <div class="card__header">
+                            <h5 class="is-subheading has-text-center">Last PC Message</h5>
+                        </div>
+                        <div class="card__content">
+                            <hr>
+                            <p>
+                                {{obj.chats.message}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-full">
+                <div class="panel is-small has-bg-dark">
+                    <div class="card">
+                        <div class="card__header">
+                            <h5 class="is-subheading has-text-center has-text-light">Last
+                                Response</h5>
+                        </div>
+                        <div class="card__content">
+                            <hr>
+                            <p class='has-text-light'>
+                                {{obj.chats.response}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <div class="card has-bg-muted">
+            <div class="card__header">
+                <h3 class="has-text-center">Log</h>
+            </div>
+            <div class="card__content">
+                {%for msg in obj.chats.history%}
+                <h5 class="has-text-center has-text-dark">
+                    Player
+                </h5>
+                <div class="panel inset is-small has-bg-screen has-text-primary">
+                    {{msg[0]}}
+                </div>
+                <hr>
+                <h5 class="has-text-center">
+                    {{obj.name}}
+                </h5>
+                <div class="panel inset is-small has-bg-light">{{msg[1]}}</div>
+                <hr>
+                {%endfor%}
+            </div>
+        </div>
+    </div>
+    <div class="column is-shrink is-end">
+        <button class="button has-bg-primary has-text-primary"
+                hx-post="/api/model/character/chat/clear"
+                hx-target="#page-content">
+            <iconify-icon icon="tdesign:chat-clear"></iconify-icon>
+            Clear Chat History
+        </button>
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro autogm(user, obj) -%}
+<title>{{obj.name}} | Auto GM</title>
+<h2 class="has-text-dark">Auto GM Session</h2>
+{% if obj.autogm_summary.get('description') %}
+<div class="row">
+    <div class="column is-full">
+        <div class="panel">
+            <h4 class="is-subheading has-text-center">GM Description</h4>
+            <hr>
+            <div class="row">
+                <div class="column">
+                    {{obj.autogm_summary.get('description')}}
+                </div>
+                {% if obj.autogm_summary.get('image') %}
+                <div class="column is-shrink">
+                    <div class="image is-extra-large is-tile is-margin-center">
+                        <img src="{{obj.autogm_summary.get('image').url(size='500')}}"
+                             loading="lazy"
+                             alt="{{obj.name}}" />
+                    </div>
+                </div>
+                {%endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class='row'>
+    <div class="column">
+        <form hx-post="/task/generate/autogm/{{obj.pk}}" hx-target='closest .column'>
+            <div class="row has-space-around">
+                {% if obj.autogm_summary%}
+                <div class="column is-half">
+                    <div class="panel has-bg-muted is-full">
+                        <h4 class='has-text-center has-text-screen'>Player Response</h4>
+                        <hr>
+                        <textarea name="message" id="player_message" class='has-bg-light'
+                                  style='height:60%;'></textarea>
+                    </div>
+                </div>
+                {% if obj.autogm_summary.get('requires_roll') %}
+                <div class="column is-half">
+                    <div class="panel has-text-center has-bg-muted is-full">
+                        <h4 class="has-text-screen has-text-center">Roll Required</h4>
+                        <input type="hidden" name="roll_type" id="roll_type"
+                               value='{{obj.autogm_summary.get("requires_roll")}}'>
+                        <hr>
+                        <div class='row'>
+                            <div class="column">
+                                <div
+                                     class="panel has-bg-muted has-text-center is-vertically-centered">
+                                    <h5 class="has-text-dark">
+                                        {{obj.autogm_summary.get('requires_roll')}}
+                                    </h5>
+                                    <input type="text" name="roll_dice" id="roll_dice"
+                                           value="1d20">
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="column is-shrink is-vertically-centered"">
+                                    <button class=" button" type='submit' name='action'
+                                     value='run'>
+                                    Roll
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="column is-half">
+                    <button class="button" type='submit' name='action' value='run'>
+                        Continue Session
+                    </button>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="column is-shrink">
+                    <label for="year">Year of Occurance</label>
+                    <input type='text' name='year'
+                           value='{{obj.start_date.year + 20 if obj.start_date else obj.current_date.year - 10}}'>
+                </div>
+                <div class="column is-shrink">
+                    <button class="button" type='submit' name='action' value='start'>
+                        Start Session
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+<hr>
+<div class="row has-space-around">
+    {% if obj.gm.summary %}
+    <div class="column is-full">
+        <div class="panel has-bg-dark-grey has-text-light">
+            <h4 class="is-subheading">Summary</h4>
+            <div>{{obj.gm.summmary}}</div>
+        </div>
+    </div>
+    {% endif %}
+    {% if obj.autogm_summary.get('npcs') %}
+    <div class="column is-full">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">NPCs</h4>
+            <div class="row has-space-around">
+                {% for npc in obj.autogm_summary.get('npcs')%}
+                <div class='column is-3'>
+                    <p>{{npc}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if obj.autogm_summary.get('combatants') %}
+    <div class="column is-full">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">Combatants</h4>
+            <div class="row has-space-around">
+                {% for cbt in obj.autogm_summary.get('combatants')%}
+                <div class='column is-3'>
+                    <div>{{cbt}}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if obj.autogm_summary.get('loot') %}
+    <div class="column is-full">
+        <div class="panel is-full has-bg-screen">
+            <h4 class="has-text-center">Loot</h4>
+            <div class="row has-space-around">
+                {% for loot in obj.autogm_summary.get('loot')%}
+                <div class='column is-3'>
+                    <div>{{loot}}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<hr>
+<div class="row has-space-around">
+    {% if obj.autogm_summary %}
+    <div class="column is-shrink">
+        <button class="button" hx-post="/task/generate/autogm/{{obj.pk}}"
+                hx-target='closest .column' hx-vals='{"action":"end"}'>
+            End Session
+        </button>
+    </div>
+    {% endif %}
+    <div class="column is-shrink">
+        <button class="button" hx-post="/task/generate/autogm/{{obj.pk}}"
+                hx-target='closest .column' hx-vals='{"action":"clear"}'>
+            Clear Session
+        </button>
+    </div>
+</div>
+{% if obj.gm.images %}
+<div class="row">
+    <div class="column is-full">
+        <hr>
+        <div class="panel has-bg-muted">
+            <h4 class="has-text-center">Scenes from This Session</h4>
+        </div>
+        <div class="row has-space-around">
+            {% for img in obj.gm.images%}
+            <div class="column is-shrink">
+                <div class="image is-large is-tile is-margin-center">
+                    <img src="{{img.url(size='500')}}"
+                         loading="lazy"
+                         alt="{{obj.name}}" />
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}

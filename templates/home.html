@@ -1,0 +1,74 @@
+{% extends "index.html" %}
+
+{% block page %}
+<div class="hero" id="world-model">
+    <div class="hero__content">
+        <div class="row" id="create-world">
+            <div class="column is-vertically-centered">
+                <div class="container has-text-center">
+                    <h2 class="is-subheading has-text-primary">A place to create and
+                        share
+                        your worlds
+                    </h2>
+                    <button class="button has-text-secondary is-large"
+                            hx-post="/api/world/build/form" hx-target="#create-world"
+                            hx-swap='outerHTML show:#world-model:top'>
+                        Create a World
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row has-space-around">
+    {% for w in user.worlds %}
+    <div class="column world-entry is-full">
+        <div class="panel"
+             style="background-image: url('{{w.image.url()}}'); background-size: cover;">
+            <a href="/world/{{w.pk}}">
+                <div class="row has-bg-muted">
+                    <div class="column is-full">
+                        <span class="tag">{{w.genre}}</span>
+                        <h2 class='has-text-dark has-text-center'>{{w.name}}</h2>
+                    </div>
+                    <div class="column is-full">
+                        <div class="panel has-bg-light">
+                            <p class='has-text-dark'>{{w.backstory_summary}}</p>
+                        </div>
+                    </div>
+                    {% for player in w.players | filter_shuffle(8) %}
+                    <div class="column has-text-center is-center is-shrink">
+                        <div class="image is-medium is-thumbnail is-margin-center">
+                            <img src="{{player.image.url(size='100')}}"
+                                 loading="lazy"
+                                 alt="{{player.name}}"
+                                 style="width:100%; height:100%;" />
+                        </div>
+                        <h4 class='has-text-dark'>
+                            {% if player.name %}
+                            {{player.name}}
+                            {% else %}
+                            {{player.title}}
+                            {% endif %}
+                        </h4>
+                    </div>
+                    {% endfor %}
+                </div>
+            </a>
+            <div class="row">
+                <div class="column is-shrink is-end">
+                    <button class="button is-small"
+                            hx-post="/api/manage/delete/world/{{w.pk}}"
+                            hx-target="closest .world-entry"
+                            hx-swap="delete"
+                            hx-confirm="Are you sure you want to delete this world and all associated objects? THIS CANNOT BE UNDONE."
+                            hx-indicator="#request-indicator">
+                        <iconify-icon icon="mdi:trash" width="1rem"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

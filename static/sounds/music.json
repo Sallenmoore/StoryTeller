@@ -1,0 +1,116 @@
+{
+    "Main Theme": [
+        {
+            "name": "Epic Anthem",
+            "path": "static/sounds/music/themesong.mp3"
+        }
+    ],
+    "Battle": [
+        {
+            "name": "Clash of Titans",
+            "path": "static/sounds/music/battle2.mp3"
+        },
+        {
+            "name": "War Cry",
+            "path": "static/sounds/music/battle3.mp3"
+        },
+        {
+            "name": "Storm of Steel",
+            "path": "static/sounds/music/battle4.mp3"
+        },
+        {
+            "name": "Final Assault",
+            "path": "static/sounds/music/battle5.mp3"
+        }
+    ],
+    "Creepy": [
+        {
+            "name": "Haunted Whispers",
+            "path": "static/sounds/music/creepy1.mp3"
+        },
+        {
+            "name": "Shadows in the Dark",
+            "path": "static/sounds/music/creepy2.mp3"
+        },
+        {
+            "name": "Chilling Breeze",
+            "path": "static/sounds/music/creepy3.mp3"
+        },
+        {
+            "name": "Eerie Silence",
+            "path": "static/sounds/music/creepy4.mp3"
+        },
+        {
+            "name": "Phantom Footsteps",
+            "path": "static/sounds/music/creepy5.mp3"
+        },
+        {
+            "name": "Ominous Presence",
+            "path": "static/sounds/music/creepy6.mp3"
+        },
+        {
+            "name": "Sinister Echoes",
+            "path": "static/sounds/music/creepy7.mp3"
+        }
+    ],
+    "Pursuit": [
+        {
+            "name": "Chase Down",
+            "path": "static/sounds/music/pursuit1.mp3"
+        }
+    ],
+    "Relaxed": [
+        {
+            "name": "Tranquil Moments",
+            "path": "static/sounds/music/relaxed1.mp3"
+        }
+    ],
+    "Skirmish": [
+        {
+            "name": "Close Quarters",
+            "path": "static/sounds/music/skirmish1.mp3"
+        },
+        {
+            "name": "Brief Conflict",
+            "path": "static/sounds/music/skirmish2.mp3"
+        },
+        {
+            "name": "Quick Strikes",
+            "path": "static/sounds/music/skirmish3.mp3"
+        },
+        {
+            "name": "Rapid Fire",
+            "path": "static/sounds/music/skirmish4.mp3"
+        }
+    ],
+    "Suspense": [
+        {
+            "name": "Tense Standoff",
+            "path": "static/sounds/music/suspense1.mp3"
+        },
+        {
+            "name": "Edge of Your Seat",
+            "path": "static/sounds/music/suspense2.mp3"
+        },
+        {
+            "name": "Nail Biting",
+            "path": "static/sounds/music/suspense3.mp3"
+        },
+        {
+            "name": "Heightened Alert",
+            "path": "static/sounds/music/suspense4.mp3"
+        },
+        {
+            "name": "Foreboding",
+            "path": "static/sounds/music/suspense5.mp3"
+        },
+        {
+            "name": "Building Tension",
+            "path": "static/sounds/music/suspense6.mp3"
+        },
+        {
+            "name": "Impending Dread",
+            "path": "static/sounds/music/suspense7.mp3"
+        }
+    ]
+}

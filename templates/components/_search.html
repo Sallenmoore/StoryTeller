@@ -1,0 +1,200 @@
+{# generic code consoidation andf rewfoactoring{% macro search_dropdown(user, obj, objs=[],
+post_url, target, swap=None) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted" hx-post='{{post_url}}' hx-target='{{target}}' {% if swap %}
+    hx-swap="{{swap}}" {%endif%}
+    onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+    <div class="row">
+        <div class="column is-4">
+            <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+            </div>
+        </div>
+        <div class="column is-8">
+            {{o.name}}
+        </div>
+    </div>
+</li>
+{% endfor %}
+{%- endmacro%} #}
+
+
+
+
+
+{% macro journal_associations_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted"
+    hx-post='/api/manage/journal/entry/update'
+    hx-target='#journal-entry-associations' hx-select='#journal-entry-associations'
+    hx-swap="outerHTML" hx-include="#journal-entry-form"
+    hx-vals='{"associations[].pk":"{{o.pk}}", "associations[].model":"{{o.model_name()}}"}'
+    onclick="this.closest('.has-dropdown').classList.remove('is-active');">
+    <div class="row">
+        <div class="column is-4">
+            <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                {%endif %}
+            </div>
+        </div>
+        <div class="column is-8">
+            {{o.name}}
+        </div>
+    </div>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro session_associations_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted"
+    hx-post='/api/campaign/session/association/entry/{{o.model_name() | lower}}/{{o.pk}}'
+    hx-target='#episode-associations' hx-select='#episode-associations' hx-swap="outerHTML"
+    onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+    <div class="row">
+        <div class="column is-4">
+            <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                {%endif %}
+            </div>
+        </div>
+        <div class="column is-8">
+            {{o.name}}
+        </div>
+    </div>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+
+
+{% macro campaign_add_player_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+{% if o.model_name() == 'Character'%}
+<li class="dropdown__link has-bg-secondary" hx-post='/api/campaign/{{obj.pk}}'
+    hx-target='#campaign-players' hx-select='#campaign-players' hx-swap='outerHTML'
+    onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+    <div class="row">
+        <div class="column is-shrink">
+            <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                {%endif %}
+            </div>
+        </div>
+        <div class="column">
+            {{o.name}}
+        </div>
+    </div>
+</li>
+{% endif %}
+{% endfor %}
+{%- endmacro%}
+
+{% macro scene_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-secondary">
+    <a hx-post="/api/session/scene/add/{{o.model_name()}}/{{o.pk}}" hx-target='#session-details'
+       hx-select='#session-details' hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {%endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{%macro imagegallery(user, obj, images) -%}
+<div class="panel has-bg-primary">
+    <div class="row has-space-around">
+        {% for image in images%}
+        <div class="column is-shrink has-text-center has-centered">
+            <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
+                <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
+                     hx-post="/api/manage/update"
+                     hx-target="#image-manage-container" hx-select="#image-manage-container"
+                     hx-swap="outerHTML"
+                     hx-vals='{"image":"{{image.pk}}"}'
+                     hx-indicator="#request-indicator" />
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}
+
+{%macro mapgallery(user, obj, images) -%}
+<div class="panel has-bg-primary">
+    <div class="row has-space-around">
+        {% for image in images%}
+        <div class="column is-shrink has-text-center has-centered">
+            <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
+                <img src="{{image.url(size=100)}}" alt="{{obj.prompt}}" hx-post="/api/manage/update"
+                     hx-target="#page-content"
+                     hx-vals='{"map":"{{image.pk}}", "module":"components/_map.html", "macro":"map"}' />
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro apiobject_completion_select(user, obj, results) -%}
+<title>{{obj.title}} - API Data Completion</title>
+<div class="row">
+    <div class="column">
+        <h4 class='has-text-screen'>API Data for {{obj.title}}</h4>
+    </div>
+    <div class="column is-shrink is-end">
+        <h5 class='has-text-screen'># of Results:</h5>
+    </div>
+    <div class="column is-shrink">
+        <div class="panel" style="border: 1px solid;padding-left: 1rem;padding-right:1rem;">
+            <h5>{{results | count}}</h5>
+        </div>
+    </div>
+</div>
+<hr>
+<div class="row has-space-around" id="apiobject-manage-container">
+    {% for result in results %}
+    <div class="column is-4">
+        <div class="card has-bg-screen">
+            <div class="card__header">
+                <h4 class="has-text-center">{{result['name']}}</h4>
+            </div>
+            <div class="card__content">
+                <h6 class="has-text-center">{{result.get('size', '')}}
+                    {{result.get('type', '')}}
+                    {{result.get('subtype', '')}}
+                </h6>
+                {% if result.get('desc') %}
+                <p>
+                    {{result.get('desc') | safe}}
+                </p>
+                {% endif %}
+            </div>
+            <div class="card__footer has-centered">
+                <button class="button is-small"
+                        hx-post="/api/manage/{{obj.model_name() | lower}}/dnd5eapi_update"
+                        hx-target="#page-content" hx-vals='{"url":"{{result.get("url")}}"}'
+                        hx-confirm="WARNING: You may lose some existing data. Are you sure you want to overwrite with DnD5e info?">
+                    Update
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endmacro -%}

@@ -1,0 +1,963 @@
+{% import "components/_form.html" as components %}
+
+{% macro tabletop(user, world, campaign=None) -%}
+<title>{{world.name | title}} - Manage Table</title>
+<h2 class='has-text-dark'>
+    Manage Session
+</h2>
+<div class="row" id='manage-episodes'>
+    <div class="column is-half">
+        <div class="panel has-bg-screen is-small">
+            <h4>Select Campaign</h4>
+            <select id="campaign-select" class="has-bg-muted" name="campaignpk"
+                    hx-post="/api/tabletop/" hx-target="#page-content"
+                    hx-indicator="#request-indicator"
+                    hx-trigger='change' hx-swap="innerHTML focus-scroll:false">
+                <option value="">=== select campaign ===</option>
+                {% for cmp in world.campaigns %}
+                <option class="has-text-dark" value="{{cmp.pk}}" {% if campaign.pk==cmp.pk %}
+                        selected {% endif %}>
+                    {{cmp.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="column is-half">
+        {% if campaign %}
+        <div class='panel has-bg-primary  is-small'>
+            <h4>Select Episode</h4>
+            <select id="episode-select" class="has-bg-muted" name="episodepk"
+                    hx-post="/api/tabletop/" hx-target="#tabletop-details"
+                    hx-select="#tabletop-details"
+                    hx-swap="outerHTML focus-scroll:false"
+                    hx-trigger='change'>
+                <option value="">=== select episode ===</option>
+                {% for ep in campaign.episodes %}
+                <option class="has-text-dark" value="{{ep.pk}}" {%if
+                        ep.pk==campaign.current_episode.pk %} selected {% endif %}>
+                    {{ep.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div class="row" id='tabletop-details'>
+    <div class="column is-full">
+        {% if campaign and campaign.current_episode%}
+        <hr>
+        {{managescene(user, world, campaign.current_episode, campaign.current_episode.current_scene)}}
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro managescene(user, obj, episode, current_scene=None) -%}
+{% set current_scene = current_scene or episode.current_scene %}
+<div id='scene-map-container' class="panel is-small has-bg-dark-grey">
+    <div class="row">
+        <div class="column is-full">
+            <div class="panel has-bg-screen">
+                {{scene_select(user, obj, episode)}}
+            </div>
+        </div>
+        {% if current_scene and current_scene.map %}
+        <div class="column is-full has-no-padding-top">
+            <div id="map-image-container" style='position:relative;'>
+                {{mapcontainer(user, obj, episode, current_scene)}}
+            </div>
+        </div>
+        <div class="column is-full">
+            {{mapcontrols(user, obj, episode, current_scene)}}
+        </div>
+        <div class="column is-full">
+            <div class="panel">
+                {% for fc in episode.free_characters %}
+                <div class='column is-shrink'>
+                    <div class="row">
+                        <div class="column is-shrink">
+                            <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary">
+                                {% if fc.image %}
+                                <img src="{{fc.image.url(100)}}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <a href="/{{fc.path}}" target='_blank'>
+                                        <iconify-icon icon="akar-icons:link-out"
+                                                      width="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>{{fc.name}}</h6>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="column is-full">
+            <div class="panel">
+                {{episode.description |safe}}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_select(user, obj, episode) -%}
+<section class="section is-small">
+    <h2 class='has-text-center'>Scenes</h2>
+    <hr class='has-bg-muted'>
+    <div class="row">
+        <div class="column">
+            <div id='episode-scene-list-container'>
+                {# <form id='episode-scene-list-form'
+                      hx-post='/api/tabletop/{{episode.pk}}/sceneorder'
+                      hx-swap='none' hx-trigger="end">
+                    <input type="hidden" name="campaignpk" value="{{episode.campaign.pk}}"> #}
+                    <div id='episode-scene-list' class="row has-space-around">
+                        {%for scene in episode.scenes%}
+                        <div class='column is-2 episode-scene-container'>
+                            <div class="panel">
+                                <input type="hidden" name="scenes[]" value="{{scene.pk}}">
+                                <div class="row">
+                                    <div class="column is-shrink">
+                                        <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary"
+                                             hx-post="/api/tabletop/{{episode.pk}}/scene/{{scene.path}}/set"
+                                             hx-target='#scene-map-container'
+                                             hx-select='#scene-map-container'
+                                             hx-swap="outerHTML show:#scene-data-container:top"
+                                             hx-indicator="#request-indicator"
+                                             hx-trigger='click consume'>
+                                            {% if scene.image %}
+                                            <img src="{{scene.image.url(100)}}" />
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="column is-shrink">
+                                        <div class="row">
+                                            <div class="column is-shrink">
+                                                <a href="/{{scene.path}}"
+                                                   target='_blank'
+                                                   onclick="event.stopPropagation();">
+                                                    <iconify-icon icon="akar-icons:link-out"
+                                                                  width="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                            <div class="column is-shrink">
+                                                <a hx-post='/api/tabletop/{{episode.pk}}/show/{{scene.path}}'
+                                                   hx-target="#scene-map-container"
+                                                   hx-select="#scene-map-container"
+                                                   hx-swap='outerHTML focus-scroll:false'
+                                                   hx-trigger='click consume'>
+                                                    <iconify-icon icon="tabler:slideshow"
+                                                                  width="1rem"
+                                                                  height="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6>{{scene.name}}</h6>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {#
+                </form> #}
+                {#
+                <script src='/static/js/sortable.js'></script>
+                <script type='module'>
+                    var el = document.getElementById('episode-scene-list');
+                    var sortableInstance = Sortable.create(el, {
+                        animation: 150,
+                    });
+                </script> #}
+            </div>
+        </div>
+    </div>
+    {% if episode.current_scene %}
+    {{scene_data(user, obj, episode, episode.current_scene)}}
+    {% endif %}
+</section>
+{%- endmacro %}
+
+{% macro scene_data(user, obj, episode, current_scene) -%}
+<hr class='has-bg-muted'>
+<div id="scene-data-container" class="panel has-bg-primary">
+    <h2 class='has-text-center'>{{current_scene.name}}</h2>
+    <hr class='has-bg-muted'>
+    <h3 class='has-text-center'>Connected Scenes</h3>
+    <div class="panel has-bg-screen">
+        <div class="row has-space-around">
+            <div class='column is-shrink episode-scene-container'>
+                <div class="panel has-bg-muted">
+                    <div class="row">
+                        <div class="column is-shrink">
+                            <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary">
+                                {% if current_scene.image %}
+                                <img src="{{current_scene.image.url(100)}}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <a href="/{{current_scene.path}}"
+                                       target='_blank'>
+                                        <iconify-icon icon="akar-icons:link-out"
+                                                      width="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                                <div class="column is-shrink">
+                                    <a hx-post='/api/tabletop/{{episode.pk}}/show/{{current_scene.path}}'
+                                       hx-target="#scene-map-container"
+                                       hx-select="#scene-map-container"
+                                       hx-swap='outerHTML focus-scroll:false'
+                                       hx-trigger='click consume'>
+                                        <iconify-icon icon="tabler:slideshow"
+                                                      width="1rem"
+                                                      height="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h5 class='has-text-dark'>{{current_scene.name}}</h5>
+                    <h6 class='has-text-light'>
+                        Current Scene
+                    </h6>
+                </div>
+            </div>
+            {% for scene in current_scene.scenes %}
+            <div class="column is-shrink">
+                <div class="panel">
+                    <div class="row has-space-around">
+                        <div class="column is-shrink">
+                            <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary"
+                                 hx-post="/api/tabletop/{{episode.pk}}/scene/{{scene.path}}/set"
+                                 hx-target='#scene-map-container'
+                                 hx-select='#scene-map-container'
+                                 hx-swap="outerHTML focus-scroll:false"
+                                 hx-indicator="#request-indicator"
+                                 hx-trigger='click consume'>
+                                {% if scene.image %}
+                                <img src="{{scene.image.url(100)}}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <a href="/{{scene.path}}"
+                                       target='_blank'
+                                       onclick="event.stopPropagation();">
+                                        <iconify-icon icon="akar-icons:link-out"
+                                                      width="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                                <div class="column is-shrink">
+                                    <a hx-post='/api/tabletop/{{episode.pk}}/show/{{scene.path}}'
+                                       hx-target="#scene-map-container"
+                                       hx-select="#scene-map-container"
+                                       hx-swap='outerHTML focus-scroll:false'
+                                       hx-trigger='click consume'>
+                                        <iconify-icon icon="tabler:slideshow"
+                                                      width="1rem"
+                                                      height="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h5 class='has-text-center'> {{scene.name}}</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <hr class='has-bg-muted'>
+    <div class="row">
+        <div class="column is-full">
+            <h4 class='has-text-center'>Geography</h4>
+            <div id='episode-geneology-list' class="row has-space-around">
+                {%for c in current_scene.geneology | reverse %}
+                <div class='column is-shrink episode-geneology-container'>
+                    <div class="row">
+                        <div class="column is-shrink">
+                            <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary">
+                                {% if c.image %}
+                                <img src="{{c.image.url(100)}}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <a href="/{{c.path}}" target='_blank'>
+                                        <iconify-icon icon="akar-icons:link-out"
+                                                      width="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                                <div class="column is-shrink">
+                                    <a hx-post='/api/tabletop/{{episode.pk}}/show/{{c.path}}'
+                                       hx-target="#scene-map-container"
+                                       hx-select="#scene-map-container"
+                                       hx-swap='outerHTML focus-scroll:false'
+                                       hx-trigger='click consume'>
+                                        <iconify-icon icon="tabler:slideshow" width="1rem"
+                                                      height="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>{{c.name}}</h6>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% if current_scene.encounters %}
+    <hr class='has-bg-muted'>
+    <h3 class='has-text-center'>Associated Encounters</h3>
+    <div id="scene-encounter-container" class="panel">
+        <div class="row has-space-around">
+            {% for e in current_scene.encounters %}
+            <div class="column is-shrink">
+                <div class="panel">
+                    <div class="row has-space-around">
+                        <div class="column is-shrink">
+                            <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary"
+                                 hx-post='/api/tabletop/{{episode.pk}}/scene/{{current_scene.pk}}/update'
+                                 hx-target='#scene-map-container'
+                                 hx-select='#scene-map-container'
+                                 hx-swap="outerHTML focus-scroll:false"
+                                 hx-indicator="#request-indicator"
+                                 hx-trigger='click consume'
+                                 hx-vals='{"encounterpk":"{{e.pk}}"}'>
+                                {% if e.image %}
+                                <img src="{{e.image.url(100)}}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="row">
+                                <div class="column is-shrink">
+                                    <a href="/{{e.path}}"
+                                       target='_blank'
+                                       onclick="event.stopPropagation();">
+                                        <iconify-icon icon="akar-icons:link-out"
+                                                      width="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                                <div class="column is-shrink">
+                                    <a hx-post='/api/tabletop/{{episode.pk}}/show/{{e.path}}'
+                                       hx-target="#scene-map-container"
+                                       hx-select="#scene-map-container"
+                                       hx-swap='outerHTML focus-scroll:false'
+                                       hx-trigger='click consume'>
+                                        <iconify-icon icon="tabler:slideshow"
+                                                      width="1rem"
+                                                      height="1rem"></iconify-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h5 class='has-text-center'> {{e.name}}</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <hr>
+        {% if current_scene.current_encounter %}
+        {% set encounter = current_scene.current_encounter %}
+        <h4 class='has-text-center'>{{encounter.name}}</h4>
+        <div class="row">
+            <div class="column is-shrink">
+                <a href="/{{encounter.path}}" target='_blank'>
+                    <div class="image is-tile is-margin-center has-bg-primary">
+                        {% if encounter.image %}
+                        <img src="{{encounter.image.url(300)}}" />
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            <div class="column">
+                <div class="row">
+                    {% if encounter.actors %}
+                    <div class="column is-full">
+                        <hr class='has-bg-muted'>
+                        <h4 class='has-text-center'>Associated Actors</h4>
+                        <div class="row has-space-around">
+                            {%for c in encounter.actors %}
+                            <div class='column is-shrink'>
+                                <div class="row">
+                                    <div class="column is-shrink">
+                                        <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary"
+                                             hx-post='/api/tabletop/{{episode.pk}}/scene/{{current_scene.pk}}/update'
+                                             hx-target="#scene-map-container"
+                                             hx-select="#scene-map-container"
+                                             hx-swap='outerHTML'
+                                             hx-indicator='#request-indicator'
+                                             hx-vals='{"actorpk":"{{c.pk}}"}'>
+                                            {% if c.image %}
+                                            <img src="{{c.image.url(100)}}" />
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="column is-shrink">
+                                        <div class="row">
+                                            <div class="column is-shrink">
+                                                <a href="/{{c.path}}/details"
+                                                   target='_blank'>
+                                                    <iconify-icon icon="akar-icons:link-out"
+                                                                  width="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                            <div class="column is-shrink">
+                                                <a hx-post='/api/tabletop/{{episode.pk}}/show/{{c.path}}'
+                                                   hx-target="#scene-map-container"
+                                                   hx-select="#scene-map-container"
+                                                   hx-swap='outerHTML focus-scroll:false'
+                                                   hx-trigger='click consume'>
+                                                    <iconify-icon icon="tabler:slideshow"
+                                                                  width="1rem"
+                                                                  height="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6>{{c.name}}</h6>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="column is-full">
+                        <hr class='has-bg-muted'>
+                        <h4 class='has-text-center'>Loot</h4>
+
+                        {% if encounter.items %}
+                        <h5 class='has-text-center'>Items</h5>
+                        <div class="row has-space-around">
+                            {%for c in encounter.items %}
+                            <div class='column is-shrink'>
+                                <div class="row">
+                                    <div class="column is-shrink">
+                                        <div class="image is-tiny is-thumbnail is-margin-center has-bg-primary"
+                                             hx-post='/api/tabletop/{{episode.pk}}/scene/{{current_scene.pk}}/update'
+                                             hx-target="#scene-map-container"
+                                             hx-select="#scene-map-container"
+                                             hx-swap='outerHTML'
+                                             hx-indicator='#request-indicator'
+                                             hx-vals='{"itempk":"{{c.pk}}"}'>
+                                            {% if c.image %}
+                                            <img src="{{c.image.url(100)}}" />
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="column is-shrink">
+                                        <div class="row">
+                                            <div class="column is-shrink">
+                                                <a href="/{{c.path}}/details"
+                                                   target='_blank'>
+                                                    <iconify-icon icon="akar-icons:link-out"
+                                                                  width="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                            <div class="column is-shrink">
+                                                <a hx-post='/api/tabletop/{{episode.pk}}/show/{{c.path}}'
+                                                   hx-target="#scene-map-container"
+                                                   hx-select="#scene-map-container"
+                                                   hx-swap='outerHTML focus-scroll:false'
+                                                   hx-trigger='click consume'>
+                                                    <iconify-icon icon="tabler:slideshow"
+                                                                  width="1rem"
+                                                                  height="1rem"></iconify-icon>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6>{{c.name}}</h6>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="row has-space-around">
+                            {% for c in encounter.rewards %}
+                            <div class='column'>
+                                <h5 class='has-text-center'>{{c.name}}</h5>
+                                <div class="panel has-text-center has-bg-screen">
+                                    {{c.description | safe}}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro mapcontainer(user, obj, episode, scene) -%}
+<div id='map-image' class='has-bg-dark'
+     style='background-image: url("{{scene.map.url()}}");
+            background-position: center center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 0;'>
+</div>
+
+<canvas id='map-grid'
+        data-grid='{{scene.grid}}'
+        style="position: absolute;
+            top:0;
+            left:0;
+            z-index: 100;
+            width: 100%;
+            height: 100%;
+            opacity: 0.9;
+            ">
+    Map Grid
+</canvas>
+
+<canvas id='map-fow'
+        data-fow="{{scene.fow}}"
+        style="position: absolute;
+            top:0;
+            left:0;
+            z-index: 101;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+            ">
+    Map Fog of War
+</canvas>
+
+<div id="map-show" {% if not episode.show %} class="is-hidden" {% endif %} style='position: absolute;
+                z-index: 103;
+                top: 10%;
+                left: 50%;
+                transform: translate(-50%, -10%);
+                max-height: 70%;'>
+    <div class="is-float-right">
+        <a class="has-text-muted"
+           hx-post="/api/tabletop/{{episode.pk}}/show/clear"
+           hx-target="#scene-map-container" hx-select="#scene-map-container"
+           hx-swap='outerHTML show:#scene-map-container:top'>
+            <iconify-icon icon="mdi:remove" width="2rem"></iconify-icon>
+        </a>
+    </div>
+    <div class="panel has-bg-screen">
+        <h4 class='has-text-center has-text-light'>
+            {{episode.show.name}}
+        </h4>
+        <hr class='has-bg-dark'>
+        <div class="panel has-bg-muted" style='border-radius: 0 0 5px 5px;'>
+            <div class="image is-large is-rounded-tile is-margin-center">
+                {% if episode.show%}
+                {% if episode.show.map and episode.show.model_name() in ['World', 'Region', 'City']
+                %}
+                <img src="{{episode.show.map.url()}}"
+                     alt="{{episode.show.name}}" style="width:100%;" />
+                {% elif episode.show.image %}
+                <img src="{{episode.show.image.url(500)}}"
+                     alt="{{episode.show.name}}" style="width:100%;" />
+                {% endif %}
+                {% endif %}
+            </div>
+            <div id="map-show-summary" class='panel has-bg-light has-text-dark'>
+                {{episode.show.backstory_summary | safe}}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //adjust the dimensions of the map image container
+    var initMap = function () {
+        var mapContainer = htmx.find("#map-image");
+        var totalHeight = (mapContainer.parentElement.getBoundingClientRect().width * .6) + 'px';
+        mapContainer.style.height = totalHeight;
+
+        var fowContainer = htmx.find("#map-fow");
+        fowContainer.style.height = totalHeight;
+        fowContainer.width = mapContainer.getBoundingClientRect().width;
+        fowContainer.height = mapContainer.getBoundingClientRect().height;
+        var fowctx = fowContainer.getContext('2d');
+        fowctx.fillStyle = '#0f0f0f';
+        var fowState = fowContainer.dataset.fow;
+        if (fowState) {
+            var fowimg = new Image();
+            fowimg.onload = function () {
+                fowctx.globalCompositeOperation = 'source-over';
+                fowctx.drawImage(fowimg, 0, 0, fowContainer.width, fowContainer.height);
+            };
+            fowimg.src = fowState;
+            console.log("loaded fow");
+        }
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        var isDrawing = false;
+        fowContainer.addEventListener('mousedown', function (evt) {
+            isDrawing = true;
+            const mousePos = getMousePos(fowContainer, evt);
+            let fowSize = parseInt(htmx.find('#map-fow-reveal-size').value);
+            fowctx.globalCompositeOperation = 'destination-out';
+            fowctx.beginPath();
+            fowctx.arc(mousePos.x, mousePos.y, fowSize, 0, 2 * Math.PI);
+            fowctx.fill();
+        });
+        fowContainer.addEventListener('mousemove', function (evt) {
+            if (isDrawing) {
+                const mousePos = getMousePos(fowContainer, evt);
+                fowctx.lineTo(mousePos.x, mousePos.y);
+                fowctx.stroke();
+                fowctx.beginPath();
+
+                let fowSize = parseInt(htmx.find('#map-fow-reveal-size').value);
+                fowctx.arc(mousePos.x, mousePos.y, fowSize, 0, 2 * Math.PI);
+                fowctx.fill();
+                fowctx.beginPath();
+                fowctx.moveTo(mousePos.x, mousePos.y);
+            }
+        });
+        fowContainer.addEventListener('mouseup', function () {
+            isDrawing = false;
+            fowctx.beginPath();
+            htmx.ajax('POST', `/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/update`, {
+                values: { 'fow': fowContainer.toDataURL() },
+                swap: 'none'
+            });
+        });
+
+        var gridContainer = htmx.find("#map-grid");
+        gridContainer.style.height = totalHeight;
+        gridContainer.width = mapContainer.getBoundingClientRect().width;
+        gridContainer.height = mapContainer.getBoundingClientRect().height;
+        var gridctx = gridContainer.getContext('2d');
+        var gridState = gridContainer.dataset.grid;
+        if (gridState) {
+            var gridimg = new Image();
+            gridimg.onload = function () {
+                gridctx.globalCompositeOperation = 'source-over';
+                gridctx.drawImage(gridimg, 0, 0, gridContainer.width, gridContainer.height);
+            };
+            gridimg.src = gridState;
+            console.log("loaded grid");
+        }
+    };
+    //draw the map
+    document.readyState != "complete" ? document.addEventListener("DOMContentLoaded", initMap) : initMap();
+</script>
+{%- endmacro %}
+
+{% macro mapcontrols(user, obj, episode, scene) -%}
+<div class="panel has-bg-screen">
+    <div class="row has-space-around">
+        <div id="scene-show-search-container" class="column is-4">
+            {{showcontrols(user, obj, episode, scene)}}
+        </div>
+        <div id="scene-dice-roll-container" class="column is-shrink is-vertically-centered">
+            {{dicecontrols(user, obj, episode, scene)}}
+        </div>
+        <div id="scene-grid-configure-container" class="column is-4 is-vertically-centered">
+            {{gridcontrols(user, obj, episode, scene)}}
+        </div>
+
+    </div>
+    <hr class='has-bg-screen'>
+    <div class="row has-space-around">
+        <div id="scene-music-configure-container" class="column is-shrink">
+            {{musiccontrols(user, obj, episode, scene)}}
+        </div>
+        <div id="scene-fow-configure-container" class="column is-shrink is-vertically-centered">
+            {{fowcontrols(user, obj, episode, scene)}}
+        </div>
+        <div id="scene-orientation-configuration-container"
+             class="column is-2 is-vertically-centered">
+            {{orientationcontrols(user, obj, episode, scene)}}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro showcontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>
+    <iconify-icon icon="tabler:slideshow" width="1rem"></iconify-icon>
+    Show
+</h5>
+<hr class='has-bg-muted'>
+<div class="row">
+    <div class="column">
+        <div class="has-dropdown" style="width:100%;">
+            <input type="text" autocomplete="off" placeholder='search'
+                   class="has-bg-light" type="search"
+                   name="query"
+                   hx-get="/api/tabletop/{{episode.pk}}/show/search" hx-target="#map-show-search"
+                   hx-trigger="input changed delay:500ms, search"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown has-bg-light" id="map-show-search"
+                hx-vals='{"scenepk":"{{scene.pk}}"}'>
+            </ul>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro map_show_dropdown(user, obj, episode, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post='/api/tabletop/{{episode.pk}}/show/{{o.path}}'
+       hx-target="#scene-map-container"
+       hx-select="#scene-map-container" hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active');">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {%endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro dicecontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>Dice Roll</h5>
+<hr class='has-bg-muted'>
+<form hx-post='/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/update'
+      hx-target='#scene-dice-roll-container'
+      hx-select='#scene-dice-roll-container' hx-swap='outerHTML'>
+    <div class="row">
+        <div class="column is-vertically-centered">
+            <button class='button is-full is-primary'>
+                <iconify-icon icon="game-icons:dice-twenty-faces-one"
+                              width="2rem"></iconify-icon>
+            </button>
+        </div>
+        <div class="column is-vertically-centered">
+            <input class="has-bg-light" type="text" name="roll"
+                   value="{{episode.last_roll or '1d20'}}">
+        </div>
+        <div class="column is-vertically-centered">
+            <div class="panel has-bg-screen">
+                <h4 class='has-text-center'>{{episode.last_roll_result or ""}}</h4>
+            </div>
+        </div>
+    </div>
+</form>
+{%- endmacro %}
+
+{% macro orientationcontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>Orientation</h5>
+<hr class='has-bg-muted'>
+<div class="row has-space-around">
+    <div class="column is-vertically-centered">
+        <h6 class='has-text-center'>Rotate</h6>
+        <button class='button has-bg-screen'
+                hx-post="/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/map/rotate"
+                hx-target="#map-image-container"
+                hx-select="#map-image-container" hx-swap='outerHTML focus-scroll:false'
+                hx-indicator="#request-indicator">
+            <iconify-icon icon="lucide:rotate-cw-square" width="1rem"></iconify-icon>
+        </button>
+    </div>
+    <div class="column is-vertically-centered">
+        <h6 class='has-text-center'>Flip</h6>
+        <button class='button has-bg-screen'
+                hx-post="/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/map/flip"
+                hx-target="#map-image-container"
+                hx-select="#map-image-container" hx-swap='outerHTML focus-scroll:false'
+                hx-indicator="#request-indicator">
+            <iconify-icon icon="material-symbols:flip" width="1rem"
+                          height="1rem"></iconify-icon>
+        </button>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro musiccontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>Select Music</h5>
+<hr class='has-bg-muted'>
+<select class="has-bg-muted" name="music"
+        hx-post="/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/update"
+        hx-trigger="change"
+        hx-swap="none">
+    <option value=""></option>
+    {% for music_category, music_list in episode.music_choices.items() %}
+    <optgroup label="{{music_category}}">
+        {% for music in music_list %}
+        <option value="{{music['path']}}" {% if scene.music==music['path'] %} selected {%endif%}>
+            {{music['name']}}
+        </option>
+        {% endfor %}
+    </optgroup>
+    {% endfor %}
+</select>
+{%- endmacro %}
+
+{% macro fowcontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>FoW</h5>
+<hr class='has-bg-muted'>
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <h6 class='has-text-primary'>Clear</h6>
+        <button id="clear-fow" class='button has-bg-screen has-margin-auto'
+                onclick='updateFoW("__clear__");'>
+            <iconify-icon icon="lucide:rotate-cw-square"
+                          width="1rem"></iconify-icon>
+        </button>
+    </div>
+    <div class="column is-shrink has-text-center">
+        <h6 class='has-text-center'>Reset</h6>
+        <button id="reset-fow" class='button has-bg-screen has-margin-auto'
+                onclick='updateFoW("__reset__");'>
+            <iconify-icon icon="lucide:rotate-cw-square"
+                          width="1rem"></iconify-icon>
+        </button>
+    </div>
+    <div class="column is-shrink has-text-center">
+        <h6 class='has-text-center'>Reveal Size</h6>
+        <div class="is-select">
+            <select id="map-fow-reveal-size" class='has-bg-muted'>
+                <option value='250'>X-Large</option>
+                <option value='100'>Large</option>
+                <option value='50' selected>Medium</option>
+                <option value='10'>Small</option>
+            </select>
+        </div>
+    </div>
+</div>
+<script>
+    function updateFoW(fowop) {
+        var mapContainer = document.getElementById('map-image');
+        var fowcanvas = document.getElementById('map-fow');
+        fowcanvas.width = mapContainer.getBoundingClientRect().width;
+        fowcanvas.height = mapContainer.getBoundingClientRect().height;
+        var fowctx = fowcanvas.getContext('2d');
+
+        // Fill the canvas with a color
+        if (fowop == "__clear__") {
+            fowctx.clearRect(0, 0, fowcanvas.width, fowcanvas.height);
+        } else if (fowop == "__reset__") {
+            fowctx.fillStyle = '#0f0f0f';
+            fowctx.fillRect(0, 0, fowcanvas.width, fowcanvas.height);
+        }
+        htmx.ajax('POST', `/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/update`, {
+            values: { 'fow': fowcanvas.toDataURL() },
+            target: '#scene-map-container',
+            select: '#scene-map-container',
+            swap: 'outerHTML'
+        });
+    }
+</script>
+{%- endmacro %}
+
+{% macro gridcontrols(user, obj, episode, scene) -%}
+<h5 class='has-text-center'>Grid</h5>
+<hr class='has-bg-muted'>
+<form id="scene-grid-controls" onchange='updateGrid();'>
+    <div class="row">
+        <div class="column is-shrink">
+            <h6 class='has-text-primary'>Enable</h6>
+            <div class="is-switch">
+                <input type="checkbox" name="grid_enabled" id="grid-enabled" {% if
+                       scene.grid %} checked {% endif %}>
+                <label for="grid-enabled"></label>
+            </div>
+        </div>
+        <div class="column is-shrink">
+            <h6 class='has-text-primary'>Color</h6>
+            <input type="color" name="grid_color" id="grid-color"
+                   value="{{scene.grid_color or '#000000'}}"
+                   style="width:2rem;height: 2rem;">
+        </div>
+        <div class="column">
+            <h6 class="has-text-center has-text-primary">
+                Size
+            </h6>
+            <div class="is-slider">
+                <input id="map-grid-size" name="grid_size" type="range" min="5"
+                       max="100"
+                       value='{{scene.grid_size or 50}}'>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    function updateGrid() {
+
+        var gridform = new FormData(document.getElementById('scene-grid-controls'));
+        var gridEnabled = gridform.get('grid_enabled');
+        var gridSize = 100 - parseInt(gridform.get('grid_size'));
+        var gridColor = gridform.get('grid_color');
+
+        console.log(gridEnabled, gridSize, gridColor);
+
+        var gridcanvas = document.getElementById('map-grid');
+        const gridctx = gridcanvas.getContext('2d');
+        gridctx.clearRect(0, 0, gridcanvas.width, gridcanvas.height);
+        if (gridEnabled) {
+            var maprect = htmx.find("#map-image").getBoundingClientRect();
+            const cellSize = Math.min(maprect.width, maprect.height) / gridSize;
+            //console.log(maprect.width, maprect.height, cellSize);
+            const rows = Math.floor(maprect.height / (cellSize * Math.sqrt(3))) + 2;
+            const cols = Math.floor(maprect.width / (cellSize * 3 / 4));
+            const hexWidth = cellSize * 2;
+            const hexHeight = Math.sqrt(3) * cellSize;
+            gridctx.strokeStyle = gridColor;
+            gridctx.lineWidth = 0.5;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const x = col * (hexWidth * 3 / 4);
+                    const y = row * hexHeight + (col % 2) * hexHeight / 2;
+                    gridctx.beginPath();
+                    gridctx.moveTo(x + cellSize * Math.cos(0), y + cellSize * Math.sin(0));
+
+                    for (let i = 1; i <= 6; i++) {
+                        gridctx.lineTo(x + cellSize * Math.cos(i * 2 * Math.PI / 6), y + cellSize * Math.sin(i * 2 * Math.PI / 6));
+                    }
+
+                    gridctx.closePath();
+                    gridctx.stroke();
+                }
+            }
+        }
+        console.log("saving grid");
+        htmx.ajax('POST', '/api/tabletop/{{episode.pk}}/scene/{{scene.pk}}/update', {
+            values: {
+                'grid': gridEnabled ? gridcanvas.toDataURL() : "",
+                'grid_size': gridform.get('grid_size'),
+                'grid_color': gridColor
+            },
+            swap: 'none'
+        });
+    }
+</script>
+{%- endmacro %}
