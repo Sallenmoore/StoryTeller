@@ -8,9 +8,8 @@ from slugify import slugify
 
 from autonomous import log
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import BoolAttr, IntAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
-from models.events.event import Event
 from models.images.image import Image
 from models.journal import Journal
 
@@ -27,9 +26,7 @@ class TTRPGBase(AutoModel):
     desc_summary = StringAttr(default="")
     traits = StringAttr(default="")
     image = ReferenceAttr(choices=[Image])
-    start_date = ReferenceAttr(choices=[Event])
-    end_date = ReferenceAttr(choices=[Event])
-    current_age = IntAttr(default=0)
+    current_age = IntAttr(default=lambda: random.randint(18, 50))
     history = StringAttr(default="")
     journal = ReferenceAttr(choices=[Journal])
 
@@ -54,7 +51,7 @@ class TTRPGBase(AutoModel):
         "City",
         "Creature",
         "Character",
-        "Encounter",
+        "District",
         "Faction",
         "Item",
         "Location",
@@ -62,12 +59,10 @@ class TTRPGBase(AutoModel):
         "Region",
     ]
     child_list = {"city": "cities"}
-    model_list = {"poi": "POI"}
     _no_copy = {
         "journal": None,
         "history": "",
     }
-    _possible_events = Event.event_options
     _traits_list = [
         "secretly evil",
         "openly evil",
@@ -115,8 +110,8 @@ class TTRPGBase(AutoModel):
     def get_model(cls, model, pk=None):
         if not model or not isinstance(model, str):
             return model
-        model_str = cls.model_list.get(model.lower(), model.title())
-        Model = AutoModel.load_model(model_str)
+        log(model)
+        Model = AutoModel.load_model(model)
         return Model.get(pk) if pk else Model
 
     @classmethod
@@ -126,26 +121,6 @@ class TTRPGBase(AutoModel):
     ########### Property Methods ###########
     @property
     def age(self):
-        if not self.current_age:
-            if (
-                self.end_date
-                and self.start_date
-                and self.end_date.year
-                and self.start_date.year
-            ):
-                self.current_age = self.end_date.year - self.start_date.year
-                self.save()
-            elif (
-                self.start_date
-                and self.start_date.year
-                and self.calendar.current_date.year
-                and self.start_date.year < self.calendar.current_date.year
-            ):
-                self.current_age = (
-                    self.calendar.current_date.year - self.start_date.year
-                )
-                self.save()
-
         return self.current_age
 
     @age.setter
@@ -209,10 +184,6 @@ class TTRPGBase(AutoModel):
     @property
     def history_prompt(self):
         return f"""
-FOUNDED
----
-{self.start_date.datestr() if self.start_date else "Unknown"}
-
 HISTORY
 ---
 {self.backstory_summary}
@@ -238,6 +209,14 @@ EVENTS
         return self._possible_events
 
     @property
+    def map_thumbnail(self):
+        return self.map.image.url(100)
+
+    @property
+    def map_prompt(self):
+        return self.system.map_prompt(self)
+
+    @property
     def slug(self):
         return slugify(self.name)
 
@@ -253,8 +232,10 @@ EVENTS
     def delete(self):
         if self.journal:
             self.journal.delete()
-        if self.events:
-            [event.delete() for event in self.events]
+        if self.image:
+            self.image.delete()
+        if self.map:
+            self.map.delete()
         return super().delete()
 
     # MARK: Generate
@@ -340,6 +321,26 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
         self.save()
         return self.image
 
+    def get_map_list(self):
+        images = []
+        for img in Image.all():
+            # log(img.asset_id)
+            if all(t in img.tags for t in ["map", self.model_name().lower, self.genre]):
+                images.append(img)
+        return images
+
+    # MARK: generate_map
+    def generate_map(self):
+        self.map = Image.generate(
+            prompt=self.map_prompt,
+            tags=["map", self.model_name().lower, self.genre],
+            img_quality="hd",
+            img_size="1792x1024",
+        )
+        self.map.save()
+        self.save()
+        return self.map
+
     ############# Association Methods #############
     # MARK: Associations
     def add_association(self, obj):
@@ -409,14 +410,13 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
             )
             self.backstory_summary = markdown.markdown(self.backstory_summary)
         # generate backstory summary
-        if len(self.description) < 15:
+        if len(self.description.split()) < 15:
             self.description_summary = self.description
         else:
-            primer = "Generate a plain text summary of the provided character's description in 15 words or fewer."
+            primer = f"Generate a plain text summary of the provided {self.title}'s description in 15 words or fewer."
             self.description_summary = self.system.generate_summary(
                 self.description, primer
             )
-        self.campaigns.sort(key=lambda x: x.start_date)
         self.save()
 
         # generate history
@@ -424,21 +424,6 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
             self.start_date and self.start_date.year
         ):
             history = self.history_prompt
-            for campaign in self.campaigns:
-                for episode in campaign.sessions:
-                    if self in episode.associations:
-                        soup = BeautifulSoup(episode.summary, "html.parser")
-                        summary = ""
-                        for p in soup.prettify().split("<p>"):
-                            if self.name.lower() in p.lower():
-                                summary += p.replace("</p>", "")
-                        if summary:
-                            le = f"""
-Dates: {episode.start_date.datestr()} - {episode.end_date.datestr()}
-------
-{summary}
-"""
-                            history += le
             history = self.system.generate_summary(history, self.history_primer)
             history = history.replace("```markdown", "").replace("```", "")
             self.history = (
@@ -486,72 +471,6 @@ Dates: {episode.start_date.datestr()} - {episode.end_date.datestr()}
                 associations=associations,
             )
 
-    def add_event(
-        self,
-        episode=None,
-        date=None,
-        visibility=True,
-        name=None,
-        coordinates=None,
-    ):
-        new_event = Event(
-            _obj=self,
-            _episode=episode,
-            _date=date,
-            _visibility=visibility,
-            _name=name,
-            _coordinates=coordinates,
-        )
-        new_event.save()
-        self.events.append(new_event)
-        self.save()
-        if new_event.date > self.calendar.current_date:
-            self.calendar.current_date.day = new_event.day
-            self.calendar.current_date.month = new_event.month
-            self.calendar.current_date.year = new_event.year
-            self.calendar.save()
-
-    def get_events(
-        self,
-        start_date=None,
-        end_date=None,
-        campaign=None,
-        mtype=None,
-        placed=False,
-        unplaced=False,
-    ):
-        start_year = int(
-            start_date
-            or (campaign and campaign.start_date.year)
-            or self.start_date.date.year
-        )
-        end_year = int(
-            end_date
-            or (campaign and campaign.end_date.year)
-            or self.end_date.date.year
-            or self.current_date
-        )
-        result = []
-        # log(len(self.events), start_year, end_year)
-        for event in self.events:
-            if start_year <= event.date.year <= end_year:
-                # log(mtype, event.obj.model_name())
-                if not mtype or event.obj.model_name() == mtype:
-                    # log(placed, unplaced, event.placed)
-                    if (
-                        (not placed and not unplaced)
-                        or (placed and event.placed)
-                        or (unplaced and not event.placed)
-                    ):
-                        result.append(event)
-        return result
-
-    def remove_event(self, event):
-        if event in self.events:
-            self.events.remove(event)
-            self.save()
-            event.delete()
-
     def search_autocomplete(self, query):
         results = []
         for model in self._models:
@@ -564,15 +483,6 @@ Dates: {episode.start_date.datestr()} - {episode.end_date.datestr()}
         return results
 
     # /////////// HTML SNIPPET Methods ///////////
-    def get_icon(self, model=None, size="1rem", type="basic"):
-        model = model or self.model_name()
-        return f"<iconify-icon icon='{Event.icon_options[type][model]}' width='{size}'></iconify-icon>"
-
-    def label(self, model):
-        if not isinstance(model, str):
-            model = model.__name__
-        return self.titles.get(model, model)
-
     def snippet(self, user, macro, kwargs=None):
         module = f"models/_{self.model_name().lower()}.html"
         if kwargs:
@@ -590,85 +500,17 @@ Dates: {episode.start_date.datestr()} - {episode.end_date.datestr()}
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_image()
-        document.pre_save_dates()
         document.pre_save_backstory()
         document.pre_save_traits()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
         super().auto_post_save(sender, document, **kwargs)
-        document.post_save_start_date()
-        document.post_save_end_date()
         document.post_save_journal()
 
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
-
-    def pre_save_dates(self):
-        if (
-            self.pk
-            and isinstance(self.start_date, dict)
-            and all(
-                (
-                    "day" in self.start_date,
-                    "month" in self.start_date,
-                    "year" in self.start_date,
-                )
-            )
-        ):
-            start_date = Event.find(obj=self, name=self.possible_events[0])
-            if not start_date:
-                start_date = Event(obj=self, name=self.possible_events[0])
-            start_date.day = (
-                int(self.start_date["day"]) if self.start_date["day"].isdigit() else 0
-            )
-            start_date.month = (
-                int(self.start_date["month"])
-                if self.start_date["month"].isdigit()
-                else 0
-            )
-            start_date.year = (
-                int(self.start_date["year"]) if self.start_date["year"].isdigit() else 0
-            )
-            start_date.save()
-
-            self.start_date = start_date
-            # log(self.start_date)
-
-        if (
-            self.pk
-            and isinstance(self.end_date, dict)
-            and all(
-                (
-                    "day" in self.start_date,
-                    "month" in self.start_date,
-                    "year" in self.start_date,
-                )
-            )
-        ):
-            end_date = Event.find(obj=self, name=self.possible_events[-1])
-            if not end_date:
-                end_date = Event(obj=self, name=self.possible_events[0])
-            end_date.day = (
-                int(self.end_date["day"]) if self.end_date["day"].isdigit() else 0
-            )
-            end_date.month = (
-                int(self.end_date["month"]) if self.end_date["month"].isdigit() else 0
-            )
-            end_date.year = (
-                int(self.end_date["year"]) if self.end_date["year"].isdigit() else 0
-            )
-            end_date.save()
-            self.end_date = end_date
-
-        if (
-            self.start_date
-            and self.end_date
-            and self.end_date.year != 0
-            and self.start_date.year > self.end_date.year
-        ):
-            self.start_date.year = self.end_date.year - 1
 
     def pre_save_image(self):
         if isinstance(self.image, str):
@@ -707,23 +549,3 @@ Dates: {episode.start_date.datestr()} - {episode.end_date.datestr()}
             self.journal = Journal(world=self.get_world(), parent=self)
             self.journal.save()
             self.save()
-
-    def post_save_start_date(self):
-        if not self.start_date:
-            self.start_date = Event(obj=self, name=self._possible_events[0])
-            self.start_date.save()
-            self.save()
-        else:
-            self.start_date.obj = self
-            self.start_date.name = self._possible_events[0]
-            self.start_date.save()
-
-    def post_save_end_date(self):
-        if not self.end_date:
-            self.end_date = Event(obj=self, name=self._possible_events[-1])
-            self.end_date.save()
-            self.save()
-        else:
-            self.end_date.obj = self
-            self.end_date.name = self._possible_events[-1]
-            self.end_date.save()

@@ -10,10 +10,10 @@ from flask import Blueprint, get_template_attribute, request
 from slugify import slugify
 
 from autonomous import log
-from models.character import Character
-from models.creature import Creature
-from models.item import Item
 from models.journal import JournalEntry
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.item import Item
 from models.user import User
 from models.world import World
 
@@ -228,19 +228,6 @@ def add(childmodel, childpk=None):
     return get_template_attribute("components/_associations.html", "associations")(
         user=user, obj=parent, associations=parent.get_associations()
     )
-
-
-@manage_endpoint.route("/associate/players", methods=("POST",))
-def addplayers():
-    user, obj, world, *_ = _loader()
-    for child in world.current_campaign.players:
-        obj.add_association(child)
-    return get_template_attribute("components/_associations.html", "associations")(
-        user=user,
-        obj=obj,
-        associations=obj.get_associations(),
-    )
-
 
 @manage_endpoint.route(
     "/parent/<string:parentmodel>/<string:parentpk>", methods=("POST",)

@@ -7,16 +7,13 @@ $color-type: hsl !default;
     $color-type: hsl;
 }
 
-//$primary: #302a1c !default;
-$primary: #436e82 !default;
-//$primary: #c7cbcf !default;
+//$primary: #436e82 !default;
+$primary: #45576b !default;
 $primarytext: getTextColor($primary) !default;
 $secondary: getSecondaryColor($primary) !default;
 $secondarytext: getTextColor($secondary) !default;
-$dark: darken($primary, 40%);
-$darktext: $primary;
-$light: lighten($secondary, 65%);
-$lighttext: lighten($secondary, 70%);
+$dark: color.adjust($primary, $lightness: -10%);
+$light: color.adjust($secondary, $lightness: 40%);
 $dark-grey: #585858 !default;
 $light-grey: #abb0b7 !default;
 $muted: rgba(color.adjust($secondary, $lightness: 50%), .66) !default;
@@ -40,10 +37,12 @@ $color-palette: (
     "link": $link,
 );
 $text-palette: (
-    "primary": $primarytext,
-    "secondary": $secondarytext,
-    "dark": $darktext,
-    "light": $lighttext,
+    "primary": $primary,
+    "secondary": $secondary,
+    "primarybg": $primarytext,
+    "secondarybg": $secondarytext,
+    "dark": $dark,
+    "light": $light,
     "white": #f4f4f0,
     "black": #171717,
     "light-grey": $light-grey,

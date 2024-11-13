@@ -43,7 +43,6 @@ from werkzeug.exceptions import HTTPException
 
 from autonomous import log
 from autonomous.auth import AutoAuth
-from filters.utils import filter_shuffle, roll_dice
 from models.user import User
 
 
@@ -63,8 +62,7 @@ def create_app():
         app.jinja_env.add_extension("jinja2.ext.debug")
 
     # Configure Filters
-    app.jinja_env.filters["roll_dice"] = roll_dice
-    app.jinja_env.filters["filter_shuffle"] = filter_shuffle
+    # app.jinja_env.filters["roll_dice"] = roll_dice
 
     # Configure Routes
     @app.route("/favicon.ico")

@@ -6,63 +6,6 @@
 {% import "components/_elements.html" as element %}
 {% import "components/_form.html" as form_components %}
 
-{% macro worldbuild (user) -%}
-<div class="container">
-    <div class="row fade-it-in" id="create-world">
-        <div class="column is-center is-8 is-vertically-centered has-bg-primary"
-             style='position:relative;'>
-            <h2 class="has-text-center">Give your world some details</h2>
-            <div class="has-text-primary" style="position:absolute; top:10px; right:10px;"
-                 hx-get="/api/world/" hx-target="#content"
-                 hx-select='#content'>
-                <iconify-icon icon='material-symbols:close' width="3rem"></iconify-icon>
-            </div>
-            <hr class='has-bg-secondary'>
-            <form id="world-build-form" hx-get="/api/world/build" hx-target="#content"
-                  hx-indicator="#request-indicator" hx-select='#content'>
-                <input type="hidden" name="user" value="{{user.pk}}">
-                <div class="row">
-                    <div class="column is-half">
-                        <select class="has-bg-light has-text-dark" name="system">
-                            <option value="fantasy">Fantasy</option>
-                            <option value="sci-fi">Sci-Fi</option>
-                            <option value="horror">Horror</option>
-                            <option value="mystery">Mystery</option>
-                            <option value="historical">Historical</option>
-                            <option value="western">Western</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="column is-full">
-                        <input class="has-bg-light has-text-dark" type="text" name="name"
-                               placeholder="World Name">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="column is-full">
-                        <input class="has-bg-light has-text-dark" type="text" name="desc"
-                               placeholder="Brief World Description...">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="column is-full">
-                        <input class="has-bg-light has-text-dark" type="text" name="backstory"
-                               placeholder="Brief World History...">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="column is-full">
-                        <input class="button rounded is-full" type="submit" value="Build"
-                               id="create-world-submit">
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
     <li>

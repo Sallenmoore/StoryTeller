@@ -1,12 +1,11 @@
 # Built-In Modules
 import glob
 import os
-import shutil
 import subprocess
 from datetime import datetime
 
 # external Modules
-from flask import Blueprint, get_template_attribute, redirect, request
+from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
 from models.images.image import Image
@@ -145,7 +144,6 @@ def migration():
         #     "creature": Creature,
         #     "character": Character,
         #     "item": Item,
-        #     "campaign": Campaign,
         #     "session": Session,
         #     "calendar": Calendar,
         #     "event": Event,
@@ -242,7 +240,6 @@ def migration():
         #                 o.pop("_world")
         #                 o.pop("_parent")
         #             else:
-        #                 o.pop("_campaigns", None)
         #                 o.pop("_lineage", None) or o.pop("lineage", None)
         #             if old_model_name not in ["World", "Region", "City", "Location", "POI"]:
         #                 o.pop("battlemap", None)

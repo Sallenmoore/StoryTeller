@@ -10,7 +10,6 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
-from models.campaign import Campaign
 from models.world import World
 
 index_page = Blueprint("index", __name__)
@@ -25,19 +24,25 @@ def _authenticate(user, obj):
 # def update_with_session(requestdata):
 #     # log(requestdata)
 #     args = requestdata.copy()
-#     args["campaignpk"] = requestdata.get("campaignpk") or session.get("campaignpk")
-#     args["sessionpk"] = requestdata.get("sessionpk") or session.get("sessionpk")
 #     args["scenepk"] = requestdata.get("scenepk") or session.get("scenepk")
 #     return args
 
 
-@index_page.route("/", endpoint="index", methods=("GET",))
+@index_page.route("/", endpoint="index", methods=("GET", "POST"))
+@index_page.route("/home", endpoint="index", methods=("GET", "POST"))
+@auth_required()
+def index():
+    user = AutoAuth.current_user()
+    session["page"] = "/home"
+    return render_template("index.html", user=user, page_url="/home")
+
+
 @index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
 @index_page.route("/<string:model>/<string:pk>/<path:page>", methods=("GET", "POST"))
 @auth_required(guest=True)
-def index(model=None, pk=None, page=""):
+def page(model, pk, page=""):
     user = AutoAuth.current_user()
-    session["page"] = f"/{page}" if page else session.get("page", "/home")
+    session["page"] = f"/{model}/{pk}/{page or 'details'}"
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk
@@ -59,7 +64,9 @@ def api(rest_path):
     # log(request.method)
     user = AutoAuth.current_user()
     if request.method == "GET":
-        log(rest_path)
+        rest_path = request.full_path.replace("/api/", "")
+        url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
+        log(url)
         response = requests.get(url).text
     elif not user.is_guest:
         log(rest_path, request.json)
@@ -67,9 +74,10 @@ def api(rest_path):
             response = requests.post(url, json=request.json).text
         elif request.json.get("model") and request.json.get("pk"):
             obj = World.get_model(request.json.get("model"), request.json.get("pk"))
-            # log(obj)
             if _authenticate(user, obj):
                 response = requests.post(url, json=request.json).text
+        else:
+            response = requests.post(url, json=request.json).text
     # log(response)
     return response
 

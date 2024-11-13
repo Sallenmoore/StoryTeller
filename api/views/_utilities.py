@@ -14,8 +14,15 @@ def loader(
 ):
     # log(f"User: {user}, Model: {model}, PK: {pk}")
     # get user
+    if request.method == "GET":
+        request_data = request.args
+    elif request.method == "POST":
+        request_data = request.json
+    else:
+        request_data = None
+
     if not user:
-        user_data = request.json.pop("user", None)
+        user_data = request_data.get("user", None)
         user = (
             User.get(user_data["pk"])
             if isinstance(user_data, dict) and user_data.get("pk")
@@ -26,12 +33,12 @@ def loader(
 
     # get obj
     obj = World.get_model(
-        model or request.json.pop("model", None), pk or request.json.pop("pk", None)
+        model or request_data.get("model", None), pk or request_data.get("pk", None)
     )
 
     # get world
 
     world = obj.get_world() if obj else None
-    macro = macro or request.json.pop("macro", None)
-    module = module or request.json.pop("module", None)
+    macro = macro or request_data.get("macro", None)
+    module = module or request_data.get("module", None)
     return user, obj, world, macro, module

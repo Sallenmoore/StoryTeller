@@ -2,7 +2,7 @@ import random
 
 from autonomous import log
 from autonomous.model.autoattr import BoolAttr, ListAttr, StringAttr
-from models.abstracts.ttrpgobject import TTRPGObject
+from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
 class Item(TTRPGObject):
@@ -17,14 +17,8 @@ class Item(TTRPGObject):
     type = StringAttr(default="mundane")
     features = ListAttr(StringAttr(default=""))
 
-    _possible_events = [
-        "Created",
-        *TTRPGObject._possible_events,
-        "Lost",
-        "Destroyed",
-    ]
     _rarity_list = ["common", "uncommon", "rare", "very rare", "legendary", "artifact"]
-    parent_list = ["Creature", "Character", "Location", "POI", "Encounter"]
+    parent_list = ["Creature", "Character", "Location", "District", "Encounter"]
     _funcobj = {
         "name": "generate_item",
         "description": "creates Item data object",
@@ -64,11 +58,6 @@ class Item(TTRPGObject):
                     "type": "string",
                     "description": "How long will the item last before it breaks or is used up",
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "2 short descriptions of potential secret side quests involving the item",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -90,21 +79,6 @@ class Item(TTRPGObject):
         return results
 
     @property
-    def history_prompt(self):
-        return f"""
-CREATED
----
-{self.start_date.datestr() if self.start_date else "Unknown"}
-
-HISTORY
----
-{self.backstory_summary}
-
-EVENTS
----
-"""
-
-    @property
     def image_prompt(self):
         return f"A full color image of an item on display called a {self.name} and described as follows: {self.desc}."
 
@@ -118,8 +92,6 @@ EVENTS
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "rarity": self.rarity if self.rarity else "Unknown",
             "history": self.history if self.history else "Unknown",
             "cost": self.cost if self.cost else "Unknown",
@@ -140,7 +112,6 @@ EVENTS
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_dnd5ename()
         document.pre_save_rarity()
 
     # @classmethod
@@ -151,9 +122,6 @@ EVENTS
     #     super().clean()
 
     ################### verify associations ##################
-    def pre_save_dnd5ename(self):
-        if not self.dnd5e_name:
-            self.dnd5e_name = self.name
 
     def pre_save_rarity(self):
         self.rarity = self.rarity.strip()

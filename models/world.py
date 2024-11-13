@@ -1,27 +1,16 @@
 import json
+import random
 
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     ListAttr,
     ReferenceAttr,
+    StringAttr,
 )
-from autonomous.tasks import AutoTasks
-from models.abstracts.ttrpgbase import TTRPGBase
-from models.campaign import Campaign
-from models.character import Character
-from models.city import City
-from models.creature import Creature
-from models.encounter import Encounter
-from models.calendar import Calendar
-from models.events.event import Event
-from models.faction import Faction
-from models.images.image import Image
-from models.item import Item
+from models.autogm import AutoGM
+from models.base.ttrpgbase import TTRPGBase
 from models.journal import Journal
-from models.location import Location
-from models.poi import POI
-from models.region import Region
 from models.systems import (
     FantasySystem,
     HardboiledSystem,
@@ -31,20 +20,25 @@ from models.systems import (
     SciFiSystem,
     WesternSystem,
 )
-from models.autogm import AutoGM
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.city import City
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.district import District
+from models.ttrpgobject.faction import Faction
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.location import Location
+from models.ttrpgobject.region import Region
 
 
 class World(TTRPGBase):
     system = ReferenceAttr(choices=["BaseSystem"])
-    user = ReferenceAttr(choices=["User"], required=True)
-    calendar = ReferenceAttr(choices=[Calendar])
-    subusers = ListAttr(ReferenceAttr(choices=["User"]))
-    campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
-    current_campaign = ReferenceAttr(choices=[Campaign])
+    users = ListAttr(ReferenceAttr(choices=["User"]))
     gm = ReferenceAttr(choices=[AutoGM])
     map = ReferenceAttr(choices=["Image"])
+    current_date = StringAttr(
+        default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ])} {random.randint(1, 5000)}"
+    )
 
-    _possible_events = ["Began", "Abandoned", "Present Day"]
     _funcobj = {
         "name": "generate_world",
         "description": "creates, completes, and expands a World data object for a TTRPG setting",
@@ -63,23 +57,8 @@ class World(TTRPGBase):
                     "type": "string",
                     "description": "A brief history of the world and its people. Only include publicly known information.",
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "Descriptions of 4 possible epic storylines in the world",
-                    "items": {"type": "string"},
-                },
             },
         },
-    }
-    _systems = {
-        "fantasy": FantasySystem,
-        "sci-fi": SciFiSystem,
-        "western": WesternSystem,
-        "hardboiled": HardboiledSystem,
-        "mystery": HardboiledSystem,
-        "horror": HorrorSystem,
-        "post-apocalyptic": PostApocalypticSystem,
-        "historical": HistoricalSystem,
     }
     ########################## Dunder Methods #############################
 
@@ -87,7 +66,15 @@ class World(TTRPGBase):
 
     @classmethod
     def build(cls, system, user, name="", desc="", backstory=""):
-        System = World._systems.get(system)
+        System = {
+            "fantasy": FantasySystem,
+            "sci-fi": SciFiSystem,
+            "western": WesternSystem,
+            "hardboiled": HardboiledSystem,
+            "horror": HorrorSystem,
+            "post-apocalyptic": PostApocalypticSystem,
+            "historical": HistoricalSystem,
+        }.get(system)
         if not System:
             raise ValueError(f"System {system} not found")
         else:
@@ -96,31 +83,44 @@ class World(TTRPGBase):
 
         ### set attributes ###
         if not name.strip():
-            name = f"{system._genre} World"
+            name = f"{system._genre} Setting"
         if not desc.strip():
-            desc = f"An expansive, complex, and mysterious {system._genre} setting suitable for a {system._genre} {system.get_title(World)}."
+            desc = f"An expansive, complex, and mysterious {system._genre} setting suitable for a {system._genre} {system.get_title(cls)}."
         if not backstory.strip():
             backstory = f"{name} is filled with curious and dangerous points of interest filled with various creatures and characters. The complex and mysterious history of this world is known only to a few reclusive individuals. Currently, there are several factions vying for power through poltical machinations, subterfuge, and open warfare."
 
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
+        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
 
         world = cls(
             name=name,
             desc=desc,
             backstory=backstory,
             system=system,
-            user=user,
+            users=[user],
         )
+        system.world = world
+        user.worlds += [world]
         world.save()
-        world.update_refs()
+        system.save()
+        user.save()
+        cls.update_system_references(world.pk)
         return world
 
     @classmethod
     def update_system_references(cls, pk):
         if obj := cls.get(pk):
-            obj.system.update_refs(obj)
-        else:
-            log(f"Object {pk} not found", _print=True)
+            world_data = obj.page_data()
+            obj.system.text_agent.get_client().clear_files()
+            ref_db = json.dumps(world_data).encode("utf-8")
+            obj.system.text_agent.attach_file(
+                ref_db, filename=f"{obj.slug}-dbdata.json"
+            )
+
+            obj.system.json_agent.get_client().clear_files()
+            ref_db = json.dumps(world_data).encode("utf-8")
+            obj.system.json_agent.attach_file(
+                ref_db, filename=f"{obj.slug}-dbdata.json"
+            )
 
     ############################ PROPERTIES ############################
     @property
@@ -134,16 +134,12 @@ class World(TTRPGBase):
             *self.locations,
             *self.pois,
             *self.regions,
-            *self.encounters,
+            *self.districts,
         ]
 
     @property
     def characters(self):
         return Character.search(world=self) if self.pk else []
-
-    @property
-    def child_models(self):
-        return self._models
 
     @property
     def cities(self):
@@ -154,24 +150,8 @@ class World(TTRPGBase):
         return Creature.search(world=self) if self.pk else []
 
     @property
-    def encounters(self):
-        return Encounter.search(world=self) if self.pk else []
-
-    @property
-    def events(self):
-        events = [e for obj in self.associations for e in obj.events]
-        events += [
-            obj.start_date
-            for obj in self.associations
-            if obj.start_date and obj.start_date.year
-        ]
-        events += [
-            obj.end_date
-            for obj in self.associations
-            if obj.end_date and obj.end_date.year
-        ]
-        events.sort(reverse=True)
-        return events
+    def districts(self):
+        return District.search(world=self) if self.pk else []
 
     @property
     def factions(self):
@@ -187,19 +167,11 @@ class World(TTRPGBase):
 
     @property
     def image_prompt(self):
-        return f"A full color, high resolution illustrated map of a fictional {self.genre} world called {self.name} and described as {self.desc or 'filled with points of interest to explore, antagonistic factions, and a rich, mysterious history.'}"
+        return f"A full color, high resolution illustrated map of a fictional {self.genre} setting called {self.name} and described as {self.desc or 'filled with points of interest to explore, antagonistic factions, and a rich, mysterious history.'}"
 
     @property
     def locations(self):
         return Location.search(world=self) if self.pk else []
-
-    @property
-    def map_thumbnail(self):
-        return self.map.image.url(100)
-
-    @property
-    def map_prompt(self):
-        return self.system.map_prompt(self)
 
     @property
     def parent(self):
@@ -215,86 +187,42 @@ class World(TTRPGBase):
 
     @player_faction.setter
     def player_faction(self, obj):
-        if self.pk:
+        if self.pk and obj:
             if result := Faction.find(world=self, is_player_faction=True):
                 result.is_player_faction = False
                 result.save()
-            if obj:
-                obj.is_player_faction = True
-                obj.save()
-
-    @property
-    def pois(self):
-        return POI.search(world=self) if self.pk else []
+            obj.is_player_faction = True
+            obj.save()
 
     @property
     def regions(self):
         return Region.search(world=self) if self.pk else []
 
-    @property
-    def users(self):
-        return [self.user, *self.subusers]
-
     ########################## Override Methods #############################
 
     def delete(self):
         objs = [
+            self.gm,
+            self.system,
             *Region.search(world=self),
             *City.search(world=self),
             *Location.search(world=self),
-            *POI.search(world=self),
-            *Encounter.search(world=self),
+            *District.search(world=self),
             *Faction.search(world=self),
             *Creature.search(world=self),
             *Character.search(world=self),
             *Item.search(world=self),
-            *Campaign.search(world=self),
-            *Event.search(obj=self),
-            *Journal.search(world=self),
         ]
-        for campaign in self.campaigns:
-            campaign.delete()
         for obj in objs:
-            obj.delete()
-        if self in self.user.worlds:
-            self.user.worlds.remove(self)
-            self.user.save()
-        if self.calendar:
-            self.calendar.delete()
-        if self.system:
-            self.system.delete()
-        if self.start_date:
-            self.start_date.delete()
-        if self.end_date:
-            self.end_date.delete()
+            if obj:
+                obj.delete()
+        for user in self.users:
+            if self in user.worlds:
+                user.worlds.remove(self)
+                user.save()
         return super().delete()
 
     ###################### Boolean Methods ########################
-
-    def is_owner(self, user):
-        return self.user == user
-
-    def is_user(self, user):
-        return self.is_owner(user) or user in self.subusers
-
-    ###################### Getter Methods ########################
-    def get_world(self):
-        return self
-
-    def get_players(self, exclude_campaign=None, count_only=False):
-        if exclude_campaign:
-            players = [p for p in self.players if p not in exclude_campaign.players]
-        else:
-            players = self.players
-        return players if not count_only else len(players)
-
-    def get_campaign_sessions(self, campaign):
-        return campaign.sessions
-
-    def add_association(self, obj):
-        obj.world = self
-        obj.save()
-        return self.associations
 
     def is_child(self, obj):
         return self == obj.parent
@@ -302,50 +230,35 @@ class World(TTRPGBase):
     def is_associated(self, obj):
         return self == obj.world
 
+    def is_user(self, user):
+        return user in self.users
+
+    ###################### Getter Methods ########################
+    def get_world(self):
+        return self
+
+    def add_association(self, obj):
+        obj.world = self
+        obj.save()
+        return self.associations
+
     ###################### Data Methods ########################
     ################### Instance Methods #####################
-    def update_refs(self):
-        AutoTasks().task(World.update_system_references, self.pk)
-
-    # MARK: generate_map
-    def generate_map(self):
-        self.map = Image.generate(
-            prompt=self.map_prompt,
-            tags=["map", "world", self.genre],
-            img_quality="hd",
-            img_size="1792x1024",
-        )
-        self.map.save()
-        self.save()
-        return self.map
-
-    def get_map_list(self):
-        images = []
-        for img in Image.all():
-            # log(img.asset_id)
-            if all(t in img.tags for t in ["map", "world", self.genre]):
-                images.append(img)
-        return images
-
     def page_data(self):
         response = {
             "worldname": self.name,
             "genre": self.genre,
             "backstory": self.backstory,
-            "current_date": self.calendar.stringify(self.current_date),
-            "canonical_history": [
-                c.page_data() for c in self.campaigns if c.start_date
-            ],
-            "objects": {
+            "current_date": self.current_date,
+            "world_objects": {
                 "Regions": [o.page_data() for o in self.regions],
                 "Locations": [o.page_data() for o in self.locations],
                 "Cities": [o.page_data() for o in self.cities],
-                "Points of Interest": [o.page_data() for o in self.pois],
                 "Factions": [o.page_data() for o in self.factions],
                 "Characters": [o.page_data() for o in self.characters],
                 "Items": [o.page_data() for o in self.items],
                 "Creatures": [o.page_data() for o in self.creatures],
-                "Encounters": [o.page_data() for o in self.encounters],
+                "Districts": [o.page_data() for o in self.districts],
             },
         }
         # Convert the response object to JSON
@@ -365,22 +278,17 @@ class World(TTRPGBase):
     # def auto_post_init(cls, sender, document, **kwargs):
     #     # log("Auto Pre Save World")
     #     super().auto_post_init(sender, document, **kwargs)
-    #     document.campaigns.sort(key=lambda x: x.start_date, reverse=True)
+    #     =
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_system()
-        document.pre_save_calendar()
-        document.pre_save_events()
-        document.pre_save_end_date()
-        document.pre_save_campaign()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
         super().auto_post_save(sender, document, **kwargs)
         document.post_save_system()
-        document.post_save_campaign()
         document.post_save_gm()
         document.post_save_users()
 
@@ -388,9 +296,6 @@ class World(TTRPGBase):
     #     super().clean()
 
     ################### verification methods ##################
-    def pre_save_campaign(self):
-        # Traverse through all elements in the list
-        self.campaigns.sort(key=lambda x: (x.start_date))
 
     def pre_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
@@ -412,42 +317,9 @@ class World(TTRPGBase):
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
         if self.system.world != self:
-            self.system.world = self
-            self.system.save()
-
-    def pre_save_calendar(self):
-        if not self.calendar:
-            calendar = Calendar()
-            calendar.save()
-            self.calendar = calendar
-
-    def post_save_campaign(self):
-        if self.campaigns and not self.current_campaign:
-            self.current_campaign = self.campaigns[-1]
-            self.save()
-
-    def pre_save_end_date(self):
-        if self.start_date and not self.start_date.year:
-            self.start_date.year = 1
-        if (not self.end_date and self.calendar.current_date) or (
-            self.calendar.current_date != self.end_date
-        ):
-            self.end_date = self.calendar.current_date
-
-    def pre_save_events(self):
-        if self.events:
-            self.calendar.current_date = self.events[-1]
-            for event in self.events:
-                if (event.obj and getattr(event.obj, "canon", None)) or (
-                    event.episode
-                    and event.episode.end_date
-                    and event.episode.end_date.year
-                ):
-                    # log(event.obj, event.year)
-                    if event > self.calendar.current_date:
-                        # log(event, event.year)
-                        self.calendar.current_date = event
-                        self.calendar.save()
+            raise ValidationError(
+                f"{self.name} is not the world for system: {self.system}"
+            )
 
     def post_save_gm(self):
         if not self.gm:
@@ -457,111 +329,6 @@ class World(TTRPGBase):
             self.save()
 
     def post_save_users(self):
-        from models.user import User
-
-        if self.pk and self not in self.user.worlds:
-            self.user.worlds.append(self)
-            self.user.save()
-
-
-
-class Calendar(AutoModel):
-    year_string = StringAttr(default="CE")
-    current_date = ReferenceAttr(choices=[Event])
-    months = ListAttr(
-        StringAttr(),
-        default=lambda: [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ],
-    )
-    days = ListAttr(
-        StringAttr(),
-        default=lambda: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ],
-    )
-    days_per_year = IntAttr(default=365)
-
-    @property
-    def num_days_per_year(self):
-        return self.days_per_year
-
-    @property
-    def num_months_per_year(self):
-        return len(self.months)
-
-    @property
-    def num_days_per_week(self):
-        return len(self.days)
-
-    @property
-    def num_days_per_month(self):
-        return self.days_per_year // self.num_months_per_year
-
-    ################### Instance Methods #####################
-    def get_month_str(self, month_num=None):
-        # log(self.num_months_per_year)
-        if month_num >= self.num_months_per_year:
-            month_num = self.num_months_per_year - 1
-        if month_num:
-            return self.months[int(month_num)]
-        if not self.current_date:
-            self.current_date = Event()
-            self.current_date.day = 1
-            self.current_date.month = 0
-            self.current_date.year = 0
-            self.current_date.save()
-            self.save()
-        return self.months[self.current_date.month]
-
-    def stringify(self, date, sep=" ", order=None):
-        if (
-            not date
-            or not date.year
-            or (date.month == 0 and date.day == 1 and date.year == 1)
-        ):
-            return "Unknown"
-        month = self.get_month_str(date.month)
-        return {
-            "mdy": f"{month}{sep}{date.day}{sep}{date.year}",
-            "ymd": f"{date.year}{sep}{month}{sep}{date.day}",
-        }.get(order, f"{date.day}{sep}{month}{sep}{date.year}")
-
-    ###############################################################
-    ##                    VERIFICATION METHODS                   ##
-    ###############################################################
-
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_current_date()
-
-    # def clean(self):
-    #     self.verify_current_date()
-
-    ################### verify functions ##################
-    def pre_save_current_date(self):
-        log(self.current_date)
-        if not self.current_date:
-            self.current_date = Event()
-            self.current_date.day = 1
-            self.current_date.month = 0
-            self.current_date.year = 0
-            self.current_date.save()
+        for user in self.users:
+            if self not in user.worlds:
+                raise ValidationError(f"{user.name} is not a user of {self.name}")

@@ -5,11 +5,10 @@
 
 """
 
-from flask import Blueprint, get_template_attribute, render_template, request
+from flask import Blueprint, get_template_attribute
 from jinja2 import TemplateNotFound
 
 from autonomous import log
-from models.campaign import Campaign
 
 from ._utilities import loader as _loader
 

@@ -7,8 +7,6 @@ import tasks
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
-from filters.model import in_list, organize_models
-from filters.utils import filter_shuffle, roll_dice
 
 models = {
     "player": "Character",
@@ -27,11 +25,6 @@ def _import_model(model):
 def create_app():
     app = Flask(os.getenv("APP_NAME", __name__))
     app.config.from_object(Config)
-
-    app.jinja_env.filters["organize_models"] = organize_models
-    app.jinja_env.filters["in_list"] = in_list
-    app.jinja_env.filters["roll_dice"] = roll_dice
-    app.jinja_env.filters["filter_shuffle"] = filter_shuffle
 
     # Configure Routes
     @app.route(
@@ -124,30 +117,6 @@ def create_app():
             .task(
                 tasks._generate_history_task,
                 model=model,
-                pk=pk,
-            )
-            .result
-        )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/campaign/<string:pk>/summary", methods=("POST",))
-    def generate_campaign_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_campaign_summary_task,
-                pk=pk,
-            )
-            .result
-        )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/campaign/session/<string:pk>/summary", methods=("POST",))
-    def generate_session_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_session_summary_task,
                 pk=pk,
             )
             .result

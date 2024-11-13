@@ -6,39 +6,26 @@ from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
-    DictAttr,
+    IntAttr,
     ListAttr,
     ReferenceAttr,
     StringAttr,
 )
-from models.abstracts.actor import Actor
+from models.base.actor import Actor
 
 
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     is_player = BoolAttr(default=False)
+    age = IntAttr(default=0)
     gender = StringAttr(default="")
     occupation = StringAttr(default="")
-    children_relation = ListAttr(ReferenceAttr(choices=["Character"]))
-    parents_relation = ListAttr(ReferenceAttr(choices=["Character"]))
-    partners_relation = ListAttr(ReferenceAttr(choices=["Character"]))
-    siblings_relation = ListAttr(ReferenceAttr(choices=["Character"]))
-    ancestor_relation = ListAttr(ReferenceAttr(choices=["Character"]))
-    descendant_relation = ListAttr(ReferenceAttr(choices=["Character"]))
     abilities = ListAttr(StringAttr(default=""))
     race = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
-    chats = DictAttr()
-    autogm_summary = DictAttr()
+    autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
 
-    _no_copy = Actor._no_copy | {"chats": {}}
-    parent_list = ["City", "Location", "POI", "Encounter", "Faction"]
-    _possible_events = [
-        "Birth",
-        *Actor._possible_events,
-        "Disappeared",
-        "Death",
-    ]
+    parent_list = ["City", "Location", "District", "Faction"]
     _genders = ["male", "female", "non-binary"]
     _traits_list = [
         "secretly evil",
@@ -73,6 +60,10 @@ class Character(Actor):
                 "gender": {
                     "type": "string",
                     "description": "The NPC's preferred gender",
+                },
+                "age": {
+                    "type": "integer",
+                    "description": "The NPC's physical age in years",
                 },
                 "race": {
                     "type": "string",
@@ -131,11 +122,6 @@ class Character(Actor):
                     "type": "integer",
                     "description": "The amount of Charisma the NPC has from 1-20",
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "Create at least 3 separate descriptions of potential side quests involving the NPC. For each include the name of the quest, a brief description of the quest, and the rewards for completing the quest.",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -147,20 +133,8 @@ class Character(Actor):
         return "players" if self.is_player else "characters"
 
     @property
-    def chat_summary(self):
-        return self.chats["summary"]
-
-    @property
-    def end_date_str(self):
-        return "Died" if self.end_date.get("year") else "Unknown"
-
-    @property
     def gm(self):
         return self.world.gm
-
-    @property
-    def start_date_str(self):
-        return "Born" if self.start_date.get("year") else "Unknown"
 
     @property
     def history_primer(self):
@@ -189,7 +163,7 @@ LIFE EVENTS
     @property
     def image_prompt(self):
         if not self.age:
-            self.age = random.randint(15, 45)
+            self.age = random.randint(15, 50)
             self.save()
         prompt = f"""
 A full-body color portrait of a fictional {self.gender} {self.race} {self.genre} character aged {self.age} who is a {self.occupation} and described as: {self.description}
@@ -198,27 +172,16 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
 """
         return prompt
 
-    @property
-    def lineage(self):
-        return {
-            "child": self.children_relation,
-            "parent": self.parents_relation,
-            "partner": self.partners_relation,
-            "sibling": self.siblings_relation,
-            "ancestor": self.ancestor_relation,
-            "descendant": self.descendant_relation,
-        }
-
     ################# Instance Methods #################
 
     def generate(self):
         age = self.age if self.age else random.randint(15, 45)
         gender = self.gender or random.choices(self._genders, weights=[4, 5, 1], k=1)[0]
 
-        prompt = f"Generate a {self.race} {gender} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Write, or if already present expand on, the NPC's detailed backstory that only includes publicly known information. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly'))} secret to protect."
+        prompt = f"Generate a {self.race} {gender} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly'))} secret to protect."
 
         obj = super().generate(prompt=prompt)
-        self.hitpoints = random.randint(5, 300)
+        self.hitpoints = random.randint(5, 100)
         if isinstance(self.abilities[0], str):
             self.abilities = [markdown.markdown(a) for a in self.abilities]
         elif isinstance(self.abilities[0], dict):
@@ -230,125 +193,23 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
         self.save()
         return obj
 
-    ############################# LINEAGE #############################
-    ## MARK: LINEAGE
-
-    def add_lineage(self, obj, relation):
-        relation = f"{relation}_relation"
-        if relation not in [
-            "children_relation",
-            "parents_relation",
-            "partners_relation",
-            "siblings_relation",
-            "ancestor_relation",
-            "descendant_relation",
-        ]:
-            raise ValidationError(f"Invalid relation {relation}")
-        elif obj not in getattr(self, relation):
-            getattr(self, relation).append(obj)
-
-        inverse = {
-            "children_relation": "parents_relation",
-            "parents_relation": "children_relation",
-            "siblings_relation": "siblings_relation",
-            "ancestor_relation": "descendant_relation",
-            "descendant_relation": "ancestor_relation",
-        }.get(relation, relation)
-        if self not in getattr(obj, inverse):
-            getattr(obj, inverse).append(self)
-        (
-            obj.associations.append(c)
-            for r, cat in self.lineage.items()
-            for c in cat
-            if c not in obj.associations
-        )
-        (
-            self.associations.append(c)
-            for r, cat in obj.lineage.items()
-            for c in cat
-            if c not in self.associations
-        )
-        obj.save()
-        self.save()
-        return self.lineage
-
-    def remove_lineage(self, obj):
-        for relation, objs in self.lineage.items():
-            if obj in objs:
-                objs.remove(obj)
-        self.save()
-        return self.lineage
-
-    ############################# CHAT #############################
-    ## MARK: CHAT
-
-    def chat(self, message=""):
-        # summarize conversation
-        if self.chats["message"] and self.chats["response"]:
-            primer = f"""As an expert AI in {self.world.genre} TTRPG Worldbuilding, use the previous chat CONTEXT as a starting point to generate a readable summary from the PLAYER MESSAGE and NPC RESPONSE that clarifies the main points of the conversation. Avoid unnecessary details.
-            """
-            text = f"""
-            CONTEXT:\n{self.chats["summary"] or "This is the beginning of the conversation."}
-            PLAYER MESSAGE:\n{self.chats['message']}
-            NPC RESPONSE:\n{self.chats['response']}"
-            """
-
-            self.chats["summary"] = self.system.text_agent.summarize_text(
-                text, primer=primer
-            )
-
-        message = message.strip() or "Tell me a little more about yourself..."
-        primer = f"You are playing the role of the Character {self.name} talking to a Player. You should reference the Character model information in the uploaded file with the primary key: {self.pk}."
-        prompt = "Respond as the NPC matching the following description:"
-        prompt += f"""
-            PERSONALITY: {self.traits}
-
-            DESCRIPTION: {self.desc}
-
-            BACKSTORY: {self.backstory_summary}
-
-            GOAL: {self.goal}
-
-        Use the following chat CONTEXT as a starting point:
-
-        CONTEXT: {self.chats["summary"]}
-
-        PLAYER MESSAGE: {message}
-        """
-
-        response = self.system.chat(prompt, primer)
-        self.chats["history"].append((message, response))
-        self.chats["message"] = message
-        self.chats["response"] = response
-        self.save()
-
-        return self.chats
-
-    def clear_chat(self):
-        self.chats["history"] = []
-        self.save()
-
     ############################# AutoGM #############################
     ## MARK: AUTOGM
 
     def start_gm_session(self, year):
-        self.autogm_summary = self.gm.start(
-            year=year, player=self, scenario=self.autogm_summary
-        )
+        self.autogm_summary += [
+            self.gm.start(year=year, player=self, scenario=self.autogm_summary)
+        ]
         if isinstance(self.autogm_summary.get("player"), str):
             self.autogm_summary["player"] = self.get(self.autogm_summary["player"])
         self.save()
 
     def run_gm_session(self, message=""):
-        self.autogm_summary = self.world.gm.run(message=message)
-        if isinstance(self.autogm_summary.get("player"), str):
-            self.autogm_summary["player"] = self.get(self.autogm_summary["player"])
+        self.autogm_summary += [self.world.gm.run(player=self, message=message)]
         self.save()
 
     def end_gm_session(self, message=""):
-        self.autogm_summary = self.world.gm.end(message=message)
-        if isinstance(self.autogm_summary.get("player"), str):
-            self.autogm_summary["player"] = self.get(self.autogm_summary["player"])
+        self.autogm_summary += [self.world.gm.end(message=message)]
         self.save()
 
     ############################# Object Data #############################
@@ -357,8 +218,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "desc": self.desc,
             "backstory": self.backstory,
             "history": self.history,
@@ -378,29 +237,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
             "abilities": self.abilities,
             "wealth": [w for w in self.wealth],
             "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
-            "relations": self.get_relations_data(),
-        }
-
-    def get_relations_data(self):
-        return {
-            "children": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.children_relation
-            ],
-            "parents": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.parents_relation
-            ],
-            "partners": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.partners_relation
-            ],
-            "sibling": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.siblings_relation
-            ],
-            "ancestor": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.ancestor_relation
-            ],
-            "descendant": [
-                {"name": o.name, "pk": str(o.pk)} for o in self.descendant_relation
-            ],
         }
 
     ## MARK: - Verification Methods
@@ -432,10 +268,3 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
         else:
             self.is_player = bool(self.is_player)
         # log(self.is_player)
-
-    def post_save_ac(self):
-        if not self.ac:
-            self.ac = max(
-                10,
-                (int(self.dexterity) - 10) // 2 + (int(self.strength) - 10) // 2 + 10,
-            )

@@ -95,30 +95,30 @@
     color: $color;
 }
 
-@function getTextColor($color)
+@function getTextColor($pcolor)
 {
-    @if(lightness($color) < 50)
+    @if(lightness($pcolor) < 50)
     {
-        @return lighten($color, 70%);
+        @return color.adjust($pcolor, $lightness: 70%);
     }
 
     @else
     {
-        @return darken($color, 65%);
+        @return color.adjust($pcolor, $lightness: -65%);
     }
 }
 
-@function getSecondaryColor($color)
+@function getSecondaryColor($pcolor)
 {
-    $color : color.scale($primary, $saturation: -20%);
+    $pcolor : color.scale($primary, $saturation: -20%);
 
-    @if(lightness($color) > 50)
+    @if(lightness($pcolor) > 50)
     {
-        @return lighten($color, 7%);
+        @return color.adjust($pcolor, $lightness: -7%);
     }
 
     @else
     {
-        @return darken($color, 7%);
+        @return color.adjust($pcolor, $lightness: 7%);
     }
 }

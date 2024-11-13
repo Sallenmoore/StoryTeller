@@ -5,16 +5,17 @@
 
 """
 
+import random
+
 from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
-from models.campaign import Campaign
 from models.world import World
 
 from ._utilities import loader as _loader
 
-page_endpoint = Blueprint("page", __name__)
+index_endpoint = Blueprint("page", __name__)
 
 
 def get_template(obj, macro, module=None):
@@ -23,7 +24,7 @@ def get_template(obj, macro, module=None):
     try:
         template = get_template_attribute(module, macro)
     except (TemplateNotFound, AttributeError):
-        module = f"components/_{macro}.html"
+        module = f"shared/_{macro}.html"
         template = get_template_attribute(module, macro)
     return template
 
@@ -31,10 +32,63 @@ def get_template(obj, macro, module=None):
 ###########################################################
 ##                    Component Routes                   ##
 ###########################################################
+@index_endpoint.route(
+    "/auth/login",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def login():
+    worlds = World.all()
+    worlds = random.sample(worlds, 4) if len(worlds) > 4 else worlds
+    return get_template_attribute("login.html", "login")(worlds=worlds)
 
 
-@page_endpoint.route("/<string:model>/<string:pk>/<string:page>", methods=("POST",))
+@index_endpoint.route(
+    "/home",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def home():
+    user, *_ = _loader()
+    return get_template_attribute("home.html", "home")(user)
+
+
+@index_endpoint.route(
+    "/build",
+    methods=("POST",),
+)
+def build():
+    user, *_ = _loader()
+    World.build(
+        system=request.json.get("system"),
+        user=user,
+        name=request.json.get("name"),
+        desc=request.json.get("desc"),
+        backstory=request.json.get("backstory"),
+    )
+
+    return get_template_attribute("home.html", "home")(user)
+
+
+@index_endpoint.route("/build/form", methods=("POST",))
+def buildform():
+    user, *_ = _loader()
+    return get_template_attribute("home.html", "worldbuild")(user=user)
+
+
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/<string:page>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def model(model, pk, page):
+    log(request.args)
     user, obj, *_ = _loader(model=model, pk=pk)
     return get_template(obj, page)(user, obj)
 
@@ -43,34 +97,17 @@ def model(model, pk, page):
 ###########################################################
 ##                    Map Routes                    ##
 ###########################################################
-@page_endpoint.route("/<string:model>/<string:pk>/map", methods=("POST",))
+@index_endpoint.route("/<string:model>/<string:pk>/map", methods=("POST",))
 def map(model, pk):
     user, obj, *_ = _loader(model=model, pk=pk)
     return get_template_attribute("components/_map.html", "map")(user, obj)
-
-
-# MARK: Timeline routes
-###########################################################
-##                    Timeline Routes                    ##
-###########################################################
-@page_endpoint.route("/<string:model>/<string:pk>/timeline", methods=("POST",))
-def timeline(model, pk):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    events = []
-    for c in obj.campaigns:
-        c.save()
-        events += c.canon
-    events.sort()
-    return get_template_attribute("components/_timeline.html", "timeline")(
-        user, obj, events[::-1]
-    )
 
 
 # MARK: Association routes
 ###########################################################
 ##                    Association Routes                 ##
 ###########################################################
-@page_endpoint.route("/<string:model>/<string:pk>/associations", methods=("POST",))
+@index_endpoint.route("/<string:model>/<string:pk>/associations", methods=("POST",))
 def associations(model, pk):
     user, obj, *_ = _loader(model=model, pk=pk)
     log(request.json)
@@ -80,44 +117,18 @@ def associations(model, pk):
         ]
     else:
         associations = obj.associations
-    if sorter := request.json.get("sorter"):
-        reverse = True if request.json.get("order") == "desc" else False
-        if sorter == "date_ended":
-            associations.sort(key=lambda x: x.end_date, reverse=reverse)
-        if sorter == "date_started":
-            associations.sort(key=lambda x: x.start_date, reverse=reverse)
-        if sorter == "name":
-            associations.sort(key=lambda x: x.name.lower(), reverse=reverse)
-    else:
-        associations.sort(key=lambda x: x.name)
+    associations.sort(key=lambda x: x.name)
 
-    if request.json.get("sortfilter") == "canon":
-        associations = [o for o in obj.associations if o.check_canon()]
-    if request.json.get("sortfilter") == "noncanon":
-        associations = [o for o in obj.associations if o.check_canon()]
     return get_template_attribute("components/_associations.html", "associations")(
         user, obj, associations
     )
-
-
-# MARK: Campaigns route
-###########################################################
-##                    Campaigns Routes                   ##
-###########################################################
-@page_endpoint.route("/<string:model>/<string:pk>/campaigns", methods=("POST",))
-def campaign(model, pk):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    campaign = Campaign.get(request.json.get("campaignpk"))
-    if not campaign and obj.campaigns:
-        campaign = obj.campaigns[0]
-    return get_template(obj, "campaigns")(user, obj, campaign)
 
 
 # MARK: Childpanel routes
 ###########################################################
 ##                    Childpanel Routes                  ##
 ###########################################################
-@page_endpoint.route(
+@index_endpoint.route(
     "/<string:model>/<string:pk>/childpanel/<string:childmodel>",
     methods=("POST",),
 )

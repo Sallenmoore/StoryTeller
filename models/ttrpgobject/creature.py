@@ -3,12 +3,8 @@ import random
 import markdown
 
 from autonomous import log
-from autonomous.model.autoattr import (
-    IntAttr,
-    ListAttr,
-    StringAttr,
-)
-from models.abstracts.actor import Actor
+from autonomous.model.autoattr import BoolAttr, ListAttr, StringAttr
+from models.base.actor import Actor
 
 
 class Creature(Actor):
@@ -17,17 +13,9 @@ class Creature(Actor):
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
     abilities = ListAttr(StringAttr())
-    dnd5e_name = StringAttr(default="")
-    group = IntAttr(default=1)
-    current_hitpoints = ListAttr(IntAttr(default=0))
+    bbeg = BoolAttr(default=False)
 
-    _possible_events = [
-        "Born",
-        *Actor._possible_events,
-        "Defeated",
-        "Death",
-    ]
-    parent_list = ["Encounter", "POI", "Location"]
+    parent_list = ["District", "Location"]
     _funcobj = {
         "name": "generate_creature",
         "description": "completes Creature data object",
@@ -95,11 +83,6 @@ class Creature(Actor):
                     "type": "integer",
                     "description": "The amount of Charisma the creature has from 1-20",
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "Create at least 2 separate descriptions of potential side quests involving this type of creature. For each include the name of the quest, a brief description of the quest, and the rewards for completing the quest.",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -112,17 +95,14 @@ class Creature(Actor):
 
     @property
     def history_prompt(self):
-        return f"""
-{"ORIGIN" if self.group else "BORN"}
----
-{self.start_date.datestr() if self.start_date else "Unknown"}
-
+        return f""" A detailed history of the {self.type} {self.name} that includes only publicly known information about the creature.
 BACKSTORY
 ---
 {self.backstory_summary}
 
-{"EVENTS INVOLVING CREATURE TYPE" if self.group else "LIFE EVENTS"}
+{"EVENTS INVOLVING THIS CREATURE TYPE" if self.history else ""}
 ---
+{self.history}
 """
 
     @property
@@ -136,11 +116,11 @@ BACKSTORY
 
     @property
     def unique(self):
-        return bool(self.group)
+        return bool(self.bbeg)
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = "type of enemy whose species" if self.group else "foe who"
+        group = "type of enemy whose species" if self.bbeg else "foe who"
         prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('boring', 'mysterious', 'sinister', 'complicated'))} goal they are working toward.
         """
         obj = super().generate(prompt=prompt)
@@ -159,8 +139,6 @@ BACKSTORY
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "desc": self.description,
             "backstory": self.backstory,
             "history": self.history,
@@ -192,8 +170,6 @@ BACKSTORY
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_dnd5ename()
-        document.pre_save_current_hitpoints()
         document.pre_save_size()
 
     # @classmethod
@@ -216,13 +192,3 @@ BACKSTORY
         else:
             log(f"Invalid size for creature: {self.size}", _print=True)
             self.size = "medium"
-
-    def pre_save_dnd5ename(self):
-        if not self.dnd5e_name:
-            self.dnd5e_name = self.name
-
-    def pre_save_current_hitpoints(self):
-        if isinstance(self.current_hitpoints, int):
-            self.current_hitpoints = [self.current_hitpoints]
-        elif not list or not isinstance(self.current_hitpoints, list):
-            self.current_hitpoints = [self.hitpoints] * self.group

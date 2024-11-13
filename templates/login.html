@@ -1,40 +1,20 @@
-{% extends "index.html" %}
-
-{% block topnav %}
-{% endblock %}
-
-{% block page %}
-<div class="row has-space-around has-bg-primary">
-    <div class="column is-shrink has-text-center">
-        <h1 class='has-text-center has-text-primary'> StoryTeller </h1>
-        <small class='has-text-primary'>v.0.0.1</small>
-    </div>
-</div>
+{% macro login(worlds) -%}
 <div class="container">
-    <div class='panel is-small'>
-        <div class="row has-space-around">
-            <div class="column is-full is-vertically-centered">
-                <h2 class='has-text-center'>Login to build</h2>
-            </div>
-            <div class="column is-shrink">
-                <form action="{{ url_for('auth.login') }}" method="post">
-                    <input type="hidden" name="authprovider" value="google">
-                    <button class="button is-primary" type="submit">
-                        with &ensp; <iconify-icon icon="devicon:google" width="50"></iconify-icon>
-                    </button>
-                </form>
-            </div>
-            <div class="column is-shrink">
-                <form action="{{ url_for('auth.login') }}" method="post">
-                    <input type="hidden" name="authprovider" value="github">
-                    <button class="button is-primary" type="submit">
-                        with &ensp; <iconify-icon icon="devicon:github" width="50"></iconify-icon>
-                    </button>
-                </form>
-            </div>
+    <div class="row has-space-around">
+        <div class="column is-full is-vertically-centered">
+            <h2 class='has-text-center has-text-primary'>Login to build</h2>
+        </div>
+        <div class="column is-shrink">
+            <form action="/auth/login" method="post">
+                <input type="hidden" name="authprovider" value="google">
+                <button class="button is-primary" type="submit">
+                    with &ensp; <iconify-icon icon="devicon:google" width="50"></iconify-icon>
+                </button>
+            </form>
         </div>
     </div>
 </div>
+{% if worlds %}
 <hr>
 <h2> Or check out some user worlds...</h2>
 <div class="row has-space-around">
@@ -56,4 +36,5 @@
     </div>
     {%endfor %}
 </div>
-{% endblock %}
+{% endif %}
+{%- endmacro %}

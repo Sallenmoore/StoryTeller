@@ -58,7 +58,7 @@ class JournalEntry(AutoModel):
             self.date = datetime.now()
 
     def pre_save_text(self):
-        if self.id:
+        if self.pk:
             db_instance = self.__class__.objects(id=self.id).first()
             if db_instance and getattr(db_instance, "text") != self.text:
                 self.summary = ""
@@ -90,7 +90,7 @@ class Journal(AutoModel):
     ):
         entry = JournalEntry()
         entry.save()
-        self.entries.append(entry)
+        self.entries += [entry]
         self.save()
         return self.update_entry(entry.pk, title, text, importance, associations)
 
@@ -100,7 +100,7 @@ class Journal(AutoModel):
         title=None,
         text=None,
         importance=None,
-        associations=None,
+        associations=[],
     ):
         if entry := JournalEntry.get(pk):
             entry.title = title or entry.title
@@ -112,13 +112,12 @@ class Journal(AutoModel):
             entry.importance = (
                 int(importance) if importance is not None else entry.importance
             )
-            log(len(associations) if associations else 0)
-            for assoc in associations or []:
+            for assoc in associations:
                 entry.add_association(assoc)
             entry.date = datetime.now()
             entry.save()
             # update current object's entries
-            self.entries = [e if e.pk != entry.pk else entry for e in self.entries]
+            self.entries = [e if e != entry else entry for e in self.entries]
         return entry
 
     def get_entry(self, entry_pk):
@@ -143,7 +142,7 @@ class Journal(AutoModel):
     # def clean(self):
     #     super().clean()
 
-    ################### verify associations ##################
+    ################### verify methods ##################
     def pre_save_entries(self):
         for entry in self.entries:
             entry.save()

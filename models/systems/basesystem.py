@@ -80,7 +80,7 @@ class BaseSystem(AutoModel):
             {"- CONTEXT: " + obj.backstory_summary if obj.backstory_summary else ""}
             {"- DESCRIPTION: " + obj.description if obj.description else ""}
             """,
-        "poi": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
             - MAP TYPE: directly overhead, top-down
             - SCALE: 1 inch == 5 feet
             {"- CONTEXT: " + obj.backstory_summary if obj.backstory_summary else ""}
@@ -125,6 +125,7 @@ class BaseSystem(AutoModel):
             )
             self.text_client.save()
             self.save()
+            log(f"Created new text agent with id: {self.text_client.get_agent_id()}")
         return self.text_client
 
     @property
@@ -150,22 +151,16 @@ class BaseSystem(AutoModel):
     def description(self):
         return f"A helpful AI assistant trained to return structured JSON data for help in world-building a consistent, mysterious, and dangerous universe as the setting for a series of {self._genre} TTRPG campaigns."
 
-    ############# Generation Methods #############
-    def update_refs(self, agent=None):
-        world_data = self.world.page_data()
-        if self.text_agent:
-            self.text_agent.get_client().clear_files()
-            ref_db = json.dumps(world_data).encode("utf-8")
-            self.text_agent.attach_file(
-                ref_db, filename=f"{self.world.slug}-dbdata.json"
-            )
+    ############# CRUD Methods #############
 
-        if self.json_agent:
-            self.json_agent.get_client().clear_files()
-            ref_db = json.dumps(world_data).encode("utf-8")
-            self.json_agent.attach_file(
-                ref_db, filename=f"{self.world.slug}-dbdata.json"
-            )
+    def delete(self):
+        if self.text_client:
+            self.text_client.delete()
+        if self.json_client:
+            self.json_client.delete()
+        return super().delete()
+
+    ############# Generation Methods #############
 
     def generate(self, obj, prompt):
         additional = f"\n\nIMPORTANT: The generated data must be new, unique, consistent with, and connected to the world data described by the uploaded reference file. If existing data is present in the object, expand on the {obj.title} data by adding greater specificity where possible, while ensuring the original concept remains unchanged. The result must be in VALID JSON format."
@@ -175,13 +170,6 @@ class BaseSystem(AutoModel):
             prompt, function=obj.funcobj, additional_instructions=additional
         )
         # log(f"=== generation response ===\n\n{response}", _print=True)
-        return response
-
-    def chat(self, prompt, primer):
-        prompt = self.sanitize(prompt)
-        log(f"=== generation primer and prompt ===\n\n{primer}\n\n{prompt}")
-        response = self.text_agent.generate(prompt, additional_instructions=primer)
-        log(f"=== generation response ===\n\n{response}")
         return response
 
     def generate_text(self, prompt, primer=""):

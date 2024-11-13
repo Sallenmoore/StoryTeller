@@ -7,7 +7,7 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
-from models.abstracts.ttrpgobject import TTRPGObject
+from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 from .character import Character
 
@@ -18,14 +18,7 @@ class Faction(TTRPGObject):
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
 
-    _no_copy = TTRPGObject._no_copy | {"_leader":None, "_is_player_faction":False}
-    _possible_events = [
-        "Founded",
-        *TTRPGObject._possible_events,
-        "Defeated",
-        "Disbanded",
-    ]
-    parent_list = ["City", "Region", "World"]
+    parent_list = ["City", "District", "Region", "World"]
     _traits_list = [
         "secretive",
         "reckless",
@@ -68,11 +61,6 @@ class Faction(TTRPGObject):
                 "status": {
                     "type": "string",
                     "description": "The faction's current status",
-                },
-                "notes": {
-                    "type": "array",
-                    "description": "3 short descriptions of potential secret side quests involving the faction",
-                    "items": {"type": "string"},
                 },
             },
         },
@@ -117,8 +105,6 @@ class Faction(TTRPGObject):
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "backstory": self.backstory,
             "histroy": self.history,
             "goal": self.goal,
@@ -147,11 +133,9 @@ class Faction(TTRPGObject):
         if not document.world:
             raise ValidationError
 
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
-        if not document.world:
-            raise ValidationError
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     # def clean(self):
     #     super().clean()

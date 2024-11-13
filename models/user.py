@@ -12,14 +12,9 @@ from models.world import World
 class User(AutoUser):
     worlds = ListAttr(ReferenceAttr(choices=[World]))
     admin = BoolAttr(default=False)
-    screens = ListAttr(ReferenceAttr(choices=["GMScreen"]))
-    current_screen = ReferenceAttr(choices=["GMScreen"])
 
-    def world_owner(self, obj):
-        return obj.user == self
-
-    def world_user(self, obj):
-        return self.world_owner(obj) or self in obj.subusers
+    def world_user(self, world):
+        return self in world.users
 
     def add_world(self, obj):
         if isinstance(obj, str):
@@ -44,10 +39,9 @@ class User(AutoUser):
         super().auto_pre_save(sender, document, **kwargs)
         document.verify_worlds()
 
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
-        document.verify_current_screen()
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     # def clean(self):
     #     super().clean()
@@ -57,13 +51,3 @@ class User(AutoUser):
         for w in self.worlds:
             if not self.world_user(w):
                 raise ValidationError(f"{self} is not a user of {w}")
-
-    def verify_current_screen(self):
-        from models.gmscreen.gmscreen import GMScreen
-
-        if any(s for s in self.screens if s.model_name() != "GMScreen"):
-            raise ValidationError("Screens must contain GMScreen objects")
-        if self.screens and not self.current_screen:
-            self.current_screen = self.screens[0]
-        if self.current_screen and self.current_screen not in self.screens:
-            self.screens.append(self.current_screen)

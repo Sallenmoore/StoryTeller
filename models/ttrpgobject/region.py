@@ -2,8 +2,8 @@ from autonomous import log
 from autonomous.model.autoattr import (
     ReferenceAttr,
 )
-from models.abstracts.place import Place
-from models.faction import Faction
+from models.base.place import Place
+from models.ttrpgobject.faction import Faction
 
 
 class Region(Place):
@@ -39,11 +39,6 @@ class Region(Place):
                     "type": "string",
                     "description": "A brief history of the region and its people. Only include publicly known information.",
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "3 short descriptions of potential secret side quests in the region",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -72,7 +67,7 @@ class Region(Place):
 
     ################### Crud Methods #####################
     def generate(self):
-        prompt = f"Generate a detailed information for a {self.genre} {self.title}. The {self.title} is primarily {self.traits}. The should {self.title} should also contain a story thread for players to slowly uncover. The story thread should be connected to 1 or more additional elements in the TTRPG world."
+        prompt = f"Generate a detailed information for a {self.genre} {self.title}. The {self.title} is primarily {self.traits}. The {self.title} should also contain a story thread for players to slowly uncover. The story thread should be connected to 1 or more additional elements in the existing world as described by the uploaded file."
         results = super().generate(prompt=prompt)
         return results
 
@@ -85,8 +80,6 @@ class Region(Place):
             "desc": self.desc,
             "backstory": self.backstory,
             "history": self.history,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "cities": [{"name": r.name, "pk": str(r.pk)} for r in self.cities],
             "locations": [{"name": r.name, "pk": str(r.pk)} for r in self.locations],
             "factions": [{"name": r.name, "pk": str(r.pk)} for r in self.factions],
@@ -116,14 +109,18 @@ class Region(Place):
     ################### verify associations ##################
     def post_save_backstory(self):
         if not self.backstory:
-            story = f"The {self.title} is home to the following: \n\n"
-            for a in self.cities:
+            story = ""
+            for a in [*self.cities, *self.locations]:
                 if a.backstory:
                     story += f"""
                     <h3>{a.name}</h3>
                     <div> {a.history or a.backstory} </div>
                     """
-            self.backstory = story
+            self.backstory = (
+                f"The {self.title} is home to the following: \n\n {story}"
+                if story
+                else ""
+            )
 
     def pre_save_parent(self):
         self.parent = self.world

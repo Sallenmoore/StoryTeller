@@ -5,17 +5,14 @@ from dmtoolkit import dmtools
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
-from models.campaign.campaign import Campaign
-from models.campaign.episode import Session
-from models.character import Character
-from models.city import City
-from models.creature import Creature
-from models.encounter import Encounter
-from models.faction import Faction
-from models.item import Item
-from models.location import Location
-from models.poi import POI
-from models.region import Region
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.city import City
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.district import District
+from models.ttrpgobject.faction import Faction
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.location import Location
+from models.ttrpgobject.region import Region
 from models.world import World
 
 models = {
@@ -57,36 +54,12 @@ def _generate_history_task(model, pk):
     return {"url": f"/api/{obj.path}/history"}
 
 
-def _generate_campaign_summary_task(pk):
-    if obj := Campaign.get(pk):
-        obj.resummarize()
-    return {"url": f"/api/{obj.world.path}/manage_campaigns"}
-
-
-def _generate_session_summary_task(pk):
-    if obj := Session.get(pk):
-        obj.resummarize()
-    return {"url": f"/api/{obj.world.path}/manage_campaigns"}
-
-
 def _generate_image_task(model, pk):
     if Model := _import_model(model):
         obj = Model.get(pk)
         obj.resummarize()
         obj.generate_image()
     return {"url": f"/api/{obj.path}/details"}
-
-
-def _generate_webcomic_task(pk, panel=True):
-    if obj := Session.get(pk):
-        if panel:
-            obj.generate_comic()
-        else:
-            obj.generate_scene()
-    return {
-        "url": f"/api/world/webcomic/{pk}",
-        "target": "visualizations",
-    }
 
 
 def _generate_chat_task(pk, message):
@@ -129,6 +102,5 @@ def _generate_autogm_clear_task(pk):
         img.delete()
     obj.gm.images = []
     obj.gm.history = []
-    obj.gm.update_refs()
     obj.gm.save()
     return {"url": f"/api/{obj.path}/autogm"}

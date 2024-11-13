@@ -2,10 +2,9 @@ from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     IntAttr,
-    ListAttr,
     StringAttr,
 )
-from models.abstracts.ttrpgobject import TTRPGObject
+from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
 class Actor(TTRPGObject):
@@ -51,8 +50,7 @@ class Actor(TTRPGObject):
     ############### Verification Methods ##############
 
     def post_save_ac(self):
-        if not self.ac:
-            self.ac = max(
-                10,
-                (int(self.dexterity) - 10) // 2 + (int(self.strength) - 10) // 2 + 10,
-            )
+        self.ac = max(
+            10,
+            (int(self.dexterity) - 10) // 2 + (int(self.strength) - 10) // 2 + 10,
+        )

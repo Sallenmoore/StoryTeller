@@ -4,20 +4,20 @@ import sys
 import pytest
 
 from app import create_app
+from models.calendar import Calendar
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Session
-from models.character import Character
-from models.city import City
-from models.creature import Creature
-from models.calendar import Calendar
 from models.events.event import Event
-from models.faction import Faction
-from models.item import Item
 from models.journal import Journal, JournalEntry
-from models.location import Location
 from models.poi import POI
-from models.region import Region
 from models.systems import FantasySystem
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.city import City
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.faction import Faction
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.location import Location
+from models.ttrpgobject.region import Region
 from models.user import User
 from models.world import World
 

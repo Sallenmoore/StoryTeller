@@ -3,13 +3,10 @@ import validators
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
-    IntAttr,
-    ListAttr,
     ReferenceAttr,
-    StringAttr,
 )
-from models.abstracts.ttrpgobject import TTRPGObject
 from models.images.image import Image
+from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
 class Place(TTRPGObject):
@@ -17,14 +14,6 @@ class Place(TTRPGObject):
     owner = ReferenceAttr(choices=["Character", "Creature"])
     map = ReferenceAttr(choices=["Image"])
 
-    _no_copy = TTRPGObject._no_copy | {
-        "owner": None,
-    }
-    _possible_events = [
-        "Established",
-        *TTRPGObject._possible_events,
-        "Abandoned",
-    ]
     _traits_list = [
         "long hidden",
         "mysterious",
@@ -103,14 +92,11 @@ class Place(TTRPGObject):
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date.datestr() if self.start_date else "Unknown",
-            "end_date": self.end_date.datestr() if self.end_date else "Unknown",
             "backstory": self.backstory,
             "history": self.history,
             "owner": {"name": self.owner.name, "pk": str(self.owner.pk)}
             if self.owner
             else "Unknown",
-            "encounters": [{"name": r.name, "pk": str(r.pk)} for r in self.encounters],
         }
 
     ## MARK: - Verification Methods
@@ -161,193 +147,3 @@ class Place(TTRPGObject):
             self.map.tags = ["map", *self.image_tags]
             self.map.save()
         log(self.map)
-
-
-class Scene(Place):
-    meta = {"abstract": True, "allow_inheritance": True, "strict": False}
-    location_type = StringAttr()
-    scenes = ListAttr(ReferenceAttr(choices=["Location", "POI"]))
-    grid = StringAttr()
-    grid_color = StringAttr()
-    grid_size = IntAttr()
-    fow = StringAttr()
-    current_encounter = ReferenceAttr(choices=["Encounter"])
-    current_actor = ReferenceAttr(choices=["Actor"])
-    current_item = ReferenceAttr(choices=["Item"])
-    music = StringAttr()
-
-    categories = sorted(
-        [
-            "forest",
-            "swamp",
-            "mountain",
-            "lair",
-            "stronghold",
-            "tower",
-            "palace",
-            "temple",
-            "fortress",
-            "cave",
-            "ruins",
-            "shop",
-            "tavern",
-            "sewer",
-            "graveyard",
-            "shrine",
-            "library",
-            "academy",
-            "workshop",
-            "arena",
-            "market",
-        ]
-    )
-
-    _funcobj = {
-        "name": "generate_location",
-        "description": "builds a Location model object",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "An intriguing, suggestive, and unique name",
-                },
-                "location_type": {
-                    "type": "string",
-                    "description": "The type of location",
-                },
-                "backstory": {
-                    "type": "string",
-                    "description": "A description of the history of the location. Only include what would be publicly known information.",
-                },
-                "desc": {
-                    "type": "string",
-                    "description": "A short physical description that will be used to generate an evocative image of the location",
-                },
-                "notes": {
-                    "type": "array",
-                    "description": "At least 5 short descriptions of potential items that can be found in the location, ranging from mundane to wonderous, as well as what is required to find them.",
-                    "items": {"type": "string"},
-                },
-            },
-        },
-    }
-
-    ################### Property Methods #####################
-    @property
-    def image_tags(self):
-        return super().image_tags + [self.location_type]
-
-    @property
-    def image_prompt(self):
-        return f"A full color hi-res image of a point of interest or landmark in a {self.genre} TTRPG with the following description: {self.desc}"
-
-    ################ Instance Methods ####################
-
-    def has_scene(self, obj):
-        return any(d.pk == obj.pk for d in self.scenes)
-
-    def add_scene(self, connect_obj):
-        if not any(d.pk == connect_obj.pk for d in self.scenes):
-            # log(f"Connecting scene: {self.name} -> {connect_obj.name}")
-            self.scenes.append(connect_obj)
-            self.save()
-        if not any(d.pk == self.pk for d in connect_obj.scenes):
-            # log(f"Connecting scene: {connect_obj.name} -> {self.name}")
-            connect_obj.scenes.append(self)
-            connect_obj.save()
-
-    def update_scene(self, grid=None, show=None, music=None, fow=None):
-        self.grid = self.grid if grid is None else grid
-        self.show = self.show if show is None else show
-        self.music = self.music if music is None else music
-        self.fow = self.fow if fow is None else fow
-        self.save()
-
-    def get_scene_events(self):
-        if self.start_date and self.start_date not in self.events:
-            self.events += [self.start_date]
-        if self.end_date and self.end_date not in self.events:
-            self.events += [self.end_date]
-        events = self.events[:]
-        subevents = [
-            *self.encounters,
-            *self.characters,
-            *self.creatures,
-            *self.items,
-            *self.factions,
-        ]
-        for o in subevents:
-            events += o.events
-        events.sort()
-        return events
-
-    def remove_scene(self, scene):
-        try:
-            self.scenes.remove(scene)
-            self.save()
-        except Exception as e:
-            log(f"Error Removing Scene: {scene.pk} -- {e}")
-        return self
-
-    def label(self, model):
-        if not isinstance(model, str):
-            model = model.__name__
-        if model == "Character":
-            return "Residents"
-        if model == "Item":
-            return "Inventory"
-        return super().label(model)
-
-    def page_data(self):
-        return super().page_data() | {
-            "location_type": self.location_type,
-        }
-
-    ## MARK: - Verification Methods
-    ###############################################################
-    ##                    VERIFICATION METHODS                   ##
-    ###############################################################
-    @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     super().auto_post_init(sender, document, **kwargs)
-    # document.post_init_map()
-
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_current_encounter()
-        document.pre_save_current_actor()
-        document.pre_save_current_item()
-        document.pre_save_music()
-
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
-
-    # def clean(self):
-    #     super().clean()
-
-    ################### verify associations ##################
-
-    def post_init_map(self):
-        if not self.map and self.parent and self.parent.map:
-            self.map = self.parent.map
-        else:
-            self.map = self.world.map
-
-    def pre_save_current_encounter(self):
-        if not self.current_encounter and self.encounters:
-            self.current_encounter = self.encounters[0]
-
-    def pre_save_music(self):
-        if not self.music:
-            self.music = "/static/sounds/music/themesong.mp3"
-
-    def pre_save_current_actor(self):
-        if not self.current_actor and self.actors:
-            self.current_actor = self.actors[0]
-
-    def pre_save_current_item(self):
-        if not self.current_item and self.items:
-            self.current_item = self.items[0]

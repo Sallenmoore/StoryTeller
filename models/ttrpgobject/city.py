@@ -6,40 +6,26 @@ from autonomous.model.autoattr import (
     IntAttr,
     ListAttr,
     ReferenceAttr,
-    StringAttr,
 )
-from models.abstracts.place import Place
+from models.base.place import Place
 
 
 class City(Place):
     population = IntAttr(default=100)
-    districts = ListAttr(StringAttr(default=""))
+    districts = ListAttr(ReferenceAttr(choices=["District"]))
 
-    _possible_events = [
-        "Founded",
-        *Place._possible_events,
-        "Abandoned",
-        "Destroyed",
-    ]
     parent_list = ["Region"]
     _traits_list = [
         "bohemian",
-        "snooty",
+        "rude",
         "aggressive",
         "proud",
         "distrustful",
-        "Anarchic",
-        "Aristocratic",
-        "Authoritarianist",
-        "Bureaucratic",
-        "Communist",
-        "Democratic",
-        "Fascist",
-        "Meritocratic",
-        "Militaristic",
-        "Monarchic",
-        "Theocratic",
-        "Tribalist",
+        "anarchic",
+        "aristocratic",
+        "bureaucratic",
+        "theocratic",
+        "tribalist",
     ]
     _funcobj = {
         "name": "generate_city",
@@ -68,11 +54,6 @@ class City(Place):
                     "description": "The names of at least 3 districts in the city, named consistent with the city's theme.",
                     "items": {"type": "string"},
                 },
-                "notes": {
-                    "type": "array",
-                    "description": "3 short descriptions of potential secret side quests in the area",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -80,7 +61,7 @@ class City(Place):
     ################### Class Methods #####################
 
     def generate(self):
-        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}. The {self.title} should contain up to 3 {random.choice(['mysterious', 'sinister', 'boring'])} secrets hidden within the {self.title} for the players to discover."
+        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}."
         obj_data = super().generate(prompt=prompt)
         self.save()
         return obj_data
@@ -90,7 +71,7 @@ class City(Place):
     @property
     def image_prompt(self):
         msg = f"""
-        Create a full color, high resolution illustrated view of a {self.title} called {self.name} of with the follwoing details:
+        Create a full color, high resolution illustrated view of a {self.title} called {self.name} of with the following details:
         - POPULATION: {self.population}
         - DESCRIPTION: {self.desc}
         """
@@ -141,7 +122,6 @@ class City(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_districts()
         document.pre_save_population()
 
     # @classmethod
@@ -152,10 +132,6 @@ class City(Place):
     #     super().clean()
 
     ################### verify associations ##################
-    def pre_save_districts(self):
-        for poi in self.pois:
-            if poi.district and all(poi.district not in d for d in self.districts):
-                self.districts.append(poi.district)
 
     def pre_save_population(self):
         if not self.population:

@@ -163,8 +163,8 @@
 
 .event-icon
 {
-    border-radius: 50%;
-    border: $primary 2px solid;
+    border-radius: 50% !important;
+    border: rgba(171, 16, 16, 0.66) 2px solid;
     transition: all 250ms ease;
 
     &:hover
@@ -193,31 +193,37 @@
 
 .generated-text-lightbg
 {
+    color: $dark;
 
     h1,
     h2,
     h3,
     h4,
     h5,
-    h6
+    h6,
+    p
     {
-        color: $primary;
+        color: $dark;
     }
 }
 
 .generated-text-darkbg
 {
+    color: $light;
 
     h1,
     h2,
     h3,
     h4,
     h5,
-    h6
+    h6,
+    p
     {
-        color: $secondary;
+        color: $light;
     }
 }
+
+
 
 //####### Mobile Styles #######
 @include small
