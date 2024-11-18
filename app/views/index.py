@@ -16,7 +16,7 @@ index_page = Blueprint("index", __name__)
 
 
 def _authenticate(user, obj):
-    if user == obj.get_world().user or obj.get_world() in user.worlds:
+    if user in obj.get_world().users or obj.get_world() in user.worlds:
         return True
     return False
 
@@ -35,6 +35,46 @@ def index():
     user = AutoAuth.current_user()
     session["page"] = "/home"
     return render_template("index.html", user=user, page_url="/home")
+
+
+@index_page.route(
+    "/<string:model>/<string:pk>/gm",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@auth_required()
+def autogm(model, pk):
+    user = AutoAuth.current_user()
+    obj = World.get_model(model, pk)
+    content = "<p>You do not have permission to alter this object<p>"
+    if _authenticate(user, obj):
+        args = request.json if request.method == "POST" else dict(request.args)
+        content = requests.post(
+            f"http://api:{os.environ.get('COMM_PORT')}/autogm/{model}/{pk}", json=args
+        ).text
+    return render_template("index.html", user=user, obj=obj, page_content=content)
+
+
+@index_page.route(
+    "/manage/<string:model>/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@auth_required()
+def manage(model, pk):
+    user = AutoAuth.current_user()
+    obj = World.get_model(model, pk)
+    content = "<p>You do not have permission to alter this object<p>"
+    if _authenticate(user, obj):
+        args = request.json if request.method == "POST" else dict(request.args)
+        content = requests.post(
+            f"http://api:{os.environ.get('COMM_PORT')}/manage/{model}/{pk}", json=args
+        ).text
+    return render_template("index.html", user=user, obj=obj, page_content=content)
 
 
 @index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))

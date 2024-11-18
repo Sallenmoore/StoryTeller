@@ -132,10 +132,15 @@ class World(TTRPGBase):
             *self.factions,
             *self.cities,
             *self.locations,
-            *self.pois,
             *self.regions,
             *self.districts,
         ]
+
+    @associations.setter
+    def associations(self, obj):
+        if obj.world != self:
+            obj.world = self
+            obj.save()
 
     @property
     def characters(self):
@@ -223,9 +228,6 @@ class World(TTRPGBase):
         return super().delete()
 
     ###################### Boolean Methods ########################
-
-    def is_child(self, obj):
-        return self == obj.parent
 
     def is_associated(self, obj):
         return self == obj.world

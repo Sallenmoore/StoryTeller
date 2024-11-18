@@ -1,5 +1,5 @@
-{% import "components/_form.html" as form_components %}
-{% import "components/_elements.html" as elements_components %}
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
 
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
@@ -55,7 +55,6 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-
 <div class="panel has-bg-screen">
     <div class="row has-space-around">
         <div class="column is-shrink is-mobile-4">
@@ -142,7 +141,7 @@
         </div>
     </div>
     {% if obj.abilities %}
-    <div id="model-abilities" class="column">
+    <div id="model-abilities" class="column is-full">
         <h3 class="has-text-primary has-text-center">Abilities</h3>
         <div class="panel has-bg-muted">
 
@@ -158,7 +157,7 @@
     </div>
     {% endif %}
     {% if obj.wealth %}
-    <div id="model-wealth" class="column is-4">
+    <div id="model-wealth" class="column is-full">
         <h4>Wealth</h4>
         <div class="panel has-bg-primary">
             {% for w in obj.wealth %}
@@ -176,28 +175,28 @@
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row has-space-between">
         <div class="column">
-            <h4 class="has-text-center">STR</h4>
+            <h4 class="has-text-center has-text-primary">STR</h4>
             <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
         </div>
         <div class="column ">
-            <h4 class="has-text-center">DEX</h4>
+            <h4 class="has-text-center has-text-primary">DEX</h4>
             <input class="has-text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
         </div>
         <div class="column ">
-            <h4 class="has-text-center">INT</h4>
+            <h4 class="has-text-center has-text-primary">INT</h4>
             <input class="has-text-center" type="text" value="{{obj.intelligence}}"
                    name="intelligence">
         </div>
         <div class="column ">
-            <h4 class="has-text-center">WIS</h4>
+            <h4 class="has-text-center has-text-primary">WIS</h4>
             <input class="has-text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
         </div>
         <div class="column ">
-            <h4 class="has-text-center">CHA</h4>
+            <h4 class="has-text-center has-text-primary">CHA</h4>
             <input class="has-text-center" type="text" value="{{obj.charisma}}" name="charisma">
         </div>
         <div class="column ">
-            <h4 class="has-text-center">CON</h4>
+            <h4 class="has-text-center has-text-primary">CON</h4>
             <input class="has-text-center" type="text" value="{{obj.constitution}}"
                    name="constitution">
         </div>
@@ -205,12 +204,12 @@
     <hr>
     <div class="row has-space-around">
         <div class="column is-shrink ">
-            <h4 class="has-text-center" for="model-hitpoints">MAX HP</h4>
+            <h4 class='has-text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
             <input class="has-text-center" id="model-hitpoints" type="number"
                    value="{{obj.hitpoints}}" name="hitpoints">
         </div>
         <div class="column is-shrink ">
-            <h4>Player/NPC</h4>
+            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
             <div class="is-select">
                 <select class="has-no-border" name="is_player">
                     <option value="False">NPC</option>
@@ -220,44 +219,45 @@
         </div>
         {% if obj.is_player %}
         <div class="column is-shrink " id="dnd-beyond-id-input-container">
-            <h4>D&DBeyond ID</h4>
+            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
             <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
         </div>
         {% endif %}
     </div>
     <div class="row has-space-between">
-        <div class="column is-3">
-            <h4>Race</h4>
+        <div class="column is-2">
+            <h4 class='has-text-primary'>Race</h4>
             <input type="text" value="{{obj.race}}" name="race">
         </div>
         <div class="column is-2">
-            <h4>Gender</h4>
+            <h4 class='has-text-primary'>Gender</h4>
             <input type="text" value="{{obj.gender}}" name="gender">
         </div>
-        <div class="column is-2">
-            <h4>Age</h4>
-            <input type="number" value="{{obj.age}}" name="age">
+        <div class="column is-shrink">
+            <h4 class='has-text-center has-text-primary'>Age</h4>
+            <input class="has-text-center" type="number" value="{{obj.age}}" name="age">
         </div>
         <div class="column">
-            <h4>Occupation</h4>
+            <h4 class='has-text-primary'>Occupation</h4>
             <input type="text" value="{{obj.occupation}}" name="occupation">
         </div>
     </div>
     <hr>
     <div class="row">
         <div class="column">
-            <h3 class='has-text-center'>Goals and Secrets</h3>
+            <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>
     <hr>
     <div class="row">
-        <div id="model-wealth" class="column is-4">
-            <h3 class='has-text-center'>Wealth</h3>
+        <div id="model-wealth" class="column is-full">
+            <h3 class='has-text-center has-text-primary'>Wealth</h3>
             {{form_components.listeditor(user, obj, "wealth")}}
+            <hr>
         </div>
-        <div id="model-abilities" class="column is-8">
-            <h3 class='has-text-center'>Abilities</h3>
+        <div id="model-abilities" class="column is-full">
+            <h3 class='has-text-center has-text-primary'>Abilities</h3>
             {{form_components.listeditor(user, obj, "abilities")}}
         </div>
     </div>
@@ -353,7 +353,7 @@
           hx-vals='{"module":"models/_character.html", "macro": "lineage"}'>
         <div class="panel">
             <div class="row">
-                {{elements_components.object_display(obj)}}
+                {{display_components.object_display(obj)}}
                 <div class="column">
                     <h4>Relationship</h4>
                     <div class="is-select">
@@ -479,10 +479,10 @@
 
 {%- endmacro %}
 
-{% macro autogm(user, obj) -%}
+{# {% macro autogm(user, obj) -%}
 <title>{{obj.name}} | Auto GM</title>
 <h2 class="has-text-dark">Auto GM Session</h2>
-{% if obj.autogm_summary.get('description') %}
+{% if obj.autogm_summary[-1].description %}
 <div class="row">
     <div class="column is-full">
         <div class="panel">
@@ -490,12 +490,12 @@
             <hr>
             <div class="row">
                 <div class="column">
-                    {{obj.autogm_summary.get('description')}}
+                    {{obj.autogm_summary[-1].description}}
                 </div>
-                {% if obj.autogm_summary.get('image') %}
+                {% if obj.autogm_summary[-1].image %}
                 <div class="column is-shrink">
                     <div class="image is-extra-large is-tile is-margin-center">
-                        <img src="{{obj.autogm_summary.get('image').url(size='500')}}"
+                        <img src="{{obj.autogm_summary[-1].image.url(size='500')}}"
                              loading="lazy"
                              alt="{{obj.name}}" />
                     </div>
@@ -519,19 +519,19 @@
                                   style='height:60%;'></textarea>
                     </div>
                 </div>
-                {% if obj.autogm_summary.get('requires_roll') %}
+                {% if obj.autogm_summary[-1].requires_roll %}
                 <div class="column is-half">
                     <div class="panel has-text-center has-bg-muted is-full">
                         <h4 class="has-text-screen has-text-center">Roll Required</h4>
                         <input type="hidden" name="roll_type" id="roll_type"
-                               value='{{obj.autogm_summary.get("requires_roll")}}'>
+                               value='{{obj.autogm_summary[-1].requires_roll}}'>
                         <hr>
                         <div class='row'>
                             <div class="column">
                                 <div
                                      class="panel has-bg-muted has-text-center is-vertically-centered">
                                     <h5 class="has-text-dark">
-                                        {{obj.autogm_summary.get('requires_roll')}}
+                                        {{obj.autogm_summary[-1].requires_roll}}
                                     </h5>
                                     <input type="text" name="roll_dice" id="roll_dice"
                                            value="1d20">
@@ -573,20 +573,20 @@
 </div>
 <hr>
 <div class="row has-space-around">
-    {% if obj.gm.summary %}
+    {% if obj.autogm_summary[-1].summary %}
     <div class="column is-full">
         <div class="panel has-bg-dark-grey has-text-light">
             <h4 class="is-subheading">Summary</h4>
-            <div>{{obj.gm.summmary}}</div>
+            <div>{{obj.autogm_summary[-1].summary}}</div>
         </div>
     </div>
     {% endif %}
-    {% if obj.autogm_summary.get('npcs') %}
+    {% if obj.autogm_summary[-1].npcs %}
     <div class="column is-full">
         <div class="panel has-bg-screen is-full">
             <h4 class="has-text-center">NPCs</h4>
             <div class="row has-space-around">
-                {% for npc in obj.autogm_summary.get('npcs')%}
+                {% for npc in obj.autogm_summary[-1].npcs %}
                 <div class='column is-3'>
                     <p>{{npc}}</p>
                 </div>
@@ -595,12 +595,12 @@
         </div>
     </div>
     {% endif %}
-    {% if obj.autogm_summary.get('combatants') %}
+    {% if obj.autogm_summary[-1].combatants %}
     <div class="column is-full">
         <div class="panel has-bg-screen is-full">
             <h4 class="has-text-center">Combatants</h4>
             <div class="row has-space-around">
-                {% for cbt in obj.autogm_summary.get('combatants')%}
+                {% for cbt in obj.autogm_summary[-1].combatants %}
                 <div class='column is-3'>
                     <div>{{cbt}}</div>
                 </div>
@@ -609,7 +609,7 @@
         </div>
     </div>
     {% endif %}
-    {% if obj.autogm_summary.get('loot') %}
+    {% if obj.autogm_summary[-1].loot %}
     <div class="column is-full">
         <div class="panel is-full has-bg-screen">
             <h4 class="has-text-center">Loot</h4>
@@ -662,4 +662,4 @@
     </div>
 </div>
 {% endif %}
-{%- endmacro %}
+{%- endmacro %} #}

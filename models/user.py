@@ -13,8 +13,8 @@ class User(AutoUser):
     worlds = ListAttr(ReferenceAttr(choices=[World]))
     admin = BoolAttr(default=False)
 
-    def world_user(self, world):
-        return self in world.users
+    def world_user(self, obj):
+        return self in obj.get_world().users
 
     def add_world(self, obj):
         if isinstance(obj, str):

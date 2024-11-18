@@ -24,13 +24,36 @@ manage_endpoint = Blueprint("manage", __name__)
 
 # MARK: update route
 ###########################################################
-##                    Update Routes                      ##
+##                    Main Route                         ##
 ###########################################################
+@manage_endpoint.route("/<string:model>/<string:pk>", methods=("POST",))
+def index(model, pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    return get_template_attribute("manage/_details.html", "details")(user, obj)
+
+
+# MARK: CRUD routes
+###########################################################
+##                    CRUD Routes                        ##
+###########################################################
+@manage_endpoint.route("/add/<string:model>", methods=("POST",))
+def add(model):
+    user, obj, *_ = _loader()
+    new_obj = World.get_model(model)(world=obj.get_world())
+    new_obj.save()
+    obj.add_association(new_obj)
+    return get_template_attribute("shared/_associations.html", "associations")(
+        user, obj, obj.associations
+    )
+
+
 @manage_endpoint.route("/update", methods=("POST",))
 def update():
     user, obj, world, macro, module = _loader()
     macro = macro or "details"
     module = module or "manage/_details.html"
+    request.json.pop("user", None)
+    request.json.pop("model", None)
     for attr, value in request.json.items():
         ########## SECURITY: remove any javascript tags for security reasons ############
         if isinstance(value, str) and "<" in value:
@@ -45,6 +68,14 @@ def update():
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
     obj.save()
     return get_template_attribute(module, macro)(user, obj)
+
+
+@manage_endpoint.route("/delete/<string:model>/<string:pk>", methods=("POST",))
+def delete(model, pk):
+    user, obj, world, *_ = _loader(model=model, pk=pk)
+    obj = world.get_model(model, pk)
+    obj.delete()
+    return "<p>Success</p>"
 
 
 # MARK: title route
@@ -66,7 +97,15 @@ def title():
 @manage_endpoint.route("/image", methods=("POST",))
 def image():
     user, obj, *_ = _loader()
-    return get_template_attribute("manage/_image.html", "image")(user, obj)
+    return get_template_attribute("manage/_details.html", "image")(user, obj)
+
+
+@manage_endpoint.route("/image/gallery", methods=("POST",))
+def image_gallery():
+    user, obj, *_ = _loader()
+    return get_template_attribute("manage/_details.html", "imagegallery")(
+        user, obj, images=obj.get_image_list()
+    )
 
 
 # MARK: History route
@@ -139,30 +178,30 @@ def delete_journal_entry(entrypk):
 ###########################################################
 ##                 Associations Routes                   ##
 ###########################################################
-@manage_endpoint.route("/associations", methods=("POST",))
-def associations():
+@manage_endpoint.route(
+    "/association/add/<string:childmodel>/<string:childpk>", methods=("POST",)
+)
+def association_add(amodel, apk):
     user, obj, *_ = _loader()
-    log(request.json)
-    if filter_str := request.json.get("filter"):
-        associations = [
-            o for o in obj.associations if filter_str.lower() in o.name.lower()
-        ]
-    else:
-        associations = obj.associations
-    if sorter := request.json.get("sorter"):
-        reverse = True if request.json.get("order") == "desc" else False
-        if sorter == "date_ended":
-            associations = [a for a in associations if a.end_date]
-            associations.sort(key=lambda x: x.end_date, reverse=reverse)
-        if sorter == "date_started":
-            associations = [a for a in associations if a.start_date]
-            associations.sort(key=lambda x: x.start_date, reverse=reverse)
-        if sorter == "name":
-            associations.sort(key=lambda x: x.name.lower(), reverse=reverse)
-    else:
-        associations.sort(key=lambda x: x.name)
-    return get_template_attribute("components/_associations.html", "associations")(
-        user, obj, associations
+    child = World.get_model(amodel, apk)
+    child.add_association(obj)
+    params = {
+        "user": user,
+        "obj": obj,
+        "associations": obj.associations,
+    }
+    return get_template_attribute("shared/_associations.html", "associations")(**params)
+
+
+@manage_endpoint.route(
+    "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
+)
+def unassociate(childmodel, childpk):
+    user, obj, *_ = _loader()
+    child = World.get_model(childmodel).get(childpk)
+    associations = obj.remove_association(child)
+    return get_template_attribute("shared/_associations.html", "associations")(
+        user, obj, associations=associations
     )
 
 
@@ -188,118 +227,9 @@ def addlistitem(attr):
     if isinstance(getattr(obj, attr, None), list):
         getattr(obj, attr).append("New Entry")
         obj.save()
-    result = get_template_attribute("components/_form.html", "listeditor")(
-        user, obj, attr
-    )
+    result = get_template_attribute("shared/_form.html", "listeditor")(user, obj, attr)
     # log(attr, elemid, result)
     return result
-
-
-# MARK: childmanage routes
-###########################################################
-##                Child Manage Routes                    ##
-###########################################################
-@manage_endpoint.route("/childmanage", methods=("POST",))
-def childmanage():
-    user, obj, world, *_ = _loader()
-    kwargs = {}
-    if childmodel := request.json.get("childmodel"):
-        kwargs["model"] = childmodel
-        kwargs["title"] = obj.get_title(childmodel)
-        kwargs["associations"] = world.get_associations(childmodel)
-
-    # log(childmodel, title, list(a.pk for a in associations))
-    return get_template_attribute("manage/_children.html", "manage")(
-        user, obj, **kwargs
-    )
-
-
-@manage_endpoint.route("/add/<string:childmodel>", methods=("POST",))
-@manage_endpoint.route("/add/<string:childmodel>/<string:childpk>", methods=("POST",))
-def add(childmodel, childpk=None):
-    user, parent, world, *_ = _loader()
-
-    if childpk:
-        child = World.get_model(childmodel, childpk)
-    else:
-        child = World.get_model(childmodel)(world=world)
-        child.save()
-    parent.add_association(child)
-    return get_template_attribute("components/_associations.html", "associations")(
-        user=user, obj=parent, associations=parent.get_associations()
-    )
-
-@manage_endpoint.route(
-    "/parent/<string:parentmodel>/<string:parentpk>", methods=("POST",)
-)
-def parent(parentmodel, parentpk):
-    user, child, *_ = _loader()
-    parent = World.get_model(parentmodel).get(parentpk)
-    child.add_association(parent)
-    parent.add_association(child)
-    child.parent = parent
-    child.save()
-    params = {
-        "user": user,
-        "obj": child,
-        "associations": child.get_associations(parentmodel),
-    }
-    return get_template_attribute("components/_associations.html", "associations")(
-        **params
-    )
-
-
-@manage_endpoint.route("/child/<string:childmodel>/<string:childpk>", methods=("POST",))
-def child(childmodel, childpk):
-    user, parent, *_ = _loader()
-    child = World.get_model(childmodel).get(childpk)
-    child.add_association(parent)
-    child.parent = parent
-    child.save()
-    params = {
-        "user": user,
-        "obj": parent,
-        "associations": parent.get_associations(childmodel),
-    }
-    return get_template_attribute("components/_associations.html", "associations")(
-        **params
-    )
-
-
-@manage_endpoint.route("/copy/<string:childmodel>/<string:childpk>", methods=("POST",))
-def copy(childmodel, childpk):
-    user, obj, *_ = _loader()
-    child = World.get_model(childmodel).get(childpk)
-    new_child = child.copy()
-    new_child.save()
-    associations = obj.add_association(new_child)
-    associations.sort(
-        key=lambda item: (item.name.startswith("_"), item.name == "", item.name)
-    )
-    params = {"user": user, "obj": obj, "associations": associations}
-    return get_template_attribute("components/_associations.html", "associations")(
-        **params
-    )
-
-
-@manage_endpoint.route(
-    "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
-)
-def unassociate(childmodel, childpk):
-    user, obj, *_ = _loader()
-    child = World.get_model(childmodel).get(childpk)
-    associations = obj.remove_association(child)
-    return get_template_attribute("components/_associations.html", "associations")(
-        user, obj, associations=associations
-    )
-
-
-@manage_endpoint.route("/delete/<string:model>/<string:pk>", methods=("POST",))
-def delete(model, pk):
-    user, _, world, *_ = _loader(model=model, pk=pk)
-    obj = world.get_model(model, pk)
-    obj.delete()
-    return "<p>Success</p>"
 
 
 # MARK: scene routes
@@ -319,9 +249,7 @@ def scenes(connectedmodel, connectedpk):
         "obj": obj,
         "associations": obj.get_associations(),
     }
-    return get_template_attribute("components/_associations.html", "associations")(
-        **params
-    )
+    return get_template_attribute("shared/_associations.html", "associations")(**params)
 
 
 # MARK: Character routes
@@ -447,82 +375,8 @@ def dndbeyondapi():
 ###########################################################
 @manage_endpoint.route("/faction/leader/<string:leader_pk>", methods=("POST",))
 def factionleader(leader_pk):
-    user, obj, world, macro, module = _loader()
+    user, obj, *_ = _loader()
     if character := Character.get(leader_pk):
         obj.leader = character
         obj.save()
     return get_template_attribute("models/_faction.html", "info")(user, obj)
-
-
-# MARK: Monster routes
-###########################################################
-##                    Monster Routes                     ##
-###########################################################
-# MARK: Item routes
-###########################################################
-##                    Item Routes                        ##
-###########################################################
-
-
-@manage_endpoint.route("/creature/dnd5eapi_update", methods=("POST",))
-def dnd5eapi_creature_update():
-    log(request.json)
-    user = User.get(request.json.pop("user"))
-    obj = Creature.get(request.json.pop("pk"))
-    results = dmtools.get_monster(request.json.pop("url"))
-    obj.name = f"{obj.name} - {results.get('name')}"
-    obj.size = results.get("size") or obj.size
-    obj.type = f"{results.get('type', '')} {results.get('subtype', '')}"
-    obj.traits = results.get("alignment", "") or obj.trait
-    obj.hitpoints = results.get("hit_points", "") or obj.hitpoints
-    obj.strength = results.get("strength") or obj.strength
-    obj.dexterity = results.get("dexerity") or obj.dexterity
-    obj.constitution = results.get("constitution") or obj.constitution
-    obj.intelligence = results.get("intelligence") or obj.intelligence
-    obj.wisdom = results.get("wisdom") or obj.wisdom
-    obj.charisma = results.get("charisma") or obj.charisma
-    obj.abilities = []
-    features_list = [i for i in results.get("special_abilities", [])]
-    for idx, feature in enumerate(features_list):
-        feature_entry = f"""<h5>Special Ability: {feature['name'].upper()}</h5>
-        </p>{feature.get("desc", "")}<p>
-        """
-        if feature_entry not in obj.abilities:
-            obj.abilities.append(feature_entry)
-
-    features_list = [i for i in results.get("actions", [])]
-    for idx, feature in enumerate(features_list):
-        feature_entry = f"""<h5>Actions: {feature['name'].upper()}</h5>
-        </p>{feature.get("desc", "")}<p>
-        """
-        if feature_entry not in obj.abilities:
-            obj.abilities.append(feature_entry)
-    features_list = [i for i in results.get("legendary_actions", [])]
-    for idx, feature in enumerate(features_list):
-        feature_entry = f"""<h5>Legendary Actions: {feature['name'].upper()}</h5>
-        </p>{feature.get("desc", "")}<p>
-        """
-        if feature_entry not in obj.abilities:
-            obj.abilities.append(feature_entry)
-    obj.save()
-    return get_template_attribute("components/_details.html", "details")(user, obj)
-
-
-@manage_endpoint.route("/item/dnd5eapi_update", methods=("POST",))
-def dnd5eapi_item_update():
-    user = User.get(request.json.pop("user"))
-    obj = Item.get(request.json.pop("pk"))
-    results = dmtools.get_item(request.json.pop("url"))
-    log(results)
-    obj.name = results.get("name") or obj.name
-    obj.weight = results.get("weight") or obj.weight
-    if cost := results.get("cost"):
-        obj.cost = f"{cost.get('quantity')} {cost.get('unit')}"
-    if rarity := results.get("rarity"):
-        obj.rarity = rarity.get("name")
-    if desc := results.get("desc"):
-        features = f"<p>{'</p><br><p>'.join(desc)}</p>"
-        if features not in obj.features:
-            obj.features.append(features)
-    obj.save()
-    return get_template_attribute("components/_details.html", "details")(user, obj)

@@ -60,7 +60,12 @@ class Location(Place):
         ]
     )
 
-    parent_list = ["City", "Region", "District", "Location"]
+    parent_list = [
+        "Location",
+        "District",
+        "City",
+        "Region",
+    ]
 
     def page_data(self):
         result = super().page_data()

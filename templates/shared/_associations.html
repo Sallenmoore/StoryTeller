@@ -1,4 +1,4 @@
-{% import "components/_elements.html" as element %}
+{% import "shared/_display.html" as element %}
 
 {% macro associations(user, obj, associations) -%}
 {% if user.world_user(obj) %}
@@ -14,7 +14,7 @@
                    placeholder="Search to Add Associations..."
                    style="border-bottom: solid #000;" hx-target="#association-search"
                    hx-post="/api/search/" hx-trigger="input delay:750ms, search"
-                   hx-vals='{"module":"components/_associations.html", "macro":"association_dropdown"}'
+                   hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
                    hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <ul class="dropdown autocomplete-list has-bg-light" id="association-search">
             </ul>
@@ -46,17 +46,8 @@
                     <div class="is-select">
                         <select name="sorter">
                             <option value='name'>Name</option>
-                            <option value='date_started'>Start Date</option>
-                            <option value='date_ended'>End Date</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="is-select">
-                        <select name="sortfilter">
-                            <option value='all'>All</option>
-                            <option value='canon'>Canon Only</option>
-                            <option value='noncanon'>Non-Canon Only</option>
+                            <option value='date'>Date</option>
+                            <option value='type'>Type</option>
                         </select>
                     </div>
                 </div>
@@ -75,26 +66,16 @@
     </div>
     <div class="column">
         <div class="row has-centered">
-            {% for child in obj.child_models %}
+            {% for child in obj.all_models() %}
             <div class="column is-shrink">
                 <button class="button is-primary is-small"
-                        hx-post="/api/manage/add/{{child | lower}}"
+                        hx-post="/api/manage/add/{{child.__name__ | lower}}"
                         hx-target="#page-content"
                         hx-indicator='#request-indicator'>
                     Quick {{obj.get_title(child)}}
                 </button>
             </div>
             {% endfor %}
-            {% if obj.model_name() != "World" %}
-            <div class="column is-shrink">
-                <button class="button is-primary is-small"
-                        hx-post="/api/manage/associate/players" hx-target="#page-content"
-                        hx-vals='{"macro":"associations", "module":"components/_associations.html"}'
-                        hx-indicator='#request-indicator'>
-                    Add Current Players
-                </button>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -110,67 +91,9 @@
                     <div class="column is-shrink">
                         {{element.object_display(a)}}
                     </div>
-                    {% if obj.model_name() != "World" %}
+                    {% if 'World' not in [obj.model_name(), a.model_name()] %}
                     <div class="column">
                         <div class="row is-vertical">
-                            {% if a.model_name() in obj.parent_list %}
-                            <div class="column  has-text-center">
-                                <button class="button is-small"
-                                        {%if obj.parent and a==obj.parent %} disabled {% endif
-                                        %}
-                                        hx-post="/api/manage/parent/{{a.path}}"
-                                        hx-target="#associated-objects"
-                                        hx-select="#associated-objects"
-                                        hx-indicator='#request-indicator'>
-                                    <iconify-icon icon="raphael:parent"></iconify-icon>
-                                    <span style="font-size:0.5rem">
-                                        {%if obj.parent and a != obj.parent %}
-                                        Set
-                                        {% endif %}
-                                        Parent
-                                    </span>
-                                </button>
-                            </div>
-                            {% endif %}
-                            {% if obj.model_name() in a.parent_list and obj.pk != a.parent.pk %}
-                            <div class="column has-text-center">
-                                <button class="button is-small"
-                                        {% if a in obj.children %} disabled {% endif %}
-                                        hx-post="/api/manage/child/{{a.path}}"
-                                        hx-target="#associated-objects"
-                                        hx-select="#associated-objects"
-                                        hx-indicator='#request-indicator'>
-                                    <iconify-icon icon="raphael:parent"></iconify-icon>
-                                    <span style="font-size:0.5rem">
-                                        {%if not obj.children | in_list(a) %}
-                                        Set
-                                        {% endif %}
-                                        Child
-                                    </span>
-                                </button>
-                            </div>
-                            {% endif %}
-                            {% if obj.scenes is defined and a.scenes is defined %}
-                            <div class="column has-text-center">
-                                <button class="button is-small"
-                                        {% if obj.scenes | in_list(a) %} disabled {% endif %}
-                                        hx-post="/api/manage/scenes/{{a.path}}"
-                                        hx-target="#associated-objects"
-                                        hx-select="#associated-objects"
-                                        hx-indicator='#request-indicator'>
-                                    <iconify-icon icon="raphael:parent"></iconify-icon>
-                                    <span style="font-size:0.5rem">
-                                        {% if obj.has_scene(a) %}
-                                        Connected
-                                        {% else %}
-                                        Connect
-                                        {% endif %}
-                                        Scene
-                                    </span>
-                                </button>
-                            </div>
-                            {% endif %}
-                            {% if 'World' not in [obj.model_name(), a.model_name()] %}
                             <div class="column has-text-center">
                                 <button class="button is-small is-primary"
                                         hx-post="/api/manage/unassociate/{{a.path}}"
@@ -183,7 +106,6 @@
                                     <span style="font-size:0.5rem">Unlink</span>
                                 </button>
                             </div>
-                            {% endif %}
                         </div>
                     </div>
                     {% endif %}
@@ -200,7 +122,7 @@
 {% for o in objs %}
 <li class="dropdown__link">
     <a hx-post='/api/manage/add/{{o.model_name() | lower}}/{{o.pk}}' hx-target='#page-content'
-       hx-vals='{"macro":"associations", "module":"components/_associations.html"}'
+       hx-vals='{"macro":"associations", "module":"shared/_associations.html"}'
        hx-indicator='#request-indicator'>
         <div class="row">
             <div class="column is-shrink">

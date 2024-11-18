@@ -96,7 +96,6 @@ class Region(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_parent()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -121,6 +120,3 @@ class Region(Place):
                 if story
                 else ""
             )
-
-    def pre_save_parent(self):
-        self.parent = self.world

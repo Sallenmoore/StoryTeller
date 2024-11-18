@@ -18,23 +18,15 @@ nav_endpoint = Blueprint("nav", __name__)
 @nav_endpoint.route("/menu", methods=("POST",))
 def menu():
     user, obj, *_ = _loader()
-    return get_template_attribute("components/_nav.html", "topnav")(user, obj)
+    return get_template_attribute("shared/_nav.html", "topnav")(user, obj)
 
-
-@nav_endpoint.route("/sidemenu/active", methods=("POST",))
-def sidemenuactive():
-    user, obj, *_ = _loader()
-    return get_template_attribute("components/_nav.html", "sidemenu_active")(user, obj)
-
-
-@nav_endpoint.route("/submenu/<string:childmodel>", methods=("POST",))
-def childmenu(childmodel):
-    user, obj, *_ = _loader()
-    children = obj.get_associations(childmodel)
-    return get_template_attribute("components/_nav.html", "submenu")(children)
-
-
-@nav_endpoint.route("/sidemenu/detail/<string:model>/<string:pk>", methods=("POST",))
+@nav_endpoint.route(
+    "/sidemenu/<string:model>/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def sidemenudetail(model, pk):
     user, obj, *_ = _loader(model=model, pk=pk)
     try:

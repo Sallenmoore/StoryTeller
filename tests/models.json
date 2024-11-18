@@ -1,0 +1,154 @@
+{
+    "__module__": "models.base.place",
+    "owner": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fdfd0>",
+    "map": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fe3f0>",
+    "_traits_list": [
+        "long hidden",
+        "mysterious",
+        "sinister",
+        "underground",
+        "frozen",
+        "jungle",
+        "dangerous",
+        "boring",
+        "mundane",
+        "opulent",
+        "decaying",
+        "haunted",
+        "enchanted",
+        "cursed"
+    ],
+    "actors": "<property object at 0x7f2cd7617920>",
+    "map_thumbnail": "<property object at 0x7f2cd7617970>",
+    "map_prompt": "<property object at 0x7f2cd7617a10>",
+    "generate_map": "<function Place.generate_map at 0x7f2cd76139c0>",
+    "get_map_list": "<function Place.get_map_list at 0x7f2cd7613a60>",
+    "generate": "<function Place.generate at 0x7f2cd7613b00>",
+    "page_data": "<function Place.page_data at 0x7f2cd7613ba0>",
+    "auto_pre_save": "<classmethod[<function Place.auto_pre_save at 0x7f2cd7613c40>]>",
+    "pre_save_map": "<function Place.pre_save_map at 0x7f2cd7613ce0>",
+    "_meta": {
+        "abstract": true,
+        "allow_inheritance": true,
+        "strict": false
+    },
+    "_is_base_cls": false,
+    "_is_document": true,
+    "_cached_reference_fields": [],
+    "_cls": "<autonomous.db.fields.StringField object at 0x7f2cd75fe450>",
+    "_fields": {
+        "last_updated": "<autonomous.db.fields.DateTimeField object at 0x7f2ce7250590>",
+        "_cls": "<autonomous.db.fields.StringField object at 0x7f2cd75fe450>",
+        "name": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd75fbcb0>",
+        "backstory": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd78f4bf0>",
+        "backstory_summary": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd78e9ee0>",
+        "desc": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd75fbda0>",
+        "desc_summary": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd798db80>",
+        "traits": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd7b389b0>",
+        "image": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78f5bb0>",
+        "current_age": "<autonomous.model.autoattr.IntAttr object at 0x7f2cd7ad77a0>",
+        "history": "<autonomous.model.autoattr.StringAttr object at 0x7f2cd7af30b0>",
+        "journal": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78a57f0>",
+        "world": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78e9df0>",
+        "parent": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78f76e0>",
+        "associations": "<autonomous.model.autoattr.ListAttr object at 0x7f2cd798d490>",
+        "owner": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fdfd0>",
+        "map": "<autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fe3f0>"
+    },
+    "_db_field_map": {
+        "last_updated": "last_updated",
+        "_cls": "_cls",
+        "name": "name",
+        "backstory": "backstory",
+        "backstory_summary": "backstory_summary",
+        "desc": "desc",
+        "desc_summary": "desc_summary",
+        "traits": "traits",
+        "image": "image",
+        "current_age": "current_age",
+        "history": "history",
+        "journal": "journal",
+        "world": "world",
+        "parent": "parent",
+        "associations": "associations",
+        "owner": "owner",
+        "map": "map"
+    },
+    "_reverse_db_field_map": {
+        "last_updated": "last_updated",
+        "_cls": "_cls",
+        "name": "name",
+        "backstory": "backstory",
+        "backstory_summary": "backstory_summary",
+        "desc": "desc",
+        "desc_summary": "desc_summary",
+        "traits": "traits",
+        "image": "image",
+        "current_age": "current_age",
+        "history": "history",
+        "journal": "journal",
+        "world": "world",
+        "parent": "parent",
+        "associations": "associations",
+        "owner": "owner",
+        "map": "map"
+    },
+    "_fields_ordered": [
+        "last_updated",
+        "name",
+        "backstory",
+        "backstory_summary",
+        "desc",
+        "desc_summary",
+        "traits",
+        "image",
+        "current_age",
+        "history",
+        "journal",
+        "world",
+        "parent",
+        "associations",
+        "owner",
+        "map",
+        "_cls"
+    ],
+    "_class_name": "Place",
+    "_superclasses": [
+        "AutoModel",
+        "TTRPGBase",
+        "TTRPGObject"
+    ],
+    "_subclasses": [
+        "Place",
+        "City",
+        "District",
+        "Location",
+        "Region"
+    ],
+    "_types": [
+        "Place",
+        "City",
+        "District",
+        "Location",
+        "Region"
+    ],
+    "__doc__": "",
+    "_collection": ""
+}
+
+{'__module__': 'models.ttrpgobject.faction', 'goal': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fdcd0>, 'status': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fe690>, 'leader': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fe210>, 'is_player_faction': <autonomous.model.autoattr.BoolAttr object at 0x7f2cd75fe630>, 'parent_list': ['City', 'District', 'Region', 'World'
+    ], '_traits_list': ['secretive', 'reckless', 'cautious', 'suspicious', 'violent', 'sinister', 'religous', 'racist', 'egalitarian', 'ambitious', 'corrupt', 'charitable', 'greedy', 'generous'
+    ], '_funcobj': {'name': 'generate_faction', 'description': 'completes Faction data object', 'parameters': {'type': 'object', 'properties': {'name': {'type': 'string', 'description': 'An evocative and unique name'
+                }, 'desc': {'type': 'string', 'description': 'A brief description of the members of the faction. Only include publicly known information.'
+                }, 'backstory': {'type': 'string', 'description': "The faction's backstory"
+                }, 'goal': {'type': 'string', 'description': "The faction's goals and secrets"
+                }, 'status': {'type': 'string', 'description': "The faction's current status"
+                }
+            }
+        }
+    }, 'image_prompt': <property object at 0x7f2cd7640400>, 'map': <property object at 0x7f2cd7640540>, 'generate': <function Faction.generate at 0x7f2cd763c720>, 'label': <function Faction.label at 0x7f2cd763c7c0>, 'page_data': <function Faction.page_data at 0x7f2cd763c860>, 'auto_pre_save': <classmethod(<function Faction.auto_pre_save at 0x7f2cd763c900>)>, 'pre_save_leader': <function Faction.pre_save_leader at 0x7f2cd763c9a0>, '_meta': {'abstract': False, 'max_documents': None, 'max_size': None, 'ordering': [], 'indexes': [], 'id_field': 'id', 'index_background': False, 'index_opts': None, 'delete_rules': None, 'allow_inheritance': True, 'strict': False, 'collection': 'faction', 'index_specs': []
+    }, '_is_base_cls': False, '_is_document': True, '_cached_reference_fields': [], '_cls': <autonomous.db.fields.StringField object at 0x7f2cd75fe7b0>, '_fields': {'last_updated': <autonomous.db.fields.DateTimeField object at 0x7f2ce7250590>, '_cls': <autonomous.db.fields.StringField object at 0x7f2cd75fe7b0>, 'name': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fbcb0>, 'backstory': <autonomous.model.autoattr.StringAttr object at 0x7f2cd78f4bf0>, 'backstory_summary': <autonomous.model.autoattr.StringAttr object at 0x7f2cd78e9ee0>, 'desc': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fbda0>, 'desc_summary': <autonomous.model.autoattr.StringAttr object at 0x7f2cd798db80>, 'traits': <autonomous.model.autoattr.StringAttr object at 0x7f2cd7b389b0>, 'image': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78f5bb0>, 'current_age': <autonomous.model.autoattr.IntAttr object at 0x7f2cd7ad77a0>, 'history': <autonomous.model.autoattr.StringAttr object at 0x7f2cd7af30b0>, 'journal': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78a57f0>, 'world': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78e9df0>, 'parent': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd78f76e0>, 'associations': <autonomous.model.autoattr.ListAttr object at 0x7f2cd798d490>, 'goal': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fdcd0>, 'status': <autonomous.model.autoattr.StringAttr object at 0x7f2cd75fe690>, 'leader': <autonomous.model.autoattr.ReferenceAttr object at 0x7f2cd75fe210>, 'is_player_faction': <autonomous.model.autoattr.BoolAttr object at 0x7f2cd75fe630>, 'id': <autonomous.db.base.fields.ObjectIdField object at 0x7f2cd75fcfe0>
+    }, '_db_field_map': {'last_updated': 'last_updated', '_cls': '_cls', 'name': 'name', 'backstory': 'backstory', 'backstory_summary': 'backstory_summary', 'desc': 'desc', 'desc_summary': 'desc_summary', 'traits': 'traits', 'image': 'image', 'current_age': 'current_age', 'history': 'history', 'journal': 'journal', 'world': 'world', 'parent': 'parent', 'associations': 'associations', 'goal': 'goal', 'status': 'status', 'leader': 'leader', 'is_player_faction': 'is_player_faction', 'id': '_id'
+    }, '_reverse_db_field_map': {'last_updated': 'last_updated', '_cls': '_cls', 'name': 'name', 'backstory': 'backstory', 'backstory_summary': 'backstory_summary', 'desc': 'desc', 'desc_summary': 'desc_summary', 'traits': 'traits', 'image': 'image', 'current_age': 'current_age', 'history': 'history', 'journal': 'journal', 'world': 'world', 'parent': 'parent', 'associations': 'associations', 'goal': 'goal', 'status': 'status', 'leader': 'leader', 'is_player_faction': 'is_player_faction', '_id': 'id'
+    }, '_fields_ordered': ('id', 'last_updated', 'name', 'backstory', 'backstory_summary', 'desc', 'desc_summary', 'traits', 'image', 'current_age', 'history', 'journal', 'world', 'parent', 'associations', 'goal', 'status', 'leader', 'is_player_faction', '_cls'), '_class_name': 'Faction', '_superclasses': ('AutoModel', 'TTRPGBase', 'TTRPGObject'), '_subclasses': ('Faction',), '_types': ('Faction',), '__doc__': None, '_collection': None, 'objects': <autonomous.db.queryset.manager.QuerySetManager object at 0x7f2ce41cef00>, 'id': <autonomous.db.base.fields.ObjectIdField object at 0x7f2cd75fcfe0>, 'DoesNotExist': <class 'models.ttrpgobject.faction.DoesNotExist'>, 'MultipleObjectsReturned': <class 'models.ttrpgobject.faction.MultipleObjectsReturned'>
+}

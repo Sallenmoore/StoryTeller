@@ -20,10 +20,11 @@ index_endpoint = Blueprint("page", __name__)
 
 def get_template(obj, macro, module=None):
     module = module or f"models/_{obj.__class__.__name__.lower()}.html"
-    # log(f"Module: {module}, Macro: {macro}")
+    log(f"Module: {module}, Macro: {macro}")
     try:
         template = get_template_attribute(module, macro)
-    except (TemplateNotFound, AttributeError):
+    except (TemplateNotFound, AttributeError) as e:
+        # log(e)
         module = f"shared/_{macro}.html"
         template = get_template_attribute(module, macro)
     return template
@@ -80,6 +81,29 @@ def buildform():
     return get_template_attribute("home.html", "worldbuild")(user=user)
 
 
+###########################################################
+##                    World Routes                       ##
+###########################################################
+@index_endpoint.route("/world/<string:pk>", methods=("POST",))
+def world(pk):
+    user, *_ = _loader()
+    world = World.get(pk)
+    return get_template_attribute("shared/_gm.html", "home")(user, world)
+
+
+@index_endpoint.route("/world/<string:pk>/delete", methods=("POST",))
+def worlddelete(pk):
+    user, *_ = _loader()
+    if world := World.get(pk):
+        world.delete()
+    return get_template_attribute("home.html", "home")(user)
+
+
+###########################################################
+##                    Model Routes                       ##
+###########################################################
+
+
 @index_endpoint.route(
     "/<string:model>/<string:pk>/<string:page>",
     methods=(
@@ -88,61 +112,23 @@ def buildform():
     ),
 )
 def model(model, pk, page):
-    log(request.args)
     user, obj, *_ = _loader(model=model, pk=pk)
     return get_template(obj, page)(user, obj)
-
-
-# MARK: Map routes
-###########################################################
-##                    Map Routes                    ##
-###########################################################
-@index_endpoint.route("/<string:model>/<string:pk>/map", methods=("POST",))
-def map(model, pk):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    return get_template_attribute("components/_map.html", "map")(user, obj)
 
 
 # MARK: Association routes
 ###########################################################
 ##                    Association Routes                 ##
 ###########################################################
-@index_endpoint.route("/<string:model>/<string:pk>/associations", methods=("POST",))
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/associations", methods=("GET", "POST")
+)
 def associations(model, pk):
     user, obj, *_ = _loader(model=model, pk=pk)
-    log(request.json)
-    if filter_str := request.json.get("filter"):
-        associations = [
-            o for o in obj.associations if filter_str.lower() in o.name.lower()
-        ]
-    else:
-        associations = obj.associations
-    associations.sort(key=lambda x: x.name)
-
-    return get_template_attribute("components/_associations.html", "associations")(
+    associations = obj.associations
+    args = dict(request.args) if request.method == "GET" else request.json
+    if filter_str := args.get("filter"):
+        associations = [o for o in associations if filter_str.lower() in o.name.lower()]
+    return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
-    )
-
-
-# MARK: Childpanel routes
-###########################################################
-##                    Childpanel Routes                  ##
-###########################################################
-@index_endpoint.route(
-    "/<string:model>/<string:pk>/childpanel/<string:childmodel>",
-    methods=("POST",),
-)
-def childpanel(model, pk, childmodel):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    childmodel = obj.get_model(childmodel).__name__
-    query = request.json.get("query") or None
-    children = []
-    associations = []
-    for child in obj.get_associations(childmodel):
-        if not query or query.lower() in child.name.lower():
-            children.append(child) if child.parent == obj else associations.append(
-                child
-            )
-    return get_template(obj, "childpanel")(
-        user, obj, childmodel, children=children, associations=associations
     )

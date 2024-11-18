@@ -29,8 +29,8 @@
                     <a href="/world/{{w.pk}}">
                         <span class="tag">{{w.genre}}</span>
                         <h2 class='has-text-dark has-text-center'>{{w.name}}</h2>
-                        <div class="panel has-bg-light">
-                            <p class='has-text-dark'>{{w.backstory_summary}}</p>
+                        <div class="panel has-bg-light generated-text-lightbg">
+                            <p class='has-text-dark'>{{w.backstory_summary | safe}}</p>
                         </div>
                     </a>
                 </div>

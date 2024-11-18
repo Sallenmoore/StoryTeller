@@ -238,7 +238,6 @@ def migration():
         #             o.pop("_events", None)
         #             if old_model_name == "World":
         #                 o.pop("_world")
-        #                 o.pop("_parent")
         #             else:
         #                 o.pop("_lineage", None) or o.pop("lineage", None)
         #             if old_model_name not in ["World", "Region", "City", "Location", "POI"]:

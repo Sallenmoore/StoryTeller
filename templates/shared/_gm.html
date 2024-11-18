@@ -1,407 +1,262 @@
-{% import "components/_form.html" as form_components %}
-{% import "components/_elements.html" as element_components %}
-{% import "components/_icons.html" as icon_components %}
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
 
-{% macro autogm(user, obj) -%}
-<title>{{obj.name | title}} - Auto GM</title>
+{% macro gm(user, world, player=None) -%}
+<title>{{world.name | title}} - Auto GM</title>
 <div id='auto-gm-container' class="row">
     <div class="column is-full">
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <button class='button'
-                        hx-post='/api/autogm/{{obj.pk}}/pc'
-                        hx-target='#auto-gm-container'
-                        hx-select='#auto-gm-container'
-                        hx-swap='outerHTML'
-                        hx-push-url='/autogm/{{obj.pk}}/pc'>
-                    as PC
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class='button is-full'
-                        hx-post='/api/autogm/{{obj.pk}}/gm'
-                        hx-target='#auto-gm-container'
-                        hx-select='#auto-gm-container'
-                        hx-swap='outerHTML'
-                        hx-push-url='/autogm/{{obj.pk}}/gm'>
-                    as GM
-                </button>
-            </div>
-        </div>
+        {{autogm_pc_select_player(user, world, player)}}
     </div>
-</div>
-{%- endmacro %}
-
-{################### PC PRACTICE SESSION #####################}
-
-{% macro autogm_pc_session(user, obj, world) -%}
-<div id='auto-gm-container' class="row">
-    {% if not obj %}
-    <div class="column">
-        {{autogm_pc_select_player(user, world)}}
-    </div>
-    {% else %}
+    {% if player%}
     <div class="column is-full">
+        {% if player.autogm_summary %}
         <div class="row">
-            <div class="column">
-                {% if obj.autogm_summary %}
-                <div class="row has-centered">
-                    <div class="column is-shrink">
-                        <div id="auto-gm-session-image"
-                             style="padding-left: 2rem; padding-bottom: 2rem;">
-                            {% if obj.autogm_summary[-1].image %}
-                            <div class="image is-extra-large is-tile is-margin-center">
-                                <img src="{{obj.autogm_summary[-1].image.url()}}"
-                                     loading="lazy"
-                                     alt="{{obj.name}}" />
-                            </div>
-                            {% endif%}
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="row">
-                            <div class="column">
-                                <a href="/{{obj.path}}" target='_blank'>
-                                    <div class="row has-centered">
-                                        <div class="column is-shrink">
-                                            <h3 class='has-text-center has-text-screen'>Current PC
-                                            </h3>
-                                            <h2 class='has-text-center has-text-dark'>{{obj.name}}
-                                            </h2>
-                                        </div>
-                                        {% if obj.image %}
-                                        <div class="column is-shrink">
-                                            <div
-                                                 class="image is-medium is-thumbnail is-margin-auto">
-                                                <img src="{{obj.image.url()}}"
-                                                     loading="lazy"
-                                                     alt="{{obj.name}}" />
-                                            </div>
-                                        </div>
-                                        {% endif %}
-                                        <div class="column">
-                                            <div class="panel has-bg-screen">
-                                                <div class="row has-space-around">
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>STR</h5>
-                                                        <p>{{obj.strength}}
-                                                            ({{(obj.strength|int-10)//2}})
-                                                        </p>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-shrink">
-                                                        <iconify-icon icon="pepicons-print:line-y"
-                                                                      height='3rem'></iconify-icon>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>DEX</h5>
-                                                        <p>{{obj.dexterity}}
-                                                            ({{(obj.dexterity|int-10)//2}})
-                                                        </p>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-shrink">
-                                                        <iconify-icon icon="pepicons-print:line-y"
-                                                                      height='3rem'></iconify-icon>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>INT</h5>
-                                                        <p>{{obj.intelligence}}
-                                                            ({{(obj.intelligence|int-10)//2}})</p>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-shrink">
-                                                        <iconify-icon icon="pepicons-print:line-y"
-                                                                      height='3rem'></iconify-icon>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>WIS</h5>
-                                                        <p>{{obj.wisdom}}
-                                                            ({{(obj.wisdom|int-10)//2}})</p>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-shrink">
-                                                        <iconify-icon icon="pepicons-print:line-y"
-                                                                      height='3rem'></iconify-icon>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>CHA</h5>
-                                                        <p>{{obj.charisma}}
-                                                            ({{(obj.charisma|int-10)//2}})
-                                                        </p>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-shrink">
-                                                        <iconify-icon icon="pepicons-print:line-y"
-                                                                      height='3rem'></iconify-icon>
-                                                    </div>
-                                                    <div class="column is-shrink is-mobile-4">
-                                                        <h5>CON</h5>
-                                                        <p>{{obj.constitution}}
-                                                            ({{(obj.constitution|int-10)//2}})</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="column is-full">
-                                <h6 class='has-text-center'>Add Associations</h6>
-                                <div class="has-dropdown" style="width: 100%;">
-                                    <input class="has-bg-light" autocomplete="off" type="search"
-                                           name="query"
-                                           style="border-bottom: solid #000;"
-                                           hx-post="/api/autogm/{{world.pk}}/pc/{{obj.pk}}/associations/search"
-                                           hx-target="#autogm-new-associations-list"
-                                           hx-trigger="input changed delay:500ms consume"
-                                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                                    <ul class="dropdown has-bg-light"
-                                        id="autogm-new-associations-list">
-                                    </ul>
-                                </div>
-                                <hr>
-                            </div>
-                            <div id='autogm-associations-list' class="column is-full">
-                                <div class="row has-space-around">
-                                    {% for a in obj.autogm_summary[-1].associations %}
-                                    <div class="column is-3 has-centered autogm-association-entry">
-                                        <div class="panel">
-                                            {{element_components.object_display(a)}}
-                                            <div class="row">
-                                                <div class="column is-shrink is-end">
-                                                    <a style='font-size: 0.5rem;'
-                                                       hx-post="/api/autogm/{{world.pk}}/pc/{{obj.pk}}/association/{{a.path}}/remove"
-                                                       hx-target='closest .autogm-association-entry'
-                                                       hx-swap='delete'>
-                                                        {{icon_components.remove(size='1rem')}}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div
-                     class="panel generated-text-lightbg has-bg-muted has-no-padding-top has-no-padding-bottom">
-                    <div id="autogm-description" class="row">
-                        {% if obj.autogm_summary | length > 1 and
-                        obj.autogm_summary[-2].roll_result
-                        %}
-                        <div class="column is-3">
-                            <div class="panel">
-                                <h3 class='has-text-muted has-text-center'>Roll Result</h3>
-                                <div class="row">
-                                    <div class="column is-shrink is-vertically-centered">
-                                        <div class='panel has-bg-muted has-text-screen has-text-center'
-                                             style='font-size:4rem;'>
-                                            {{obj.autogm_summary[-2].roll_result}}
-                                        </div>
-                                    </div>
-                                    <div class="column is-vertically-centered">
-                                        <div
-                                             class='panel has-text-light has-text-justify generated-text-lightbg'>
-                                            {{obj.autogm_summary[-2].requires_roll}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="column">
-                            <div class="panel has-bg-muted">
-                                {{obj.autogm_summary[-1].description | safe}}
-                                <button class="button is-small"
-                                        onclick='this.parentElement.parentElement.nextElementSibling.classList.remove("is-hidden"); this.parentElement.parentElement.classList.add("is-hidden");'>
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                        <div class="column is-hidden">
-                            <form hx-post='/api/autogm/{{world.pk}}/pc/{{obj.pk}}/description'
-                                  hx-target='#autogm-description'
-                                  hx-select='#autogm-description'
-                                  hx-swap='outerHTML'>
-                                {{ form_components.texteditor(user, obj.autogm_summary[-1], "description", content=None) }}
-                                <button class="button is-small is-full" type='submit'>
-                                    Done
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="column is-full">
-        {% if obj.autogm_summary %}
-        <div class="row">
-            {% if obj.autogm_summary[-1].npcs %}
-            <div class="column">
-                <div class="panel has-bg-screen is-full">
-                    <h4 class="has-text-center">NPCs</h4>
+            {% if player.autogm_summary | length > 1 and
+            player.autogm_summary[-2].roll_required
+            %}
+            <div class="column is-8">
+                <div class="panel has-bg-muted">
                     <div class="row">
-                        {% for npc in obj.autogm_summary[-1].npcs%}
-                        <div class='column is-full'>
-                            <div class='panel has-bg-screen'>{{npc | safe}}</div>
+                        <div class="column is-full">
+                            <h4 class='has-text-dark-grey'>
+                                {{player.autogm_summary[-2].roll_attribute}}
+                                {{player.autogm_summary[-2].roll_type}}
+                            </h4>
                         </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            {% if obj.autogm_summary[-1].combatants %}
-            <div class="column">
-                <div class="panel has-bg-screen is-full">
-                    <h4 class="has-text-center">Combatants</h4>
-                    <div class="row has-space-around">
-                        {% for cbt in obj.autogm_summary[-1].combatants%}
-                        <div class='column is-full'>
-                            <div class='panel has-bg-screen'>{{cbt | safe}}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            {% if obj.autogm_summary[-1].loot %}
-            <div class="column">
-                <div class="panel is-full has-bg-screen">
-                    <h4 class="has-text-center">Loot</h4>
-                    <div class="row has-space-around">
-                        {% for loot in obj.autogm_summary[-1].loot %}
-                        <div class='column is-full'>
-                            <div class='panel has-bg-screen'>{{loot}}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        <div class="row">
-            <div class="column">
-                <form hx-post="/task/generate/autogm/run/{{obj.pk}}" hx-target='closest .column'
-                      hx-replace-url='/{{world.path}}/autogm/pc/{{obj.pk}}'>
-                    <div class="row has-centered">
-                        <div class="column is-8">
-                            <div class="panel has-bg-muted">
-                                <h4 class='has-text-center has-text-screen'>Player Response</h4>
-                                <textarea name="message" id="player_message"
-                                          class='has-bg-white'
-                                          style='height:60%;'></textarea>
+                        <div class="column is-half">
+                            <div
+                                 class='panel has-text-light has-text-justify generated-text-lightbg'>
+                                {{player.autogm_summary[-2].roll_description}}
                             </div>
                         </div>
-                        {% if obj.autogm_summary[-1].requires_roll %}
-                        <div class="column is-8">
-                            <div class=" panel has-text-center has-bg-muted is-full">
-                                <h4 class="has-text-screen has-text-center">Roll Required</h4>
-                                <hr>
-                                <div class="panel">
-                                    <h5 class='has-text-center'>
-                                        {{obj.autogm_summary[-1].requires_roll}}
-                                    </h5>
-                                </div>
-                                <hr>
-                                <div class='row has-space-around'>
-                                    <div class="column is-4">
-                                        <div
-                                             id="roll_result"
-                                             class="panel has-bg-muted has-text-center is-vertically-centered">
-                                            <input type="text"
-                                                   value="{{obj.autogm_summary[-1].pc_roll}}"
-                                                   name="pc_roll">
-                                        </div>
-                                    </div>
-                                    <div class="column is-shrink is-vertically-centered"">
-                                                    <button class=" button" type='submit'>
-                                        Roll
-                                        </button>
-                                    </div>
+                        <div class="column">
+                            <h3 class='has-text-primary has-text-center'>Roll Results</h3>
+                            <div class='panel has-bg-muted has-text-screen has-text-center'
+                                 style='font-size:2rem;'>
+
+                                <h2 class='has-text-primary'>
+                                    {{player.autogm_summary[-2].roll_result}}
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="column">
+                <h6 class='has-text-center has-text-primary'>Add Associations</h6>
+                <div class="has-dropdown" style="width: 100%;">
+                    <input class="has-bg-light" autocomplete="off" type="search"
+                           name="query"
+                           style="border-bottom: solid #000;"
+                           hx-post="/api/autogm/{{player.world.pk}}/associations/search"
+                           hx-target="#autogm-new-associations-list"
+                           hx-trigger="input changed delay:500ms consume"
+                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                    <ul class="dropdown has-bg-light"
+                        id="autogm-new-associations-list">
+                    </ul>
+                </div>
+                <hr>
+                <div id='autogm-associations-list' class="row has-space-around">
+                    {% for a in player.autogm_summary[-1].associations %}
+                    <div class="column is-3 has-centered autogm-association-entry">
+                        <div class="panel">
+                            {{display_components.object_display(a)}}
+                            <div class="row">
+                                <div class="column is-shrink is-end">
+                                    <a hx-post="/api/autogm/{{world.pk}}/pc/{{player.pk}}/association/{{a.path}}/remove"
+                                       hx-target='closest .autogm-association-entry'
+                                       hx-swap='delete'>
+                                        {{icon_components.remove(size='1rem')}}
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        {% else %}
-                        <div class="column is-shrink is-vertically-centered ">
-                            <button class="button" type='submit'>
-                                Continue Session
-                            </button>
-                        </div>
-                        {% endif %}
                     </div>
-                </form>
-            </div>
-        </div>
-        <hr>
-        <h3 class="has-text-screen has-text-center">Session Summary</h3>
-        <div class="panel">
-            <div class="panel has-bg-primary">
-                <div class="row has-space-around">
-                    {% for ags in obj.autogm_summary %}
-                    {% if ags.image %}
-                    <div class="column is-shrink">
-                        <div id="auto-gm-session-image" class="is-float-left"
-                             style="padding-right: 1rem; padding-bottom: 1rem;">
-                            <div class="image is-medium is-thumbnail is-margin-center">
-                                <img src="{{ags.image.url()}}"
-                                     loading="lazy"
-                                     alt="{{obj.name}}" />
-                            </div>
-                        </div>
-                    </div>
-                    {% endif%}
                     {% endfor %}
                 </div>
             </div>
-            <hr>
-            <div class='generated-text-darkbg'>{{world.gm.summary(obj) | safe}}</div>
         </div>
-        <hr>
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <button class="button" hx-post="/task/generate/autogm/end/{{obj.pk}}"
-                        hx-target='closest .column'>
-                    End Session
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class="button" hx-post="/api/autogm/{{world.pk}}/pc/{{obj.pk}}/clear"
-                        hx-target='#auto-gm-container' hx-select='#auto-gm-container'
-                        hx-swap='outerHTML'>
-                    New Session
-                </button>
+        <div class="panel generated-text-lightbg has-bg-muted">
+            <div id="autogm-description" class="row">
+                <div id="auto-gm-session-image" class="column is-shrink">
+                    {% if player.autogm_summary[-1].image %}
+                    <div class="image is-extra-large is-tile is-margin-center">
+                        <img src="{{player.autogm_summary[-1].image.url()}}"
+                             loading="lazy"
+                             alt="{{player.name}}" />
+                    </div>
+                    {% else %}
+                    <div hx-post="/api/autogm/{{player.path}}"
+                         hx-target='#auto-gm-session-image'
+                         hx-select='#auto-gm-session-image'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="column" style='position:relative;'>
+                    <div class="panel has-bg-muted generated-text-lightbg">
+                        {{player.autogm_summary[-1].description | safe}}
+                    </div>
+                    <button class="button is-small"
+                            style='position:absolute; right:0; bottom:0;'
+                            onclick='this.parentElement.parentElement.nextElementSibling.classList.remove("is-hidden"); this.parentElement.parentElement.classList.add("is-hidden");'>
+                        Edit
+                    </button>
+                </div>
+                <div class="column is-hidden">
+                    <form hx-post='/api/autogm/{{world.pk}}/pc/{{player.pk}}/description'
+                          hx-target='#autogm-description'
+                          hx-select='#autogm-description'
+                          hx-swap='outerHTML'>
+                        {{ form_components.texteditor(user, player.autogm_summary[-1], "description", content=None) }}
+                        <button class="button is-small is-full" type='submit'>
+                            Done
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+        {% endif %}
+    </div>
+    <div class="column is-full">
+        <div class="row">
+            <div class="column is-2">
+                <a href="/{{player.path}}" target='_blank'>
+                    {% if player.image %}
+                    <div class="image is-medium is-thumbnail is-margin-auto">
+                        <img src="{{player.image.url()}}"
+                             loading="lazy"
+                             alt="{{player.name}}" />
+                    </div>
+                    {% endif %}
+                    <h3 class='has-text-center has-text-dark'>
+                        {{player.name}}
+                    </h3>
+                </a>
+            </div>
+            <div class="column">
+                <div class="panel has-bg-screen">
+                    <div class="row has-space-around">
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>STR</h5>
+                            <p>{{player.strength}}
+                                ({{(player.strength|int-10)//2}})
+                            </p>
+                        </div>
+                        <div class="column is-shrink is-mobile-shrink">
+                            <iconify-icon icon="pepicons-print:line-y"
+                                          height='3rem'></iconify-icon>
+                        </div>
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>DEX</h5>
+                            <p>{{player.dexterity}}
+                                ({{(player.dexterity|int-10)//2}})
+                            </p>
+                        </div>
+                        <div class="column is-shrink is-mobile-shrink">
+                            <iconify-icon icon="pepicons-print:line-y"
+                                          height='3rem'></iconify-icon>
+                        </div>
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>INT</h5>
+                            <p>{{player.intelligence}}
+                                ({{(player.intelligence|int-10)//2}})
+                            </p>
+                        </div>
+                        <div class="column is-shrink is-mobile-shrink">
+                            <iconify-icon icon="pepicons-print:line-y"
+                                          height='3rem'></iconify-icon>
+                        </div>
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>WIS</h5>
+                            <p>{{player.wisdom}}
+                                ({{(player.wisdom|int-10)//2}})</p>
+                        </div>
+                        <div class="column is-shrink is-mobile-shrink">
+                            <iconify-icon icon="pepicons-print:line-y"
+                                          height='3rem'></iconify-icon>
+                        </div>
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>CHA</h5>
+                            <p>{{player.charisma}}
+                                ({{(player.charisma|int-10)//2}})
+                            </p>
+                        </div>
+                        <div class="column is-shrink is-mobile-shrink">
+                            <iconify-icon icon="pepicons-print:line-y"
+                                          height='3rem'></iconify-icon>
+                        </div>
+                        <div class="column is-shrink is-mobile-4"
+                             onclick='set_roll_modifier(this);'>
+                            <h5>CON</h5>
+                            <p>{{player.constitution}}
+                                ({{(player.constitution|int-10)//2}})
+                            </p>
+                        </div>
+                    </div>
+                    <script>
+                        function set_roll_modifier(elem) {
+                            var modifier = elem.querySelector('p').textContent.split('(')[1].split(')')[0];
+                            modifier = parseInt(modifier);
+                            if (modifier >= 0) {
+                                htmx.find("#pc_roll_modifier").value = `+${modifier}`;
+                            } else {
+                                htmx.find("#pc_roll_modifier").value = `-${Math.abs(modifier)}`;
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+        {% if player.autogm_summary %}
+        {{ autogm_pc_run_session(user, world, player) }}
         {% else %}
-        {{autogm_pc_start_session(user, obj, world)}}
+        {{ autogm_pc_start_session(user, world, player) }}
         {% endif %}
     </div>
     {% endif %}
 </div>
 {%- endmacro %}
 
-{% macro autogm_pc_select_player(user, world) -%}
+{% macro autogm_pc_select_player(user, world, player) -%}
 <div class="is-select">
-    <select name='playerpk'
+    <select class='has-text-center' name='playerpk'
             hx-post='/api/autogm/{{world.pk}}/pc'
             hx-target='#auto-gm-container' hx-select='#auto-gm-container'
-            hx-swap='outerHTML' onchange='history.pushState({}, "", `pc/${this.value}`);'>
+            hx-swap='outerHTML'
+            onchange='history.pushState({}, "", `/character/${this.value}/gm`);'>
         <option>==Select Player==</option>
-        {% for player in world.players %}
-        <option value="{{player.pk}}">
-            {{player.name}}
+        {% for p in world.players %}
+        <option value="{{p.pk}}" {% if p.pk==player.pk %}selected {% endif %}>
+            {{ p.name }}
         </option>
         {% endfor %}
     </select>
 </div>
 {%- endmacro %}
 
-{% macro autogm_pc_start_session(user, obj, world) -%}
-<form hx-post="/task/generate/autogm/start/{{obj.pk}}"
+{% macro autogm_pc_start_session(user, world, player) -%}
+<form hx-post="/task/generate/autogm/{{player.pk}}/start"
       hx-target='closest .column'
-      hx-push-url='/autogm/{{world.pk}}/pc/{{obj.pk}}'>
+      hx-push-url='/{{player.path}}/gm'>
+    <div class="row has-space-around">
+        <div class="column is-vertically-centered">
+            <h3 class='has-text-primary'>Scenario</h3>
+            <textarea name="scenario" id="player_scenario"
+                      placeholder='optional scenario description'
+                      class='has-bg-white'
+                      style='height:3rem;'></textarea>
+        </div>
+    </div>
     <div class="row has-centered">
         <div class="column is-shrink is-vertically-centered">
             <button type='submit' class="button">
@@ -409,57 +264,13 @@
             </button>
         </div>
     </div>
-    <div class="row has-space-around">
-        <div class="column is-shrink is-vertically-centered">
-            <h4 class='has-text-center has-text-primary'>Start Date</h4>
-            <div class="row has-space-around">
-                <div class="column is-shrink">
-                    <h6 class='has-text-center has-text-primary'>Day</h6>
-                </div>
-                <div class="column is-shrink">
-                    <h6 class='has-text-center has-text-primary'>Month</h6>
-                </div>
-                <div class="column is-shrink">
-                    <h6 class='has-text-center has-text-primary'>Year</h6>
-                </div>
-            </div>
-            <div class="row has-space-around">
-                <div class="column is-shrink">
-                    <input class="has-text-center" type='number' name='start_date.day'
-                           value='{{obj.start_date and obj.start_date.day}}'>
-                </div>
-                <div class="column is-shrink has-text-primary">
-                    /
-                </div>
-                <div class="column is-shrink">
-                    <input class="has-text-center" type='number' name='start_date.month'
-                           value='{{obj.start_date and obj.start_date.month}}'>
-                </div>
-                <div class="column is-shrink has-text-primary">
-                    /
-                </div>
-                <div class="column is-shrink">
-                    <input class="has-text-center" type='number' name='start_date.year'
-                           value='{{(obj.start_date and obj.start_date.year + 20) or (world.current_date.year - 10)}}'
-                           min='1' ,
-                           max='obj.current_date.year'>
-                </div>
-            </div>
-        </div>
-        <div class="column is-6 is-vertically-centered">
-            <h4 class='has-text-center has-text-primary'>Scenario</h4>
-            <textarea name="scenario" id="player_scenario"
-                      class='has-bg-white'
-                      style='height:3rem;'></textarea>
-        </div>
-    </div>
-</form>
+</form>;
 {%- endmacro %}
 
-{% macro autogm_pc_association_search(user, obj, world, results) %}
+{% macro autogm_pc_association_search(user, world, player, results) %}
 {% for o in results %}
 <li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/autogm/{{world.pk}}/pc/{{obj.pk}}/association/{{o.path}}/add"
+    <a hx-post="/api/autogm/{{player.path}}/association/{{o.path}}/add"
        hx-target='#autogm-associations-list'
        hx-select='#autogm-associations-list' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
@@ -472,10 +283,173 @@
                 </div>
             </div>
             <div class="column">
-                {{o.name}}
+                {{ o.name }}
             </div>
         </div>
     </a>
-</li>
+</li>;
 {% endfor %}
 {%- endmacro %}
+
+{% macro autogm_pc_run_session(user, world, player) -%}
+<div class="row">
+    {% if player.autogm_summary[-1].npcs %}
+    <div class="column">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">NPCs</h4>
+            <div class="row">
+                {% for npc in player.autogm_summary[-1].npcs%}
+                <div class='column'>
+                    {{display_components.object_display(npc)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if player.autogm_summary[-1].combatants %}
+    <div class="column">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">Combatants</h4>
+            <div class="row has-space-around">
+                {% for cbt in player.autogm_summary[-1].combatants%}
+                <div class='column'>
+                    {{display_components.object_display(cbt)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if player.autogm_summary[-1].loot %}
+    <div class="column">
+        <div class="panel is-full has-bg-screen">
+            <h4 class="has-text-center">Loot</h4>
+            <div class="row has-space-around">
+                {% for loot in player.autogm_summary[-1].loot %}
+                <div class='column is-full'>
+                    {{display_components.object_display(loot)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<div class="row">
+    <div class="column">
+        <form hx-post="/task/generate/autogm/{{player.pk}}/run" hx-target='closest .column'
+              hx-replace-url='/{{player.path}}/gm'>
+            <div class="row has-space-around">
+                <div class="column">
+                    <div class="panel has-text-center has-bg-muted is-full">
+                        <h4 class='has-text-center has-text-screen'>Player Response</h4>
+                        <textarea name="message" id="player_message"
+                                  class='has-bg-white'
+                                  style='height:60%;'></textarea>
+                    </div>
+                </div>
+                {% if player.autogm_summary[-1].roll_required %}
+                <div class="column is-8">
+                    <div class="panel has-text-center has-bg-muted is-full">
+                        <h4 class="has-text-screen has-text-center">Roll Required</h4>
+                        <hr>
+                        <div class="panel">
+                            <h5 class='has-text-center'>
+                                {{player.autogm_summary[-1].roll_attribute}} :
+                                {{player.autogm_summary[-1].roll_type}}
+                            </h5>
+                            {{player.autogm_summary[-1].roll_description}}
+                        </div>
+                        <hr>
+                        <div class='row has-centered'>
+                            <div class="column is-1">
+                                <div class="panel has-bg-muted has-text-center">
+                                    <input type="number" value="1" name="pc_roll_num_dice">
+                                </div>
+                            </div>
+                            <div class="column is-shrink">
+                                <p class='has-text-primary'
+                                   style='font-size: 1.5rem; font-weight: bold;'>D</p>
+                            </div>
+                            <div class="column is-1">
+                                <div class="is-select">
+                                    <select name="pc_roll_type_dice">
+                                        <option value='4'>4</option>
+                                        <option value='6'>6</option>
+                                        <option value='8'>8</option>
+                                        <option value='10'>10</option>
+                                        <option value='12'>12</option>
+                                        <option value='20' selected>20</option>
+                                        <option value='100'>100</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <div
+                                     class="panel has-bg-muted has-text-center is-vertically-centered">
+                                    <input type="text"
+                                           value="+0"
+                                           name="pc_roll_modifier" id="pc_roll_modifier">
+                                </div>
+                            </div>
+                            <div class="column is-shrink is-vertically-centered"">
+                                                    <button class=" button" type='submit'>
+                                Roll
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="column is-shrink is-vertically-centered ">
+                    <button class="button" type='submit'>
+                        Continue Session
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+<hr>
+<h3 class="has-text-screen has-text-center">Session Summary</h3>
+<div class="panel">
+    <div class="row has-space-around">
+        {% for ags in player.autogm_summary %}
+        {% if ags.image %}
+        <div class="column is-shrink">
+            <div class="is-float-left"
+                 style="padding-right: 1rem; padding-bottom: 1rem;">
+                <div class="image is-medium is-thumbnail is-margin-center">
+                    <img src="{{ags.image.url()}}"
+                         loading="lazy"
+                         alt="{{player.name}}" />
+                </div>
+            </div>
+        </div>
+        {% endif%}
+        {% endfor %}
+    </div>
+    <hr>
+    {%if player.autogm_summary[-1].summary %}
+    <div class='generated-text-darkbg'>{{player.autogm_summary[-1].summary | safe}}</div>
+    {% endif %}
+</div>
+<hr>
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <button class="button" hx-post="/task/generate/autogm/end/{{player.pk}}"
+                hx-target='closest .column'>
+            End Session
+        </button>
+    </div>
+    <div class="column is-shrink">
+        <button class="button" hx-post="/api/autogm/{{world.pk}}/pc/{{player.pk}}/clear"
+                hx-target='#auto-gm-container' hx-select='#auto-gm-container'
+                hx-swap='outerHTML'>
+            New Session
+        </button>
+    </div>
+</div>
+{%- endmacro %};

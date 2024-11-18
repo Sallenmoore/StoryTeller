@@ -18,7 +18,15 @@ class Item(TTRPGObject):
     features = ListAttr(StringAttr(default=""))
 
     _rarity_list = ["common", "uncommon", "rare", "very rare", "legendary", "artifact"]
-    parent_list = ["Creature", "Character", "Location", "District", "Encounter"]
+    parent_list = [
+        "Creature",
+        "Location",
+        "District",
+        "City",
+        "Region",
+        "Character",
+        "Encounter",
+    ]
     _funcobj = {
         "name": "generate_item",
         "description": "creates Item data object",
@@ -84,7 +92,7 @@ class Item(TTRPGObject):
 
     @property
     def map(self):
-        return self.parent.map if self.parent else self.world.map
+        return self.parent.map
 
     ################### Instance Methods #####################
 

@@ -116,24 +116,7 @@ post_url, target, swap=None) -%}
 {% endfor %}
 {%- endmacro%}
 
-{%macro imagegallery(user, obj, images) -%}
-<div class="panel has-bg-primary">
-    <div class="row has-space-around">
-        {% for image in images%}
-        <div class="column is-shrink has-text-center has-centered">
-            <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
-                <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
-                     hx-post="/api/manage/update"
-                     hx-target="#image-manage-container" hx-select="#image-manage-container"
-                     hx-swap="outerHTML"
-                     hx-vals='{"image":"{{image.pk}}"}'
-                     hx-indicator="#request-indicator" />
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{%- endmacro %}
+
 
 {%macro mapgallery(user, obj, images) -%}
 <div class="panel has-bg-primary">
@@ -143,7 +126,7 @@ post_url, target, swap=None) -%}
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
                 <img src="{{image.url(size=100)}}" alt="{{obj.prompt}}" hx-post="/api/manage/update"
                      hx-target="#page-content"
-                     hx-vals='{"map":"{{image.pk}}", "module":"components/_map.html", "macro":"map"}' />
+                     hx-vals='{"map":"{{image.pk}}", "module":"shared/_map.html", "macro":"map"}' />
             </div>
         </div>
         {% endfor %}

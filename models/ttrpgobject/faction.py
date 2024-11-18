@@ -18,7 +18,7 @@ class Faction(TTRPGObject):
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
 
-    parent_list = ["City", "District", "Region", "World"]
+    parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
         "secretive",
         "reckless",
@@ -86,7 +86,7 @@ class Faction(TTRPGObject):
             The current leader of the faction is:
             - NAME: {self.leader.name}
             - Backstory: {self.leader.backstory_summary or self.leader.desc}
-            - Location: {self.leader.parent.backstory_summary if self.leader.parent else "Indoors"}
+            - Location: {self.backstory_summary or "Indoors"}
             """
         results = super().generate(prompt=prompt)
         self.save()

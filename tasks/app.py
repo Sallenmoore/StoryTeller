@@ -38,13 +38,13 @@ def create_app():
         if task := AutoTasks().get_task(taskid):
             # log(task.status, task.return_value, task.id)
             if task.status == "finished":
-                return get_template_attribute("components/_tasks.html", "completetask")(
+                return get_template_attribute("shared/_tasks.html", "completetask")(
                     **task.return_value
                 )
             elif task.status == "failed":
-                return f"Generation Error for task#: {task.id} <br> {task.result.get('error', '')}"
+                return f"<p>Generation Error for task#: {task.id} </p> </p>{task.result.get('error', '')}</p>"
             else:
-                return get_template_attribute("components/_tasks.html", "checktask")(
+                return get_template_attribute("shared/_tasks.html", "checktask")(
                     task.id
                 )
         else:
@@ -61,7 +61,7 @@ def create_app():
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/image/<string:model>/<string:pk>", methods=("POST",))
     def image_generate_task(model, pk):
@@ -74,41 +74,20 @@ def create_app():
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/webcomic/scenes/<string:sessionpk>", methods=("POST",))
-    def scene_generate_task(sessionpk):
-        task = (
-            AutoTasks()
-            .task(tasks._generate_webcomic_task, pk=sessionpk, panel=False)
-            .result
-        )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/webcomic/<string:sessionpk>", methods=("POST",))
-    def webcomic_generate_task(sessionpk):
+    @app.route("/generate/map/<string:model>/<string:pk>", methods=("POST",))
+    def create_map(model, pk):
         task = (
             AutoTasks()
             .task(
-                tasks._generate_webcomic_task,
-                pk=sessionpk,
-            )
-            .result
-        )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/battlemap/<string:model>/<string:pk>", methods=("POST",))
-    def create_battlemap(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_battlemap_task,
+                tasks._generate_map_task,
                 model=model,
                 pk=pk,
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/history/<string:model>/<string:pk>", methods=("POST",))
     def generate_history(model, pk):
@@ -121,7 +100,7 @@ def create_app():
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/chat/<string:pk>", methods=("POST",))
     def create_chat(pk):
@@ -134,26 +113,23 @@ def create_app():
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/autogm/<string:pk>", methods=("POST",))
-    def autogm(pk):
+    @app.route("/generate/autogm/<string:pk>/<string:action>", methods=("POST",))
+    def autogm(pk, action):
         task_function = {
             "start": tasks._generate_autogm_start_task,
             "run": tasks._generate_autogm_run_task,
             "end": tasks._generate_autogm_end_task,
-            "clear": tasks._generate_autogm_clear_task,
-        }.get(request.json.get("action"))
+        }.get(action)
 
         kwargs = {"pk": pk}
         if message := request.json.get("message", "").strip():
             kwargs["message"] = message
-        if start_date := request.json.get("year"):
-            kwargs["year"] = start_date
-        if roll_type := request.json.get("roll_type"):
-            kwargs["roll_type"] = roll_type
-        if roll_type := request.json.get("roll_dice"):
-            kwargs["roll_dice"] = roll_type
+        if num_dice := request.json.get("pc_roll_num_dice"):
+            type_dice = request.json.get("pc_roll_type_dice")
+            modifier = request.json.get("pc_roll_modifier").strip()
+            kwargs["roll_dice"] = f"{num_dice}d{type_dice}{modifier}"
         log(kwargs)
         task = (
             AutoTasks()
@@ -163,6 +139,6 @@ def create_app():
             )
             .result
         )
-        return get_template_attribute("components/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     return app

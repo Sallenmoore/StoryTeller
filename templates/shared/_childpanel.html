@@ -1,4 +1,4 @@
-{% import "components/_elements.html" as element %}
+{% import "shared/_display.html" as element %}
 
 {% macro childpanel(user, obj, model, children=[], associations=[]) -%}
 <title>{{obj.name | title}} - {{obj.get_title(model)}}</title>

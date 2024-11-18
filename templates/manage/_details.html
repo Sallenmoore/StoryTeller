@@ -1,0 +1,149 @@
+{% import "shared/_form.html" as form_components %}
+
+{% macro details(user, obj) -%}
+<div class="row">
+    <div class="column is-center">
+        <h2 class='has-text-dark'>Details Editor</h2>
+    </div>
+    <div class="column is-shrink is-float-right">
+        <a class='has-text-dark' href="/{{obj.path}}/details">
+            <iconify-icon icon="material-symbols:close" width="3rem" height="3rem">
+            </iconify-icon>
+        </a>
+    </div>
+</div>
+<div class="row has-space-around">
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-primary" hx-post="/task/generate/{{obj.path}}"
+                hx-target="closest .column"
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
+            <iconify-icon icon="eos-icons:ai"></iconify-icon>
+            Generate Details
+        </button>
+    </div>
+</div>
+{% if obj.model_name() in ['Character'] and obj.is_player %}
+<hr>
+<div class="column is-shrink is-vertically-centered">
+    <div style='position:relative;'>
+        <button class="button is-small is-primary" hx-post="/api/manage/character/dndbeyond"
+                hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif
+                %}
+                hx-indicator="#request-indicator">
+            Updates from D&DBeyond
+        </button>
+        {% if not obj.dnd_beyond_id %}
+        <small class="has-text-center is-very-small-heading has-text-secondary has-bg-muted"
+               style='position:absolute;top:0; left: 0;'>Must be a 'player' and have
+            DnDBeyond ID set</small>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+<hr>
+<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row">
+        <div class="column">
+            <h5 class='has-text-center has-text-dark'>Name</h5>
+            <input id='model-name' class="has-bg-light has-text-center" type="text" name="name"
+                   value="{{obj.name}}">
+        </div>
+        <div class="column">
+            <h5 class='has-text-center has-text-dark'>Theme</h5>
+            <input class="has-bg-light has-text-center" type="text" name="traits"
+                   value="{{obj.traits}}" maxlength="64">
+        </div>
+    </div>
+</form>
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="panel is-small has-bg-muted">
+        <h4 class='has-text-center has-text-dark'>Backstory</h4>
+        {{form_components.texteditor(user, obj, 'backstory')}}
+    </div>
+</form>
+<hr>
+{{obj.snippet(user, 'manage_details') | safe}}
+{{image(user, obj)}}
+<hr class="has-bg-primary">
+<div class="row">
+    <div class="column is-shrink is-end">
+        <button class="button"
+                hx-post="/api/manage/delete/{{obj.path}}"
+                hx-confirm="Are you sure you want to delete this {{obj.title}}?"
+                onclick="location.href = '/world/{{obj.get_world().pk}}'">
+            <iconify-icon icon="material-symbols-light:delete-outline"></iconify-icon>
+        </button>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro image(user, obj) -%}
+<h3 class='has-text-center has-text-dark' id='manage-image'>Image Editor</h3>
+<div class="panel has-bg-light-grey is-small">
+    <div class="row" id="image-manage-container">
+        <div class="column is-8" id="model-owner-image">
+            <div class="image is-margin-center">
+                {% if obj.image %}
+                <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
+                {% endif %}
+            </div>
+        </div>
+        <div class="column is-4">
+            <div class="row">
+                <div class="column">
+                    <h5 class='has-text-center has-text-dark'>Image Description (editable)
+                    </h5>
+                    <div class="panel has-bg-light">
+                        <p id="model-desc" class="has-text-dark" contentEditable="true"
+                           hx-post="/api/manage/update" hx-trigger="input delay:1s"
+                           hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
+                           hx-swap="none">
+                            {{obj.desc | striptags}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column is-vertically-centered">
+                    <button class="button is-full is-small"
+                            hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .column"
+                            hx-indicator="#request-indicator"
+                            hx-confirm="Are you sure you want to generate and overwrite the current image?">
+                        <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+                        AI Generated Image
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <button class="button is-full is-small" hx-post="/api/manage/image/gallery"
+                            hx-target="#model-owner-image" hx-swap="innerHTML">
+                        <iconify-icon icon="game-icons:card-random"></iconify-icon>
+                        Select From Gallery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro%}
+
+{%macro imagegallery(user, obj, images) -%}
+<div class="panel has-bg-primary">
+    <div class="row has-space-around">
+        {% for image in images%}
+        <div class="column is-shrink has-text-center has-centered">
+            <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
+                <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
+                     hx-post="/api/manage/update"
+                     hx-target="#image-manage-container" hx-select="#image-manage-container"
+                     hx-swap="outerHTML"
+                     hx-vals='{"image":"{{image.pk}}"}'
+                     hx-indicator="#request-indicator" />
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}

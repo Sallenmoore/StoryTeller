@@ -25,7 +25,7 @@ class Character(Actor):
     wealth = ListAttr(StringAttr(default=""))
     autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
 
-    parent_list = ["City", "Location", "District", "Faction"]
+    parent_list = ["Location", "District", "Faction", "City"]
     _genders = ["male", "female", "non-binary"]
     _traits_list = [
         "secretly evil",
@@ -142,10 +142,11 @@ class Character(Actor):
 
     @property
     def history_prompt(self):
-        return f"""
-BORN
+        if self.age and self.backstory_summary:
+            return f"""
+AGE
 ---
-{self.start_date.datestr() if self.start_date else "Unknown"}
+{self.age}
 
 BACKSTORY
 ---
@@ -196,20 +197,16 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
     ############################# AutoGM #############################
     ## MARK: AUTOGM
 
-    def start_gm_session(self, year):
-        self.autogm_summary += [
-            self.gm.start(year=year, player=self, scenario=self.autogm_summary)
-        ]
-        if isinstance(self.autogm_summary.get("player"), str):
-            self.autogm_summary["player"] = self.get(self.autogm_summary["player"])
+    def start_gm_session(self, scenario):
+        self.gm.start(player=self, scenario=scenario)
         self.save()
 
     def run_gm_session(self, message=""):
-        self.autogm_summary += [self.world.gm.run(player=self, message=message)]
+        self.world.gm.run(player=self, message=message)
         self.save()
 
     def end_gm_session(self, message=""):
-        self.autogm_summary += [self.world.gm.end(message=message)]
+        self.world.gm.end(player=self, message=message)
         self.save()
 
     ############################# Object Data #############################

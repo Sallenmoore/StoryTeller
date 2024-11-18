@@ -1,6 +1,6 @@
-{% import "components/_form.html" as form_components %}
+{% import "shared/_form.html" as form_components %}
 
-{% macro info(user=None, obj=None) -%}
+{% macro info(user, obj) -%}
 <div class="row">
     <div id="model-goal" class="column">
         <div class="panel has-bg-muted">

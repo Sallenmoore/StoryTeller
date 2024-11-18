@@ -1,5 +1,3 @@
-{% import "components/_elements.html" as element %}
-
 {% macro manage(user, obj, model=None, title=None, associations=[]) -%}
 <h2 class='has-text-dark'>Manage World Elements</h2>
 <div class="row has-space-between">
@@ -41,7 +39,7 @@
         <button class="button is-primary" hx-post="/api/manage/add/{{model}}"
                 hx-target="#page-content"
                 hx-indicator="#request-indicator"
-                hx-vals='{"module":"manage/_children.html", "macro":"childmanage"}'>
+                hx-vals='{"module":"manage/_models.html", "macro":"manage"}'>
             Create {{title}}
         </button>
     </div>
@@ -87,7 +85,7 @@
                                     hx-post="/api/manage/copy/{{a.path}}"
                                     hx-target="#page-content"
                                     hx-swap='innerHTML show:top'
-                                    hx-vals='{"macro":"childmanage", "module":"manage/_children.html"}'>
+                                    hx-vals='{"macro":"manage", "module":"manage/_models.html"}'>
                                 <iconify-icon
                                               icon="game-icons:double-dragon"></iconify-icon>
                                 Copy

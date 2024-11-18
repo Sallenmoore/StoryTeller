@@ -16,7 +16,7 @@ class SciFiSystem(BaseSystem):
         "region": "Star-System",
         "world": "Galactic-Sector",
         "location": "Location",
-        "poi": "POI",
+        "district": "Outpost",
         "item": "Tech",
         "encounter": "Encounter",
         "character": "Character",

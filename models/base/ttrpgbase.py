@@ -18,6 +18,82 @@ IMAGES_BASE_PATH = "static/images/tabletop"
 
 
 class TTRPGBase(AutoModel):
+    """
+    TTRPGBase is a base class for tabletop role-playing game (TTRPG) models. It provides common attributes and methods for various TTRPG entities such as characters, locations, items, etc.
+
+    Attributes:
+        meta (dict): Meta information for the model.
+        name (StringAttr): The name of the entity.
+        backstory (StringAttr): The backstory of the entity.
+        backstory_summary (StringAttr): A summary of the backstory.
+        desc (StringAttr): A description of the entity.
+        desc_summary (StringAttr): A summary of the description.
+        traits (StringAttr): Traits of the entity.
+        image (ReferenceAttr): Reference to an image associated with the entity.
+        current_age (IntAttr): The current age of the entity.
+        history (StringAttr): The history of the entity.
+        journal (ReferenceAttr): Reference to a journal associated with the entity.
+        story_types (list): List of possible story types.
+        _models (list): List of model names.
+        child_list (dict): Mapping of child model names to their plural forms.
+        _no_copy (dict): Attributes that should not be copied.
+        _traits_list (list): List of possible traits.
+        _funcobj (dict): Function object for storing parameters.
+
+    Methods:
+        __eq__(self, obj): Checks if two objects are equal based on their primary key.
+        __ne__(self, obj): Checks if two objects are not equal based on their primary key.
+        __lt__(self, obj): Checks if the name of the current object is less than the name of another object.
+        __gt__(self, obj): Checks if the name of the current object is greater than the name of another object.
+        __hash__(self): Returns the hash of the primary key.
+        child_list_key(cls, model): Returns the child list key for a given model.
+        get_model(cls, model, pk=None): Retrieves a model class or an instance of the model class by its primary key.
+        get_models(cls): Returns a list of loaded model classes.
+        age(self): Gets or sets the current age of the entity.
+        child_models(self): Returns a list of child models.
+        current_date(self): Returns the current date from the calendar.
+        description(self): Gets or sets the description of the entity.
+        description_summary(self): Gets or sets the description summary of the entity.
+        funcobj(self): Returns the function object with required parameters.
+        geneology(self): Returns the genealogy of the entity.
+        genres(self): Returns a list of genres.
+        history_primer(self): Returns a primer for generating the history of the entity.
+        history_prompt(self): Returns a prompt for generating the history of the entity.
+        image_tags(self): Returns a list of image tags.
+        image_prompt(self): Returns a prompt for generating an image of the entity.
+        path(self): Returns the path of the entity.
+        possible_events(self): Returns a list of possible events.
+        map_thumbnail(self): Returns the URL of the map thumbnail.
+        map_prompt(self): Returns a prompt for generating a map of the entity.
+        slug(self): Returns the slugified name of the entity.
+        title(self): Returns the title of the entity.
+        titles(self): Returns a list of titles.
+        delete(self): Deletes the entity and its associated objects.
+        generate(self, prompt=""): Generates data for the entity using AI.
+        is_child(self, obj): Checks if the current object is a child of another object.
+        is_associated(self, obj): Checks if the current object is associated with another object.
+        get_image_list(self, tags=[]): Returns a list of images based on tags.
+        generate_image(self): Generates an image for the entity using AI.
+        get_map_list(self): Returns a list of map images.
+        generate_map(self): Generates a map for the entity using AI.
+        add_association(self, obj): Adds an association with another object.
+        remove_association(self, obj): Removes an association with another object.
+        get_associations(self, model=None, children=True): Returns a list of associated objects.
+        has_associations(self, model): Checks if the entity has associations with a given model.
+        resummarize(self, upload=False): Resummarizes the backstory, description, and history of the entity.
+        get_title(self, model): Returns the title of a given model.
+        page_data(self): Returns page data.
+        add_journal_entry(self, pk=None, title=None, text=None, tags=[], importance=0, date=None, associations=[]): Adds or updates a journal entry.
+        search_autocomplete(self, query): Returns search autocomplete results.
+        snippet(self, user, macro, kwargs=None): Returns an HTML snippet for the entity.
+        auto_pre_save(cls, sender, document, **kwargs): Pre-save hook for the entity.
+        auto_post_save(cls, sender, document, **kwargs): Post-save hook for the entity.
+        pre_save_image(self): Pre-save hook for the image attribute.
+        pre_save_backstory(self): Pre-save hook for the backstory attribute.
+        pre_save_traits(self): Pre-save hook for the traits attribute.
+        post_save_journal(self): Post-save hook for the journal attribute.
+    """
+
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     name = StringAttr(default="")
     backstory = StringAttr(default="")
@@ -47,17 +123,6 @@ class TTRPGBase(AutoModel):
         "cursed",
     ]
 
-    _models = [
-        "City",
-        "Creature",
-        "Character",
-        "District",
-        "Faction",
-        "Item",
-        "Location",
-        "POI",
-        "Region",
-    ]
     child_list = {"city": "cities"}
     _no_copy = {
         "journal": None,
@@ -107,16 +172,85 @@ class TTRPGBase(AutoModel):
         return cls.child_list.get(model.lower(), f"{model.lower()}s") if model else None
 
     @classmethod
+    def _model(cls):
+        return cls.all_models()
+
+    @classmethod
+    def all_models(cls):
+        subclasses = TTRPGBase.__subclasses__()
+        TTRPGObject = [s for s in subclasses if s.__name__ == "TTRPGObject"][0]
+        result = cls.all_subclasses(TTRPGObject)
+        return result
+
+    @classmethod
+    def all_subclasses(cls, BaseModel=None):
+        """
+        Recursively retrieves all non-abstract subclasses of the given class.
+
+        This method starts with the given class (or the class on which the method
+        is called if no class is provided) and traverses its subclass hierarchy
+        to find all subclasses that are not marked as abstract.
+
+        Args:
+            BaseModel (type, optional): The base class to start the search from.
+                If not provided, the method uses the class on which it is called.
+
+        Returns:
+            list: A list of all non-abstract subclasses of the given class.
+        """
+        if not BaseModel:
+            BaseModel = cls
+        subclasses = BaseModel.__subclasses__()
+        models = []
+        for subclass in subclasses:
+            if "_meta" in subclass.__dict__ and not subclass._meta.get("abstract"):
+                models.append(subclass)
+            models += cls.all_subclasses(subclass)
+        return models
+
+    @classmethod
     def get_model(cls, model, pk=None):
+        """
+        Retrieve a model class or an instance of the model class by its primary key.
+
+        This method searches through all subclasses of `TTRPGBase` to find a model class
+        that matches the provided `model` name. If a primary key (`pk`) is provided, it
+        returns an instance of the model class with that primary key. Otherwise, it returns
+        the model class itself.
+
+        Args:
+            model (str): The name of the model class to retrieve.
+            pk (int, optional): The primary key of the model instance to retrieve. Defaults to None.
+
+        Returns:
+            Model class or instance: The model class if `pk` is None, otherwise an instance of the model class.
+
+        Raises:
+            AttributeError: If the model class does not have a `get` method.
+            ValueError: If the provided `model` is not a string or is None.
+        """
+        # log(model, pk)
         if not model or not isinstance(model, str):
             return model
-        log(model)
-        Model = AutoModel.load_model(model)
-        return Model.get(pk) if pk else Model
+        Model = None
+        for klass in TTRPGBase.all_subclasses():
+            # log(klass)
+            if klass.__name__.lower() == model.lower():
+                Model = klass
+        return Model.get(pk) if Model and pk else Model
 
     @classmethod
     def get_models(cls):
-        return [AutoModel.load_model(model_str) for model_str in cls._models]
+        """
+        Class method to retrieve a list of models.
+
+        This method iterates over the class attribute `_models`, which is expected to be a list of model identifiers (strings),
+        and loads each model using the `AutoModel.load_model` method.
+
+        Returns:
+            list: A list of loaded models.
+        """
+        return cls.all_models()
 
     ########### Property Methods ###########
     @property
@@ -130,15 +264,14 @@ class TTRPGBase(AutoModel):
     @property
     def child_models(self):
         results = []
-        for model in self._models:
-            Model = AutoModel.load_model(model)
-            if self.model_name() in Model.parent_list:
+        for model in self.all_models():
+            if self.model_name() in model.association_list:
                 results.append(model)
         return results
 
     @property
     def current_date(self):
-        return self.calendar.current_date
+        return self.world.current_date
 
     @property
     def description(self):
@@ -165,13 +298,8 @@ class TTRPGBase(AutoModel):
 
     @property
     def geneology(self):
-        ancestor = self.parent
-        line = []
-        while ancestor and ancestor != self:
-            if ancestor not in line:
-                line += [ancestor]
-            ancestor = ancestor.parent
-        return line if line else [self.world]
+        # TBD: Implement geneology
+        return [self.world]
 
     @property
     def genres(self):
@@ -183,7 +311,8 @@ class TTRPGBase(AutoModel):
 
     @property
     def history_prompt(self):
-        return f"""
+        if self.backstory_summary:
+            return f"""
 HISTORY
 ---
 {self.backstory_summary}
@@ -207,6 +336,10 @@ EVENTS
     @property
     def possible_events(self):
         return self._possible_events
+
+    @property
+    def motif(self):
+        return self.traits
 
     @property
     def map_thumbnail(self):
@@ -244,30 +377,26 @@ EVENTS
         prompt += f"""
 Use and expand on the existing object data listed below for the {self.title} object:
 {"- Name: " + self.name if self.name.strip() else ""}
+{"- Theme: " + self.traits if self.traits else ""}
 {"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
 {"- Description: "+self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
         """
-        if self.parent:
-            prompt += f"""
-===
-The {self.title} is located in a {self.parent.title} described as: {self.parent.backstory_summary}.
-        """
-        if associations := [a for a in self.associations if a != self.parent]:
+        if associations := [a for a in self.associations]:
             prompt += """
 ===
 - Associated Objects:
-        """
+"""
             for child in associations:
                 if child.name and child.backstory_summary:
                     prompt += f"""
-        - pk: {child.pk}
-            - Model: {child.model_name()}
-            - Type: {child.title}
-            - Name: {child.name}
-            - Backstory: {child.backstory_summary}
-                """
+    - pk: {child.pk}
+        - Model: {child.model_name()}
+        - Type: {child.title}
+        - Name: {child.name}
+        - Backstory: {child.backstory_summary}
+"""
         # log(prompt, _print=True)
         if results := self.system.generate(self, prompt=prompt):
             # log(results, _print=True)
@@ -276,11 +405,12 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
                     self.journal = Journal(world=self.get_world(), parent=self)
                     self.journal.save()
                     self.save()
-                self.journal.add_entry(
-                    title="Secrets",
-                    text=f"<p>{'</p><p>'.join(notes)}</p>",
-                    importance=1,
-                )
+                for idx, note in enumerate(notes):
+                    self.journal.add_entry(
+                        title=f"SECRET #{idx+1}",
+                        text=note,
+                        importance=1,
+                    )
             for k, v in results.items():
                 setattr(self, k, v)
             self.save()
@@ -299,6 +429,15 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
     ############# Image Methods #############
 
     def get_image_list(self, tags=[]):
+        """
+        Retrieve a list of images that match the given tags.
+        Args:
+            tags (list, optional): A list of tags to filter images by. If not provided,
+                                   defaults to a list containing the model's name in lowercase.
+        Returns:
+            list: A list of images that contain all the specified tags.
+        """
+
         images = []
         tags = tags or [self.model_name().lower()]
         images = [img for img in Image.all() if all(t in img.tags for t in tags)]
@@ -306,16 +445,10 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
 
     # MARK: generate_image
     def generate_image(self):
-        log(f"Generating an Image with AI for {self.name} ({self})...", _print=True)
-        date = ""
-        if self.genre != "fantasy":
-            if self.end_date and self.end_date.year:
-                date = self.end_date.year
-            elif self.start_date and self.start_date.year:
-                date = self.end_date.year
-            elif self.calendar.current_date.year:
-                date = self.calendar.current_date.year
-        prompt = (f"Set in the year {date}." if date else "") + self.image_prompt
+        prompt = f"""Set in the year {self.get_world().current_date}.
+
+{self.image_prompt}
+"""
         self.image = Image.generate(prompt=prompt, tags=self.image_tags)
         self.image.save()
         self.save()
@@ -344,21 +477,16 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
     ############# Association Methods #############
     # MARK: Associations
     def add_association(self, obj):
-        log(self, obj)
         # log(len(obj.associations), self in obj.associations)
         if self not in obj.associations:
-            obj.associations.append(self)
+            obj.associations += [self]
         # log(len(obj.associations), self in obj.associations)
 
         # log(len(self.associations), obj in self.associations)
         if obj not in self.associations:
-            self.associations.append(obj)
+            self.associations += [obj]
         # log(len(self.associations), obj in self.associations)
 
-        if (
-            not self.parent or self.parent == self.world
-        ) and obj.model_name() in self.parent_list:
-            self.parent = obj
         obj.save()
         self.save()
         return obj
@@ -366,27 +494,9 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
     def remove_association(self, obj):
         if obj in self.associations:
             self.associations.remove(obj)
-            if self.parent == obj:
-                self.parent = None
             self.save()
             obj.remove_association(self)
         return self.associations
-
-    def get_associations(self, model=None, children=True):
-        if not model:
-            associations = self.associations
-        else:
-            model = (
-                model.__name__.lower() if not isinstance(model, str) else model.lower()
-            )
-            model = self.model_list.get(model, model.title())
-            associations = [a for a in getattr(self, self.child_list_key(model)) if a]
-        result = [o for o in associations if (children or o.parent != self)]
-        result.sort(
-            key=lambda x: (x.name.startswith("_"), x.name == "", x.name),
-            reverse=True,
-        )
-        return result
 
     def has_associations(self, model):
         if not isinstance(model, str):
@@ -420,20 +530,15 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
         self.save()
 
         # generate history
-        if (hasattr(self, "group") and self.group) or (
-            self.start_date and self.start_date.year
-        ):
-            history = self.history_prompt
-            history = self.system.generate_summary(history, self.history_primer)
+        if self.history_prompt:
+            history = self.system.generate_summary(
+                self.history_prompt, self.history_primer
+            )
             history = history.replace("```markdown", "").replace("```", "")
             self.history = (
                 markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
             )
             self.save()
-            if upload:
-                self.get_world().update_refs()
-        else:
-            log("Character Not Yet Canon. Must have a Start Date", _print=True)
 
     def get_title(self, model):
         return self.system.get_title(model)
@@ -485,11 +590,12 @@ The {self.title} is located in a {self.parent.title} described as: {self.parent.
     # /////////// HTML SNIPPET Methods ///////////
     def snippet(self, user, macro, kwargs=None):
         module = f"models/_{self.model_name().lower()}.html"
-        if kwargs:
-            return get_template_attribute(module, macro)(user, self, **kwargs)
-        else:
-            log(module, macro)
-            return get_template_attribute(module, macro)(user, self)
+        kwargs = kwargs or {}
+        # try:
+        return get_template_attribute(module, macro)(user, self, **kwargs)
+        # except Exception as e:
+        #     log(e)
+        #     return ""
 
     ## MARK: - Verification Methods
     ###############################################################

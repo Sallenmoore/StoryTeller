@@ -12,12 +12,10 @@ IMAGES_BASE_PATH = "static/images/tabletop"
 class TTRPGObject(TTRPGBase):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     world = ReferenceAttr(choices=["World"])
-    parent = ReferenceAttr(choices=[TTRPGBase])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     parent_list = []
 
     _no_copy = TTRPGBase._no_copy | {
-        "parent": None,
         "associations": [],
         "events": [],
     }
@@ -66,6 +64,15 @@ class TTRPGObject(TTRPGBase):
         return self.get_world().genre.lower()
 
     @property
+    def geneology(self):
+        ancestry = []
+        parent = self.parent
+        while parent:
+            ancestry.append(parent)
+            parent = parent.parent
+        return ancestry
+
+    @property
     def gm(self):
         return self.get_world().gm
 
@@ -76,6 +83,19 @@ class TTRPGObject(TTRPGBase):
     @property
     def locations(self):
         return [a for a in self.associations if a.model_name() == "Location"]
+
+    @property
+    def parent(self):
+        if self.parent_list:
+            for parent_model in self.parent_list:
+                for a in self.associations[::-1]:
+                    if a.model_name() == parent_model:
+                        return a
+        return None
+
+    @property
+    def parents(self):
+        return [a for a in self.associations if a.model_name() in self.parent_list]
 
     @property
     def regions(self):
@@ -125,7 +145,6 @@ class TTRPGObject(TTRPGBase):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_parent()
         document.pre_save_world()
         document.pre_save_associations()
 
@@ -135,30 +154,6 @@ class TTRPGObject(TTRPGBase):
 
     # def clean(self):
     #     super().clean()
-
-    def pre_save_parent(self):
-        ancestor = self
-        while ancestor:
-            if ancestor.parent == self:
-                ancestor.parent = None
-                ancestor.save()
-            else:
-                ancestor = ancestor.parent
-
-        if self.parent and (
-            self.parent == self
-            or self.parent.model_name()
-            not in [
-                "World",
-                *self.parent_list,
-            ]
-        ):
-            log(f"Parent must be a World or {self.parent_list}, not {self.parent}")
-            self.parent = None
-
-        elif self.parent not in self.associations:
-            self.associations.append(self.parent)
-
     def pre_save_associations(self):
         if self in self.associations:
             self.associations.remove(self)

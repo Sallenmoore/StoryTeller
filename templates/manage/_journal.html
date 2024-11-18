@@ -1,5 +1,4 @@
-{% import "components/_form.html" as form_components %}
-{% import "components/_elements.html" as element %}
+{% import "shared/_form.html" as form_components %}
 
 {% macro journal_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Journal Editor</title>

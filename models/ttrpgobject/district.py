@@ -12,7 +12,7 @@ from models.base.place import Place
 
 
 class District(Place):
-    parent_list = ["Region", "City"]
+    parent_list = ["City", "Region"]
     _funcobj = {
         "name": "generate_district",
         "description": "completes District data object",

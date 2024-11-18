@@ -15,7 +15,7 @@ class Creature(Actor):
     abilities = ListAttr(StringAttr())
     bbeg = BoolAttr(default=False)
 
-    parent_list = ["District", "Location"]
+    parent_list = ["Location", "District"]
     _funcobj = {
         "name": "generate_creature",
         "description": "completes Creature data object",
@@ -95,14 +95,13 @@ class Creature(Actor):
 
     @property
     def history_prompt(self):
-        return f""" A detailed history of the {self.type} {self.name} that includes only publicly known information about the creature.
+        return f"""
 BACKSTORY
 ---
 {self.backstory_summary}
 
-{"EVENTS INVOLVING THIS CREATURE TYPE" if self.history else ""}
+{"EVENTS INVOLVING THIS CREATURE TYPE" if not self.bbeg else "LIFE EVENTS"}
 ---
-{self.history}
 """
 
     @property
