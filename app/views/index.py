@@ -3,6 +3,7 @@ import os
 import requests
 from flask import (
     Blueprint,
+    Response,
     render_template,
     request,
     session,
@@ -55,6 +56,24 @@ def autogm(model, pk):
             f"http://api:{os.environ.get('COMM_PORT')}/autogm/{model}/{pk}", json=args
         ).text
     return render_template("index.html", user=user, obj=obj, page_content=content)
+
+
+@index_page.route(
+    "/<string:model>/<string:pk>/gm/voice",
+    methods=("GET",),
+)
+def gmvoice(model, pk):
+    obj = World.get_model(model, pk)
+    if obj.autogm_summary and obj.autogm_summary[-1].audio:
+        return Response(
+            obj.autogm_summary[-1].audio.read(),
+            mimetype=obj.autogm_summary[-1].audio.content_type,
+            headers={
+                "Content-Disposition": f"inline; filename={obj.autogm_summary[-1].pk}.mp3"
+            },
+        )
+    else:
+        return Response("No audio available", status=404)
 
 
 @index_page.route(

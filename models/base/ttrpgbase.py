@@ -480,16 +480,20 @@ Use and expand on the existing object data listed below for the {self.title} obj
         # log(len(obj.associations), self in obj.associations)
         if self not in obj.associations:
             obj.associations += [self]
+            obj.save()
         # log(len(obj.associations), self in obj.associations)
 
         # log(len(self.associations), obj in self.associations)
         if obj not in self.associations:
             self.associations += [obj]
+            self.save()
         # log(len(self.associations), obj in self.associations)
-
-        obj.save()
-        self.save()
         return obj
+
+    def add_associations(self, objs):
+        for obj in objs:
+            self.add_association(obj)
+        return self.associations
 
     def remove_association(self, obj):
         if obj in self.associations:

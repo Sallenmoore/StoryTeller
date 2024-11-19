@@ -52,9 +52,11 @@
                 {% if obj %}
                 {{title.object_title(user, obj)}}
                 {% endif %}
-                <div class="row has-no-padding-left slide-it-in" style='position:relative;'>
+                <div class="row has-centered has-no-padding-left slide-it-in"
+                     style='position:relative;'>
                     {% if obj %}
-                    <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in">
+                    <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
+                         style='position:absolute;top:0;left:0;'>
                         <button id="mobile-menu-burger" class='button is-mobile-only'
                                 style='position:fixed; z-index:1002;border-radius:0 10px 10px 0;'>
                             <iconify-icon icon="ci:hamburger-lg" width="1.5rem"></iconify-icon>
@@ -62,7 +64,7 @@
                         {{nav.sidemenu_active(user, obj)}}
                     </div>
                     {% endif %}
-                    <div class="column is-10 is-end is-mobile-full">
+                    <div class="column is-10 is-mobile-full">
                         {% if page_url %}
                         <div class='panel has-bg-muted raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content"

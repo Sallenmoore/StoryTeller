@@ -4,10 +4,15 @@
 
 {% macro gm(user, world, player=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
+<script>
+    const music = new Audio();
+    const gm = new Audio;
+</script>
 <div id='auto-gm-container' class="row">
     <div class="column is-full">
         {{autogm_pc_select_player(user, world, player)}}
     </div>
+
     {% if player%}
     <div class="column is-full">
         {% if player.autogm_summary %}
@@ -15,22 +20,22 @@
             {% if player.autogm_summary | length > 1 and
             player.autogm_summary[-2].roll_required
             %}
-            <div class="column is-8">
+            <div class="column is-full">
                 <div class="panel has-bg-muted">
-                    <div class="row">
-                        <div class="column is-full">
-                            <h4 class='has-text-dark-grey'>
-                                {{player.autogm_summary[-2].roll_attribute}}
-                                {{player.autogm_summary[-2].roll_type}}
-                            </h4>
+                    <div class="row has-space-around">
+                        <div class="column is-3 is-vertically-centered">
+                            <h3 class='has-text-dark-grey'>
+                                {{player.autogm_summary[-2].roll_attribute | title}}
+                                {{player.autogm_summary[-2].roll_type | title}}
+                            </h3>
                         </div>
-                        <div class="column is-half">
+                        <div class="column">
                             <div
                                  class='panel has-text-light has-text-justify generated-text-lightbg'>
                                 {{player.autogm_summary[-2].roll_description}}
                             </div>
                         </div>
-                        <div class="column">
+                        <div class="column is-3">
                             <h3 class='has-text-primary has-text-center'>Roll Results</h3>
                             <div class='panel has-bg-muted has-text-screen has-text-center'
                                  style='font-size:2rem;'>
@@ -44,40 +49,6 @@
                 </div>
             </div>
             {% endif %}
-            <div class="column">
-                <h6 class='has-text-center has-text-primary'>Add Associations</h6>
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search"
-                           name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/autogm/{{player.world.pk}}/associations/search"
-                           hx-target="#autogm-new-associations-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light"
-                        id="autogm-new-associations-list">
-                    </ul>
-                </div>
-                <hr>
-                <div id='autogm-associations-list' class="row has-space-around">
-                    {% for a in player.autogm_summary[-1].associations %}
-                    <div class="column is-3 has-centered autogm-association-entry">
-                        <div class="panel">
-                            {{display_components.object_display(a)}}
-                            <div class="row">
-                                <div class="column is-shrink is-end">
-                                    <a hx-post="/api/autogm/{{world.pk}}/pc/{{player.pk}}/association/{{a.path}}/remove"
-                                       hx-target='closest .autogm-association-entry'
-                                       hx-swap='delete'>
-                                        {{icon_components.remove(size='1rem')}}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
         </div>
         <div class="panel generated-text-lightbg has-bg-muted">
             <div id="autogm-description" class="row">
@@ -97,18 +68,33 @@
                     </div>
                     {% endif %}
                 </div>
-                <div class="column" style='position:relative;'>
-                    <div class="panel has-bg-muted generated-text-lightbg">
+                <div id='auto-gm-session-audio' class="column" style='position:relative;'>
+                    <div class="panel has-bg-muted generated-text-lightbg"
+                         style='font-size: 1rem;'>
                         {{player.autogm_summary[-1].description | safe}}
                     </div>
+                    {% if player.autogm_summary[-1].audio %}
+                    <button class="button is-small"
+                            style='position:absolute; right:0; top:0;'
+                            onclick='gmvoiced()'>
+                        <iconify-icon icon="mdi:speaking" width="2rem"></iconify-icon>
+                    </button>
+                    {% else %}
+                    <div hx-post="/api/autogm/{{player.path}}"
+                         hx-target='#auto-gm-session-audio'
+                         hx-select='#auto-gm-session-audio'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
                     <button class="button is-small"
                             style='position:absolute; right:0; bottom:0;'
-                            onclick='this.parentElement.parentElement.nextElementSibling.classList.remove("is-hidden"); this.parentElement.parentElement.classList.add("is-hidden");'>
+                            onclick='this.parentElement.nextElementSibling.classList.remove("is-hidden"); this.parentElement.classList.add("is-hidden");'>
                         Edit
                     </button>
                 </div>
                 <div class="column is-hidden">
-                    <form hx-post='/api/autogm/{{world.pk}}/pc/{{player.pk}}/description'
+                    <form hx-post='/api/autogm/{{player.path}}/description/update'
                           hx-target='#autogm-description'
                           hx-select='#autogm-description'
                           hx-swap='outerHTML'>
@@ -120,9 +106,214 @@
                 </div>
             </div>
         </div>
+        <script>
+            function playmusic() {
+                music.src = "{{player.autogm_summary[-1].music}}";
+                music.loop = true;
+                if (!music.paused) {
+                    music.pause();
+                    music.currentTime = 0;
+                }
+                music.play();
+            }
+
+            function gmvoiced() {
+                playmusic();
+                gm.src = "/{{player.path}}/gm/voice";
+                if (!gm.paused) {
+                    gm.pause();
+                    gm.currentTime = 0;
+                }
+                gm.play();
+            }
+            playmusic();
+            gmvoiced();
+        </script>
         {% endif %}
     </div>
     <div class="column is-full">
+        {% if player.autogm_summary %}
+        {{ autogm_pc_run_session(user, world, player) }}
+        {% else %}
+        {{ autogm_pc_start_session(user, world, player) }}
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro autogm_pc_select_player(user, world, player) -%}
+<div class="is-select">
+    <select class='has-text-center' name='playerpk'
+            hx-post='/api/autogm/{{player.path}}'
+            hx-target='#auto-gm-container' hx-select='#auto-gm-container'
+            hx-swap='outerHTML'
+            onchange='history.pushState({}, "", `/character/${this.value}/gm`);'>
+        <option>==Select Player==</option>
+        {% for p in world.players %}
+        <option value="{{p.pk}}" {% if p.pk==player.pk %}selected {% endif %}>
+            {{ p.name }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
+{%- endmacro %}
+
+{% macro autogm_pc_start_session(user, world, player) -%}
+<form hx-post="/task/generate/autogm/{{player.pk}}/start"
+      hx-target='closest .column'
+      hx-push-url='/{{player.path}}/gm'>
+    <div class="row has-space-around">
+        <div class="column is-vertically-centered">
+            <h3 class='has-text-primary'>Scenario</h3>
+            <textarea name="scenario" id="player_scenario"
+                      placeholder='optional scenario description'
+                      class='has-bg-white'
+                      style='height:3rem;'></textarea>
+        </div>
+    </div>
+    <div class="row has-centered">
+        <div class="column is-shrink is-vertically-centered">
+            <button type='submit' class="button">
+                Start Session
+            </button>
+        </div>
+    </div>
+</form>;
+{%- endmacro %}
+
+{% macro autogm_pc_association_search(user, world, player, results) %}
+{% for o in results %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post="/api/autogm/{{player.path}}/association/{{o.path}}/add"
+       hx-target='#autogm-associations-list'
+       hx-select='#autogm-associations-list' hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{ o.name }}
+            </div>
+        </div>
+    </a>
+</li>;
+{% endfor %}
+{%- endmacro %}
+
+{% macro autogm_pc_run_session(user, world, player) -%}
+<div class="row has-space-around">
+    {% if player.autogm_summary[-1].npcs %}
+    <div class="column  is-shrink">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">NPCs</h4>
+            <div class="row">
+                {% for npc in player.autogm_summary[-1].npcs%}
+                <div id="npc-{{npc.pk}}" class='column'>
+                    {% if npc.image %}
+                    {{display_components.object_display(npc)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{player.path}}"
+                         hx-target='#npc-{{npc.pk}}'
+                         hx-select='#npc-{{npc.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if player.autogm_summary[-1].combatants %}
+    <div class="column  is-shrink">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">Combatants</h4>
+            <div class="row has-space-around">
+                {% for cbt in player.autogm_summary[-1].combatants%}
+                <div id="cbt-{{cbt.pk}}" class='column'>
+                    {% if cbt.image %}
+                    {{display_components.object_display(cbt)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{player.path}}"
+                         hx-target='#cbt-{{cbt.pk}}'
+                         hx-select='#cbt-{{cbt.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if player.autogm_summary[-1].loot %}
+    <div class="column  is-shrink">
+        <div class="panel is-full has-bg-screen">
+            <h4 class="has-text-center">Loot</h4>
+            <div class="row has-space-around">
+                {% for loot in player.autogm_summary[-1].loot %}
+                <div id="loot-{{loot.pk}}" class='column'>
+                    {% if loot.image %}
+                    {{display_components.object_display(loot)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{player.path}}"
+                         hx-target='#loot-{{loot.pk}}'
+                         hx-select='#loot-{{loot.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="column is-full">
+        <hr>
+        <h4 class='has-text-center has-text-primary'>Additional Associations</h4>
+        <div class="has-dropdown" style="width: 100%;">
+            <input class="has-bg-light" autocomplete="off" type="search"
+                   name="query"
+                   style="border-bottom: solid #000;"
+                   hx-post="/api/autogm/{{player.world.pk}}/associations/search"
+                   hx-target="#autogm-new-associations-list"
+                   hx-trigger="input changed delay:500ms consume"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown has-bg-light"
+                id="autogm-new-associations-list">
+            </ul>
+        </div>
+        <hr>
+        <div id='autogm-associations-list' class="row has-space-around">
+            {% for a in player.autogm_summary[-1].get_additional_associations() %}
+            <div class="column is-3 has-centered autogm-association-entry">
+                <div class="panel">
+                    {{display_components.object_display(a)}}
+                    <div class="row">
+                        <div class="column is-shrink is-end">
+                            <a hx-post="/api/autogm/{{world.pk}}/pc/{{player.pk}}/association/{{a.path}}/remove"
+                               hx-target='closest .autogm-association-entry'
+                               hx-swap='delete'>
+                                {{icon_components.remove(size='1rem')}}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="column is-full">
+        <hr>
         <div class="row">
             <div class="column is-2">
                 <a href="/{{player.path}}" target='_blank'>
@@ -217,124 +408,7 @@
                 </div>
             </div>
         </div>
-        {% if player.autogm_summary %}
-        {{ autogm_pc_run_session(user, world, player) }}
-        {% else %}
-        {{ autogm_pc_start_session(user, world, player) }}
-        {% endif %}
     </div>
-    {% endif %}
-</div>
-{%- endmacro %}
-
-{% macro autogm_pc_select_player(user, world, player) -%}
-<div class="is-select">
-    <select class='has-text-center' name='playerpk'
-            hx-post='/api/autogm/{{world.pk}}/pc'
-            hx-target='#auto-gm-container' hx-select='#auto-gm-container'
-            hx-swap='outerHTML'
-            onchange='history.pushState({}, "", `/character/${this.value}/gm`);'>
-        <option>==Select Player==</option>
-        {% for p in world.players %}
-        <option value="{{p.pk}}" {% if p.pk==player.pk %}selected {% endif %}>
-            {{ p.name }}
-        </option>
-        {% endfor %}
-    </select>
-</div>
-{%- endmacro %}
-
-{% macro autogm_pc_start_session(user, world, player) -%}
-<form hx-post="/task/generate/autogm/{{player.pk}}/start"
-      hx-target='closest .column'
-      hx-push-url='/{{player.path}}/gm'>
-    <div class="row has-space-around">
-        <div class="column is-vertically-centered">
-            <h3 class='has-text-primary'>Scenario</h3>
-            <textarea name="scenario" id="player_scenario"
-                      placeholder='optional scenario description'
-                      class='has-bg-white'
-                      style='height:3rem;'></textarea>
-        </div>
-    </div>
-    <div class="row has-centered">
-        <div class="column is-shrink is-vertically-centered">
-            <button type='submit' class="button">
-                Start Session
-            </button>
-        </div>
-    </div>
-</form>;
-{%- endmacro %}
-
-{% macro autogm_pc_association_search(user, world, player, results) %}
-{% for o in results %}
-<li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/autogm/{{player.path}}/association/{{o.path}}/add"
-       hx-target='#autogm-associations-list'
-       hx-select='#autogm-associations-list' hx-swap='outerHTML'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="column">
-                {{ o.name }}
-            </div>
-        </div>
-    </a>
-</li>;
-{% endfor %}
-{%- endmacro %}
-
-{% macro autogm_pc_run_session(user, world, player) -%}
-<div class="row">
-    {% if player.autogm_summary[-1].npcs %}
-    <div class="column">
-        <div class="panel has-bg-screen is-full">
-            <h4 class="has-text-center">NPCs</h4>
-            <div class="row">
-                {% for npc in player.autogm_summary[-1].npcs%}
-                <div class='column'>
-                    {{display_components.object_display(npc)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if player.autogm_summary[-1].combatants %}
-    <div class="column">
-        <div class="panel has-bg-screen is-full">
-            <h4 class="has-text-center">Combatants</h4>
-            <div class="row has-space-around">
-                {% for cbt in player.autogm_summary[-1].combatants%}
-                <div class='column'>
-                    {{display_components.object_display(cbt)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if player.autogm_summary[-1].loot %}
-    <div class="column">
-        <div class="panel is-full has-bg-screen">
-            <h4 class="has-text-center">Loot</h4>
-            <div class="row has-space-around">
-                {% for loot in player.autogm_summary[-1].loot %}
-                <div class='column is-full'>
-                    {{display_components.object_display(loot)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 <div class="row">
     <div class="column">
@@ -414,41 +488,41 @@
 </div>
 <hr>
 <h3 class="has-text-screen has-text-center">Session Summary</h3>
+
+{%if player.autogm_summary[-1].summary %}
 <div class="panel">
-    <div class="row has-space-around">
+    <div class='generated-text-darkbg'>{{player.autogm_summary[-1].summary | safe}}</div>
+</div>
+{% endif %}
+<hr>
+<div class="panel has-bg-light">
+    <div class="row has-centered">
         {% for ags in player.autogm_summary %}
         {% if ags.image %}
         <div class="column is-shrink">
-            <div class="is-float-left"
-                 style="padding-right: 1rem; padding-bottom: 1rem;">
-                <div class="image is-medium is-thumbnail is-margin-center">
-                    <img src="{{ags.image.url()}}"
-                         loading="lazy"
-                         alt="{{player.name}}" />
-                </div>
+            <div class="image is-large">
+                <img src="{{ags.image.url()}}"
+                     loading="lazy"
+                     alt="{{player.name}}" />
             </div>
         </div>
         {% endif%}
         {% endfor %}
     </div>
-    <hr>
-    {%if player.autogm_summary[-1].summary %}
-    <div class='generated-text-darkbg'>{{player.autogm_summary[-1].summary | safe}}</div>
-    {% endif %}
 </div>
 <hr>
 <div class="row has-space-around">
     <div class="column is-shrink">
-        <button class="button" hx-post="/task/generate/autogm/end/{{player.pk}}"
+        <button class="button" hx-post="/task/generate/autogm/{{player.pk}}/end"
                 hx-target='closest .column'>
-            End Session
+            Make Canon
         </button>
     </div>
     <div class="column is-shrink">
-        <button class="button" hx-post="/api/autogm/{{world.pk}}/pc/{{player.pk}}/clear"
+        <button class="button" hx-post="/api/autogm/{{player.path}}/clear"
                 hx-target='#auto-gm-container' hx-select='#auto-gm-container'
                 hx-swap='outerHTML'>
-            New Session
+            Delete Session
         </button>
     </div>
 </div>

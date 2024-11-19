@@ -325,23 +325,13 @@
             });
         } else {
             sideMenu.addEventListener("pointerenter", (event) => {
-                //event.preventDefault();
                 timeout = setTimeout(() => {
                     Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
                 }, 400);
-                sideMenu.style.position = "absolute";
             });
             sideMenu.addEventListener("pointerleave", (event) => {
-                //event.preventDefault();
-                sideMenu.style.position = "static";
                 Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
-                    //if (isOpen) {
                     el.classList.add('is-hidden');
-                    //sideMenu.style.position = "static";
-                    //} else {
-                    //    sideMenu.style.position = "absolute";
-                    //    el.classList.remove('is-hidden');
-                    //}
                 });
                 isOpen = !isOpen;
                 clearTimeout(timeout);

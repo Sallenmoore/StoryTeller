@@ -72,7 +72,7 @@
                         hx-post="/api/manage/add/{{child.__name__ | lower}}"
                         hx-target="#page-content"
                         hx-indicator='#request-indicator'>
-                    Quick {{obj.get_title(child)}}
+                    New {{obj.get_title(child)}}
                 </button>
             </div>
             {% endfor %}

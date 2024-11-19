@@ -1,13 +1,16 @@
 import json
 import os
+import random
 
 import markdown
 import requests
 
 from autonomous import log
+from autonomous.ai.audioagent import AudioAgent
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.model.autoattr import (
     BoolAttr,
+    FileAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -36,7 +39,52 @@ class AutoGMScene(AutoModel):
     roll_description = StringAttr()
     roll_result = IntAttr()
     image = ReferenceAttr(choices=["Image"])
+    audio = FileAttr()
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+
+    _music_lists = {
+        "social": ["themesong.mp3"],
+        "combat": [
+            "battle2.mp3",
+            "battle4.mp3",
+            "battle3.mp3",
+            "battle5.mp3",
+            "skirmish4.mp3",
+            "skirmish3.mp3",
+            "skirmish2.mp3",
+            "skirmish1.mp3",
+        ],
+        "exploration": ["relaxed1.mp3", "creepy1.mp3", "creepy2.mp3", "creepy3.mp3"],
+        "stealth": [
+            "suspense1.mp3",
+            "suspense2.mp3",
+            "suspense3.mp3",
+            "suspense4.mp3",
+            "suspense5.mp3",
+            "suspense6.mp3",
+            "suspense7.mp3",
+        ],
+    }
+
+    def delete(self):
+        if self.image:
+            self.image.remove_img_file()
+            self.image.delete()
+        return super().delete()
+
+    @property
+    def music(self):
+        return f"/static/sounds/music/{random.choice(self._music_lists.get(self.type, ["themesong.mp3"]))}"
+
+    @classmethod
+    def generate_audio(cls, pk):
+        from models.world import World
+
+        scene = cls.get(pk)
+        if not scene.audio:
+            voiced_scene = AudioAgent().generate(scene.description, voice="echo")
+            scene.audio.put(voiced_scene, content_type="audio/mpeg")
+            scene.save()
 
     @classmethod
     def generate_image(cls, pk, image_prompt):
@@ -125,6 +173,42 @@ SCENE DESCRIPTION
             )
             log(resp)
 
+    def get_additional_associations(self):
+        scene_objects = [self.player, *self.npcs, *self.combatants, *self.loot]
+        for o in scene_objects:
+            if o not in self.associations:
+                self.associations += [o]
+        self.save()
+        associations = [o for o in self.associations if o not in scene_objects]
+        return associations
+
+    ## MARK: - Verification Methods
+    ###############################################################
+    ##                    VERIFICATION HOOKS                     ##
+    ###############################################################
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     # log("Auto Pre Save World")
+    #     super().auto_post_init(sender, document, **kwargs)
+    #     =
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_associations()
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
+
+    # def clean(self):
+    #     super().clean()
+
+    ################### verification methods ##################
+
+    def pre_save_associations(self):
+        self.associations.sort(key=lambda x: (x.title, x.name))
+
 
 class AutoGM(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
@@ -132,7 +216,7 @@ class AutoGM(AutoModel):
 
     _funcobj = {
         "name": "run_scene",
-        "description": "creates the initial or next scene for TTRPG players consistent with the previous scene and the uploaded file describing the world",
+        "description": "Creates a scene for TTRPG players that advances the story forward,  is consistent with the previous scene, and incorporates elements from the uploaded file describing the world.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -143,7 +227,7 @@ class AutoGM(AutoModel):
                 },
                 "description": {
                     "type": "string",
-                    "description": "The GM's evocative and detailed description of the scene in MARKDOWN, including any relevant information the GM thinks the players need to know",
+                    "description": "The GM's evocative and detailed description in MARKDOWN of a scene that drives the story forward, including any relevant information the GM thinks the players need to know",
                 },
                 "date": {
                     "type": "string",
@@ -171,7 +255,7 @@ class AutoGM(AutoModel):
                 },
                 "npcs": {
                     "type": "array",
-                    "description": "A list of descriptions of non-combatant NPCs in the scenario, if any. Use full names, ",
+                    "description": "A list of descriptions of non-combatant NPCs in the scenario, if any. For existing npcs from associations, use full names that can be matched.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -200,7 +284,7 @@ class AutoGM(AutoModel):
                 },
                 "combatants": {
                     "type": "array",
-                    "description": "if and only if it is a combat type scene, provide a list of descriptions of combatants in the scenario, otherwise an empty list",
+                    "description": "if and only if it is a combat type scene, provide a list of descriptions of combatants in the scenario, otherwise an empty list. ",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -258,9 +342,12 @@ class AutoGM(AutoModel):
                                 "items": {"type": "string"},
                             },
                             "attributes": {
-                                "type": "string",
-                                "description": "A description of the features if any, limitations, and value of the item in MARKDOWN format",
-                                "items": {"type": "string"},
+                                "type": "array",
+                                "description": "A list of the features, limitations, and value of the item in MARKDOWN format.",
+                                "items": {
+                                    "type": "string",
+                                    "description": "A feature, limitation, or value of the item in MARKDOWN format",
+                                },
                             },
                         },
                     },
@@ -346,22 +433,25 @@ class AutoGM(AutoModel):
                 summary = player.world.system.generate_summary(prompt, primer)
                 summary = summary.replace("```markdown", "").replace("```", "")
                 summary = markdown.markdown(summary)
+                associations = [player, *player.autogm_summary[-1].associations]
             else:
                 summary = response["description"]
+                associations = [player]
             scene = AutoGMScene(
                 type=scene_type,
                 player=player,
                 description=response["description"],
                 date=response["date"],
                 summary=summary,
+                associations=associations,
             )
             # Split the text into paragraphs based on double newlines
             paragraphs = scene.description.split(".")
 
             # Wrap each paragraph to the desired width
-            wrapped_paragraphs = ""
+            wrapped_paragraphs = []
             while paragraphs:
-                wrapped_paragraphs += ".".join(paragraphs[:4])
+                wrapped_paragraphs += [".".join(paragraphs[:4])]
                 paragraphs = paragraphs[4:] if len(paragraphs) > 4 else []
 
             # Join the paragraphs back together with double newlines
@@ -383,6 +473,7 @@ class AutoGM(AutoModel):
                 scene.pk,
                 response["image"],
             )
+            AutoTasks().task(AutoGMScene.generate_audio, scene.pk)
             scene.generate_npcs(response.get("npcs"))
             scene.generate_combatants(response.get("combatants"))
             scene.generate_loot(response.get("loot"))
@@ -407,16 +498,19 @@ class AutoGM(AutoModel):
         return self.parse_scene(player, response)
 
     def run(self, player, message):
-        prompt = f"""As the AI Game Master for a {self.world.genre} TTRPG session, write a description for the next event, scene, or combat round that moves the story forward for the currently running game session based on the player's message, including the roll result if present, and the previous events using the following details:
+        prompt = f"""As the AI Game Master for a {self.world.genre} TTRPG session, write a description for the next event, scene, or combat round that moves the story forward and creates suspense or a sense of danger. The new scene should be based on and consistent with the player's message,  the previous scene events and elements described below, and the roll result if present:
 
-PLAYER: {player.name} [{player.pk}]
+PLAYER
+{player.name}
 {player.backstory_summary}
 
 PLAYER ACTIONS
 {message}
 
+ASSOCIATED WORLD ELEMENTS
+{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in player.autogm_summary[-1].associations if ass != player]) if player.autogm_summary else "None yet"}
+
 PREVIOUS EVENTS SUMMARY
-Current Date: {player.autogm_summary[-1].date or self.world.current_date}
 {player.autogm_summary[-1].summary or player.autogm_summary[-1].description}
 """
         log(prompt, _print=True)
@@ -424,9 +518,9 @@ Current Date: {player.autogm_summary[-1].date or self.world.current_date}
         return self.parse_scene(player, response)
 
     def end(self, player, message):
-        summary = self._summarize(player.pk)
         prompt = f"""As the AI Game Master for a {self.world.genre} TTRPG session, create a natural stopping point to end the currently running game session, including a cliffhanger scenario, based on the following details:
-PLAYER: {player.name} [{player.pk}]
+PLAYER
+{player.name} [{player.pk}]
 {player.backstory_summary}
 
 PLAYER ACTIONS
@@ -434,8 +528,17 @@ PLAYER ACTIONS
 
 PREVIOUS EVENTS SUMMARY
 Timeline: {player.autogm_summary[0].date} - {player.autogm_summary[-1].date}
-{summary}
+{player.autogm_summary[-1]}
 """
         log(prompt, _print=True)
         response = self.gm.generate(prompt, function=self._funcobj)
-        return self.parse_scene(player, response)
+        result = self.parse_scene(player, response)
+        player.world.backstory += f"""
+
+{result.summary}
+"""
+        player.world.save()
+        for ags in player.autogm_summary:
+            for assoc in ags.associations:
+                assoc.add_associations(ags.associations)
+        return result
