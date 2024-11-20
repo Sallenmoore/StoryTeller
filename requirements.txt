@@ -4,7 +4,7 @@
 
 ##### Frameworks #####
 
-autonomous-app >= 0.3.8
+autonomous-app >= 0.3.17
 
 ##### Configuration and Documentation #####
 pdoc
@@ -53,3 +53,5 @@ dmtoolkit >= 0.0.37
 pytest
 pytest-cov
 requests-mock
+pytest-mock
+mongomock

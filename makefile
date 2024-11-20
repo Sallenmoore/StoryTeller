@@ -1,5 +1,5 @@
 
-TARGETS=initprod initdev deploy run dev test tests cleantest inittests refresh logs clean
+TARGETS=deploy run rundb initprod cleandev dev initdev cleantests tests test inittests clean refresh logs prune
 BUILD_CMD=docker compose build --no-cache
 UP_CMD=docker compose up --build -d
 DOWN_CMD=docker compose down --remove-orphans
@@ -48,18 +48,17 @@ initdev:
 cleantests: refresh tests
 
 tests: inittests
-	$(UP_CMD)
-	docker exec -it $(APP_NAME) python -m pytest --pdb
+	docker exec -it $(APP_NAME) python -m pytest
 
 RUNTEST?=
 test: inittests
-	$(UP_CMD)
-	docker exec -it $(APP_NAME) python -m pytest -k $(RUNTEST) #--pdb
+	docker exec -it $(APP_NAME) python -m pytest -k $(RUNTEST)
 
 inittests:
 	cp -rf envs/testing/.env ./
 	cp -rf envs/testing/docker-compose.yml ./
 	cp -rf envs/testing/gunicorn.conf.py ./vendor
+	$(UP_CMD)
 
 ###### UTILITY #######
 

@@ -4,15 +4,14 @@
 
 {% macro gm(user, world, player=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
-<script>
-    const music = new Audio();
-    const gm = new Audio;
-</script>
 <div id='auto-gm-container' class="row">
     <div class="column is-full">
         {{autogm_pc_select_player(user, world, player)}}
     </div>
-
+    <script>
+        const music = new Audio();
+        const gm = new Audio();
+    </script>
     {% if player%}
     <div class="column is-full">
         {% if player.autogm_summary %}
@@ -79,6 +78,9 @@
                             onclick='gmvoiced()'>
                         <iconify-icon icon="mdi:speaking" width="2rem"></iconify-icon>
                     </button>
+                    <script>
+                        gmvoiced();
+                    </script>
                     {% else %}
                     <div hx-post="/api/autogm/{{player.path}}"
                          hx-target='#auto-gm-session-audio'
@@ -115,6 +117,7 @@
                     music.currentTime = 0;
                 }
                 music.play();
+                music.volume = 0.4;
             }
 
             function gmvoiced() {
@@ -125,9 +128,8 @@
                     gm.currentTime = 0;
                 }
                 gm.play();
+                gm.volume = 1;
             }
-            playmusic();
-            gmvoiced();
         </script>
         {% endif %}
     </div>

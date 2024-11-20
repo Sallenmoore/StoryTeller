@@ -229,10 +229,6 @@ class AutoGM(AutoModel):
                     "type": "string",
                     "description": "The GM's evocative and detailed description in MARKDOWN of a scene that drives the story forward, including any relevant information the GM thinks the players need to know",
                 },
-                "date": {
-                    "type": "string",
-                    "description": "The in-game date that the events are occuring on",
-                },
                 "image": {
                     "type": "object",
                     "additionalProperties": False,
@@ -437,11 +433,15 @@ class AutoGM(AutoModel):
             else:
                 summary = response["description"]
                 associations = [player]
+            description = (
+                response["description"].replace("```markdown", "").replace("```", "")
+            )
+            description = markdown.markdown(description)
             scene = AutoGMScene(
                 type=scene_type,
                 player=player,
-                description=response["description"],
-                date=response["date"],
+                description=description,
+                date=player.world.current_date,
                 summary=summary,
                 associations=associations,
             )
@@ -500,18 +500,18 @@ class AutoGM(AutoModel):
     def run(self, player, message):
         prompt = f"""As the AI Game Master for a {self.world.genre} TTRPG session, write a description for the next event, scene, or combat round that moves the story forward and creates suspense or a sense of danger. The new scene should be based on and consistent with the player's message,  the previous scene events and elements described below, and the roll result if present:
 
+ASSOCIATED WORLD ELEMENTS
+{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in player.autogm_summary[-1].associations if ass != player]) if player.autogm_summary else "None yet"}
+
+PREVIOUS EVENTS SUMMARY
+{player.autogm_summary[-1].summary or player.autogm_summary[-1].description}
+
 PLAYER
 {player.name}
 {player.backstory_summary}
 
 PLAYER ACTIONS
 {message}
-
-ASSOCIATED WORLD ELEMENTS
-{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in player.autogm_summary[-1].associations if ass != player]) if player.autogm_summary else "None yet"}
-
-PREVIOUS EVENTS SUMMARY
-{player.autogm_summary[-1].summary or player.autogm_summary[-1].description}
 """
         log(prompt, _print=True)
         response = self.gm.generate(prompt, function=self._funcobj)
@@ -519,16 +519,16 @@ PREVIOUS EVENTS SUMMARY
 
     def end(self, player, message):
         prompt = f"""As the AI Game Master for a {self.world.genre} TTRPG session, create a natural stopping point to end the currently running game session, including a cliffhanger scenario, based on the following details:
+
+PREVIOUS EVENTS SUMMARY
+Timeline: {player.autogm_summary[0].date} - {player.autogm_summary[-1].date}
+{player.autogm_summary[-1]}
 PLAYER
 {player.name} [{player.pk}]
 {player.backstory_summary}
 
 PLAYER ACTIONS
 {message}
-
-PREVIOUS EVENTS SUMMARY
-Timeline: {player.autogm_summary[0].date} - {player.autogm_summary[-1].date}
-{player.autogm_summary[-1]}
 """
         log(prompt, _print=True)
         response = self.gm.generate(prompt, function=self._funcobj)

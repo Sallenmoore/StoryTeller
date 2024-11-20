@@ -1,88 +1,68 @@
 import os
 import sys
 
+import mongomock
 import pytest
+from mongomock.gridfs import enable_gridfs_integration
 
 from app import create_app
-from models.calendar import Calendar
-from models.campaign.campaign import Campaign
-from models.campaign.episode import Session
-from models.events.event import Event
-from models.journal import Journal, JournalEntry
-from models.poi import POI
-from models.systems import FantasySystem
-from models.ttrpgobject.character import Character
-from models.ttrpgobject.city import City
-from models.ttrpgobject.creature import Creature
-from models.ttrpgobject.faction import Faction
-from models.ttrpgobject.item import Item
-from models.ttrpgobject.location import Location
-from models.ttrpgobject.region import Region
+from autonomous.db import connect, disconnect
 from models.user import User
 from models.world import World
 
 # # Add the 'app' directory to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+enable_gridfs_integration()
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_module():
-    # Code that runs once before each module
-    User._get_collection().drop()
-    World._get_collection().drop()
-    Region._get_collection().drop()
-    City._get_collection().drop()
-    POI._get_collection().drop()
-    Location._get_collection().drop()
-    Character._get_collection().drop()
-    Creature._get_collection().drop()
-    Faction._get_collection().drop()
-    Item._get_collection().drop()
-    JournalEntry._get_collection().drop()
-    Journal._get_collection().drop()
-    Campaign._get_collection().drop()
-    Session._get_collection().drop()
-    Calendar._get_collection().drop()
-    Event._get_collection().drop()
-    FantasySystem._get_collection().drop()
-
-
-@pytest.fixture()
-def app():
-    app = create_app()
-    app.config.update(
-        {
-            "TESTING": True,
-        }
+def test_db():
+    disconnect()
+    connect(
+        "test_image_db",
+        host="mongodb://localhost",
+        mongo_client_class=mongomock.MongoClient,
     )
-
-    # other setup can go here
-
-    yield app
-
-    # clean up / reset resources here
+    yield
+    disconnect()
 
 
-# # # can make client.get() and client.post() requests to the applications
-@pytest.fixture()
-def client(app):
-    return app.test_client()
+# @pytest.fixture()
+# def app():
+#     app = create_app()
+#     app.config.update(
+#         {
+#             "TESTING": True,
+#         }
+#     )
+
+#     # other setup can go here
+
+#     yield app
+
+#     # clean up / reset resources here
 
 
-@pytest.fixture()
-def user():
-    user = User(name="Test User", email="email@test")
-    user.save()
-    yield user
+# # # # can make client.get() and client.post() requests to the applications
+# @pytest.fixture()
+# def client(app):
+#     return app.test_client()
 
 
-@pytest.fixture()
-def world(user):
-    world = World(user=user, system="fantasy", name="MagicWorld")
-    world.save()
-    # breakpoint()
-    yield world
-    world.delete()
+# @pytest.fixture()
+# def user():
+#     user = User(name="Test User", email="email@test")
+#     user.save()
+#     yield user
+
+
+# @pytest.fixture()
+# def world(user):
+#     world = World(user=user, system="fantasy", name="MagicWorld")
+#     world.save()
+#     # breakpoint()
+#     yield world
+#     world.delete()
 
 
 # @pytest.fixture()
