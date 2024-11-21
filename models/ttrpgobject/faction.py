@@ -4,6 +4,7 @@ from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
+    ListAttr,
     ReferenceAttr,
     StringAttr,
 )
@@ -17,6 +18,8 @@ class Faction(TTRPGObject):
     status = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
+    autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
+    autogm_history = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
 
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
@@ -69,6 +72,10 @@ class Faction(TTRPGObject):
     ################### Instance Properties #####################
 
     @property
+    def gm(self):
+        return self.world.gm
+
+    @property
     def image_prompt(self):
         return f"""A full color poster for a group named {self.name} and described as {self.desc}.
         """
@@ -94,12 +101,20 @@ class Faction(TTRPGObject):
 
     ################### Instance Methods #####################
 
-    def label(self, model):
-        if not isinstance(model, str):
-            model = model.__name__
-        if model == "Character":
-            return "Members"
-        return super().label(model)
+    ############################# AutoGM #############################
+    ## MARK: AUTOGM
+
+    def start_gm_session(self, scenario):
+        self.gm.start(party=self, scenario=scenario)
+        self.save()
+
+    def run_gm_session(self, message=""):
+        self.gm.run(party=self, message=message)
+        self.save()
+
+    def end_gm_session(self, message=""):
+        self.gm.end(party=self, message=message)
+        self.save()
 
     def page_data(self):
         return {
@@ -130,8 +145,7 @@ class Faction(TTRPGObject):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_leader()
-        if not document.world:
-            raise ValidationError
+        document.pre_save_player_faction()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -147,3 +161,10 @@ class Faction(TTRPGObject):
                 self.leader = value
             else:
                 raise ValidationError(f"Character {self.leader} not found")
+
+    def pre_save_player_faction(self):
+        if self.is_player_faction == "on":
+            self.is_player_faction = True
+        else:
+            self.is_player_faction = False
+        log(self.is_player_faction)

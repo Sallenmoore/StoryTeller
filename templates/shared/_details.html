@@ -4,6 +4,11 @@
     <div class="column is-vertically-centered">
         <h2 class='has-text-dark'>Details</h2>
     </div>
+    {% if obj.traits %}
+    <div class="column is-shrink is-end">
+        <span class="tag">{{obj.traits}}</span>
+    </div>
+    {% endif %}
 </div>
 <hr>
 <div class="row">
@@ -15,33 +20,6 @@
         </div>
     </div>
     <div class="column is-10">
-        <div class="row">
-            {% if obj.start_date and obj.start_date.year %}
-            <div class="column is-shrink">
-                <h4 class='has-text-dark-grey'>
-                    {{obj.start_date.name}}:
-                    {{obj.start_date.datestr()}}
-                </h4>
-            </div>
-            {% endif %}
-            {% if obj.end_date and obj.end_date.year %}
-            <div class="column is-shrink">
-                <iconify-icon class='has-text-dark-grey' icon="pepicons-print:line-x" width="1rem"
-                              height="1rem"></iconify-icon>
-            </div>
-            <div class="column is-shrink">
-                <h4 class='has-text-dark-grey'>
-                    {{obj.end_date.name}}:
-                    {{obj.end_date.datestr()}}
-                </h4>
-            </div>
-            {% endif %}
-            {% if obj.traits %}
-            <div class="column is-shrink is-end">
-                <span class="tag">{{obj.traits}}</span>
-            </div>
-            {% endif %}
-        </div>
         <div class="row">
             {% if obj.backstory_summary %}
             <div class="column is-full">

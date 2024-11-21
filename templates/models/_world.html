@@ -54,7 +54,7 @@
 
 <h2 class="has-text-dark">Players</h2>
 {% for player in obj.players %}
-<a href="/character/{{player.pk}}">
+<a href="/character/{{player.pk}}" style='text-decoration: none;'>
     <div class="panel has-bg-muted">
         <div class="row cards-container has-center">
             <div class="column  is-vertically-centered is-shrink">
@@ -72,7 +72,7 @@
                     {{player.title}}
                     {% endif %}
                 </h4>
-                <div class="has-text-dark">
+                <div class="generated-text-lightbg">
                     {{player.backstory_summary | safe}}
                 </div>
             </div>

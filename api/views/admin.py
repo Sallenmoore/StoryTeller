@@ -73,8 +73,6 @@ def add_image_tag(pk):
 def delete_image(pk):
     img = Image.get(pk)
     if img:
-        if img.remove_img_file():
-            log(f"Image file removed: {img.asset_id}")
         img.delete()
         log(f"Image {pk} deleted")
         return "Success"

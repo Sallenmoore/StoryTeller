@@ -11,6 +11,7 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
+from models.images.image import Image
 from models.world import World
 
 index_page = Blueprint("index", __name__)
@@ -56,6 +57,23 @@ def autogm(model, pk):
             f"http://api:{os.environ.get('COMM_PORT')}/autogm/{model}/{pk}", json=args
         ).text
     return render_template("index.html", user=user, obj=obj, page_content=content)
+
+
+@index_page.route(
+    "/image/<string:pk>/<string:size>",
+    methods=("GET",),
+)
+def image(pk, size):
+    img = Image.get(pk)
+    if img and img.data:
+        img_data = img.resize(size) if size != "orig" else img.read()
+        return Response(
+            img_data,
+            mimetype=img.data.content_type,
+            headers={"Content-Disposition": f"inline; filename={img.pk}.webp"},
+        )
+    else:
+        return Response("No image available", status=404)
 
 
 @index_page.route(

@@ -1,48 +1,34 @@
-import os
+import io
 import random
-import urllib
-from base64 import b64decode
 
 import requests
 from bs4 import BeautifulSoup
-from openai import OpenAI
+from PIL import Image as ImageTools
 
 from autonomous import log
+from autonomous.ai.imageagent import ImageAgent
 from autonomous.model.autoattr import (
+    FileAttr,
     ListAttr,
     ReferenceAttr,
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
-from autonomous.storage.imagestorage import ImageStorage
-
-IMAGES_BASE_PATH = os.environ.get("IMAGE_BASE_PATH", "static/images/tabletop")
 
 
 class Image(AutoModel):
     # meta = {"collection": "Image"}
-    asset_id = StringAttr(default="")
+    data = FileAttr(default="")
     prompt = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
-    worlds = ListAttr(ReferenceAttr(choices=["World"]))
+    associations = ListAttr(ReferenceAttr(choices=["TTRPGBase"]))
 
-    _storage = ImageStorage(IMAGES_BASE_PATH)
-    _client = OpenAI(api_key=os.environ.get("OPENAI_KEY"))
+    ################### Class Variables #####################
+    _client = ImageAgent()
+
+    _sizes = {"thumbnail": 100, "small": 300, "medium": 600, "large": 1000}
 
     ################### Class Methods #####################
-    @classmethod
-    def storage_scan(cls):
-        for img in cls.all():
-            if not img.asset_id or not os.path.exists(
-                f"{IMAGES_BASE_PATH}/{img.asset_id}"
-            ):
-                img.delete()
-        for img_path in cls._storage.scan_storage():
-            asset_id = img_path.split("/")[-2]
-            if img := cls.find(_asset_id=asset_id):
-                continue
-            img = cls(_asset_id=asset_id)
-            img.save()
 
     @classmethod
     def generate(
@@ -53,88 +39,91 @@ class Image(AutoModel):
         img_size="1024x1024",
         text=False,
     ):
-        if not text:
-            prompt = f"""{prompt}
-            IMPORTANT: The image MUST NOT contain any TEXT.
-            """
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
         log(f"=== generation prompt ===\n\n{prompt}")
+        temp_prompt = (
+            f"""{prompt}
+IMPORTANT: The image MUST NOT contain any TEXT.
+"""
+            or prompt
+        )
         try:
-            response = cls._client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                quality=img_quality,
-                response_format="b64_json",
-                size=img_size,
+            image = cls._client.generate(
+                prompt=temp_prompt,
             )
-            image_dict = response.data[0]
-            image = b64decode(image_dict.b64_json)
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}")
             return None
         else:
-            image_data = Image(
+            image_obj = Image(
                 prompt=prompt,
                 tags=tags,
             )
-            image_data.asset_id = cls._storage.save(image)
-            image_data.save()
-        return image_data
+            image_obj.data.put(io.BytesIO(image), content_type="image/webp")
+            image_obj.save()
+        return image_obj
 
     @classmethod
-    def get_image_list(cls, max=10, tags=[]):
-        image_list = [i for i in cls.all() if all(tag in i.tags for tag in tags)]
+    def get_image_list(cls, max=10, tags=None):
+        image_list = cls.all()
+        if tags:
+            image_list = [i for i in image_list if all(tag in i.tags for tag in tags)]
         if image_list:
             image_list = random.sample(image_list, k=min(len(image_list), max))
-        [log(i) for i in image_list]
+        # [log(i) for i in image_list]
         return image_list
 
     @classmethod
-    def from_url(cls, url, prompt="", tags=[]):
-        response = requests.get(url)
-        if response.status_code == 200 and response.headers["Content-Type"].startswith(
-            "image/"
-        ):
-            image_data = Image(
-                prompt=prompt,
-                tags=tags,
-                asset_id=cls._storage.save(response.content, crop=True),
-            )
-            image_data.save()
-            return image_data
-        log("==== Error: Unable to save image ====")
+    def from_url(cls, url, prompt="", tags=None):
+        tags = tags if tags else []
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            if not response.headers["Content-Type"].startswith("image/"):
+                raise ValueError("URL does not point to a valid image.")
+            with ImageTools.open(io.BytesIO(response.content)) as img:
+                width, height = img.size
+                if width != height:
+                    max_size = min(width, height)
+                    img = img.crop(
+                        (
+                            (width - max_size) / 2,
+                            (height - max_size) / 2,
+                            (width + max_size) / 2,
+                            (height + max_size) / 2,
+                        )
+                    )
+                img = img.copy()
+                img_byte_arr = io.BytesIO()
+                img.save(img_byte_arr, format="WEBP")
+                image_obj = Image(
+                    prompt=prompt,
+                    tags=tags,
+                )
+                image_obj.data.put(img_byte_arr.getvalue(), content_type="image/webp")
+                image_obj.save()
+                return image_obj
+        except (requests.exceptions.RequestException, ValueError, IOError) as e:
+            log(f"==== Error: {e} ====")
         return None
 
     ################### Dunder Methods #####################
     ################### Property Methods #####################
     ################### Crud Methods #####################
+    def read(self):
+        if self.data:
+            self.data.seek(0)
+            return self.data.read()
+
+    def delete(self):
+        if self.data:
+            self.data.delete()
+        return super().delete()
+
+    ################### Instance Methods #####################
+
     def url(self, size="orig"):
-        try:
-            # log(self.asset_id)
-            result = self._storage.get_url(self.asset_id, size=size)
-        except Exception as e:
-            log(e)
-            result = None
-
-        if not result:
-            prompt_param = urllib.parse.urlencode(
-                {
-                    "text": self.prompt.split(".")[0]
-                    if "." in self.prompt
-                    else self.prompt
-                }
-            )
-            result = f"https://placehold.co/600x400?{prompt_param}"
-        return result
-
-    def remove_img_file(self):
-        if self.asset_id:
-            try:
-                return self._storage.remove(self.asset_id)
-            except Exception as e:
-                log(e)
-
-    # MARK: generate_image
+        return f"/image/{self.pk}/{size}"
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -152,11 +141,47 @@ class Image(AutoModel):
         except ValueError:
             pass
 
+    def resize(self, max_size=1024):
+        """
+        returns a dynamically resized image file
+        """
+        if raw_data := self.read():
+            img = ImageTools.open(io.BytesIO(raw_data))
+            resized_img = img.copy()
+            max_size = self._sizes.get(max_size) or int(max_size)
+            if max_size <= 0:
+                raise ValueError("Invalid max_size value. Must be a positive integer.")
+            resized_img.thumbnail((max_size, max_size))
+            img_byte_arr = io.BytesIO()
+            resized_img.save(img_byte_arr, format="WEBP")
+            return img_byte_arr.getvalue()
+
     def rotate(self, amount=-90):
-        self._storage.rotate(self.asset_id, amount)
+        if raw_data := self.read():
+            # Open the image
+            rotated_img = ImageTools.open(io.BytesIO(raw_data))
+            # Rotate the image
+            rotated_img = rotated_img.rotate(amount, expand=True)
+            rotated_img_byte_arr = io.BytesIO()
+            rotated_img.save(rotated_img_byte_arr, format="WEBP")
+            rotated_img_data = rotated_img_byte_arr.getvalue()
+            self.data.delete()
+            self.data.put(rotated_img_data, content_type="image/webp")
+            self.save()
+            self.data.seek(0)  # Reset the data stream position to the beginning
 
     def flip(self, horizontal=True, vertical=True):
-        self._storage.flip(self.asset_id, flipx=horizontal, flipy=vertical)
+        if raw_data := self.read():
+            img = ImageTools.open(io.BytesIO(raw_data))
+            if horizontal:
+                img = img.transpose(ImageTools.FLIP_LEFT_RIGHT)
+            if vertical:
+                img = img.transpose(ImageTools.FLIP_TOP_BOTTOM)
+            flipped_img_byte_arr = io.BytesIO()
+            img.save(flipped_img_byte_arr, format="WEBP")
+            self.data.delete()
+            self.data.put(flipped_img_byte_arr.getvalue(), content_type="image/webp")
+            self.data.seek(0)
 
     ###############################################################
     ##                    VERIFICATION METHODS                   ##

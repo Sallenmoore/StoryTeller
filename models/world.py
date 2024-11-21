@@ -187,6 +187,10 @@ class World(TTRPGBase):
         return Character.search(world=self, is_player=True) if self.pk else []
 
     @property
+    def parties(self):
+        return Faction.search(world=self, is_player_faction=True) if self.pk else []
+
+    @property
     def player_faction(self):
         return Faction.find(world=self, is_player_faction=True) if self.pk else None
 

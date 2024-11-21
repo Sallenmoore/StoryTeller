@@ -13,7 +13,7 @@ error_log_format = "ERROR - %(U)s :: \n"
 accesslog = os.getenv("ACCESS_LOG", "-")
 # Error log - records Gunicorn server goings-on
 errorlog = os.getenv("ERROR_LOG", "-")
-loglevel = "debug"
+loglevel = "info"
 reload = True
 reload_extra_files = glob("templates/**/*", recursive=True) + glob(
     "static/**/*", recursive=True

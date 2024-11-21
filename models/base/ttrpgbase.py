@@ -582,7 +582,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     def search_autocomplete(self, query):
         results = []
-        for model in self._models:
+        for model in self.all_models():
             Model = self.load_model(model)
             # log(model, query)
             results += [
@@ -625,13 +625,12 @@ Use and expand on the existing object data listed below for the {self.title} obj
     def pre_save_image(self):
         if isinstance(self.image, str):
             if validators.url(self.image):
-                image = Image.from_url(
+                self.image = Image.from_url(
                     self.image,
                     prompt=self.image_prompt,
                     tags=[*self.image_tags],
                 )
-                image.save()
-                self.image = image
+                self.image.save()
             elif image := Image.get(self.image):
                 self.image = image
             else:

@@ -114,7 +114,7 @@ def image_gallery():
 ###########################################################
 @manage_endpoint.route("/history", methods=("POST",))
 def history():
-    user, obj, world, macro, module = _loader(module="_manage.html", macro="history")
+    user, obj, *_ = _loader(module="_manage.html", macro="history")
     return get_template_attribute("manage/_history.html", "history")(user, obj)
 
 
@@ -125,7 +125,7 @@ def history():
 @manage_endpoint.route("/journal/entry/edit", methods=("POST",))
 @manage_endpoint.route("/journal/entry/edit/<string:entrypk>", methods=("POST",))
 def edit_journal_entry(entrypk=None):
-    user, obj, world, macro, module = _loader()
+    user, obj, *_ = _loader()
     entry = obj.journal.get_entry(entrypk)
     if not entry:
         entry = JournalEntry(title=f"Entry #{len(obj.journal.entries)+1}")
@@ -140,7 +140,7 @@ def edit_journal_entry(entrypk=None):
 @manage_endpoint.route("/journal/entry/update", methods=("POST",))
 @manage_endpoint.route("/journal/entry/update/<string:entrypk>", methods=("POST",))
 def update_journal_entry(entrypk=None):
-    user, obj, world, macro, module = _loader()
+    user, obj, *_ = _loader()
     associations = []
     for association in request.json.get("associations", []):
         if obj := World.get_model(association.get("model"), association.get("pk")):
@@ -178,8 +178,20 @@ def delete_journal_entry(entrypk):
 ###########################################################
 ##                 Associations Routes                   ##
 ###########################################################
+
+
+@manage_endpoint.route("/association/add/search", methods=("POST",))
+def association_search():
+    user, obj, world, *_ = _loader()
+    query = request.json.get("query")
+    associations = world.search_autocomplete(query) if query and len(query) > 2 else []
+    return get_template_attribute("shared/_associations.html", "association_dropdown")(
+        user, obj, associations
+    )
+
+
 @manage_endpoint.route(
-    "/association/add/<string:childmodel>/<string:childpk>", methods=("POST",)
+    "/association/add/<string:amodel>/<string:apk>", methods=("POST",)
 )
 def association_add(amodel, apk):
     user, obj, *_ = _loader()

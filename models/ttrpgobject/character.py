@@ -23,7 +23,6 @@ class Character(Actor):
     abilities = ListAttr(StringAttr(default=""))
     race = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
-    autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
 
     parent_list = ["Location", "District", "Faction", "City"]
     _genders = ["male", "female", "non-binary"]
@@ -133,10 +132,6 @@ class Character(Actor):
         return "players" if self.is_player else "characters"
 
     @property
-    def gm(self):
-        return self.world.gm
-
-    @property
     def history_primer(self):
         return "Incorporate the below LIFE EVENTS into the BACKSTORY to generate a chronological summary of the character's history in MARKDOWN format with paragraph breaks after no more than 4 sentences."
 
@@ -193,21 +188,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
         self.gender = gender
         self.save()
         return obj
-
-    ############################# AutoGM #############################
-    ## MARK: AUTOGM
-
-    def start_gm_session(self, scenario):
-        self.gm.start(player=self, scenario=scenario)
-        self.save()
-
-    def run_gm_session(self, message=""):
-        self.world.gm.run(player=self, message=message)
-        self.save()
-
-    def end_gm_session(self, message=""):
-        self.world.gm.end(player=self, message=message)
-        self.save()
 
     ############################# Object Data #############################
     ## MARK: Object Data

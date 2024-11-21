@@ -71,13 +71,13 @@ def _generate_chat_task(pk, message):
 
 
 def _generate_autogm_start_task(pk, message=""):
-    obj = Character.get(pk)
-    obj.start_gm_session(scenario=message)
-    return {"url": f"/api/autogm/{obj.path}"}
+    party = Faction.get(pk)
+    party.start_gm_session(scenario=message)
+    return {"url": f"/api/autogm/{party.path}"}
 
 
 def _generate_autogm_run_task(pk, message="", roll_dice=""):
-    obj = Character.get(pk)
+    obj = Faction.get(pk)
     log(roll_dice, _print=True)
     if roll_dice:
         roll_result = dmtools.dice_roll(roll_dice)
@@ -86,14 +86,15 @@ def _generate_autogm_run_task(pk, message="", roll_dice=""):
         obj.autogm_summary[-1].save()
         message = f"""{message}
 
-        {obj.name} rolls {obj.autogm_summary[-1].roll_type}:{obj.autogm_summary[-1].roll_attribute} - RESULT:  {roll_result}
+         Rolls {obj.autogm_summary[-1].roll_type}:{obj.autogm_summary[-1].roll_attribute}
+         RESULT:  {roll_result}
         """
     obj.run_gm_session(message=message)
     return {"url": f"/api/autogm/{obj.path}"}
 
 
 def _generate_autogm_end_task(pk, message=""):
-    obj = Character.get(pk)
+    obj = Faction.get(pk)
     obj.end_gm_session(message=message)
     return {"url": f"/api/autogm/{obj.path}"}
 
@@ -102,7 +103,6 @@ def _generate_autogm_clear_task(pk):
     obj = Character.get(pk)
     for ags in obj.autogm_summary:
         if ags.image:
-            ags.image.remove_img_file()
             ags.image.delete()
         ags.delete()
     obj.autogm_summary = []

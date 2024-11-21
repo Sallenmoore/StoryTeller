@@ -3,14 +3,14 @@
 {% macro info(user, obj) -%}
 <div class="row">
     <div id="model-goal" class="column">
-        <div class="panel has-bg-muted">
-            <h4 class="has-text-dark">Goal</h4>
+        <div class="panel has-bg-muted generated-text-lightbg">
+            <h4>Goal</h4>
             {{obj.goal | safe}}
         </div>
     </div>
     <div id="model-status" class="column">
-        <div class="panel has-bg-muted">
-            <h4 class="has-text-dark">Status</h4>
+        <div class="panel has-bg-muted generated-text-lightbg">
+            <h4>Status</h4>
             {{obj.status | safe}}
         </div>
     </div>
@@ -72,6 +72,14 @@
       hx-swap="none" hx-trigger="input delay:1s, change">
 
     <div class="row">
+        <div class="column is-shrink ">
+            <h4 class='has-text-center has-text-primary'>Adventuring Party?</h4>
+            <div class="is-switch">
+                <input name="is_player_faction" type="checkbox" id="is_player_faction" {%if
+                       obj.is_player_faction%} checked {%endif%}>
+                <label for="is_player_faction"></label>
+            </div>
+        </div>
         <div id="model-goal" class="column">
             <h4 class='has-text-light has-text-center'>Goals and Secrets</h4>
             {{form_components.texteditor(user, obj, "goal")}}

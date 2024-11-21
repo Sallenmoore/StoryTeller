@@ -86,7 +86,7 @@
 <div class="row has-space-around">
     <div class="column is-3 is-mobile-4">
         <div id="current-hitpoints" class="panel has-bg-muted">
-            <h4>Current HP</h4>
+            <h4 class="has-text-dark">Current HP</h4>
             <input hx-get="/api/manage/character/hitpoints"
                    hx-swap="none" hx-trigger="input delay:1s, change" type="number"
                    value="{{obj.current_hitpoints}}" name="current_hitpoints">
@@ -102,58 +102,59 @@
         </div>
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>MAX HP</h4>
-        <p>{{obj.hitpoints}}</p>
+        <h4 class='has-text-screen'>MAX HP</h4>
+        <p class="has-text-dark">{{obj.hitpoints}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>Occupation</h4>
-        <p>{{obj.occupation}}</p>
+        <h4 class='has-text-screen'>Occupation</h4>
+        <p class="has-text-dark">{{obj.occupation}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>AC</h4>
-        <p>{{obj.ac}}</p>
+        <h4 class='has-text-screen'>AC</h4>
+        <p class="has-text-dark">{{obj.ac}}</p>
     </div>
 </div>
 <div class='row has-space-around'>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>Age</h4>
+        <h4 class='has-text-screen'>Age</h4>
         {% if obj.age %}
-        <p>{{obj.age}}</p>
+        <p class="has-text-dark">{{obj.age}}</p>
         {% else%}
-        <p>Unknown</p>
+        <p class="has-text-dark">Unknown</p>
         {% endif %}
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>Race</h4>
-        <p>{{obj.race}}</p>
+        <h4 class='has-text-screen'>Race</h4>
+        <p class="has-text-dark">{{obj.race}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-dark'>Gender</h4>
-        <p>{{obj.gender}}</p>
+        <h4 class='has-text-screen'>Gender</h4>
+        <p class="has-text-dark">{{obj.gender}}</p>
     </div>
 </div>
 <hr>
 <div class="row">
     <div class="column is-full">
-        <h3 class='has-text-center'>Goals and Secrets</h3>
+        <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
         <div class="panel has-bg-screen">
             <p class='has-text-light'>{{obj.goal | safe}}</p>
         </div>
     </div>
     {% if obj.abilities %}
     <div id="model-abilities" class="column is-full">
-        <h3 class="has-text-primary has-text-center">Abilities</h3>
-        <div class="panel has-bg-muted">
-
-            <div class="row">
-                {%for ability in obj.abilities%}
-                <div class="column is-full has-text-dark">
-                    {{ability | safe}}
-                    <hr>
+        <section class='section is-small'>
+            <h3 class="has-text-primary has-text-center">Abilities</h3>
+            <div class="panel has-bg-muted generated-text-lightbg">
+                <div class="row">
+                    {%for ability in obj.abilities%}
+                    <div class="column is-full has-text-dark">
+                        {{ability | safe}}
+                        <hr>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
+        </section>
     </div>
     {% endif %}
     {% if obj.wealth %}
