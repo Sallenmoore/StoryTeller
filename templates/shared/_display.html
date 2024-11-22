@@ -1,4 +1,4 @@
-{% macro object_display(obj, size="medium", dim="100") -%}
+{% macro object_display(obj, size="medium", dim="100", type=True) -%}
 <a href="/{{obj.path}}">
     <div class="image is-{{size}} is-thumbnail is-margin-center">
         {% if obj.image %}
@@ -13,9 +13,11 @@
         New {{obj.title}}
         {% endif %}
     </h5>
+    {% if type %}
     <h6 class='has-text-center'>
         {{obj.title}}
     </h6>
+    {% endif %}
 </a>
 {% endmacro %}
 

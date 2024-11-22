@@ -8,14 +8,10 @@
     <div class="column is-full">
         {{autogm_select_party(user, world, party)}}
     </div>
-    <script>
-        const music = new Audio();
-        const gm = new Audio();
-    </script>
     {% if party%}
     <div class="column is-full">
         {% if party.autogm_summary %}
-        <div class="row">
+        <div id="dice-results-container" class="row">
             {% if party.autogm_summary | length > 1 and
             party.autogm_summary[-2].roll_required
             %}
@@ -49,8 +45,8 @@
             </div>
             {% endif %}
         </div>
-        <div class="panel generated-text-lightbg has-bg-muted">
-            <div id="autogm-description" class="row">
+        <div id="autogm-description" class="panel generated-text-lightbg has-bg-muted">
+            <div class="row has-space-around">
                 <div id="auto-gm-session-image" class="column is-shrink">
                     {% if party.autogm_summary[-1].image %}
                     <div class="image is-extra-large is-tile is-margin-center">
@@ -58,79 +54,136 @@
                              loading="lazy"
                              alt="{{party.name}}" />
                     </div>
-                    {% else %}
-                    <div hx-post="/api/autogm/{{party.path}}"
-                         hx-target='#auto-gm-session-image'
-                         hx-select='#auto-gm-session-image'
-                         hx-trigger='load delay:3s'
-                         hx-swap='outerHTML'>
-                    </div>
                     {% endif %}
                 </div>
-                <div id='auto-gm-session-audio' class="column" style='position:relative;'>
-                    <div class="panel has-bg-muted generated-text-lightbg"
-                         style='font-size: 1rem;'>
-                        {{party.autogm_summary[-1].description | safe}}
+                <div class="column is-shrink">
+                    <div class="row has-centered">
+                        <div id='auto-gm-session-audio' class="column is-4">
+                            {% if party.autogm_summary[-1].audio %}
+                            <button class="button is-small"
+                                    onclick='gmvoiced("/{{party.path}}/gm/voice", "{{party.autogm_summary[-1].music}}");'>
+                                <iconify-icon icon="mdi:speaking" width="3rem"></iconify-icon>
+                            </button>
+                            {% endif %}
+                            <script>
+                                var music = new Audio();
+                                music.volume = 0.25;
+                                var gm = new Audio();
+                                gm.volume = 1;
+
+                                function gmvoiced(voicefile, musicfile) {
+                                    music.src = musicfile;
+                                    music.loop = true;
+                                    if (!music.paused) {
+                                        music.pause();
+                                        music.volume = 0.25;
+                                        music.currentTime = 0;
+                                    }
+                                    music.play();
+                                    gm.src = voicefile;
+                                    if (!gm.paused) {
+                                        gm.pause();
+                                        gm.volume = 1;
+                                        gm.currentTime = 0;
+                                    }
+                                    gm.play();
+                                }
+                            </script>
+                        </div>
+                        <div class="column is-shrink">
+                            <button class="button is-small"
+                                    hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
+                                    hx-target='closest .column'>
+                                {{icon_components.regenerate(size='3rem')}} Regenerate
+                            </button>
+                        </div>
+                        <div class="column is-shrink">
+                            <button class="button is-small"
+                                    hx-post="/api/autogm/{{party.path}}/description/edit"
+                                    hx-target='#autogm-description-container'
+                                    hx-swap='outerHTML'>
+                                {{icon_components.gear(size='3rem')}} Edit
+                            </button>
+                        </div>
                     </div>
-                    {% if party.autogm_summary[-1].audio %}
-                    <button class="button is-small"
-                            style='position:absolute; right:0; top:0;'
-                            onclick='gmvoiced()'>
-                        <iconify-icon icon="mdi:speaking" width="2rem"></iconify-icon>
-                    </button>
-                    <script>
-                        gmvoiced();
-                    </script>
-                    {% else %}
-                    <div hx-post="/api/autogm/{{party.path}}"
-                         hx-target='#auto-gm-session-audio'
-                         hx-select='#auto-gm-session-audio'
-                         hx-trigger='load delay:3s'
-                         hx-swap='outerHTML'>
+                    <div class="row has-space-around">
+                        {% if party.autogm_summary[-1].get_npcs() %}
+                        <div class="column  is-shrink">
+                            <div class="panel has-bg-muted is-full">
+                                <h4 class="has-text-center">NPCs</h4>
+                                <div class="row">
+                                    {% for npc in party.autogm_summary[-1].npcs%}
+                                    <div id="npc-{{npc.pk}}" class='column'>
+                                        {% if npc.image %}
+                                        {{display_components.object_display(npc)}}
+                                        {% else %}
+                                        <div hx-post="/api/autogm/{{party.path}}"
+                                             hx-target='#npc-{{npc.pk}}'
+                                             hx-select='#npc-{{npc.pk}}'
+                                             hx-trigger='load delay:3s'
+                                             hx-swap='outerHTML'>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if party.autogm_summary[-1].combatants %}
+                        <div class="column  is-shrink">
+                            <div class="panel has-bg-muted is-full">
+                                <h4 class="has-text-center">Combatants</h4>
+                                <div class="row has-space-around">
+                                    {% for cbt in party.autogm_summary[-1].combatants%}
+                                    <div id="cbt-{{cbt.pk}}" class='column'>
+                                        {% if cbt.image %}
+                                        {{display_components.object_display(cbt)}}
+                                        {% else %}
+                                        <div hx-post="/api/autogm/{{party.path}}"
+                                             hx-target='#cbt-{{cbt.pk}}'
+                                             hx-select='#cbt-{{cbt.pk}}'
+                                             hx-trigger='load delay:3s'
+                                             hx-swap='outerHTML'>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if party.autogm_summary[-1].loot %}
+                        <div class="column  is-shrink">
+                            <div class="panel is-full has-bg-muted">
+                                <h4 class="has-text-center">Loot</h4>
+                                <div class="row has-space-around">
+                                    {% for loot in party.autogm_summary[-1].loot %}
+                                    <div id="loot-{{loot.pk}}" class='column'>
+                                        {% if loot.image %}
+                                        {{display_components.object_display(loot)}}
+                                        {% else %}
+                                        <div hx-post="/api/autogm/{{party.path}}"
+                                             hx-target='#loot-{{loot.pk}}'
+                                             hx-select='#loot-{{loot.pk}}'
+                                             hx-trigger='load delay:3s'
+                                             hx-swap='outerHTML'>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                    <button class="button is-small"
-                            style='position:absolute; right:0; bottom:0;'
-                            onclick='this.parentElement.nextElementSibling.classList.remove("is-hidden"); this.parentElement.classList.add("is-hidden");'>
-                        Edit
-                    </button>
-                </div>
-                <div class="column is-hidden">
-                    <form hx-post='/api/autogm/{{party.path}}/description/update'
-                          hx-target='#autogm-description'
-                          hx-select='#autogm-description'
-                          hx-swap='outerHTML'>
-                        {{ form_components.texteditor(user, party.autogm_summary[-1], "description", content=None) }}
-                        <button class="button is-small is-full" type='submit'>
-                            Done
-                        </button>
-                    </form>
                 </div>
             </div>
+            <div id="autogm-description-container" class="panel has-bg-muted generated-text-lightbg"
+                 style='font-size: 1rem;'>
+                {{party.autogm_summary[-1].description | safe}}
+            </div>
         </div>
-        <script>
-            function playmusic() {
-                music.src = "{{party.autogm_summary[-1].music}}";
-                music.loop = true;
-                if (!music.paused) {
-                    music.pause();
-                    music.currentTime = 0;
-                }
-                music.play();
-                music.volume = 0.4;
-            }
-
-            function gmvoiced() {
-                playmusic();
-                gm.src = "/{{party.path}}/gm/voice";
-                if (!gm.paused) {
-                    gm.pause();
-                    gm.currentTime = 0;
-                }
-                gm.play();
-                gm.volume = 1;
-            }
-        </script>
         {% endif %}
     </div>
     <div class="column is-full">
@@ -144,6 +197,17 @@
 </div>
 {%- endmacro %}
 
+{% macro autogm_description_edit(user, world, party) -%}
+<form hx-post='/api/autogm/{{party.path}}/description/update'
+      hx-target='#autogm-description'
+      hx-select='#autogm-description'
+      hx-swap='outerHTML'>
+    {{ form_components.texteditor(user, party.autogm_summary[-1], "description", content=None) }}
+    <button class="button is-small is-full" type='submit'>
+        Done
+    </button>
+</form>
+{%- endmacro %}
 {% macro autogm_select_party(user, world, party) -%}
 <div class="is-select">
     <select class='has-text-center' name='partypk'
@@ -240,75 +304,6 @@
 
 {% macro autogm_run_session(user, world, party) -%}
 <div class="row has-space-around">
-    {% if party.autogm_summary[-1].npcs %}
-    <div class="column  is-shrink">
-        <div class="panel has-bg-screen is-full">
-            <h4 class="has-text-center">NPCs</h4>
-            <div class="row">
-                {% for npc in party.autogm_summary[-1].npcs%}
-                <div id="npc-{{npc.pk}}" class='column'>
-                    {% if npc.image %}
-                    {{display_components.object_display(npc)}}
-                    {% else %}
-                    <div hx-post="/api/autogm/{{party.path}}"
-                         hx-target='#npc-{{npc.pk}}'
-                         hx-select='#npc-{{npc.pk}}'
-                         hx-trigger='load delay:3s'
-                         hx-swap='outerHTML'>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if party.autogm_summary[-1].combatants %}
-    <div class="column  is-shrink">
-        <div class="panel has-bg-screen is-full">
-            <h4 class="has-text-center">Combatants</h4>
-            <div class="row has-space-around">
-                {% for cbt in party.autogm_summary[-1].combatants%}
-                <div id="cbt-{{cbt.pk}}" class='column'>
-                    {% if cbt.image %}
-                    {{display_components.object_display(cbt)}}
-                    {% else %}
-                    <div hx-post="/api/autogm/{{party.path}}"
-                         hx-target='#cbt-{{cbt.pk}}'
-                         hx-select='#cbt-{{cbt.pk}}'
-                         hx-trigger='load delay:3s'
-                         hx-swap='outerHTML'>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if party.autogm_summary[-1].loot %}
-    <div class="column  is-shrink">
-        <div class="panel is-full has-bg-screen">
-            <h4 class="has-text-center">Loot</h4>
-            <div class="row has-space-around">
-                {% for loot in party.autogm_summary[-1].loot %}
-                <div id="loot-{{loot.pk}}" class='column'>
-                    {% if loot.image %}
-                    {{display_components.object_display(loot)}}
-                    {% else %}
-                    <div hx-post="/api/autogm/{{party.path}}"
-                         hx-target='#loot-{{loot.pk}}'
-                         hx-select='#loot-{{loot.pk}}'
-                         hx-trigger='load delay:3s'
-                         hx-swap='outerHTML'>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
     <div class="column is-full">
         <hr>
         <h4 class='has-text-center has-text-primary'>Additional Associations</h4>

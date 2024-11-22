@@ -73,13 +73,18 @@ def _generate_chat_task(pk, message):
 def _generate_autogm_start_task(pk, message=""):
     party = Faction.get(pk)
     party.start_gm_session(scenario=message)
+    party.autogm_summary[-1].player_message = message
+    party.save()
     return {"url": f"/api/autogm/{party.path}"}
 
 
 def _generate_autogm_run_task(pk, message="", roll_dice=""):
     obj = Faction.get(pk)
     log(roll_dice, _print=True)
+    obj.autogm_summary[-1].player_message = message
+    obj.save()
     if roll_dice:
+        obj.autogm_summary[-1].roll_formula = roll_dice
         roll_result = dmtools.dice_roll(roll_dice)
         log(roll_result, _print=True)
         obj.autogm_summary[-1].roll_result = roll_result
@@ -93,8 +98,32 @@ def _generate_autogm_run_task(pk, message="", roll_dice=""):
     return {"url": f"/api/autogm/{obj.path}"}
 
 
+def _generate_autogm_regenerate_task(pk):
+    obj = Faction.get(pk)
+    message = (
+        obj.autogm_summary[-1].player_message
+        if obj.autogm_summary[-1].player_message
+        else ""
+    )
+    if obj.autogm_summary[-1].roll_formula:
+        roll_result = dmtools.dice_roll(obj.autogm_summary[-1].roll_formula)
+        log(roll_result, _print=True)
+        obj.autogm_summary[-1].roll_result = roll_result
+        obj.autogm_summary[-1].save()
+        message = f"""{message}
+
+Rolls {obj.autogm_summary[-1].roll_type}:{obj.autogm_summary[-1].roll_attribute}
+RESULT:  {roll_result}
+        """.strip()
+
+    obj.regenerate_gm_session(message=message)
+    return {"url": f"/api/autogm/{obj.path}"}
+
+
 def _generate_autogm_end_task(pk, message=""):
     obj = Faction.get(pk)
+    obj.autogm_summary[-1].player_message = message
+    obj.save()
     obj.end_gm_session(message=message)
     return {"url": f"/api/autogm/{obj.path}"}
 

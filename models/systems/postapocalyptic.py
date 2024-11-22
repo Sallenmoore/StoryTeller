@@ -9,6 +9,8 @@ class PostApocalypticSystem(BaseSystem):
         "trade": "val:",
     }
 
+    _date = "15 April 2031"
+
     _titles = {
         "city": "Ruin",
         "creature": "Creature",

@@ -121,6 +121,7 @@ def create_app():
             "start": tasks._generate_autogm_start_task,
             "run": tasks._generate_autogm_run_task,
             "end": tasks._generate_autogm_end_task,
+            "regenerate": tasks._generate_autogm_regenerate_task,
         }.get(action)
 
         kwargs = {"pk": pk}

@@ -112,6 +112,10 @@ class Faction(TTRPGObject):
         self.gm.run(party=self, message=message)
         self.save()
 
+    def regenerate_gm_session(self, message=""):
+        self.gm.regenerate(party=self, message=message)
+        self.save()
+
     def end_gm_session(self, message=""):
         self.gm.end(party=self, message=message)
         self.save()
@@ -165,6 +169,4 @@ class Faction(TTRPGObject):
     def pre_save_player_faction(self):
         if self.is_player_faction == "on":
             self.is_player_faction = True
-        else:
-            self.is_player_faction = False
         log(self.is_player_faction)

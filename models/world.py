@@ -191,19 +191,6 @@ class World(TTRPGBase):
         return Faction.search(world=self, is_player_faction=True) if self.pk else []
 
     @property
-    def player_faction(self):
-        return Faction.find(world=self, is_player_faction=True) if self.pk else None
-
-    @player_faction.setter
-    def player_faction(self, obj):
-        if self.pk and obj:
-            if result := Faction.find(world=self, is_player_faction=True):
-                result.is_player_faction = False
-                result.save()
-            obj.is_player_faction = True
-            obj.save()
-
-    @property
     def regions(self):
         return Region.search(world=self) if self.pk else []
 

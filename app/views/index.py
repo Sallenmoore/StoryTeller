@@ -1,3 +1,4 @@
+import io
 import os
 
 import requests
@@ -67,6 +68,7 @@ def image(pk, size):
     img = Image.get(pk)
     if img and img.data:
         img_data = img.resize(size) if size != "orig" else img.read()
+        # log(img_data)
         return Response(
             img_data,
             mimetype=img.data.content_type,
