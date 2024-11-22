@@ -1,5 +1,6 @@
 import inspect
 import json
+import random
 import re
 
 from bs4 import BeautifulSoup
@@ -89,6 +90,10 @@ class BaseSystem(AutoModel):
     }
 
     ############# Class Methods #############
+
+    @classmethod
+    def get_music(cls, type):
+        return f"/static/sounds/music/{random.choice(cls._music_lists.get(type, ["themesong.mp3"]))}"
 
     @classmethod
     def get_title(cls, obj_type):
