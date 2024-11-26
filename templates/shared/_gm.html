@@ -1,6 +1,7 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
+{% import "shared/_tasks.html" as task_components %}
 
 {% macro gm(user, world, party=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
@@ -11,203 +12,276 @@
     {% if party%}
     <div class="column is-full">
         {% if party.autogm_summary %}
-        <div id="dice-results-container" class="row">
-            {% if party.autogm_summary | length > 1 and
-            party.autogm_summary[-2].roll_required
-            %}
-            <div class="column is-full">
-                <div class="panel has-bg-muted">
-                    <div class="row has-space-around">
-                        <div class="column is-3 is-vertically-centered">
-                            <h3 class='has-text-dark-grey'>
-                                {{party.autogm_summary[-2].roll_attribute | title}}
-                                {{party.autogm_summary[-2].roll_type | title}}
-                            </h3>
-                        </div>
-                        <div class="column">
-                            <div
-                                 class='panel has-text-light has-text-justify generated-text-lightbg'>
-                                {{party.autogm_summary[-2].roll_description}}
-                            </div>
-                        </div>
-                        <div class="column is-3">
-                            <h3 class='has-text-primary has-text-center'>Roll Results</h3>
-                            <div class='panel has-bg-muted has-text-screen has-text-center'
-                                 style='font-size:2rem;'>
-
-                                <h2 class='has-text-primary'>
-                                    {{party.autogm_summary[-2].roll_result}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+        <div id="dice-results-container" class="panel has-bg-muted">
+            {{scene_dice_results(user, world, party)}}
         </div>
-        <div id="autogm-description" class="panel generated-text-lightbg has-bg-muted">
-            <div class="row has-space-around">
-                <div id="auto-gm-session-image" class="column is-shrink">
-                    {% if party.autogm_summary[-1].image %}
-                    <div class="image is-extra-large is-tile is-margin-center">
-                        <img src="{{party.autogm_summary[-1].image.url()}}"
-                             loading="lazy"
-                             alt="{{party.name}}" />
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="column is-shrink">
-                    <div class="row has-centered">
-                        <div id='auto-gm-session-audio' class="column is-4">
-                            {% if party.autogm_summary[-1].audio %}
-                            <button class="button is-small"
-                                    onclick='gmvoiced("/{{party.path}}/gm/voice", "{{party.autogm_summary[-1].music}}");'>
-                                <iconify-icon icon="mdi:speaking" width="3rem"></iconify-icon>
-                            </button>
-                            {% endif %}
-                            <script>
-                                var music = new Audio();
-                                music.volume = 0.25;
-                                var gm = new Audio();
-                                gm.volume = 1;
-
-                                function gmvoiced(voicefile, musicfile) {
-                                    music.src = musicfile;
-                                    music.loop = true;
-                                    if (!music.paused) {
-                                        music.pause();
-                                        music.volume = 0.25;
-                                        music.currentTime = 0;
-                                    }
-                                    music.play();
-                                    gm.src = voicefile;
-                                    if (!gm.paused) {
-                                        gm.pause();
-                                        gm.volume = 1;
-                                        gm.currentTime = 0;
-                                    }
-                                    gm.play();
-                                }
-                            </script>
-                        </div>
-                        <div class="column is-shrink">
-                            <button class="button is-small"
-                                    hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
-                                    hx-target='closest .column'>
-                                {{icon_components.regenerate(size='3rem')}} Regenerate
-                            </button>
-                        </div>
-                        <div class="column is-shrink">
-                            <button class="button is-small"
-                                    hx-post="/api/autogm/{{party.path}}/description/edit"
-                                    hx-target='#autogm-description-container'
-                                    hx-swap='outerHTML'>
-                                {{icon_components.gear(size='3rem')}} Edit
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row has-space-around">
-                        {% if party.autogm_summary[-1].get_npcs() %}
-                        <div class="column  is-shrink">
-                            <div class="panel has-bg-muted is-full">
-                                <h4 class="has-text-center">NPCs</h4>
-                                <div class="row">
-                                    {% for npc in party.autogm_summary[-1].npcs%}
-                                    <div id="npc-{{npc.pk}}" class='column'>
-                                        {% if npc.image %}
-                                        {{display_components.object_display(npc)}}
-                                        {% else %}
-                                        <div hx-post="/api/autogm/{{party.path}}"
-                                             hx-target='#npc-{{npc.pk}}'
-                                             hx-select='#npc-{{npc.pk}}'
-                                             hx-trigger='load delay:3s'
-                                             hx-swap='outerHTML'>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if party.autogm_summary[-1].combatants %}
-                        <div class="column  is-shrink">
-                            <div class="panel has-bg-muted is-full">
-                                <h4 class="has-text-center">Combatants</h4>
-                                <div class="row has-space-around">
-                                    {% for cbt in party.autogm_summary[-1].combatants%}
-                                    <div id="cbt-{{cbt.pk}}" class='column'>
-                                        {% if cbt.image %}
-                                        {{display_components.object_display(cbt)}}
-                                        {% else %}
-                                        <div hx-post="/api/autogm/{{party.path}}"
-                                             hx-target='#cbt-{{cbt.pk}}'
-                                             hx-select='#cbt-{{cbt.pk}}'
-                                             hx-trigger='load delay:3s'
-                                             hx-swap='outerHTML'>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if party.autogm_summary[-1].loot %}
-                        <div class="column  is-shrink">
-                            <div class="panel is-full has-bg-muted">
-                                <h4 class="has-text-center">Loot</h4>
-                                <div class="row has-space-around">
-                                    {% for loot in party.autogm_summary[-1].loot %}
-                                    <div id="loot-{{loot.pk}}" class='column'>
-                                        {% if loot.image %}
-                                        {{display_components.object_display(loot)}}
-                                        {% else %}
-                                        <div hx-post="/api/autogm/{{party.path}}"
-                                             hx-target='#loot-{{loot.pk}}'
-                                             hx-select='#loot-{{loot.pk}}'
-                                             hx-trigger='load delay:3s'
-                                             hx-swap='outerHTML'>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div id="autogm-description-container" class="panel has-bg-muted generated-text-lightbg"
-                 style='font-size: 1rem;'>
-                {{party.autogm_summary[-1].description | safe}}
-            </div>
+        <div id="autogm-description-container" class="panel has-bg-muted"
+             style='font-size: 1rem;'>
+            {{scene_description(user, world, party)}}
+        </div>
+        <div id="autogm-associations-container" class="panel has-bg-muted">
+            {{scene_associations(user, world, party)}}
         </div>
         {% endif %}
     </div>
-    <div class="column is-full">
+    <div id="autogm-scene-container" class="column is-full">
         {% if party.autogm_summary %}
+
         {{ autogm_run_session(user, world, party) }}
+        {{ scene_summary_display(user, world, party) }}
+
         {% else %}
+
         {{ autogm_start_session(user, world, party) }}
+
         {% endif %}
     </div>
     {% endif %}
+</div>
+<script>
+    var music = new Audio();
+    music.volume = 0.25;
+    var gm = new Audio();
+    gm.volume = 1;
+
+    function gmvoiced(voicefile, musicfile) {
+        console.log(music.paused);
+        if (!music.paused) {
+            music.pause();
+        } else {
+            music.src = musicfile;
+            music.loop = true;
+            music.volume = 0.5;
+            music.currentTime = 0;
+            music.play();
+        }
+        console.log(gm.paused);
+        if (!gm.paused) {
+            gm.pause();
+        } else {
+            gm.src = voicefile;
+            gm.volume = 1;
+            gm.currentTime = 0;
+            gm.play();
+        }
+    }
+
+    function set_roll_modifier(elem) {
+        var modifier = elem.querySelector('p').textContent.split('(')[1].split(')')[0];
+        modifier = parseInt(modifier);
+        if (modifier >= 0) {
+            htmx.find("#pc_roll_modifier").value = `+${modifier}`;
+        } else {
+            htmx.find("#pc_roll_modifier").value = `-${Math.abs(modifier)}`;
+        }
+    }
+</script>
+{%- endmacro %}
+
+{% macro scene_description(user, world, party)%}
+<div class="row has-space-around">
+    <div id='auto-gm-session-audio' class="column is-shrink">
+        {% if party.autogm_summary[-1].audio %}
+        <button class="button is-small"
+                onclick='gmvoiced("/{{party.path}}/gm/voice", "{{party.autogm_summary[-1].music}}");'>
+            <iconify-icon icon="mdi:speaking" width="3rem"></iconify-icon>
+        </button>
+        {% endif %}
+    </div>
+    <div class="column is-shrink">
+        <button class="button is-small"
+                hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
+                hx-target='closest .column'>
+            {{icon_components.regenerate(size='3rem')}} Regenerate
+        </button>
+    </div>
+    <div class="column is-shrink">
+        <button class="button is-small"
+                hx-post="/api/autogm/{{party.path}}/description/edit"
+                hx-target='#autogm-description-container'>
+            {{icon_components.gear(size='3rem')}} Edit
+        </button>
+    </div>
+    <div class="column is-full">
+        <hr class='has-bg-primary'>
+        <section class="section is-small generated-text-lightbg">
+            {% if party.last_scene.image %}
+            <div class="is-float-right"
+                 style="position:relative; padding-left: 2rem; padding-bottom: 2rem;">
+                <div class="image is-extra-large is-tile is-margin-center">
+                    <img src="{{party.autogm_summary[-1].image.url()}}"
+                         loading="lazy"
+                         alt="{{party.name}}" />
+                </div>
+            </div>
+            {% endif %}
+            {{party.autogm_summary[-1].description | safe}}
+        </section>
+        <hr class='has-bg-primary'>
+    </div>
+    <div class="column">
+        {{scene_quest_log(user, world, party)}}
+    </div>
 </div>
 {%- endmacro %}
 
 {% macro autogm_description_edit(user, world, party) -%}
 <form hx-post='/api/autogm/{{party.path}}/description/update'
-      hx-target='#autogm-description'
-      hx-select='#autogm-description'
+      hx-target='#autogm-description-container'
+      hx-select='#autogm-description-container'
       hx-swap='outerHTML'>
-    {{ form_components.texteditor(user, party.autogm_summary[-1], "description", content=None) }}
     <button class="button is-small is-full" type='submit'>
         Done
     </button>
+    {{ form_components.texteditor(user, party.autogm_summary[-1], "description", content=None) }}
 </form>
 {%- endmacro %}
+
+{% macro scene_associations(user, world, party)%}
+<div class="row has-space-around">
+    {% if party.autogm_summary[-1].get_npcs() %}
+    <div class="column is-shrink">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">NPCs</h4>
+            <div class="row">
+                {% for npc in party.autogm_summary[-1].npcs%}
+                <div id="npc-{{npc.pk}}" class='column'>
+                    {% if npc.image %}
+                    {{display_components.object_display(npc)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{party.path}}"
+                         hx-target='#npc-{{npc.pk}}'
+                         hx-select='#npc-{{npc.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if party.autogm_summary[-1].combatants %}
+    <div class="column is-shrink">
+        <div class="panel has-bg-screen is-full">
+            <h4 class="has-text-center">Combatants</h4>
+            <div class="row has-space-around">
+                {% for cbt in party.autogm_summary[-1].combatants%}
+                <div id="cbt-{{cbt.pk}}" class='column'>
+                    {% if cbt.image %}
+                    {{display_components.object_display(cbt)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{party.path}}"
+                         hx-target='#cbt-{{cbt.pk}}'
+                         hx-select='#cbt-{{cbt.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if party.autogm_summary[-1].loot %}
+    <div class="column is-shrink">
+        <div class="panel is-full has-bg-screen">
+            <h4 class="has-text-center">Loot</h4>
+            <div class="row has-space-around">
+                {% for loot in party.autogm_summary[-1].loot %}
+                <div id="loot-{{loot.pk}}" class='column'>
+                    {% if loot.image %}
+                    {{display_components.object_display(loot)}}
+                    {% else %}
+                    <div hx-post="/api/autogm/{{party.path}}"
+                         hx-target='#loot-{{loot.pk}}'
+                         hx-select='#loot-{{loot.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="column is-full">
+        <hr>
+        <h4 class='has-text-center has-text-primary'>Additional Associations</h4>
+        <div class="has-dropdown" style="width: 100%;">
+            <input class="has-bg-light" autocomplete="off" type="search"
+                   name="query"
+                   style="border-bottom: solid #000;"
+                   hx-post="/api/autogm/{{party.world.pk}}/associations/search"
+                   hx-target="#autogm-new-associations-list"
+                   hx-trigger="input changed delay:500ms consume"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown has-bg-light" id="autogm-new-associations-list">
+            </ul>
+        </div>
+        <hr>
+        <div id='autogm-associations-list' class="row has-space-around">
+            {% for a in party.autogm_summary[-1].get_additional_associations() %}
+            <div class="column is-3 has-centered autogm-association-entry">
+                <div class="panel">
+                    {{display_components.object_display(a)}}
+                    <div class="row">
+                        <div class="column is-shrink is-end">
+                            <a hx-post="/api/autogm/{{world.pk}}/pc/{{party.pk}}/association/{{a.path}}/remove"
+                               hx-target='closest .autogm-association-entry'
+                               hx-swap='delete'>
+                                {{icon_components.remove(size='1rem')}}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_dice_results(user, world, party)%}
+{% if party.autogm_summary | length > 1 and
+party.autogm_summary[-2].roll_required
+%}
+<div class="row">
+    <div class="column is-full">
+        <div class="panel has-bg-muted">
+            <div class="row has-space-around">
+                <div class="column is-3 is-vertically-centered">
+                    <h3 class='has-text-dark-grey'>
+                        {{party.autogm_summary[-2].roll_attribute | title}}
+                        {{party.autogm_summary[-2].roll_type | title}}
+                    </h3>
+                </div>
+                <div class="column">
+                    <div
+                         class='panel has-text-light has-text-justify generated-text-lightbg'>
+                        {{party.autogm_summary[-2].roll_description}}
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <h3 class='has-text-primary has-text-center'>Roll Results</h3>
+                    <div class='panel has-bg-muted has-text-screen has-text-center'
+                         style='font-size:2rem;'>
+
+                        <h2 class='has-text-primary'>
+                            {{party.autogm_summary[-2].roll_result}}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
 {% macro autogm_select_party(user, world, party) -%}
 <div class="is-select">
     <select class='has-text-center' name='partypk'
@@ -277,7 +351,6 @@
 </form>
 {%- endmacro %}
 
-
 {% macro autogm_association_search(user, party, results) %}
 {% for o in results %}
 <li class="dropdown__link has-bg-muted">
@@ -306,246 +379,10 @@
 <div class="row has-space-around">
     <div class="column is-full">
         <hr>
-        <h4 class='has-text-center has-text-primary'>Additional Associations</h4>
-        <div class="has-dropdown" style="width: 100%;">
-            <input class="has-bg-light" autocomplete="off" type="search"
-                   name="query"
-                   style="border-bottom: solid #000;"
-                   hx-post="/api/autogm/{{party.world.pk}}/associations/search"
-                   hx-target="#autogm-new-associations-list"
-                   hx-trigger="input changed delay:500ms consume"
-                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown has-bg-light" id="autogm-new-associations-list">
-            </ul>
-        </div>
-        <hr>
-        <div id='autogm-associations-list' class="row has-space-around">
-            {% for a in party.autogm_summary[-1].get_additional_associations() %}
-            <div class="column is-3 has-centered autogm-association-entry">
-                <div class="panel">
-                    {{display_components.object_display(a)}}
-                    <div class="row">
-                        <div class="column is-shrink is-end">
-                            <a hx-post="/api/autogm/{{world.pk}}/pc/{{party.pk}}/association/{{a.path}}/remove"
-                               hx-target='closest .autogm-association-entry'
-                               hx-swap='delete'>
-                                {{icon_components.remove(size='1rem')}}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="column is-full">
-        <hr>
-        <div class="row has-space-around">
-            {% for player in party.characters %}
-            <div class="column is-4">
-                <div class="row">
-                    <div class="column is-shrink">
-                        <a href="/{{player.path}}" target='_blank'>
-                            {% if player.image %}
-                            <div class="image is-medium is-thumbnail is-margin-auto">
-                                <img src="{{player.image.url()}}"
-                                     loading="lazy"
-                                     alt="{{player.name}}" />
-                            </div>
-                            {% endif %}
-                        </a>
-                    </div>
-                    <div class="column is-vertically-centered">
-                        <a href="/{{player.path}}" target='_blank'>
-                            <h3 class='has-text-center has-text-dark'>
-                                {{player.name}}
-                            </h3>
-                        </a>
-                    </div>
-                    <div class="column is-full">
-                        <div class="panel has-bg-screen">
-                            <div class="row has-space-around">
-                                <div class="column is-shrink is-mobile-4"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>STR</h5>
-                                    <p>{{player.strength}}
-                                        ({{(player.strength|int-10)//2}})
-                                    </p>
-                                </div>
-                                <div class="column is-1 is-mobile-shrink">
-                                    <iconify-icon icon="pepicons-print:line-y"
-                                                  height='3rem'></iconify-icon>
-                                </div>
-                                <div class="column is-shrink is-mobile-4 has-text-center"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>DEX</h5>
-                                    <p>{{player.dexterity}}
-                                        ({{(player.dexterity|int-10)//2}})
-                                    </p>
-                                </div>
-                                <div class="column is-1 is-mobile-shrink">
-                                    <iconify-icon icon="pepicons-print:line-y"
-                                                  height='3rem'></iconify-icon>
-                                </div>
-                                <div class="column is-shrink is-mobile-4 has-text-center"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>INT</h5>
-                                    <p>{{player.intelligence}}
-                                        ({{(player.intelligence|int-10)//2}})
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="row has-space-around">
-                                <div class="column is-shrink is-mobile-4 has-text-center"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>WIS</h5>
-                                    <p>{{player.wisdom}}
-                                        ({{(player.wisdom|int-10)//2}})</p>
-                                </div>
-                                <div class="column is-1 is-mobile-shrink">
-                                    <iconify-icon icon="pepicons-print:line-y"
-                                                  height='3rem'></iconify-icon>
-                                </div>
-                                <div class="column is-shrink is-mobile-4 has-text-center"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>CHA</h5>
-                                    <p>{{player.charisma}}
-                                        ({{(player.charisma|int-10)//2}})
-                                    </p>
-                                </div>
-                                <div class="column is-1 is-mobile-shrink">
-                                    <iconify-icon icon="pepicons-print:line-y"
-                                                  height='3rem'></iconify-icon>
-                                </div>
-                                <div class="column is-shrink is-mobile-4 has-text-center"
-                                     onclick='set_roll_modifier(this);'>
-                                    <h5>CON</h5>
-                                    <p>{{player.constitution}}
-                                        ({{(player.constitution|int-10)//2}})
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <script>
-            function set_roll_modifier(elem) {
-                var modifier = elem.querySelector('p').textContent.split('(')[1].split(')')[0];
-                modifier = parseInt(modifier);
-                if (modifier >= 0) {
-                    htmx.find("#pc_roll_modifier").value = `+${modifier}`;
-                } else {
-                    htmx.find("#pc_roll_modifier").value = `-${Math.abs(modifier)}`;
-                }
-            }
-        </script>
+        {{scene_players_display(user, world, party)}}
     </div>
 </div>
-<div class="row">
-    <div class="column">
-        <form hx-post="/task/generate/autogm/{{party.pk}}/run" hx-target='closest .column'
-              hx-replace-url='/{{party.path}}/gm'>
-            <div class="row has-space-around">
-                <div class="column">
-                    <div class="panel has-text-center has-bg-muted is-full">
-                        <h4 class='has-text-center has-text-screen'>Player Response</h4>
-                        <textarea name="message" id="party_message"
-                                  class='has-bg-white'
-                                  style='height:60%;'></textarea>
-                    </div>
-                </div>
-                {% if party.autogm_summary[-1].roll_required %}
-                <div class="column is-8">
-                    <div class="panel has-text-center has-bg-muted is-full">
-                        <h4 class="has-text-screen has-text-center">Roll Required</h4>
-                        <hr>
-                        <div class="panel">
-                            <h5 class='has-text-center'>
-                                {{party.autogm_summary[-1].roll_attribute}} :
-                                {{party.autogm_summary[-1].roll_type}}
-                            </h5>
-                            {{party.autogm_summary[-1].roll_description}}
-                        </div>
-                        <hr>
-                        <div class='row has-centered'>
-                            <div class="column is-1">
-                                <div class="panel has-bg-muted has-text-center">
-                                    <input type="number" value="1" name="pc_roll_num_dice">
-                                </div>
-                            </div>
-                            <div class="column is-shrink">
-                                <p class='has-text-primary'
-                                   style='font-size: 1.5rem; font-weight: bold;'>D</p>
-                            </div>
-                            <div class="column is-1">
-                                <div class="is-select">
-                                    <select name="pc_roll_type_dice">
-                                        <option value='4'>4</option>
-                                        <option value='6'>6</option>
-                                        <option value='8'>8</option>
-                                        <option value='10'>10</option>
-                                        <option value='12'>12</option>
-                                        <option value='20' selected>20</option>
-                                        <option value='100'>100</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="column is-2">
-                                <div
-                                     class="panel has-bg-muted has-text-center is-vertically-centered">
-                                    <input type="text"
-                                           value="+0"
-                                           name="pc_roll_modifier" id="pc_roll_modifier">
-                                </div>
-                            </div>
-                            <div class="column is-shrink is-vertically-centered"">
-                                                    <button class=" button" type='submit'>
-                                Roll
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="column is-shrink is-vertically-centered ">
-                    <button class="button" type='submit'>
-                        Continue Session
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-        </form>
-    </div>
-</div>
-<hr>
-<h3 class="has-text-screen has-text-center">Session Summary</h3>
-
-{%if party.autogm_summary[-1].summary %}
-<div class="panel">
-    <div class='generated-text-darkbg'>{{party.autogm_summary[-1].summary | safe}}</div>
-</div>
-{% endif %}
-
-<hr>
-<div class="panel has-bg-light">
-    <div class="row has-centered">
-        {% for ags in party.autogm_summary %}
-        {% if ags.image %}
-        <div class="column is-shrink">
-            <div class="image is-large">
-                <img src="{{ags.image.url()}}"
-                     loading="lazy"
-                     alt="{{party.name}}" />
-            </div>
-        </div>
-        {% endif%}
-        {% endfor %}
-    </div>
-</div>
-<hr>
+{{scene_players_action_form(user, world, party)}}
 <div class="row has-space-around">
     <div class="column is-shrink">
         <button class="button" hx-post="/task/generate/autogm/{{party.pk}}/end"
@@ -561,4 +398,286 @@
         </button>
     </div>
 </div>
-{%- endmacro %};
+{%- endmacro %}
+
+{% macro scene_players_display(user, world, party) -%}
+<div class="panel hs-bg-muted">
+    <h3 class='has-text-center has-text-light'>Party Members</h3>
+    <div class="row has-space-around">
+        {% for player in party.characters %}
+        <div class="column is-4">
+            <div class="row">
+                <div class="column is-shrink">
+                    {{display_components.object_display(player, type=False)}}
+                </div>
+                <div class="column is-shrink">
+                    <div class="panel has-bg-screen">
+                        <div class="row has-space-around">
+                            <div class="column is-shrink is-mobile-4"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>STR</h5>
+                                <p>{{player.strength}}
+                                    ({{(player.strength|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-shrink">
+                                <iconify-icon icon="pepicons-print:line-y"
+                                              height='3rem'></iconify-icon>
+                            </div>
+                            <div class="column is-shrink is-mobile-4 has-text-center"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>DEX</h5>
+                                <p>{{player.dexterity}}
+                                    ({{(player.dexterity|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-shrink">
+                                <iconify-icon icon="pepicons-print:line-y"
+                                              height='3rem'></iconify-icon>
+                            </div>
+                            <div class="column is-shrink is-mobile-4 has-text-center"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>INT</h5>
+                                <p>{{player.intelligence}}
+                                    ({{(player.intelligence|int-10)//2}})
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row has-space-around">
+                            <div class="column is-shrink is-mobile-4 has-text-center"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>WIS</h5>
+                                <p>{{player.wisdom}}
+                                    ({{(player.wisdom|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-shrink is-mobile-shrink">
+                                <iconify-icon icon="pepicons-print:line-y"
+                                              height='3rem'></iconify-icon>
+                            </div>
+                            <div class="column is-shrink is-mobile-4 has-text-center"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>CHA</h5>
+                                <p>{{player.charisma}}
+                                    ({{(player.charisma|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-shrink is-mobile-shrink">
+                                <iconify-icon icon="pepicons-print:line-y"
+                                              height='3rem'></iconify-icon>
+                            </div>
+                            <div class="column is-shrink is-mobile-4 has-text-center"
+                                 onclick='set_roll_modifier(this);'>
+                                <h5>CON</h5>
+                                <p>{{player.constitution}}
+                                    ({{(player.constitution|int-10)//2}})
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_players_action_form(user, world, party) -%}
+<div class="row">
+    <div class="column">
+        <div class="panel has-text-center has-bg-muted is-full">
+            <form hx-post="/task/generate/autogm/{{party.pk}}/run"
+                  hx-target='#auto-gm-container'
+                  hx-replace-url='/{{party.path}}/gm'>
+                <div class="row has-space-around">
+                    {% for player in party.players %}
+                    <div class="column">
+                        <h4 class='has-text-center has-text-screen'>{{player.name}} Response</h4>
+                        <input type="hidden" name="message[].player" value="{{player.pk}}">
+                        <textarea name="message[].message"
+                                  class='has-bg-white'
+                                  style='height:60%;'></textarea>
+                    </div>
+                    {% endfor %}
+                    {% if party.last_scene.roll_required %}
+                    <div class="column is-full">
+                        <div class="panel has-text-center has-bg-muted is-full">
+                            <h4 class="has-text-screen has-text-center">Roll Required</h4>
+                            <hr>
+                            <div class="panel">
+                                <h5 class='has-text-center'>
+                                    {{party.last_scene.roll_attribute}} :
+                                    {{party.last_scene.roll_type}}
+                                </h5>
+                                {{party.last_scene.roll_description}}
+                            </div>
+                            <hr>
+                            <div class='row has-centered'>
+                                <div class="column is-1">
+                                    <div class="panel has-bg-muted has-text-center">
+                                        <input type="number" value="1" name="pc_roll_num_dice">
+                                    </div>
+                                </div>
+                                <div class="column is-shrink">
+                                    <p class='has-text-primary'
+                                       style='font-size: 1.5rem; font-weight: bold;'>D</p>
+                                </div>
+                                <div class="column is-1">
+                                    <div class="is-select">
+                                        <select name="pc_roll_type_dice">
+                                            <option value='4'>4</option>
+                                            <option value='6'>6</option>
+                                            <option value='8'>8</option>
+                                            <option value='10'>10</option>
+                                            <option value='12'>12</option>
+                                            <option value='20' selected>20</option>
+                                            <option value='100'>100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-2">
+                                    <div
+                                         class="panel has-bg-muted has-text-center is-vertically-centered">
+                                        <input type="text"
+                                               value="+0"
+                                               name="pc_roll_modifier" id="pc_roll_modifier">
+                                    </div>
+                                </div>
+                                <div class="column is-shrink is-vertically-centered"">
+                                                    <button class=" button" type='submit'>
+                                    Roll
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="column is-full is-vertically-centered ">
+                        <div class="row has-centered">
+                            <div class="column is-shrink">
+                                <button class="button" type='submit'>
+                                    Continue Session
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_summary_display(user, world, party) -%}
+<div class="row">
+    {%if party.last_scene and party.last_scene.summary %}
+    <div class="column">
+        <div class="panel">
+            <h3 class='has-text-white has-text-center'>Summary</h3>
+            <div class='generated-text-darkbg'>{{party.last_scene.summary | safe}}</div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="column">
+        <div class="panel has-bg-light">
+            <div class="row has-centered">
+                {% for ags in party.autogm_summary %}
+                {% if ags.image %}
+                <div class="column is-shrink">
+                    <div class="image is-large">
+                        <img src="{{ags.image.url()}}"
+                             loading="lazy"
+                             alt="{{party.name}}" />
+                    </div>
+                </div>
+                {% endif%}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_quest_log(user, world, party) -%}
+<div id="scene_quest_log"
+     class="panel has-bg-muted has-text-primary has-no-padding-left has-no-padding-right has-no-padding-bottom">
+    <h3 class='has-text-center'> Quest Log </h3>
+    <div class="panel has-bg-light-grey has-text-primary" style='border-top-left-radius: 0;
+border-top-right-radius:0;'>
+        <div class="row has-space-around">
+            {% for quest in party.last_scene.quest_log %}
+            <div class="column is-full" style='position:relative;'>
+                {% if party.last_scene.current_quest == quest%}
+                <span class='tag is-muted' style='position:absolute; top: 0;left:0;'>Current
+                    Quest</span>
+                {% else %}
+                <div class="column is-shrink is-vertically-centered">
+                    <button class='button is-small has-bg-screen is-full'
+                            style='position:absolute; top: 0;left:0;'
+                            hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
+                            hx-target='#scene_quest_log'
+                            hx-select='#scene_quest_log' hx-swap='outerHTML'>Set
+                        as Current Quest</button>
+                    {% endif %}
+                    <span class="tag"
+                          style='position:absolute; top: 0;right:0;'>{{quest.status | title}}</span>
+                    <h3 class="has-text-primary has-text-center"
+                        onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                        {{quest.name}}
+                    </h3>
+                    <div class="row is-hidden">
+                        <div class="column has-text-primary">
+                            <h5 class="has-text-primary has-text-center">Objective</h5>
+                            <div class="panel has-bg-muted">
+                                {{quest.description | safe}}
+                            </div>
+                        </div>
+                        <div class="column">
+                            <h5 class="has-text-primary has-text-center">Importance</h5>
+                            <div class="panel has-bg-muted">{{quest.importance | safe}}</div>
+                        </div>
+                        <div class="column is-full">
+                            <hr>
+                            <h5 class="has-text-primary has-text-center">Next Actions</h5>
+                            <div class='panel'>
+                                <p class="has-text-white">{{quest.next_steps | safe}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_intermission(user, world, party, task_id=None) -%}
+<div id="scene-intermission-container" class='row'>
+    {% if task_id %}
+    <div class='column'>
+        <div id="task-loader" class="panel has-bg-screen" hx-post="/task/checktask/{{task_id}}"
+             hx-target="closest .column" hx-trigger="every 2s" hx-indicator="">
+            <div class="row has-centered">
+                <div class="column has-text-center has-text-secondary is-shrink">
+                    <h3 class="has-text-light">Working...</h3>
+                </div>
+                <div class="column is-shrink has-bg-screen">
+                    <img class="has-text-primary" src="/static/images/grid.svg" width="50px"
+                         height="50px" alt="loading">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class='column'>
+        <button class="button is-full" hx-post="/api/autogm/{{party.path}}"
+                hx-target="#page-content">
+            Next Scene
+        </button>
+    </div>
+    {% endif %}
+</div>
+{{scene_quest_log(user, world, party)}}
+{%- endmacro %}

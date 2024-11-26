@@ -7,6 +7,8 @@ import tasks
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
+from models.ttrpgobject.faction import Faction
+from models.user import User
 
 models = {
     "player": "Character",
@@ -125,7 +127,7 @@ def create_app():
         }.get(action)
 
         kwargs = {"pk": pk}
-        if message := request.json.get("message", "").strip():
+        if message := request.json.get("message"):
             kwargs["message"] = message
         if num_dice := request.json.get("pc_roll_num_dice"):
             type_dice = request.json.get("pc_roll_type_dice")
@@ -137,6 +139,25 @@ def create_app():
             .task(
                 task_function,
                 **kwargs,
+            )
+            .result
+        )
+        log(action, task_function, kwargs)
+        user = User.get(pk)
+        party = Faction.get(pk)
+        return get_template_attribute("shared/_gm.html", "scene_intermission")(
+            user,
+            party.world,
+            party,  # task["id"]
+        )
+
+    @app.route("/generate/audio/<string:pk>", methods=("POST",))
+    def create_audio(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_audio_task,
+                pk=pk,
             )
             .result
         )

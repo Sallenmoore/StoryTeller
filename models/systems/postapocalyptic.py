@@ -42,7 +42,7 @@ class PostApocalypticSystem(BaseSystem):
         "region": "Territory",
         "world": "Region",
         "location": "Location",
-        "poi": "POI",
+        "district": "District",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

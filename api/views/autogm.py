@@ -62,23 +62,44 @@ def autogm_party_add(partypk, pk):
 
 
 @autogm_endpoint.route(
+    "/<string:model>/<string:pk>/description/update", methods=("POST",)
+)
+@autogm_endpoint.route(
     "/<string:model>/<string:pk>/description/edit", methods=("POST",)
 )
 def descriptionedit(model, pk):
     user, obj, world, *_ = _loader(model=model, pk=pk)
-    return get_template_attribute("shared/_gm.html", "autogm_description_edit")(
-        user, world, obj
-    )
+    if "edit" in request.url:
+        return get_template_attribute("shared/_gm.html", "autogm_description_edit")(
+            user, world, obj
+        )
+    obj.last_scene.update_description(request.json.get("description"))
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, obj)
 
 
 @autogm_endpoint.route(
-    "/<string:model>/<string:pk>/description/update", methods=("POST",)
+    "/party/<string:partypk>/quest",
+    methods=("POST",),
 )
-def descriptionupdate(model, pk):
-    user, obj, world, *_ = _loader(model=model, pk=pk)
-    obj.autogm_summary[-1].description = request.json.get("description")
-    obj.autogm_summary[-1].save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, obj)
+@autogm_endpoint.route(
+    "/party/<string:partypk>/quest/current/<string:pk>",
+    methods=("POST",),
+)
+def autogm_party_current_quest(partypk, pk=None):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(partypk)
+    log(pk)
+    if pk:
+        for quest in party.last_scene.quest_log:
+            log(quest.pk, pk, pk == quest.pk)
+            if str(quest.pk) == pk:
+                log("FOUND")
+                party.last_scene.current_quest = quest
+                party.last_scene.save()
+
+    return get_template_attribute("shared/_gm.html", "scene_quest_log")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route("/<string:model>/<string:pk>/clear", methods=("POST",))

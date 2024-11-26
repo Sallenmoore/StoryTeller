@@ -11,13 +11,13 @@ class HorrorSystem(BaseSystem):
     }
 
     _titles = {
-        "city": "Building",
+        "city": "Neighborhood",
         "creature": "Creature",
         "faction": "Faction",
         "region": "Town",
         "world": "Area",
         "location": "Room",
-        "poi": "POI",
+        "district": "Building",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

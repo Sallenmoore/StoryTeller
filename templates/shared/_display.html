@@ -1,5 +1,5 @@
 {% macro object_display(obj, size="medium", dim="100", type=True) -%}
-<a href="/{{obj.path}}">
+<a href="/{{obj.path}}" target='_blank'>
     <div class="image is-{{size}} is-thumbnail is-margin-center">
         {% if obj.image %}
         <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}"

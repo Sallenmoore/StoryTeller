@@ -41,7 +41,7 @@ class HistoricalSystem(BaseSystem):
         "region": "Region",
         "world": "Country",
         "location": "Location",
-        "poi": "POI",
+        "district": "District",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

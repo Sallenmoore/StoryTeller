@@ -81,8 +81,16 @@ class Faction(TTRPGObject):
         """
 
     @property
+    def last_scene(self):
+        return self.autogm_summary[-1] if self.autogm_summary else None
+
+    @property
     def map(self):
         return self.parent.map if self.parent else self.world.map
+
+    @property
+    def players(self):
+        return [c for c in self.characters if c.is_player]
 
     ################### Crud Methods #####################
 

@@ -34,7 +34,7 @@ class BaseSystem(AutoModel):
         "region": "Region",
         "world": "World",
         "location": "Location",
-        "poi": "POI",
+        "district": "District",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

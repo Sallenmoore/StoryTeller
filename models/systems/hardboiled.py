@@ -41,7 +41,7 @@ class HardboiledSystem(BaseSystem):
         "region": "District",
         "world": "City",
         "location": "Location",
-        "poi": "POI",
+        "district": "Block",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

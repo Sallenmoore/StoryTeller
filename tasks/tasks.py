@@ -5,6 +5,7 @@ from dmtoolkit import dmtools
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
+from models.autogm import AutoGMScene
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -70,59 +71,77 @@ def _generate_chat_task(pk, message):
     return {"url": f"/api/{obj.path}/chats"}
 
 
+def _generate_audio_task(pk):
+    ags = AutoGMScene.get(pk)
+    ags.generate_audio()
+    return {"url": f"/api/autogm/{ags.party.path}"}
+
+
 def _generate_autogm_start_task(pk, message=""):
     party = Faction.get(pk)
     party.start_gm_session(scenario=message)
-    party.autogm_summary[-1].player_message = message
+    party.last_scene.player_message = message
     party.save()
     return {"url": f"/api/autogm/{party.path}"}
 
 
-def _generate_autogm_run_task(pk, message="", roll_dice=""):
+def _generate_autogm_run_task(pk, message=None, roll_dice=None):
     obj = Faction.get(pk)
-    log(roll_dice, _print=True)
-    obj.autogm_summary[-1].player_message = message
+    obj.last_scene.player_messages = message or []
     obj.save()
+    if message:
+        messagestr = ""
+        for msg in obj.last_scene.player_messages:
+            if player := Character.get(msg.get("player")):
+                messagestr += f"""
+{player.name} RESPONSE: {msg.get("message")}
+"""
     if roll_dice:
-        obj.autogm_summary[-1].roll_formula = roll_dice
+        obj.last_scene.roll_formula = roll_dice
         roll_result = dmtools.dice_roll(roll_dice)
         log(roll_result, _print=True)
-        obj.autogm_summary[-1].roll_result = roll_result
-        obj.autogm_summary[-1].save()
-        message = f"""{message}
-
-         Rolls {obj.autogm_summary[-1].roll_type}:{obj.autogm_summary[-1].roll_attribute}
-         RESULT:  {roll_result}
-        """
+        obj.last_scene.roll_result = roll_result
+        obj.last_scene.save()
+        messagestr += f"""
+Rolls {obj.last_scene.roll_type}:{obj.last_scene.roll_attribute}
+RESULT:  {roll_result}
+"""
+    log(messagestr)
     obj.run_gm_session(message=message)
-    return {"url": f"/api/autogm/{obj.path}"}
+    return {
+        "url": f"/api/autogm/party/{obj.pk}/quest",
+        "target": "scene-intermission-container",
+        "select": "scene-intermission-container",
+        "swap": "outerHTML",
+    }
 
 
 def _generate_autogm_regenerate_task(pk):
     obj = Faction.get(pk)
-    message = (
-        obj.autogm_summary[-1].player_message
-        if obj.autogm_summary[-1].player_message
-        else ""
-    )
-    if obj.autogm_summary[-1].roll_formula:
-        roll_result = dmtools.dice_roll(obj.autogm_summary[-1].roll_formula)
+    message = obj.last_scene.player_messages if obj.last_scene.player_messages else ""
+    if obj.last_scene.roll_formula:
+        roll_result = dmtools.dice_roll(obj.last_scene.roll_formula)
         log(roll_result, _print=True)
-        obj.autogm_summary[-1].roll_result = roll_result
-        obj.autogm_summary[-1].save()
+        obj.last_scene.roll_result = roll_result
+        obj.last_scene.save()
         message = f"""{message}
 
-Rolls {obj.autogm_summary[-1].roll_type}:{obj.autogm_summary[-1].roll_attribute}
+Rolls {obj.last_scene.roll_type}:{obj.last_scene.roll_attribute}
 RESULT:  {roll_result}
         """.strip()
 
     obj.regenerate_gm_session(message=message)
-    return {"url": f"/api/autogm/{obj.path}"}
+    return {
+        "url": f"/api/autogm/party/{obj.pk}/quest",
+        "target": "#scene-intermission-container",
+        "select": "#scene-intermission-container",
+        "swap": "outerHTML",
+    }
 
 
 def _generate_autogm_end_task(pk, message=""):
     obj = Faction.get(pk)
-    obj.autogm_summary[-1].player_message = message
+    obj.last_scene.player_message = message
     obj.save()
     obj.end_gm_session(message=message)
     return {"url": f"/api/autogm/{obj.path}"}
