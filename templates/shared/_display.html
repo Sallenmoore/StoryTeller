@@ -23,84 +23,85 @@
 
 {% macro card(obj) %}
 <div id="object-card-{{obj.pk}}" class='row has-bg-white initiative-card'>
-    <div class="column is-3">
-        <div class="row has-space-around">
-            <div class="column is-12 has-text-center"
-                 style='transform: rotate(180deg);'>
-                {% if obj.image %}
-                <img src="{{obj.image.url()}}"
-                     alt="{{obj.name}}"
-                     style="width:100%;" />
-                {% endif %}
-            </div>
-        </div>
-        <hr>
-        <div class="section">
-            <hr>
-            <h3 class='has-text-center has-text-dark'>
-                {{obj.name}} [AC: {{obj.ac}}]
-            </h3>
+    <div class="column is-full">
+        <a href='/{{obj.path}}' target='_blank'>
             <div class="row has-space-around">
-                <div class="column has-text-center has-text-dark">
-                    {% if obj.model_name() in ['Character', 'Creature'] %}
-                    <div class="row has-space-around">
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">STR</h4>
-                            <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
-                        </div>
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">DEX</h4>
-                            <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
-                        </div>
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">INT</h4>
-                            <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
-                        </div>
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">WIS</h4>
-                            <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
-                        </div>
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">CHA</h4>
-                            <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
-                        </div>
-                        <div class="column is-4 is-mobile-3">
-                            <h4 class="has-text-dark">CON</h4>
-                            <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
-                        </div>
-                    </div>
-                    <div class="row has-space-around">
-                        <div class="column">
-                            <h4 class='has-text-dark'>MAX HP</h4>
-                            <h5 class='has-text-dark'>{{obj.hitpoints}}</h5>
-                            <div class="row">
-                                <div class="column is-9 is-center">
-                                    {% for i in range(obj.hitpoints//5) %}
-                                    <iconify-icon icon="ci:line-l" width="1rem"></iconify-icon>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row has-space-around">
-                        {% for a in obj.abilities%}
-                        <div class="column is-half is-mobile-half has-text-dark">
-                            {{a | safe }}
-                        </div>
-                        {% endfor %}
-                    </div>
+                <div class="column is-12 has-text-center">
+                    {% if obj.image %}
+                    <img src="{{obj.image.url()}}"
+                         alt="{{obj.name}}"
+                         style="width:100%;" />
                     {% endif %}
                 </div>
             </div>
             <hr>
-            <div class="row">
-                <div class="column" style='min-height:5rem;'>
-                    <h4 class="has-text-dark">
-                        Status:
-                    </h4>
+            <div class="section">
+                <hr>
+                <h3 class='has-text-center has-text-dark'>
+                    {{obj.name}} [AC: {{obj.ac}}]
+                </h3>
+                <div class="row has-space-around">
+                    <div class="column has-text-center has-text-dark">
+                        {% if obj.model_name() in ['Character', 'Creature'] %}
+                        <div class="row has-space-around">
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">STR</h4>
+                                <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">DEX</h4>
+                                <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">INT</h4>
+                                <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">WIS</h4>
+                                <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">CHA</h4>
+                                <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3">
+                                <h4 class="has-text-dark">CON</h4>
+                                <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
+                            </div>
+                        </div>
+                        <div class="row has-space-around">
+                            <div class="column">
+                                <h4 class='has-text-dark'>MAX HP</h4>
+                                <h5 class='has-text-dark'>{{obj.hitpoints}}</h5>
+                                <div class="row">
+                                    <div class="column is-9 is-center">
+                                        {% for i in range(obj.hitpoints//5) %}
+                                        <iconify-icon icon="ci:line-l" width="1rem"></iconify-icon>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            {% for a in obj.abilities%}
+                            <div class="column is-full has-text-dark">
+                                {{a | safe }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="column" style='min-height:5rem;'>
+                        <h4 class="has-text-dark">
+                            Status:
+                        </h4>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 {% endmacro %}

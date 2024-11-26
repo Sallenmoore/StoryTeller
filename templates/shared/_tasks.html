@@ -1,9 +1,10 @@
 ##############################################
 # Task Components #
 ##############################################
-{% macro checktask (task_id) -%}
+{% macro checktask (task_id, snippet="") -%}
 <div id="task-loader" class="panel has-bg-screen" hx-post="/task/checktask/{{task_id}}"
-     hx-target="closest .column" hx-indicator="" hx-trigger="every 2s">
+     hx-target="#task-loader" hx-select="#task-loader" hx-swap="outerHTML" hx-indicator=""
+     hx-trigger="every 3s">
     <div class="row has-centered">
         <div class="column has-text-center has-text-secondary is-shrink">
             <h3 class="has-text-light">Working...</h3>
@@ -14,20 +15,20 @@
         </div>
     </div>
 </div>
+{{ snippet | safe}}
 {%- endmacro %}
 
 {% macro completetask (url, target="page-content", select=None, swap=None) -%}
 <div id="task-loader" class="alert has-bg-screen fade-it-out"
-        hx-post="{{url}}"
-        hx-trigger="load delay:500ms"
-        hx-target="#{{target}}"
-        {% if select%}
-        hx-select="#{{select}}"
-        {%endif%}
-        {%if swap%}
-        hx-swap="{{swap}}"
-        {% endif %}
-        >
+     hx-post="{{url}}"
+     hx-trigger="load delay:500ms"
+     hx-target="#{{target}}"
+     {% if select%}
+     hx-select="#{{select}}"
+     {%endif%}
+     {%if swap%}
+     hx-swap="{{swap}}"
+     {% endif %}>
     <h5 class="has-text-light-grey">Complete</h5>
 </div>
 {%- endmacro %}

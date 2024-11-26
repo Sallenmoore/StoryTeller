@@ -511,6 +511,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         return False
 
     ########## Object Data ######################
+    # MARK: History
     def resummarize(self, upload=False):
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()

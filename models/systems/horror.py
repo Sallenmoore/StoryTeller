@@ -53,7 +53,7 @@ class HorrorSystem(BaseSystem):
             - SCALE: 1 inch == 5 feet
             {"- CONTEXT: " + obj.backstory_summary if obj.backstory_summary else ""}
             {"- DESCRIPTION: " + obj.description if obj.description else ""}
-            {"- ROOMS: " + ",".join([poi.name for poi in obj.pois if poi.name]) if [poi.name for poi in obj.pois if poi.name] else ""}
+            {"- ROOMS: " + ",".join([poi.name for poi in obj.districts if poi.name]) if [poi.name for poi in obj.districts if poi.name] else ""}
             """,
         "region": lambda obj: f"""Generate a top-down navigable map of a {obj.title} suitable for a tabletop RPG. The map should be detailed and include the following elements:
             - MAP TYPE: top-down with key locations marked

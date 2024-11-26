@@ -51,7 +51,7 @@
         } else {
             music.src = musicfile;
             music.loop = true;
-            music.volume = 0.5;
+            music.volume = 0.25;
             music.currentTime = 0;
             music.play();
         }
@@ -215,7 +215,7 @@
             <input class="has-bg-light" autocomplete="off" type="search"
                    name="query"
                    style="border-bottom: solid #000;"
-                   hx-post="/api/autogm/{{party.world.pk}}/associations/search"
+                   hx-post="/api/autogm/{{party.pk}}/associations/search"
                    hx-target="#autogm-new-associations-list"
                    hx-trigger="input changed delay:500ms consume"
                    hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
@@ -335,6 +335,12 @@ party.autogm_summary[-2].roll_required
                 <div class="column is-3">
                     <div class="panel">
                         {{display_components.object_display(member)}}
+                        <a class="has-text-right"
+                           hx-post="/api/autogm/party/{{party.pk}}/character/{{member.pk}}/remove"
+                           hx-target='closest .column'
+                           hx-swap='delete'>
+                            {{icon_components.remove(size='1rem')}}
+                        </a>
                     </div>
                 </div>
                 {% endfor %}
@@ -386,7 +392,8 @@ party.autogm_summary[-2].roll_required
 <div class="row has-space-around">
     <div class="column is-shrink">
         <button class="button" hx-post="/task/generate/autogm/{{party.pk}}/end"
-                hx-target='closest .column'>
+                hx-target='closest .column'
+                hx-confirm='This will end all active quests and start a new campaign with the same party. Are you sure this is what you want?'>
             Make Canon
         </button>
     </div>
@@ -602,31 +609,32 @@ party.autogm_summary[-2].roll_required
 {% macro scene_quest_log(user, world, party) -%}
 <div id="scene_quest_log"
      class="panel has-bg-muted has-text-primary has-no-padding-left has-no-padding-right has-no-padding-bottom">
-    <h3 class='has-text-center'> Quest Log </h3>
+    <h3 class='has-text-center has-text-primary'> Quest Log </h3>
     <div class="panel has-bg-light-grey has-text-primary" style='border-top-left-radius: 0;
 border-top-right-radius:0;'>
         <div class="row has-space-around">
             {% for quest in party.last_scene.quest_log %}
-            <div class="column is-full" style='position:relative;'>
+            <div class="column is-full" style='position:relative;'
+                 onclick='this.querySelector("#quest-{{quest.pk}}").classList.toggle("is-hidden");'>
                 {% if party.last_scene.current_quest == quest%}
                 <span class='tag is-muted' style='position:absolute; top: 0;left:0;'>Current
                     Quest</span>
                 {% else %}
                 <div class="column is-shrink is-vertically-centered">
-                    <button class='button is-small has-bg-screen is-full'
+                    <button class='button is-small has-bg-screen'
                             style='position:absolute; top: 0;left:0;'
                             hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
                             hx-target='#scene_quest_log'
-                            hx-select='#scene_quest_log' hx-swap='outerHTML'>Set
-                        as Current Quest</button>
+                            hx-select='#scene_quest_log' hx-swap='outerHTML'>
+                        Set as Current Quest
+                    </button>
                     {% endif %}
                     <span class="tag"
                           style='position:absolute; top: 0;right:0;'>{{quest.status | title}}</span>
-                    <h3 class="has-text-primary has-text-center"
-                        onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                    <h3 class="has-text-primary has-text-center">
                         {{quest.name}}
                     </h3>
-                    <div class="row is-hidden">
+                    <div id="quest-{{quest.pk}}" class="row is-hidden">
                         <div class="column has-text-primary">
                             <h5 class="has-text-primary has-text-center">Objective</h5>
                             <div class="panel has-bg-muted">
@@ -653,31 +661,29 @@ border-top-right-radius:0;'>
 </div>
 {%- endmacro %}
 
-{% macro scene_intermission(user, world, party, task_id=None) -%}
+{% macro scene_intermission(user, world, party, task_complete=False) -%}
 <div id="scene-intermission-container" class='row'>
-    {% if task_id %}
-    <div class='column'>
-        <div id="task-loader" class="panel has-bg-screen" hx-post="/task/checktask/{{task_id}}"
-             hx-target="closest .column" hx-trigger="every 2s" hx-indicator="">
-            <div class="row has-centered">
-                <div class="column has-text-center has-text-secondary is-shrink">
-                    <h3 class="has-text-light">Working...</h3>
-                </div>
-                <div class="column is-shrink has-bg-screen">
-                    <img class="has-text-primary" src="/static/images/grid.svg" width="50px"
-                         height="50px" alt="loading">
-                </div>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class='column'>
+    {% if task_complete %}
+    <div class='column is-shrink is-centered'>
         <button class="button is-full" hx-post="/api/autogm/{{party.path}}"
                 hx-target="#page-content">
             Next Scene
         </button>
     </div>
     {% endif %}
+    {% if party.quests %}
+    <div class="column is-full">
+        {{scene_quest_log(user, world, party)}}
+    </div>
+    {% endif %}
+    <div class="column is-full">
+        <div class="row has-space-around">
+            {% for player in party.players %}
+            <div class="column is-4">
+                {{display_components.card(player)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-{{scene_quest_log(user, world, party)}}
 {%- endmacro %}

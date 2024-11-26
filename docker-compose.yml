@@ -10,7 +10,6 @@ services:
       - ./app:/var/app/
       - ./models:/var/app/models/
       - ./static:/var/app/static/
-      - /root/prod/world-prod/static/images/tabletop:/var/app/static/images/tabletop
       - ./templates:/var/app/templates/
       - ./filters:/var/app/filters/
       - ./tests:/var/app/tests/
@@ -33,7 +32,6 @@ services:
       - ./api:/var/app/
       - ./models:/var/app/models/
       - ./static:/var/app/static/
-      - /root/prod/world-prod/static/images/tabletop:/var/app/static/images/tabletop
       - ./templates:/var/app/templates/
       - ./filters:/var/app/filters/
       - ./tests:/var/app/tests/
@@ -74,7 +72,6 @@ services:
       - ./tasks:/var/app/
       - ./models:/var/app/models/
       - ./static:/var/app/static/
-      - /root/prod/world-prod/static/images/tabletop:/var/app/static/images/tabletop
       - ./tests:/var/app/tests/
       - ./filters:/var/app/filters/
       - ./templates:/var/app/templates/

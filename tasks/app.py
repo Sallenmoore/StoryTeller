@@ -145,10 +145,11 @@ def create_app():
         log(action, task_function, kwargs)
         user = User.get(pk)
         party = Faction.get(pk)
-        return get_template_attribute("shared/_gm.html", "scene_intermission")(
-            user,
-            party.world,
-            party,  # task["id"]
+        snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
+            user, party.world, party
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(
+            task["id"], snippet=snippet
         )
 
     @app.route("/generate/audio/<string:pk>", methods=("POST",))

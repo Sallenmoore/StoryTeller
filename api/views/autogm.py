@@ -26,17 +26,32 @@ def index(model=None, pk=None):
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
-@autogm_endpoint.route("/associations/search", methods=("POST",))
-def autogm_search():
+@autogm_endpoint.route("/party/<string:pk>/intermission", methods=("POST",))
+def party_intermission(pk):
     user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    # scene_intermission(user, world, party, task_complete=False)
+    return get_template_attribute("shared/_gm.html", "scene_intermission")(
+        user, world, party, task_complete=True
+    )
+
+
+@autogm_endpoint.route("/<string:pk>/associations/search", methods=("POST",))
+def autogm_search(pk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
     search = request.json.get("query")
     if search and len(search) > 2:
         objs = [
             w
             for w in world.search_autocomplete(search)
-            if "party" not in request.url or w.player
+            if party.last_scene and w not in party.last_scene.associations
         ]
-    return get_template_attribute("shared/_gm.html", "party")(user, world, objs)
+    else:
+        objs = []
+    return get_template_attribute("shared/_gm.html", "autogm_association_search")(
+        user, world, objs
+    )
 
 
 @autogm_endpoint.route("/party/<string:pk>/input", methods=("POST",))
@@ -102,6 +117,19 @@ def autogm_party_current_quest(partypk, pk=None):
     )
 
 
+@autogm_endpoint.route(
+    "/party/<string:party>/character/<string:member>/remove", methods=("POST",)
+)
+def party_remove_character(party, member):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(party)
+    member = Character.get(member)
+    party.remove_association(member)
+    return get_template_attribute("shared/_gm.html", "autogm_start_session")(
+        user, world, party
+    )
+
+
 @autogm_endpoint.route("/<string:model>/<string:pk>/clear", methods=("POST",))
 def clearsession(model, pk):
     user, obj, world, *_ = _loader(model=model, pk=pk)
@@ -109,4 +137,5 @@ def clearsession(model, pk):
         ags.delete()
     obj.autogm_summary = []
     obj.save()
+    obj = Faction.get(pk)
     return get_template_attribute("shared/_gm.html", "gm")(user, world, obj)

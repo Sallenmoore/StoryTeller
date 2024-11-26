@@ -49,11 +49,6 @@ class City(Place):
                     "type": "string",
                     "description": "A short physical description that will be used to generate an image of the city.",
                 },
-                "districts": {
-                    "type": "array",
-                    "description": "The names of at least 3 districts in the city, named consistent with the city's theme.",
-                    "items": {"type": "string"},
-                },
             },
         },
     }
@@ -104,8 +99,7 @@ class City(Place):
     def page_data(self):
         return super().page_data() | {
             "population": self.population,
-            "districts": self.districts,
-            "pois": [{"name": r.name, "pk": str(r.pk)} for r in self.pois],
+            "districts": [{"name": r.name, "pk": str(r.pk)} for r in self.districts],
             "encounters": [{"name": r.name, "pk": str(r.pk)} for r in self.encounters],
             "factions": [{"name": r.name, "pk": str(r.pk)} for r in self.factions],
         }

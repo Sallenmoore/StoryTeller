@@ -559,7 +559,8 @@ class AutoGM(AutoModel):
     def parse_scene(self, party, response):
         from models.world import World
 
-        if scene_type := response["type"]:
+        if scene_type := response["scene_type"]:
+            summary = response["description"]
             if party.autogm_summary:
                 prompt = (
                     party.autogm_summary[10].summary
@@ -571,17 +572,15 @@ class AutoGM(AutoModel):
                 )
                 primer = "Generate a summary of less than 250 words of the following events in MARKDOWN format."
                 summary = party.world.system.generate_summary(prompt, primer)
-                summary = summary.replace("```markdown", "").replace("```", "")
-                summary = markdown.markdown(summary)
-            else:
-                summary = response["description"]
+            summary = summary.replace("```markdown", "").replace("```", "")
+            summary = markdown.markdown(summary)
             description = (
                 response["description"].replace("```markdown", "").replace("```", "")
             )
-            associations = party.characters + (
-                party.autogm_summary[-1].associations if party.autogm_summary else []
-            )
             description = markdown.markdown(description)
+            associations = party.characters + (
+                party.last_scene.associations if party.last_scene else []
+            )
             scene = AutoGMScene(
                 type=scene_type,
                 party=party,
@@ -592,9 +591,11 @@ class AutoGM(AutoModel):
             )
             scene.save()
 
-            if len(party.autogm_summary) > 2:
-                scene.current_quest = party.autogm_summary[-1].current_quest
-                scene.quest_log = party.autogm_summary[-1].quest_log
+            if party.last_scene:
+                scene.current_quest = party.last_scene.current_quest
+                scene.quest_log = party.last_scene.quest_log
+                scene.save()
+
             for q in response.get("quest_log", []):
                 try:
                     quest = [
@@ -720,10 +721,13 @@ PLAYERS ACTIONS
         response = self.gm.generate(prompt, function=self._funcobj)
         scene = self.parse_scene(party, response)
         scene.save()
-        for p in [party, party.world, *party.characters]:
+        for p in [party, party.world, *party.players]:
             p.backstory += f"""
 
 {scene.summary}
 """
             p.save()
+        party.autogm_history += party.autogm_summary
+        party.autogm_summary = []
+        party.save()
         return scene

@@ -109,7 +109,7 @@ RESULT:  {roll_result}
     log(messagestr)
     obj.run_gm_session(message=message)
     return {
-        "url": f"/api/autogm/party/{obj.pk}/quest",
+        "url": f"/api/autogm/party/{obj.pk}/intermission",
         "target": "scene-intermission-container",
         "select": "scene-intermission-container",
         "swap": "outerHTML",

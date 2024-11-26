@@ -89,6 +89,10 @@ class Faction(TTRPGObject):
         return self.parent.map if self.parent else self.world.map
 
     @property
+    def quests(self):
+        return self.last_scene.quest_log if self.last_scene else []
+
+    @property
     def players(self):
         return [c for c in self.characters if c.is_player]
 
