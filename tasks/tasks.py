@@ -65,12 +65,6 @@ def _generate_image_task(model, pk):
     return {"url": f"/api/{obj.path}/details"}
 
 
-def _generate_chat_task(pk, message):
-    obj = Character.get(pk)
-    obj.chat(message)
-    return {"url": f"/api/{obj.path}/chats"}
-
-
 def _generate_audio_task(pk):
     ags = AutoGMScene.get(pk)
     ags.generate_audio()
@@ -82,7 +76,12 @@ def _generate_autogm_start_task(pk, message=""):
     party.start_gm_session(scenario=message)
     party.last_scene.player_message = message
     party.save()
-    return {"url": f"/api/autogm/{party.path}"}
+    return {
+        "url": f"/api/autogm/party/{party.pk}/intermission",
+        "target": "#scene-intermission-container",
+        "select": "#scene-intermission-container",
+        "swap": "outerHTML",
+    }
 
 
 def _generate_autogm_run_task(pk, message=None, roll_dice=None):
@@ -110,8 +109,8 @@ RESULT:  {roll_result}
     obj.run_gm_session(message=message)
     return {
         "url": f"/api/autogm/party/{obj.pk}/intermission",
-        "target": "scene-intermission-container",
-        "select": "scene-intermission-container",
+        "target": "#scene-intermission-container",
+        "select": "#scene-intermission-container",
         "swap": "outerHTML",
     }
 
@@ -132,18 +131,16 @@ RESULT:  {roll_result}
 
     obj.regenerate_gm_session(message=message)
     return {
-        "url": f"/api/autogm/party/{obj.pk}/quest",
+        "url": f"/api/autogm/party/{obj.pk}/intermission",
         "target": "#scene-intermission-container",
         "select": "#scene-intermission-container",
         "swap": "outerHTML",
     }
 
 
-def _generate_autogm_end_task(pk, message=""):
+def _generate_autogm_end_task(pk):
     obj = Faction.get(pk)
-    obj.last_scene.player_message = message
-    obj.save()
-    obj.end_gm_session(message=message)
+    obj.end_gm_session()
     return {"url": f"/api/autogm/{obj.path}"}
 
 
@@ -156,3 +153,28 @@ def _generate_autogm_clear_task(pk):
     obj.autogm_summary = []
     obj.save()
     return {"url": f"/api/autogm/{obj.path}"}
+
+
+def _generate_autogm_gm_task(
+    pk, scene_type, description, date, npcs, combatants, loot, places
+):
+    party = Faction.get(pk)
+    npcs = [Character.get(npc) for npc in npcs]
+    combatants = [Creature.get(combatant) for combatant in combatants]
+    loot = [Item.get(item) for item in loot]
+    places = [Location.get(place) for place in places]
+    party.autogm_pc_session(
+        scene_type=scene_type,
+        description=description,
+        date=date,
+        npcs=npcs,
+        combatants=combatants,
+        loot=loot,
+        places=places,
+    )
+    return {
+        "url": f"/api/autogm/party/{party.pk}/intermission",
+        "target": "#scene-intermission-container",
+        "select": "#scene-intermission-container",
+        "swap": "outerHTML",
+    }

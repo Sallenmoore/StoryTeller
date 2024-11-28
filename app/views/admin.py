@@ -30,3 +30,13 @@ def images():
         user=AutoAuth.current_user().pk,
         page_content=pc,
     )
+
+
+@admin_page.route("/pullfromworld", methods=("GET", "POST"))
+@auth_required(admin=True)
+def pull():
+    world_data = requests.get("http://dev.world.stevenamoore.dev/raw/worlds").text
+    worlds = []
+    for world in world_data:
+        pass
+    return render_template("admin/index.html")

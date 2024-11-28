@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro details(user, obj) -%}
 <div class="row">
@@ -16,7 +17,7 @@
     <div class="column is-shrink is-vertically-centered">
         <button class="button is-primary" hx-post="/task/generate/history/{{obj.path}}"
                 hx-target="closest .column">
-            <iconify-icon icon="eos-icons:ai"></iconify-icon>
+            {{icon_components.update(size="1rem")}}
             Update History
         </button>
     </div>
@@ -24,8 +25,16 @@
         <button class="button is-primary" hx-post="/task/generate/{{obj.path}}"
                 hx-target="closest .column"
                 hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
-            <iconify-icon icon="eos-icons:ai"></iconify-icon>
+            {{icon_components.ai(size="1rem")}}
             Generate Details
+        </button>
+    </div>
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button is-primary" hx-post="/api/manage/delete/{{obj.path}}"
+                hx-target="#page-content"
+                hx-confirm='Are you sure? This cannot be undone'>
+            {{icon_components.delete(size="1rem")}}
+            Delete
         </button>
     </div>
 </div>

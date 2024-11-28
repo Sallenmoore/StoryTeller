@@ -20,6 +20,7 @@ class Faction(TTRPGObject):
     is_player_faction = BoolAttr(default=False)
     autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
     autogm_history = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
+    gm_mode = StringAttr(default="pc", choices=["pc", "gm"])
 
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
@@ -130,6 +131,28 @@ class Faction(TTRPGObject):
 
     def end_gm_session(self, message=""):
         self.gm.end(party=self, message=message)
+        self.save()
+
+    def autogm_pc_session(
+        self,
+        scene_type,
+        description,
+        date,
+        npcs,
+        combatants,
+        loot,
+        places,
+    ):
+        self.gm.rungm(
+            party=self,
+            scene_type=scene_type,
+            description=description,
+            date=date,
+            npcs=npcs,
+            combatants=combatants,
+            loot=loot,
+            places=places,
+        )
         self.save()
 
     def page_data(self):

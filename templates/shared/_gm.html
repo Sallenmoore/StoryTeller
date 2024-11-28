@@ -6,22 +6,15 @@
 {% macro gm(user, world, party=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
 <div id='auto-gm-container' class="row">
-    <div class="column is-full">
-        {{autogm_select_party(user, world, party)}}
-    </div>
-    {% if party%}
+    {% if party %}
     <div class="column is-full">
         {% if party.autogm_summary %}
         <div id="dice-results-container" class="panel has-bg-muted">
             {{scene_dice_results(user, world, party)}}
         </div>
-        <div id="autogm-description-container" class="panel has-bg-muted"
-             style='font-size: 1rem;'>
-            {{scene_description(user, world, party)}}
-        </div>
-        <div id="autogm-associations-container" class="panel has-bg-muted">
-            {{scene_associations(user, world, party)}}
-        </div>
+        {{scene_description(user, world, party)}}
+        {{scene_quest_log(user, world, party)}}
+        {{scene_associations(user, world, party)}}
         {% endif %}
     </div>
     <div id="autogm-scene-container" class="column is-full">
@@ -31,10 +24,17 @@
         {{ scene_summary_display(user, world, party) }}
 
         {% else %}
-
+        {% if party.gm_mode == 'pc' %}
         {{ autogm_start_session(user, world, party) }}
+        {% else %}
+        {{ autogm_start_gm_session(user, world, party) }}
+        {% endif %}
 
         {% endif %}
+    </div>
+    {% else %}
+    <div class="column is-full">
+        {{autogm_select_party(user, world, party)}}
     </div>
     {% endif %}
 </div>
@@ -78,49 +78,94 @@
 </script>
 {%- endmacro %}
 
-{% macro scene_description(user, world, party)%}
-<div class="row has-space-around">
-    <div id='auto-gm-session-audio' class="column is-shrink">
-        {% if party.autogm_summary[-1].audio %}
-        <button class="button is-small"
-                onclick='gmvoiced("/{{party.path}}/gm/voice", "{{party.autogm_summary[-1].music}}");'>
-            <iconify-icon icon="mdi:speaking" width="3rem"></iconify-icon>
-        </button>
-        {% endif %}
-    </div>
-    <div class="column is-shrink">
-        <button class="button is-small"
-                hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
-                hx-target='closest .column'>
-            {{icon_components.regenerate(size='3rem')}} Regenerate
-        </button>
-    </div>
-    <div class="column is-shrink">
-        <button class="button is-small"
-                hx-post="/api/autogm/{{party.path}}/description/edit"
-                hx-target='#autogm-description-container'>
-            {{icon_components.gear(size='3rem')}} Edit
-        </button>
-    </div>
-    <div class="column is-full">
-        <hr class='has-bg-primary'>
-        <section class="section is-small generated-text-lightbg">
-            {% if party.last_scene.image %}
-            <div class="is-float-right"
-                 style="position:relative; padding-left: 2rem; padding-bottom: 2rem;">
-                <div class="image is-extra-large is-tile is-margin-center">
-                    <img src="{{party.autogm_summary[-1].image.url()}}"
-                         loading="lazy"
-                         alt="{{party.name}}" />
+{% macro autogm_select_party(user, world, party) -%}
+<form hx-post='/api/autogm/{{party.path}}'
+      hx-target='#auto-gm-container' hx-select='#auto-gm-container'
+      hx-swap='outerHTML'
+      onsubmit='history.pushState({}, "", `/faction/${this.value}/gm`);'>
+    <div class="row">
+        <div class="column">
+            <div class="is-select">
+                <select class='has-text-center' name='partypk'>
+                    <option>==Select Party==</option>
+                    {% for p in world.parties %}
+                    <option value="{{p.pk}}" {% if p.pk==party.pk %} selected {% endif %}>
+                        {{ p.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column is-shrink">
+            <div class="panel">
+                <div class="row">
+                    <div class="column is-shrink is-vertically-centered">
+                        <label>
+                            as PC
+                        </label>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered">
+                        <div class="is-switch">
+                            <input type="checkbox" id="gmmode" name='gmmode'>
+                            <label for="gmmode"></label>
+                        </div>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered">
+                        <label>
+                            as GM
+                        </label>
+                    </div>
                 </div>
             </div>
-            {% endif %}
-            {{party.autogm_summary[-1].description | safe}}
-        </section>
-        <hr class='has-bg-primary'>
+        </div>
+        <div class="column is-full">
+            <button class="button is-full" type='submit'>
+                Start Campaign
+            </button>
+        </div>
     </div>
-    <div class="column">
-        {{scene_quest_log(user, world, party)}}
+</form>
+
+{%- endmacro %}
+
+{% macro scene_description(user, world, party)%}
+<div class="panel has-bg-muted">
+    {% if party.last_scene.image %}
+    <div class="is-float-right"
+         style="position:relative; padding-left: 2rem; padding-bottom: 2rem;">
+        <div class="image is-extra-large is-tile is-margin-center">
+            <img src="{{party.autogm_summary[-1].image.url()}}"
+                 loading="lazy"
+                 alt="{{party.name}}" />
+        </div>
+    </div>
+    {% endif %}
+    <div class="row has-space-around">
+        <div id='auto-gm-session-audio' class="column is-shrink">
+            {% if party.autogm_summary[-1].audio %}
+            <button class="button is-small"
+                    onclick='gmvoiced("/{{party.path}}/gm/voice", "{{party.autogm_summary[-1].music}}");'>
+                <iconify-icon icon="mdi:speaking" width="3rem"></iconify-icon>
+            </button>
+            {% endif %}
+        </div>
+        <div class="column is-shrink">
+            <button class="button is-small"
+                    hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
+                    hx-target='closest .column'>
+                {{icon_components.regenerate(size='3rem')}} Regenerate
+            </button>
+        </div>
+        <div class="column is-shrink">
+            <button class="button is-small"
+                    hx-post="/api/autogm/{{party.path}}/description/edit"
+                    hx-target='#autogm-description-container'>
+                {{icon_components.gear(size='3rem')}} Edit
+            </button>
+        </div>
+    </div>
+    <div class="panel has-bg-white generated-text-lightbg">
+        {{party.last_scene.description | safe}}
     </div>
 </div>
 {%- endmacro %}
@@ -139,9 +184,9 @@
 
 {% macro scene_associations(user, world, party)%}
 <div class="row has-space-around">
-    {% if party.autogm_summary[-1].get_npcs() %}
-    <div class="column is-shrink">
-        <div class="panel has-bg-screen is-full">
+    {% if party.last_scene.get_npcs() %}
+    <div class="column is-full">
+        <div class="panel has-bg-screen">
             <h4 class="has-text-center">NPCs</h4>
             <div class="row">
                 {% for npc in party.autogm_summary[-1].npcs%}
@@ -162,8 +207,8 @@
         </div>
     </div>
     {% endif %}
-    {% if party.autogm_summary[-1].combatants %}
-    <div class="column is-shrink">
+    {% if party.last_scene.combatants %}
+    <div class="column is-full">
         <div class="panel has-bg-screen is-full">
             <h4 class="has-text-center">Combatants</h4>
             <div class="row has-space-around">
@@ -185,8 +230,8 @@
         </div>
     </div>
     {% endif %}
-    {% if party.autogm_summary[-1].loot %}
-    <div class="column is-shrink">
+    {% if party.last_scene.loot %}
+    <div class="column is-full">
         <div class="panel is-full has-bg-screen">
             <h4 class="has-text-center">Loot</h4>
             <div class="row has-space-around">
@@ -245,6 +290,30 @@
 </div>
 {%- endmacro %}
 
+{% macro autogm_association_search(user, party, results) %}
+{% for o in results %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post="/api/autogm/{{party.pk}}/associations/add/{{o.path}}"
+       hx-target='#autogm-associations-list'
+       hx-select='#autogm-associations-list' hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{ o.name }}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro %}
+
 {% macro scene_dice_results(user, world, party)%}
 {% if party.autogm_summary | length > 1 and
 party.autogm_summary[-2].roll_required
@@ -280,23 +349,6 @@ party.autogm_summary[-2].roll_required
     </div>
 </div>
 {% endif %}
-{%- endmacro %}
-
-{% macro autogm_select_party(user, world, party) -%}
-<div class="is-select">
-    <select class='has-text-center' name='partypk'
-            hx-post='/api/autogm/{{party.path}}'
-            hx-target='#auto-gm-container' hx-select='#auto-gm-container'
-            hx-swap='outerHTML'
-            onchange='history.pushState({}, "", `/faction/${this.value}/gm`);'>
-        <option>==Select Party==</option>
-        {% for p in world.parties %}
-        <option value="{{p.pk}}" {% if p.pk==party.pk %} selected {% endif %}>
-            {{ p.name }}
-        </option>
-        {% endfor %}
-    </select>
-</div>
 {%- endmacro %}
 
 {% macro autogm_start_session(user, world, party) -%}
@@ -355,30 +407,6 @@ party.autogm_summary[-2].roll_required
         </div>
     </div>
 </form>
-{%- endmacro %}
-
-{% macro autogm_association_search(user, party, results) %}
-{% for o in results %}
-<li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/autogm/{{party.path}}/association/{{o.path}}/add"
-       hx-target='#autogm-associations-list'
-       hx-select='#autogm-associations-list' hx-swap='outerHTML'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="column">
-                {{ o.name }}
-            </div>
-        </div>
-    </a>
-</li>
-{% endfor %}
 {%- endmacro %}
 
 {% macro autogm_run_session(user, world, party) -%}
@@ -494,8 +522,9 @@ party.autogm_summary[-2].roll_required
     <div class="column">
         <div class="panel has-text-center has-bg-muted is-full">
             <form hx-post="/task/generate/autogm/{{party.pk}}/run"
-                  hx-target='#auto-gm-container'
-                  hx-replace-url='/{{party.path}}/gm'>
+                  hx-target='#page-content'
+                  hx-replace-url='/{{party.path}}/gm'
+                  hx-swap="innerHTML show:window:top">
                 <div class="row has-space-around">
                     {% for player in party.players %}
                     <div class="column">
@@ -610,7 +639,7 @@ party.autogm_summary[-2].roll_required
 <div id="scene_quest_log"
      class="panel has-bg-muted has-text-primary has-no-padding-left has-no-padding-right has-no-padding-bottom">
     <h3 class='has-text-center has-text-primary'> Quest Log </h3>
-    <div class="panel has-bg-light-grey has-text-primary" style='border-top-left-radius: 0;
+    <div class="panel has-bg-white has-text-primary" style='border-top-left-radius: 0;
 border-top-right-radius:0;'>
         <div class="row has-space-around">
             {% for quest in party.last_scene.quest_log %}
@@ -620,15 +649,15 @@ border-top-right-radius:0;'>
                 <span class='tag is-muted' style='position:absolute; top: 0;left:0;'>Current
                     Quest</span>
                 {% else %}
+                <button class='button is-small has-bg-screen'
+                        style='position:absolute; top: 0;left:0;'
+                        hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
+                        hx-target='#scene_quest_log'
+                        hx-select='#scene_quest_log' hx-swap='outerHTML'>
+                    Set as Current Quest
+                </button>
+                {% endif %}
                 <div class="column is-shrink is-vertically-centered">
-                    <button class='button is-small has-bg-screen'
-                            style='position:absolute; top: 0;left:0;'
-                            hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
-                            hx-target='#scene_quest_log'
-                            hx-select='#scene_quest_log' hx-swap='outerHTML'>
-                        Set as Current Quest
-                    </button>
-                    {% endif %}
                     <span class="tag"
                           style='position:absolute; top: 0;right:0;'>{{quest.status | title}}</span>
                     <h3 class="has-text-primary has-text-center">
@@ -662,9 +691,9 @@ border-top-right-radius:0;'>
 {%- endmacro %}
 
 {% macro scene_intermission(user, world, party, task_complete=False) -%}
-<div id="scene-intermission-container" class='row'>
+<div id="scene-intermission-container" class='row has-space-around'>
     {% if task_complete %}
-    <div class='column is-shrink is-centered'>
+    <div class='column is-shrink'>
         <button class="button is-full" hx-post="/api/autogm/{{party.path}}"
                 hx-target="#page-content">
             Next Scene
@@ -677,6 +706,9 @@ border-top-right-radius:0;'>
     </div>
     {% endif %}
     <div class="column is-full">
+        {{scene_summary_display(user, world, party)}}
+    </div>
+    <div class="column is-full">
         <div class="row has-space-around">
             {% for player in party.players %}
             <div class="column is-4">
@@ -686,4 +718,27 @@ border-top-right-radius:0;'>
         </div>
     </div>
 </div>
+{%- endmacro %}
+
+
+{% macro autogm_start_gm_session(user, world, party) -%}
+<form hx-post="/api/autogm/gm/{{party.pk}}/start"
+      hx-target='closest .column'
+      hx-push-url='/{{party.path}}/gm'>
+    <div class="row has-space-around">
+        <div class="column is-vertically-centered">
+            <h3 class='has-text-primary'>Scenario</h3>
+            <textarea name="description" id="party_scenario"
+                      class='has-bg-white'
+                      style='height:5rem;'></textarea>
+        </div>
+    </div>
+    <div class="row has-centered">
+        <div class="column is-shrink is-vertically-centered">
+            <button type='submit' class="button">
+                Start Session
+            </button>
+        </div>
+    </div>
+</form>
 {%- endmacro %}

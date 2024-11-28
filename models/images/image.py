@@ -33,19 +33,20 @@ class Image(AutoModel):
     @classmethod
     def generate(
         cls,
-        prompt: str,
+        prompt,
         tags=[],
         img_quality="standard",
         img_size="1024x1024",
         text=False,
     ):
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
-        log(f"=== generation prompt ===\n\n{prompt}")
+        log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         temp_prompt = (
             f"""{prompt}
 IMPORTANT: The image MUST NOT contain any TEXT.
 """
-            or prompt
+            if not text
+            else prompt
         )
         try:
             image = cls._client.generate(

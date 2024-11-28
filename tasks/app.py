@@ -104,19 +104,6 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/chat/<string:pk>", methods=("POST",))
-    def create_chat(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_chat_task,
-                pk=pk,
-                message=request.json.get("message"),
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
     @app.route("/generate/autogm/<string:pk>/<string:action>", methods=("POST",))
     def autogm(pk, action):
         task_function = {
@@ -127,6 +114,8 @@ def create_app():
         }.get(action)
 
         kwargs = {"pk": pk}
+        if action == "end":
+            pass
         if message := request.json.get("message"):
             kwargs["message"] = message
         if num_dice := request.json.get("pc_roll_num_dice"):
@@ -165,3 +154,25 @@ def create_app():
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     return app
+
+    @app.route("/generate/autogm/gm/<string:pk>", methods=("POST",))
+    def autogm_gm(pk, action):
+        kwargs = {
+            "pk": pk,
+            "scene_type": request.json.get("scene_type"),
+            "description": request.json.get("description"),
+            "date": request.json.get("date"),
+            "npcs": request.json.get("npcs"),
+            "combatants": request.json.get("combatants"),
+            "loot": request.json.get("loot"),
+            "places": request.json.get("places"),
+        }
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_autogm_gm_task,
+                **kwargs,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])

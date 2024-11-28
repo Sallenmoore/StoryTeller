@@ -177,7 +177,7 @@
   --body-font-size: 1.05rem;
   --body-font-color: hsl(211.5789473684, 21.5909090909%, 104.5098039216%);
   --body-background-color: #45576b;
-  --body-font-family: Open Sans, sans-serif;
+  --body-font-family: Rosarivo, cursive;
   --border-radius: 0.2380952381rem;
 }
 
@@ -221,8 +221,8 @@ html {
 }
 
 body {
-  --font-weight: 300;
-  --line-height: 1.7;
+  --font-weight: 500;
+  --line-height: 1.9;
   --font-color: var(--body-font-color);
   --background-color: var(--body-background-color);
   --font-family: var(--body-font-family);

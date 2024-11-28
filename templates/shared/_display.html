@@ -38,7 +38,7 @@
             <div class="section">
                 <hr>
                 <h3 class='has-text-center has-text-dark'>
-                    {{obj.name}} [AC: {{obj.ac}}]
+                    {{obj.name}}
                 </h3>
                 <div class="row has-space-around">
                     <div class="column has-text-center has-text-dark">
@@ -73,18 +73,15 @@
                             <div class="column">
                                 <h4 class='has-text-dark'>MAX HP</h4>
                                 <h5 class='has-text-dark'>{{obj.hitpoints}}</h5>
-                                <div class="row">
-                                    <div class="column is-9 is-center">
-                                        {% for i in range(obj.hitpoints//5) %}
-                                        <iconify-icon icon="ci:line-l" width="1rem"></iconify-icon>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                            </div>
+                            <div class="column">
+                                <h4 class='has-text-dark'>AC</h4>
+                                <h5 class='has-text-dark'>{{obj.ac}}</h5>
                             </div>
                         </div>
                         <div class="row">
                             {% for a in obj.abilities%}
-                            <div class="column is-full has-text-dark">
+                            <div class="column is-full has-text-dark has-text-justified">
                                 {{a | safe }}
                             </div>
                             {% endfor %}
@@ -93,13 +90,6 @@
                     </div>
                 </div>
                 <hr>
-                <div class="row">
-                    <div class="column" style='min-height:5rem;'>
-                        <h4 class="has-text-dark">
-                            Status:
-                        </h4>
-                    </div>
-                </div>
             </div>
         </a>
     </div>

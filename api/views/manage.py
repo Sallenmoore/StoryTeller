@@ -75,7 +75,7 @@ def delete(model, pk):
     user, obj, world, *_ = _loader(model=model, pk=pk)
     obj = world.get_model(model, pk)
     obj.delete()
-    return "<p>Success</p>"
+    return get_template_attribute("shared/_details.html", "details")(user, world)
 
 
 # MARK: title route

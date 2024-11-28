@@ -164,7 +164,7 @@ LIFE EVENTS
         prompt = f"""
 A full-body color portrait of a fictional {self.gender} {self.race} {self.genre} character aged {self.age} who is a {self.occupation} and described as: {self.description}
 
-PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARAITIONS.
+PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
 

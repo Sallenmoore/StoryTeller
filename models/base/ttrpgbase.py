@@ -327,7 +327,7 @@ EVENTS
 
     @property
     def image_prompt(self):
-        return f"Create an image of a {self.title}"
+        return self.desc
 
     @property
     def path(self):

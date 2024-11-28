@@ -15,13 +15,17 @@
         </div>
     </div>
 </div>
-{{ snippet | safe}}
+<div class="row">
+    <div class="column">
+        {{ snippet | safe}}
+    </div>
+</div>
 {%- endmacro %}
 
 {% macro completetask (url, target="page-content", select=None, swap=None) -%}
 <div id="task-loader" class="alert has-bg-screen fade-it-out"
      hx-post="{{url}}"
-     hx-trigger="load delay:500ms"
+     hx-trigger="load delay:300ms"
      hx-target="#{{target}}"
      {% if select%}
      hx-select="#{{select}}"

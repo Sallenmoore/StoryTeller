@@ -4,6 +4,7 @@ import random
 
 import markdown
 import requests
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from autonomous.ai.audioagent import AudioAgent
@@ -42,7 +43,7 @@ class AutoGMScene(AutoModel):
     description = StringAttr()
     summary = StringAttr()
     date = StringAttr()
-    player_messages = ListAttr(DictAttr())
+    player_messages = DictAttr()
     party = ReferenceAttr(choices=["Faction"])
     npcs = ListAttr(ReferenceAttr(choices=["Character"]))
     combatants = ListAttr(ReferenceAttr(choices=["Creature"]))
@@ -83,10 +84,17 @@ class AutoGMScene(AutoModel):
                 f"http://tasks:{os.environ.get('COMM_PORT')}/generate/audio/{self.pk}"
             )
 
-    def generate_audio(self):
+    def add_association(self, obj):
+        if obj not in self.associations:
+            self.associations += [obj]
+        self.save()
+
+    def generate_audio(self, voice=None):
         from models.world import World
 
-        voiced_scene = AudioAgent().generate(self.description, voice="echo")
+        soup = BeautifulSoup(self.description, "html.parser")
+        description = soup.get_text()
+        voiced_scene = AudioAgent().generate(description, voice=voice)
         if self.audio:
             self.audio.delete()
             self.audio.replace(voiced_scene, content_type="audio/mpeg")
@@ -132,58 +140,72 @@ SCENE DESCRIPTION
         if not objs:
             return
         for obj in objs:
-            char = Character.find(
-                world=self.party.world, name=obj["name"]
-            ) or Character(
-                world=self.party.world,
-                race=obj["species"],
-                name=obj["name"],
-                desc=obj["description"],
-                backstory=obj["backstory"],
-            )
-            char.save()
-            self.npcs += [char]
-            self.save()
-            resp = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-            )
+            first_name = obj["name"].split()[0]
+            last_name = obj["name"].split()[-1]
+            npc = [
+                c
+                for c in Character.search(world=self.party.world, name=first_name)
+                if last_name in c.name
+            ]
+            char = npc[0] if npc else []
+            if not char:
+                char = Character(
+                    world=self.party.world,
+                    race=obj["species"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                    backstory=obj["backstory"],
+                )
+                char.save()
+                if char not in self.party.players:
+                    self.npcs += [char]
+                self.save()
+                resp = requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
         return self.npcs
 
     def generate_combatants(self, objs):
         if not objs:
             return
         for obj in objs:
-            char = Creature.find(world=self.party.world, name=obj["name"]) or Creature(
-                world=self.party.world,
-                type=obj["combatant_type"],
-                name=obj["name"],
-                desc=obj["description"],
-            )
-            char.save()
-            self.combatants += [char]
-            self.save()
-            resp = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-            )
+            char = Creature.find(world=self.party.world, name=obj["name"])
+
+            if not char:
+                char = Creature(
+                    world=self.party.world,
+                    type=obj["combatant_type"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                )
+                char.save()
+                self.combatants += [char]
+                self.save()
+                resp = requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
         return self.combatants
 
     def generate_loot(self, objs):
         if not objs:
             return
         for obj in objs:
-            char = Item.find(world=self.party.world, name=obj["name"]) or Item(
-                world=self.party.world,
-                rarity=obj["rarity"],
-                name=obj["name"],
-                desc=obj["description"],
-                features=obj["attributes"],
-            )
-            char.save()
-            self.loot += [char]
-            self.save()
-            resp = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-            )
+            char = Item.find(world=self.party.world, name=obj["name"])
+
+            if not char:
+                char = Item(
+                    world=self.party.world,
+                    rarity=obj["rarity"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                    features=obj["attributes"],
+                )
+                char.save()
+                self.loot += [char]
+                self.save()
+                resp = requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
         return self.loot
 
     def generate_places(self, objs):
@@ -195,18 +217,20 @@ SCENE DESCRIPTION
             for key, val in self.party.system._titles.items():
                 if val.lower() == obj["location_type"].lower():
                     Model = AutoModel.load_model(key)
-            obj = Model.find(world=self.party.world, name=obj["name"]) or Model(
-                world=self.party.world,
-                name=obj["name"],
-                desc=obj["description"],
-                backstory=obj["backstory"],
-            )
-            obj.save()
-            self.places += [obj]
-            self.save()
-            resp = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{obj.path}"
-            )
+            char = Model.find(world=self.party.world, name=obj["name"])
+            if not char:
+                char = Model(
+                    world=self.party.world,
+                    name=obj["name"],
+                    desc=obj["description"],
+                    backstory=obj["backstory"],
+                )
+                char.save()
+                self.places += [char]
+                self.save()
+                resp = requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
         return self.places
 
     def get_additional_associations(self):
@@ -263,21 +287,22 @@ SCENE DESCRIPTION
 class AutoGM(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
     agent = ReferenceAttr(choices=[JSONAgent])
+    voice = StringAttr(default="echo")
 
     _funcobj = {
         "name": "run_scene",
-        "description": "Creates a scene for TTRPG players that advances the story forward, is consistent with the previous scene, and incorporates elements from the uploaded file describing the world.",
+        "description": "Creates a TTRPG scene that advances the story, maintains narrative consistency, and integrates elements from the uploaded world file.",
         "parameters": {
             "type": "object",
             "properties": {
                 "scene_type": {
                     "type": "string",
                     "enum": ["social", "combat", "exploration", "stealth"],
-                    "description": "The type of scene, such as social, combat, exploration, or clandestine.",
+                    "description": "Type of scene to generate (e.g., social, combat, exploration, or stealth).",
                 },
                 "description": {
                     "type": "string",
-                    "description": "The GM's evocative and detailed description in MARKDOWN of a scene that drives the current scenario forward and includes any relevant information the GM thinks the players need to know.",
+                    "description": "Detailed Markdown description of the scene, driving the story forward and providing relevant information.",
                 },
                 "image": {
                     "type": "object",
@@ -286,22 +311,22 @@ class AutoGM(AutoModel):
                     "properties": {
                         "description": {
                             "type": "string",
-                            "description": "A detailed description of the scene that can be used to generate an image.",
+                            "description": "Detailed description of the scene for image generation.",
                         },
                         "imgtype": {
                             "type": "string",
                             "enum": ["scene", "map"],
-                            "description": "The type of image that should be generated, such as a scene or a map.",
+                            "description": "Specifies whether the image is a scene or a map.",
                         },
                     },
                 },
                 "player": {
                     "type": "string",
-                    "description": "The full name of the player the GM is currently interacting with or blank if not directed at a specific player.",
+                    "description": "Name of the active player, or blank if not specific to any player.",
                 },
                 "npcs": {
                     "type": "array",
-                    "description": "A list of descriptions of non-combatant NPCs in the scenario, if any. For existing NPCs from associations, use full names that can be matched.",
+                    "description": "List of non-combatant NPCs, including details for interaction or lore.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -309,26 +334,26 @@ class AutoGM(AutoModel):
                         "properties": {
                             "species": {
                                 "type": "string",
-                                "description": "The species of the NPC, such as human, elf, dwarf, etc.",
+                                "description": "NPC species (e.g., human, elf).",
                             },
                             "name": {
                                 "type": "string",
-                                "description": "A unique name for the NPC.",
+                                "description": "Unique name for the NPC.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A description of the physical appearance of the NPC detailed enough to generate an image.",
+                                "description": "Markdown description of NPC's appearance.",
                             },
                             "backstory": {
                                 "type": "string",
-                                "description": "The NPC's backstory or history, including any relevant information the GM thinks the players need to know in MARKDOWN format.",
+                                "description": "Markdown description of the NPC's history and motivations.",
                             },
                         },
                     },
                 },
                 "combatants": {
                     "type": "array",
-                    "description": "If and only if it is a combat type scene, provide a list of descriptions of combatants in the scenario, otherwise an empty list.",
+                    "description": "List of combatants for combat scenes, or empty for other scene types.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -337,55 +362,55 @@ class AutoGM(AutoModel):
                             "combatant_type": {
                                 "type": "string",
                                 "enum": ["humanoid", "animal", "monster", "unique"],
-                                "description": "The type of combatant, such as humanoid, animal, monster, or unique.",
+                                "description": "Combatant type (e.g., humanoid, monster).",
                             },
                             "name": {
                                 "type": "string",
-                                "description": "If unique, the name of the combatant, otherwise a specific name for this type of combatant.",
+                                "description": "Name of the combatant.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A description of the combatant, including any relevant information the GM thinks the players need to know in MARKDOWN format.",
+                                "description": "Markdown description of the combatant's appearance and behavior.",
                             },
                         },
                     },
                 },
                 "places": {
                     "type": "array",
-                    "description": "A list of locations, such as a region, city, district, or point of interest (poi), related to the scenario, if any, otherwise an empty list.",
+                    "description": "List of locations relevant to the scenario, or empty if none.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
                         "required": [
                             "location_type",
                             "name",
-                            "backstory",
                             "description",
+                            "backstory",
                         ],
                         "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "A unique name for the location.",
-                            },
                             "location_type": {
                                 "type": "string",
                                 "enum": ["region", "city", "district", "poi"],
-                                "description": "The kind of location, such as a region, city, district, or point of interest (poi).",
+                                "description": "Type of location (e.g., city, point of interest).",
                             },
-                            "backstory": {
+                            "name": {
                                 "type": "string",
-                                "description": "The publicly known history of the location.",
+                                "description": "Unique name for the location.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A physical description of the location.",
+                                "description": "Markdown description of the location's appearance.",
+                            },
+                            "backstory": {
+                                "type": "string",
+                                "description": "Publicly known history of the location in Markdown.",
                             },
                         },
                     },
                 },
                 "loot": {
                     "type": "array",
-                    "description": "A list of loot items gained in the scene, if any.",
+                    "description": "List of loot items discovered in the scene, or empty if none.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -401,23 +426,20 @@ class AutoGM(AutoModel):
                                     "legendary",
                                     "artifact",
                                 ],
-                                "description": "The rarity of the item, such as common, uncommon, rare, very rare, legendary, or artifact.",
+                                "description": "Rarity of the loot item.",
                             },
                             "name": {
                                 "type": "string",
-                                "description": "A unique name for the item.",
+                                "description": "Unique name for the item.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A physical description of the item.",
+                                "description": "Markdown description of the item's appearance.",
                             },
                             "attributes": {
                                 "type": "array",
-                                "description": "A list of the features, limitations, and value of the item in MARKDOWN format.",
-                                "items": {
-                                    "type": "string",
-                                    "description": "A feature, limitation, or value of the item in MARKDOWN format.",
-                                },
+                                "description": "Markdown list of item's features, limitations, or value.",
+                                "items": {"type": "string"},
                             },
                         },
                     },
@@ -429,7 +451,7 @@ class AutoGM(AutoModel):
                     "properties": {
                         "roll_required": {
                             "type": "boolean",
-                            "description": "Whether or not the player's next action requires a roll.",
+                            "description": "Whether a roll is required for the player's next action.",
                         },
                         "type": {
                             "type": "string",
@@ -442,21 +464,21 @@ class AutoGM(AutoModel):
                                 "initiative",
                                 "none",
                             ],
-                            "description": "The type of roll requested, such as a saving throw, attack, damage, skill check, ability check, initiative roll, or none.",
+                            "description": "Type of roll needed.",
                         },
                         "attribute": {
                             "type": "string",
-                            "description": "A description of the attribute to roll, such as WIS, DEX, STR, Stealth, Perception, etc.",
+                            "description": "Attribute to roll against (e.g., WIS, DEX, Stealth).",
                         },
                         "description": {
                             "type": "string",
-                            "description": "A short description of the scenario or event that requires the roll in MARKDOWN format.",
+                            "description": "Markdown description of the event requiring a roll.",
                         },
                     },
                 },
                 "quest_log": {
                     "type": "array",
-                    "description": "A list of plot points, side quests, and objectives that the players can choose to pursue, delay, or ignore.",
+                    "description": "List of plot points, quests, or objectives for the players.",
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
@@ -471,7 +493,7 @@ class AutoGM(AutoModel):
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "The name of the quest or objective.",
+                                "description": "Quest or objective name.",
                             },
                             "type": {
                                 "type": "string",
@@ -480,15 +502,15 @@ class AutoGM(AutoModel):
                                     "side quest",
                                     "optional objective",
                                 ],
-                                "description": "The type of quest or objective, such as main quest, side quest, or optional objective.",
+                                "description": "Type of quest or objective.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A description of the quest or objective in MARKDOWN format.",
+                                "description": "Markdown description of the quest or objective.",
                             },
                             "importance": {
                                 "type": "string",
-                                "description": "A description of how the quest or objective connects to and advances the story.",
+                                "description": "Connection to the overarching story.",
                             },
                             "status": {
                                 "type": "string",
@@ -499,11 +521,11 @@ class AutoGM(AutoModel):
                                     "failed",
                                     "abandoned",
                                 ],
-                                "description": "The current status of the quest or objective.",
+                                "description": "Current status of the quest.",
                             },
                             "next_steps": {
                                 "type": "string",
-                                "description": "A description of the next set of possible actions that players can take to advance the objective.",
+                                "description": "Markdown description of actions to advance the objective.",
                             },
                         },
                     },
@@ -578,9 +600,13 @@ class AutoGM(AutoModel):
                 response["description"].replace("```markdown", "").replace("```", "")
             )
             description = markdown.markdown(description)
-            associations = party.characters + (
-                party.last_scene.associations if party.last_scene else []
-            )
+
+            associations = []
+            if party.last_scene:
+                for ass in [*party.players, *party.last_scene.associations]:
+                    if ass not in associations:
+                        associations += [ass]
+
             scene = AutoGMScene(
                 type=scene_type,
                 party=party,
@@ -600,9 +626,13 @@ class AutoGM(AutoModel):
                 try:
                     quest = [
                         quest
-                        for quest in party.autogm_summary[-1].quest_log
+                        for quest in party.last_scene.quest_log
                         if quest.name == q["name"]
                     ].pop(0)
+                    quest.description = q["description"]
+                    quest.importance = q.get("importance")
+                    quest.status = q["status"]
+                    quest.next_steps = q["next_steps"]
                 except IndexError:
                     quest = AutoGMQuest(
                         name=q["name"],
@@ -630,7 +660,7 @@ class AutoGM(AutoModel):
             else:
                 scene.roll_required = False
             scene.generate_image(response["image"])
-            scene.generate_audio()
+            scene.generate_audio(voice="onyx")
             party.autogm_summary += [scene]
             party.save()
             scene.generate_npcs(response.get("npcs"))
@@ -638,13 +668,21 @@ class AutoGM(AutoModel):
             scene.generate_loot(response.get("loot"))
             scene.generate_places(response.get("places"))
             for ags in party.autogm_summary:
-                for assoc in ags.associations:
+                for assoc in [
+                    *ags.npcs,
+                    *ags.loot,
+                    *ags.combatants,
+                    *ags.places,
+                    *ags.associations,
+                ]:
                     assoc.add_associations(ags.associations)
 
             self.update_refs()
             return scene
 
     def start(self, party, scenario=None):
+        if party.autogm_summary:
+            self.end(party)
         scenario = (
             scenario
             or "Build on an existing storyline or encounter from the world to surprise and challenge players' expectations."
@@ -652,14 +690,14 @@ class AutoGM(AutoModel):
         prompt = f"You are an expert AI Game Master for a new {self.world.genre} TableTop RPG campaign within the established world of {self.world.name}, described in the uploaded file. Your job is to start the first session by describing the world, campaign setting, and a plot hook for the players in a vivid and captivating way. The first session should also explain what brought these characters together and what their initial goal is. The party consists of the following characters:"
         for pc in party.players:
             prompt += f"""
-        PARTY MEMBER: {pc.name} [{pc.pk}]
-        {pc.backstory_summary}
+PARTY MEMBER: {pc.name} [{pc.pk}]
+{pc.backstory_summary}
 """
         prompt += f"""
 
-            SCENARIO: {scenario}
+SCENARIO: {scenario}
 
-            IN-GAME DATE: {party.current_date}
+IN-GAME DATE: {party.current_date}
 """
         self._update_response_function(party)
         response = self.gm.generate(prompt, self._funcobj)
@@ -668,18 +706,28 @@ class AutoGM(AutoModel):
         return scene
 
     def run(self, party, message):
-        prompt = f"""You are an expert AI Game Master for a {self.world.genre} TTRPG campaign, write a description for the next event, scene, or combat round that moves the story forward and creates suspense or a sense of danger. The new scene should be based on and consistent with the player's message, the previous events, associated elements, the players self-described actions, and the roll result if present:
+        prompt = f"""You are an expert AI Game Master for a {self.world.genre} tabletop roleplaying game. Your task is to craft an evocative and immersive description for the next event, scene, or combat round that moves the story forward in surprising yet logical ways. The scene should:
+- Build suspense, tension, or excitement.
+- Incorporate elements from the player's most recent message, past events, and established lore.
+- Reflect the player's self-described actions and intentions.
+- Be influenced by any provided roll results or narrative outcomes.
+- Remain consistent with the tone and pacing of the game.
+
+Provide your response in a way that:
+1. Evokes vivid imagery and atmosphere.
+2. Introduces unexpected challenges or opportunities to keep the players engaged.
+3. Clearly outlines the consequences or setup for player actions, leaving room for creative responses.
 
 PREVIOUS EVENTS SUMMARY
-{party.autogm_summary[-1].summary or party.autogm_summary[-1].description}
+{party.last_scene.summary or party.last_scene.description}
 
-ASSOCIATED WORLD ELEMENTS
-{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in party.autogm_summary[-1].associations if ass not in party.characters]) if party.autogm_summary else "None yet"}
+STORY ELEMENTS
+{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in party.last_scene.associations if ass not in party.players]) if party.autogm_summary else "None yet"}
 
 PARTY
 {"".join([f"\n- {pc.name} : {pc.backstory_summary}\n" for pc in party.players])}
 
-PLAYERS ACTIONS
+PLAYER'S ACTIONS
 {message}
 """
         log(prompt, _print=True)
@@ -699,7 +747,7 @@ PLAYERS ACTIONS
             else self.start(party, message)
         )
 
-    def end(self, party, message):
+    def end(self, party):
         prompt = f"""You are an expert AI Game Master for a {party.genre} TTRPG campaign, create a natural stopping point to end the currently running game session, including a cliffhanger scenario, based on the following details:
 
 {f"Timeline: {party.autogm_summary[0].date} - {party.last_scene.date}" if party.autogm_summary else ""}
@@ -712,9 +760,6 @@ PREVIOUS EVENTS
 
 PARTY
 {"".join([f"\n- {pc.name} : {pc.backstory_summary}\n" for pc in party.characters])}
-
-PLAYERS ACTIONS
-{message}
 """
         log(prompt, _print=True)
         self._update_response_function(party)
@@ -731,3 +776,83 @@ PLAYERS ACTIONS
         party.autogm_summary = []
         party.save()
         return scene
+
+    def rungm(
+        self,
+        party,
+        description,
+        scene_type,
+        npcs=[],
+        combatants=[],
+        loot=[],
+        places=[],
+        date=None,
+    ):
+        summary = description
+        if party.autogm_summary:
+            prompt = (
+                party.autogm_summary[10].summary
+                if len(party.autogm_summary) > 10
+                else ""
+            )
+            prompt += ". ".join(ags.description for ags in party.autogm_summary[:10])
+            primer = "Generate a summary of less than 250 words of the following events in MARKDOWN format."
+            summary = party.system.generate_summary(prompt, primer)
+            summary = summary.replace("```markdown", "").replace("```", "")
+            summary = markdown.markdown(summary)
+        date = (
+            date or (party.last_scene and party.last_scene.date) or party.current_date,
+        )
+        scene = AutoGMScene(
+            type=scene_type,
+            party=party,
+            description=description,
+            summary=summary,
+            date=date,
+            npcs=npcs,
+            combatants=combatants,
+            loot=loot,
+            places=places,
+        )
+        if party.last_scene:
+            scene.current_quest = party.last_scene.current_quest
+            scene.quest_log = party.last_scene.quest_log
+
+        elements = [*npcs, *combatants, *loot, *places]
+        associations = (party.last_scene and party.last_scene.associations) or []
+        associations = list(set([*associations, *elements, *party.players]))
+        for o in associations:
+            scene.add_association(o)
+        scene.save()
+        party.autogm_summary += [scene]
+        party.save()
+        prompt = f"""As one of the the AI Player Characters for a TTRPG campaign, your task is to respond to the GM's described scene as the character described below in a way that is consistent with the character's description, previous campaign events, and the world described by the uploaded file.
+
+CAMPAIGN SUMMARY
+{party.last_scene.summary or "The campaign has just begun."}
+
+STORY ELEMENTS
+{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in elements if ass not in party.players]) if party.autogm_summary else "None yet"}
+
+PARTY
+{"".join([f"\n- {pc.name} : {pc.backstory_summary}\n" for pc in party.characters])}
+
+SCENE
+{party.last_scene.description}
+"""
+        pc_prompt = ""
+        for pc in party.players:
+            pc_prompt = f"""
+
+CHARACTER DESCRIPTION
+- Name: {pc.name}
+- Species: {pc.species}
+- Gender: {pc.gender}
+- Age: {pc.age}
+- Occupation: {pc.occupation}
+- Goal: {pc.goal}
+- Backstory: {pc.backstory}
+"""
+            response = self.gm.generate(pc_prompt)
+            scene.player_messages[pc.pk] = response
+            scene.save()

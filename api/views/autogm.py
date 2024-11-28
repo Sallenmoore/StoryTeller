@@ -23,6 +23,9 @@ def index(model=None, pk=None):
     if "faction" in request.url or request.json.get("partypk"):
         pk = pk or request.json.get("partypk")
         party = Faction.get(pk)
+        if request.json.get("gmmode", "") == "on":
+            party.gm_mode = "gm"
+            party.save()
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
@@ -34,6 +37,17 @@ def party_intermission(pk):
     return get_template_attribute("shared/_gm.html", "scene_intermission")(
         user, world, party, task_complete=True
     )
+
+
+@autogm_endpoint.route(
+    "/<string:pk>/associations/add/<string:amodel>/<string:apk>", methods=("POST",)
+)
+def autogm_association_add(pk, amodel, apk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    if ass := world.get_model(amodel, apk):
+        party.last_scene.add_association(ass)
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/associations/search", methods=("POST",))
@@ -50,7 +64,7 @@ def autogm_search(pk):
     else:
         objs = []
     return get_template_attribute("shared/_gm.html", "autogm_association_search")(
-        user, world, objs
+        user, party, objs
     )
 
 
