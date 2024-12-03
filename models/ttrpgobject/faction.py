@@ -8,6 +8,7 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
+from models.autogm.autogm import AutoGMScene
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 from .character import Character
@@ -18,6 +19,8 @@ class Faction(TTRPGObject):
     status = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
+    # autogm attributes
+    next_scene = ReferenceAttr(choices=["AutoGMScene"])
     autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
     autogm_history = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
     gm_mode = StringAttr(default="pc", choices=["pc", "gm"])
@@ -133,34 +136,66 @@ class Faction(TTRPGObject):
         self.gm.end(party=self, message=message)
         self.save()
 
-    def autogm_pc_session(
-        self,
-        scene_type,
-        description,
-        date,
-        npcs,
-        combatants,
-        loot,
-        places,
-    ):
-        self.gm.rungm(
-            party=self,
-            scene_type=scene_type,
-            description=description,
-            date=date,
-            npcs=npcs,
-            combatants=combatants,
-            loot=loot,
-            places=places,
-        )
+    def autogm_pc_session(self):
+        self.gm.rungm(party=self)
         self.save()
 
+    def clear_autogm(self):
+        self.autogm_history += self.autogm_summary
+        self.autogm_summary = []
+        self.save()
+
+    def get_next_scene(self, create=False):
+        if self.next_scene and create:
+            prompt = ""
+            for pc in self.players:
+                prompt += f"""
+            CHARACTER DESCRIPTION
+            - Name: {pc.name}
+            - Gender: {pc.gender}
+            - Backstory: {pc.backstory_summary}
+
+            """
+            prompt += (
+                self.autogm_summary[10].summary if len(self.autogm_summary) > 10 else ""
+            )
+            prompt += ". ".join(
+                msg.message
+                for ags in self.autogm_summary[:10]
+                for msg in ags.player_messages
+            )
+
+            primer = "Generate an evocative, narrative summary of less than 250 words for the given players and events of a TTRPG in MARKDOWN format."
+            summary = self.system.generate_summary(prompt, primer)
+            summary = summary.replace("```markdown", "").replace("```", "")
+            self.next_scene.summary = summary
+            self.next_scene.save()
+            self.autogm_summary += [self.next_scene]
+            self.next_scene = None
+            self.save()
+
+        if not self.next_scene:
+            ags = AutoGMScene(party=self, date=self.world.current_date)
+            ags.save()
+            self.next_scene = ags
+
+            if self.last_scene:
+                self.next_scene.associations = self.last_scene.associations
+                self.next_scene.save()
+            self.save()
+        return self.next_scene
+
+    def get_last_player_message(self, player):
+        return self.last_scene.get_player_message(player) if self.last_scene else ""
+
+    ############################# Serialization Methods #############################
+    ## MARK: Serialization
     def page_data(self):
         return {
             "pk": str(self.pk),
             "name": self.name,
             "backstory": self.backstory,
-            "histroy": self.history,
+            "history": self.history,
             "goal": self.goal,
             "leader": {"name": self.leader.name, "pk": str(self.leader.pk)}
             if self.leader

@@ -1,0 +1,57 @@
+{% macro info(user, obj) -%}
+<div class="row">
+    {% if obj.ruling_faction %}
+    <div class="column is-full">
+        <div class="panel is-small has-bg-dark-grey">
+            <h4 class='has-text-center has-text-dark'>Ruling Faction</h4>
+            <h5>{{obj.ruling_faction.name}}</h5>
+            <p>
+                {{obj.ruling_faction.backstory_summary}}
+            </p>
+        </div>
+    </div>
+    {% elif obj.factions %}
+    <div class="column is-full">
+        <h4 class='has-text-center has-text-dark'>Local Factions</h4>
+        {% for faction in obj.factions %}
+        <div class="panel is-small has-bg-dark-grey">
+            <h5>{{faction.name}}</h5>
+            <p>
+                {{faction.backstory_summary}}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <h3 class='has-text-center has-text-light'>Ruling Faction</h3>
+    <div class="row">
+        <div class="column is-full">
+            <div class="panel is-small has-bg-light">
+                <div class="is-select">
+                    <select name='ruling_faction'>
+                        <option value=''>=== Select a Faction ===</option>
+                        {%for f in obj.factions %}
+                        <option value='{{f.pk}}'>{{f.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% for faction in obj.factions %}
+        <div class="column is-full">
+            <div
+                 class="panel is-small {% if faction == obj.ruling_faction %} has-bg-primary has-text-primary {%else%} has-bg-secondary has-text-secondary {% endif %}">
+                <h5>{{faction.name}}</h5>
+                {{faction.backstory_summary}}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</form>
+{%- endmacro %}

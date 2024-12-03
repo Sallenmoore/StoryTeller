@@ -5,7 +5,7 @@ import requests
 
 from autonomous import log
 from autonomous.ai.jsonagent import JSONAgent
-from models.autogm import AutoGM, AutoGMQuest, AutoGMScene
+from models.autogm.autogm import AutoGM, AutoGMQuest, AutoGMScene
 from models.ttrpgobject.city import City
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location

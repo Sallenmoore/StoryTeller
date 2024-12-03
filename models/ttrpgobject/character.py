@@ -23,6 +23,7 @@ class Character(Actor):
     abilities = ListAttr(StringAttr(default=""))
     race = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
+    pc_voice = StringAttr(default="")
 
     parent_list = ["Location", "District", "Faction", "City"]
     _genders = ["male", "female", "non-binary"]
@@ -167,6 +168,40 @@ A full-body color portrait of a fictional {self.gender} {self.race} {self.genre}
 PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
+
+    @property
+    def species(self):
+        return self.race
+
+    @species.setter
+    def species(self, value):
+        self.race = value
+
+    @property
+    def voice(self):
+        if not self.pc_voice:
+            _voices = [
+                "alloy",
+                "echo",
+                "fable",
+                "onyx",
+                "nova",
+                "shimmer",
+            ]
+            if self.gender.lower() == "male":
+                if self.age < 30:
+                    self.pc_voice = random.choice(["alloy", "echo", "fable"])
+                else:
+                    self.pc_voice = random.choice(["onyx", "echo"])
+            elif self.gender.lower() == "female":
+                if self.age < 30:
+                    self.pc_voice = random.choice(["nova", "shimmer"])
+                else:
+                    self.pc_voice = random.choice(["fable", "shimmer"])
+            else:
+                self.pc_voice = random.choice(_voices)
+            self.save()
+        return self.pc_voice
 
     ################# Instance Methods #################
 

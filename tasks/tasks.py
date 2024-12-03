@@ -5,7 +5,7 @@ from dmtoolkit import dmtools
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
-from models.autogm import AutoGMScene
+from models.autogm.autogm import AutoGMScene
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -78,49 +78,51 @@ def _generate_autogm_start_task(pk, message=""):
     party.save()
     return {
         "url": f"/api/autogm/party/{party.pk}/intermission",
-        "target": "#scene-intermission-container",
-        "select": "#scene-intermission-container",
+        "target": "scene-intermission-container",
+        "select": "scene-intermission-container",
         "swap": "outerHTML",
     }
 
 
 def _generate_autogm_run_task(pk, message=None, roll_dice=None):
     obj = Faction.get(pk)
-    obj.last_scene.player_messages = message or []
+    # obj.last_scene.player_messages |= {pk: message}
     obj.save()
     if message:
         messagestr = ""
-        for msg in obj.last_scene.player_messages:
-            if player := Character.get(msg.get("player")):
+        for pk, msg in obj.last_scene.player_messages.items():
+            if player := Character.get(pk):
                 messagestr += f"""
 {player.name} RESPONSE: {msg.get("message")}
 """
     if roll_dice:
         obj.last_scene.roll_formula = roll_dice
         roll_result = dmtools.dice_roll(roll_dice)
-        log(roll_result, _print=True)
+        # log(roll_result, _print=True)
         obj.last_scene.roll_result = roll_result
         obj.last_scene.save()
         messagestr += f"""
 Rolls {obj.last_scene.roll_type}:{obj.last_scene.roll_attribute}
 RESULT:  {roll_result}
 """
-    log(messagestr)
+    # log(messagestr)
     obj.run_gm_session(message=message)
     return {
         "url": f"/api/autogm/party/{obj.pk}/intermission",
-        "target": "#scene-intermission-container",
-        "select": "#scene-intermission-container",
+        "target": "scene-intermission-container",
+        "select": "scene-intermission-container",
         "swap": "outerHTML",
     }
 
 
 def _generate_autogm_regenerate_task(pk):
     obj = Faction.get(pk)
-    message = obj.last_scene.player_messages if obj.last_scene.player_messages else ""
+    message = ""
+    for msg in obj.last_scene.player_messages.values():
+        message += msg
     if obj.last_scene.roll_formula:
         roll_result = dmtools.dice_roll(obj.last_scene.roll_formula)
-        log(roll_result, _print=True)
+        # log(roll_result, _print=True)
         obj.last_scene.roll_result = roll_result
         obj.last_scene.save()
         message = f"""{message}
@@ -132,8 +134,8 @@ RESULT:  {roll_result}
     obj.regenerate_gm_session(message=message)
     return {
         "url": f"/api/autogm/party/{obj.pk}/intermission",
-        "target": "#scene-intermission-container",
-        "select": "#scene-intermission-container",
+        "target": "scene-intermission-container",
+        "select": "scene-intermission-container",
         "swap": "outerHTML",
     }
 
@@ -155,26 +157,13 @@ def _generate_autogm_clear_task(pk):
     return {"url": f"/api/autogm/{obj.path}"}
 
 
-def _generate_autogm_gm_task(
-    pk, scene_type, description, date, npcs, combatants, loot, places
-):
+def _generate_autogm_gm_task(pk):
     party = Faction.get(pk)
-    npcs = [Character.get(npc) for npc in npcs]
-    combatants = [Creature.get(combatant) for combatant in combatants]
-    loot = [Item.get(item) for item in loot]
-    places = [Location.get(place) for place in places]
-    party.autogm_pc_session(
-        scene_type=scene_type,
-        description=description,
-        date=date,
-        npcs=npcs,
-        combatants=combatants,
-        loot=loot,
-        places=places,
-    )
+    party.autogm_pc_session()
+    party.save()
     return {
-        "url": f"/api/autogm/party/{party.pk}/intermission",
-        "target": "#scene-intermission-container",
-        "select": "#scene-intermission-container",
+        "url": f"/api/autogm/{party.pk}/intermission",
+        "target": "scene-intermission-container",
+        "select": "scene-intermission-container",
         "swap": "outerHTML",
     }

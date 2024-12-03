@@ -1,287 +1,17 @@
 import json
-import os
-import random
 
 import markdown
-import requests
 from bs4 import BeautifulSoup
 
 from autonomous import log
-from autonomous.ai.audioagent import AudioAgent
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.model.autoattr import (
-    BoolAttr,
-    DictAttr,
-    FileAttr,
-    IntAttr,
-    ListAttr,
     ReferenceAttr,
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
-from models.images.image import Image
-from models.ttrpgobject.character import Character
-from models.ttrpgobject.creature import Creature
-from models.ttrpgobject.item import Item
-
-
-class AutoGMQuest(AutoModel):
-    name = StringAttr()
-    type = StringAttr(choices=["main quest", "side quest", "optional objective"])
-    description = StringAttr()
-    status = StringAttr(
-        choices=["unknown", "rumored", "active", "completed", "failed", "abandoned"],
-        default="unknown",
-    )
-    next_steps = StringAttr()
-    importance = StringAttr()
-    associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-
-
-class AutoGMScene(AutoModel):
-    type = StringAttr(choices=["social", "combat", "exploration", "stealth"])
-    description = StringAttr()
-    summary = StringAttr()
-    date = StringAttr()
-    player_messages = DictAttr()
-    party = ReferenceAttr(choices=["Faction"])
-    npcs = ListAttr(ReferenceAttr(choices=["Character"]))
-    combatants = ListAttr(ReferenceAttr(choices=["Creature"]))
-    loot = ListAttr(ReferenceAttr(choices=["Item"]))
-    places = ListAttr(ReferenceAttr(choices=["Place"]))
-    roll_required = BoolAttr()
-    roll_type = StringAttr()
-    roll_attribute = StringAttr()
-    roll_description = StringAttr()
-    roll_formula = StringAttr()
-    roll_result = IntAttr()
-    image = ReferenceAttr(choices=[Image])
-    audio = FileAttr()
-    associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-    current_quest = ReferenceAttr(choices=[AutoGMQuest])
-    quest_log = ListAttr(ReferenceAttr(choices=[AutoGMQuest]))
-
-    def delete(self):
-        if self.image:
-            self.image.delete()
-        return super().delete()
-
-    @property
-    def music(self):
-        return self.party.system.get_music(self.type)
-
-    @property
-    def player(self):
-        members = self.party.characters
-        return members[0] if members else None
-
-    def update_description(self, description):
-        log(description, description != self.description)
-        if description and description != self.description:
-            self.description = description
-            self.save()
-            requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/generate/audio/{self.pk}"
-            )
-
-    def add_association(self, obj):
-        if obj not in self.associations:
-            self.associations += [obj]
-        self.save()
-
-    def generate_audio(self, voice=None):
-        from models.world import World
-
-        soup = BeautifulSoup(self.description, "html.parser")
-        description = soup.get_text()
-        voiced_scene = AudioAgent().generate(description, voice=voice)
-        if self.audio:
-            self.audio.delete()
-            self.audio.replace(voiced_scene, content_type="audio/mpeg")
-        else:
-            self.audio.put(voiced_scene, content_type="audio/mpeg")
-        self.save()
-
-    def generate_image(self, image_prompt):
-        from models.world import World
-
-        desc = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single comic book style panel in the style of {random.choice(['Dan Mora', 'Laura Braga', 'Clay Mann', 'Jorge Jiménez' ])} for the scene.
-
-DESCRIPTION OF CHARACTERS IN THE SCENE
-"""
-
-        for char in self.party.characters:
-            desc += f"""
--{char.age} year old {char.gender} {char.occupation}. {char.description_summary or char.description}
-    - Motif: {char.motif}
-"""
-        desc += f"""
-SCENE DESCRIPTION
-{image_prompt['description']}
-"""
-        img = Image.generate(
-            desc,
-            tags=[
-                image_prompt["imgtype"],
-                "scene",
-                self.party.name,
-                self.party.world.name,
-                self.party.genre,
-            ],
-        )
-        img.save()
-        self.image = img
-        self.save()
-
-    def get_npcs(self):
-        return [c for c in self.npcs if c not in self.party.characters]
-
-    def generate_npcs(self, objs):
-        if not objs:
-            return
-        for obj in objs:
-            first_name = obj["name"].split()[0]
-            last_name = obj["name"].split()[-1]
-            npc = [
-                c
-                for c in Character.search(world=self.party.world, name=first_name)
-                if last_name in c.name
-            ]
-            char = npc[0] if npc else []
-            if not char:
-                char = Character(
-                    world=self.party.world,
-                    race=obj["species"],
-                    name=obj["name"],
-                    desc=obj["description"],
-                    backstory=obj["backstory"],
-                )
-                char.save()
-                if char not in self.party.players:
-                    self.npcs += [char]
-                self.save()
-                resp = requests.post(
-                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-                )
-        return self.npcs
-
-    def generate_combatants(self, objs):
-        if not objs:
-            return
-        for obj in objs:
-            char = Creature.find(world=self.party.world, name=obj["name"])
-
-            if not char:
-                char = Creature(
-                    world=self.party.world,
-                    type=obj["combatant_type"],
-                    name=obj["name"],
-                    desc=obj["description"],
-                )
-                char.save()
-                self.combatants += [char]
-                self.save()
-                resp = requests.post(
-                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-                )
-        return self.combatants
-
-    def generate_loot(self, objs):
-        if not objs:
-            return
-        for obj in objs:
-            char = Item.find(world=self.party.world, name=obj["name"])
-
-            if not char:
-                char = Item(
-                    world=self.party.world,
-                    rarity=obj["rarity"],
-                    name=obj["name"],
-                    desc=obj["description"],
-                    features=obj["attributes"],
-                )
-                char.save()
-                self.loot += [char]
-                self.save()
-                resp = requests.post(
-                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-                )
-        return self.loot
-
-    def generate_places(self, objs):
-        from models.world import World
-
-        if not objs:
-            return
-        for obj in objs:
-            for key, val in self.party.system._titles.items():
-                if val.lower() == obj["location_type"].lower():
-                    Model = AutoModel.load_model(key)
-            char = Model.find(world=self.party.world, name=obj["name"])
-            if not char:
-                char = Model(
-                    world=self.party.world,
-                    name=obj["name"],
-                    desc=obj["description"],
-                    backstory=obj["backstory"],
-                )
-                char.save()
-                self.places += [char]
-                self.save()
-                resp = requests.post(
-                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
-                )
-        return self.places
-
-    def get_additional_associations(self):
-        """
-        Retrieves additional associations that are not part of the current scene objects.
-        This method first combines all scene objects from the party, NPCs, combatants, and loot.
-        It then checks if each object is already in the associations list, and if not, adds it.
-        Finally, it saves the updated associations and returns a list of associations that are not part of the scene objects.
-        Returns:
-            list: A list of associations that are not part of the current scene objects.
-        """
-
-        scene_objects = [
-            *self.party.characters,
-            *self.npcs,
-            *self.combatants,
-            *self.loot,
-            *self.places,
-        ]
-        for o in scene_objects:
-            if o not in self.associations:
-                self.associations += [o]
-        self.save()
-        return [o for o in self.associations if o not in scene_objects]
-
-    ## MARK: - Verification Methods
-    ###############################################################
-    ##                    VERIFICATION HOOKS                     ##
-    ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     # log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
-    #     =
-
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_associations()
-
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
-
-    # def clean(self):
-    #     super().clean()
-
-    ################### verification methods ##################
-
-    def pre_save_associations(self):
-        self.associations.sort(key=lambda x: (x.title, x.name))
+from models.autogm.autogmquest import AutoGMQuest
+from models.autogm.autogmscene import AutoGMScene
 
 
 class AutoGM(AutoModel):
@@ -567,7 +297,7 @@ class AutoGM(AutoModel):
             ],
             "description": f"The kind of location, such as a {region_str}, {city_str}, {district_str}, or specific {location_str} or landmark.",
         }
-        log(self._funcobj, _print=True)
+        # log(self._funcobj, _print=True)
 
     def update_refs(self):
         self.gm.get_client().clear_files()
@@ -676,7 +406,6 @@ class AutoGM(AutoModel):
                     *ags.associations,
                 ]:
                     assoc.add_associations(ags.associations)
-
             self.update_refs()
             return scene
 
@@ -730,7 +459,7 @@ PARTY
 PLAYER'S ACTIONS
 {message}
 """
-        log(prompt, _print=True)
+        # log(prompt, _print=True)
         self._update_response_function(party)
         response = self.gm.generate(prompt, function=self._funcobj)
         scene = self.parse_scene(party, response)
@@ -747,112 +476,186 @@ PLAYER'S ACTIONS
             else self.start(party, message)
         )
 
-    def end(self, party):
-        prompt = f"""You are an expert AI Game Master for a {party.genre} TTRPG campaign, create a natural stopping point to end the currently running game session, including a cliffhanger scenario, based on the following details:
+    def rungm(self, party):
+        if not party.next_scene:
+            raise ValueError("No next scene to run.")
 
-{f"Timeline: {party.autogm_summary[0].date} - {party.last_scene.date}" if party.autogm_summary else ""}
+        res_function = {
+            "name": "run_scene",
+            "description": "Generates a structured JSON response for each party member's reaction to the GM's described scene.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "responses": {
+                        "type": "array",
+                        "description": "List of responses from all party members.",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": [
+                                "character_pk",
+                                "response",
+                                "intent",
+                                "emotion",
+                            ],
+                            "properties": {
+                                "character_pk": {
+                                    "type": "string",
+                                    "description": "The primary key (pk) of the character responding.",
+                                },
+                                "response": {
+                                    "type": "string",
+                                    "description": "A detailed description of the character's reaction or dialogue.",
+                                },
+                                "intent": {
+                                    "type": "string",
+                                    "description": "The primary intent behind the character's response (e.g., 'prepare for combat').",
+                                },
+                                "emotion": {
+                                    "type": "string",
+                                    "description": "Emotion the character is experiencing.",
+                                },
+                            },
+                        },
+                    },
+                },
+                "required": ["responses"],
+            },
+        }
+
+        prompt = f"""You are the AI roleplayer for a TTRPG campaign. Your task is to generate a structured JSON response where each party member reacts to the GM's described scene.
+
+For each character:
+1. Respond in a way that is consistent with their personality, backstory, abilities, and motivations as described in the campaign.
+2. Incorporate relevant elements from previous campaign events and the world described in the uploaded file.
+3. Address the scene's challenges or opportunities uniquely, reflecting each character's perspective and role in the group.
+4. Ensure the responses align with the tone and stakes of the scene while driving the story forward.
+5. Acknowledge or react to the responses of other party members where appropriate, enhancing the sense of collaboration or conflict within the group.
+
+Return the responses in the following structured JSON format:
+```json
+{{
+  "responses": [
+    {{
+      "character_name": "string",
+      "response": "string",
+      "intent": "string",
+      "emotions": ["string"]
+    }}
+  ]
+}}
 
 CAMPAIGN SUMMARY
-{party.last_scene.summary}
+{(party.last_scene and party.last_scene.summary) or "The campaign has just begun."}
 
-PREVIOUS EVENTS
-{party.last_scene.description}
+PLACES
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.places]) if party.next_scene.places else "None"}
 
-PARTY
-{"".join([f"\n- {pc.name} : {pc.backstory_summary}\n" for pc in party.characters])}
+NPCS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.npcs]) if party.next_scene.npcs else "None"}
+
+ENEMIES
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.combatants]) if party.next_scene.combatants else "None"}
+
+ITEMS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.loot]) if party.next_scene.loot else "None"}
+
+PARTY PLAYER CHARACTERS:
+"""
+
+        for pc in party.players:
+            backstory_summary = BeautifulSoup(
+                pc.backstory_summary, "html.parser"
+            ).get_text()
+            abilities = [
+                BeautifulSoup(a, "html.parser").get_text() for a in pc.abilities
+            ]
+            prompt += f"""
+
+- Name: {pc.name}
+  - pk: {pc.pk}
+  - Species: {pc.species}
+  - Gender: {pc.gender}
+  - Age: {pc.age}
+  - Occupation: {pc.occupation}
+  - Goal: {pc.goal}
+  - Backstory: {backstory_summary}
+  - Abilities:
+    - {"\n    - ".join(abilities)}
+"""
+        description = BeautifulSoup(
+            party.next_scene.description, "html.parser"
+        ).get_text()
+        prompt += f"""
+
+SCENE DESCRIPTION
+{description}
+
+"""
+
+        if party.next_scene.roll_required:
+            # log(roll_result, _print=True)
+            res_function["parameters"]["required"] += ["requires_roll"]
+            res_function["parameters"]["properties"]["requires_roll"] = {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "roll_formula",
+                    "roll_result",
+                    "roll_description",
+                ],
+                "properties": {
+                    "roll_formula": {
+                        "type": "string",
+                        "description": "The roll formula used to generate the result, such as 1d20+4, 2d6 Advantage, or 3d10-1 Disadvantage.",
+                    },
+                    "roll_result": {
+                        "type": "integer",
+                        "description": "The result of your simulated dice roll",
+                    },
+                    "roll_description": {
+                        "type": "string",
+                        "description": "Description of the player's actions accompanying the roll.",
+                    },
+                },
+            }
+            log(json.dumps(res_function, indent=4), _print=True)
+
+            prompt += f"""
+ROLL REQUIRED
+{party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type}
 """
         log(prompt, _print=True)
-        self._update_response_function(party)
-        response = self.gm.generate(prompt, function=self._funcobj)
-        scene = self.parse_scene(party, response)
-        scene.save()
+
+        response = self.gm.generate(
+            prompt,
+            res_function,
+        )
+        party.next_scene.set_player_messages(response["responses"])
+        if party.next_scene.roll_required:
+            party.next_scene.roll_result = response["requires_roll"]["roll_result"]
+            party.next_scene.roll_description = response["requires_roll"][
+                "roll_description"
+            ]
+            party.next_scene.roll_formula = response["requires_roll"]["roll_formula"]
+        party.next_scene.generate_image()
+        party.next_scene.generate_player_audio()
+        next_scene = party.get_next_scene(create=True)
+
+        # sanity test
+        if next_scene != party.next_scene:
+            raise ValueError("Scene not saved")
+        return next_scene
+
+    def end(self, party):
         for p in [party, party.world, *party.players]:
             p.backstory += f"""
-
-{scene.summary}
+<h5>{party.first_scene.date}{f"- {party.last_scene.date}" if len(party.autogm_summary) > 1 else ""}</h5>
+{party.last_scene.summary}
 """
             p.save()
         party.autogm_history += party.autogm_summary
         party.autogm_summary = []
         party.save()
-        return scene
-
-    def rungm(
-        self,
-        party,
-        description,
-        scene_type,
-        npcs=[],
-        combatants=[],
-        loot=[],
-        places=[],
-        date=None,
-    ):
-        summary = description
-        if party.autogm_summary:
-            prompt = (
-                party.autogm_summary[10].summary
-                if len(party.autogm_summary) > 10
-                else ""
-            )
-            prompt += ". ".join(ags.description for ags in party.autogm_summary[:10])
-            primer = "Generate a summary of less than 250 words of the following events in MARKDOWN format."
-            summary = party.system.generate_summary(prompt, primer)
-            summary = summary.replace("```markdown", "").replace("```", "")
-            summary = markdown.markdown(summary)
-        date = (
-            date or (party.last_scene and party.last_scene.date) or party.current_date,
-        )
-        scene = AutoGMScene(
-            type=scene_type,
-            party=party,
-            description=description,
-            summary=summary,
-            date=date,
-            npcs=npcs,
-            combatants=combatants,
-            loot=loot,
-            places=places,
-        )
-        if party.last_scene:
-            scene.current_quest = party.last_scene.current_quest
-            scene.quest_log = party.last_scene.quest_log
-
-        elements = [*npcs, *combatants, *loot, *places]
-        associations = (party.last_scene and party.last_scene.associations) or []
-        associations = list(set([*associations, *elements, *party.players]))
-        for o in associations:
-            scene.add_association(o)
-        scene.save()
-        party.autogm_summary += [scene]
-        party.save()
-        prompt = f"""As one of the the AI Player Characters for a TTRPG campaign, your task is to respond to the GM's described scene as the character described below in a way that is consistent with the character's description, previous campaign events, and the world described by the uploaded file.
-
-CAMPAIGN SUMMARY
-{party.last_scene.summary or "The campaign has just begun."}
-
-STORY ELEMENTS
-{"\n- ".join([f"name: {ass.name}\n  - type: {ass.title}\n  - backstory: {ass.backstory_summary}" for ass in elements if ass not in party.players]) if party.autogm_summary else "None yet"}
-
-PARTY
-{"".join([f"\n- {pc.name} : {pc.backstory_summary}\n" for pc in party.characters])}
-
-SCENE
-{party.last_scene.description}
-"""
-        pc_prompt = ""
-        for pc in party.players:
-            pc_prompt = f"""
-
-CHARACTER DESCRIPTION
-- Name: {pc.name}
-- Species: {pc.species}
-- Gender: {pc.gender}
-- Age: {pc.age}
-- Occupation: {pc.occupation}
-- Goal: {pc.goal}
-- Backstory: {pc.backstory}
-"""
-            response = self.gm.generate(pc_prompt)
-            scene.player_messages[pc.pk] = response
-            scene.save()
+        self.update_refs()
+        return party

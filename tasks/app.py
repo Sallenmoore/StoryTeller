@@ -122,7 +122,7 @@ def create_app():
             type_dice = request.json.get("pc_roll_type_dice")
             modifier = request.json.get("pc_roll_modifier").strip()
             kwargs["roll_dice"] = f"{num_dice}d{type_dice}{modifier}"
-        log(kwargs)
+        # log(kwargs)
         task = (
             AutoTasks()
             .task(
@@ -131,11 +131,10 @@ def create_app():
             )
             .result
         )
-        log(action, task_function, kwargs)
-        user = User.get(pk)
+        # log(action, task_function, kwargs)
         party = Faction.get(pk)
         snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
-            user, party.world, party
+            party.user, party.world, party
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(
             task["id"], snippet=snippet
@@ -153,26 +152,22 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    return app
-
     @app.route("/generate/autogm/gm/<string:pk>", methods=("POST",))
-    def autogm_gm(pk, action):
-        kwargs = {
-            "pk": pk,
-            "scene_type": request.json.get("scene_type"),
-            "description": request.json.get("description"),
-            "date": request.json.get("date"),
-            "npcs": request.json.get("npcs"),
-            "combatants": request.json.get("combatants"),
-            "loot": request.json.get("loot"),
-            "places": request.json.get("places"),
-        }
+    def autogm_gm(pk):
         task = (
             AutoTasks()
             .task(
                 tasks._generate_autogm_gm_task,
-                **kwargs,
+                pk,
             )
             .result
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        party = Faction.get(pk)
+        snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
+            party.user, party.world, party
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(
+            task["id"], snippet=snippet
+        )
+
+    return app

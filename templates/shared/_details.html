@@ -11,31 +11,19 @@
     {% endif %}
 </div>
 <hr>
-<div class="row">
-    <div class="column is-2">
-        <div class="image is-thumbnail">
-            {% if obj.image %}
-            <img src="{{obj.image.url(size='200')}}" loading="lazy" alt="{{obj.name}}" />
-            {% endif %}
-        </div>
-    </div>
-    <div class="column is-10">
-        <div class="row">
+<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+    <div class="row">
+        <div class="column is-full">
+            <div class="is-float-left"
+                 style="position:relative; padding-right: 2rem; padding-bottom: 2rem;">
+                <div class="image is-extra-large is-thumbnail">
+                    {% if obj.image %}
+                    <img src="{{obj.image.url()}}" loading="lazy" alt="{{obj.name}}" />
+                    {% endif %}
+                </div>
+            </div>
             {% if obj.backstory_summary %}
-            <div class="column is-full">
-                <div class="panel has-bg-light has-text-dark generated-text-lightbg">
-                    {{ obj.backstory_summary | safe }}
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        <div class="row">
-            {% if obj.description %}
-            <div class="column is-full">
-                <div class="panel has-bg-muted has-text-dark">
-                    {{ obj.description_summary or obj.description | safe }}
-                </div>
-            </div>
+            {{ obj.backstory_summary | safe }}
             {% endif %}
         </div>
     </div>
@@ -43,13 +31,11 @@
 
 <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
 
-<div class="row">
-    <div class="column is-full">
+<hr>
 
-        <div class="panel has-bg-light has-text-dark generated-text-lightbg">
-            <h3 class='has-text-center has-text-dark'>Backstory</h3>
-            {{obj.backstory | safe}}
-        </div>
-    </div>
+<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+    <h3 class='has-text-center has-text-dark'>Full Backstory</h3>
+    {{obj.backstory | safe}}
 </div>
+
 {%- endmacro %}

@@ -8,7 +8,7 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
-from models.autogm import AutoGM
+from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
 from models.journal import Journal
 from models.systems import (
@@ -193,6 +193,10 @@ class World(TTRPGBase):
     @property
     def regions(self):
         return Region.search(world=self) if self.pk else []
+
+    @property
+    def user(self):
+        return self.users[0] if self.users else None
 
     ########################## Override Methods #############################
 

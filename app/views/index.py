@@ -12,7 +12,9 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
+from models.autogm.autogmmessage import AutoGMMessage
 from models.images.image import Image
+from models.ttrpgobject.faction import Faction
 from models.world import World
 
 index_page = Blueprint("index", __name__)
@@ -79,18 +81,16 @@ def image(pk, size):
 
 
 @index_page.route(
-    "/<string:model>/<string:pk>/gm/voice",
+    "/audio/<string:pk>",
     methods=("GET",),
 )
-def gmvoice(model, pk):
-    obj = World.get_model(model, pk)
-    if obj.autogm_summary and obj.autogm_summary[-1].audio:
+def audio(pk):
+    msg = AutoGMMessage.get(pk)
+    if msg and msg.audio:
         return Response(
-            obj.autogm_summary[-1].audio.read(),
-            mimetype=obj.autogm_summary[-1].audio.content_type,
-            headers={
-                "Content-Disposition": f"inline; filename={obj.autogm_summary[-1].pk}.mp3"
-            },
+            msg.audio.read(),
+            mimetype=msg.audio.content_type,
+            headers={"Content-Disposition": f"inline; filename={msg.pk}.mp3"},
         )
     else:
         return Response("No audio available", status=404)
