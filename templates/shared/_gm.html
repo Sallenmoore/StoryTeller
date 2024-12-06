@@ -427,9 +427,9 @@
 {%- endmacro %}
 
 {% macro autogm_submit_session(user, world, party) -%}
-<div class="row has-space-around">
+<div class="row has-centered">
     <div class="column is-shrink is-vertically-centered">
-        <button id='continue-session-button' class="button"
+        <button id='continue-session-button' class="button is-full"
                 hx-post="/task/generate/autogm/{{party.pk}}"
                 hx-target='#auto-gm-container'
                 hx-push-url='/{{party.path}}/gm'>
@@ -440,43 +440,47 @@
             {% endif %}
         </button>
     </div>
-    {% if party.autogm_summary %}
-    <div class="column is-shrink is-vertically-centered">
-        <button id='regenerate-session-button' class="button has-bg-light-grey"
-                hx-post="/task/generate/autogm/gm/{{party.pk}}/regenerate"
-                hx-target='#auto-gm-container'
-                hx-push-url='/{{party.path}}/gm'>
-            Regenerate Session
-            </buttonid>
-    </div>
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button is-small has-bg-muted has-text-screen"
-                hx-post="/api/autogm/{{party.pk}}/canonize"
-                hx-target='#auto-gm-container'
-                hx-select='#auto-gm-container'
-                hx-swap='outerHTML'
-                hx-confirm='This will canonize events from the current session. Are you sure you want to do this?'
-                hx-push-url='/{{party.path}}/gm'>
-            Canonize Session
-        </button>
-    </div>
-    {% endif %}
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button is-small has-bg-muted has-text-screen"
-                hx-post="/api/autogm/{{party.pk}}/clear"
-                hx-target='#auto-gm-container'
-                hx-select='#auto-gm-container'
-                hx-swap='outerHTML'
-                hx-confirm='This will clear the current session. Are you sure you want to do this?'
-                hx-push-url='/{{party.path}}/gm'>
-            {% if party.autogm_summary %}
-            Clear Session
-            {% else %}
-            Restart Session
-            {% endif %}
-        </button>
-    </div>
 </div>
+<section class='section is-small'>
+    <div class="row has-space-around">
+        {% if party.autogm_summary %}
+        <div class="column is-shrink is-vertically-centered">
+            <button id='regenerate-session-button' class="button is-small has-bg-light-grey"
+                    hx-post="/task/generate/autogm/gm/{{party.pk}}/regenerate"
+                    hx-target='#auto-gm-container'
+                    hx-push-url='/{{party.path}}/gm'>
+                Regenerate Session
+                </buttonid>
+        </div>
+        <div class="column is-shrink is-vertically-centered">
+            <button class="button is-small has-bg-muted has-text-screen"
+                    hx-post="/api/autogm/{{party.pk}}/canonize"
+                    hx-target='#auto-gm-container'
+                    hx-select='#auto-gm-container'
+                    hx-swap='outerHTML'
+                    hx-confirm='This will canonize events from the current session. Are you sure you want to do this?'
+                    hx-push-url='/{{party.path}}/gm'>
+                Canonize Session
+            </button>
+        </div>
+        {% endif %}
+        <div class="column is-shrink is-vertically-centered">
+            <button class="button is-small has-bg-muted has-text-screen"
+                    hx-post="/api/autogm/{{party.pk}}/clear"
+                    hx-target='#auto-gm-container'
+                    hx-select='#auto-gm-container'
+                    hx-swap='outerHTML'
+                    hx-confirm='This will clear the current session. Are you sure you want to do this?'
+                    hx-push-url='/{{party.path}}/gm'>
+                {% if party.autogm_summary %}
+                Clear Session
+                {% else %}
+                Restart Session
+                {% endif %}
+            </button>
+        </div>
+    </div>
+</section>
 {%- endmacro %}
 
 {% macro scene_players_display(user, world, party) -%}
@@ -814,7 +818,7 @@
             <h4 class="has-text-center">Combatants</h4>
             <div class="row has-space-around">
                 {% for cbt in party.next_scene.combatants%}
-                <div id="cbt-{{cbt.pk}}" class='column is-shrink'>
+                <div id="cbt-{{cbt.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if cbt.image %}
                     {{display_components.object_display(cbt)}}
                     <a style="position:absolute;bottom:0;right:0;"
@@ -843,7 +847,7 @@
             <h4 class="has-text-center">Places</h4>
             <div class="row has-space-around">
                 {% for plc in party.next_scene.places%}
-                <div id="plc-{{plc.pk}}" class='column is-shrink'>
+                <div id="plc-{{plc.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if plc.image %}
                     {{display_components.object_display(plc)}}
                     <a style="position:absolute;bottom:0;right:0;"
@@ -872,7 +876,7 @@
             <h4 class="has-text-center">Loot</h4>
             <div class="row has-space-around">
                 {% for loot in party.next_scene.loot %}
-                <div id="loot-{{loot.pk}}" class='column is-shrink'>
+                <div id="loot-{{loot.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if loot.image %}
                     {{display_components.object_display(loot)}}
                     <a style="position:absolute;bottom:0;right:0;"

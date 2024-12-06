@@ -71,9 +71,11 @@ class TTRPGBase(AutoModel):
     ########### Dunder Methods ###########
 
     def __eq__(self, obj):
-        if hasattr(obj, "pk"):
+        try:
             return self.pk == obj.pk
-        return False
+        except Exception as e:
+            log(e)
+            return False
 
     def __ne__(self, obj):
         if hasattr(obj, "pk"):

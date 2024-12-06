@@ -66,11 +66,13 @@ class TTRPGObject(TTRPGBase):
     @property
     def geneology(self):
         ancestry = []
-        parent = self.parent
-        while parent:
-            if parent not in ancestry:
-                ancestry.append(parent)
-                parent = parent.parent
+        if self.districts:
+            ancestry.append(self.districts[0])
+        if self.cities:
+            ancestry.append(self.cities[0])
+        if self.regions:
+            ancestry.append(self.regions[0])
+        ancestry.append(self.world)
         return ancestry
 
     @property
