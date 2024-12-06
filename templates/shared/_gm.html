@@ -24,7 +24,7 @@
         <form hx-post='/api/autogm/{{party.path}}'
               hx-target='#page-content'
               hx-trigger='change'
-              onsubmit='history.pushState({}, "", `/faction/${this.querySelector("#partypk").value}/gm`);'>
+              onchange='history.pushState({}, "", `/faction/${this.querySelector("#partypk").value}/gm`);'>
             <div class="row has-centered">
                 <div class="column is-shrink is-vertically-centered">
                     <div class="is-select">
@@ -133,15 +133,15 @@
 {{ scene_dice_results(user, world, party) }}
 {% endif %}
 <hr>
-{{ scene_players_display(user, world, party) }}
-<hr>
 {{ scene_quest_log(user, world, party) }}
 <hr>
+{{ scene_players_display(user, world, party) }}
+<hr>
 <div class="row">
-    <div class="column">
+    <div class="column if-full">
         {{scene_associations(user, world, party)}}
     </div>
-    <div id="autogm-gm-form" class="column">
+    <div id="autogm-gm-form" class="column is-full">
         <div class="row has-space-around">
             <div class="column is-full is-vertically-centered">
                 <form hx-post="/api/autogm/{{party.pk}}/update"
@@ -399,20 +399,19 @@
                     </div>
                 </div>
                 {% endif %}
-
             </div>
         </div>
     </div>
     <div class="column is-full">
-        <div class="tabs has-border">
-            <ul class="tabs__list">
-                {% for player in party.players %}
-                <li onclick='htmx.find("#player-{{player.pk}}-card-container").scrollIntoView({ behavior: "smooth"});'
-                    style='border-radius: 5px 5px 0 0;'>
-                    <h5>{{player.name}}</h5>
-                </li>
-                {% endfor %}
-            </ul>
+        <div class="row has-space-around has-border">
+            {% for player in party.players %}
+            <div class="column is-shrink">
+                <a onclick='htmx.find("#player-{{player.pk}}-card-container").scrollIntoView({ behavior: "smooth"});'
+                   style='border-radius: 5px 5px 0 0;'>
+                    <h4 class='has-text-center'>{{player.name}}</h4>
+                </a>
+            </div>
+            {% endfor %}
         </div>
         <div id="player-card-panels" class="row has-space-around">
             {% for player in party.players %}
@@ -968,7 +967,7 @@ border-top-right-radius:0;'>
                 <h3 class="has-text-primary has-text-center">
                     {{quest.name}}
                 </h3>
-                <span class="tag">{{quest.status | title}}</span>
+                <h6 class="has-text-primary has-text-center">{{quest.status | title}}</h6>
             </div>
             <div class="column is-shrink is-vertically-centered">
                 <button class='button is-small has-bg-dark-grey'

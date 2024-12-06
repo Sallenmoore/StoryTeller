@@ -114,6 +114,8 @@ def autogm_association_add(pk, amodel, apk=None):
                 party.next_scene.loot += [ass]
             elif amodel == "creature":
                 party.next_scene.combatants += [ass]
+            elif amodel == "faction":
+                party.next_scene.factions += [ass]
             elif amodel in ["region", "city", "district", "location"]:
                 party.next_scene.places += [ass]
             party.next_scene.save()
@@ -137,6 +139,8 @@ def autogm_association_remove(pk, amodel, apk):
                 party.next_scene.loot.remove(ass)
             elif amodel == "creature" and ass in party.next_scene.combatants:
                 party.next_scene.combatants.remove(ass)
+            elif amodel == "faction" and ass in party.next_scene.factions:
+                party.next_scene.factions.remove(ass)
             elif (
                 amodel in ["region", "city", "district", "location"]
                 and ass in party.next_scene.places

@@ -473,6 +473,14 @@ PLACES
 - {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.places]) if party.next_scene.places else "None"}
 
 """
+
+        if party.next_scene.factions:
+            prompt += f"""
+FACTIONS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.factions if ass != party]) if party.next_scene.factions else "None"}
+
+"""
+
         if party.next_scene.npcs:
             prompt += f"""
 NPCS
@@ -492,8 +500,12 @@ ITEMS
 
 """
 
-        prompt += """
-PARTY PLAYER CHARACTERS:
+        prompt += f"""
+PARTY DESCRIPTION
+
+{party.backstory_summary}
+
+PARTY PLAYER CHARACTERS
 """
 
         for pc in party.players:
@@ -516,11 +528,14 @@ PARTY PLAYER CHARACTERS:
     - {"\n    - ".join(abilities)}
 
 """
+        if description := party.next_scene.description or (
+            party.last_scene and party.last_scene.description
+        ):
+            description = BeautifulSoup(
+                description,
+                "html.parser",
+            ).get_text()
 
-        description = BeautifulSoup(
-            party.next_scene.description, "html.parser"
-        ).get_text()
-        if party.next_scene.gm_mode == "gm":
             prompt += f"""
 SCENE DESCRIPTION
 {description}

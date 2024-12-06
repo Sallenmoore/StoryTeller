@@ -35,6 +35,7 @@ class AutoGMScene(AutoModel):
     combatants = ListAttr(ReferenceAttr(choices=["Creature"]))
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
     places = ListAttr(ReferenceAttr(choices=["Place"]))
+    factions = ListAttr(ReferenceAttr(choices=["Faction"]))
     roll_required = BoolAttr()
     roll_type = StringAttr()
     roll_formula = StringAttr()
@@ -106,8 +107,8 @@ class AutoGMScene(AutoModel):
 
 DESCRIPTION OF CHARACTERS IN THE SCENE
 """
-
-        for char in self.party.players:
+        characters = [self.roll_player] if self.roll_player else self.party.players
+        for char in characters:
             desc += f"""
 -{char.age} year old {char.race} {char.gender} {char.occupation}. {char.description_summary or char.description}
     - Motif: {char.motif}
