@@ -243,7 +243,7 @@
         </ul>
         {% endif %}
         <ul class="menu__list" id='child-object-submenu'>
-            {% for model in obj._models %}
+            {% for model in obj.all_models_str() %}
             {% if obj.model_name() == 'World' or obj.has_associations(model) %}
             <li>
                 <div class="row" style='position:relative;'>
@@ -256,7 +256,8 @@
                            hx-push-url="/{{obj.path}}/associations/{{model | lower}}">
                             <div class="row">
                                 <div class="column is-3 is-mobile-shrink">
-                                    {{model.get_icon(model=model, size='2rem') | safe}}
+                                    <iconify-icon icon="{{obj.get_icon(model)}}"
+                                                  width="2rem"></iconify-icon>
                                 </div>
                                 <div
                                      class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
@@ -351,30 +352,5 @@
             });
         }
     </script>
-</div>
-{%- endmacro %}
-
-{% macro submenu(children) -%}
-<div class="column is-mobile-1 is-1 is-end">
-    <a class="is-float-right" hx-get="/api/nav/sidemenu/active"
-       hx-target="#child-object-submenu"
-       hx-select="#child-object-submenu" hx-swap="outerHTML">
-        <iconify-icon icon='material-symbols:close' width="2rem"></iconify-icon>
-    </a>
-</div>
-<div class="column is-full">
-    <ul>
-        {% for child in children %}
-        <li>
-            <a href="/{{child.model_name()|lower}}/{{child.pk}}">
-                {% if child.name %}
-                {{child.name}}
-                {% else %}
-                New {{child.title | lower}}
-                {% endif %}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
 </div>
 {%- endmacro %}

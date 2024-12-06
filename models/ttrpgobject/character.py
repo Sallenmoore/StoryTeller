@@ -71,11 +71,11 @@ class Character(Actor):
                 },
                 "traits": {
                     "type": "string",
-                    "description": "A description of the NPC's personality in less than 10 words",
+                    "description": "A tag line or motif that describes the character",
                 },
                 "desc": {
                     "type": "string",
-                    "description": "A detailed enough physical description to generate an AI image of the NPC",
+                    "description": "A detailed physical description for generating an AI image of the NPC",
                 },
                 "backstory": {
                     "type": "string",
@@ -87,7 +87,7 @@ class Character(Actor):
                 },
                 "abilities": {
                     "type": "array",
-                    "description": "Detailed descriptions in MARKDOWN starting at heading level 3 of at least 3 combat abilities and 3 special abilities of the character. Include the name of the ability, a brief description of what it does, and the dice roll mechanics involved in using the ability.",
+                    "description": "Generate at least 3 combat abilities AND 3 special abilities items for the array. Each item in the array should be a detailed description in MARKDOWN of the ability name, description, effects, duration, and the dice roll mechanics involved in using the ability.",
                     "items": {"type": "string"},
                 },
                 "occupation": {

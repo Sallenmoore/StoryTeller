@@ -121,11 +121,19 @@ def model(model, pk, page):
 ##                    Association Routes                 ##
 ###########################################################
 @index_endpoint.route(
+    "/<string:model>/<string:pk>/associations/<string:modelstr>",
+    methods=("GET", "POST"),
+)
+@index_endpoint.route(
     "/<string:model>/<string:pk>/associations", methods=("GET", "POST")
 )
-def associations(model, pk):
+def associations(model, pk, modelstr=None):
     user, obj, *_ = _loader(model=model, pk=pk)
-    associations = obj.associations
+    associations = [
+        o
+        for o in obj.associations
+        if not modelstr or modelstr.lower() == o.model_name().lower()
+    ]
     args = dict(request.args) if request.method == "GET" else request.json
     if filter_str := args.get("filter"):
         associations = [o for o in associations if filter_str.lower() in o.name.lower()]

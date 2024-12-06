@@ -1,5 +1,7 @@
 import random
 
+import markdown
+
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
@@ -23,7 +25,6 @@ class Faction(TTRPGObject):
     next_scene = ReferenceAttr(choices=["AutoGMScene"])
     autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
     autogm_history = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
-    gm_mode = StringAttr(default="pc", choices=["pc", "gm"])
 
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
@@ -76,6 +77,10 @@ class Faction(TTRPGObject):
     ################### Instance Properties #####################
 
     @property
+    def first_scene(self):
+        return self.autogm_summary[0] if self.autogm_summary else None
+
+    @property
     def gm(self):
         return self.world.gm
 
@@ -120,20 +125,12 @@ class Faction(TTRPGObject):
     ############################# AutoGM #############################
     ## MARK: AUTOGM
 
-    def start_gm_session(self, scenario):
-        self.gm.start(party=self, scenario=scenario)
+    def run_gm_session(self):
+        self.gm.rungm(party=self)
         self.save()
 
-    def run_gm_session(self, message=""):
-        self.gm.run(party=self, message=message)
-        self.save()
-
-    def regenerate_gm_session(self, message=""):
-        self.gm.regenerate(party=self, message=message)
-        self.save()
-
-    def end_gm_session(self, message=""):
-        self.gm.end(party=self, message=message)
+    def end_gm_session(self):
+        self.gm.end(party=self)
         self.save()
 
     def autogm_pc_session(self):
@@ -147,27 +144,20 @@ class Faction(TTRPGObject):
 
     def get_next_scene(self, create=False):
         if self.next_scene and create:
-            prompt = ""
-            for pc in self.players:
-                prompt += f"""
-            CHARACTER DESCRIPTION
-            - Name: {pc.name}
-            - Gender: {pc.gender}
-            - Backstory: {pc.backstory_summary}
-
-            """
-            prompt += (
+            prompt = (
                 self.autogm_summary[10].summary if len(self.autogm_summary) > 10 else ""
             )
-            prompt += ". ".join(
-                msg.message
-                for ags in self.autogm_summary[:10]
-                for msg in ags.player_messages
-            )
+            for ags in self.autogm_summary[:10]:
+                prompt += f" {ags.description}"
+                for msg in ags.player_messages:
+                    prompt += f" {msg.message}"
 
             primer = "Generate an evocative, narrative summary of less than 250 words for the given players and events of a TTRPG in MARKDOWN format."
             summary = self.system.generate_summary(prompt, primer)
             summary = summary.replace("```markdown", "").replace("```", "")
+            summary = (
+                markdown.markdown(summary).replace("h1>", "h3>").replace("h2>", "h3>")
+            )
             self.next_scene.summary = summary
             self.next_scene.save()
             self.autogm_summary += [self.next_scene]
@@ -175,12 +165,24 @@ class Faction(TTRPGObject):
             self.save()
 
         if not self.next_scene:
-            ags = AutoGMScene(party=self, date=self.world.current_date)
+            date = (self.last_scene and self.last_scene.date) or self.world.current_date
+            ags = AutoGMScene(party=self, date=date)
             ags.save()
             self.next_scene = ags
 
             if self.last_scene:
+                self.next_scene.gm_mode = self.last_scene.gm_mode
                 self.next_scene.associations = self.last_scene.associations
+                self.next_scene.npcs = self.last_scene.npcs
+                self.next_scene.combatants = self.last_scene.combatants
+                self.next_scene.places = self.last_scene.places
+                self.next_scene.loot = self.last_scene.loot
+                self.next_scene.quest_log = self.last_scene.quest_log
+                self.next_scene.current_quest = self.last_scene.current_quest
+
+                for assoc in self.last_scene.associations:
+                    assoc.add_associations(ags.associations)
+
                 self.next_scene.save()
             self.save()
         return self.next_scene

@@ -68,8 +68,9 @@ class TTRPGObject(TTRPGBase):
         ancestry = []
         parent = self.parent
         while parent:
-            ancestry.append(parent)
-            parent = parent.parent
+            if parent not in ancestry:
+                ancestry.append(parent)
+                parent = parent.parent
         return ancestry
 
     @property
@@ -86,12 +87,12 @@ class TTRPGObject(TTRPGBase):
 
     @property
     def parent(self):
-        if self.parent_list:
+        if self.associations and self.parent_list:
             for parent_model in self.parent_list:
-                for a in self.associations[::-1]:
+                for a in self.associations:
                     if a.model_name() == parent_model:
                         return a
-        return None
+        return self.world
 
     @property
     def parents(self):
@@ -107,7 +108,7 @@ class TTRPGObject(TTRPGBase):
 
     @property
     def title(self):
-        return self.get_world().system.get_title(self)
+        return self.get_title(self)
 
     @property
     def titles(self):

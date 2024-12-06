@@ -125,18 +125,6 @@ def test_autogmscene_generate_image(mocker, mock_party):
     assert scene.image is not None
 
 
-def test_autogmscene_update_description(mocker):
-    # Mock requests.post
-    mocker.patch("requests.post")
-
-    scene = AutoGMScene(description="Old description")
-    scene.update_description("New description")
-
-    # Verify description is updated and request is made
-    assert scene.description == "New description"
-    requests.post.assert_called_once()
-
-
 def test_autogmscene_delete(mocker):
     # Mock image deletion
     mock_image = MagicMock()

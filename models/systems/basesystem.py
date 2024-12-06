@@ -55,6 +55,18 @@ class BaseSystem(AutoModel):
         "money": "gold pieces",
     }
 
+    _icons = {
+        "character": "f7:person-2-fill",
+        "creature": "fa6-solid:spaghetti-monster-flying",
+        "item": "mdi:treasure-chest",
+        "faction": "dashicons:shield",
+        "district": "lets-icons:map-fill",
+        "location": "mdi:home-location",
+        "city": "mdi:city",
+        "region": "carbon:choropleth-map",
+        "world": "mdi:world",
+    }
+
     _map_prompts = {
         "city": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be detailed and include the following elements:
             - MAP TYPE: A detailed layout of the {obj.title}, including key locations, points of interest, and districts
@@ -90,19 +102,6 @@ class BaseSystem(AutoModel):
     }
 
     ############# Class Methods #############
-
-    @classmethod
-    def get_music(cls, type):
-        return f"/static/sounds/music/{random.choice(cls._music_lists.get(type, ["themesong.mp3"]))}"
-
-    @classmethod
-    def get_title(cls, obj_type):
-        if inspect.isclass(obj_type):
-            obj_type = obj_type.__name__
-        elif not isinstance(obj_type, str):
-            obj_type = obj_type.__class__.__name__
-        obj_type = obj_type.lower()
-        return cls._titles.get(obj_type, obj_type.capitalize())
 
     @classmethod
     def sanitize(cls, data):

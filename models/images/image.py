@@ -40,7 +40,7 @@ class Image(AutoModel):
         text=False,
     ):
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
-        log(f"=== generation prompt ===\n\n{prompt}", _print=True)
+        # log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         temp_prompt = (
             f"""{prompt}
 IMPORTANT: The image MUST NOT contain any TEXT.

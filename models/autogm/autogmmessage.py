@@ -24,8 +24,7 @@ class AutoGMMessage(AutoModel):
 
         from models.world import World
 
-        soup = BeautifulSoup(self.message, "html.parser")
-        pc_message = soup.get_text()
+        pc_message = BeautifulSoup(self.message, "html.parser").get_text()
         voice = self.player.voice if self.player else "echo"
         voiced_scene = AudioAgent().generate(pc_message, voice=voice)
         if self.audio:

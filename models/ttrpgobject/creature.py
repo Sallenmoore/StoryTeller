@@ -3,7 +3,7 @@ import random
 import markdown
 
 from autonomous import log
-from autonomous.model.autoattr import BoolAttr, ListAttr, StringAttr
+from autonomous.model.autoattr import IntAttr, ListAttr, StringAttr
 from models.base.actor import Actor
 
 
@@ -13,7 +13,7 @@ class Creature(Actor):
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
     abilities = ListAttr(StringAttr())
-    bbeg = BoolAttr(default=False)
+    group = IntAttr(default=False)
 
     parent_list = ["Location", "District"]
     _funcobj = {
@@ -100,7 +100,7 @@ BACKSTORY
 ---
 {self.backstory_summary}
 
-{"EVENTS INVOLVING THIS CREATURE TYPE" if not self.bbeg else "LIFE EVENTS"}
+{"EVENTS INVOLVING THIS CREATURE TYPE" if not self.group else "LIFE EVENTS"}
 ---
 """
 
@@ -115,11 +115,11 @@ BACKSTORY
 
     @property
     def unique(self):
-        return bool(self.bbeg)
+        return bool(self.group)
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = "type of enemy whose species" if self.bbeg else "foe who"
+        group = "type of enemy whose species" if self.group else "foe who"
         prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('boring', 'mysterious', 'sinister', 'complicated'))} goal they are working toward.
         """
         obj = super().generate(prompt=prompt)

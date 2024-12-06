@@ -11,16 +11,16 @@
   --color-secondary-lighter: hsl(211.5789473684deg, 17.2727272727%, 51.5098039216%, 1);
   --color-secondary-text: rgb(87.5668181818, 104.8877272727, 124.1331818182);
   --color-secondary-alert: hsl(211.5789473684deg, 17.2727272727%, 41.5098039216%, 0.2);
-  --color-dark: hsl(211.5789473684deg, 21.5909090909%, 24.5098039216%, 1);
-  --color-dark-darker: hsl(211.5789473684deg, 21.5909090909%, 14.5098039216%, 1);
-  --color-dark-lighter: hsl(211.5789473684deg, 21.5909090909%, 34.5098039216%, 1);
+  --color-dark: hsl(211.5789473684deg, 21.5909090909%, 19.5098039216%, 1);
+  --color-dark-darker: hsl(211.5789473684deg, 21.5909090909%, 9.5098039216%, 1);
+  --color-dark-lighter: hsl(211.5789473684deg, 21.5909090909%, 29.5098039216%, 1);
   --color-dark-text: rgb(87.5668181818, 104.8877272727, 124.1331818182);
-  --color-dark-alert: hsl(211.5789473684deg, 21.5909090909%, 24.5098039216%, 0.2);
-  --color-light: hsl(211.5789473684deg, 17.2727272727%, 81.5098039216%, 1);
-  --color-light-darker: hsl(211.5789473684deg, 17.2727272727%, 71.5098039216%, 1);
-  --color-light-lighter: hsl(211.5789473684deg, 17.2727272727%, 91.5098039216%, 1);
+  --color-dark-alert: hsl(211.5789473684deg, 21.5909090909%, 19.5098039216%, 0.2);
+  --color-light: hsl(211.5789473684deg, 17.2727272727%, 91.5098039216%, 1);
+  --color-light-darker: hsl(211.5789473684deg, 17.2727272727%, 81.5098039216%, 1);
+  --color-light-lighter: hsl(0deg, 0%, 100%, 1);
   --color-light-text: rgb(87.5668181818, 104.8877272727, 124.1331818182);
-  --color-light-alert: hsl(211.5789473684deg, 17.2727272727%, 81.5098039216%, 0.2);
+  --color-light-alert: hsl(211.5789473684deg, 17.2727272727%, 91.5098039216%, 0.2);
   --color-white: hsl(60deg, 15.3846153846%, 94.9019607843%, 1);
   --color-white-darker: hsl(60deg, 15.3846153846%, 84.9019607843%, 1);
   --color-white-lighter: hsl(0deg, 0%, 100%, 1);
@@ -61,7 +61,7 @@
   --color-link-lighter: hsl(0deg, 0%, 100%, 1);
   --color-link-text: rgb(87.5668181818, 104.8877272727, 124.1331818182);
   --color-link-alert: hsl(211.5789473684deg, 17.2727272727%, 111.5098039216%, 0.2);
-  --color-black-overlay: hsl(211.5789473684deg, 21.5909090909%, 24.5098039216%, 0.5);
+  --color-black-overlay: hsl(211.5789473684deg, 21.5909090909%, 19.5098039216%, 0.5);
   --color-link: hsl(211.5789473684deg, 17.2727272727%, 111.5098039216%, 1);
   --color-muted: hsl(211.5789473684deg, 17.2727272727%, 91.5098039216%, 0.66);
   --color-disabled: hsl(0deg, 0%, 96.862745098%, 1);
@@ -84,11 +84,11 @@
   color: var(--font-color) !important;
 }
 .has-text-dark {
-  --font-color: hsl(211.5789473684deg, 21.5909090909%, 24.5098039216%, 1) !important;
+  --font-color: hsl(211.5789473684deg, 21.5909090909%, 19.5098039216%, 1) !important;
   color: var(--font-color) !important;
 }
 .has-text-light {
-  --font-color: hsl(211.5789473684deg, 17.2727272727%, 81.5098039216%, 1) !important;
+  --font-color: hsl(211.5789473684deg, 17.2727272727%, 91.5098039216%, 1) !important;
   color: var(--font-color) !important;
 }
 .has-text-white {
@@ -1360,7 +1360,7 @@ abbr {
 }
 .grid .cell {
   background-color: rgb(87.5668181818, 104.8877272727, 124.1331818182);
-  outline: 1px solid rgb(49.0056818182, 61.7897727273, 75.9943181818);
+  outline: 1px solid rgb(39.0085227273, 49.1846590909, 60.4914772727);
   /* To place the letter at the center */
   display: grid;
   place-items: center;
@@ -2322,7 +2322,7 @@ label:not(:last-child) {
   color: inherit;
 }
 .top__burger {
-  --font-color: rgb(49.0056818182, 61.7897727273, 75.9943181818);
+  --font-color: rgb(39.0085227273, 49.1846590909, 60.4914772727);
   --padding: 0 0.65rem;
   --width: 20px;
   --bar-height: 2px;
@@ -3499,7 +3499,7 @@ label:not(:last-child) {
 .modal .modal__content {
   top: 10vh;
   left: 10vw;
-  background-color: rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  background-color: rgb(229.6104545455, 233.1531818182, 237.0895454545);
   overflow: scroll;
   color: #45576b;
   height: 80vh;
@@ -3728,7 +3728,7 @@ label:not(:last-child) {
   width: 50px;
   position: relative;
   animation: spin 0.675s linear 0s infinite normal;
-  background: rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  background: rgb(229.6104545455, 233.1531818182, 237.0895454545);
 }
 .spinner:before, .spinner:after {
   content: "";
@@ -3742,8 +3742,8 @@ label:not(:last-child) {
   top: 0;
   right: 0;
   z-index: 1;
-  background: rgb(49.0056818182, 61.7897727273, 75.9943181818);
-  background-image: linear-gradient(rgb(199.7059090909, 207.4213636364, 215.9940909091), rgb(49.0056818182, 61.7897727273, 75.9943181818));
+  background: rgb(39.0085227273, 49.1846590909, 60.4914772727);
+  background-image: linear-gradient(rgb(229.6104545455, 233.1531818182, 237.0895454545), rgb(39.0085227273, 49.1846590909, 60.4914772727));
 }
 .spinner:after {
   border-radius: 80%;
@@ -4383,7 +4383,7 @@ label:not(:last-child) {
 }
 
 #model-title-container {
-  box-shadow: inset 0 -40px 25px -10px rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  box-shadow: inset 0 -40px 25px -10px rgb(229.6104545455, 233.1531818182, 237.0895454545);
   padding-bottom: 3.5rem;
 }
 
@@ -4416,7 +4416,7 @@ label:not(:last-child) {
   bottom: 0.5rem;
   left: 0.5rem;
   background-color: #45576b;
-  border: 1px solid rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  border: 1px solid rgb(229.6104545455, 233.1531818182, 237.0895454545);
   color: hsl(211.5789473684, 21.5909090909%, 104.5098039216%);
   cursor: pointer;
   z-index: 999;
@@ -4482,7 +4482,7 @@ label:not(:last-child) {
 }
 
 .generated-text-lightbg {
-  color: rgb(49.0056818182, 61.7897727273, 75.9943181818);
+  color: rgb(39.0085227273, 49.1846590909, 60.4914772727);
 }
 .generated-text-lightbg h1,
 .generated-text-lightbg h2,
@@ -4491,7 +4491,7 @@ label:not(:last-child) {
 .generated-text-lightbg h5,
 .generated-text-lightbg h6,
 .generated-text-lightbg p {
-  color: rgb(49.0056818182, 61.7897727273, 75.9943181818);
+  color: rgb(39.0085227273, 49.1846590909, 60.4914772727);
 }
 .generated-text-lightbg h1 {
   font-size: 2rem;
@@ -4513,7 +4513,7 @@ label:not(:last-child) {
 }
 
 .generated-text-darkbg {
-  color: rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  color: rgb(229.6104545455, 233.1531818182, 237.0895454545);
 }
 .generated-text-darkbg h1,
 .generated-text-darkbg h2,
@@ -4522,7 +4522,7 @@ label:not(:last-child) {
 .generated-text-darkbg h5,
 .generated-text-darkbg h6,
 .generated-text-darkbg p {
-  color: rgb(199.7059090909, 207.4213636364, 215.9940909091);
+  color: rgb(229.6104545455, 233.1531818182, 237.0895454545);
 }
 .generated-text-darkbg h1 {
   font-size: 2rem;

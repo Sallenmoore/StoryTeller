@@ -84,83 +84,10 @@ def _generate_autogm_start_task(pk, message=""):
     }
 
 
-def _generate_autogm_run_task(pk, message=None, roll_dice=None):
-    obj = Faction.get(pk)
-    # obj.last_scene.player_messages |= {pk: message}
-    obj.save()
-    if message:
-        messagestr = ""
-        for pk, msg in obj.last_scene.player_messages.items():
-            if player := Character.get(pk):
-                messagestr += f"""
-{player.name} RESPONSE: {msg.get("message")}
-"""
-    if roll_dice:
-        obj.last_scene.roll_formula = roll_dice
-        roll_result = dmtools.dice_roll(roll_dice)
-        # log(roll_result, _print=True)
-        obj.last_scene.roll_result = roll_result
-        obj.last_scene.save()
-        messagestr += f"""
-Rolls {obj.last_scene.roll_type}:{obj.last_scene.roll_attribute}
-RESULT:  {roll_result}
-"""
-    # log(messagestr)
-    obj.run_gm_session(message=message)
-    return {
-        "url": f"/api/autogm/party/{obj.pk}/intermission",
-        "target": "scene-intermission-container",
-        "select": "scene-intermission-container",
-        "swap": "outerHTML",
-    }
-
-
-def _generate_autogm_regenerate_task(pk):
-    obj = Faction.get(pk)
-    message = ""
-    for msg in obj.last_scene.player_messages.values():
-        message += msg
-    if obj.last_scene.roll_formula:
-        roll_result = dmtools.dice_roll(obj.last_scene.roll_formula)
-        # log(roll_result, _print=True)
-        obj.last_scene.roll_result = roll_result
-        obj.last_scene.save()
-        message = f"""{message}
-
-Rolls {obj.last_scene.roll_type}:{obj.last_scene.roll_attribute}
-RESULT:  {roll_result}
-        """.strip()
-
-    obj.regenerate_gm_session(message=message)
-    return {
-        "url": f"/api/autogm/party/{obj.pk}/intermission",
-        "target": "scene-intermission-container",
-        "select": "scene-intermission-container",
-        "swap": "outerHTML",
-    }
-
-
-def _generate_autogm_end_task(pk):
-    obj = Faction.get(pk)
-    obj.end_gm_session()
-    return {"url": f"/api/autogm/{obj.path}"}
-
-
-def _generate_autogm_clear_task(pk):
-    obj = Character.get(pk)
-    for ags in obj.autogm_summary:
-        if ags.image:
-            ags.image.delete()
-        ags.delete()
-    obj.autogm_summary = []
-    obj.save()
-    return {"url": f"/api/autogm/{obj.path}"}
-
-
-def _generate_autogm_gm_task(pk):
+def _generate_autogm_task(pk):
     party = Faction.get(pk)
-    party.autogm_pc_session()
-    party.save()
+    # log(messagestr)
+    party.run_gm_session()
     return {
         "url": f"/api/autogm/{party.pk}/intermission",
         "target": "scene-intermission-container",

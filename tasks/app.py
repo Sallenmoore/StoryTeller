@@ -104,35 +104,25 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/autogm/<string:pk>/<string:action>", methods=("POST",))
-    def autogm(pk, action):
-        task_function = {
-            "start": tasks._generate_autogm_start_task,
-            "run": tasks._generate_autogm_run_task,
-            "end": tasks._generate_autogm_end_task,
-            "regenerate": tasks._generate_autogm_regenerate_task,
-        }.get(action)
+    @app.route("/generate/autogm/<string:pk>", methods=("POST",))
+    @app.route("/generate/autogm/<string:pk>/regenerate", methods=("POST",))
+    def autogm(pk):
+        party = Faction.get(pk)
 
-        kwargs = {"pk": pk}
-        if action == "end":
-            pass
-        if message := request.json.get("message"):
-            kwargs["message"] = message
-        if num_dice := request.json.get("pc_roll_num_dice"):
-            type_dice = request.json.get("pc_roll_type_dice")
-            modifier = request.json.get("pc_roll_modifier").strip()
-            kwargs["roll_dice"] = f"{num_dice}d{type_dice}{modifier}"
-        # log(kwargs)
+        if "regenerate" in request.url and party.autogm_summary:
+            party.next_scene.delete()
+            party.next_scene = party.autogm_summary.pop()
+            party.save()
+
         task = (
             AutoTasks()
             .task(
-                task_function,
-                **kwargs,
+                tasks._generate_autogm_task,
+                pk,
             )
             .result
         )
-        # log(action, task_function, kwargs)
-        party = Faction.get(pk)
+
         snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
             party.user, party.world, party
         )
@@ -151,23 +141,5 @@ def create_app():
             .result
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/autogm/gm/<string:pk>", methods=("POST",))
-    def autogm_gm(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_autogm_gm_task,
-                pk,
-            )
-            .result
-        )
-        party = Faction.get(pk)
-        snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
-            party.user, party.world, party
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(
-            task["id"], snippet=snippet
-        )
 
     return app

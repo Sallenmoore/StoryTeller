@@ -1,8 +1,8 @@
+import inspect
 import random
 
 import markdown
 import validators
-from bs4 import BeautifulSoup
 from flask import get_template_attribute
 from slugify import slugify
 
@@ -20,78 +20,6 @@ IMAGES_BASE_PATH = "static/images/tabletop"
 class TTRPGBase(AutoModel):
     """
     TTRPGBase is a base class for tabletop role-playing game (TTRPG) models. It provides common attributes and methods for various TTRPG entities such as characters, locations, items, etc.
-
-    Attributes:
-        meta (dict): Meta information for the model.
-        name (StringAttr): The name of the entity.
-        backstory (StringAttr): The backstory of the entity.
-        backstory_summary (StringAttr): A summary of the backstory.
-        desc (StringAttr): A description of the entity.
-        desc_summary (StringAttr): A summary of the description.
-        traits (StringAttr): Traits of the entity.
-        image (ReferenceAttr): Reference to an image associated with the entity.
-        current_age (IntAttr): The current age of the entity.
-        history (StringAttr): The history of the entity.
-        journal (ReferenceAttr): Reference to a journal associated with the entity.
-        story_types (list): List of possible story types.
-        _models (list): List of model names.
-        child_list (dict): Mapping of child model names to their plural forms.
-        _no_copy (dict): Attributes that should not be copied.
-        _traits_list (list): List of possible traits.
-        _funcobj (dict): Function object for storing parameters.
-
-    Methods:
-        __eq__(self, obj): Checks if two objects are equal based on their primary key.
-        __ne__(self, obj): Checks if two objects are not equal based on their primary key.
-        __lt__(self, obj): Checks if the name of the current object is less than the name of another object.
-        __gt__(self, obj): Checks if the name of the current object is greater than the name of another object.
-        __hash__(self): Returns the hash of the primary key.
-        child_list_key(cls, model): Returns the child list key for a given model.
-        get_model(cls, model, pk=None): Retrieves a model class or an instance of the model class by its primary key.
-        get_models(cls): Returns a list of loaded model classes.
-        age(self): Gets or sets the current age of the entity.
-        child_models(self): Returns a list of child models.
-        current_date(self): Returns the current date from the calendar.
-        description(self): Gets or sets the description of the entity.
-        description_summary(self): Gets or sets the description summary of the entity.
-        funcobj(self): Returns the function object with required parameters.
-        geneology(self): Returns the genealogy of the entity.
-        genres(self): Returns a list of genres.
-        history_primer(self): Returns a primer for generating the history of the entity.
-        history_prompt(self): Returns a prompt for generating the history of the entity.
-        image_tags(self): Returns a list of image tags.
-        image_prompt(self): Returns a prompt for generating an image of the entity.
-        path(self): Returns the path of the entity.
-        possible_events(self): Returns a list of possible events.
-        map_thumbnail(self): Returns the URL of the map thumbnail.
-        map_prompt(self): Returns a prompt for generating a map of the entity.
-        slug(self): Returns the slugified name of the entity.
-        title(self): Returns the title of the entity.
-        titles(self): Returns a list of titles.
-        delete(self): Deletes the entity and its associated objects.
-        generate(self, prompt=""): Generates data for the entity using AI.
-        is_child(self, obj): Checks if the current object is a child of another object.
-        is_associated(self, obj): Checks if the current object is associated with another object.
-        get_image_list(self, tags=[]): Returns a list of images based on tags.
-        generate_image(self): Generates an image for the entity using AI.
-        get_map_list(self): Returns a list of map images.
-        generate_map(self): Generates a map for the entity using AI.
-        add_association(self, obj): Adds an association with another object.
-        remove_association(self, obj): Removes an association with another object.
-        get_associations(self, model=None, children=True): Returns a list of associated objects.
-        has_associations(self, model): Checks if the entity has associations with a given model.
-        resummarize(self, upload=False): Resummarizes the backstory, description, and history of the entity.
-        get_title(self, model): Returns the title of a given model.
-        page_data(self): Returns page data.
-        add_journal_entry(self, pk=None, title=None, text=None, tags=[], importance=0, date=None, associations=[]): Adds or updates a journal entry.
-        search_autocomplete(self, query): Returns search autocomplete results.
-        snippet(self, user, macro, kwargs=None): Returns an HTML snippet for the entity.
-        auto_pre_save(cls, sender, document, **kwargs): Pre-save hook for the entity.
-        auto_post_save(cls, sender, document, **kwargs): Post-save hook for the entity.
-        pre_save_image(self): Pre-save hook for the image attribute.
-        pre_save_backstory(self): Pre-save hook for the backstory attribute.
-        pre_save_traits(self): Pre-save hook for the traits attribute.
-        post_save_journal(self): Post-save hook for the journal attribute.
     """
 
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
@@ -172,8 +100,8 @@ class TTRPGBase(AutoModel):
         return cls.child_list.get(model.lower(), f"{model.lower()}s") if model else None
 
     @classmethod
-    def _model(cls):
-        return cls.all_models()
+    def all_models_str(cls):
+        return [m.__name__ for m in cls.all_models()]
 
     @classmethod
     def all_models(cls):
@@ -546,7 +474,20 @@ Use and expand on the existing object data listed below for the {self.title} obj
             self.save()
 
     def get_title(self, model):
-        return self.system.get_title(model)
+        if inspect.isclass(model):
+            model = model.__name__
+        elif not isinstance(model, str):
+            model = model.__class__.__name__
+        model = model.lower()
+        return self.system._titles.get(model, model.capitalize())
+
+    def get_icon(self, model):
+        if inspect.isclass(model):
+            model = model.__name__
+        elif not isinstance(model, str):
+            model = model.__class__.__name__
+        model = model.lower()
+        return self.system._icons.get(model, "line-md:question")
 
     def page_data(self):
         return {}
