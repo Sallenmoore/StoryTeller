@@ -270,6 +270,7 @@ SCENE DESCRIPTION
             *self.combatants,
             *self.loot,
             *self.places,
+            *self.factions,
         ]
         for o in scene_objects:
             if o not in self.associations:
@@ -335,6 +336,12 @@ SCENE DESCRIPTION
     ################### verification methods ##################
 
     def pre_save_associations(self):
+        self.associations = list(set(self.associations))
+        self.npcs = list(set(self.npcs))
+        self.combatants = list(set(self.combatants))
+        self.loot = list(set(self.loot))
+        self.places = list(set(self.places))
+        self.factions = list(set(self.factions))
         self.associations.sort(key=lambda x: (x.title, x.name))
 
     def pre_save_pcmessages(self):
