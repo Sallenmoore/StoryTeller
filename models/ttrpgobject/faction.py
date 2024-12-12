@@ -10,7 +10,7 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
-from models.autogm.autogm import AutoGMScene
+from models.autogm.autogmscene import AutoGMScene
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 from .character import Character
@@ -125,17 +125,30 @@ class Faction(TTRPGObject):
     ############################# AutoGM #############################
     ## MARK: AUTOGM
 
-    def run_gm_session(self):
-        self.gm.rungm(party=self)
-        self.save()
-
     def end_gm_session(self):
         self.gm.end(party=self)
         self.save()
 
-    def autogm_pc_session(self):
-        self.gm.rungm(party=self)
+    def autogm_session(self):
+        if self.next_scene.gm_mode == "gm":
+            self.gm.rungm(party=self)
+        elif self.next_scene.gm_mode == "pc":
+            self.gm.runpc(party=self)
+        else:
+            raise ValueError("Invalid GM Mode")
+
         self.save()
+
+    def autogm_combat(self):
+        if self.last_scene.type == "combat":
+            ondeck = self.last_scene.current_combat_turn().actor
+            # if (
+            #     self.last_scene.gm_mode == 'pc' and ondeck
+            #     not in self.players
+            # ):
+
+        else:
+            raise ValueError("Invalid Scene Type")
 
     def clear_autogm(self):
         self.autogm_history += self.autogm_summary
@@ -145,12 +158,10 @@ class Faction(TTRPGObject):
     def get_next_scene(self, create=False):
         if self.next_scene and create:
             prompt = (
-                self.autogm_summary[10].summary if len(self.autogm_summary) > 10 else ""
+                self.autogm_summary[3].summary if len(self.autogm_summary) > 3 else ""
             )
-            for ags in self.autogm_summary[:10]:
+            for ags in self.autogm_summary[:3]:
                 prompt += f" {ags.description}"
-                for msg in ags.player_messages:
-                    prompt += f" {msg.message}"
 
             primer = "Generate an evocative, narrative summary of less than 250 words for the given players and events of a TTRPG in MARKDOWN format."
             summary = self.system.generate_summary(prompt, primer)
@@ -172,6 +183,8 @@ class Faction(TTRPGObject):
 
             if self.last_scene:
                 self.next_scene.gm_mode = self.last_scene.gm_mode
+                self.next_scene.tone = self.last_scene.tone
+                self.next_scene.image_style = self.last_scene.image_style
                 self.next_scene.associations = self.last_scene.associations
                 self.next_scene.npcs = self.last_scene.npcs
                 self.next_scene.combatants = self.last_scene.combatants

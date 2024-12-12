@@ -5,7 +5,7 @@ from dmtoolkit import dmtools
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
-from models.autogm.autogm import AutoGMScene
+from models.autogm.autogmscene import AutoGMScene
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -68,29 +68,18 @@ def _generate_image_task(model, pk):
 def _generate_audio_task(pk):
     ags = AutoGMScene.get(pk)
     ags.generate_audio()
-    return {"url": f"/api/autogm/{ags.party.path}"}
-
-
-def _generate_autogm_start_task(pk, message=""):
-    party = Faction.get(pk)
-    party.start_gm_session(scenario=message)
-    party.last_scene.player_message = message
-    party.save()
-    return {
-        "url": f"/api/autogm/party/{party.pk}/intermission",
-        "target": "scene-intermission-container",
-        "select": "scene-intermission-container",
-        "swap": "outerHTML",
-    }
+    return {"url": f"/api/autogm/{ags.party.pk}"}
 
 
 def _generate_autogm_task(pk):
     party = Faction.get(pk)
     # log(messagestr)
-    party.run_gm_session()
-    return {
-        "url": f"/api/autogm/{party.pk}/intermission",
-        "target": "scene-intermission-container",
-        "select": "scene-intermission-container",
-        "swap": "outerHTML",
-    }
+    party.autogm_session()
+    return {"url": f"/api/autogm/{party.pk}"}
+
+
+def _generate_autogm_combat_task(pk):
+    party = Faction.get(pk)
+    # log(messagestr)
+    party.autogm_combat()
+    return {"url": f"/api/autogm/{party.pk}"}

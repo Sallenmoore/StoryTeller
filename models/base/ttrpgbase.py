@@ -285,7 +285,7 @@ EVENTS
 
     @property
     def title(self):
-        return self.system.get_title(self)
+        return self.get_title(self)
 
     @property
     def titles(self):

@@ -12,7 +12,6 @@ from autonomous.model.autoattr import (
 )
 from autonomous.model.automodel import AutoModel
 from models.autogm.autogmquest import AutoGMQuest
-from models.autogm.autogmscene import AutoGMScene
 
 
 class AutoGM(AutoModel):
@@ -70,8 +69,16 @@ class AutoGM(AutoModel):
             "properties": {
                 "scene_type": {
                     "type": "string",
-                    "enum": ["social", "combat", "exploration", "stealth"],
-                    "description": "Type of scene to generate (e.g., social, combat, exploration, or stealth).",
+                    "enum": [
+                        "social",
+                        "encounter",
+                        "combat",
+                        "investigation",
+                        "exploration",
+                        "stealth",
+                        "puzzle",
+                    ],
+                    "description": "Type of scene to generate (e.g., social, combat, encounter, exploration, investigation, puzzle, or stealth).",
                 },
                 "description": {
                     "type": "string",
@@ -228,22 +235,22 @@ class AutoGM(AutoModel):
                         "description",
                     ],
                     "properties": {
-                        "roll_player": {
-                            "type": "boolean",
-                            "description": "The primary key (pk) name of the player who must roll.",
-                        },
                         "roll_required": {
                             "type": "boolean",
                             "description": "Whether a roll is required for the player's next action.",
                         },
+                        "roll_player": {
+                            "type": "string",
+                            "description": "The primary key (pk) of the player who must roll.",
+                        },
                         "type": {
                             "type": "string",
                             "enum": [
-                                "savingthrow",
+                                "saving throw",
                                 "attack",
                                 "damage",
-                                "skillcheck",
-                                "abilitycheck",
+                                "skill check",
+                                "ability check",
                                 "initiative",
                                 "none",
                             ],
@@ -251,11 +258,11 @@ class AutoGM(AutoModel):
                         },
                         "attribute": {
                             "type": "string",
-                            "description": "Attribute to roll against (e.g., WIS, DEX, Stealth).",
+                            "description": "Attribute or Skill to roll against (e.g., WIS, DEX, Stealth).",
                         },
                         "description": {
                             "type": "string",
-                            "description": "Markdown description of the event requiring a roll.",
+                            "description": "Markdown description of the event requiring a roll, including the success value the player must meet or beat.",
                         },
                     },
                 },
@@ -319,8 +326,90 @@ class AutoGM(AutoModel):
 
     ##################### PROPERTY METHODS ####################
 
-    @property
-    def pc_prompt(self):
+    def _prompt(self, party):
+        prompt = f"""
+CAMPAIGN TONE
+{party.next_scene.tone}
+
+CAMPAIGN SUMMARY
+{(party.last_scene and party.last_scene.summary) or "The campaign has just begun."}
+
+"""
+
+        if party.next_scene.quest_log:
+            prompt += f"""
+PLOT LINES AND QUESTS
+- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ""}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
+"""
+
+        if party.next_scene.places:
+            prompt += f"""
+PLACES
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.places]) if party.next_scene.places else "None"}
+
+"""
+
+        if party.next_scene.factions:
+            prompt += f"""
+FACTIONS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.factions if ass != party]) if party.next_scene.factions else "None"}
+
+"""
+
+        if party.next_scene.npcs:
+            prompt += f"""
+NPCS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.npcs]) if party.next_scene.npcs else "None"}
+
+"""
+
+        if party.next_scene.combatants:
+            prompt += f"""
+ENEMIES
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.combatants]) if party.next_scene.combatants else "None"}
+
+"""
+
+        if party.next_scene.loot:
+            prompt += f"""
+ITEMS
+- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.loot]) if party.next_scene.loot else "None"}
+
+"""
+
+        if assoc := party.next_scene.get_additional_associations():
+            prompt += f"""
+ADDITIONAL ASSOCIATIONS
+- {"\n- ".join([f"{ass.name} [{ass.title}]\n  - pk: {ass.pk}" for ass in assoc])}
+
+"""
+
+        prompt += f"""
+PARTY DESCRIPTION
+{party.backstory_summary}
+
+PARTY PLAYER CHARACTERS
+"""
+        for pc in party.players:
+            abilities = [
+                BeautifulSoup(a, "html.parser").get_text() for a in pc.abilities
+            ]
+            prompt += f"""
+- Name: {pc.name}
+- pk: {pc.pk}
+- Species: {pc.species}
+- Gender: {pc.gender}
+- Age: {pc.age}
+- Occupation: {pc.occupation}
+- Goal: {pc.goal.strip()}
+- Backstory: {BeautifulSoup(pc.backstory_summary, "html.parser").get_text()}
+- Abilities:
+    - {"\n    - ".join(abilities)}
+
+"""
+        return prompt
+
+    def get_gm_prompt(self, party, start=False):
         return f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response where each party member reacts to the GM's described scene.
 
 For each character:
@@ -342,40 +431,49 @@ Return the responses in the following structured JSON format:
     }}
   ]
 }}
+
+{self._prompt(party)}
 """
 
-    @property
-    def gm_prompt(self):
-        prompt = f"""
-You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to craft an evocative, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to drive the story forward in ways that are surprising yet logical and grounded in the game's established lore. Ensure that your response adheres to the following guidelines:
-
-Scene Composition
-
-- Engagement: Build suspense, tension, or excitement to captivate the players.
-- Integration: Seamlessly incorporate elements from the player's most recent message, previous events, and lore from the uploaded file.
-- Player Agency: Reflect the player's self-described actions, intentions, and any provided dice roll results or narrative outcomes.
-- Consistency: Maintain alignment with the game's tone, pacing, and narrative style.
-
-Narrative Style
-
-- Atmosphere: Use vivid and sensory-rich imagery to bring the scene to life.
-- Surprises: Introduce unexpected challenges, twists, or opportunities that inspire creative thinking and problem-solving.
-- Clarity: Offer clear and concrete next steps or options for player actions, while setting up logical consequences or outcomes.
-- Flexibility: Leave room for player creativity, encouraging responses that shape the unfolding story.
-"""
-        return prompt
-
-    @property
-    def gm_start_prompt(self):
-        prompt = f"""
+    def get_pc_prompt(self, party, start=False):
+        if start:
+            prompt = f"""
 You are an expert AI Game Master for a {self.world.genre} tabletop roleplaying game. Your task is to craft an evocative and gripping description of the first session by describing the world, campaign setting, and a plot hook for the players in a vivid and captivating way. The first session should also explain what brought these characters together and what their common goal is. The scene should:
 - Build suspense, tension, or excitement.
 - Incorporate elements from established lore decribed in the uploaded file.
 
 Provide your response in a way that:
 1. Evokes vivid imagery and atmosphere.
-2. Introduces unexpected challenges or opportunities to keep the players engaged.
+2. Introduces concrete challenges or opportunities to keep the players engaged.
 3. Clearly outlines the consequences or setup for player actions, leaving room for creative responses.
+
+{self._prompt(party)}
+"""
+        else:
+            prompt = f"""
+You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to craft a concrete, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to crafte a scene that has concrete consequences from the previous scene while also driving the story forward in ways that are surprising yet logical and grounded in the game's established lore. Ensure that your response adheres to the following guidelines:
+
+- INTEGRATION: Seamlessly incorporate elements and logical consequences from previous events, the player's most recent message and roll, as well as lore from the uploaded file.
+- CONSISTENCY: Maintain alignment with the previous scene's events as well as the game's tone, pacing, and narrative style.
+- ATMOSPHERE: Use concrete and sensory-rich imagery to bring the scene to life.
+- ENAGEMENT: Introduce unexpected challenges, twists, enemy ambushes, or opportunities that inspire creative thinking and problem-solving.
+- CLARITY: Offer clear and concrete next steps or options for player actions, while setting up logical and specific consequences or outcomes.
+- FLEXIBILITY: Leave room for player creativity, encouraging responses that shape the unfolding story.
+- PLAYER AGENCY: Reflect the player's self-described actions, intentions, emotions, and any dice roll results in the scene.
+- CONSEQUENCES: Negative outcomes should have negative consequences, and vice versa. The severity of the consequences should be proportional to the player characters' described actions and dice roll results in the scene, where 1 is the worst possible outcome and >=20 is the best possible outcome.
+
+{self._prompt(party)}
+"""
+        if description := party.last_scene and party.last_scene.description:
+            description = BeautifulSoup(
+                description,
+                "html.parser",
+            ).get_text()
+
+            prompt += f"""
+PREVIOUS SCENE
+{description}
+
 """
         return prompt
 
@@ -446,125 +544,31 @@ Provide your response in a way that:
         )
         self.save()
 
-    def rungm(self, party):
+    def runpc(self, party):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
-        if party.next_scene.gm_mode == "gm":
-            prompt = self.pc_prompt
-        elif party.next_scene.gm_mode == "pc" and party.last_scene:
-            prompt = self.gm_prompt
+        if party.last_scene:
+            prompt = self.get_pc_prompt(party)
         else:
-            prompt = self.gm_start_prompt
+            prompt = self.get_pc_prompt(party, start=True)
 
-        prompt += f"""
-CAMPAIGN SUMMARY
-{(party.last_scene and party.last_scene.summary) or "The campaign has just begun."}
-
+        prompt += """
+PLAYER ACTIONS
 """
-        if party.next_scene.quest_log:
-            prompt += f"""
-PLOT LINES AND QUESTS
-- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ""}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
-"""
-        if party.next_scene.places:
-            prompt += f"""
-PLACES
-- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.places]) if party.next_scene.places else "None"}
-
-"""
-
-        if party.next_scene.factions:
-            prompt += f"""
-FACTIONS
-- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.factions if ass != party]) if party.next_scene.factions else "None"}
-
-"""
-
-        if party.next_scene.npcs:
-            prompt += f"""
-NPCS
-- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.npcs]) if party.next_scene.npcs else "None"}
-
-"""
-        if party.next_scene.combatants:
-            prompt += f"""
-ENEMIES
-- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.combatants]) if party.next_scene.combatants else "None"}
-
-"""
-        if party.next_scene.loot:
-            prompt += f"""
-ITEMS
-- {"\n- ".join([f"name: {ass.name}\n  - backstory: {ass.backstory_summary}" for ass in party.next_scene.loot]) if party.next_scene.loot else "None"}
-
-"""
-
-        prompt += f"""
-PARTY DESCRIPTION
-
-{party.backstory_summary}
-
-PARTY PLAYER CHARACTERS
-"""
-
-        for pc in party.players:
-            backstory_summary = BeautifulSoup(
-                pc.backstory_summary, "html.parser"
-            ).get_text()
-            abilities = [
-                BeautifulSoup(a, "html.parser").get_text() for a in pc.abilities
-            ]
-            prompt += f"""
-- Name: {pc.name}
-  - pk: {pc.pk}
-  - Species: {pc.species}
-  - Gender: {pc.gender}
-  - Age: {pc.age}
-  - Occupation: {pc.occupation}
-  - Goal: {pc.goal.strip()}
-  - Backstory: {backstory_summary}
-  - Abilities:
-    - {"\n    - ".join(abilities)}
-
-"""
-        if description := party.next_scene.description or (
-            party.last_scene and party.last_scene.description
-        ):
-            description = BeautifulSoup(
-                description,
-                "html.parser",
-            ).get_text()
-
-            prompt += f"""
-SCENE DESCRIPTION
-{description}
-
-"""
-        if party.next_scene.gm_mode == "pc":
-            prompt += """
-PLAYER MESSAGES
-"""
-            for msg in party.next_scene.player_messages:
-                if msg.message:
-                    prompt += f"""
-- {msg.player.name} says [in a {msg.emotion or "neutral"} tone]: {BeautifulSoup(msg.message, "html.parser").get_text()}
+        for msg in party.next_scene.player_messages:
+            if msg.message:
+                prompt += f"""
+- {msg.player.name}'s [with a {msg.emotion or "neutral"} demeanor]: {BeautifulSoup(msg.message, "html.parser").get_text()}
   {f"- intentions: {msg.intent}" if msg.intent else ""}
 """
 
-        if party.next_scene.gm_mode == "gm" and party.next_scene.roll_required:
-            prompt += f"""
-ROLL REQUIRED
-{party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type}
-"""
-        elif (
-            party.next_scene.gm_mode == "pc"
-            and party.last_scene
-            and party.last_scene.roll_required
-        ):
+        if party.next_scene and party.next_scene.roll_required:
             prompt += f"""
 ROLL RESULT
-{party.last_scene.roll_player and party.last_scene.roll_player.name} rolled a {party.next_scene.roll_attribute} {party.next_scene.roll_type} with a result of {party.last_scene.roll_result}
+{party.next_scene.roll_description}
+
+{(party.next_scene.roll_player and party.next_scene.roll_player.name) or ""} rolled a {party.next_scene.roll_attribute} {party.next_scene.roll_type} with a result of {party.next_scene.roll_result}
 """
 
         self._update_response_function(party)
@@ -572,106 +576,115 @@ ROLL RESULT
         log(prompt, _print=True)
         party.next_scene.prompt = prompt
         party.next_scene.save()
-        # if party.next_scene.gm_mode == "gm":
-        #     log(json.dumps(self._gm_funcobj, indent=4), _print=True)
-        # elif party.next_scene.gm_mode == "pc":
-        #     log(json.dumps(self._pc_funcobj, indent=4), _print=True)
 
-        if party.next_scene.gm_mode == "pc":
-            response = self.gm.generate(
-                prompt,
-                self._pc_funcobj,
-            )
-            log(json.dumps(response, indent=4), _print=True)
-            party.next_scene.prompt += (
-                f"\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
-            )
-            party.next_scene.scene_type = response["scene_type"]
+        response = self.gm.generate(
+            prompt,
+            self._pc_funcobj,
+        )
+        log(json.dumps(response, indent=4), _print=True)
+        party.next_scene.prompt += f"\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
+        party.next_scene.type = response["scene_type"]
 
-            description = (
-                response["description"].replace("```markdown", "").replace("```", "")
-            )
-            description = markdown.markdown(description)
-            party.next_scene.description = description
-            party.next_scene.save()
+        description = (
+            response["description"].replace("```markdown", "").replace("```", "")
+        )
+        description = markdown.markdown(description)
+        party.next_scene.description = description
+        party.next_scene.save()
 
-            for q in response.get("quest_log", []):
-                if party.last_scene:
-                    quest = [
-                        quest
-                        for quest in party.last_scene.quest_log
-                        if quest.name == q["name"]
-                    ]
-                    if quest := quest.pop(0) if quest else None:
-                        quest.description = q["description"]
-                        quest.importance = q.get("importance")
-                        quest.status = q["status"]
-                        quest.next_steps = q["next_steps"]
-                    else:
-                        quest = AutoGMQuest(
-                            name=q["name"],
-                            type=q["type"],
-                            description=q["description"],
-                            status=q["status"],
-                            next_steps=q["next_steps"],
-                            importance=q.get("importance"),
-                        )
-                        party.next_scene.quest_log += [quest]
-                    quest.save()
-
-            # handle rolls
-            if response.get("requires_roll") and response["requires_roll"].get(
-                "roll_required"
-            ):
-                party.next_scene.roll_required = True
-                party.next_scene.roll_type = response["requires_roll"].get("type")
-                party.next_scene.roll_attribute = response["requires_roll"].get(
-                    "attribute"
-                )
-                party.next_scene.roll_description = response["requires_roll"].get(
-                    "description"
-                )
-                roll_player = response["requires_roll"].get("roll_player")
-                for pc in party.players:
-                    if pc.pk == roll_player:
-                        party.next_scene.roll_player = pc
-                        break
-            else:
-                party.next_scene.roll_required = False
-
-            party.next_scene.save()
-
-            party.next_scene.generate_npcs(response.get("npcs"))
-            party.next_scene.generate_combatants(response.get("combatants"))
-            party.next_scene.generate_loot(response.get("loot"))
-            party.next_scene.generate_places(response.get("places"))
-            party.next_scene.generate_image(response["image"]["description"])
-            party.next_scene.generate_audio(voice="onyx")
-
-        elif party.next_scene.gm_mode == "gm":
-            response = self.gm.generate(
-                prompt,
-                self._gm_funcobj,
-            )
-            party.next_scene.set_player_messages(response["responses"])
-            if party.next_scene.roll_required:
-                party.next_scene.roll_result = response["requires_roll"]["roll_result"]
-                party.next_scene.roll_description = response["requires_roll"][
-                    "roll_description"
+        for q in response.get("quest_log", []):
+            if party.last_scene:
+                quest = [
+                    quest
+                    for quest in party.last_scene.quest_log
+                    if quest.name == q["name"]
                 ]
-                party.next_scene.roll_formula = response["requires_roll"][
-                    "roll_formula"
-                ]
-                party.next_scene.generate_player_audio()
-        else:
-            raise ValueError("Invalid GM mode")
+                if quest := quest.pop(0) if quest else None:
+                    quest.description = q["description"]
+                    quest.importance = q.get("importance")
+                    quest.status = q["status"]
+                    quest.next_steps = q["next_steps"]
+                else:
+                    quest = AutoGMQuest(
+                        name=q["name"],
+                        type=q["type"],
+                        description=q["description"],
+                        status=q["status"],
+                        next_steps=q["next_steps"],
+                        importance=q.get("importance"),
+                    )
+                    party.next_scene.quest_log += [quest]
+                quest.save()
 
+        party.next_scene.save()
+
+        party.next_scene.generate_npcs(response.get("npcs"))
+        party.next_scene.generate_combatants(response.get("combatants"))
+        party.next_scene.generate_loot(response.get("loot"))
+        party.next_scene.generate_places(response.get("places"))
+        party.next_scene.generate_audio(voice="onyx")
         party.next_scene.generate_image(response["image"]["description"])
-        next_scene = party.get_next_scene(create=True)
 
+        if party.next_scene.combatants and party.next_scene.type == "combat":
+            party.next_scene.start_combat()
+
+        next_scene = party.get_next_scene(create=True)
         # sanity test
-        if next_scene != party.next_scene:
-            raise ValueError("Scene not saved")
+        if response.get("requires_roll") and response["requires_roll"].get(
+            "roll_required"
+        ):
+            next_scene.roll_required = True
+            next_scene.roll_type = response["requires_roll"].get("type")
+            next_scene.roll_attribute = response["requires_roll"].get("attribute")
+            next_scene.roll_description = response["requires_roll"].get("description")
+            roll_player = response["requires_roll"].get("roll_player")
+            for pc in party.players:
+                # log(
+                #     f"{pc.pk} == {roll_player} or {pc.name} == {roll_player}",
+                #     _print=True,
+                # )
+                if str(pc.pk) == roll_player or pc.name == roll_player:
+                    next_scene.roll_player = pc
+                    break
+            next_scene.save()
+        self.update_refs()
+        return next_scene
+
+    def rungm(self, party):
+        if not party.next_scene:
+            raise ValueError("No next scene to run.")
+
+        if party.last_scene:
+            prompt = self.get_gm_prompt(party)
+        else:
+            prompt = self.get_gm_prompt(party, start=True)
+
+        if party.next_scene.roll_required:
+            prompt += f"""
+ROLL REQUIRED
+{party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type}
+"""
+
+        self._update_response_function(party)
+
+        log(prompt, _print=True)
+        party.next_scene.prompt = prompt
+        party.next_scene.save()
+
+        response = self.gm.generate(
+            prompt,
+            self._gm_funcobj,
+        )
+        party.next_scene.set_player_messages(response["responses"])
+        party.next_scene.generate_player_audio()
+        if party.next_scene.roll_required:
+            party.next_scene.roll_result = response["requires_roll"]["roll_result"]
+            party.next_scene.roll_description = response["requires_roll"][
+                "roll_description"
+            ]
+            party.next_scene.roll_formula = response["requires_roll"]["roll_formula"]
+        next_scene = party.get_next_scene(create=True)
+        party.last_scene.generate_image(response["image"]["description"])
         self.update_refs()
         return next_scene
 

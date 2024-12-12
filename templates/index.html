@@ -16,12 +16,14 @@
         <link rel="icon" type="image/png" sizes="16x16"
               href="{{url_for('static', filename='images/favicon-16x16.png')}}">
 
-        <!-- Vendor CSS-->
+        <!--------------------------- Vendor CSS libs ---------------------------->
+
+        <!--------------------------- Custom CSS ---------------------------->
         <!-- Compiled and minified CSS-->
         <link rel="stylesheet" type="text/css"
               href="{{ url_for('static', filename='style/main.css') }}">
 
-        <!-- Vendor JavaScript Libs-->
+        <!--------------------------- Vendor JavaScript Libs ---------------------------->
         <script
                 src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-webcomponent@2/dist/tinymce-webcomponent.min.js"></script>
         <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"
@@ -31,8 +33,41 @@
                 crossorigin="anonymous"></script>
         <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
         <script src="https://code.iconify.design/iconify-icon/1.0.3/iconify-icon.min.js"></script>
+
+        <!------------------------------ Tailwind Libs ---------------------------->
+        {#
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- configuration example -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#45576b',
+                        }
+                    }
+                }
+            }
+        </script>
+        <!-- customcss example -->
+        <style type="text/tailwindcss">
+            @layer utilities {
+              .content-auto {
+                content-visibility: auto;
+              }
+            }
+          </style>
+        <!--plugin example -->
+        <script
+                src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+        #}
+
         <!-- JavaScript Libs -->
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+        {% endblock %}
+        {% block head_ext %}
         {% endblock %}
     </head>
 

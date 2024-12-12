@@ -1,6 +1,3 @@
-import inspect
-import json
-import random
 import re
 
 from bs4 import BeautifulSoup
@@ -8,7 +5,6 @@ from bs4 import BeautifulSoup
 from autonomous import log
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.ai.textagent import TextAgent
-from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     ReferenceAttr,
 )
@@ -65,6 +61,49 @@ class BaseSystem(AutoModel):
         "city": "mdi:city",
         "region": "carbon:choropleth-map",
         "world": "mdi:world",
+    }
+
+    [
+        "investigation",
+        "exploration",
+        "stealth",
+        "puzzle",
+    ]
+
+    _music_lists = {
+        "social": ["themesong.mp3"],
+        "encounter": [
+            "skirmish4.mp3",
+            "skirmish3.mp3",
+            "skirmish2.mp3",
+            "skirmish1.mp3",
+        ],
+        "combat": [
+            "battle2.mp3",
+            "battle4.mp3",
+            "battle3.mp3",
+            "battle5.mp3",
+        ],
+        "exploration": ["relaxed1.mp3"],
+        "investigation": [
+            "creepy1.mp3",
+            "creepy2.mp3",
+            "creepy3.mp3",
+            "creepy4.mp3",
+            "creepy5.mp3",
+            "creepy6.mp3",
+            "creepy7.mp3",
+        ],
+        "puzzle": ["pursuit1.mp3", "puzzle2.mp3", "puzzle3.mp3", "puzzle4.mp3"],
+        "stealth": [
+            "suspense1.mp3",
+            "suspense2.mp3",
+            "suspense3.mp3",
+            "suspense4.mp3",
+            "suspense5.mp3",
+            "suspense6.mp3",
+            "suspense7.mp3",
+        ],
     }
 
     _map_prompts = {

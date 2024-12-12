@@ -11,6 +11,7 @@ class Actor(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     goal = StringAttr(default="Unknown")
     hitpoints = IntAttr(default=30)
+    status = StringAttr(default="healthy")
     ac = IntAttr(default=10)
     current_hitpoints = IntAttr(default=10)
     strength = IntAttr(default=10)

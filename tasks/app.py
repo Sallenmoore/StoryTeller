@@ -7,6 +7,7 @@ import tasks
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
+from filters.utils import bonus, roll_dice
 from models.ttrpgobject.faction import Faction
 from models.user import User
 
@@ -27,6 +28,9 @@ def _import_model(model):
 def create_app():
     app = Flask(os.getenv("APP_NAME", __name__))
     app.config.from_object(Config)
+
+    app.jinja_env.filters["bonus"] = bonus
+    app.jinja_env.filters["roll_dice"] = roll_dice
 
     # Configure Routes
     @app.route(
@@ -123,12 +127,20 @@ def create_app():
             .result
         )
 
-        snippet = get_template_attribute("shared/_gm.html", "scene_intermission")(
-            party.user, party.world, party
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/autogm/<string:pk>/combat", methods=("POST",))
+    def autogm_combat(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_autogm_combat_task,
+                pk,
+            )
+            .result
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(
-            task["id"], snippet=snippet
-        )
+
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/audio/<string:pk>", methods=("POST",))
     def create_audio(pk):

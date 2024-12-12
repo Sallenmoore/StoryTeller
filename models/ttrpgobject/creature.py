@@ -38,6 +38,10 @@ class Creature(Actor):
                     "type": "string",
                     "description": "huge, large, medium, small, or tiny",
                 },
+                "group": {
+                    "type": "integer",
+                    "description": "The average number of creatures of this kind that usually stay together, or 0 for a unique creature (i.e. BBEG)",
+                },
                 "desc": {
                     "type": "string",
                     "description": "A detailed enough physical description to generate an AI image of this type of creature",

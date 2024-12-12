@@ -109,7 +109,7 @@
             {% if user.world_user(obj) %}
             <li>
                 <a href="" class="menu-anchor"
-                   hx-post="/api/autogm/{{obj.path}}" hx-target="#page-content"
+                   hx-post="/api/autogm/{{obj.pk}}" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/gm">
                     <div class="row">

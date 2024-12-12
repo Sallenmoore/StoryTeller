@@ -15,6 +15,7 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+from models.autogm.autogminitiative import AutoGMInitiativeList
 from models.autogm.autogmmessage import AutoGMMessage
 from models.autogm.autogmquest import AutoGMQuest
 from models.images.image import Image
@@ -24,8 +25,22 @@ from models.ttrpgobject.item import Item
 
 
 class AutoGMScene(AutoModel):
-    type = StringAttr(choices=["social", "combat", "exploration", "stealth"])
+    type = StringAttr(
+        choices=[
+            "social",
+            "encounter",
+            "combat",
+            "investigation",
+            "exploration",
+            "stealth",
+            "puzzle",
+        ]
+    )
     description = StringAttr(default="")
+    tone = StringAttr(
+        default="Noblebright",
+        choices=["Noblebright", "Grimdark", "Gilded", "Heroic", "Fairytale"],
+    )
     summary = StringAttr()
     date = StringAttr()
     prompt = StringAttr()
@@ -36,7 +51,8 @@ class AutoGMScene(AutoModel):
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
     places = ListAttr(ReferenceAttr(choices=["Place"]))
     factions = ListAttr(ReferenceAttr(choices=["Faction"]))
-    roll_required = BoolAttr()
+    initiative = ReferenceAttr(choices=["AutoGMInitiativeList"])
+    roll_required = BoolAttr(default=False)
     roll_type = StringAttr()
     roll_formula = StringAttr()
     roll_attribute = StringAttr()
@@ -44,6 +60,11 @@ class AutoGMScene(AutoModel):
     roll_result = IntAttr()
     roll_player = ReferenceAttr(choices=["Character", "Creature"])
     image = ReferenceAttr(choices=[Image])
+    image_style = StringAttr(
+        default=lambda: random.choice(
+            ["Jim Lee", "Brian Bendis", "Jorge Jiménez", "Bilquis Evely", "Sana Takeda"]
+        )
+    )
     image_prompt = StringAttr()
     audio = FileAttr()
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
@@ -60,9 +81,15 @@ class AutoGMScene(AutoModel):
             q.delete()
         return super().delete()
 
-    @property
+    # @property
     def music(self):
-        return f"/static/sounds/music/{random.choice(self.system._music_lists.get(type, ["themesong.mp3"]))}"
+        result = f"/static/sounds/music/{random.choice(self.party.system._music_lists.get(self.type, ["themesong.mp3"]))}"
+        # log(
+        #     self.type,
+        #     self.party.system._music_lists,
+        #     result,
+        # )
+        return result
 
     @property
     def player(self):
@@ -103,7 +130,7 @@ class AutoGMScene(AutoModel):
 
         log("image prompt:", image_prompt, _print=True)
         self.image_prompt = image_prompt
-        desc = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single graphic novel style panel in the art style of {random.choice(['Jim Lee', 'Brian Bendis', 'Jorge Jiménez', 'Bilquis Evely', 'Sana Takeda'])} for the scene.
+        desc = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single graphic novel style panel in the art style of {self.image_style} for the scene.
 
 DESCRIPTION OF CHARACTERS IN THE SCENE
 """
@@ -308,6 +335,35 @@ SCENE DESCRIPTION
             self.player_messages += [pc_msg]
             self.save()
         # log(self.pk, player.name, player.pk, message, _print=True)
+
+    def start_combat(self):
+        if self.initiative:
+            self.initiative.delete()
+
+        if not self.combatants:
+            return
+
+        combatants = []
+        for cbt in self.combatants:
+            combatants += ([cbt] * random.randint(1, cbt.group)) if cbt.group else [cbt]
+        self.initiative = AutoGMInitiativeList(
+            party=self.party,
+            combatants=combatants,
+            allies=self.npcs,
+            scene=self,
+        )
+        self.initiative.save()
+        self.save()
+        self.initiative.start_combat()
+
+    def current_combat_turn(self):
+        if not self.initiative or not self.initiative.order:
+            self.start_combat()
+        return self.initiative.current_combat_turn()
+
+    def next_combat_turn(self, hp, status, action, bonus_action, movement):
+        if self.initiative and not self.initiative.combat_ended:
+            self.initiative.next_combat_turn(hp, status, action, bonus_action, movement)
 
     ## MARK: - Verification Methods
     ###############################################################

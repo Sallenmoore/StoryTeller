@@ -58,7 +58,7 @@ def autogm(model, pk):
     if _authenticate(user, obj):
         args = request.json if request.method == "POST" else dict(request.args)
         content = requests.post(
-            f"http://api:{os.environ.get('COMM_PORT')}/autogm/{model}/{pk}", json=args
+            f"http://api:{os.environ.get('COMM_PORT')}/autogm/{pk}", json=args
         ).text
     return render_template("index.html", user=user, obj=obj, page_content=content)
 

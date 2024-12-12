@@ -4,8 +4,8 @@ from dmtoolkit import dmtools
 from flask import Blueprint, Response, get_template_attribute, request
 
 from autonomous import log
-from models.autogm.autogm import AutoGMScene
 from models.autogm.autogmquest import AutoGMQuest
+from models.autogm.autogmscene import AutoGMScene
 from models.base.place import Place
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.creature import Creature
@@ -20,10 +20,10 @@ autogm_endpoint = Blueprint("autogm", __name__)
 
 
 ###########################################################
-##                    World Routes                       ##
+##                    Main Routes                       ##
 ###########################################################
 @autogm_endpoint.route("/", methods=("POST",))
-@autogm_endpoint.route("/<string:model>/<string:pk>", methods=("POST",))
+@autogm_endpoint.route("/<string:pk>", methods=("POST",))
 def index(model=None, pk=None):
     user, obj, world, *_ = _loader(model=model, pk=pk)
     party = None
@@ -34,18 +34,24 @@ def index(model=None, pk=None):
             next_scene.gm_mode = gmmode
             next_scene.save()
         log(
-            f"Party: {party}, Next Scene: {next_scene}, GM Mode: {next_scene.gm_mode}, Party Session History: {party.autogm_summary}"
+            f"Party: {party}, GM Mode: {next_scene.gm_mode}, TYPE: {party.last_scene.type}"
         )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
-@autogm_endpoint.route("/<string:pk>/intermission", methods=("POST",))
-def party_intermission(pk):
+@autogm_endpoint.route("/<string:pk>/combat/next", methods=("POST",))
+def combat(pk):
     user, obj, world, *_ = _loader()
     party = Faction.get(pk)
-    return get_template_attribute("shared/_gm.html", "scene_intermission")(
-        user, world, party, task_complete=True
-    )
+    if party.last_scene.initiative and "next" in request.url:
+        party.last_scene.next_combat_turn(
+            hp=request.json.get("hp"),
+            status=request.json.get("status"),
+            action=request.json.get("action"),
+            bonus_action=request.json.get("bonus_action"),
+            movement=request.json.get("movement"),
+        )
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
 # MARK: Associations
@@ -183,18 +189,49 @@ def scene_update(pk):
             emotion=message["emotion"],
         )
 
-    if request.json.get("pc_roll_num_dice"):
+    if party.next_scene.roll_required:
+        log(party.next_scene.gm_mode)
+        if party.next_scene.gm_mode == "gm":
+            party.next_scene.roll_required = True
+            party.next_scene.roll_player = Character.get(
+                request.json.get("pc_roll_player")
+            )
+            party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
+            party.next_scene.roll_type = request.json.get("pc_roll_type")
+        elif party.next_scene.gm_mode == "pc":
+            if (
+                request.json.get("pc_roll_num_dice")
+                and request.json.get("pc_roll_type_dice")
+                and request.json.get("pc_roll_modifier")
+            ):
+                party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
+                party.next_scene.roll_result = dmtools.dice_roll(
+                    party.next_scene.roll_formula
+                )
         party.next_scene.roll_required = True
-        party.next_scene.roll_player = Character.get(request.json.get("pc_roll_player"))
-        party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
-        party.next_scene.roll_type = request.json.get("pc_roll_type")
-        party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
-        party.next_scene.roll_result = dmtools.dice_roll(party.next_scene.roll_formula)
-    else:
-        party.next_scene.roll_required = False
+        party.last_scene.save()
+
+        # log(
+        #     party.next_scene.roll_required,
+        #     party.next_scene.roll_formula,
+        #     party.next_scene.roll_attribute,
+        #     party.next_scene.roll_type,
+        #     party.next_scene.roll_player,
+        #     party.next_scene.roll_result,
+        # )
     party.next_scene.save()
     # log(json.dumps(json.loads(party.next_scene.to_json()), indent=4))
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+
+
+@autogm_endpoint.route("/<string:playerpk>/current_hitpoints", methods=("POST",))
+def autogm_player_current_hp(playerpk):
+    user, obj, world, *_ = _loader()
+    player = Character.get(playerpk)
+    if player:
+        player.current_hitpoints = int(request.json.get("current_hitpoints"))
+        player.save()
+    return get_template_attribute("shared/_gm.html", "gm")(user, world)
 
 
 @autogm_endpoint.route(

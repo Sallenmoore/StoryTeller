@@ -3,7 +3,7 @@ import os
 from config import Config
 from flask import Flask, url_for
 from views import admin, autogm, index, manage, nav
-
+from filters.utils import roll_dice, bonus
 from autonomous import log
 from autonomous.auth import AutoAuth
 from models.user import User
@@ -19,7 +19,8 @@ def create_app():
 
     AutoAuth.user_class = User
     # Configure Filters
-    # app.jinja_env.filters["roll_dice"] = roll_dice
+    app.jinja_env.filters["roll_dice"] = roll_dice
+    app.jinja_env.filters["bonus"] = bonus
     if app.config["DEBUG"]:
         app.jinja_env.add_extension("jinja2.ext.debug")
 

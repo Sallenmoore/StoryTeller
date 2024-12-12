@@ -1,1 +1,1 @@
-from filters.utils import filter_shuffle, roll_dice
+from filters.utils import roll_dice, bonus
