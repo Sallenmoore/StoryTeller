@@ -324,6 +324,100 @@ class AutoGM(AutoModel):
         },
     }
 
+    _combat_funcobj = {
+        "name": "run_combat_round",
+        "description": "Generates the action, bonus action, and movement for a single actor's turn of combat for a TTRPG using the described context and setting.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "visual, evocative, and concrete description of the full turn in MARKDOWN.",
+                },
+                "action": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "description",
+                        "attack_roll",
+                        "damage_roll",
+                        "saving_throw",
+                        "target",
+                        "result",
+                    ],
+                    "properties": {
+                        "description": {
+                            "type": "string",
+                            "description": "A concrete description of the attempted main action, including any abilities used.",
+                        },
+                        "attack_roll": {
+                            "type": "integer",
+                            "description": "The result of rolling dice to attack, or 0 if not attacking.",
+                        },
+                        "damage_roll": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for damage, if attacking and attack is successful.",
+                        },
+                        "saving_throw": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for a saving throw, if required by status or effect.",
+                        },
+                        "target": {
+                            "type": "string",
+                            "description": "The Primary Key (pk) of the action's target, or blank for no target.",
+                        },
+                        "result": {
+                            "type": "string",
+                            "description": "A description of the result of the action. Ensure the result is consistent with the success or failure of the dice rolls and the target's status.",
+                        },
+                    },
+                },
+                "bonus_action": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "description",
+                        "attack_roll",
+                        "damage_roll",
+                        "saving_throw",
+                        "target",
+                        "result",
+                    ],
+                    "properties": {
+                        "description": {
+                            "type": "string",
+                            "description": "A concrete description of the attempted bonus action, including any abilities used.",
+                        },
+                        "attack_roll": {
+                            "type": "integer",
+                            "description": "The result of rolling dice to attack, or 0 if not attacking.",
+                        },
+                        "damage_roll": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for damage, if attacking and attack is successful.",
+                        },
+                        "saving_throw": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for a saving throw, if required by status or effect.",
+                        },
+                        "target": {
+                            "type": "string",
+                            "description": "The Primary Key (pk) of the action's target, or blank for no target.",
+                        },
+                        "result": {
+                            "type": "string",
+                            "description": "A description of the result of the action. Ensure the result is consistent with the success or failure of the dice rolls and the target's status.",
+                        },
+                    },
+                },
+                "movement": {
+                    "type": "string",
+                    "description": "A description movement of the actor in the scene, including the distance in feet from the starting position, the direction, and the actors the character/creature is near.",
+                },
+            },
+        },
+    }
+
     ##################### PROPERTY METHODS ####################
 
     def _prompt(self, party):
@@ -688,6 +782,80 @@ ROLL REQUIRED
         self.update_refs()
         return next_scene
 
+    def run_combat_round(self, party):
+        if not party.last_scene:
+            raise ValueError("No combat scene to run.")
+        if not party.last_scene.combatants:
+            raise ValueError("No combatants in the scene.")
+
+        prompt = f"""
+SCENE
+{BeautifulSoup(party.last_scene.description, "html.parser").get_text()}
+
+"""
+
+        if party.last_scene.places:
+            place = party.next_scene.places[0]
+            prompt += f"""
+LOCATION
+- name: {place.name}
+- desciption: {place.description_summary}
+
+"""
+
+        if party.last_scene.initiative.allies:
+            allies = [
+                a
+                for a in party.last_scene.initiative.order
+                if a.actor in party.allies and a.hp > 0
+            ]
+            prompt += f"""
+ALLIED NPCS
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies ])}
+
+"""
+
+        if party.last_scene.initiative.combatants:
+            combatants = [
+                a
+                for a in party.last_scene.initiative.order
+                if a.actor in party.last_scene.combatants and a.hp > 0
+            ]
+            prompt += f"""
+ENEMIES
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants ])}
+
+"""
+
+        if pcs := [
+            a for a in party.last_scene.initiative.order if a.actor in party.players
+        ]:
+            prompt += f"""
+PARTY PLAYER CHARACTERS
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in pcs ])}
+
+IT IS THE FOLLOWING ACTOR'S TURN IN COMBAT:
+
+- NAME: {party.last_scene.initiative.current_combat_turn().actor.name}
+- BACKSTORY: {party.last_scene.initiative.current_combat_turn().actor.backstory_summary}
+- GOAL: {party.last_scene.initiative.current_combat_turn().actor.goal}
+- ABILITIES: {party.last_scene.initiative.current_combat_turn().actor.abilities}
+
+"""
+        log(prompt, _print=True)
+        response = self.gm.generate(
+            prompt,
+            self._combat_funcobj,
+        )
+        log(json.dumps(response, indent=4), _print=True)
+        ondeck = party.last_scene.initiative.current_combat_turn()
+        ondeck.description = response["description"]
+        ondeck.movement = response["movement"]
+        ondeck.add_action(**response["action"])
+        ondeck.add_action(**response["bonus_action"], bonus=True)
+        ondeck.save()
+
+    ############################ End Campaign #############################
     def end(self, party):
         for p in [party, party.world, *party.players]:
             p.backstory += f"""

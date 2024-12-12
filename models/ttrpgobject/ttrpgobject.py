@@ -13,6 +13,7 @@ class TTRPGObject(TTRPGBase):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     world = ReferenceAttr(choices=["World"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
+    parent = ReferenceAttr(choices=["TTRPGObject"])
     parent_list = []
 
     _no_copy = TTRPGBase._no_copy | {

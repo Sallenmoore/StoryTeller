@@ -4,6 +4,7 @@ from dmtoolkit import dmtools
 from flask import Blueprint, Response, get_template_attribute, request
 
 from autonomous import log
+from models.autogm.autogminitiative import AutoGMInitiative
 from models.autogm.autogmquest import AutoGMQuest
 from models.autogm.autogmscene import AutoGMScene
 from models.base.place import Place
@@ -33,24 +34,60 @@ def index(model=None, pk=None):
         if gmmode and next_scene.gm_mode != gmmode:
             next_scene.gm_mode = gmmode
             next_scene.save()
-        log(
-            f"Party: {party}, GM Mode: {next_scene.gm_mode}, TYPE: {party.last_scene.type}"
-        )
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+
+
+@autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))
+def combatupdate(pk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    if not party.last_scene.initiative:
+        raise ValueError("No Initiative List")
+    party.last_scene.current_combat_turn(
+        hp=request.json.get("hp"),
+        status=request.json.get("status"),
+        action=request.json.get("action"),
+        bonus_action=request.json.get("bonus_action"),
+        movement=request.json.get("movement"),
+        action_target=request.json.get("action_target"),
+        action_attack_roll=request.json.get("action_attack_roll"),
+        action_dmg_roll=request.json.get("action_dmg_roll"),
+        action_saving_throw=request.json.get("action_saving_throw"),
+        bonus_action_target=request.json.get("bonus_action_target"),
+        bonus_action_attack_roll=request.json.get("bonus_action_attack_roll"),
+        bonus_action_dmg_roll=request.json.get("bonus_action_dmg_roll"),
+        bonus_action_saving_throw=request.json.get("bonus_action_saving_throw"),
+    )
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+
+
+@autogm_endpoint.route(
+    "/<string:pk>/combat/<string:actorpk>/hitpoints", methods=("POST",)
+)
+def combathp(pk, actorpk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    if not party.last_scene.initiative:
+        raise ValueError("No Initiative List")
+    if ini := AutoGMInitiative.get(actorpk):
+        ini.hp = request.json.get("current_hitpoints")
+        ini.save()
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/combat/next", methods=("POST",))
-def combat(pk):
+def combatnext(pk):
     user, obj, world, *_ = _loader()
     party = Faction.get(pk)
-    if party.last_scene.initiative and "next" in request.url:
-        party.last_scene.next_combat_turn(
-            hp=request.json.get("hp"),
-            status=request.json.get("status"),
-            action=request.json.get("action"),
-            bonus_action=request.json.get("bonus_action"),
-            movement=request.json.get("movement"),
-        )
+    if not party.last_scene.initiative:
+        raise ValueError("No Initiative List")
+    party.last_scene.next_combat_turn(
+        hp=request.json.get("hp"),
+        status=request.json.get("status"),
+        action=request.json.get("action"),
+        bonus_action=request.json.get("bonus_action"),
+        movement=request.json.get("movement"),
+    )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 

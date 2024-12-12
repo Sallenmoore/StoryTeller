@@ -66,6 +66,7 @@ class World(TTRPGBase):
 
     @classmethod
     def build(cls, system, user, name="", desc="", backstory=""):
+        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
         System = {
             "fantasy": FantasySystem,
             "sci-fi": SciFiSystem,
@@ -80,7 +81,7 @@ class World(TTRPGBase):
         else:
             system = System()
             system.save()
-
+        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
         ### set attributes ###
         if not name.strip():
             name = f"{system._genre} Setting"
@@ -312,11 +313,10 @@ class World(TTRPGBase):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def post_save_system(self):
-        # log(f"Verifying system for {self.name}: self.system={self.system}")
+        log(f"Verifying system for {self.name}: self.system={self.system}")
         if self.system.world != self:
-            raise ValidationError(
-                f"{self.name} is not the world for system: {self.system}"
-            )
+            self.system.world != self
+            self.system.save()
 
     def post_save_gm(self):
         if not self.gm:

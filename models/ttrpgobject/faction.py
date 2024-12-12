@@ -141,12 +141,7 @@ class Faction(TTRPGObject):
 
     def autogm_combat(self):
         if self.last_scene.type == "combat":
-            ondeck = self.last_scene.current_combat_turn().actor
-            # if (
-            #     self.last_scene.gm_mode == 'pc' and ondeck
-            #     not in self.players
-            # ):
-
+            self.gm.run_combat_round(party=self)
         else:
             raise ValueError("Invalid Scene Type")
 

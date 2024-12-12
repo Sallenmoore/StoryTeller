@@ -40,6 +40,11 @@ def _authenticate(user, obj):
 def index():
     user = AutoAuth.current_user()
     session["page"] = "/home"
+    for w in World.all():
+        log(w.name, w.users, user in w.users)
+        if w not in user.worlds:
+            user.worlds += [w]
+            user.save()
     return render_template("index.html", user=user, page_url="/home")
 
 

@@ -196,6 +196,9 @@ class BaseSystem(AutoModel):
 
     ############# CRUD Methods #############
 
+    def get_title(self, model):
+        return self._titles.get(model, "Object")
+
     def delete(self):
         if self.text_client:
             self.text_client.delete()
