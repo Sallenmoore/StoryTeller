@@ -1,5 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
@@ -76,6 +77,10 @@
         <p class="has-text-dark">{{obj.occupation}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-screen'>Archetype (i.e. Class)</h4>
+        <p class="has-text-dark">{{obj.archetype}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
         <h4 class='has-text-screen'>AC</h4>
         <p class="has-text-dark">{{obj.ac}}</p>
     </div>
@@ -90,12 +95,20 @@
         {% endif %}
     </div>
     <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Race</h4>
-        <p class="has-text-dark">{{obj.race}}</p>
+        <h4 class='has-text-screen'>Species</h4>
+        <p class="has-text-dark">{{obj.species}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
         <h4 class='has-text-screen'>Gender</h4>
         <p class="has-text-dark">{{obj.gender}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-screen'>Status</h4>
+        <p class="has-text-dark">{{obj.status}}</p>
+    </div>
+    <div class="column is-6 is-mobile-6">
+        <h4 class='has-text-screen'>Voice</h4>
+        <p class="has-text-dark">{{obj.voice_description}}</p>
     </div>
 </div>
 <hr>
@@ -108,19 +121,7 @@
     </div>
     {% if obj.abilities %}
     <div id="model-abilities" class="column is-full">
-        <section class='section is-small'>
-            <h3 class="has-text-primary has-text-center">Abilities</h3>
-            <div class="panel has-bg-muted generated-text-lightbg">
-                <div class="row">
-                    {%for ability in obj.abilities%}
-                    <div class="column is-full has-text-dark">
-                        {{ability | safe}}
-                        <hr>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
+        {{abilities_components.abilities(user, obj)}}
     </div>
     {% endif %}
     {% if obj.wealth %}
@@ -223,120 +224,9 @@
             {{form_components.listeditor(user, obj, "wealth")}}
             <hr>
         </div>
-        <div id="model-abilities" class="column is-full">
-            <h3 class='has-text-center has-text-primary'>Abilities</h3>
-            {{form_components.listeditor(user, obj, "abilities")}}
+        <div class="column is-full">
+            {{abilities_components.edit_abilities(user, obj)}}
         </div>
     </div>
 </form>
 {%- endmacro %}
-
-{% macro lineage(user, obj) -%}
-<title>{{obj.name}}|Lineage</title>
-<h2 class='has-text-dark'>Lineage</h2>
-<div class="row">
-    {% if user.world_user(obj)%}
-    <div class="column is-half">
-        <h4 class="has-text-dark">Search Characters</h4>
-        <div class="has-dropdown" style="width:100%;">
-            <input type="search" name="query" placeholder="Begin Typing To Search..."
-                   style="border-bottom: solid #000;" hx-target="#lineage-search"
-                   hx-post="/api/search/" hx-trigger="input changed delay:500ms, search"
-                   hx-vals='{"module":"models/_character.html", "macro":"lineage_dropdown"}'
-                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown autocomplete-list has-bg-light is-full" id="lineage-search">
-            </ul>
-        </div>
-    </div>
-    <div class="column is-half" id="lineage-form"></div>
-    {% endif %}
-    <div class="column is-full" id="model-lineage-container">
-        {% for level, line in obj.lineage.items() %}
-        <div class="column lineage-object">
-            <h3 class="has-bg-primary has-text-primary has-text-center">{{level | title}}</h3>
-            <div class="row">
-                {% for o in line %}
-                <div class="column">
-                    <a href="/{{o.path}}">
-                        <div class="image is-medium is-thumbnail is-margin-center">
-                            {% if o.image %}
-                            <img src="{{o.image.url(size='100')}}" loading="lazy" alt="{{o.name}}"
-                                 style="width:100%; height:100%;" />
-                            {%endif %}
-                        </div>
-                        <h4 class="has-text-dark has-text-center">
-                            {{o.name}}
-                        </h4>
-                    </a>
-                    <div class="row has-centered">
-                        <div class="column is-shrink">
-                            <button class="button is-small is-circle has-bg-light-grey has-text-dark"
-                                    hx-post="/api/manage/character/lineage/remove/{{o.pk}}"
-                                    hx-swap="delete"
-                                    hx-target='closest .lineage-object'>
-                                <iconify-icon icon="material-symbols:close" width="0.66rem"
-                                              height="0.66rem">
-                                </iconify-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro lineage_dropdown(user, obj, objs=[]) -%}
-{% for o in objs %}
-{% if o.model_name() in ['Character'] %}
-<li class="dropdown__link">
-    <a hx-post='/api/manage/character/lineage/{{o.pk}}' hx-target='#lineage-form'
-       hx-select='#lineage-form' hx-swap='outerHTML'
-       hx-vals='{"macro":"lineage_form", "module":"models/_character.html"}'>
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {%endif %}
-                </div>
-            </div>
-            <div class="column">
-                {{o.name}}
-            </div>
-        </div>
-    </a>
-</li>
-{% endif %}
-{% endfor %}
-{%- endmacro%}
-
-{% macro lineage_form(user, obj) -%}
-<div class="column is-half" id="lineage-form">
-    <form hx-post="/api/manage/character/lineage/{{obj.pk}}" hx-target="#page-content"
-          hx-vals='{"module":"models/_character.html", "macro": "lineage"}'>
-        <div class="panel">
-            <div class="row">
-                {{display_components.object_display(obj)}}
-                <div class="column">
-                    <h4>Relationship</h4>
-                    <div class="is-select">
-                        <select class="has-bg-muted" name="relationship">
-                            <option value="ancestor">Ancestor</option>
-                            <option value="parents">Parent</option>
-                            <option value="partners">Spouse</option>
-                            <option value="siblings">Sibling</option>
-                            <option value="children">Child</option>
-                            <option value="descendant">Descendant</option>
-                        </select>
-                    </div>
-                    <button class="button is-primary is-full is-small" type="submit">Add</button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-{%- endmacro%}

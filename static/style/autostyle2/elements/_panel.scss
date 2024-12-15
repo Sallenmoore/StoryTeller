@@ -1,0 +1,40 @@
+$panel-radius: 5px !default;
+$panel-shadow: 0 0 10px 0 createColor(rgba(10, 10, 10, 0.21)) !default;
+$panel-padding: 1rem !default;
+$panel-padding-small: calculateRem(20) !default;
+$panel-background: $secondary !default;
+
+.panel
+{
+    --border-radius: #{$panel-radius};
+    --box-shadow: #{$panel-shadow};
+    --padding: #{$panel-padding};
+
+    border-radius: var(--border-radius);
+    display: block;
+    padding: var(--padding);
+    width: 100%;
+    max-height: 100%;
+    background-color: $panel-background;
+
+    &.is-full
+    {
+        height: 100%;
+        min-height: 100%;
+    }
+
+    &.is-large
+    {
+        padding: 1.33rem;
+    }
+
+    &.raised
+    {
+        box-shadow: var(--box-shadow);
+    }
+
+    &.inset
+    {
+        box-shadow: inset var(--box-shadow);
+    }
+}

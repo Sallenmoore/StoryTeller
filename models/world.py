@@ -148,6 +148,10 @@ class World(TTRPGBase):
         return Character.search(world=self) if self.pk else []
 
     @property
+    def children(self):
+        return self.associations
+
+    @property
     def cities(self):
         return City.search(world=self) if self.pk else []
 

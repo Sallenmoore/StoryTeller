@@ -429,13 +429,14 @@ label:not(:last-child)
     & > input
     {
         border-radius: None;
-        box-shadow: None;
         font-family: inherit;
-        //width: 100%;
+        max-width: 100%;
         border: 0;
+        border-bottom: 2px solid $screen;
         outline: 0;
-        padding: 0.5rem 0;
-        background: transparent;
+        padding: 0.05rem 0;
+        //background: transparent;
+        background-color: rgba($color: $muted, $alpha: 0.10);
         transition: border-color 0.2s;
     }
 
@@ -446,7 +447,18 @@ label:not(:last-child)
         outline: 0;
         font-size: 1.3rem;
         padding: 0.5rem;
-        background: transparent;
+        background-color: $white;
+        transition: border-color 0.2s;
+    }
+
+    & > select
+    {
+        font-family: inherit;
+        border: 0;
+        outline: 0;
+        font-size: 1.3rem;
+        padding: 0.5rem;
+        background-color: rgba($color: $muted, $alpha: 0.10);
         transition: border-color 0.2s;
     }
 
@@ -454,13 +466,8 @@ label:not(:last-child)
     {
         //width: 100%;
         transition: 0.2s;
-        font-size: 1.2rem;
         color: $primary;
         font-weight: 700;
         font-family: "Almendra", serif;
-        border-bottom: 1px solid $primary;
-        border-width: 75%;
-        //border-image: linear-gradient(to right, $primary, $secondary);
-        border-image-slice: 1;
     }
 }

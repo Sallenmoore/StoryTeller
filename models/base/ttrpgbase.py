@@ -1,5 +1,6 @@
 import inspect
 import random
+import traceback
 
 import markdown
 import validators
@@ -71,6 +72,7 @@ class TTRPGBase(AutoModel):
     ########### Dunder Methods ###########
 
     def __eq__(self, obj):
+        # traceback.print_stack(limit=5)
         try:
             return self.pk == obj.pk
         except Exception as e:
@@ -313,23 +315,22 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Description: "+self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
         """
-        if associations := [a for a in self.associations]:
+        if associations := [*self.geneology, *self.children]:
             prompt += """
 ===
 - Associated Objects:
 """
-            for child in associations:
-                if child.name and child.backstory_summary:
+            for ass in associations:
+                if ass.name and ass.backstory_summary:
                     prompt += f"""
-    - pk: {child.pk}
-        - Model: {child.model_name()}
-        - Type: {child.title}
-        - Name: {child.name}
-        - Backstory: {child.backstory_summary}
+    - pk: {ass.pk}
+        - Model: {ass.model_name()}
+        - Type: {ass.title}
+        - Name: {ass.name}
+        - Backstory: {ass.backstory_summary}
 """
-        # log(prompt, _print=True)
-        if results := self.system.generate(self, prompt=prompt):
-            # log(results, _print=True)
+        if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
+            log(results, _print=True)
             if notes := results.pop("notes", None):
                 if not self.journal:
                     self.journal = Journal(world=self.get_world(), parent=self)

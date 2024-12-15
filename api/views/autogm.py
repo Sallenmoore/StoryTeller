@@ -34,6 +34,11 @@ def index(model=None, pk=None):
         if gmmode and next_scene.gm_mode != gmmode:
             next_scene.gm_mode = gmmode
             next_scene.save()
+        # log(
+        #     party.last_scene.current_combat_turn().action,
+        #     party.last_scene.current_combat_turn().bonus_action,
+        #     _print=True,
+        # )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
@@ -53,10 +58,12 @@ def combatupdate(pk):
         action_attack_roll=request.json.get("action_attack_roll"),
         action_dmg_roll=request.json.get("action_dmg_roll"),
         action_saving_throw=request.json.get("action_saving_throw"),
+        action_skill_check=request.json.get("action_skill_check"),
         bonus_action_target=request.json.get("bonus_action_target"),
         bonus_action_attack_roll=request.json.get("bonus_action_attack_roll"),
         bonus_action_dmg_roll=request.json.get("bonus_action_dmg_roll"),
         bonus_action_saving_throw=request.json.get("bonus_action_saving_throw"),
+        bonus_action_skill_check=request.json.get("bonus_action_skill_check"),
     )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
@@ -75,19 +82,26 @@ def combathp(pk, actorpk):
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
+@autogm_endpoint.route("/<string:pk>/status/<string:actorpk>", methods=("POST",))
+def playerstatus(pk, actorpk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    if not party.last_scene.initiative:
+        raise ValueError("No Initiative List")
+    if ini := AutoGMInitiative.get(actorpk):
+        ini.status = request.json.get("status")
+        ini.save()
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+
+
 @autogm_endpoint.route("/<string:pk>/combat/next", methods=("POST",))
 def combatnext(pk):
     user, obj, world, *_ = _loader()
     party = Faction.get(pk)
     if not party.last_scene.initiative:
         raise ValueError("No Initiative List")
-    party.last_scene.next_combat_turn(
-        hp=request.json.get("hp"),
-        status=request.json.get("status"),
-        action=request.json.get("action"),
-        bonus_action=request.json.get("bonus_action"),
-        movement=request.json.get("movement"),
-    )
+    if iniactor := party.last_scene.next_combat_turn():
+        log(iniactor.actor.name)
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 

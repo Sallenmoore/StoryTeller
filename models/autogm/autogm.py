@@ -342,6 +342,7 @@ class AutoGM(AutoModel):
                         "attack_roll",
                         "damage_roll",
                         "saving_throw",
+                        "skill_check",
                         "target",
                         "result",
                     ],
@@ -356,11 +357,15 @@ class AutoGM(AutoModel):
                         },
                         "damage_roll": {
                             "type": "integer",
-                            "description": "The result of rolling dice for damage, if attacking and attack is successful.",
+                            "description": "The result of rolling dice for damage, if and only if the attack is successful.",
                         },
                         "saving_throw": {
                             "type": "integer",
-                            "description": "The result of rolling dice for a saving throw, if required by status or effect.",
+                            "description": "The result of rolling dice for a saving throw, if and only if required by status or effect otherwise 0.",
+                        },
+                        "skill_check": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for a skill check, if and only if required otherwise 0.",
                         },
                         "target": {
                             "type": "string",
@@ -380,13 +385,14 @@ class AutoGM(AutoModel):
                         "attack_roll",
                         "damage_roll",
                         "saving_throw",
+                        "skill_check",
                         "target",
                         "result",
                     ],
                     "properties": {
                         "description": {
                             "type": "string",
-                            "description": "A concrete description of the attempted bonus action, including any abilities used.",
+                            "description": "A concrete description of the attempted main action, including any abilities used.",
                         },
                         "attack_roll": {
                             "type": "integer",
@@ -394,11 +400,15 @@ class AutoGM(AutoModel):
                         },
                         "damage_roll": {
                             "type": "integer",
-                            "description": "The result of rolling dice for damage, if attacking and attack is successful.",
+                            "description": "The result of rolling dice for damage, if and only if the attack is successful.",
                         },
                         "saving_throw": {
                             "type": "integer",
-                            "description": "The result of rolling dice for a saving throw, if required by status or effect.",
+                            "description": "The result of rolling dice for a saving throw, if and only if required by status or effect otherwise 0.",
+                        },
+                        "skill_check": {
+                            "type": "integer",
+                            "description": "The result of rolling dice for a skill check, if and only if required otherwise 0.",
                         },
                         "target": {
                             "type": "string",
@@ -789,15 +799,17 @@ ROLL REQUIRED
             raise ValueError("No combatants in the scene.")
 
         prompt = f"""
-SCENE
+# SCENE
+
 {BeautifulSoup(party.last_scene.description, "html.parser").get_text()}
 
 """
 
         if party.last_scene.places:
-            place = party.next_scene.places[0]
+            place = party.last_scene.places[0]
             prompt += f"""
-LOCATION
+## LOCATION
+
 - name: {place.name}
 - desciption: {place.description_summary}
 
@@ -810,7 +822,8 @@ LOCATION
                 if a.actor in party.allies and a.hp > 0
             ]
             prompt += f"""
-ALLIED NPCS
+## ALLIED NPCS
+
 - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies ])}
 
 """
@@ -822,24 +835,48 @@ ALLIED NPCS
                 if a.actor in party.last_scene.combatants and a.hp > 0
             ]
             prompt += f"""
-ENEMIES
+## OPPONENTS
+
 - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants ])}
 
 """
-
+        ondeck = party.last_scene.current_combat_turn()
+        log(ondeck.movement, _print=True)
         if pcs := [
             a for a in party.last_scene.initiative.order if a.actor in party.players
         ]:
             prompt += f"""
-PARTY PLAYER CHARACTERS
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in pcs ])}
+## PARTY PLAYER CHARACTERS
 
-IT IS THE FOLLOWING ACTOR'S TURN IN COMBAT:
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp}\n  - Description: {ass.actor.age}, {ass.actor.gender}, {ass.actor.species, }{ass.actor.description_summary}" for ass in pcs ])}
 
-- NAME: {party.last_scene.initiative.current_combat_turn().actor.name}
-- BACKSTORY: {party.last_scene.initiative.current_combat_turn().actor.backstory_summary}
-- GOAL: {party.last_scene.initiative.current_combat_turn().actor.goal}
-- ABILITIES: {party.last_scene.initiative.current_combat_turn().actor.abilities}
+---
+
+{ondeck.actor.name}'S [{ondeck.actor.pk}] IS NEXT IN COMBAT:
+
+## {ondeck.actor.name}'S ABILITIES
+
+{"\n- ".join([str(a) for a in ondeck.actor.abilities])}
+"""
+        log(
+            ondeck.actor.name,
+            ondeck.action,
+            ondeck.bonus_action,
+            _print=True,
+        )
+        if ondeck.actor.model_name() == "Character" and ondeck.actor.is_player:
+            prompt += f"""
+## {ondeck.actor.name}'S ACTION
+
+- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.action.action_dict().items()]) }
+
+## {ondeck.actor.name}'S BONUS ACTION
+
+- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.bonus_action.action_dict().items()]) }
+
+## {ondeck.actor.name}'S MOVEMENT
+
+{ondeck.movement}
 
 """
         log(prompt, _print=True)
@@ -848,7 +885,6 @@ IT IS THE FOLLOWING ACTOR'S TURN IN COMBAT:
             self._combat_funcobj,
         )
         log(json.dumps(response, indent=4), _print=True)
-        ondeck = party.last_scene.initiative.current_combat_turn()
         ondeck.description = response["description"]
         ondeck.movement = response["movement"]
         ondeck.add_action(**response["action"])

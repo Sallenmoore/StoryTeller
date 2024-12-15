@@ -208,14 +208,15 @@ class BaseSystem(AutoModel):
 
     ############# Generation Methods #############
 
-    def generate(self, obj, prompt):
+    def generate(self, obj, prompt, funcobj):
         additional = f"\n\nIMPORTANT: The generated data must be new, unique, consistent with, and connected to the world data described by the uploaded reference file. If existing data is present in the object, expand on the {obj.title} data by adding greater specificity where possible, while ensuring the original concept remains unchanged. The result must be in VALID JSON format."
         prompt = self.sanitize(prompt)
-        # log(f"=== generation prompt ===\n\n{prompt}", _print=True)
+        log(f"=== generation prompt ===\n\n{prompt}", _print=True)
+        log(f"=== generation function ===\n\n{funcobj}", _print=True)
         response = self.json_agent.generate(
-            prompt, function=obj.funcobj, additional_instructions=additional
+            prompt, function=funcobj, additional_instructions=additional
         )
-        # log(f"=== generation response ===\n\n{response}", _print=True)
+        log(f"=== generation response ===\n\n{response}", _print=True)
         return response
 
     def generate_text(self, prompt, primer=""):

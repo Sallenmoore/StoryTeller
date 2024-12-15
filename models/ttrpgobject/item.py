@@ -1,7 +1,10 @@
 import random
 
+import markdown
+
 from autonomous import log
-from autonomous.model.autoattr import BoolAttr, ListAttr, StringAttr
+from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringAttr
+from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
@@ -15,7 +18,7 @@ class Item(TTRPGObject):
     duration = StringAttr(default="")
     weight = StringAttr(default="")
     type = StringAttr(default="mundane")
-    features = ListAttr(StringAttr(default=""))
+    features = ListAttr(ReferenceAttr(choices=["Ability"]))
 
     _rarity_list = ["common", "uncommon", "rare", "very rare", "legendary", "artifact"]
     parent_list = [
@@ -47,8 +50,52 @@ class Item(TTRPGObject):
                 },
                 "features": {
                     "type": "array",
-                    "description": "A list of stats and special features of the item, if any.",
-                    "items": {"type": "string"},
+                    "description": "Generate at least 3 combat abilities AND 3 special ability objects for the array. Each object in the array should have attributes for the ability name, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "name",
+                            "action",
+                            "description",
+                            "effects",
+                            "duration",
+                            "dice_roll",
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Unique name for the Ability.",
+                            },
+                            "action": {
+                                "type": "string",
+                                "enum": [
+                                    "main action",
+                                    "bonus action",
+                                    "reaction",
+                                    "free action",
+                                    "passive",
+                                ],
+                                "description": "Unique name for the Ability.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Detailed description of the ability and how the Character aquired the ability in MARKDOWN.",
+                            },
+                            "effects": {
+                                "type": "string",
+                                "description": "Description of the ability's effects.",
+                            },
+                            "duration": {
+                                "type": "string",
+                                "description": "The duration of the ability's effects.",
+                            },
+                            "dice_roll": {
+                                "type": "string",
+                                "description": "The dice roll mechanics for determining the success or failure of the ability.",
+                            },
+                        },
+                    },
                 },
                 "weight": {
                     "type": "string",
@@ -121,6 +168,7 @@ class Item(TTRPGObject):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_rarity()
+        document.pre_save_feature()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -135,3 +183,26 @@ class Item(TTRPGObject):
         self.rarity = self.rarity.strip()
         if self.rarity not in self._rarity_list:
             self.rarity = self._rarity_list[-1]
+
+    def pre_save_feature(self):
+        log(self.features, _print=True)
+        for idx, feature in enumerate(self.features):
+            log(feature)
+            if isinstance(feature, str):
+                a = Ability(description=feature)
+                a.save()
+                self.features[idx] = a
+            elif isinstance(feature, dict):
+                a = Ability(**feature)
+                a.save()
+                self.features[idx] = a
+            else:
+                feature.description = (
+                    markdown.markdown(feature.description.replace("```markdown", ""))
+                    .replace("h1>", "h3>")
+                    .replace("h2>", "h3>")
+                )
+
+        self.features = [a for a in self.features if a.name]
+
+        log(self.features, _print=True)

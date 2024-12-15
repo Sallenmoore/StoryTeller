@@ -217,6 +217,30 @@ def unassociate(childmodel, childpk):
     )
 
 
+@manage_endpoint.route(
+    "/parent/<string:childmodel>/<string:childpk>", methods=("POST",)
+)
+def parent(childmodel, childpk):
+    user, obj, *_ = _loader()
+    child = World.get_model(childmodel).get(childpk)
+    child.parent = obj
+    child.save()
+    return get_template_attribute("shared/_associations.html", "associations")(
+        user, obj, associations=obj.associations
+    )
+
+
+@manage_endpoint.route("/child/<string:childmodel>/<string:childpk>", methods=("POST",))
+def child(childmodel, childpk):
+    user, child, *_ = _loader()
+    parent = World.get_model(childmodel).get(childpk)
+    child.parent = parent
+    child.save()
+    return get_template_attribute("shared/_associations.html", "associations")(
+        user, child, associations=child.associations
+    )
+
+
 # MARK: details route
 ###########################################################
 ##                    Details Routes                     ##
@@ -237,31 +261,13 @@ def details():
 def addlistitem(attr):
     user, obj, *_ = _loader()
     if isinstance(getattr(obj, attr, None), list):
-        getattr(obj, attr).append("New Entry")
-        obj.save()
+        item = getattr(obj, attr)
+        log(item)
+        # .append("New Entry")
+        # obj.save()
     result = get_template_attribute("shared/_form.html", "listeditor")(user, obj, attr)
     # log(attr, elemid, result)
     return result
-
-
-# MARK: scene routes
-###########################################################
-##                    Scene Routes                       ##
-###########################################################
-@manage_endpoint.route(
-    "/scenes/<string:connectedmodel>/<string:connectedpk>", methods=("POST",)
-)
-def scenes(connectedmodel, connectedpk):
-    user, obj, *_ = _loader()
-    connect_obj = World.get_model(connectedmodel, connectedpk)
-    obj.add_scene(connect_obj)
-    # log([d.obj.name for d in obj.scenes if d])
-    params = {
-        "user": user,
-        "obj": obj,
-        "associations": obj.get_associations(),
-    }
-    return get_template_attribute("shared/_associations.html", "associations")(**params)
 
 
 # MARK: Character routes

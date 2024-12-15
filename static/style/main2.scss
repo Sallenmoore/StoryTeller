@@ -1,0 +1,295 @@
+//////////////////////////////////////////////
+//                 Variables                //
+//////////////////////////////////////////////
+
+/// - https://orbitcss.com/documentation/sass-variables
+
+//////////////////////////////////////////////
+//                 Styles                   //
+//////////////////////////////////////////////
+
+@import "autostyle/all";
+
+.textbox
+{
+    font-size: 1.25rem;
+    text-align: justify;
+}
+
+#page-content
+{
+    transition: all 1s ease-in-out;
+}
+
+
+#create-world-form
+{
+
+    /* Increase the text size for input fields */
+    & input,
+    select,
+    option
+    {
+        font-size: 1.5rem;
+
+        /* Adjust the font size as needed */
+        & ::active
+        {
+            background-color: #fff;
+        }
+    }
+
+    & select
+    {
+        background-color: #fff;
+    }
+
+    /* Increase the text size for labels */
+    & label
+    {
+        font-size: 1.8rem;
+        /* Adjust the font size as needed */
+    }
+}
+
+#world-login-button
+{
+    position: absolute;
+    top: 10px;
+    /* Adjust the distance from the top */
+    right: 10px;
+    /* Adjust the distance from the right */
+    padding: 10px;
+}
+
+#model-title-container
+{
+    box-shadow: inset 0 -40px 25px -10px $light;
+    padding-bottom: 3.5rem;
+}
+
+#screen-container
+{
+    position: fixed;
+    transition: all 0.5s ease-in;
+    transform: translateY(-100%);
+    visibility: collapse;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 90vh;
+    z-index: 9999;
+
+    &.is-active
+    {
+        transition: all 0.5s ease-out;
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ql-container
+{
+    height: calc(100%);
+}
+
+#back-to-top
+{
+    display: none;
+    position: fixed;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    background-color: $primary;
+    border: 1px solid $light;
+    color: $primarytext;
+    cursor: pointer;
+    z-index: 999;
+    transition: display 1s ease;
+
+    &:hover
+    {
+        background-color: lighten($primary, 10%);
+    }
+}
+
+.menu-anchor
+{
+    color: $primarytext;
+    font-family: $heading-font-family;
+    font-size: 1.25rem;
+}
+
+.htmx-indicator
+{
+    display: none;
+    transition: all 500ms ease-in-out;
+}
+
+.htmx-request .htmx-indicator
+{
+    display: inline;
+}
+
+.htmx-request.htmx-indicator
+{
+    display: inline;
+}
+
+#request-indicator
+{
+    padding: 1rem;
+    background-color: rgba($primary, 0.5);
+    border-radius: 10px;
+    position: fixed;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.death-overlay
+{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(171, 16, 16, 0.66);
+    pointer-events: none;
+    /* allows clicking through the overlay */
+}
+
+.event-icon
+{
+    border-radius: 50% !important;
+    border: rgba(171, 16, 16, 0.66) 2px solid;
+    transition: all 250ms ease;
+
+    &:hover
+    {
+        background-color: darken($muted, 5%);
+        cursor: pointer;
+    }
+}
+
+.initiative-card
+{
+
+    & h1,
+    & h2,
+    & h3,
+    & h4,
+    & h5,
+    & h6,
+    & ul,
+    & ol,
+    & p
+    {
+        color: black !important;
+    }
+}
+
+.generated-text-lightbg
+{
+    color: $dark;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p
+    {
+        color: $dark;
+    }
+
+    h1
+    {
+        font-size: 2rem;
+    }
+
+    h2
+    {
+        font-size: 1.75rem;
+    }
+
+    h3
+    {
+        font-size: 1.5rem;
+    }
+
+    h4
+    {
+        font-size: 1.25rem;
+    }
+
+    h5
+    {
+        font-size: 1rem;
+    }
+
+    h6
+    {
+        font-size: 0.75rem;
+    }
+}
+
+.generated-text-darkbg
+{
+    color: $light;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p
+    {
+        color: $light;
+    }
+
+    h1
+    {
+        font-size: 2rem;
+    }
+
+    h2
+    {
+        font-size: 1.75rem;
+    }
+
+    h3
+    {
+        font-size: 1.5rem;
+    }
+
+    h4
+    {
+        font-size: 1.25rem;
+    }
+
+    h5
+    {
+        font-size: 1rem;
+    }
+
+    h6
+    {
+        font-size: 0.75rem;
+    }
+}
+
+
+
+//####### Mobile Styles #######
+@include small
+{
+    .menu-anchor
+    {
+        font-size: 2.5rem;
+    }
+}

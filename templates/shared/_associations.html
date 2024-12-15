@@ -90,12 +90,40 @@
                  style='height:100%;'>
                 <div class="row has-space-around">
                     <div class="column is-shrink">
-                        {{element.object_display(a)}}
+                        {{element.object_display(a, size="large", dim="250")}}
                     </div>
                     {% if 'World' not in [obj.model_name(), a.model_name()] %}
                     <div class="column">
-                        <div class="row is-vertical">
-                            <div class="column has-text-center">
+                        <div class="row has-space-around is-vertical">
+                            {% if obj != a.parent and obj.model_name() in a.parent_list %}
+                            <div class="column is-3 is-mobile-shrink has-text-center">
+                                <button class="button is-small is-primary"
+                                        hx-post="/api/manage/parent/{{a.path}}"
+                                        hx-target="#associated-objects"
+                                        hx-select="#associated-objects"
+                                        hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                        hx-indicator='#request-indicator'>
+                                    <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                                                  height="1rem"></iconify-icon>
+                                    <span style="font-size:0.5rem">is child</span>
+                                </button>
+                            </div>
+                            {% endif %}
+                            {% if a != obj.parent and a.model_name() in obj.parent_list %}
+                            <div class="column is-3 is-mobile-shrink has-text-center">
+                                <button class="button is-small is-primary"
+                                        hx-post="/api/manage/child/{{a.path}}"
+                                        hx-target="#associated-objects"
+                                        hx-select="#associated-objects"
+                                        hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                        hx-indicator='#request-indicator'>
+                                    <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                                                  height="1rem"></iconify-icon>
+                                    <span style="font-size:0.5rem">is parent</span>
+                                </button>
+                            </div>
+                            {% endif %}
+                            <div class="column is-3 is-mobile-shrink has-text-center">
                                 <button class="button is-small is-primary"
                                         hx-post="/api/manage/unassociate/{{a.path}}"
                                         hx-target="#associated-objects"

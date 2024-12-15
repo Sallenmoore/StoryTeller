@@ -365,40 +365,82 @@ SCENE DESCRIPTION
         action_attack_roll=None,
         action_dmg_roll=None,
         action_saving_throw=None,
+        action_skill_check=None,
         bonus_action_target=None,
         bonus_action=None,
         bonus_action_attack_roll=None,
         bonus_action_dmg_roll=None,
         bonus_action_saving_throw=None,
+        bonus_action_skill_check=None,
         movement=None,
     ):
         if not self.initiative or not self.initiative.order:
             self.start_combat()
 
         if cct := self.initiative.current_combat_turn():
+            if not cct.action:
+                log(self.initiative.order, action_target, _print=True)
+                target = [
+                    ini
+                    for ini in self.initiative.order
+                    if str(ini.pk) == str(action_target)
+                ]
+                cct.add_action(
+                    description=action,
+                    attack_roll=action_attack_roll,
+                    damage_roll=action_dmg_roll,
+                    saving_throw=action_saving_throw,
+                    skill_check=action_skill_check,
+                    target=target[0] if target else None,
+                )
+            if not cct.bonus_action:
+                target = [
+                    ini
+                    for ini in self.initiative.order
+                    if str(ini.pk) == str(bonus_action_target)
+                ]
+                cct.add_action(
+                    description=bonus_action,
+                    attack_roll=bonus_action_attack_roll,
+                    damage_roll=bonus_action_dmg_roll,
+                    saving_throw=bonus_action_saving_throw,
+                    skill_check=bonus_action_skill_check,
+                    target=target[0] if target else None,
+                    bonus=True,
+                )
+
             if hp is not None:
                 cct.hp = hp
             if status is not None:
                 cct.status = status
-            if action_target is not None:
-                actor = [
-                    ini for ini in self.initiative.order if ini.pk == action_target
-                ][0]
-                cct.action.target = actor
+
             if action is not None:
                 cct.action.description = action
+            if action_target is not None:
+                log(action_target, list([o.pk for o in self.initiative.order]))
+                actor = [
+                    ini
+                    for ini in self.initiative.order
+                    if str(ini.pk) == str(action_target)
+                ]
+                log(actor)
+
+                cct.action.target = actor[0]
             if action_attack_roll is not None:
                 cct.action.attack_roll = action_attack_roll
             if action_dmg_roll is not None:
                 cct.action.damage_roll = action_dmg_roll
             if action_saving_throw is not None:
                 cct.action.saving_throw = action_saving_throw
+            if action_skill_check is not None:
+                cct.action.skill_check = action_skill_check
 
             if bonus_action_target is not None:
+                log(bonus_action_target, list([o.pk for o in self.initiative.order]))
                 actor = [
                     ini
                     for ini in self.initiative.order
-                    if ini.pk == bonus_action_target
+                    if str(ini.pk) == bonus_action_target
                 ][0]
                 cct.bonus_action.target = actor
 
@@ -410,14 +452,20 @@ SCENE DESCRIPTION
                 cct.bonus_action.damage_roll = bonus_action_dmg_roll
             if bonus_action_saving_throw is not None:
                 cct.bonus_action.saving_throw = bonus_action_saving_throw
+            if bonus_action_skill_check is not None:
+                cct.bonus_action.skill_check = bonus_action_skill_check
             if movement is not None:
                 cct.movement = movement
             cct.save()
+        # log(cct, print=True)
         return cct
 
-    def next_combat_turn(self, hp, status, action, bonus_action, movement):
+    def next_combat_turn(self):
         if self.initiative and not self.initiative.combat_ended:
-            self.initiative.next_combat_turn(hp, status, action, bonus_action, movement)
+            return self.initiative.next_combat_turn()
+
+    def initiative_index(self, combatant):
+        return self.initiative.index(combatant)
 
     ## MARK: - Verification Methods
     ###############################################################

@@ -17,16 +17,11 @@ from models.base.actor import Actor
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     is_player = BoolAttr(default=False)
-    age = IntAttr(default=0)
-    gender = StringAttr(default="")
     occupation = StringAttr(default="")
-    abilities = ListAttr(StringAttr(default=""))
-    race = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     pc_voice = StringAttr(default="")
 
     parent_list = ["Location", "District", "Faction", "City"]
-    _genders = ["male", "female", "non-binary"]
     _traits_list = [
         "secretly evil",
         "shy and gentle",
@@ -53,74 +48,9 @@ class Character(Actor):
         "parameters": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "A unique and unusual first, middle, and last name",
-                },
-                "gender": {
-                    "type": "string",
-                    "description": "The NPC's preferred gender",
-                },
-                "age": {
-                    "type": "integer",
-                    "description": "The NPC's physical age in years",
-                },
-                "race": {
-                    "type": "string",
-                    "description": "The NPC's species",
-                },
-                "traits": {
-                    "type": "string",
-                    "description": "A tag line or motif that describes the character",
-                },
-                "desc": {
-                    "type": "string",
-                    "description": "A detailed physical description for generating an AI image of the NPC",
-                },
-                "backstory": {
-                    "type": "string",
-                    "description": "The NPC's detailed backstory that includes only publicly known information about the NPC",
-                },
-                "goal": {
-                    "type": "string",
-                    "description": "The NPC's goals and closely guarded secrets",
-                },
-                "abilities": {
-                    "type": "array",
-                    "description": "Generate at least 3 combat abilities AND 3 special abilities items for the array. Each item in the array should be a detailed description in MARKDOWN of the ability name, description, effects, duration, and the dice roll mechanics involved in using the ability.",
-                    "items": {"type": "string"},
-                },
                 "occupation": {
                     "type": "string",
                     "description": "The NPC's profession or daily occupation",
-                },
-                "hitpoints": {
-                    "type": "integer",
-                    "description": "NPC's maximum hit points",
-                },
-                "strength": {
-                    "type": "integer",
-                    "description": "The amount of Strength the NPC has from 1-20",
-                },
-                "dexterity": {
-                    "type": "integer",
-                    "description": "The amount of Dexterity the NPC has from 1-20",
-                },
-                "constitution": {
-                    "type": "integer",
-                    "description": "The amount of Constitution the NPC has from 1-20",
-                },
-                "intelligence": {
-                    "type": "integer",
-                    "description": "The amount of Intelligence the NPC has from 1-20",
-                },
-                "wisdom": {
-                    "type": "integer",
-                    "description": "The amount of Wisdom the NPC has from 1-20",
-                },
-                "charisma": {
-                    "type": "integer",
-                    "description": "The amount of Charisma the NPC has from 1-20",
                 },
             },
         },
@@ -211,18 +141,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         prompt = f"Generate a {self.race} {gender} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly'))} secret to protect."
 
-        obj = super().generate(prompt=prompt)
-        self.hitpoints = random.randint(5, 100)
-        if isinstance(self.abilities[0], str):
-            self.abilities = [markdown.markdown(a) for a in self.abilities]
-        elif isinstance(self.abilities[0], dict):
-            self.abilities = [
-                markdown.markdown("<br>".join(a.items())) for a in self.abilities
-            ]
-        self.age = age
-        self.gender = gender
-        self.save()
-        return obj
+        return super().generate(prompt=prompt)
 
     ############################# Object Data #############################
     ## MARK: Object Data

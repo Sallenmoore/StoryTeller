@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro info(user, obj) -%}
 <div class="panel has-bg-muted has-text-primary">
@@ -22,22 +23,18 @@
     </div>
 </div>
 <hr>
+{% if obj.features %}
 <div class="row">
     <div class="column is-full" id="model-features">
         <div class="panel has-bg-primary">
             <h3 class='has-text-center '>Features</h3>
-            {% for feature in obj.features %}
-            <div class="row">
-                <div class="column is-full">
-                    <div class="panel has-bg-muted has-text-dark">
-                        {{feature | safe}}
-                    </div>
-                </div>
+            <div id="model-abilities" class="column is-full">
+                {{abilities_components.abilities(user, obj, abilities=obj.features)}}
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}
@@ -68,11 +65,8 @@
             <h4>Duration</h4>
             <textarea class="has-bg-light" name="duration">{{obj.duration}}</textarea>
         </div>
-        <div class="column is-full" id="model-features">
-            <div class="panel has-bg-screen">
-                <h3 class="has-text-light has-text-center">Features</h3>
-                {{form_components.listeditor(user, obj, "features")}}
-            </div>
+        <div class="column is-full">
+            {{abilities_components.edit_abilities(user, obj)}}
         </div>
     </div>
 </form>

@@ -1,3 +1,5 @@
+import traceback
+
 from autonomous import log
 from autonomous.auth.user import AutoUser
 from autonomous.db import ValidationError
@@ -12,6 +14,11 @@ from models.world import World
 class User(AutoUser):
     worlds = ListAttr(ReferenceAttr(choices=[World]))
     admin = BoolAttr(default=False)
+
+    @classmethod
+    def get(cls, pk):
+        # traceback.print_stack(limit=5)
+        return super().get(pk)
 
     def world_user(self, obj):
         return self in obj.get_world().users

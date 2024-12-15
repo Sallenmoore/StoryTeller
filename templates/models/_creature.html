@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro info(user, obj) -%}
 <div class="row has-space-around">
@@ -52,21 +53,11 @@
             <p>{{obj.goal | safe}}</p>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="column">
-        <div class="panel has-bg-primary">
-            <h3 class="has-text-primary has-text-center">Abilities</h3>
-            <div class="row">
-                {%for ability in obj.abilities%}
-                <div class="column is-full">
-                    {{ability | safe}}
-                    <hr>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+    {% if obj.abilities %}
+    <div id="model-abilities" class="column is-full">
+        {{abilities_components.abilities(user, obj)}}
     </div>
+    {% endif %}
 </div>
 {% endif %}
 {%- endmacro %}
@@ -159,11 +150,6 @@
         </div>
     </div>
     <hr>
-    <div class="row">
-        <div id="model-abilities" class="column">
-            <h3 class="has-text-dark has-text-center">Abilities</h3>
-            {{form_components.listeditor(user, obj, "abilities")}}
-        </div>
-    </div>
+    {{abilities_components.edit_abilities(user, obj)}}
 </form>
 {%- endmacro %}

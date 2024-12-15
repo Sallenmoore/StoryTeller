@@ -13,7 +13,7 @@ class TTRPGObject(TTRPGBase):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     world = ReferenceAttr(choices=["World"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
-    parent = ReferenceAttr(choices=["TTRPGObject"])
+    parent = ReferenceAttr(choices=[TTRPGBase])
     parent_list = []
 
     _no_copy = TTRPGBase._no_copy | {
@@ -67,13 +67,14 @@ class TTRPGObject(TTRPGBase):
     @property
     def geneology(self):
         ancestry = []
-        if self.districts:
-            ancestry.append(self.districts[0])
-        if self.cities:
-            ancestry.append(self.cities[0])
-        if self.regions:
-            ancestry.append(self.regions[0])
-        ancestry.append(self.world)
+        if self.parent:
+            ancestry.append(self.parent)
+            ancestor = self.parent
+            while ancestor.parent:
+                ancestry.append(ancestor.parent)
+                ancestor = ancestor.parent
+        if self.world not in ancestry:
+            ancestry.append(self.world)
         return ancestry
 
     @property
@@ -87,19 +88,6 @@ class TTRPGObject(TTRPGBase):
     @property
     def locations(self):
         return [a for a in self.associations if a.model_name() == "Location"]
-
-    @property
-    def parent(self):
-        if self.associations and self.parent_list:
-            for parent_model in self.parent_list:
-                for a in self.associations:
-                    if a.model_name() == parent_model:
-                        return a
-        return self.world
-
-    @property
-    def parents(self):
-        return [a for a in self.associations if a.model_name() in self.parent_list]
 
     @property
     def regions(self):
@@ -161,6 +149,16 @@ class TTRPGObject(TTRPGBase):
     def pre_save_associations(self):
         if self in self.associations:
             self.associations.remove(self)
+
+        if not self.parent:
+            if self.associations and self.parent_list:
+                for parent_model in self.parent_list:
+                    for a in self.associations:
+                        if a.model_name() == parent_model:
+                            self.parent = a
+                            break
+                    if self.parent:
+                        break
 
     def pre_save_world(self):
         if not self.get_world():

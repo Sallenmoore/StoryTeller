@@ -12,7 +12,6 @@ class Creature(Actor):
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
-    abilities = ListAttr(StringAttr())
     group = IntAttr(default=False)
 
     parent_list = ["Location", "District"]
@@ -22,17 +21,9 @@ class Creature(Actor):
         "parameters": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "A descriptive, unique, and evocative name",
-                },
                 "type": {
                     "type": "string",
                     "description": "The general category of creature, such as humanoid, monster, alien, etc.",
-                },
-                "traits": {
-                    "type": "string",
-                    "description": "A description of the creature's motivation in less than 10 words",
                 },
                 "size": {
                     "type": "string",
@@ -41,51 +32,6 @@ class Creature(Actor):
                 "group": {
                     "type": "integer",
                     "description": "The average number of creatures of this kind that usually stay together, or 0 for a unique creature (i.e. BBEG)",
-                },
-                "desc": {
-                    "type": "string",
-                    "description": "A detailed enough physical description to generate an AI image of this type of creature",
-                },
-                "backstory": {
-                    "type": "string",
-                    "description": "A detailed history of the creature type that includes only publicly known information about the creature.",
-                },
-                "goal": {
-                    "type": "string",
-                    "description": "This kind of creature's usual goals and secrets",
-                },
-                "hitpoints": {
-                    "type": "integer",
-                    "description": "Creature's maximum hit points",
-                },
-                "abilities": {
-                    "type": "array",
-                    "description": "Detailed descriptions in MARKDOWN starting at heading level 3 of at least 5 of this type of creature's combat and special abilities. Include the name of the ability, a brief description of what it does, and the dice roll mechanics to use the ability.",
-                    "items": {"type": "string"},
-                },
-                "strength": {
-                    "type": "integer",
-                    "description": "The amount of Strength the creature has from 1-20",
-                },
-                "dexterity": {
-                    "type": "integer",
-                    "description": "The amount of Dexterity the creature has from 1-20",
-                },
-                "constitution": {
-                    "type": "integer",
-                    "description": "The amount of Constitution the creature has from 1-20",
-                },
-                "intelligence": {
-                    "type": "integer",
-                    "description": "The amount of Intelligence the creature has from 1-20",
-                },
-                "wisdom": {
-                    "type": "integer",
-                    "description": "The amount of Wisdom the creature has from 1-20",
-                },
-                "charisma": {
-                    "type": "integer",
-                    "description": "The amount of Charisma the creature has from 1-20",
                 },
             },
         },
@@ -123,18 +69,10 @@ BACKSTORY
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = "type of enemy whose species" if self.group else "foe who"
-        prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('boring', 'mysterious', 'sinister', 'complicated'))} goal they are working toward.
+        group = "type of enemy whose species" if self.group else "adversary who"
+        prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('unexpected', 'mysterious', 'sinister', 'selfish'))} goal they are working toward.
         """
-        obj = super().generate(prompt=prompt)
-        if isinstance(self.abilities[0], str):
-            self.abilities = [markdown.markdown(a) for a in self.abilities]
-        elif isinstance(self.abilities[0], dict):
-            self.abilities = [
-                markdown.markdown("<br>".join(a.items())) for a in self.abilities
-            ]
-        self.save()
-        return obj
+        return super().generate(prompt=prompt)
 
     ################### Instance Methods #####################
 

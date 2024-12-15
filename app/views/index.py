@@ -157,12 +157,14 @@ def api(rest_path):
     # log(request.method)
     user = AutoAuth.current_user()
     if request.method == "GET":
-        rest_path = request.full_path.replace("/api/", "")
-        url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
-        log(url)
+        rest_path = request.path.replace("/api/", "")
+        params = dict(request.args)
+        params["user"] = user.pk
+        url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}?{requests.compat.urlencode(params)}"
+        log("API GET REQUEST", url)
         response = requests.get(url).text
     elif not user.is_guest:
-        log(rest_path, request.json)
+        log("API POST REQUEST", rest_path, request.json)
         if "admin/" in url and user.is_admin:
             response = requests.post(url, json=request.json).text
         elif request.json.get("model") and request.json.get("pk"):

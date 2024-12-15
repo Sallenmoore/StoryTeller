@@ -11,6 +11,7 @@ from autonomous.model.autoattr import (
 )
 from autonomous.model.automodel import AutoModel
 from models.images.image import Image
+from models.ttrpgobject.character import Character
 
 
 class AutoGMInitiativeAction(AutoModel):
@@ -19,17 +20,33 @@ class AutoGMInitiativeAction(AutoModel):
     attack_roll = IntAttr(default="")
     damage_roll = IntAttr(default="")
     saving_throw = IntAttr(default="")
+    skill_check = IntAttr(default="")
     target = ReferenceAttr(choices=["Character", "Creature"])
     result = StringAttr(default="")
+
+    def action_dict(self):
+        rolls = {}
+        if self.attack_roll:
+            rolls["Attack Roll"] = self.attack_roll
+        if self.damage_roll:
+            rolls["Damage Roll"] = self.damage_roll
+        if self.saving_throw:
+            rolls["Saving Throw"] = self.saving_throw
+        if self.skill_check:
+            rolls["Skill Check"] = self.skill_check
+        if self.target:
+            rolls["Target"] = f"{self.target.name} [pk: {self.target.pk}]"
+        rolls["Description"] = self.description
+        return rolls
 
 
 class AutoGMInitiative(AutoModel):
     actor = ReferenceAttr(choices=["Character", "Creature"])
     hp = IntAttr()
+    status = StringAttr(default="")
     description = StringAttr(default="")
     image = ReferenceAttr(choices=[Image])
     position = IntAttr(default=0)
-    status = StringAttr(default="healthy")
     action = ReferenceAttr(choices=[AutoGMInitiativeAction])
     bonus_action = ReferenceAttr(choices=[AutoGMInitiativeAction])
     movement = StringAttr(default="")
@@ -50,8 +67,9 @@ class AutoGMInitiative(AutoModel):
         attack_roll,
         damage_roll,
         saving_throw,
+        skill_check,
         target,
-        result,
+        result="",
         bonus=False,
     ):
         from models.ttrpgobject.character import Character
@@ -65,9 +83,10 @@ class AutoGMInitiative(AutoModel):
         action = AutoGMInitiativeAction(
             type="bonus" if bonus else "action",
             description=description,
-            attack_roll=attack_roll,
-            damage_roll=damage_roll,
-            saving_throw=saving_throw,
+            attack_roll=attack_roll or 0,
+            damage_roll=damage_roll or 0,
+            saving_throw=saving_throw or 0,
+            skill_check=skill_check or 0,
             target=target,
             result=result,
         )
@@ -110,6 +129,14 @@ class AutoGMInitiative(AutoModel):
         if isinstance(self.bonus_action, str):
             self.bonus_action = None
 
+    def pre_save_actor(self):
+        if isinstance(self.actor, Character) or not self.actor.group:
+            self.actor.current_hp = self.hp
+            self.actor.status = self.status
+            self.actor.save()
+        else:
+            raise ValueError("Actor must be a character or creature")
+
 
 class AutoGMInitiativeList(AutoModel):
     party = ReferenceAttr(choices=["Faction"])
@@ -131,6 +158,9 @@ class AutoGMInitiativeList(AutoModel):
         for item in self.order:
             item.delete()
         return super().delete()
+
+    def index(self, combatant):
+        return self.order.index(combatant)
 
     def start_combat(self):
         if self.order:
@@ -156,19 +186,11 @@ class AutoGMInitiativeList(AutoModel):
         while not ini_actor.hp:
             self.current_turn = (self.current_turn + 1) % len(self.order)
             ini_actor = self.order[self.current_turn]
-        return ini_actor
-
-    def next_combat_turn(self, hp, status, action, bonus_action, movement):
-        ini_actor = self.order[self.current_turn]
-        while not ini_actor.hp:
-            self.current_turn = (self.current_turn + 1) % len(self.order)
-            ini_actor = self.order[self.current_turn]
-        ini_actor.hp = hp
-        ini_actor.status = status
-        ini_actor.action = action
-        ini_actor.bonus_action = bonus_action
-        ini_actor.movement = movement
-        ini_actor.save()
-        self.current_turn = (self.current_turn + 1) % len(self.order)
         self.save()
         return ini_actor
+
+    def next_combat_turn(self):
+        if self.combat_ended:
+            return None
+        self.current_turn = (self.current_turn + 1) % len(self.order)
+        return self.current_combat_turn()

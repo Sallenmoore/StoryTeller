@@ -1,6 +1,6 @@
-{% macro object_display(obj, size="medium", dim="100", name=True, type=True) -%}
+{% macro object_display(obj, size="", dim="100", name=True, type=True, pk=False) -%}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>
-    <div class="image is-{{size}} is-tile is-margin-center">
+    <div class="image {% if size %} is-{{size}} {% endif %} is-tile is-margin-center">
         {% if obj.image %}
         <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}"
              style="width:100%;height:100%;" />
@@ -15,11 +15,24 @@
         {% endif %}
     </h5>
     {% endif %}
-    {% if type %}
-    <h6 class='has-text-center'>
-        {{obj.title}}
-    </h6>
-    {% endif %}
+    <div class="row has-space-between">
+        {% if type %}
+        <div class="column is-shrink">
+            <h6 class='has-text-center'>
+                {{obj.title}}
+            </h6>
+        </div>
+        {% endif %}
+        {% if pk %}
+        <div class="column is-shrink">
+            <h6 class='has-text-center' style='font-size: .5rem;'>
+                pk: {{obj.pk}}
+            </h6>
+        </div>
+        {% endif %}
+    </div>
+
+
     {# <div class='has-bg-white has-text-dark has-no-padding'
          style='overflow:scroll; position:absolute; top: 0; left: 50%; transform: translateX(-50%);'>
         <span style='font-size: clamp(0.25rem, 0.75rem, 1.25rem)'>{{obj.desc_summary}}</span>

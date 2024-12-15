@@ -2,6 +2,7 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_tasks.html" as task_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro gm(user, world, party=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
@@ -342,27 +343,54 @@
             <div id="player-card-panels" class="row has-space-around">
                 {% for iniplayer in party.last_scene.initiative.order %}
                 <div id="player-{{iniplayer.pk}}-card-container"
-                     class="column is-shrink"
+                     class="column is-2"
                      {% if party.last_scene.current_combat_turn()==iniplayer %}
                      style='border: solid 2px rgb(114, 17, 17);'
                      {% endif %}>
-                    {{display_components.object_display(iniplayer.actor)}}
-                    <div class="row has-centered">
-                        <div class="column is-3 is-vertically-centered inputlabel">
-                            <h6 class='has-text-center'>HP</h6>
-                            <input class="has-text-muted  has-text-center has-text-dark "
-                                   name='current_hitpoints'
-                                   style='font-size: 1.25rem;'
-                                   value="{{iniplayer.hp}}"
-                                   hx-post='/api/autogm/{{party.pk}}/combat/{{iniplayer.pk}}/hitpoints'
-                                   hx-trigger='input delay:500ms'
-                                   hx-swap='none' />
+                    <h3 class='has-text-center has-text-light'>
+                        {{party.last_scene.initiative_index(iniplayer)}}
+                    </h3>
+                    <div class="row has-bg-screen">
+                        <div class="column is-full">
+                            {{display_components.object_display(iniplayer.actor, dim=250)}}
                         </div>
-                        <div class="column is-shrink is-vertically-centered">
-                            <h6 class='has-text-right'>Max</h6>
-                            <p class='has-text-dark'>
-                                / {{iniplayer.actor.hitpoints}}
-                            </p>
+                        <div class="column is-full">
+                            <div class="row has-centered">
+                                <div class="column is-full">
+                                    <h5 class='has-text-muted has-text-center'>Status</h5>
+                                    <textarea hx-post="/api/autogm/{{party.pk}}/status/{{iniplayer.pk}}"
+                                              hx-trigger='input delay:500ms'
+                                              hx-swap='none'
+                                              class="has-bg-white" name='status'
+                                              style='width:100%; height: 4rem;'>{{iniplayer.status}}</textarea>
+                                </div>
+                                <div class="column is-shrink has-text-center">
+                                    <h6 class='has-text-center'>AC</h6>
+                                    <p class='has-text-muted'>
+                                        {{iniplayer.actor.ac}}
+                                    </p>
+                                </div>
+                                <div class="column">
+                                    <div class="row">
+                                        <div class="column is-6 is-vertically-centered inputlabel">
+                                            <h6 class='has-text-center'>HP</h6>
+                                            <input class="has-text-center has-text-dark "
+                                                   name='current_hitpoints'
+                                                   style='font-size: 1.25rem;'
+                                                   value="{{iniplayer.hp}}"
+                                                   hx-post='/api/autogm/{{party.pk}}/combat/{{iniplayer.pk}}/hitpoints'
+                                                   hx-trigger='input delay:500ms'
+                                                   hx-swap='none' />
+                                        </div>
+                                        <div class="column is-shrink is-end is-vertically-centered">
+                                            <h6 class='has-text-right'>Max</h6>
+                                            <p class='has-text-dark'>
+                                                / {{iniplayer.actor.hitpoints}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -372,7 +400,7 @@
         <div class="column is-full">
             <hr class='has-bg-muted'>
             {% set actor = party.last_scene.current_combat_turn().actor %}
-            <div class="row has-space-around">
+            <div class="row has-space-between">
                 <div class="column is-4">
                     <div class="row">
                         <div class="column is-full">
@@ -424,7 +452,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <script>
                                 function rollDice() {
                                     const numDice = parseInt(document.getElementById('numDice').value, 10);
@@ -448,186 +475,216 @@
                                     total += bonus;
 
                                     document.getElementById('dice_roll_result').innerHTML = `<h4 class="has-text-center">Rolls: [${rolls.join(', ')}] + Bonus: ${bonus} </h4> <h1 class="has-text-center"> ${total} </h1>`;
+                                    document.getElementById('dice_roll_result').parentNode.classList.remove('is-hidden');
                                 }
                             </script>
                         </div>
                         <div class="column is-full" style='position: relative;'>
-                            {{display_components.object_display(actor, size="extra-large", dim=500, name=False, type=False)}}
-                            {% if actor not in party.last_scene.players %}
-                            <button class="button is-small has-bg-screen"
-                                    style='position: absolute; top: 0.5rem; left: 0.5rem;'
-                                    hx-post='/task/generate/autogm/{{party.pk}}/combat'
-                                    hx-target>
-                                <h6 class='has-text-center'>Regenerate Turn</h6>
-                            </button>
-                            {% endif %}
+                            {{display_components.object_display(actor, dim=500, name=False, type=False)}}
                             <div
-                                 class="panel has-bg-transparent has-text-light-grey has-text-center"
-                                 style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>
-                                <div class="panel has-bg-screen">
-                                    <span id="dice_roll_result"></span>
-                                </div>
+                                 class="is-hidden panel has-bg-screen has-text-light-grey has-text-center"
+                                 style='width:50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>
+                                <span id="dice_roll_result"></span>
                             </div>
-                        </div>
-                        <div class="column is-full">
-                            <h4 class='has-text-screen has-text-center'>Status</h4>
-                            <textarea class="has-bg-white" name='status' style='height: 5rem;'
-                                      {% if actor not in party.last_scene.players %} readonly {%
-                                      endif
-                                      %}>{{party.last_scene.current_combat_turn().status}}</textarea>
                         </div>
                     </div>
                 </div>
-                <div class="column">
-                    <div class="row has-centered">
-                        <div class="column is-full">
-                            <h4 class='has-text-white has-text-center'>Action</h4>
-                            <textarea class="has-bg-white" name='action'
-                                      style='height: 5rem; padding: 1rem;'
-                                      {% if actor not in party.last_scene.players %} readonly {%
-                                      endif
-                                      %}>{{party.last_scene.current_combat_turn().action.description}}</textarea>
-                            <div class="row has-centered">
-                                <div class="column is-2 inputlabel">
-                                    <label class='has-text-muted'>Attack Roll</label><br>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;'
-                                           name='action_attack_roll'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif %}
-                                           value='{{party.last_scene.current_combat_turn().action.attack_roll}}'>
-                                </div>
-                                <div class="column  is-2 inputlabel">
-                                    <label class='has-text-muted'>Damage Roll</label><br>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;'
-                                           name='action_dmg_roll'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif
-                                           %}
-                                           value='{{party.last_scene.current_combat_turn().action.damage_roll}}'>
-                                </div>
-                                <div class="column  is-2 inputlabel">
-                                    <label class='has-text-muted'>Saving Throw</label><br>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;'
-                                           name='action_saving_throw'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif
-                                           %}
-                                           value='{{party.last_scene.current_combat_turn().action.saving_throw}}'>
-                                </div>
-                                <div class="column is-3">
-                                    <label class='has-text-muted'>Target</label><br>
-                                    <div class='select'>
-                                        <select name='action_target'
-                                                {% if actor not in party.last_scene.players %}
-                                                disabled {% endif
-                                                %}>
-                                            {% for target in party.last_scene.initiative.order %}
-                                            <option value='{{target.pk}}' {%if
-                                                    party.last_scene.current_combat_turn().action.target==target.actor
-                                                    %} selected {% endif %}>{{target.actor.name}}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
+                <div class="column is-8 has-text-center">
+                    <form id="scene-combat-update" hx-post='/api/autogm/{{party.pk}}/combat/update'
+                          hx-trigger="input delay:500ms consume" hx-swap='none'>
+                        <div class="row has-centered">
+                            <div class="column is-full">
+                                {{party.last_scene.current_combat_turn().action.description}}
+                                <h4 class='has-text-white has-text-center'>Action</h4>
+                                <textarea class="has-bg-white" name='action'
+                                          style='height: 5rem; padding: 1rem;'
+                                          {% if not actor.is_player %} readonly {%
+                                          endif
+                                          %}>{{party.last_scene.current_combat_turn().action.description}}</textarea>
+                                <div class="row has-centered">
+                                    <div class="column is-2 inputlabel">
+                                        <label class='has-text-muted'>Attack Roll</label><br>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='action_attack_roll'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif %}
+                                               value='{{party.last_scene.current_combat_turn().action.attack_roll}}'>
+                                    </div>
+                                    <div class="column  is-2 inputlabel">
+                                        <label class='has-text-muted'>Damage Roll</label><br>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='action_dmg_roll'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().action.damage_roll}}'>
+                                    </div>
+                                    <div class="column  is-2 inputlabel">
+                                        <label class='has-text-muted'>Saving Throw</label><br>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='action_saving_throw'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().action.saving_throw}}'>
+                                    </div>
+                                    <div class="column  is-2 inputlabel">
+                                        <label class='has-text-muted'>Skill Check</label><br>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='action_skill_check'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().action.skill_check}}'>
+                                    </div>
+                                    <div class="column is-3">
+                                        <label class='has-text-muted'>Target</label><br>
+                                        <div class='select'>
+                                            <select name='action_target'
+                                                    {% if not actor.is_player %}
+                                                    disabled {% endif
+                                                    %}>
+                                                {% for target in party.last_scene.initiative.order
+                                                %}
+                                                <option value='{{target.pk}}' {%if
+                                                        party.last_scene.current_combat_turn().action.target==target.actor
+                                                        %} selected {% endif %}>
+                                                    {{target.actor.name}}
+                                                    [{{party.last_scene.initiative_index(target)}}]
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
+                                {% if party.last_scene.current_combat_turn().action.result %}
+                                <div class='panel has-text-muted'>
+                                    <div class="row">
+                                        <div
+                                             class="column has-bg-muted  is-vertically-centered is-full">
+                                            <h5 class='has-text-screen has-text-center'>Result</h5>
+                                        </div>
+                                        <div class="column has-text-justified"
+                                             style='padding: 0.5rem;'>
+                                            {{party.last_scene.current_combat_turn().action.result}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class='panel has-text-muted'>
-                                <div class="row">
-                                    <div
-                                         class="column has-bg-muted  is-vertically-centered is-shrink">
-                                        <h5 class='has-text-screen has-text-center'>Result</h5>
-                                    </div>
-                                    <div class="column" style='padding: 0.5rem;'>
-                                        {{party.last_scene.current_combat_turn().action.result}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="column is-full">
-                            <h4 class='has-text-white has-text-center'>Bonus Action</h4>
-                            <textarea class="has-bg-white" name='bonus_action'
-                                      style='height: 5rem;padding: 1rem;'
-                                      {% if actor not in party.last_scene.players %} readonly {%
-                                      endif
-                                      %}>{{party.last_scene.current_combat_turn().bonus_action.description}}</textarea>
-                            <div class="row has-centered">
-                                <div class="column is-2 inputlabel">
-                                    <label class='has-text-muted'>Attack Roll</label>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;'
-                                           name='bonus_action_attack_roll'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif
-                                           %}
-                                           value='{{party.last_scene.current_combat_turn().bonus_action.attack_roll}}'>
-                                </div>
-                                <div class="column is-2 inputlabel">
-                                    <label class='has-text-muted'>Damage Roll</label>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;' name='bonus_action_dmg_roll'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif
-                                           %}
-                                           value='{{party.last_scene.current_combat_turn().bonus_action.damage_roll}}'>
-                                </div>
-                                <div class="column is-2 inputlabel">
-                                    <label class='has-text-muted'>Saving Throw</label>
-                                    <input class="has-text-white"
-                                           style='font-size: 1.5rem;'
-                                           name='bonus_action_saving_throw'
-                                           {% if actor not in party.last_scene.players %} readonly
-                                           {% endif
-                                           %}
-                                           value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
-                                </div>
-                                <div class="column is-3">
-                                    <label class='has-text-muted'>Target</label>
-                                    <div class='select'>
-                                        <select name='bonus_action_target'
-                                                {% if actor not in party.last_scene.players %}
-                                                disabled {% endif
-                                                %}>
-                                            {% for target in party.last_scene.initiative.order %}
-                                            <option value='{{target.pk}}' {%if
-                                                    party.last_scene.current_combat_turn().bonus_action.target==target.actor
-                                                    %} selected {% endif %}>{{target.actor.name}}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
+                            <div class="column is-full">
+                                <h4 class='has-text-white has-text-center'>Bonus Action</h4>
+                                <textarea class="has-bg-white" name='bonus_action'
+                                          style='height: 5rem;padding: 1rem;'
+                                          {% if not actor.is_player %} readonly {%
+                                          endif
+                                          %}>{{party.last_scene.current_combat_turn().bonus_action.description}}</textarea>
+                                <div class="row has-centered">
+                                    <div class="column is-2 inputlabel">
+                                        <label class='has-text-muted'>Attack Roll</label>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='bonus_action_attack_roll'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().bonus_action.attack_roll}}'>
+                                    </div>
+                                    <div class="column is-2 inputlabel">
+                                        <label class='has-text-muted'>Damage Roll</label>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='bonus_action_dmg_roll'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().bonus_action.damage_roll}}'>
+                                    </div>
+                                    <div class="column is-2 inputlabel">
+                                        <label class='has-text-muted'>Saving Throw</label>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='bonus_action_saving_throw'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
+                                    </div>
+                                    <div class="column  is-2 inputlabel">
+                                        <label class='has-text-muted'>Skill Check</label><br>
+                                        <input class="has-text-white"
+                                               style='font-size: 1.5rem;'
+                                               name='bonus_action_skill_check'
+                                               {% if not actor.is_player %} readonly
+                                               {% endif
+                                               %}
+                                               value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
+                                    </div>
+                                    <div class="column is-3 inputlabel">
+                                        <label class='has-text-muted'>Target</label>
+                                        <div class='select'>
+                                            <select name='bonus_action_target'
+                                                    {% if not actor.is_player %}
+                                                    disabled {% endif
+                                                    %}>
+                                                {% for target in party.last_scene.initiative.order
+                                                %}
+                                                <option value='{{target.pk}}' {%if
+                                                        party.last_scene.current_combat_turn().bonus_action.target
+                                                        and
+                                                        party.last_scene.current_combat_turn().bonus_action.target==target.actor
+                                                        %} selected {% endif %}>
+                                                    {{target.actor.name}}
+                                                    [{{party.last_scene.initiative_index(target)}}]
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
+                                {% if party.last_scene.current_combat_turn().bonus_action.result %}
+                                <div class='panel has-text-muted'>
+                                    <div class="row">
+                                        <div
+                                             class="column has-bg-muted  is-vertically-centered is-shrink">
+                                            <h5 class='has-text-screen has-text-center'>Result</h5>
+                                        </div>
+                                        <div class="column" style='padding: 0.5rem;'>
+                                            {{party.last_scene.current_combat_turn().bonus_action.result}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class='panel has-text-muted'>
-                                <div class="row">
-                                    <div
-                                         class="column has-bg-muted  is-vertically-centered is-shrink">
-                                        <h5 class='has-text-screen has-text-center'>Result</h5>
-                                    </div>
-                                    <div class="column" style='padding: 0.5rem;'>
-                                        {{party.last_scene.current_combat_turn().bonus_action.result}}
-                                    </div>
-                                </div>
+
+                            <div class="column is-full">
+                                <h4 class='has-text-white has-text-center'>Movement</h4>
+                                <textarea class="has-bg-white" name='movement'
+                                          style='height: 5rem;padding: 1rem;'
+                                          {% if not actor.is_player %} readonly {%
+                                          endif
+                                          %}>{{party.last_scene.current_combat_turn().movement}}</textarea>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <h4 class='has-text-white has-text-center'>Movement</h4>
-                            <textarea class="has-bg-white" name='movement'
-                                      style='height: 5rem;padding: 1rem;'
-                                      {% if actor not in party.last_scene.players %} readonly {%
-                                      endif
-                                      %}>{{party.last_scene.current_combat_turn().movement}}</textarea>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-                <div class="column is-full">
+                <div class="column is-4">
+                    <button class="button is-full has-bg-muted has-text-dark"
+                            hx-post='/task/generate/autogm/{{party.pk}}/combat'
+                            hx-target>
+                        Run Turn
+                    </button>
+                </div>
+                <div class="column is-3">
                     <button class='button is-full has-bg-screen'
                             hx-post='/api/autogm/{{party.pk}}/combat/next'
                             hx-target='#scene-combat-container' hx-select='#scene-combat-container'
-                            hx-swap='outerHTML'>
+                            hx-swap='outerHTML' hx-confirm='This will end your tunr. Are you sure?'>
                         {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} Next
                         Turn {%
                         endif %}
@@ -682,7 +739,7 @@
             {% for player in party.players %}
             <div id="player-{{player.pk}}-card-container"
                  class="column is-full {% if false %} is-hidden {% endif%}">
-                {{scene_player_card(party, player)}}
+                {{scene_player_card(user, party, player)}}
             </div>
             {% endfor %}
         </div>
@@ -756,7 +813,7 @@
 {%- endmacro %}
 
 
-{% macro scene_player_card(party, player) %}
+{% macro scene_player_card(user, party, player) %}
 <h1 class='has-text-center has-text-dark'>
     {{player.name}}
 </h1>
@@ -977,18 +1034,16 @@
     <div class="column is-half generated-text-lightbg has-text-justified">
         <h2 class='has-text-dark'>History</h2>
         {{ player.history | safe }}
+        <div class="row">
+            {% for item in player.items %}
+            <div class="column is-3">
+                {{display_components.object_display(item, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="column is-half generated-text-lightbg">
-        <h2>Abilities</h2>
-        <div class="panel has-bg-muted">
-            <div class="row">
-                {% for a in player.abilities%}
-                <div class="column is-full has-text-dark has-text-justified">
-                    {{a | safe }}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+        {{abilities_components.abilities(user, player)}}
     </div>
 </div>
 {%- endmacro %}

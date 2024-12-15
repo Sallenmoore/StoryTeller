@@ -1,0 +1,82 @@
+$modal-radius: 10px !default;
+$modal-width: 90% !default;
+$modal-padding: 1rem !default;
+
+.modal
+{
+  --border-radius: #{$modal-radius};
+  --width: #{$modal-width};
+  --padding: #{$modal-padding};
+
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: linear-gradient(45deg, rgba($primary, .75), rgba($secondary, .75));
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  &.is-active
+  {
+    display: block;
+  }
+
+  & .modal__content
+  {
+    top: 10vh;
+    left: 10vw;
+    background-color: $light;
+    overflow: scroll;
+    color: $primary;
+    height: 80vh;
+    width: 80vw;
+    z-index: 1001;
+    position: relative;
+    border-radius: var(--border-radius);
+    padding: var(--padding);
+
+    &.is-full
+    {
+      border-radius: 0;
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      padding: 0;
+    }
+
+    &.is-medium
+    {
+      width: 60vw;
+      top: 20vh;
+      left: 20vw;
+    }
+
+    &.is-small
+    {
+      width: 25vw;
+      top: 37vh;
+      left: 37vw;
+    }
+
+    & > *
+    {
+      margin: 0 0 0.5rem 0;
+    }
+
+    & .close-modal
+    {
+      content: 'X';
+      cursor: pointer;
+      font-size: 2rem;
+      color: var(--color-light-grey);
+      bottom: 0;
+      right: 0.25em;
+      padding: 0;
+      margin: 0;
+    }
+  }
+}

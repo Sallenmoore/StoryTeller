@@ -13,16 +13,20 @@ def loader(
     module=None,
 ):
     # log(f"User: {user}, Model: {model}, PK: {pk}")
-
+    # log(f"Request: {request}")
     if request.method == "GET":
         request_data = request.args
+        # log(f"get request: {request_data}")
     elif request.method == "POST":
         request_data = request.json
+        # log(f"post: {request_data}")
     else:
         return None, None, None, None, None
+
     # get user
     if not user:
         user_data = request_data.get("user", None)
+        #
         user = (
             User.get(user_data["pk"])
             if isinstance(user_data, dict) and user_data.get("pk")
