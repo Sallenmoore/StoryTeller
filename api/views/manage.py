@@ -38,9 +38,10 @@ def index(model, pk):
 ###########################################################
 @manage_endpoint.route("/add/<string:model>", methods=("POST",))
 def add(model):
-    user, obj, *_ = _loader()
-    new_obj = World.get_model(model)(world=obj.get_world())
+    user, obj, world, *_ = _loader()
+    new_obj = World.get_model(model)(world=world)
     new_obj.save()
+    log(new_obj.pk)
     obj.add_association(new_obj)
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, obj.associations

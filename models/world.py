@@ -24,11 +24,12 @@ from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.district import District
+from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
-from models.ttrpgobject.vehicle import Vehicle
 from models.ttrpgobject.region import Region
+from models.ttrpgobject.vehicle import Vehicle
 
 
 class World(TTRPGBase):
@@ -36,6 +37,7 @@ class World(TTRPGBase):
     users = ListAttr(ReferenceAttr(choices=["User"]))
     gm = ReferenceAttr(choices=[AutoGM])
     map = ReferenceAttr(choices=["Image"])
+    campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     current_date = StringAttr(
         default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ])} {random.randint(1, 5000)}"
     )
@@ -135,6 +137,7 @@ class World(TTRPGBase):
             *self.cities,
             *self.locations,
             *self.regions,
+            *self.vehicles,
             *self.districts,
         ]
 
@@ -163,6 +166,10 @@ class World(TTRPGBase):
     @property
     def districts(self):
         return District.search(world=self) if self.pk else []
+
+    @property
+    def encounters(self):
+        return Encounter.search(world=self) if self.pk else []
 
     @property
     def factions(self):
@@ -270,6 +277,7 @@ class World(TTRPGBase):
                 "Items": [o.page_data() for o in self.items],
                 "Creatures": [o.page_data() for o in self.creatures],
                 "Districts": [o.page_data() for o in self.districts],
+                "Encounters": [o.page_data() for o in self.encounters],
             },
         }
         # Convert the response object to JSON

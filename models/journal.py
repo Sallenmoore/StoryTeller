@@ -112,12 +112,14 @@ class Journal(AutoModel):
             entry.importance = (
                 int(importance) if importance is not None else entry.importance
             )
-            for assoc in associations:
-                entry.add_association(assoc)
+            if associations:
+                for assoc in associations:
+                    entry.add_association(assoc)
             entry.date = datetime.now()
             entry.save()
             # update current object's entries
             self.entries = [e if e != entry else entry for e in self.entries]
+            self.save()
         return entry
 
     def get_entry(self, entry_pk):

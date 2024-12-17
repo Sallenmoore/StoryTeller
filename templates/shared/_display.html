@@ -8,14 +8,10 @@
     </div>
     {% if name %}
     <h5 class='has-text-center' style='font-size: clamp(0.5rem, 0.75rem, 1rem);'>
-        {% if obj.name %}
         {{obj.name}}
-        {% else %}
-        New {{obj.title}}
-        {% endif %}
     </h5>
     {% endif %}
-    <div class="row has-space-between">
+    <div class="row has-space-around">
         {% if type %}
         <div class="column is-shrink">
             <h6 class='has-text-center' style='font-size: clamp(0.25rem, 0.5rem, 0.75rem);'>

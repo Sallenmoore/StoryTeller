@@ -34,7 +34,7 @@ def loader(
         )
     else:
         user = User.get(user)
-    log(user)
+    # log(user)
     # get obj
     obj = World.get_model(
         model or request_data.get("model", None), pk or request_data.get("pk", None)

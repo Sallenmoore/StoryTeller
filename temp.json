@@ -1,0 +1,55 @@
+{
+    "type": "starship",
+    "size": "small",
+    "group": 1,
+    "abilities": [
+        {
+            "name": "Spike Drift",
+            "action": "main action",
+            "description": "The **Spike Drift** ability allows the starship to momentarily increase its speed and evade potential threats. The ship channels extra energy into its spike drive, making a significant jump across space-time. It's used to quickly escape hot zones or to catch up with other vessels.",
+            "effects": "The ship gains an additional movement phase within a turn, allowing it to cover double the distance. Additionally, it temporarily becomes difficult to target for enemy crafts.",
+            "duration": "1 turn",
+            "dice_roll": "Roll 3d10; each roll over 5 allows the movement bonus to be applied for each distance segment covered."
+        },
+        {
+            "name": "Cargo Cloak",
+            "action": "main action",
+            "description": "Through a combination of technology and cunning, the ship's cargo can be cloaked from scans, rendering its contents invisible to detection. Perfect for smugglers carrying illicit goods.",
+            "effects": "Activates a cloaking field around the cargo hold, preventing it from being detected by conventional scanning systems.",
+            "duration": "5 turns or until manually deactivated",
+            "dice_roll": "Roll 3d6; success if at least two results are 4 or higher."
+        },
+        {
+            "name": "Ion Pulse",
+            "action": "bonus action",
+            "description": "Emits an **Ion Pulse** from its defensive system before enemy attacks, disrupting their weapon systems for a short time. This is especially effective against chasing pirates or hostile smugglers.",
+            "effects": "Disables primary weapon systems of targeted enemy ships temporarily, reducing their damage output.",
+            "duration": "2 turns",
+            "dice_roll": "Roll 1d20; succeeding a 14 or higher results in successful disruption."
+        },
+        {
+            "name": "Shields of Fortune",
+            "action": "reaction",
+            "description": "The ship's shields are fitted with an ancient but modified relic design that allows them to absorb damage and redistribute the kinetic energy across the ship's energy systems.",
+            "effects": "Recycles potential damage into energy, providing temporary boost to other systems such as propulsion or weaponry, while reducing incoming damage.",
+            "duration": "Until the end of the next turn",
+            "dice_roll": "Roll 2d8; each roll over 5 grants a damage reduction by half and boosts energy output."
+        },
+        {
+            "name": "Scavenger Matrix",
+            "action": "passive",
+            "description": "The **Scavenger Matrix** optimizes the process of identifying and breaking down scavenged materials from derelict ships to resupply or trade.",
+            "effects": "Increases the efficiency of gathering and processing salvageable materials.",
+            "duration": "Permanent",
+            "dice_roll": "Roll 2d10; each roll over 6 results in 20% increased salvage yield."
+        },
+        {
+            "name": "Transporter Enigma",
+            "action": "free action",
+            "description": "An enigmatic history surrounds the ship's teleportation system, said to be of alien origin, allowing it to momentarily phase in and out of physical space to avoid attacks.",
+            "effects": "Grants a chance to completely phase out of incoming fire, effectively ignoring damage from a successful hit.",
+            "duration": "Instantaneous",
+            "dice_roll": "Roll 1d100; any roll above 90 results in successful damage avoidance."
+        }
+    ]
+}

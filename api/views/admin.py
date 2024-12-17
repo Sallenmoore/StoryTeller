@@ -239,7 +239,7 @@ def migration():
         #                 o.pop("_world")
         #             else:
         #                 o.pop("_lineage", None) or o.pop("lineage", None)
-        #             if old_model_name not in ["World", "Region", "City", "Location", "POI"]:
+        #             if old_model_name not in ["World", "Region", "City", "Location", "District"]:
         #                 o.pop("battlemap", None)
         #             for k, v in o.items():
         #                 if k not in ["_id", "_data"] and k.startswith("_"):

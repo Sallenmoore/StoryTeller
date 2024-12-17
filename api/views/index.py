@@ -5,8 +5,10 @@
 
 """
 
+import os
 import random
 
+import requests
 from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
@@ -14,6 +16,7 @@ from autonomous import log
 from models.world import World
 
 from ._utilities import loader as _loader
+from .campaign import index as campaign_endpoint
 
 index_endpoint = Blueprint("page", __name__)
 
@@ -84,11 +87,37 @@ def buildform():
 ###########################################################
 ##                    World Routes                       ##
 ###########################################################
-@index_endpoint.route("/world/<string:pk>", methods=("POST",))
+@index_endpoint.route(
+    "/world/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def world(pk):
     user, *_ = _loader()
     world = World.get(pk)
     return get_template_attribute("shared/_gm.html", "home")(user, world)
+
+
+@index_endpoint.route(
+    "/world/<string:pk>/campaigns/manage",
+    methods=("GET", "POST"),
+)
+@index_endpoint.route(
+    "/world/<string:pk>/campaigns/manage/<string:campaignpk>",
+    methods=("GET", "POST"),
+)
+def campaignmanage(pk, campaignpk=None):
+    user, obj, world, *_ = _loader()
+    if user.world_user(world):
+        results = requests.post(
+            f"http://api:{os.environ.get('COMM_PORT')}/campaign/{campaignpk if campaignpk else ''}",
+            json={"user": str(user.pk), "model": obj.model_name(), "pk": str(obj.pk)},
+        )
+        log(results.text)
+        return results.text
+    return "Unauthorized"
 
 
 @index_endpoint.route("/world/<string:pk>/delete", methods=("POST",))

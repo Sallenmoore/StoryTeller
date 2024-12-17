@@ -84,8 +84,9 @@
 <div id="associated-objects">
     <div class="row has-space-around">
         {% for a in associations %}
-        <div class="column is-3 is-mobile-6 card-container
-                {% if obj and a == obj.parent %} has-bg-screen {% endif %}">
+        <div
+             class="column is-3 is-mobile-6 card-container
+                {% if a == obj.parent %} has-bg-screen {% elif obj == a.parent %} has-bg-muted {% endif %}">
             <div class="panel has-bg-screen"
                  style='height:100%;'>
                 <div class="row has-space-around">
@@ -95,9 +96,10 @@
                     {% if 'World' not in [obj.model_name(), a.model_name()] %}
                     <div class="column">
                         <div class="row has-space-around is-vertical">
-                            {% if obj != a.parent and obj.model_name() in a.parent_list %}
+                            {% if obj.model_name() in a.parent_list %}
                             <div class="column is-3 is-mobile-shrink has-text-center">
                                 <button class="button is-small is-primary"
+                                        {% if obj==a.parent %} disabled {% endif %}
                                         hx-post="/api/manage/parent/{{a.path}}"
                                         hx-target="#associated-objects"
                                         hx-select="#associated-objects"
@@ -109,9 +111,10 @@
                                 </button>
                             </div>
                             {% endif %}
-                            {% if a != obj.parent and a.model_name() in obj.parent_list %}
+                            {% if a.model_name() in obj.parent_list %}
                             <div class="column is-3 is-mobile-shrink has-text-center">
                                 <button class="button is-small is-primary"
+                                        {% if a==obj.parent %} disabled {% endif %}
                                         hx-post="/api/manage/child/{{a.path}}"
                                         hx-target="#associated-objects"
                                         hx-select="#associated-objects"

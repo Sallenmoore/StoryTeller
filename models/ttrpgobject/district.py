@@ -38,7 +38,12 @@ class District(Place):
     ################### Class Methods #####################
 
     def generate(self):
-        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. Write a detailed description appropriate for a {self.title}. The {self.title} should contain up to 3 {random.choice(['mysterious', 'sinister', 'boring'])} secrets hidden within the {self.title} for the players to discover."
+        parent_str = (
+            f" located in the {self.parent.title}, {self.parent.name}"
+            if self.parent
+            else ""
+        )
+        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title} universe. Write a detailed description appropriate for a {self.title}{parent_str}. The {self.title} should contain up to 3 {random.choice(['mysterious', 'sinister', 'boring'])} secrets hidden within the {self.title} for the players to discover."
         obj_data = super().generate(prompt=prompt)
         self.save()
         return obj_data

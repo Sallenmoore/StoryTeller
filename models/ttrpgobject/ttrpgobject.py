@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from autonomous import log
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr
+from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from models.base.ttrpgbase import TTRPGBase
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
@@ -14,6 +14,8 @@ class TTRPGObject(TTRPGBase):
     world = ReferenceAttr(choices=["World"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     parent = ReferenceAttr(choices=[TTRPGBase])
+    start_date = StringAttr(default="")
+    end_date = StringAttr(default="")
     parent_list = []
 
     _no_copy = TTRPGBase._no_copy | {
@@ -108,6 +110,10 @@ class TTRPGObject(TTRPGBase):
     @property
     def user(self):
         return self.get_world().user
+
+    @property
+    def vehicles(self):
+        return [a for a in self.associations if a.model_name() == "Vehicle"]
 
     ############# Boolean Methods #############
 

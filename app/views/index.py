@@ -131,6 +131,7 @@ def manage(model, pk):
     content = "<p>You do not have permission to alter this object<p>"
     if _authenticate(user, obj):
         args = request.json if request.method == "POST" else dict(request.args)
+        args["user"] = str(user.pk)
         content = requests.post(
             f"http://api:{os.environ.get('COMM_PORT')}/manage/{model}/{pk}", json=args
         ).text

@@ -24,6 +24,7 @@ class Item(TTRPGObject):
     parent_list = [
         "Creature",
         "Location",
+        "Vehicle",
         "District",
         "City",
         "Region",

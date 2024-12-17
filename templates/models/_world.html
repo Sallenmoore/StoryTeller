@@ -17,6 +17,21 @@
             </div>
         </a>
     </li>
+    {% if user.world_user(obj) %}
+    <li>
+        <a href="" class="menu-anchor" hx-post="/api/campaign/" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-push-url=" /{{obj.path}}/campaigns/manage">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="mdi:planner-multiple" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Manage Campaigns</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% endif %}
 </ul>
 {%- endmacro %}
 
