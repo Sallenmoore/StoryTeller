@@ -65,7 +65,7 @@ class Item(TTRPGObject):
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "Unique name for the Ability.",
+                                "description": "Unique name for the Feature.",
                             },
                             "action": {
                                 "type": "string",
@@ -76,23 +76,23 @@ class Item(TTRPGObject):
                                     "free action",
                                     "passive",
                                 ],
-                                "description": "Unique name for the Ability.",
+                                "description": "Type of action required.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "Detailed description of the ability and how the Character aquired the ability in MARKDOWN.",
+                                "description": "Detailed description of the feature and how it is activated in MARKDOWN.",
                             },
                             "effects": {
                                 "type": "string",
-                                "description": "Description of the ability's effects.",
+                                "description": "Description of the features's effects.",
                             },
                             "duration": {
                                 "type": "string",
-                                "description": "The duration of the ability's effects.",
+                                "description": "The duration of the features's effects.",
                             },
                             "dice_roll": {
                                 "type": "string",
-                                "description": "The dice roll mechanics for determining the success or failure of the ability.",
+                                "description": "The dice roll mechanics for determining the success or failure of the feature.",
                             },
                         },
                     },

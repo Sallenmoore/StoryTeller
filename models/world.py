@@ -27,6 +27,7 @@ from models.ttrpgobject.district import District
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
+from models.ttrpgobject.vehicle import Vehicle
 from models.ttrpgobject.region import Region
 
 
@@ -203,6 +204,10 @@ class World(TTRPGBase):
     def user(self):
         return self.users[0] if self.users else None
 
+    @property
+    def vehicles(self):
+        return Vehicle.search(world=self) if self.pk else []
+
     ########################## Override Methods #############################
 
     def delete(self):
@@ -212,10 +217,13 @@ class World(TTRPGBase):
             *Region.search(world=self),
             *City.search(world=self),
             *Location.search(world=self),
+            *Journal.search(parent=self),
+            *Vehicle.search(world=self),
             *District.search(world=self),
             *Faction.search(world=self),
             *Creature.search(world=self),
             *Character.search(world=self),
+            *Vehicle.search(world=self),
             *Item.search(world=self),
         ]
         for obj in objs:
@@ -255,6 +263,7 @@ class World(TTRPGBase):
             "world_objects": {
                 "Regions": [o.page_data() for o in self.regions],
                 "Locations": [o.page_data() for o in self.locations],
+                "Vehicles": [o.page_data() for o in self.vehicles],
                 "Cities": [o.page_data() for o in self.cities],
                 "Factions": [o.page_data() for o in self.factions],
                 "Characters": [o.page_data() for o in self.characters],

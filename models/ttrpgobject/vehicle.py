@@ -3,27 +3,29 @@ import random
 import markdown
 
 from autonomous import log
-from autonomous.model.autoattr import IntAttr, ListAttr, StringAttr
-from models.base.actor import Actor
+from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
+from models.base.place import Place
 
 
-class Creature(Actor):
+class Vehicle(Place):
     type = StringAttr(default="")
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
+    hitpoints = IntAttr(default=lambda: random.randint(10 - 250))
+    abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     group = IntAttr(default=False)
 
-    parent_list = ["Location", "District", "Vehicle"]
+    parent_list = ["Location", "District", "City", "Region"]
     _funcobj = {
-        "name": "generate_creature",
-        "description": "completes Creature data object",
+        "name": "generate_vehicle",
+        "description": "completes Vehicle data object",
         "parameters": {
             "type": "object",
             "properties": {
                 "type": {
                     "type": "string",
-                    "description": "The general category of creature, such as humanoid, monster, alien, etc.",
+                    "description": "The general category of vehicle, such as automobile, wagon, starship, etc.",
                 },
                 "size": {
                     "type": "string",
@@ -31,7 +33,7 @@ class Creature(Actor):
                 },
                 "group": {
                     "type": "integer",
-                    "description": "The average number of creatures of this kind that usually stay together, or 0 for a unique creature (i.e. BBEG)",
+                    "description": "The average number of vehicles of this kind that usually travel together, or 0 for a unique vehicle (i.e. BBEG)",
                 },
             },
         },
@@ -50,18 +52,17 @@ BACKSTORY
 ---
 {self.backstory_summary}
 
-{"EVENTS INVOLVING THIS CREATURE TYPE" if not self.group else "LIFE EVENTS"}
+{"EVENTS INVOLVING THIS VEHICLE TYPE" if not self.group else "TIMELINE OF EVENTS"}
 ---
 """
 
     @property
     def image_prompt(self):
-        return f"""A full-length color portrait of a {self.genre} {self.type or 'creature'} with the following description:
-        {("- TYPE: " if self.group else "- NAME: ") + self.name}
-        {"- DESCRIPTION: " + self.description if self.description else ""}
-        {"- SIZE: " + self.size if self.size else ""}
-        {"- GOAL: " + self.goal if self.goal else ""}
-        """
+        return f"""A full color image of a {self.genre} {self.type or 'vehicle'} with the following description:
+{("- TYPE: " if self.group else "- NAME: ") + self.name}
+{"- DESCRIPTION: " + self.description if self.description else ""}
+{"- SIZE: " + self.size if self.size else ""}
+"""
 
     @property
     def unique(self):
@@ -69,8 +70,8 @@ BACKSTORY
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = "type of enemy whose species" if self.group else "adversary who"
-        prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('unexpected', 'mysterious', 'sinister', 'selfish'))} goal they are working toward.
+        group = "type of vehicle that" if self.group else "unique vehicle whose owner "
+        prompt = f"""Create a {random.choice(['highly advanced', 'dilapidated', 'warclad', 'commercial', 'opulent'])} {self.genre} {self.type} {group} has a {random.choice(('unexpected', 'mysterious', 'sinister', 'incredible'))} history.
         """
         return super().generate(prompt=prompt)
 
@@ -87,16 +88,9 @@ BACKSTORY
             "type": self.type,
             "size": self.size,
             "hit points": self.hitpoints,
-            "attributes": {
-                "strength": self.strength,
-                "dexerity": self.dexterity,
-                "constitution": self.constitution,
-                "wisdom": self.wisdom,
-                "intelligence": self.intelligence,
-                "charisma": self.charisma,
-            },
             "abilities": self.abilities,
-            "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
+            "group": self.group,
+            "crew": [c.path for c in self.crew],
         }
 
     ## MARK: - Verification Methods
@@ -131,5 +125,5 @@ BACKSTORY
         ]:
             self.size = self.size.lower()
         else:
-            log(f"Invalid size for creature: {self.size}", _print=True)
+            log(f"Invalid size for vehicle: {self.size}", _print=True)
             self.size = "medium"

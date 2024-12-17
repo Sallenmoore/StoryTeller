@@ -19,6 +19,7 @@ class PostApocalypticSystem(BaseSystem):
         "world": "Region",
         "location": "Location",
         "district": "District",
+        "vehicle": "Vehicle",
         "item": "Item",
         "encounter": "Encounter",
         "character": "Character",

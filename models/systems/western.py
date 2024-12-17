@@ -17,6 +17,7 @@ class WesternSystem(BaseSystem):
         "region": "Territory",
         "world": "Region",
         "location": "Location",
+        "vehicle": "Horse",
         "district": "District",
         "item": "Item",
         "encounter": "Encounter",

@@ -3,7 +3,9 @@ import random
 from bs4 import BeautifulSoup
 
 from autonomous import log
+from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
+    FileAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -23,6 +25,12 @@ class AutoGMInitiativeAction(AutoModel):
     skill_check = IntAttr(default="")
     target = ReferenceAttr(choices=["Character", "Creature"])
     result = StringAttr(default="")
+
+    def __str__(self):
+        return f"{"\n".join([f"{k}:  {v}" for k, v in self.action_dict().items()])}"
+
+    def is_bonus_action(self):
+        return self.type == "bonus"
 
     def action_dict(self):
         rolls = {}
@@ -46,6 +54,7 @@ class AutoGMInitiative(AutoModel):
     status = StringAttr(default="")
     description = StringAttr(default="")
     image = ReferenceAttr(choices=[Image])
+    audio = FileAttr()
     position = IntAttr(default=0)
     action = ReferenceAttr(choices=[AutoGMInitiativeAction])
     bonus_action = ReferenceAttr(choices=[AutoGMInitiativeAction])
@@ -54,6 +63,20 @@ class AutoGMInitiative(AutoModel):
     @property
     def max_hp(self):
         return self.actor.hitpoints
+
+    @property
+    def ready(self):
+        return (
+            self.action.description and self.bonus_action.description and self.movement
+        )
+
+    @property
+    def scene_description(self):
+        return f"""{self.description}
+{self.action.result}
+{self.bonus_action.result}
+{self.movement}
+"""
 
     def delete(self):
         for item in [self.action, self.bonus_action, self.image]:
@@ -79,22 +102,94 @@ class AutoGMInitiative(AutoModel):
         Add an action to the initiative object
         """
         if not isinstance(target, (Character, Creature)):
+            # log(target, _print=True)
             target = Character.get(target) or Creature.get(target)
-        action = AutoGMInitiativeAction(
-            type="bonus" if bonus else "action",
-            description=description,
-            attack_roll=attack_roll or 0,
-            damage_roll=damage_roll or 0,
-            saving_throw=saving_throw or 0,
-            skill_check=skill_check or 0,
-            target=target,
-            result=result,
-        )
-        action.save()
+            # log(target, _print=True)
+        log(result, _print=True)
         if bonus:
-            self.bonus_action = action
+            if self.bonus_action:
+                self.bonus_action.description = description
+                self.bonus_action.attack_roll = attack_roll or 0
+                self.bonus_action.damage_roll = damage_roll or 0
+                self.bonus_action.saving_throw = saving_throw or 0
+                self.bonus_action.skill_check = skill_check or 0
+                self.bonus_action.target = target
+                self.bonus_action.result = result or self.action.result
+            else:
+                self.bonus_action = AutoGMInitiativeAction(
+                    type="bonus",
+                    description=description,
+                    attack_roll=attack_roll or 0,
+                    damage_roll=damage_roll or 0,
+                    saving_throw=saving_throw or 0,
+                    skill_check=skill_check or 0,
+                    target=target,
+                    result=result,
+                )
+            self.bonus_action.save()
+            log(self.bonus_action.result, _print=True)
         else:
-            self.action = action
+            if self.action:
+                self.action.description = description
+                self.action.attack_roll = attack_roll or 0
+                self.action.damage_roll = damage_roll or 0
+                self.action.saving_throw = saving_throw or 0
+                self.action.skill_check = skill_check or 0
+                self.action.target = target
+                self.action.result = result or self.action.result
+                self.action.save()
+            else:
+                AutoGMInitiativeAction(
+                    type="action",
+                    description=description,
+                    attack_roll=attack_roll or 0,
+                    damage_roll=damage_roll or 0,
+                    saving_throw=saving_throw or 0,
+                    skill_check=skill_check or 0,
+                    target=target,
+                    result=result,
+                )
+            self.action.save()
+            log(self.action.result, _print=True)
+        self.save()
+
+    def generate_audio(self, voice=None):
+        if self.scene_description:
+            description = BeautifulSoup(
+                self.scene_description, "html.parser"
+            ).get_text()
+            voiced_result = AudioAgent().generate(description, voice=voice or "echo")
+            if self.audio:
+                self.audio.delete()
+                self.audio.replace(voiced_result, content_type="audio/mpeg")
+            else:
+                self.audio.put(voiced_result, content_type="audio/mpeg")
+            self.save()
+
+    def generate_image(self, image_style):
+        desc = f"""Based on the below description of the character, setting, and event in a scene of a {self.actor.genre} TTRPG combat round, generate a single graphic novel style panel in the art style of {image_style} for the scene.
+
+DESCRIPTION OF CHARACTERS IN THE SCENE
+-{self.actor.age} year old {self.actor.species} {self.actor.gender} {self.actor.archetype}. {self.actor.description_summary or self.actor.description}
+- Motif: {self.actor.motif}
+"""
+        desc += f"""
+SCENE DESCRIPTION
+{self.scene_description}
+"""
+        log(desc, _print=True)
+        img = Image.generate(
+            desc,
+            tags=[
+                "scene",
+                "combat",
+                self.actor.name,
+                self.actor.world.name,
+                self.actor.genre,
+            ],
+        )
+        img.save()
+        self.image = img
         self.save()
 
     ## MARK: - Verification Methods
@@ -181,7 +276,7 @@ class AutoGMInitiativeList(AutoModel):
         self.save()
 
     def current_combat_turn(self):
-        # log(self.order)
+        # log(self.order, self.current_turn)
         ini_actor = self.order[self.current_turn]
         while not ini_actor.hp:
             self.current_turn = (self.current_turn + 1) % len(self.order)
@@ -193,4 +288,26 @@ class AutoGMInitiativeList(AutoModel):
         if self.combat_ended:
             return None
         self.current_turn = (self.current_turn + 1) % len(self.order)
-        return self.current_combat_turn()
+        result = self.current_combat_turn()
+        result.description = f"{result.actor.name} is up next."
+        result.movement = ""
+        if result.audio:
+            result.audio.delete()
+        if result.image:
+            result.image.delete()
+        result.save()
+        result.action.result = ""
+        result.action.description = ""
+        result.action.attack_roll = 0
+        result.action.damage_roll = 0
+        result.action.saving_throw = 0
+        result.action.skill_check = 0
+        result.action.save()
+        result.bonus_action.result = ""
+        result.bonus_action.description = ""
+        result.bonus_action.attack_roll = 0
+        result.bonus_action.damage_roll = 0
+        result.bonus_action.saving_throw = 0
+        result.bonus_action.skill_check = 0
+        result.bonus_action.save()
+        return result

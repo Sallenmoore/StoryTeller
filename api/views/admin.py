@@ -136,6 +136,7 @@ def migration():
         #     "region": Region,
         #     "city": City,
         #     "location": Location,
+        #      "vehicle": Vehicle,
         #     "encounter": Encounter,
         #     "p_o_i": POI,
         #     "faction": Faction,

@@ -12,6 +12,7 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
+from models.autogm.autogminitiative import AutoGMInitiative
 from models.autogm.autogmmessage import AutoGMMessage
 from models.autogm.autogmscene import AutoGMScene
 from models.images.image import Image
@@ -94,8 +95,14 @@ def image(pk, size):
     "/audio/gm/<string:pk>",
     methods=("GET",),
 )
+@index_page.route(
+    "/audio/gm/combat/<string:pk>",
+    methods=("GET",),
+)
 def audio(pk):
-    if "gm" in request.url:
+    if "combat" in request.url:
+        msg = AutoGMInitiative.get(pk)
+    elif "gm" in request.url:
         msg = AutoGMScene.get(pk)
     else:
         msg = AutoGMMessage.get(pk)

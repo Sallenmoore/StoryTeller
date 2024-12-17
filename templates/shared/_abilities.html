@@ -57,7 +57,8 @@
 {%- endmacro %}
 
 
-{% macro edit_abilities(user, obj) -%}
+{% macro edit_abilities(user, obj, abilities=None) -%}
+{% set ability_list = abilities or obj.abilities %}
 <div class="row">
     <div id="model-abilities-container" class="column is-full">
         <h3 class='has-text-center has-text-primary'>Abilities</h3>
@@ -71,7 +72,7 @@
                 New Ability
             </button>
         </div>
-        {% for ability in obj.abilities %}
+        {% for ability in ability_list %}
         <div id="model-abilities" class="row">
             <div class="column is-4 inputlabel">
                 <label for="ability-name">Name</label>

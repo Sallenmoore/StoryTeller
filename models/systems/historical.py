@@ -17,6 +17,7 @@ class HistoricalSystem(BaseSystem):
         "region": "Region",
         "world": "Country",
         "location": "Location",
+        "vehicle": "Vehicle",
         "district": "District",
         "item": "Item",
         "encounter": "Encounter",

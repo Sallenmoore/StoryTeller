@@ -887,9 +887,14 @@ ROLL REQUIRED
         log(json.dumps(response, indent=4), _print=True)
         ondeck.description = response["description"]
         ondeck.movement = response["movement"]
-        ondeck.add_action(**response["action"])
-        ondeck.add_action(**response["bonus_action"], bonus=True)
         ondeck.save()
+        action = response["action"]
+        ondeck.add_action(**action)
+        bonus_action = response["bonus_action"]
+        ondeck.add_action(**bonus_action, bonus=True)
+        ondeck.generate_audio(self.voice)
+        if not ondeck.image:
+            ondeck.generate_image(party.last_scene.image_style)
 
     ############################ End Campaign #############################
     def end(self, party):

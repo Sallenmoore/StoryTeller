@@ -7,7 +7,7 @@
         {% endif %}
     </div>
     {% if name %}
-    <h5 class='has-text-center'>
+    <h5 class='has-text-center' style='font-size: clamp(0.5rem, 0.75rem, 1rem);'>
         {% if obj.name %}
         {{obj.name}}
         {% else %}
@@ -18,7 +18,7 @@
     <div class="row has-space-between">
         {% if type %}
         <div class="column is-shrink">
-            <h6 class='has-text-center'>
+            <h6 class='has-text-center' style='font-size: clamp(0.25rem, 0.5rem, 0.75rem);'>
                 {{obj.title}}
             </h6>
         </div>
@@ -31,11 +31,5 @@
         </div>
         {% endif %}
     </div>
-
-
-    {# <div class='has-bg-white has-text-dark has-no-padding'
-         style='overflow:scroll; position:absolute; top: 0; left: 50%; transform: translateX(-50%);'>
-        <span style='font-size: clamp(0.25rem, 0.75rem, 1.25rem)'>{{obj.desc_summary}}</span>
-    </div> #}
 </a>
 {% endmacro %}

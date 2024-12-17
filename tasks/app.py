@@ -142,6 +142,20 @@ def create_app():
 
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/autogm/<string:pk>/combat/next", methods=("POST",))
+    def autogm_combat_next(pk):
+        party = Faction.get(pk)
+        if not party.last_scene.initiative:
+            raise ValueError("No Initiative List")
+        next = party.last_scene.next_combat_turn()
+
+        if not next.actor.is_player:
+            return autogm_combat(pk)
+        else:
+            return get_template_attribute("shared/_tasks.html", "completetask")(
+                url=f"/api/autogm/{party.pk}"
+            )
+
     @app.route("/generate/audio/<string:pk>", methods=("POST",))
     def create_audio(pk):
         task = (

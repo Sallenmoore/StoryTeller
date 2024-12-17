@@ -4,7 +4,13 @@ import markdown
 
 from autonomous import log
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import (
+    BoolAttr,
+    IntAttr,
+    ListAttr,
+    ReferenceAttr,
+    StringAttr,
+)
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
@@ -12,6 +18,7 @@ from models.ttrpgobject.ttrpgobject import TTRPGObject
 class Actor(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     goal = StringAttr(default="Unknown")
+    is_player = BoolAttr(default=False)
     gender = StringAttr(default="Unknown")
     age = IntAttr(default=0)
     race = StringAttr(default="Unknown")
@@ -71,7 +78,7 @@ class Actor(TTRPGObject):
         },
         "abilities": {
             "type": "array",
-            "description": "Generate at least 3 combat abilities AND 3 special ability objects for the array. Each object in the array should have attributes for the ability name, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
+            "description": "Generate at least 2 offensive combat, 2 defensive combat AND 2 roleplay special ability objects for the array. Each object in the array should have attributes for the ability name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
             "items": {
                 "type": "object",
                 "additionalProperties": False,
@@ -97,7 +104,7 @@ class Actor(TTRPGObject):
                             "free action",
                             "passive",
                         ],
-                        "description": "Unique name for the Ability.",
+                        "description": "type of action required.",
                     },
                     "description": {
                         "type": "string",

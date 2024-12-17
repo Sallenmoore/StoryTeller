@@ -1,19 +1,14 @@
-import json
-
 from dmtoolkit import dmtools
-from flask import Blueprint, Response, get_template_attribute, request
+from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
 from models.autogm.autogminitiative import AutoGMInitiative
 from models.autogm.autogmquest import AutoGMQuest
-from models.autogm.autogmscene import AutoGMScene
 from models.base.place import Place
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
-from models.user import User
-from models.world import World
 
 from ._utilities import loader as _loader
 
@@ -34,11 +29,12 @@ def index(model=None, pk=None):
         if gmmode and next_scene.gm_mode != gmmode:
             next_scene.gm_mode = gmmode
             next_scene.save()
-        # log(
-        #     party.last_scene.current_combat_turn().action,
-        #     party.last_scene.current_combat_turn().bonus_action,
-        #     _print=True,
-        # )
+        # if party.last_scene and party.last_scene.current_combat_turn():
+        #     log(
+        #         party.last_scene.current_combat_turn().action,
+        #         party.last_scene.current_combat_turn().bonus_action,
+        #         _print=True,
+        #     )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
@@ -51,7 +47,7 @@ def combatupdate(pk):
     party.last_scene.current_combat_turn(
         hp=request.json.get("hp"),
         status=request.json.get("status"),
-        action=request.json.get("action"),
+        action=request.json.get("action-description"),
         bonus_action=request.json.get("bonus_action"),
         movement=request.json.get("movement"),
         action_target=request.json.get("action_target"),
@@ -91,17 +87,6 @@ def playerstatus(pk, actorpk):
     if ini := AutoGMInitiative.get(actorpk):
         ini.status = request.json.get("status")
         ini.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
-
-
-@autogm_endpoint.route("/<string:pk>/combat/next", methods=("POST",))
-def combatnext(pk):
-    user, obj, world, *_ = _loader()
-    party = Faction.get(pk)
-    if not party.last_scene.initiative:
-        raise ValueError("No Initiative List")
-    if iniactor := party.last_scene.next_combat_turn():
-        log(iniactor.actor.name)
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 

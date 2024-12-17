@@ -20,6 +20,7 @@ class FantasySystem(BaseSystem):
         "region": "Region",
         "world": "World",
         "location": "Location",
+        "vehicle": "Vehicle",
         "district": "District",
         "item": "Item",
         "encounter": "Encounter",

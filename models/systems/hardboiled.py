@@ -17,6 +17,7 @@ class HardboiledSystem(BaseSystem):
         "region": "District",
         "world": "City",
         "location": "Location",
+        "vehicle": "Vehicle",
         "district": "Block",
         "item": "Item",
         "encounter": "Encounter",

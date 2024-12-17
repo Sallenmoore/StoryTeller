@@ -360,6 +360,7 @@ SCENE DESCRIPTION
         self,
         hp=None,
         status=None,
+        movement=None,
         action_target=None,
         action=None,
         action_attack_roll=None,
@@ -372,13 +373,12 @@ SCENE DESCRIPTION
         bonus_action_dmg_roll=None,
         bonus_action_saving_throw=None,
         bonus_action_skill_check=None,
-        movement=None,
     ):
         if not self.initiative or not self.initiative.order:
             self.start_combat()
 
         if cct := self.initiative.current_combat_turn():
-            if not cct.action:
+            if action:
                 log(self.initiative.order, action_target, _print=True)
                 target = [
                     ini
@@ -393,7 +393,8 @@ SCENE DESCRIPTION
                     skill_check=action_skill_check,
                     target=target[0] if target else None,
                 )
-            if not cct.bonus_action:
+                log(cct.action)
+            if bonus_action:
                 target = [
                     ini
                     for ini in self.initiative.order
@@ -408,52 +409,12 @@ SCENE DESCRIPTION
                     target=target[0] if target else None,
                     bonus=True,
                 )
+                log(cct.bonus_action)
 
             if hp is not None:
-                cct.hp = hp
+                cct.hp = int(hp)
             if status is not None:
                 cct.status = status
-
-            if action is not None:
-                cct.action.description = action
-            if action_target is not None:
-                log(action_target, list([o.pk for o in self.initiative.order]))
-                actor = [
-                    ini
-                    for ini in self.initiative.order
-                    if str(ini.pk) == str(action_target)
-                ]
-                log(actor)
-
-                cct.action.target = actor[0]
-            if action_attack_roll is not None:
-                cct.action.attack_roll = action_attack_roll
-            if action_dmg_roll is not None:
-                cct.action.damage_roll = action_dmg_roll
-            if action_saving_throw is not None:
-                cct.action.saving_throw = action_saving_throw
-            if action_skill_check is not None:
-                cct.action.skill_check = action_skill_check
-
-            if bonus_action_target is not None:
-                log(bonus_action_target, list([o.pk for o in self.initiative.order]))
-                actor = [
-                    ini
-                    for ini in self.initiative.order
-                    if str(ini.pk) == bonus_action_target
-                ][0]
-                cct.bonus_action.target = actor
-
-            if bonus_action is not None:
-                cct.bonus_action.description = bonus_action
-            if bonus_action_attack_roll is not None:
-                cct.bonus_action.attack_roll = bonus_action_attack_roll
-            if bonus_action_dmg_roll is not None:
-                cct.bonus_action.damage_roll = bonus_action_dmg_roll
-            if bonus_action_saving_throw is not None:
-                cct.bonus_action.saving_throw = bonus_action_saving_throw
-            if bonus_action_skill_check is not None:
-                cct.bonus_action.skill_check = bonus_action_skill_check
             if movement is not None:
                 cct.movement = movement
             cct.save()

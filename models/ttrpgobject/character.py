@@ -16,12 +16,11 @@ from models.base.actor import Actor
 
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
-    is_player = BoolAttr(default=False)
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     pc_voice = StringAttr(default="")
 
-    parent_list = ["Location", "District", "Faction", "City"]
+    parent_list = ["Location", "District", "Faction", "City", "Vehicle"]
     _traits_list = [
         "secretly evil",
         "shy and gentle",
