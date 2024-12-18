@@ -1,3 +1,5 @@
+{% import "shared/_form.html" as form_components %}
+
 {% macro map(user, obj) -%}
 <title>{{obj.name}} - Map</title>
 <h2 class='has-text-dark'>Map</h2>
@@ -6,14 +8,19 @@
     {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle'] and
     user.world_user(obj) %}
     <div class="column is-full">
+        <div class="panel">
+            <h5 class='has-text-center'>Map Prompt</h5>
+            <form hx-post='/api/manage/update' hx-trigger="input delay:1s" hx-swap='none'>
+                {{form_components.texteditor(user, obj, 'map_prompt')}}
+            </form>
+        </div>
         <div class="row">
             <div class="column">
                 <div class="row">
-                    {% if user.admin%}
                     {% if obj.backstory_summary %}
                     <div class="column">
                         <button class="button is-full is-primary"
-                                hx-post="/task/generate/battlemap/{{obj.path}}"
+                                hx-post="/task/generate/map/{{obj.path}}"
                                 hx-target="closest .column"
                                 hx-confirm="Are you sure you want to generate and overwrite the current map?">
                             <iconify-icon icon="tabler:photo-ai"></iconify-icon>
@@ -30,7 +37,6 @@
                         <small style='color:darkred'>The {{obj.title}} must have a history to
                             generate a map</small>
                     </div>
-                    {% endif %}
                     {% endif %}
                     <div class="column">
                         <button class="button is-full is-primary" hx-post="/api/search/gallery/map"

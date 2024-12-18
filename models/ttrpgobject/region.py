@@ -53,18 +53,6 @@ class Region(Place):
             prompt += f"The region contains the following cities: {cities}."
         return prompt
 
-    @property
-    def map_prompt(self):
-        prompt = (
-            super().map_prompt
-            + f"""
-        With the following landmarks:
-        - {self.get_title('City')}: {", ".join([c.name for c in self.cities])}
-        - {self.get_title('Location')}: {", ".join([l.name for l in self.locations])}
-        """
-        )
-        return prompt
-
     ################### Crud Methods #####################
     def generate(self):
         prompt = f"Generate a detailed information for a {self.genre} {self.title}. The {self.title} is primarily {self.traits}. The {self.title} should also contain a story thread for players to slowly uncover. The story thread should be connected to 1 or more additional elements in the existing world as described by the uploaded file."
@@ -96,6 +84,7 @@ class Region(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_map()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -106,6 +95,13 @@ class Region(Place):
     #     super().clean()
 
     ################### verify associations ##################
+    def pre_save_map(self):
+        if "With the following" not in self.map_prompt:
+            self.map_prompt += f"""
+With the following {self.get_title('City')}s:
+- {", ".join([c.name for c in self.cities])}
+"""
+
     def post_save_backstory(self):
         if not self.backstory:
             story = ""

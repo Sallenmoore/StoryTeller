@@ -244,7 +244,7 @@
         {% endif %}
         <ul class="menu__list" id='child-object-submenu'>
             {% for model in obj.all_models_str() %}
-            {% if obj.model_name() == 'World' or obj.has_associations(model) %}
+            {% if obj.has_associations(model) %}
             <li>
                 <div class="row" style='position:relative;'>
                     <div class="column has-no-padding">

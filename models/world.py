@@ -1,5 +1,8 @@
 import json
+import os
 import random
+
+import requests
 
 from autonomous import log
 from autonomous.db import ValidationError
@@ -107,6 +110,19 @@ class World(TTRPGBase):
         world.save()
         system.save()
         user.save()
+        f = Faction(world=world, is_player_faction=True)
+        f.save()
+        world.add_association(f)
+        c = Character(world=world, parent=f, is_player=True)
+        c.save()
+        c.add_association(f)
+        world.add_association(c)
+        f.add_association(c)
+        requests.post(
+            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{world.path}"
+        )
+        requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{f.path}")
+        requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{c.path}")
         cls.update_system_references(world.pk)
         return world
 

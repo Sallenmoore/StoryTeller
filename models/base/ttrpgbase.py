@@ -235,7 +235,7 @@ class TTRPGBase(AutoModel):
     @property
     def geneology(self):
         # TBD: Implement geneology
-        return [self.world]
+        return [self]
 
     @property
     def genres(self):
@@ -280,10 +280,6 @@ EVENTS
     @property
     def map_thumbnail(self):
         return self.map.image.url(100)
-
-    @property
-    def map_prompt(self):
-        return self.system.map_prompt(self)
 
     @property
     def slug(self):
@@ -400,7 +396,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
     # MARK: generate_map
     def generate_map(self):
         self.map = Image.generate(
-            prompt=self.map_prompt,
+            prompt=self.map_prompt or self.system.map_prompt(self),
             tags=["map", self.model_name().lower, self.genre],
             img_quality="hd",
             img_size="1792x1024",
@@ -441,6 +437,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if not isinstance(model, str):
             model = model.__name__
         for assoc in self.associations:
+            log(assoc.model_name(), model)
             if assoc.model_name() == model:
                 return True
         return False

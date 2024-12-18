@@ -57,4 +57,4 @@ class User(AutoUser):
     def verify_worlds(self):
         for w in self.worlds:
             if not self.world_user(w):
-                raise ValidationError(f"{self} is not a user of {w}")
+                w.users += [self]

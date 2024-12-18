@@ -249,9 +249,10 @@
                     <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
                          style='position:relative;'>
                         {{episode.summary | safe}}
-                        <button class='button is-small' class="button is-primary" </div>
-                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                            hx-target='closest .column'>
+                        <button class='button is-small' class="button is-primary"
+                                style='position: absolute; bottom:0px; right:0px;'
+                                hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                                hx-target='closest .column'>
                             Update Summary
                         </button>
                     </div>
@@ -597,7 +598,7 @@
                         </div>
                     </form>
                     <div class="row">
-                        <div class="column is-full">
+                        <div class="column is-half">
                             <hr class='has-bg-light'>
                             <h4 class='has-text-center'>Setting</h4>
                             <div class="row has-space-around">
@@ -641,7 +642,7 @@
                                 {%endfor%}
                             </div>
                         </div>
-                        <div class="column is-full">
+                        <div class="column is-half">
                             <hr class='has-bg-light'>
                             <h4 class=' has-text-center'>Encounters</h4>
                             <div class="row has-space-around">
@@ -669,7 +670,7 @@
                                 </div>
                                 {% for a in scenenote.encounters %}
                                 <div class="screenote-encounter column is-3">
-                                    {{display_components.object_display(a)}}
+                                    {{display_components.object_display(a, size="medium")}}
                                     <div class="row has-centered">
                                         <div class="column is-shrink"
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"

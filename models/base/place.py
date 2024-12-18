@@ -4,6 +4,7 @@ from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     ReferenceAttr,
+    StringAttr,
 )
 from models.images.image import Image
 from models.ttrpgobject.ttrpgobject import TTRPGObject
@@ -13,6 +14,7 @@ class Place(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     owner = ReferenceAttr(choices=["Character", "Creature"])
     map = ReferenceAttr(choices=["Image"])
+    map_prompt = StringAttr(default="")
 
     _traits_list = [
         "long hidden",
@@ -40,17 +42,13 @@ class Place(TTRPGObject):
     def map_thumbnail(self):
         return self.map.image.url(100)
 
-    @property
-    def map_prompt(self):
-        return self.system.map_prompt(self)
-
     ################### Instance Methods #####################
 
     # MARK: generate_map
     def generate_map(self):
         log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
         if self.backstory and self.backstory_summary:
-            map_prompt = self.map_prompt
+            map_prompt = self.map_prompt or self.system.map_prompt(self)
             log(map_prompt)
             self.map = Image.generate(
                 prompt=map_prompt,
@@ -124,6 +122,8 @@ class Place(TTRPGObject):
 
     def pre_save_map(self):
         log(self.map)
+        if not self.map_prompt:
+            self.map_prompt = self.system.map_prompt(self)
         if isinstance(self.map, str):
             if not self.map:
                 self.map = None
