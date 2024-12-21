@@ -4,11 +4,32 @@ import os
 import subprocess
 from datetime import datetime
 
+import requests
+
 # external Modules
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
+from autonomous.auth.autoauth import AutoAuth
+from autonomous.tasks.autotask import AutoTasks
+from models.campaign.campaign import Campaign
+from models.campaign.episode import Episode, SceneNote
 from models.images.image import Image
+from models.systems.fantasy import FantasySystem
+from models.systems.hardboiled import HardboiledSystem
+from models.systems.historical import HistoricalSystem
+from models.systems.horror import HorrorSystem
+from models.systems.postapocalyptic import PostApocalypticSystem
+from models.systems.scifi import SciFiSystem
+from models.systems.western import WesternSystem
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.city import City
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.encounter import Encounter
+from models.ttrpgobject.faction import Faction
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.location import Location
+from models.ttrpgobject.region import Region
 from models.user import User
 from models.world import World
 
@@ -41,7 +62,7 @@ def images():
         Image.storage_scan()
     images = Image.all()
     if tag_filter := request.json.get("tag"):
-        log(tag_filter)
+        # log(tag_filter)
         if tag_filter == "_NoGenre":
             images = [
                 img for img in images if not any(t in img.tags for t in tags["genre"])
@@ -74,9 +95,9 @@ def delete_image(pk):
     img = Image.get(pk)
     if img:
         img.delete()
-        log(f"Image {pk} deleted")
+        # log(f"Image {pk} deleted")
         return "Success"
-    log(f"Image {pk} not found")
+    # log(f"Image {pk} not found")
     return "File not found"
 
 
@@ -126,164 +147,117 @@ def delete_world():
     return "World not found"
 
 
-@admin_endpoint.route("/migration", methods=("POST",))
+@admin_endpoint.route("/migration/data", methods=("GET", "POST"))
 def migration():
-    if os.environ.get("DEBUG"):
-        log("starting migration...")
-        # # dbload()
-        # models = {
-        #     "world": World,
-        #     "region": Region,
-        #     "city": City,
-        #     "location": Location,
-        #      "vehicle": Vehicle,
-        #     "encounter": Encounter,
-        #     "p_o_i": POI,
-        #     "faction": Faction,
-        #     "creature": Creature,
-        #     "character": Character,
-        #     "item": Item,
-        #     "session": Session,
-        #     "calendar": Calendar,
-        #     "event": Event,
-        #     "journal": Journal,
-        #     "image": Image,
-        #     "journal_entry": JournalEntry,
-        #     "fantasy_system": FantasySystem,
-        #     "horror_system": HorrorSystem,
-        #     "sci_fi_system": SciFiSystem,
-        #     "western_system": WesternSystem,
-        #     "historical_system": HistoricalSystem,
-        #     "post_apocalyptic_system": PostApocalypticSystem,
-        #     "hardboiled_system": HardboiledSystem,
-        #     "user": User,
-        #     "auto_g_m": AutoGM,
-        # }
+    world_data = requests.post("http://world.stevenamoore.dev/world/data").json()
+    AutoTasks().task(
+        migration_task,
+        world_data=world_data,
+    )
+    return world_data
 
-        # from bson import DBRef, ObjectId
 
-        # from autonomous.db.context_managers import switch_collection
+def migration_task(world_data):
+    log("starting migration...", _print=True)
 
-        # with switch_collection(User, "Episode") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreen") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenDnD5EClass") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenDnD5ECombat") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenDnD5ERace") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenDnD5ESpell") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenTable") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "GMScreenNote") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "Scene") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "OAIAgent") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "Event") as DropModel:
-        #     DropModel._get_collection().drop()
-        # with switch_collection(User, "EventDate") as DropModel:
-        #     DropModel._get_collection().drop()
+    user = User.find(email="stevenallenmoore@gmail.com")
+    # log(user.name)
+    w = world_data["world"]
+    world = World()
+    world.backstory = w["backstory"]
+    world.name = w["worldname"]
+    world.description = w["description"]
+    # log(w["genre"])
+    System = {
+        "fantasy": FantasySystem,
+        "sci-fi": SciFiSystem,
+        "western": WesternSystem,
+        "hardboiled detective": HardboiledSystem,
+        "horror": HorrorSystem,
+        "post-apocalyptic": PostApocalypticSystem,
+        "historical": HistoricalSystem,
+    }.get(w["genre"])
+    world.system = System()
+    world.system.save()
+    if user not in world.users:
+        world.users += [user]
+    world.save()
+    world.system.world = world
+    world.system.save()
+    for k in w["objects"]:
+        for o in w["objects"][k]:
+            Model = {
+                "Characters": Character,
+                "Creatures": Creature,
+                "Items": Item,
+                "Cities": City,
+                "Locations": Location,
+                "Encounters": Encounter,
+                "Points of Interest": Location,
+                "Regions": Region,
+                "Factions": Faction,
+            }.get(k)
+            if Model is None:
+                raise ValueError(f"Model {k} not found")
+            if not Model.find(world=world, name=o["name"]):
+                o.pop("pk")
+                # log(k, o)
+                Model(world=world, **o).save()
 
-        # switch_collection(User, "User")
+        def get_associations(assoc_dict):
+            if not assoc_dict:
+                return []
+            associations = []
+            for a in assoc_dict:
+                try:
+                    Model = world.get_model(a[0])
+                    if obj := Model.find(world=world, name=a[1]):
+                        associations += [obj]
+                except Exception as e:
+                    log(f"Error: {e}\n\t{a}", _print=True)
+            return associations
 
-        # def get_new_table_name(old_table):
-        #     for k, v in models.items():
-        #         if v.model_name() == old_table:
-        #             return k
+        def get_scenes(scene_dict):
+            if not scene_dict:
+                return []
+            scenes = []
+            for a in scene_dict:
+                obj = SceneNote(
+                    name=a["name"],
+                    notes=a["notes"],
+                    num=a["num"],
+                    encounters=get_associations(a["encounters"]),
+                    setting=get_associations(a["setting"]),
+                )
+                obj.save()
+                scenes += [obj]
+            return scenes
 
-        # def migrate_refs(obj):
-        #     if isinstance(obj, dict):
-        #         if "__extended_json_type__" in obj:
-        #             if obj["__extended_json_type__"] == "datetime":
-        #                 obj = obj["value"]
-        #                 obj = datetime.fromisoformat(obj)
-        #             elif obj["__extended_json_type__"] == "AutoModel":
-        #                 obj_ref = obj["value"]
-        #                 # log(obj_ref)
-        #                 a_id = ObjectId(obj_ref["_id"])
-        #                 old_table = obj_ref["_automodel"].split(".")[-1]
-        #                 if model_ref_name := get_new_table_name(old_table):
-        #                     a_ref = DBRef(model_ref_name, a_id)
-        #                     obj = {"_cls": old_table, "_ref": a_ref}
-        #                 else:
-        #                     log(f"Error: {old_table} not found")
-        #                     obj = None
-        #         else:
-        #             for k, v in obj.items():
-        #                 if result := migrate_refs(v):
-        #                     obj[k] = result
-        #     elif isinstance(obj, list):
-        #         for i, v in enumerate(obj):
-        #             if result := migrate_refs(v):
-        #                 obj[i] = result
-        #     elif isinstance(obj, str):
-        #         obj = obj.strip()
-        #     return obj
-
-        # for table_name, model in models.items():
-        #     old_model_name = model.model_name()
-        #     objs = model._get_collection()
-        #     objs.drop()
-        #     with switch_collection(model, old_model_name) as OldModel:
-        #         old_objs = OldModel._get_collection()
-        #         for o in old_objs.find():
-        #             new_o = {"_cls": old_model_name}
-        #             o.pop("_automodel", None)
-        #             o.pop("_events", None)
-        #             if old_model_name == "World":
-        #                 o.pop("_world")
-        #             else:
-        #                 o.pop("_lineage", None) or o.pop("lineage", None)
-        #             if old_model_name not in ["World", "Region", "City", "Location", "District"]:
-        #                 o.pop("battlemap", None)
-        #             for k, v in o.items():
-        #                 if k not in ["_id", "_data"] and k.startswith("_"):
-        #                     k = k[1:]
-
-        #                 if k == "bs_summary":
-        #                     k = "backstory_summary"
-        #                 elif k == "battlemap":
-        #                     k = "map"
-        #                 elif k == "image_data":
-        #                     k = "image"
-        #                 elif k == "traits" and isinstance(v, list):
-        #                     v = ",".join(v)
-        #                 elif k == "screens":
-        #                     v = []
-        #                 elif k in ["comic", "start_date", "end_date"]:
-        #                     v = None
-        #                 elif k == "coordinates":
-        #                     if isinstance(v, list):
-        #                         v = {"x": v[0], "y": v[1]}
-        #                     if not isinstance(v, dict):
-        #                         v = None
-        #                 elif k == "world_pks":
-        #                     k = "worlds"
-        #                     worlds = []
-        #                     for w_pk in v:
-        #                         a_id = ObjectId(w_pk)
-        #                         a_ref = DBRef("world", a_id)
-        #                         worlds.append(a_ref)
-        #                     v = worlds
-        #                 # log(model, k, v)
-        #                 new_o[k] = migrate_refs(v)
-
-        #             # try:
-        #             objs.insert_one(
-        #                 new_o,
-        #                 # bypass_document_validation=True,
-        #             )
-        #             # except Exception as e:
-        #             #     log(f"Error: {e}")
-        #         old_objs.drop()
-        # log("...migration complete")
-
-    return "<a href='/db'>DB</a>"
+        for cmp in w["campaigns"]:
+            cmpobj = Campaign(world=world)
+            cmpobj.description = cmp["description"].strip()
+            cmpobj.name = cmp["name"].strip()
+            cmpobj.summary = cmp["summary"]
+            cmpobj.save()
+            cmpobj.episodes = []
+            for e in cmp["episodes"]:
+                ep = Episode(
+                    description=e["description"],
+                    end_date=e["end_date"],
+                    name=e["name"],
+                    start_date=e["start_date"],
+                    summary=e["summary"],
+                    episode_num=e["episode_num"],
+                    episode_report=e["session_report"],
+                    scenenotes=get_scenes(e.get("scene_notes")),
+                    associations=get_associations(e.get("associations")),
+                    campaign=cmpobj,
+                )
+                ep.save()
+                cmpobj.episodes += [ep]
+            cmpobj.save()
+    log("complete", _print=True)
+    return world_data
 
 
 @admin_endpoint.route("/dbdump", methods=("POST",))

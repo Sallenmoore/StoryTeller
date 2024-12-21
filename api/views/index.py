@@ -23,7 +23,7 @@ index_endpoint = Blueprint("page", __name__)
 
 def get_template(obj, macro, module=None):
     module = module or f"models/_{obj.__class__.__name__.lower()}.html"
-    log(f"Module: {module}, Macro: {macro}")
+    # log(f"Module: {module}, Macro: {macro}")
     try:
         template = get_template_attribute(module, macro)
     except (TemplateNotFound, AttributeError) as e:
@@ -115,7 +115,7 @@ def campaignmanage(pk, campaignpk=None):
             f"http://api:{os.environ.get('COMM_PORT')}/campaign/{campaignpk if campaignpk else ''}",
             json={"user": str(user.pk), "model": obj.model_name(), "pk": str(obj.pk)},
         )
-        log(results.text)
+        #log(results.text)
         return results.text
     return "Unauthorized"
 

@@ -149,12 +149,19 @@ def create_app():
             raise ValueError("No Initiative List")
         next = party.last_scene.next_combat_turn()
 
-        if not next.actor.is_player:
-            return autogm_combat(pk)
-        else:
+        if not next:
+            party.last_scene.description = f"""
+{party.last_scene.current_combat_turn.description}
+
+Combat Ends, and the party investigates the area.
+"""
+            return autogm(pk)
+        elif next.actor and next.actor.is_player:
             return get_template_attribute("shared/_tasks.html", "completetask")(
                 url=f"/api/autogm/{party.pk}"
             )
+        else:
+            return autogm_combat(pk)
 
     @app.route("/generate/audio/<string:pk>", methods=("POST",))
     def create_audio(pk):

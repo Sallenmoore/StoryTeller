@@ -14,6 +14,33 @@
     </div>
 </div>
 <div class="row has-space-around">
+    {% if obj.model_name() in ['Character'] and obj.is_player %}
+    <div class="column is-shrink is-vertically-centered">
+        <div style='position:relative;'>
+            <button class="button has-bg-muted has-text-primary"
+                    hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
+                    hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif
+                    %}
+                    hx-indicator="#request-indicator">
+                Updates from D&DBeyond
+            </button>
+            {% if not obj.dnd_beyond_id %}
+            <small class="has-text-center is-very-small-heading has-text-secondary has-bg-muted"
+                   style='position:absolute;top:0; left: 0;'>Must be a 'player' and have
+                DnDBeyond ID set</small>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="column is-shrink is-vertically-centered">
+        <button class="button has-bg-dark-grey has-text-white"
+                hx-post="/task/generate/{{obj.path}}"
+                hx-target="closest .column"
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
+            {{icon_components.ai(size="1rem")}}
+            Generate Details
+        </button>
+    </div>
     <div class="column is-shrink is-vertically-centered">
         <button class="button is-primary" hx-post="/task/generate/history/{{obj.path}}"
                 hx-target="closest .column">
@@ -22,15 +49,8 @@
         </button>
     </div>
     <div class="column is-shrink is-vertically-centered">
-        <button class="button is-primary" hx-post="/task/generate/{{obj.path}}"
-                hx-target="closest .column"
-                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
-            {{icon_components.ai(size="1rem")}}
-            Generate Details
-        </button>
-    </div>
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button is-primary" hx-post="/api/manage/delete/{{obj.path}}"
+        <button class="button has-bg-dark has-text-primary"
+                hx-post="/api/manage/delete/{{obj.path}}"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>
             {{icon_components.delete(size="1rem")}}
@@ -38,24 +58,6 @@
         </button>
     </div>
 </div>
-{% if obj.model_name() in ['Character'] and obj.is_player %}
-<hr>
-<div class="column is-shrink is-vertically-centered">
-    <div style='position:relative;'>
-        <button class="button is-small is-primary" hx-post="/api/manage/character/dndbeyond"
-                hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif
-                %}
-                hx-indicator="#request-indicator">
-            Updates from D&DBeyond
-        </button>
-        {% if not obj.dnd_beyond_id %}
-        <small class="has-text-center is-very-small-heading has-text-secondary has-bg-muted"
-               style='position:absolute;top:0; left: 0;'>Must be a 'player' and have
-            DnDBeyond ID set</small>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
 <hr>
 <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row">
@@ -69,6 +71,34 @@
             <input class="has-bg-light has-text-center" type="text" name="traits"
                    value="{{obj.traits}}" maxlength="64">
         </div>
+    </div>
+    <div class="row has-centered">
+        {% if obj.model_name() != "World" %}
+        <div class="column is-shrink is-vertically-centered">
+            <h5 class='has-text-center has-text-dark'>Start</h5>
+
+        </div>
+
+        <div class="column is-shrink  is-vertically-centered">
+            <input id='model-name'
+                   class="has-bg-light has-text-center" type="text"
+                   name="start_date"
+                   value="{{obj.start_date or ''}}">
+        </div>
+        <div class="column is-shrink  is-vertically-centered">
+            <iconify-icon icon="octicon:dash-16" width="2rem"></iconify-icon>
+        </div>
+        {% endif %}
+        <div class="column is-shrink  is-vertically-centered">
+            <input class="has-bg-light has-text-center" type="text" name="end_date"
+                   value="{{obj.end_date}}" maxlength="64">
+        </div>
+        {% if obj.model_name() != "World" %}
+        <div class="column is-shrink  is-vertically-centered">
+            <h5 class='has-text-center has-text-dark'>End</h5>
+        </div>
+        {% endif %}
+
     </div>
 </form>
 <form hx-post="/api/manage/update"

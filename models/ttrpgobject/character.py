@@ -138,7 +138,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         age = self.age if self.age else random.randint(15, 45)
         gender = self.gender or random.choices(self._genders, weights=[4, 5, 1], k=1)[0]
 
-        prompt = f"Generate a {self.race} {gender} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly'))} secret to protect."
+        prompt = f"Generate a {gender} {self.race} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect."
 
         return super().generate(prompt=prompt)
 
@@ -164,7 +164,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                 "intelligence": self.intelligence,
                 "charisma": self.charisma,
             },
-            "abilities": self.abilities,
+            "abilities": [str(a) for a in self.abilities],
             "wealth": [w for w in self.wealth],
             "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
         }

@@ -189,8 +189,8 @@ IMPORTANT: The image MUST NOT contain any TEXT.
     ###############################################################
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
-        document.pre_save_tags()
         super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_tags()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):

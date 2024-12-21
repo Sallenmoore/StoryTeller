@@ -161,9 +161,7 @@ class Actor(TTRPGObject):
 
     @property
     def map(self):
-        for a in self.geneology:
-            if a.map:
-                return a.map
+        return self.parent.map if self.parent else None
 
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj
@@ -203,9 +201,7 @@ class Actor(TTRPGObject):
         )
 
     def pre_save_ability(self):
-        log(self.abilities, _print=True)
         for idx, ability in enumerate(self.abilities):
-            log(ability)
             if isinstance(ability, str):
                 a = Ability(description=ability)
                 a.save()
@@ -222,5 +218,3 @@ class Actor(TTRPGObject):
                 )
 
         self.abilities = [a for a in self.abilities if a.name]
-
-        log(self.abilities, _print=True)

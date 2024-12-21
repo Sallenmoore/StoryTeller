@@ -139,7 +139,7 @@ class AutoGMInitiative(AutoModel):
                 self.action.result = result or self.action.result
                 self.action.save()
             else:
-                AutoGMInitiativeAction(
+                self.action = AutoGMInitiativeAction(
                     type="action",
                     description=description,
                     attack_roll=attack_roll or 0,
@@ -296,18 +296,20 @@ class AutoGMInitiativeList(AutoModel):
         if result.image:
             result.image.delete()
         result.save()
-        result.action.result = ""
-        result.action.description = ""
-        result.action.attack_roll = 0
-        result.action.damage_roll = 0
-        result.action.saving_throw = 0
-        result.action.skill_check = 0
-        result.action.save()
-        result.bonus_action.result = ""
-        result.bonus_action.description = ""
-        result.bonus_action.attack_roll = 0
-        result.bonus_action.damage_roll = 0
-        result.bonus_action.saving_throw = 0
-        result.bonus_action.skill_check = 0
-        result.bonus_action.save()
+        if result.action:
+            result.action.result = ""
+            result.action.description = ""
+            result.action.attack_roll = 0
+            result.action.damage_roll = 0
+            result.action.saving_throw = 0
+            result.action.skill_check = 0
+            result.action.save()
+        if result.bonus_action:
+            result.bonus_action.result = ""
+            result.bonus_action.description = ""
+            result.bonus_action.attack_roll = 0
+            result.bonus_action.damage_roll = 0
+            result.bonus_action.saving_throw = 0
+            result.bonus_action.skill_check = 0
+            result.bonus_action.save()
         return result

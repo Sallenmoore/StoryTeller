@@ -224,7 +224,7 @@ class Campaign(AutoModel):
     def pre_save_players(self):
         for p in self.players:
             if not p.pk:
-                log(f"{p} is unsaved. Saving....")
+                # log(f"{p} is unsaved. Saving....")
                 p.save()
 
     def pre_save_associations(self):

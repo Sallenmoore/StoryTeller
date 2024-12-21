@@ -52,30 +52,13 @@ class Episode(AutoModel):
     name = StringAttr(default="")
     episode_num = IntAttr(default=0)
     description = StringAttr(default="")
-    gmnotes = ListAttr(
-        DictAttr(
-            default=lambda: {
-                "name": "Scene #:",
-                "setting": "",
-                "history": "",
-                "notes": "",
-                "encounters": "",
-                "traps": "",
-            }
-        )
-    )
     scenenotes = ListAttr(ReferenceAttr(choices=[SceneNote]))
     start_date = StringAttr(default="")
     end_date = StringAttr(default="")
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
-    show = ReferenceAttr(choices=[TTRPGBase])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     episode_report = StringAttr(default="")
-    current_scene = ReferenceAttr(choices=["Place"])
     summary = StringAttr(default="")
-    last_roll = StringAttr(default="")
-    last_roll_result = IntAttr(default=0)
-    is_updated = BoolAttr(default=False)
 
     ##################### PROPERTY METHODS ####################
 
@@ -211,7 +194,6 @@ class Episode(AutoModel):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_campaign()
         document.pre_save_associations()
-        document.pre_save_current_scene()
         document.pre_save_episode_num()
         document.pre_save_scene_note()
 
@@ -239,10 +221,6 @@ class Episode(AutoModel):
         self.associations.sort(key=lambda x: (x.model_name(), x.name))
 
     ################### verify current_scene ##################
-    def pre_save_current_scene(self):
-        if not self.current_scene and self.scenes:
-            self.current_scene = self.scenes[0]
-
     def pre_save_episode_num(self):
         if not self.episode_num:
             num = re.search(r"\b\d+\b", self.name).group(0)
@@ -250,17 +228,5 @@ class Episode(AutoModel):
                 self.episode_num = int(num)
 
     def pre_save_scene_note(self):
-        # log(self.gmnotes, self.scenenotes)
-        if self.gmnotes and not self.scenenotes:
-            for idx, note in enumerate(self.gmnotes):
-                # log(idx, note)
-                notes = f"""{note['notes']}
-                {note['setting']}
-                {note['encounters']}
-                {note['history']}
-"""
-                scenenote = SceneNote(name=note["name"], notes=notes, num=idx)
-                scenenote.save()
-                self.scenenotes += [scenenote]
         self.scenenotes = [s for s in self.scenenotes if s]
         self.scenenotes.sort(key=lambda x: x.num)

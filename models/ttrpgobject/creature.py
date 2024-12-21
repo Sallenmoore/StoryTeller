@@ -95,7 +95,7 @@ BACKSTORY
                 "intelligence": self.intelligence,
                 "charisma": self.charisma,
             },
-            "abilities": self.abilities,
+            "abilities": [str(a) for a in self.abilities],
             "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
         }
 

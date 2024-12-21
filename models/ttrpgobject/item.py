@@ -135,12 +135,20 @@ class Item(TTRPGObject):
         return results
 
     @property
+    def abilities(self):
+        return self.features
+
+    @abilities.setter
+    def abilities(self, value):
+        self.features = value
+
+    @property
     def image_prompt(self):
         return f"A full color image of an item on display called a {self.name} and described as follows: {self.desc}."
 
     @property
     def map(self):
-        return self.parent.map
+        return self.parent.map if self.parent else None
 
     ################### Instance Methods #####################
 
@@ -153,7 +161,7 @@ class Item(TTRPGObject):
             "cost": self.cost if self.cost else "Unknown",
             "duration": self.duration if self.duration else "Unknown",
             "weight": self.weight if self.weight else "Unknown",
-            "features": self.features,
+            "features": [str(a) for a in self.features],
         }
 
     ## MARK: - Verification Methods
@@ -186,9 +194,9 @@ class Item(TTRPGObject):
             self.rarity = self._rarity_list[-1]
 
     def pre_save_feature(self):
-        log(self.features, _print=True)
+        # log(self.features, _print=True)
         for idx, feature in enumerate(self.features):
-            log(feature)
+            # log(feature)
             if isinstance(feature, str):
                 a = Ability(description=feature)
                 a.save()
@@ -206,4 +214,4 @@ class Item(TTRPGObject):
 
         self.features = [a for a in self.features if a.name]
 
-        log(self.features, _print=True)
+        # log(self.features, _print=True)

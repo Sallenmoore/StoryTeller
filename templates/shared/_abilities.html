@@ -1,15 +1,19 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro abilities(user, obj, abilities=None) -%}
 <h3 class="has-text-muted has-bg-screen has-text-center" style='padding: 0.25rem;'>Abilities</h3>
+
 <div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="row">
         {% set ability_list = abilities or obj.abilities %}
         {%for ability in ability_list%}
-        <div class="column is-full has-text-dark">
-            <h4 class='has-text-dark has-text-center'>{{ability.name}} [{{ability.action or
-                ""}}]</h4>
-            <div class="row">
+        <div class="column is-half has-text-dark">
+            <h4 class='has-text-dark has-text-center'
+                onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                {{ability.name}}
+            </h4>
+            <div class="row is-hidden">
                 {% if ability.description %}
                 <div class="column is-full">
                     <div class="panel has-bg-muted">
@@ -21,7 +25,7 @@
                 </div>
                 {% endif %}
                 {% if ability.dice_roll %}
-                <div class="column is-full">
+                <div class="column">
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Roll
@@ -31,7 +35,7 @@
                 </div>
                 {% endif %}
                 {% if ability.effects %}
-                <div class="column is-full">
+                <div class="column">
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Effects
@@ -41,7 +45,7 @@
                 </div>
                 {% endif %}
                 {% if ability.duration %}
-                <div class="column is-full">
+                <div class="column">
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Duration</h5>
@@ -50,6 +54,7 @@
                 </div>
                 {% endif %}
             </div>
+            <hr>
         </div>
         {% endfor %}
     </div>
@@ -59,53 +64,80 @@
 
 {% macro edit_abilities(user, obj, abilities=None) -%}
 {% set ability_list = abilities or obj.abilities %}
-<div class="row">
-    <div id="model-abilities-container" class="column is-full">
-        <h3 class='has-text-center has-text-primary'>Abilities</h3>
-        <div class="column is-shrink">
-            <button type="button" class="button is-small"
-                    hx-post='/api/manage/details/add/listitem/ability'
-                    hx-target='#model-abilities'
-                    hx-select='#{{attr}}-item-list'
-                    hx-swap='outerHTML' hx-trigger="click consume">
-                <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
-                New Ability
-            </button>
-        </div>
-        {% for ability in ability_list %}
-        <div id="model-abilities" class="row">
-            <div class="column is-4 inputlabel">
-                <label for="ability-name">Name</label>
-                <input name='abilities[].name' type="text" value="{{ability.name}}">
+<div class="panel">
+    <div class="row">
+        <div id="model-abilities-container" class="column is-full">
+            <h3 class='has-text-center has-text-dark'>Abilities</h3>
+            <div class="column is-shrink">
+                <button type="button" class="button is-small"
+                        hx-post='/api/manage/details/add/listitem/ability'
+                        hx-target='#model-abilities'
+                        hx-select='#{{attr}}-item-list'
+                        hx-swap='outerHTML' hx-trigger="click consume">
+                    <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+                    New Ability
+                </button>
             </div>
-            <div class="column is-4 inputlabel">
-                <label for="ability-name">Action Type</label>
-                <div class="select">
-                    <select name='abilities[].action' value="{{ability.action}}">
-                        {%for a in ["main action", "bonus action", "reaction", "free action",
-                        "passive"] %}
-                        <option value="{{a}}">{{a}}</option>
-                        {% endfor %}
-                    </select>
+            <div class="row">
+                {% for ability in ability_list %}
+                <div class="column is-half" style='position:relative;'>
+                    <a class="has-text-dark-grey"
+                       style='position:absolute; top:5px; right:5px;'
+                       hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
+                       hx-target='closest .column'
+                       hx-swap='delete' hx-trigger="click consume">
+                        {{icon_components.delete(size="1rem")}}
+                    </a>
+                    <div class="panel has-bg-muted">
+                        <h4 class='has-text-dark has-text-center'
+                            onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                            {{ability.name}}
+                        </h4>
+                        <div id="model-abilities" class="row is-hidden">
+                            <div class="column is-4 inputlabel">
+                                <label for="ability-name">Name</label>
+                                <input name='abilities[].name' type="text"
+                                       value="{{ability.name}}">
+                            </div>
+                            <div class="column is-4 inputlabel">
+                                <label for="ability-name">Action Type</label>
+                                <div class="select">
+                                    <select name='abilities[].action'
+                                            value="{{ability.action}}">
+                                        {%for a in ["main action", "bonus action", "reaction",
+                                        "free
+                                        action",
+                                        "passive"] %}
+                                        <option value="{{a}}">{{a}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-4 inputlabel">
+                                <label for="ability-duration">Duration</label>
+                                <input name='abilities[].duration' type="text"
+                                       value="{{ability.duration}}">
+                            </div>
+                            <div class="column is-half inputlabel">
+                                <label for="ability-dice-roll">Dice Roll</label>
+                                <textarea
+                                          name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
+                            </div>
+                            <div class="column is-half inputlabel">
+                                <label for="ability-effects">Effects</label>
+                                <textarea
+                                          name='abilities[].effects'>{{ability.effects}}</textarea>
+                            </div>
+                            <div class="column is-full inputlabel">
+                                {{form_components.texteditor(user, ability, "description", content=ability.description, name="abilities[].description")}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="column is-4 inputlabel">
-                <label for="ability-duration">Duration</label>
-                <input name='abilities[].duration' type="text" value="{{ability.duration}}">
-            </div>
-            <div class="column is-half inputlabel">
-                <label for="ability-dice-roll">Dice Roll</label>
-                <textarea name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
-            </div>
-            <div class="column is-half inputlabel">
-                <label for="ability-effects">Effects</label>
-                <textarea name='abilities[].effects'>{{ability.effects}}</textarea>
-            </div>
-            <div class="column is-full inputlabel">
-                {{form_components.texteditor(user, ability, "description", content=ability.description, name="abilities[].description")}}
+                <hr>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endmacro%}

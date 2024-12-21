@@ -2,8 +2,11 @@ r"""
 # Management API Documentation
 """
 
+import json
+import os
 import random
 
+import requests
 from bs4 import BeautifulSoup
 from dmtoolkit import dmtools
 from flask import Blueprint, get_template_attribute, request
@@ -11,6 +14,7 @@ from slugify import slugify
 
 from autonomous import log
 from models.journal import JournalEntry
+from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.item import Item
@@ -41,7 +45,7 @@ def add(model):
     user, obj, world, *_ = _loader()
     new_obj = World.get_model(model)(world=world)
     new_obj.save()
-    log(new_obj.pk)
+    # log(new_obj.pk)
     obj.add_association(new_obj)
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, obj.associations
@@ -263,12 +267,19 @@ def addlistitem(attr):
     user, obj, *_ = _loader()
     if isinstance(getattr(obj, attr, None), list):
         item = getattr(obj, attr)
-        log(item)
+        # log(item)
         # .append("New Entry")
         # obj.save()
     result = get_template_attribute("shared/_form.html", "listeditor")(user, obj, attr)
     # log(attr, elemid, result)
     return result
+
+
+@manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))
+def removeability(pk):
+    if a := Ability.get(pk):
+        a.delete()
+    return "success"
 
 
 # MARK: Character routes
@@ -302,31 +313,18 @@ def characterhitpoints():
     return get_template_attribute("models/_character.html", "info")(user, obj)
 
 
-@manage_endpoint.route("/character/dndbeyond", methods=("POST",))
-def dndbeyondapi():
-    log(request.json)
+@manage_endpoint.route("/character/<string:pk>/dndbeyond", methods=("POST",))
+def dndbeyondapi(pk):
+    # log(request.json)
     user = User.get(request.json.pop("user"))
-    obj = Character.get(request.json.pop("pk"))
+    obj = Character.get(pk)
     results = dmtools.get_dndbeyond_character(obj.dnd_beyond_id)
+    log(json.dumps(results, indent=4))
     if results:
         obj.name = results.get("name") or obj.name
         obj.age = results.get("age") or obj.age
         obj.gender = results.get("gender") or obj.gender
-        if results.get("desc") not in obj.desc:
-            obj.desc += (
-                f"\n\n***From DndBeyond Description: \n{results.get('desc', obj.desc)}"
-            )
-        if results.get("backstory"):
-            overwritten = False
-            for entry in obj.journal.entries:
-                if "DnD Beyond Backstory Import" in entry.title:
-                    entry.text = results.get("backstory")
-                    overwritten = True
-                    break
-            if not overwritten:
-                obj.journal.add_entry(
-                    title="DnD Beyond Backstory Import", text=results.get("backstory")
-                )
+
         if results.get("inventory"):
             inventory_list = "\n- ".join([i["name"] for i in results.get("inventory")])
             overwritten = False
@@ -340,12 +338,26 @@ def dndbeyondapi():
                     title="DnD Beyond Inventory Import", text=inventory_list
                 )
             for item in results.get("inventory"):
-                if item := Item.find(name=item["name"]):
-                    if not any(i for i in obj.items if i.name == item.name):
-                        copy_item = item.copy()
-                        obj.items.append(copy_item)
-        obj.race = results.get("race") or obj.race
-        obj.occupation = results.get("class_name") or obj.occupation
+                itemobj = Item.find(name=item["name"])
+                if not itemobj:
+                    itemobj = Item(world=obj.world, name=item["name"], parent=obj)
+                    itemobj.save()
+                if not itemobj.image:
+                    requests.post(
+                        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{itemobj.path}"
+                    )
+                if itemobj not in obj.associations:
+                    obj.add_association(itemobj)
+        if features := results.get("features"):
+            log(features)
+            for feature in features:
+                abilityobj = Ability.find(name=feature)
+                if not abilityobj:
+                    abilityobj = Ability(name=feature)
+                    abilityobj.save()
+                if abilityobj not in obj.abilities:
+                    obj.abilities += [abilityobj]
+        obj.archetype = results.get("class_name") or obj.occupation
         obj.hitpoints = results.get("hp") or obj.hitpoints
         obj.strength = results.get("str") or obj.strength
         obj.dexterity = results.get("dex") or obj.dexterity
@@ -353,39 +365,39 @@ def dndbeyondapi():
         obj.intelligence = results.get("int") or obj.intelligence
         obj.wisdom = results.get("wis") or obj.wisdom
         obj.charisma = results.get("cha") or obj.charisma
-        obj.ac = max(int(results.get("ac", 0)), int(obj.ac))
+        obj.ac = max(int(results.get("ac", 0)) + 10, int(obj.ac))
 
-        if results.get("wealth"):
-            for currency, amount in results.get("wealth").items():
-                currency = f"<h4>{currency.upper()}</h4>"
-                text = f"{currency}<p>{amount}</p>"
-                found = False
-                for idx, w in enumerate(obj.wealth):
-                    if w.strip().startswith(currency):
-                        found = True
-                        obj.wealth[idx] = text
-                        break
-                if not found:
-                    obj.wealth.append(text)
-        obj.abilities = []
-        features_list = [i for i in results.get("features", [])]
-        for idx, feature in enumerate(features_list):
-            feature_entry = f"<h5>Feature: {feature.upper()}</h5>"
-            if feature_desc := dmtools.search_feature(slugify(feature)):
-                feature_entry += "</p><p>".join(
-                    random.choice(feature_desc).get("desc", "")
-                )
-            if feature_entry not in obj.abilities:
-                obj.abilities.append(feature_entry)
-        spells_list = [i for i in results.get("spells", [])]
-        for idx, spell in enumerate(spells_list):
-            spell_entry = f"<h5>Feature: {spell.upper()}</h5>"
-            if spell_desc := dmtools.search_spell(slugify(spell)):
-                spell_entry += "</p><p>".join(random.choice(spell_desc).get("desc", ""))
-            if spell_entry not in obj.abilities:
-                obj.abilities.append(spell_entry)
+        # if results.get("wealth"):
+        #     for currency, amount in results.get("wealth").items():
+        #         currency = f"<h4>{currency.upper()}</h4>"
+        #         text = f"{currency}<p>{amount}</p>"
+        #         found = False
+        #         for idx, w in enumerate(obj.wealth):
+        #             if w.strip().startswith(currency):
+        #                 found = True
+        #                 obj.wealth[idx] = text
+        #                 break
+        #         if not found:
+        #             obj.wealth.append(text)
+        # obj.abilities = []
+        # features_list = [i for i in results.get("features", [])]
+        # for idx, feature in enumerate(features_list):
+        #     feature_entry = f"<h5>Feature: {feature.upper()}</h5>"
+        #     if feature_desc := dmtools.search_feature(slugify(feature)):
+        #         feature_entry += "</p><p>".join(
+        #             random.choice(feature_desc).get("desc", "")
+        #         )
+        #     if feature_entry not in obj.abilities:
+        #         obj.abilities.append(feature_entry)
+        # spells_list = [i for i in results.get("spells", [])]
+        # for idx, spell in enumerate(spells_list):
+        #     spell_entry = f"<h5>Feature: {spell.upper()}</h5>"
+        #     if spell_desc := dmtools.search_spell(slugify(spell)):
+        #         spell_entry += "</p><p>".join(random.choice(spell_desc).get("desc", ""))
+        #     if spell_entry not in obj.abilities:
+        #         obj.abilities.append(spell_entry)
         obj.save()
-    return get_template_attribute("models/_character.html", "manage_details")(user, obj)
+    return get_template_attribute("manage/_details.html", "details")(user, obj)
 
 
 # MARK: Faction routes

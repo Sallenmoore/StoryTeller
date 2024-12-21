@@ -13,6 +13,7 @@ from autonomous.model.autoattr import (
 )
 from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
+from models.campaign.campaign import Campaign
 from models.journal import Journal
 from models.systems import (
     FantasySystem,
@@ -72,7 +73,7 @@ class World(TTRPGBase):
 
     @classmethod
     def build(cls, system, user, name="", desc="", backstory=""):
-        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
+        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
         System = {
             "fantasy": FantasySystem,
             "sci-fi": SciFiSystem,
@@ -87,7 +88,7 @@ class World(TTRPGBase):
         else:
             system = System()
             system.save()
-        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
+        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
         ### set attributes ###
         if not name.strip():
             name = f"{system._genre} Setting"
@@ -96,7 +97,7 @@ class World(TTRPGBase):
         if not backstory.strip():
             backstory = f"{name} is filled with curious and dangerous points of interest filled with various creatures and characters. The complex and mysterious history of this world is known only to a few reclusive individuals. Currently, there are several factions vying for power through poltical machinations, subterfuge, and open warfare."
 
-        log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
+        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
 
         world = cls(
             name=name,
@@ -106,10 +107,9 @@ class World(TTRPGBase):
             users=[user],
         )
         system.world = world
-        user.worlds += [world]
+        world.users += [user]
         world.save()
         system.save()
-        user.save()
         f = Faction(world=world, is_player_faction=True)
         f.save()
         world.add_association(f)
@@ -145,17 +145,24 @@ class World(TTRPGBase):
     ############################ PROPERTIES ############################
     @property
     def associations(self):
-        return [
-            *self.items,
-            *self.characters,
-            *self.creatures,
-            *self.factions,
-            *self.cities,
-            *self.locations,
-            *self.regions,
-            *self.vehicles,
-            *self.districts,
-        ]
+        return sorted(
+            [
+                *self.items,
+                *self.characters,
+                *self.creatures,
+                *self.factions,
+                *self.cities,
+                *self.locations,
+                *self.regions,
+                *self.vehicles,
+                *self.districts,
+            ],
+            key=lambda x: (
+                x.name.startswith("_"),
+                "",
+                x.name,
+            ),
+        )
 
     @associations.setter
     def associations(self, obj):
@@ -165,7 +172,9 @@ class World(TTRPGBase):
 
     @property
     def characters(self):
-        return Character.search(world=self) if self.pk else []
+        return sorted(
+            Character.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def children(self):
@@ -173,23 +182,31 @@ class World(TTRPGBase):
 
     @property
     def cities(self):
-        return City.search(world=self) if self.pk else []
+        return sorted(City.search(world=self) if self.pk else [], key=lambda x: x.name)
 
     @property
     def creatures(self):
-        return Creature.search(world=self) if self.pk else []
+        return sorted(
+            Creature.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def districts(self):
-        return District.search(world=self) if self.pk else []
+        return sorted(
+            District.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def encounters(self):
-        return Encounter.search(world=self) if self.pk else []
+        return sorted(
+            Encounter.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def factions(self):
-        return Faction.search(world=self) if self.pk else []
+        return sorted(
+            Faction.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def genre(self):
@@ -197,7 +214,7 @@ class World(TTRPGBase):
 
     @property
     def items(self):
-        return Item.search(world=self) if self.pk else []
+        return sorted(Item.search(world=self) if self.pk else [], key=lambda x: x.name)
 
     @property
     def image_prompt(self):
@@ -205,7 +222,9 @@ class World(TTRPGBase):
 
     @property
     def locations(self):
-        return Location.search(world=self) if self.pk else []
+        return sorted(
+            Location.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def parent(self):
@@ -220,8 +239,18 @@ class World(TTRPGBase):
         return Faction.search(world=self, is_player_faction=True) if self.pk else []
 
     @property
+    def end_date(self):
+        return self.current_date
+
+    @end_date.setter
+    def end_date(self, date):
+        self.current_date = date
+
+    @property
     def regions(self):
-        return Region.search(world=self) if self.pk else []
+        return sorted(
+            Region.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def user(self):
@@ -229,7 +258,9 @@ class World(TTRPGBase):
 
     @property
     def vehicles(self):
-        return Vehicle.search(world=self) if self.pk else []
+        return sorted(
+            Vehicle.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     ########################## Override Methods #############################
 
@@ -237,6 +268,7 @@ class World(TTRPGBase):
         objs = [
             self.gm,
             self.system,
+            *Campaign.search(world=self),
             *Region.search(world=self),
             *City.search(world=self),
             *Location.search(world=self),
@@ -252,10 +284,6 @@ class World(TTRPGBase):
         for obj in objs:
             if obj:
                 obj.delete()
-        for user in self.users:
-            if self in user.worlds:
-                user.worlds.remove(self)
-                user.save()
         return super().delete()
 
     ###################### Boolean Methods ########################
@@ -325,7 +353,6 @@ class World(TTRPGBase):
         super().auto_post_save(sender, document, **kwargs)
         document.post_save_system()
         document.post_save_gm()
-        document.post_save_users()
 
     # def clean(self):
     #     super().clean()
@@ -350,7 +377,7 @@ class World(TTRPGBase):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def post_save_system(self):
-        log(f"Verifying system for {self.name}: self.system={self.system}")
+        # log(f"Verifying system for {self.name}: self.system={self.system}")
         if self.system.world != self:
             self.system.world != self
             self.system.save()
@@ -361,8 +388,3 @@ class World(TTRPGBase):
             gm.save()
             self.gm = gm
             self.save()
-
-    def post_save_users(self):
-        for user in self.users:
-            if self not in user.worlds:
-                raise ValidationError(f"{user.name} is not a user of {self.name}")

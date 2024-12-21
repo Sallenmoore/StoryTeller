@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from dmtoolkit import dmtools
 
 from autonomous import log
+from autonomous.ai.audioagent import AudioAgent
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.model.autoattr import (
     ReferenceAttr,
@@ -17,7 +18,7 @@ from models.autogm.autogmquest import AutoGMQuest
 class AutoGM(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
     agent = ReferenceAttr(choices=[JSONAgent])
-    voice = StringAttr(default="echo")
+    voice = StringAttr(default="onyx")
 
     _gm_funcobj = {
         "name": "run_scene",
@@ -63,7 +64,7 @@ class AutoGM(AutoModel):
     }
     _pc_funcobj = {
         "name": "run_scene",
-        "description": "Creates a TTRPG scene that advances the story, maintains narrative consistency, and integrates elements from the uploaded world file.",
+        "description": "Creates a TTRPG scene that advances the story in a clear direction for the player, maintains narrative consistency, and integrates elements from the uploaded world file.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -79,6 +80,20 @@ class AutoGM(AutoModel):
                         "puzzle",
                     ],
                     "description": "Type of scene to generate (e.g., social, combat, encounter, exploration, investigation, puzzle, or stealth).",
+                },
+                "music": {
+                    "type": "string",
+                    "enum": [
+                        "battle",
+                        "suspense",
+                        "celebratory",
+                        "restful",
+                        "creepy",
+                        "relaxed",
+                        "skirmish",
+                        "themesong",
+                    ],
+                    "description": "Type of music appropriate for the scene (e.g., battle, suspense, celebratory, restful, creepy, relaxed, skirmish, or themesong)",
                 },
                 "description": {
                     "type": "string",
@@ -496,7 +511,7 @@ PARTY PLAYER CHARACTERS
 """
         for pc in party.players:
             abilities = [
-                BeautifulSoup(a, "html.parser").get_text() for a in pc.abilities
+                BeautifulSoup(str(a), "html.parser").get_text() for a in pc.abilities
             ]
             prompt += f"""
 - Name: {pc.name}
@@ -552,6 +567,10 @@ Provide your response in a way that:
 3. Clearly outlines the consequences or setup for player actions, leaving room for creative responses.
 
 {self._prompt(party)}
+
+## SCENARIO
+
+{party.next_scene.description}
 """
         else:
             prompt = f"""
@@ -643,12 +662,15 @@ PREVIOUS SCENE
         self.gm.get_client().clear_files()
         world_data = self.world.page_data()
         ref_db = json.dumps(world_data).encode("utf-8")
-        self.gm.get_client().attach_file(
-            ref_db, filename=f"{self.world.slug}-gm-dbdata.json"
-        )
+        try:
+            self.gm.get_client().attach_file(
+                ref_db, filename=f"{self.world.slug}-gm-dbdata.json"
+            )
+        except Exception as e:
+            log(e, "Failed to attach file.", _print=True)
         self.save()
 
-    def runpc(self, party):
+    def rungm(self, party):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
@@ -750,11 +772,20 @@ ROLL RESULT
                 if str(pc.pk) == roll_player or pc.name == roll_player:
                     next_scene.roll_player = pc
                     break
+            if next_scene.roll_description:
+                roll_description = BeautifulSoup(
+                    next_scene.roll_description, "html.parser"
+                ).get_text()
+                voiced_roll = AudioAgent().generate(
+                    roll_description, voice=self.voice or "onyx"
+                )
+                next_scene.roll_audio.put(voiced_roll, content_type="audio/mpeg")
             next_scene.save()
+        next_scene.music = response.get("music")
         self.update_refs()
         return next_scene
 
-    def rungm(self, party):
+    def runpc(self, party):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
@@ -841,7 +872,7 @@ ROLL REQUIRED
 
 """
         ondeck = party.last_scene.current_combat_turn()
-        log(ondeck.movement, _print=True)
+        # log(ondeck.movement, _print=True)
         if pcs := [
             a for a in party.last_scene.initiative.order if a.actor in party.players
         ]:

@@ -12,7 +12,6 @@ from models.world import World
 
 
 class User(AutoUser):
-    worlds = ListAttr(ReferenceAttr(choices=[World]))
     admin = BoolAttr(default=False)
 
     @classmethod
@@ -20,17 +19,14 @@ class User(AutoUser):
         # traceback.print_stack(limit=5)
         return super().get(pk)
 
+    @property
+    def worlds(self):
+        for w in World.all():
+            if self in w.users:
+                yield w
+
     def world_user(self, obj):
         return self in obj.get_world().users
-
-    def add_world(self, obj):
-        if isinstance(obj, str):
-            obj = World.get(obj)
-        if obj and obj not in self.worlds:
-            obj.user = self
-            obj.save()
-            self.worlds.append(obj)
-            self.save()
 
     ## MARK: - Verification Methods
     ###############################################################
@@ -41,10 +37,9 @@ class User(AutoUser):
     #     log("Auto Pre Save World")
     #     super().auto_post_init(sender, document, **kwargs)
 
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        super().auto_pre_save(sender, document, **kwargs)
-        document.verify_worlds()
+    # @classmethod
+    # def auto_pre_save(cls, sender, document, **kwargs):
+    #     super().auto_pre_save(sender, document, **kwargs)
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -52,9 +47,3 @@ class User(AutoUser):
 
     # def clean(self):
     #     super().clean()
-
-    ################### verify associations ##################
-    def verify_worlds(self):
-        for w in self.worlds:
-            if not self.world_user(w):
-                w.users += [self]

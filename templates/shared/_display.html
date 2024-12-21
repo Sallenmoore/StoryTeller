@@ -1,20 +1,27 @@
-{% macro object_display(obj, size="", dim="100", name=True, type=True, pk=False) -%}
+{% import "shared/_abilities.html" as abilities_components %}
+
+{% macro object_display(obj, size="", dim="100", name=True, type=True, pk=False, modal=False) -%}
+{% if not modal %}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>
-    <div class="image {% if size %} is-{{size}} {% endif %} is-tile is-margin-center">
+    {% endif %}
+    <div class="image {% if size %} is-{{size}} {% endif %} is-tile is-margin-center"
+         {% if modal %}
+         onclick='this.parentElement.querySelector(".modal").classList.add("is-active");'
+         {% endif %}>
         {% if obj.image %}
         <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}"
              style="width:100%;height:100%;" />
         {% endif %}
     </div>
     {% if name %}
-    <h5 class='has-text-center' style='font-size: clamp(0.5rem, 0.75rem, 1rem);'>
+    <h5 class='has-text-center' style='font-size: clamp(0.5rem, 1rem, 1.25rem);'>
         {{obj.name}}
     </h5>
     {% endif %}
     <div class="row has-space-around">
         {% if type %}
         <div class="column is-shrink">
-            <h6 class='has-text-center' style='font-size: clamp(0.25rem, 0.5rem, 0.75rem);'>
+            <h6 class='has-text-center' style='font-size: clamp(0.25rem, 0.75rem, 1rem);'>
                 {{obj.title}}
             </h6>
         </div>
@@ -27,5 +34,110 @@
         </div>
         {% endif %}
     </div>
+    {% if not modal %}
 </a>
+{% else %}
+<div class="modal" {% if modal %} onclick='this.classList.remove("is-active");' {% endif %}>
+    <div class="modal__background"></div>
+    <div class="modal__content">
+        <div class="panel">
+            <h3 class='has-text-center has-text-dark'>
+                {{obj.name}}
+            </h3>
+            <div class='row has-bg-white initiative-card'>
+                <div class="column is-4">
+                    {% if obj.image %}
+                    <div class='image'>
+                        <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
+                    </div>
+                    {% endif %}
+                    {% if obj.model_name() in ['Creature', 'Character']%}
+                    <div class="panel has-bg-screen">
+                        <div class="row has-space-around has-text-center has-text-dark"
+                             style='cursor: pointer;'>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">STR</h4>
+                                <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">DEX</h4>
+                                <p>{{obj.dexterity}}
+                                    ({{(obj.dexterity|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">INT</h4>
+                                <p>{{obj.intelligence}}
+                                    ({{(obj.intelligence|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">WIS</h4>
+                                <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">CHA</h4>
+                                <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-4 is-mobile-3"
+                                 onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">CON</h4>
+                                <p>{{obj.constitution}}
+                                    ({{(obj.constitution|int-10)//2}})</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row has-space-around">
+                        <div class="column is-shrink">
+                            <h4 class='has-text-dark has-text-center'>HP</h4>
+                            <div class="column is-shrink">
+                                <h5 class='has-text-dark'>/{{obj.hitpoints}}</h5>
+                            </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <h4 class='has-text-dark has-text-center'>AC</h4>
+                            <h5 class='has-text-dark has-text-center'>{{obj.ac}}
+                            </h5>
+                        </div>
+
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="column">
+                    <div class="row has-bg-white">
+                        <div class="column">
+                            {{obj.backstory_summary | safe}}
+                        </div>
+                        {% if obj.abilities %}
+                        <div id="card-abilities-details-panel"
+                             class="column card-details-panel is-full generated-text-lightbg is-hidden">
+                            {{abilities_components.abilities(user, obj)}}
+                        </div>
+                        {% endif %}
+                        {% if obj.items %}
+                        <div id="card-items-details-panel"
+                             class="column card-details-panel is-full">
+                            <div class="panel has-bg-dark-grey">
+                                <div class="row">
+                                    {% for item in obj.items %}
+                                    <div class="column is-4">
+                                        {{object_display(item, size="tiny", type=False, name=False)}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endmacro %}

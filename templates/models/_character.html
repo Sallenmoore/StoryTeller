@@ -124,9 +124,19 @@
         {{abilities_components.abilities(user, obj)}}
     </div>
     {% endif %}
-    {% if obj.wealth %}
+    {% if obj.wealth or obj.items %}
     <div id="model-wealth" class="column is-full">
         <h4>Wealth</h4>
+        <div class="panel">
+            <div class="row">
+                {% for item in obj.items %}
+                <div class="column is-2">
+                    {{display_components.object_display(item, size='small', type=False)}}
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
         <div class="panel has-bg-primary">
             {% for w in obj.wealth %}
             <p>{{w | safe}}</p>
@@ -194,8 +204,8 @@
     </div>
     <div class="row has-space-between">
         <div class="column is-2">
-            <h4 class='has-text-primary'>Race</h4>
-            <input type="text" value="{{obj.race}}" name="race">
+            <h4 class='has-text-primary'>Species</h4>
+            <input type="text" value="{{obj.species}}" name="species">
         </div>
         <div class="column is-2">
             <h4 class='has-text-primary'>Gender</h4>
@@ -208,6 +218,10 @@
         <div class="column">
             <h4 class='has-text-primary'>Occupation</h4>
             <input type="text" value="{{obj.occupation}}" name="occupation">
+        </div>
+        <div class="column">
+            <h4 class='has-text-primary'>Archetype</h4>
+            <input type="text" value="{{obj.archetype}}" name="archetype">
         </div>
     </div>
     <hr>

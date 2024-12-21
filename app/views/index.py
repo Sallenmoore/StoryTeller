@@ -23,7 +23,7 @@ index_page = Blueprint("index", __name__)
 
 
 def _authenticate(user, obj):
-    if user in obj.get_world().users or obj.get_world() in user.worlds:
+    if user in obj.get_world().users:
         return True
     return False
 
@@ -39,6 +39,11 @@ def _authenticate(user, obj):
 @index_page.route("/home", endpoint="index", methods=("GET", "POST"))
 @auth_required()
 def index():
+    user = AutoAuth.current_user()
+    for w in World.all():
+        w.users += [user]
+        w.save()
+
     user = AutoAuth.current_user()
     session["page"] = "/home"
     return render_template("index.html", user=user, page_url="/home")
@@ -94,19 +99,25 @@ def image(pk, size):
     "/audio/gm/combat/<string:pk>",
     methods=("GET",),
 )
+@index_page.route(
+    "/audio/gm/roll/<string:pk>",
+    methods=("GET",),
+)
 def audio(pk):
     if "combat" in request.url:
-        msg = AutoGMInitiative.get(pk)
+        audio = AutoGMInitiative.get(pk).audio
+    elif "roll" in request.url:
+        audio = AutoGMScene.get(pk).roll_audio
     elif "gm" in request.url:
-        msg = AutoGMScene.get(pk)
+        audio = AutoGMScene.get(pk).audio
     else:
-        msg = AutoGMMessage.get(pk)
-    log(msg)
-    if msg and msg.audio:
+        audio = AutoGMMessage.get(pk).audio
+    # log(msg)
+    if audio:
         return Response(
-            msg.audio.read(),
-            mimetype=msg.audio.content_type,
-            headers={"Content-Disposition": f"inline; filename={msg.pk}.mp3"},
+            audio.read(),
+            mimetype=audio.content_type,
+            headers={"Content-Disposition": f"inline; filename={pk}.mp3"},
         )
     else:
         return Response("No audio available", status=404)

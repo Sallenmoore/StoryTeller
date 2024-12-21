@@ -1,3 +1,6 @@
+import os
+
+import requests
 from dmtoolkit import dmtools
 from flask import Blueprint, get_template_attribute, request
 
@@ -23,19 +26,29 @@ autogm_endpoint = Blueprint("autogm", __name__)
 def index(model=None, pk=None):
     user, obj, world, *_ = _loader(model=model, pk=pk)
     party = None
-    if party := Faction.get(pk or request.json.get("partypk")):
-        next_scene = party.get_next_scene()
-        gmmode = request.json.get("gmmode")
-        if gmmode and next_scene.gm_mode != gmmode:
-            next_scene.gm_mode = gmmode
-            next_scene.save()
-        # if party.last_scene and party.last_scene.current_combat_turn():
-        #     log(
-        #         party.last_scene.current_combat_turn().action,
-        #         party.last_scene.current_combat_turn().bonus_action,
-        #         _print=True,
-        #     )
+    party = Faction.get(pk or request.json.get("partypk"))
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+
+
+@autogm_endpoint.route("/<string:pk>/start", methods=("POST",))
+def start(model=None, pk=None):
+    user, obj, world, *_ = _loader(model=model, pk=pk)
+    party = None
+    if party := Faction.get(pk):
+        next_scene = party.get_next_scene()
+
+        if gmmode := request.json.get("gmmode"):
+            next_scene.gm_mode = gmmode
+
+        if tone := request.json.get("tone"):
+            next_scene.tone = tone.title()
+
+        if scenario := request.json.get("scenario"):
+            next_scene.description = scenario
+        next_scene.save()
+    return requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
+    ).text
 
 
 @autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))
@@ -226,15 +239,15 @@ def scene_update(pk):
         )
 
     if party.next_scene.roll_required:
-        log(party.next_scene.gm_mode)
-        if party.next_scene.gm_mode == "gm":
+        # log(party.next_scene.gm_mode)
+        if party.next_scene.gm_mode == "pc":
             party.next_scene.roll_required = True
             party.next_scene.roll_player = Character.get(
                 request.json.get("pc_roll_player")
             )
             party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
             party.next_scene.roll_type = request.json.get("pc_roll_type")
-        elif party.next_scene.gm_mode == "pc":
+        elif party.next_scene.gm_mode == "gm":
             if (
                 request.json.get("pc_roll_num_dice")
                 and request.json.get("pc_roll_type_dice")
@@ -244,8 +257,9 @@ def scene_update(pk):
                 party.next_scene.roll_result = dmtools.dice_roll(
                     party.next_scene.roll_formula
                 )
+                log(party.next_scene.roll_result)
         party.next_scene.roll_required = True
-        party.last_scene.save()
+        party.next_scene.save()
 
         # log(
         #     party.next_scene.roll_required,

@@ -25,7 +25,7 @@ class TTRPGObject(TTRPGBase):
 
     @classmethod
     def update_system_references(cls, pk):
-        log(f"Updating AI reference data for ({cls}:{pk})...")
+        # log(f"Updating AI reference data for ({cls}:{pk})...")
         try:
             from models.world import World
 

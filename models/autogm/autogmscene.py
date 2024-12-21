@@ -59,6 +59,7 @@ class AutoGMScene(AutoModel):
     roll_description = StringAttr()
     roll_result = IntAttr()
     roll_player = ReferenceAttr(choices=["Character", "Creature"])
+    roll_audio = FileAttr()
     image = ReferenceAttr(choices=[Image])
     image_style = StringAttr(
         default=lambda: random.choice(
@@ -67,6 +68,7 @@ class AutoGMScene(AutoModel):
     )
     image_prompt = StringAttr()
     audio = FileAttr()
+    music_ = StringAttr(default="theme")
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     current_quest = ReferenceAttr(choices=[AutoGMQuest])
     quest_log = ListAttr(ReferenceAttr(choices=[AutoGMQuest]))
@@ -81,15 +83,21 @@ class AutoGMScene(AutoModel):
             q.delete()
         return super().delete()
 
-    # @property
+    @property
     def music(self):
-        result = f"/static/sounds/music/{random.choice(self.party.system._music_lists.get(self.type, ["themesong.mp3"]))}"
-        # log(
-        #     self.type,
-        #     self.party.system._music_lists,
-        #     result,
-        # )
-        return result
+        music_file = f"/static/sounds/music/{self.music_}{random.randint(1, 10)}.mp3"
+        for _ in range(10):
+            if os.path.exists(music_file):
+                return music_file
+            else:
+                music_file = (
+                    f"/static/sounds/music/{self.music_}{random.randint(1, 10)}.mp3"
+                )
+        return None
+
+    @music.setter
+    def music(self, value):
+        self.music_ = value
 
     @property
     def player(self):
@@ -128,7 +136,7 @@ class AutoGMScene(AutoModel):
     def generate_image(self, image_prompt):
         from models.world import World
 
-        log("image prompt:", image_prompt, _print=True)
+        # log("image prompt:", image_prompt, _print=True)
         self.image_prompt = image_prompt
         desc = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single graphic novel style panel in the art style of {self.image_style} for the scene.
 
@@ -312,9 +320,10 @@ SCENE DESCRIPTION
 
     def set_player_messages(self, messages):
         for msg in messages:
-            self.set_player_message(
-                msg["playerpk"], msg["message"], msg["intent"], msg["emotion"]
-            )
+            if msg.get("playerpk"):
+                self.set_player_message(
+                    msg["playerpk"], msg["message"], msg["intent"], msg["emotion"]
+                )
 
     def set_player_message(self, character_pk, response, intention, emotion):
         player = Character.get(character_pk)
@@ -379,7 +388,7 @@ SCENE DESCRIPTION
 
         if cct := self.initiative.current_combat_turn():
             if action:
-                log(self.initiative.order, action_target, _print=True)
+                # log(self.initiative.order, action_target, _print=True)
                 target = [
                     ini
                     for ini in self.initiative.order
@@ -393,7 +402,7 @@ SCENE DESCRIPTION
                     skill_check=action_skill_check,
                     target=target[0] if target else None,
                 )
-                log(cct.action)
+                # log(cct.action)
             if bonus_action:
                 target = [
                     ini
@@ -409,7 +418,7 @@ SCENE DESCRIPTION
                     target=target[0] if target else None,
                     bonus=True,
                 )
-                log(cct.bonus_action)
+                # log(cct.bonus_action)
 
             if hp is not None:
                 cct.hp = int(hp)
@@ -424,6 +433,9 @@ SCENE DESCRIPTION
     def next_combat_turn(self):
         if self.initiative and not self.initiative.combat_ended:
             return self.initiative.next_combat_turn()
+        else:
+            self.type = "investigation"
+            self.save()
 
     def initiative_index(self, combatant):
         return self.initiative.index(combatant)

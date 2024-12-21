@@ -23,7 +23,7 @@ def images():
     args = request.args.copy()
     if request.method == "POST":
         args.update(request.json)
-    log(args)
+    # log(args)
     pc = requests.post("http://api:5000/admin/manage/images", json=args).text
     return render_template(
         "admin/index.html",

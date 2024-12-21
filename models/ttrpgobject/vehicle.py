@@ -102,6 +102,11 @@ class Vehicle(Place):
     }
 
     ################### Property Methods #####################
+    @property
+    def crew(self):
+        return [
+            c for c in self.associations if c.model_name() in ["Character", "Creature"]
+        ]
 
     @property
     def image_tags(self):
@@ -146,11 +151,10 @@ BACKSTORY
             "desc": self.description,
             "backstory": self.backstory,
             "history": self.history,
-            "goal": self.goal,
             "type": self.type,
             "size": self.size,
             "hit points": self.hitpoints,
-            "abilities": self.abilities,
+            "abilities": [str(a) for a in self.abilities],
             "group": self.group,
             "crew": [c.path for c in self.crew],
         }

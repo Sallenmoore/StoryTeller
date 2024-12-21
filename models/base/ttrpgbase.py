@@ -305,7 +305,7 @@ EVENTS
 
     # MARK: Generate
     def generate(self, prompt=""):
-        log(f"Generating data with AI for {self.name} ({self})...", _print=True)
+        # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt += f"""
 Use and expand on the existing object data listed below for the {self.title} object:
 {"- Name: " + self.name if self.name.strip() else ""}
@@ -329,8 +329,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
         - Name: {ass.name}
         - Backstory: {ass.backstory_summary}
 """
+        name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
-            log(results, _print=True)
+            # log(results, _print=True)
             if notes := results.pop("notes", None):
                 if not self.journal:
                     self.journal = Journal(world=self.get_world(), parent=self)
@@ -344,9 +345,14 @@ Use and expand on the existing object data listed below for the {self.title} obj
                     )
             for k, v in results.items():
                 setattr(self, k, v)
+            if name:
+                self.backstory = self.backstory.replace(self.name, name)
+                self.desc = self.desc.replace(self.name, name)
+                self.name = name
             self.save()
         else:
             log(results, _print=True)
+
         return results
 
     ############# Boolean Methods #############
@@ -437,7 +443,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if not isinstance(model, str):
             model = model.__name__
         for assoc in self.associations:
-            log(assoc.model_name(), model)
             if assoc.model_name() == model:
                 return True
         return False
@@ -570,7 +575,14 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     def pre_save_image(self):
         if isinstance(self.image, str):
-            if validators.url(self.image):
+            if self.image.startswith("/static"):
+                ##### MIGRATION #####
+                self.image = Image.from_url(
+                    f"https://world.stevenamoore.dev{self.image}",
+                    prompt=self.image_prompt,
+                    tags=[*self.image_tags],
+                )
+            elif validators.url(self.image):
                 self.image = Image.from_url(
                     self.image,
                     prompt=self.image_prompt,
