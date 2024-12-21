@@ -1,6 +1,6 @@
 {% macro topnav(user) -%}
-<nav class="row">
-    <div class="column is-shrink is-vertically-centered has-text-center">
+<nav class="flex">
+    <div class="flex-1">
         <a href="/">
             <h2>
                 <iconify-icon icon="game-icons:dungeon-light" width="2.5rem"
@@ -8,11 +8,9 @@
                 Storyteller
             </h2>
         </a>
-    </div>
-    <div class="column is-shrink is-vertically-centered">
         <small>ver. 0.2.0</small>
     </div>
-    <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
+    <div class="flex-1" hx-indicator="#request-indicator">
         <div class="is-input-group has-bg-secondary">
             <span>
                 <iconify-icon class="has-text-secondary" icon="gala:search" width="1.25rem"
@@ -29,7 +27,7 @@
             </div>
         </div>
     </div>
-    <div class="column is-shrink is-tablet-up is-vertically-centered">
+    <div class="flex-shrink-0 p-4">
         <a href="/">
             <h4>
                 {% if user and user.state != "guest"%}
@@ -38,7 +36,7 @@
             </h4>
         </a>
     </div>
-    <div class="column is-shrink is-vertically-centered">
+    <div class="flex-shrink-0">
         {% if not user or user.state == "guest" %}
         <a href="/auth/login" class="button is-rounded is-small">Login</a>
         {% else %}
@@ -46,7 +44,7 @@
         {% endif %}
     </div>
     {% if user and user.admin %}
-    <div class="column is-shrink is-tablet-up is-vertically-centered">
+    <div class="flex-shrink-0">
         <a class="button is-small is-rounded" href="/admin/">
             ADMIN
         </a>
@@ -59,7 +57,7 @@
 {% for o in objs %}
 <li class="dropdown__link">
     <a href='/{{o.model_name() | lower}}/{{o.pk}}'>
-        <div class=" row">
+        <div class="flex">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
@@ -80,9 +78,9 @@
 <div id="sidenav"
      class="is-tablet-up has-bg-secondary has-no-padding-bottom has-no-padding-right slide-it-in"
      style='position:relative; z-index:1001; padding-top:1rem;border-radius: 0 10px 10px 0;border-right: solid;border-top: solid;border-bottom: solid;'>
-    <div class="row ">
+    <div class="flex ">
         <div class="column has-no-padding-bottom is-vertically-centered">
-            <div class="row slide-it-in">
+            <div class="flex slide-it-in">
                 <div id="collapse-sidemenu"
                      class="column is-mobile-only is-mobile-2 is-end menu-anchor-text is-hidden">
                     <iconify-icon icon="material-symbols:close" width="2rem"
@@ -95,7 +93,7 @@
         <ul class="menu__list">
             <li>
                 <a href="/{{obj.get_world().path}}" class="menu-anchor">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="mdi:world" width="2rem"></iconify-icon>
                         </div>
@@ -112,7 +110,7 @@
                    hx-post="/api/autogm/{{obj.pk}}" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/gm">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="la:dice-d20" width="2rem"></iconify-icon>
                         </div>
@@ -132,7 +130,7 @@
                    hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/details">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="ooui:view-details-ltr" width="2rem"></iconify-icon>
                         </div>
@@ -149,7 +147,7 @@
                    hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/history">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="material-symbols:history-edu-outline-rounded"
                                           width="2rem"></iconify-icon>
@@ -168,7 +166,7 @@
                    hx-indicator="#request-indicator"
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/campaigns">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="gis:bus-map" width="2rem"></iconify-icon>
                         </div>
@@ -185,7 +183,7 @@
                    hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/journal">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="ooui:journal-ltr" width="2rem"></iconify-icon>
                         </div>
@@ -200,7 +198,7 @@
                 <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
                    hx-target="#page-content" hx-indicator="#request-indicator"
                    hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="gis:hex-map" width="2rem"></iconify-icon>
                         </div>
@@ -228,7 +226,7 @@
                    hx-indicator="#request-indicator"
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/associations">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="hugeicons:chart-relationship"
                                           width="2rem"></iconify-icon>
@@ -246,7 +244,7 @@
             {% for model in obj.all_models_str() %}
             {% if obj.has_associations(model) %}
             <li>
-                <div class="row" style='position:relative;'>
+                <div class="flex" style='position:relative;'>
                     <div class="column has-no-padding">
                         <a href="/{{obj.path}}/associations/{{model | lower}}" class="menu-anchor"
                            hx-get="/api/{{obj.path}}/associations/{{model | lower}}"
@@ -254,7 +252,7 @@
                            hx-indicator="#request-indicator"
                            hx-swap="innerHTML show:#content:top"
                            hx-push-url="/{{obj.path}}/associations/{{model | lower}}">
-                            <div class="row">
+                            <div class="flex">
                                 <div class="column is-3 is-mobile-shrink">
                                     <iconify-icon icon="{{obj.get_icon(model)}}"
                                                   width="2rem"></iconify-icon>

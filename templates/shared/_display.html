@@ -18,7 +18,7 @@
         {{obj.name}}
     </h5>
     {% endif %}
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         {% if type %}
         <div class="column is-shrink">
             <h6 class='has-text-center' style='font-size: clamp(0.25rem, 0.75rem, 1rem);'>
@@ -44,7 +44,7 @@
             <h3 class='has-text-center has-text-dark'>
                 {{obj.name}}
             </h3>
-            <div class='row has-bg-white initiative-card'>
+            <div class='flex has-bg-white initiative-card'>
                 <div class="column is-4">
                     {% if obj.image %}
                     <div class='image'>
@@ -53,7 +53,7 @@
                     {% endif %}
                     {% if obj.model_name() in ['Creature', 'Character']%}
                     <div class="panel has-bg-screen">
-                        <div class="row has-space-around has-text-center has-text-dark"
+                        <div class="flex has-space-around has-text-center has-text-dark"
                              style='cursor: pointer;'>
                             <div class="column is-4 is-mobile-3"
                                  onclick='setbonus(this);'>
@@ -92,7 +92,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row has-space-around">
+                    <div class="flex has-space-around">
                         <div class="column is-shrink">
                             <h4 class='has-text-dark has-text-center'>HP</h4>
                             <div class="column is-shrink">
@@ -109,7 +109,7 @@
                     {% endif %}
                 </div>
                 <div class="column">
-                    <div class="row has-bg-white">
+                    <div class="flex has-bg-white">
                         <div class="column">
                             {{obj.backstory_summary | safe}}
                         </div>
@@ -123,7 +123,7 @@
                         <div id="card-items-details-panel"
                              class="column card-details-panel is-full">
                             <div class="panel has-bg-dark-grey">
-                                <div class="row">
+                                <div class="flex">
                                     {% for item in obj.items %}
                                     <div class="column is-4">
                                         {{object_display(item, size="tiny", type=False, name=False)}}

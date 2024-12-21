@@ -1,6 +1,6 @@
 {% macro login(worlds) -%}
 <div class="container">
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column is-full is-vertically-centered">
             <h2 class='has-text-center has-text-primary'>Login to build</h2>
         </div>
@@ -17,7 +17,7 @@
 {% if worlds %}
 <hr>
 <h2> Or check out some user worlds...</h2>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     {% for world in worlds %}
     <div class="column">
         <a href="/{{world.path}}">

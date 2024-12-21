@@ -1,7 +1,7 @@
 {% macro home(user) %}
 <div class="hero" id="world-model">
     <div class="hero__content">
-        <div class="row">
+        <div class="flex">
             <div class="column is-vertically-centered" id="create-world">
                 <div class="container has-text-center">
                     <h2 class="is-subheading has-text-primary">A place to create and explore your
@@ -17,14 +17,14 @@
     </div>
 </div>
 <hr>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     {% for w in user.worlds %}
     <div class="column world-entry is-full">
         <div class="panel"
              {% if w.image %}
              style="background-image: url('{{w.image.url()}}'); background-size: cover;" {% endif
              %}>
-            <div class="row has-bg-muted" style='position:relative;'>
+            <div class="flex has-bg-muted" style='position:relative;'>
                 <div class="column is-full">
                     <a href="/world/{{w.pk}}">
                         <span class="tag">{{w.genre}}</span>
@@ -54,7 +54,7 @@
 
 {% macro worldbuild (user) -%}
 <div class="container">
-    <div class="row fade-it-in">
+    <div class="flex fade-it-in">
         <div class="column is-full">
             <div class="panel is-vertically-centered" style='position:relative;'>
                 <h2 class="has-text-center">Give your world some details</h2>
@@ -66,7 +66,7 @@
                 <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
                       hx-indicator="#request-indicator">
                     <input type="hidden" name="user" value="{{user.pk}}">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-half">
                             <input class="has-bg-light has-text-dark" type="text" name="name"
                                    placeholder="World Name">

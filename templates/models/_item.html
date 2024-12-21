@@ -3,7 +3,7 @@
 
 {% macro info(user, obj) -%}
 <div class="panel has-bg-muted has-text-primary">
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column is-shrink">
             <h4 class="has-text-dark">Rarity</h4>
             <p>{{obj.rarity}}</p>
@@ -24,7 +24,7 @@
 </div>
 <hr>
 {% if obj.features %}
-<div class="row">
+<div class="flex">
     <div class="column is-full" id="model-features">
         <div class="panel has-bg-primary">
             <h3 class='has-text-center '>Features</h3>
@@ -41,7 +41,7 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
 
-    <div class="row has-space-between">
+    <div class="flex has-space-between">
         <div class="column is-shrink">
             <h4>Rarity</h4>
             <div class="is-select">

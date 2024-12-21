@@ -1,5 +1,5 @@
 {% macro info(user, obj) -%}
-<div class="row">
+<div class="flex">
     {% if obj.ruling_faction %}
     <div class="column is-full">
         <div class="panel is-small has-bg-dark-grey">
@@ -30,7 +30,7 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <h3 class='has-text-center has-text-light'>Ruling Faction</h3>
-    <div class="row">
+    <div class="flex">
         <div class="column is-full">
             <div class="panel is-small has-bg-light">
                 <div class="is-select">

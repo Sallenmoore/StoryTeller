@@ -5,7 +5,7 @@
 <h3 class="has-text-muted has-bg-screen has-text-center" style='padding: 0.25rem;'>Abilities</h3>
 
 <div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
-    <div class="row">
+    <div class="flex">
         {% set ability_list = abilities or obj.abilities %}
         {%for ability in ability_list%}
         <div class="column is-half has-text-dark">
@@ -13,7 +13,7 @@
                 onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
                 {{ability.name}}
             </h4>
-            <div class="row is-hidden">
+            <div class="flex is-hidden">
                 {% if ability.description %}
                 <div class="column is-full">
                     <div class="panel has-bg-muted">
@@ -65,7 +65,7 @@
 {% macro edit_abilities(user, obj, abilities=None) -%}
 {% set ability_list = abilities or obj.abilities %}
 <div class="panel">
-    <div class="row">
+    <div class="flex">
         <div id="model-abilities-container" class="column is-full">
             <h3 class='has-text-center has-text-dark'>Abilities</h3>
             <div class="column is-shrink">
@@ -78,7 +78,7 @@
                     New Ability
                 </button>
             </div>
-            <div class="row">
+            <div class="flex">
                 {% for ability in ability_list %}
                 <div class="column is-half" style='position:relative;'>
                     <a class="has-text-dark-grey"
@@ -93,7 +93,7 @@
                             onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
                             {{ability.name}}
                         </h4>
-                        <div id="model-abilities" class="row is-hidden">
+                        <div id="model-abilities" class="flex is-hidden">
                             <div class="column is-4 inputlabel">
                                 <label for="ability-name">Name</label>
                                 <input name='abilities[].name' type="text"

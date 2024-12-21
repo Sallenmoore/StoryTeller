@@ -7,7 +7,7 @@
         <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/players" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML"
            hx-push-url=" /{{obj.path}}/players">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="game-icons:tabletop-players" width="2rem"></iconify-icon>
                 </div>
@@ -21,7 +21,7 @@
     <li>
         <a href="" class="menu-anchor" hx-post="/api/campaign/" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-push-url=" /{{obj.path}}/campaigns/manage">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="mdi:planner-multiple" width="2rem"></iconify-icon>
                 </div>
@@ -37,7 +37,7 @@
 
 {% macro info(user, obj) -%}
 {% if obj.current_date %}
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <h3 class="has-text-dark-grey has-text-center">
             Present Date:
@@ -48,7 +48,7 @@
 {% endif %}
 <hr>
 <h3 class='has-text-center'>Statistics</h3>
-<div class="row">
+<div class="flex">
     {% for m in obj._models%}
     <div class="column is-3">
         <div class="card has-bg-muted">
@@ -71,7 +71,7 @@
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>
     <div class="panel has-bg-muted">
-        <div class="row cards-container has-center">
+        <div class="flex cards-container has-center">
             <div class="column  is-vertically-centered is-shrink">
 
                 <div class="image is-medium is-thumbnail is-margin-center">
@@ -101,7 +101,7 @@
 {% macro associations(user, obj, filter=None) -%}
 <title>{{obj.name}} - Associations</title>
 <h2 class='has-text-dark'>Manage Associations</h2>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     <div class="column is-shrink">
         <h4 class='has-text-secondary'>Filter by</h4>
     </div>
@@ -123,10 +123,10 @@
 <hr>
 <div class="panel is-small has-bg-light">
     <div id="associated-objects">
-        <div class="row has-space-around">
+        <div class="flex has-space-around">
             {% for a in obj.get_associations(filter) %}
             <div class="column is-3 is-mobile-4 card-container">
-                <div class="row">
+                <div class="flex">
                     <div class="column is-half">
                         <a href="/{{a.model_name()|lower}}/{{a.pk}}">
                             <div class="image is-medium is-thumbnail">
@@ -137,7 +137,7 @@
                         </a>
                     </div>
                     <div class="column is-half">
-                        <div class="row is-vertical">
+                        <div class="flex is-vertical">
                             <div class="column">
                                 <button class="button is-small"
                                         hx-post="/api/manage/copy/{{a.model_name() | lower}}/{{a.pk}}"
@@ -188,14 +188,14 @@
 
 {% macro manage_details(user, obj) -%}
 <h2 class='has-text-dark has-text-center' id='manage-users'>Manage Users</h2>
-<div class="row">
+<div class="flex">
     <div class="column is-4">
         <h4>Add Users</h4>
         <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
               hx-target="closest .row"
               hx-swap="outerHTML"
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
-            <div class="row is-vertical">
+            <div class="flex is-vertical">
                 <div class="column">
                     <input class="has-bg-light" type="email" name="new_user" id="new_user"
                            placeholder="enter user email">
@@ -208,7 +208,7 @@
     </div>
     <div class="column">
         <div class="panel has-bg-primary is-small">
-            <div class="row">
+            <div class="flex">
                 <div class="column">
                     <h4>Users</h4>
                     <ul class="has-no-list-style" id="userlist">

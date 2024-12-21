@@ -20,8 +20,9 @@
 
         <!--------------------------- Custom CSS ---------------------------->
         <!-- Compiled and minified CSS-->
+        {#
         <link rel="stylesheet" type="text/css"
-              href="{{ url_for('static', filename='style/main.css') }}">
+              href="{{ url_for('static', filename='style/main.css') }}"> #}
 
         <!--------------------------- Vendor JavaScript Libs ---------------------------->
         <script
@@ -35,7 +36,7 @@
         <script src="https://code.iconify.design/iconify-icon/1.0.3/iconify-icon.min.js"></script>
 
         <!------------------------------ Tailwind Libs ---------------------------->
-        {#
+
         <script src="https://cdn.tailwindcss.com"></script>
 
         <!-- configuration example -->
@@ -47,6 +48,9 @@
                             primary: '#45576b',
                         }
                     }
+                    container: {
+                        center: true,
+                    },
                 }
             }
         </script>
@@ -61,7 +65,7 @@
         <!--plugin example -->
         <script
                 src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
-        #}
+
 
         <!-- JavaScript Libs -->
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -71,49 +75,43 @@
         {% endblock %}
     </head>
 
-    <body hx-ext='json-enc' hx-vals='{
+    <body class="m-0" hx-ext='json-enc' hx-vals='{
                 "user": "{%if user%}{{user.pk}}{%endif%}",
                 "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
                 "pk": "{%if obj%}{{obj.pk}}{%endif%}"
             }'>
-        <div class="is-full" id="nav">
+        <div class="container mx-auto" id="nav">
             {% block topnav %}
             {{nav.topnav(user)}}
             {% endblock %}
         </div>
-        <div class="container has-no-padding is-full" id="content">
-            <div class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
-                 id='page-container'>
+        <div class="container mx-auto" id="content">
+            {% if obj %}
+            {{title.object_title(user, obj)}}
+            {% endif %}
+            <div class="flex-1" style='position:relative;'>
                 {% if obj %}
-                {{title.object_title(user, obj)}}
+                <div>
+                    <button id="mobile-menu-burger" class="hidden">
+                        <iconify-icon icon="ci:hamburger-lg" width="1.5rem"></iconify-icon>
+                    </button>
+                    {{nav.sidemenu_active(user, obj)}}
+                </div>
                 {% endif %}
-                <div class="row has-centered has-no-padding-left slide-it-in"
-                     style='position:relative;'>
-                    {% if obj %}
-                    <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
-                         style='position:absolute;top:0;left:0;'>
-                        <button id="mobile-menu-burger" class='button is-mobile-only'
-                                style='position:fixed; z-index:1002;border-radius:0 10px 10px 0;'>
-                            <iconify-icon icon="ci:hamburger-lg" width="1.5rem"></iconify-icon>
-                        </button>
-                        {{nav.sidemenu_active(user, obj)}}
+                <div class="">
+                    {% if page_url %}
+                    <div class='panel has-bg-muted raise-it'
+                         style='border-radius: 0 0 5px 5px;' id="page-content"
+                         hx-get='/api{{page_url}}'
+                         hx-trigger='load'
+                         hx-indicator='#request-indicator'>
+                    </div>
+                    {% elif page_content %}
+                    <div class='panel has-bg-muted raise-it'
+                         style='border-radius: 0 0 5px 5px;' id="page-content">
+                        {{page_content | safe}}
                     </div>
                     {% endif %}
-                    <div class="column is-full is-mobile-full" style="padding-left:4rem;">
-                        {% if page_url %}
-                        <div class='panel has-bg-muted raise-it'
-                             style='border-radius: 0 0 5px 5px;' id="page-content"
-                             hx-get='/api{{page_url}}'
-                             hx-trigger='load'
-                             hx-indicator='#request-indicator'>
-                        </div>
-                        {% elif page_content %}
-                        <div class='panel has-bg-muted raise-it'
-                             style='border-radius: 0 0 5px 5px;' id="page-content">
-                            {{page_content | safe}}
-                        </div>
-                        {% endif %}
-                    </div>
                 </div>
             </div>
         </div>
@@ -121,7 +119,7 @@
             <img src="/static/images/grid.svg" alt="loading">
         </div>
         <footer style="height: 4rem;">
-            <div class="row">
+            <div class="flex">
                 <div class="column">
                     {% block footer %}{% endblock %}
                 </div>

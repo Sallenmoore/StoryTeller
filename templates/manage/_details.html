@@ -2,7 +2,7 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro details(user, obj) -%}
-<div class="row">
+<div class="flex">
     <div class="column is-center">
         <h2 class='has-text-dark'>Details Editor</h2>
     </div>
@@ -13,7 +13,7 @@
         </a>
     </div>
 </div>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     {% if obj.model_name() in ['Character'] and obj.is_player %}
     <div class="column is-shrink is-vertically-centered">
         <div style='position:relative;'>
@@ -60,7 +60,7 @@
 </div>
 <hr>
 <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row">
+    <div class="flex">
         <div class="column">
             <h5 class='has-text-center has-text-dark'>Name</h5>
             <input id='model-name' class="has-bg-light has-text-center" type="text" name="name"
@@ -72,7 +72,7 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
-    <div class="row has-centered">
+    <div class="flex has-centered">
         {% if obj.model_name() != "World" %}
         <div class="column is-shrink is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>Start</h5>
@@ -112,7 +112,7 @@
 {{obj.snippet(user, 'manage_details') | safe}}
 {{image(user, obj)}}
 <hr class="has-bg-primary">
-<div class="row">
+<div class="flex">
     <div class="column is-shrink is-end">
         <button class="button"
                 hx-post="/api/manage/delete/{{obj.path}}"
@@ -127,7 +127,7 @@
 {% macro image(user, obj) -%}
 <h3 class='has-text-center has-text-dark' id='manage-image'>Image Editor</h3>
 <div class="panel has-bg-light-grey is-small">
-    <div class="row" id="image-manage-container">
+    <div class="flex" id="image-manage-container">
         <div class="column is-8" id="model-owner-image">
             <div class="image is-margin-center">
                 {% if obj.image %}
@@ -136,7 +136,7 @@
             </div>
         </div>
         <div class="column is-4">
-            <div class="row">
+            <div class="flex">
                 <div class="column">
                     <h5 class='has-text-center has-text-dark'>Image Description (editable)
                     </h5>
@@ -150,7 +150,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="flex">
                 <div class="column is-vertically-centered">
                     <button class="button is-full is-small"
                             hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .column"
@@ -161,7 +161,7 @@
                     </button>
                 </div>
             </div>
-            <div class="row">
+            <div class="flex">
                 <div class="column">
                     <button class="button is-full is-small" hx-post="/api/manage/image/gallery"
                             hx-target="#model-owner-image" hx-swap="innerHTML">
@@ -177,7 +177,7 @@
 
 {%macro imagegallery(user, obj, images) -%}
 <div class="panel has-bg-primary">
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         {% for image in images%}
         <div class="column is-shrink has-text-center has-centered">
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">

@@ -1,6 +1,6 @@
 {% macro journal(user, obj) -%}
 <title>{{obj.name or obj.title}} - Journal</title>
-<div class="row">
+<div class="flex">
     <div class="column is-vertically-centered">
         <h2 class='has-text-dark'>Journal</h2>
     </div>
@@ -21,7 +21,7 @@
         {% for entry in obj.journal.entries %}
         <li class="accordion__item ">
             <a class="accordion__title" href="#journal-entry-{{obj.pk}}">
-                <div class="row">
+                <div class="flex">
                     <div class="column is-vertically-centered journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         <h3 class='has-text-dark'>{{entry.title}}</h3>
@@ -84,7 +84,7 @@
                 <hr>
                 <h4 class='has-text-dark has-text-center'>Associations</h4>
                 <div class="panel has-bg-light-grey">
-                    <div class="row has-space-around">
+                    <div class="flex has-space-around">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
                         <div class="column has-text-center is-shrink">

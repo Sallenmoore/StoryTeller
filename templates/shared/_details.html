@@ -1,6 +1,6 @@
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
-<div class="row">
+<div class="flex">
     <div class="column is-vertically-centered">
         <h2 class='has-text-dark'>Details</h2>
     </div>
@@ -11,7 +11,7 @@
     {% endif %}
 </div>
 <hr>
-<div class="row has-centered">
+<div class="flex has-centered">
     <div class="column is-vertically-centered">
         <h2 class='has-text-dark'>{{obj.start_date}}</h2>
     </div>
@@ -24,7 +24,7 @@
 </div>
 <hr>
 <div class="panel has-bg-light has-text-dark generated-text-lightbg">
-    <div class="row">
+    <div class="flex">
         <div class="column is-full">
             <div class="is-float-left"
                  style="position:relative; padding-right: 2rem; padding-bottom: 2rem;">

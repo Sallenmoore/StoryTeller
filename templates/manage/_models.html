@@ -1,6 +1,6 @@
 {% macro manage(user, obj, model=None, title=None, associations=[]) -%}
 <h2 class='has-text-dark'>Manage World Elements</h2>
-<div class="row has-space-between">
+<div class="flex has-space-between">
     <div class="column is-vertically-centered">
         <div class="select">
             <select class='has-bg-muted' name="childmodel" hx-post="/api/manage/childmanage"
@@ -34,7 +34,7 @@
 {%- endmacro %}
 
 {% macro gallery(user, obj, model, title, associations) -%}
-<div class="row has-space-between">
+<div class="flex has-space-between">
     <div class="column is-shrink">
         <button class="button is-primary" hx-post="/api/manage/add/{{model}}"
                 hx-target="#page-content"
@@ -44,7 +44,7 @@
         </button>
     </div>
     <div class="column is-shrink">
-        <div class="row">
+        <div class="flex">
             <div class="column is-shrink">
                 <h3>...or manage an existing {{title}}</h3>
             </div>
@@ -60,14 +60,14 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <hr>
-        <div class="row has-space-between has-bottom" style='align-items: stretch;'>
+        <div class="flex has-space-between has-bottom" style='align-items: stretch;'>
             {% for a in associations %}
             <div class="column is-3 is-mobile-6 card-container">
                 <div class="panel has-bg-muted is-small" style='height: 100%;'>
-                    <div class="row has-centered">
+                    <div class="flex has-centered">
                         <div class="column is-7">
                             <a href="/{{a.path}}">
                                 <div class="image is-medium is-thumbnail is-margin-center">

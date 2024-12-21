@@ -8,7 +8,7 @@
         <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/lineage" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
            hx-push-url="/{{obj.path}}/lineage">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="mdi:family-tree" width="2rem"></iconify-icon>
                 </div>
@@ -23,7 +23,7 @@
 
 {% macro info(user, obj) -%}
 <div class="panel has-bg-screen">
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column is-shrink is-mobile-4">
             <h4>STR</h4>
             <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
@@ -50,14 +50,14 @@
         </div>
     </div>
 </div>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     <div class="column is-3 is-mobile-4">
         <div id="current-hitpoints" class="panel has-bg-muted">
             <h4 class="has-text-dark">Current HP</h4>
             <input hx-get="/api/manage/character/hitpoints"
                    hx-swap="none" hx-trigger="input delay:1s, change" type="number"
                    value="{{obj.current_hitpoints}}" name="current_hitpoints">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-shrink is-end">
                     <button class="button is-small" hx-get="/api/manage/character/hitpoints"
                             hx-target="#current-hitpoints" hx-select="#current-hitpoints"
@@ -85,7 +85,7 @@
         <p class="has-text-dark">{{obj.ac}}</p>
     </div>
 </div>
-<div class='row has-space-around'>
+<div class='flex has-space-around'>
     <div class="column is-shrink is-mobile-4">
         <h4 class='has-text-screen'>Age</h4>
         {% if obj.age %}
@@ -112,7 +112,7 @@
     </div>
 </div>
 <hr>
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
         <div class="panel has-bg-screen">
@@ -128,7 +128,7 @@
     <div id="model-wealth" class="column is-full">
         <h4>Wealth</h4>
         <div class="panel">
-            <div class="row">
+            <div class="flex">
                 {% for item in obj.items %}
                 <div class="column is-2">
                     {{display_components.object_display(item, size='small', type=False)}}
@@ -151,7 +151,7 @@
 {% macro manage_details(user, obj) -%}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-between">
+    <div class="flex has-space-between">
         <div class="column">
             <h4 class="has-text-center has-text-primary">STR</h4>
             <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
@@ -180,7 +180,7 @@
         </div>
     </div>
     <hr>
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column is-shrink ">
             <h4 class='has-text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
             <input class="has-text-center" id="model-hitpoints" type="number"
@@ -202,7 +202,7 @@
         </div>
         {% endif %}
     </div>
-    <div class="row has-space-between">
+    <div class="flex has-space-between">
         <div class="column is-2">
             <h4 class='has-text-primary'>Species</h4>
             <input type="text" value="{{obj.species}}" name="species">
@@ -225,14 +225,14 @@
         </div>
     </div>
     <hr>
-    <div class="row">
+    <div class="flex">
         <div class="column">
             <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>
     <hr>
-    <div class="row">
+    <div class="flex">
         <div id="model-wealth" class="column is-full">
             <h3 class='has-text-center has-text-primary'>Wealth</h3>
             {{form_components.listeditor(user, obj, "wealth")}}

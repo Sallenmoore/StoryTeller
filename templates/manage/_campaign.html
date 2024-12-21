@@ -7,7 +7,7 @@
     Manage Campaigns
 </h2>
 <div id="world-campaign-details" class="raise-it">
-    <div class="row">
+    <div class="flex">
         <div class="column">
             <select class="has-bg-muted" name="campaignpk" id="campaignpk"
                     hx-post="/api/campaign/"
@@ -50,7 +50,7 @@
                 </a>
             </li>
         </ul>
-        <div class="row">
+        <div class="flex">
             <div id='details-container' class="column is-full">
                 {% if episode %}
                 {{episode_details(user, obj, campaign, episode)}}
@@ -75,7 +75,7 @@
 {% macro campaign_details(user, obj, campaign) -%}
 <div class="section is-small">
     <div class="panel has-bg-screen">
-        <div class="row has-space-around">
+        <div class="flex has-space-around">
             <div class="column is-shrink">
                 {% if campaign.start_date %}
                 <h5>Began: {{campaign.start_date}}</h5>
@@ -91,7 +91,7 @@
     <div class="panel has-bg-muted has-text-dark" style='position:relative;'>
         {{campaign.summary | safe}}
         <div style='position: absolute; bottom:0px; right:0px;'>
-            <div class="row">
+            <div class="flex">
                 <div class="column">
                     <button class='button is-small' class="button is-primary"
                             hx-post="/task/generate/campaign/{{campaign.pk}}/summary"
@@ -104,9 +104,9 @@
     </div>
     <form hx-post="/api/campaign/{{campaign.pk}}/update" hx-swap='none'
           hx-trigger='input delay:0.5s'>
-        <div class="row has-space-between" id="current-campaign-name">
+        <div class="flex has-space-between" id="current-campaign-name">
             <div class="column is-full has-text-secondarybg">
-                <div class="row">
+                <div class="flex">
                     <div class="column is-shrink is-vertically-centered">
                         <h4>Name</h4>
                     </div>
@@ -118,7 +118,7 @@
             </div>
         </div>
         <hr>
-        <div class="row" id="current-campaign-description">
+        <div class="flex" id="current-campaign-description">
             <div class="column is-full has-text-secondarybg">
                 <h3 class='has-text-center'>Description</h>
                     {{form_components.texteditor(user, campaign, 'description')}}
@@ -126,7 +126,7 @@
         </div>
     </form>
     <hr class='has-bg-primary'>
-    <div class="row" id='campaign-players'>
+    <div class="flex" id='campaign-players'>
         <div class="column is-4">
             <h5>Add Player</h5>
             <div class="panel has-bg-muted">
@@ -151,7 +151,7 @@
         <div class="column">
             <div class="panel">
                 <h3 class='has-text-center'> Players </h3>
-                <div class="row has-space-around">
+                <div class="flex has-space-around">
                     {% for p in campaign.players %}
                     <div class="column is-4 has-text-center">
                         {{display_components.object_display(p, size="medium", type=False)}}
@@ -176,10 +176,10 @@
             {% if campaign[obj_key] %}
             <hr class='has-bg-muted'>
             <h3 class='has-text-center'> {{title}} </h3>
-            <div class="row has-space-around" id="episode-encounters">
+            <div class="flex has-space-around" id="episode-encounters">
                 {% for a in campaign[obj_key] %}
                 <div class="column is-3 episode-association-entry">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-full">
                             {{display_components.object_display(a, size="medium")}}
                         </div>
@@ -192,7 +192,7 @@
         </div>
     </div>
     <hr class='has-bg-muted'>
-    <div class="row">
+    <div class="flex">
         <div class="column is-shrink is-center">
             <a hx-post="/api/campaign/{{campaign.pk}}/delete"
                hx-target="#page-content"
@@ -207,7 +207,7 @@
 {% macro episode_details(user, obj, campaign, episode=None) -%}
 <div class="section is-small">
     <h3>Episode Select</h3>
-    <div class="row">
+    <div class="flex">
         <div class="column">
             <select id="episode-select" class="has-bg-muted" name="episodepk"
                     hx-post="/api/campaign/{{campaign.pk}}/episode/manage"
@@ -241,10 +241,10 @@
             </button>
         </div>
     </div>
-    <div class="row fade-it-in" id='campaign-episode-container'>
+    <div class="flex fade-it-in" id='campaign-episode-container'>
         <div id='episode-details' class="column">
             {% if episode %}
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 <div class="column">
                     <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
                          style='position:relative;'>
@@ -262,7 +262,7 @@
             <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
                   hx-swap='none'
                   hx-trigger='input delay:1s, change'>
-                <div class="row">
+                <div class="flex">
                     <div class="column is-6">
                         <h4 class='has-text-center has-text-dark'>Name</h4>
                         <input class="has-bg-light has-text-center" type="text" name="name"
@@ -275,7 +275,7 @@
                     </div>
                 </div>
                 <div class="panel is-small has-bg-screen">
-                    <div class="row">
+                    <div class="flex">
                         <div class="column inputlabel">
                             <h5 class='has-text-primarybg has-text-center'>Start Date</h5>
                             <input class='has-bg-light' type="text" name="start_date"
@@ -314,14 +314,14 @@
                         </a>
                     </li>
                 </ul>
-                <div class="row">
+                <div class="flex">
                     <div id="episode-manage-container" class="column episode_tabs fade-it-in">
                         {{episode_report(user, obj, episode)}}
                     </div>
                 </div>
             </div>
             <hr class='has-bg-primary'>
-            <div class="row ">
+            <div class="flex ">
                 <div class="column is-end is-shrink">
                     <button class="button is-light has-text-dark"
                             hx-post="/api/campaign/episode/{{episode.pk}}/delete"
@@ -340,7 +340,7 @@
 {%- endmacro %}
 
 {% macro episode_report(user, obj, episode, afilter=None) -%}
-<div class="row">
+<div class="flex">
     <div class="column">
         <hr>
         <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
@@ -355,11 +355,11 @@
 {%- endmacro %}
 
 {% macro episode_associations(user, obj, episode, afilter=None) -%}
-<div id="episode-associations" class="row">
+<div id="episode-associations" class="flex">
     <div class="column fade-it-in">
         <hr>
         <h5 class='has-text-primary'>Add New...</h5>
-        <div class="row has-space-around">
+        <div class="flex has-space-around">
             {% for model in obj.all_models_str() %}
             <div class="column is-shrink">
                 <button class='button is-small'
@@ -375,7 +375,7 @@
             {% endfor %}
         </div>
         <h5 class='has-text-primary'>...or Add Existing</h5>
-        <div class="row">
+        <div class="flex">
             <div class="column is-shrink">
                 <button class='button is-primary is-small'
                         hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/campaignassociations'
@@ -426,7 +426,7 @@
         <hr>
         <div class="panel has-bg-screen">
             <section class='section is-small'>
-                <div class="row">
+                <div class="flex">
                     <div class="column is-shrink">
                         <h5>Filter by</h5>
                     </div>
@@ -489,15 +489,15 @@
 {% macro episode_association_display(user, obj, episode, children, title) -%}
 <h3 class='has-text-center'> {{title}} </h3>
 <hr class='has-bg-muted'>
-<div class="row">
+<div class="flex">
     {% for a in children %}
     <div class="column is-3 is-mobile-6 episode-association-entry fade-it-in">
-        <div class="row">
+        <div class="flex">
             <div class="column is-full">
                 {{display_components.object_display(a, size="medium", type=False)}}
             </div>
             <div class="column is-full">
-                <div class="row has-centered">
+                <div class="flex has-centered">
                     <div class="column is-shrink is-vertically-centered">
                         <a hx-post="/api/campaign/episode/{{episode.pk}}/association/{{a.path}}/delete"
                            hx-target="closest .episode-association-entry" hx-swap="delete"
@@ -520,7 +520,7 @@
        hx-target='#episode-associations'
        hx-select='#episode-associations' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
+        <div class="flex">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
@@ -539,9 +539,9 @@
 
 
 {% macro episode_gmplanner(user, obj, episode) -%}
-<div class="row">
+<div class="flex">
     <div class="column is-full">
-        <div class="row has-centered">
+        <div class="flex has-centered">
             <div class="column is-shrink">
                 <h3 class='has-text-center has-text-dark'>Episode Notes</h3>
             </div>
@@ -564,10 +564,10 @@
 
 {% macro episode_scenenotes(user, obj, episode) %}
 {% for scenenote in episode.scenenotes %}
-<div class="row">
+<div class="flex">
     <div class="column">
         <div class="panel">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-full"
                      onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
                     <h4>{{scenenote.name}}</h4>
@@ -577,7 +577,7 @@
                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/update"
                           hx-swap='none'
                           hx-trigger='input delay:1s, change, end'>
-                        <div class="row">
+                        <div class="flex">
                             <div class="column is-8">
                                 <input class="has-bg-muted" type="text"
                                        name="name"
@@ -597,11 +597,11 @@
                             </div>
                         </div>
                     </form>
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-half">
                             <hr class='has-bg-light'>
                             <h4 class='has-text-center'>Setting</h4>
-                            <div class="row has-space-around">
+                            <div class="flex has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/add"
                                           hx-target="#scenenotes-forms"
@@ -628,7 +628,7 @@
                                 {% for a in scenenote.setting %}
                                 <div class="screenote-setting column is-3">
                                     {{display_components.object_display(a, size="medium")}}
-                                    <div class="row has-centered">
+                                    <div class="flex has-centered">
                                         <div class="column is-shrink"
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/remove"
                                              hx-target="closest .screenote-setting"
@@ -645,7 +645,7 @@
                         <div class="column is-half">
                             <hr class='has-bg-light'>
                             <h4 class=' has-text-center'>Encounters</h4>
-                            <div class="row has-space-around">
+                            <div class="flex has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/add"
                                           hx-target="#scenenotes-forms"
@@ -671,7 +671,7 @@
                                 {% for a in scenenote.encounters %}
                                 <div class="screenote-encounter column is-3">
                                     {{display_components.object_display(a, size="medium")}}
-                                    <div class="row has-centered">
+                                    <div class="flex has-centered">
                                         <div class="column is-shrink"
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"
                                              hx-target="closest .screenote-encounter"

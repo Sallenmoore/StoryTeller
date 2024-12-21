@@ -2,7 +2,7 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
 {% macro info(user, obj) -%}
-<div class="row has-space-around">
+<div class="flex has-space-around">
     <div class="column is-shrink">
         <h4 class='has-text-dark'>STR</h4>
         <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
@@ -28,7 +28,7 @@
         <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
     </div>
 </div>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     <div class="column inputlabel is-shrink">
         <h5 class='has-text-dark'>HP</h5>
         <p>{{obj.hitpoints}}</p>
@@ -46,7 +46,7 @@
     </div>
 </div>
 {% if user.world_user(obj)%}
-<div class="row">
+<div class="flex">
     <div id="model-goal" class="column">
         <div class="panel has-bg-secondary has-text-secondary">
             <h3 class="has-text-primary has-text-center">Goal</h3>
@@ -65,7 +65,7 @@
 {% macro manage_details(user, obj) -%}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column inputlabel has-text-center is-1 is-mobile-4">
             <label class="has-text-center">STR</label>
             <input type="number" class="has-text-center" value="{{obj.strength}}" name="strength">
@@ -93,7 +93,7 @@
                    name="constitution">
         </div>
     </div>
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         <div class="column is-shrink">
             <label class="is-subheading">Group</label>
             <div class="is-select">
@@ -143,7 +143,7 @@
         </div>
     </div>
     <hr>
-    <div class="row">
+    <div class="flex">
         <div id="model-goal" class="column">
             <h3 class='has-text-center has-text-dark'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}

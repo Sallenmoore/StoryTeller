@@ -2,7 +2,7 @@
 
 {% macro journal_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Journal Editor</title>
-<div class="row">
+<div class="flex">
     <div class="column is-vertically-centered">
         <h2 class='has-text-center has-text-primary'>Journal Editor</h2>
     </div>
@@ -18,7 +18,7 @@
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
 
-    <div class="row">
+    <div class="flex">
         <div class="column is-half">
             <h5 class='has-text-center'>Title</h5>
             <input class="has-bg-muted" type="text" name="name" value="{{entry.title}}">
@@ -51,7 +51,7 @@
     </div>
     <hr>
 </form>
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <h3 class="has-text-center">Add Associations</h3>
         <div class="has-dropdown" style="width: 100%;">
@@ -67,7 +67,7 @@
         </div>
         <hr>
         <div class="panel has-bg-light-grey is-small">
-            <div class="row has-space-around" id="journal-entry-associations">
+            <div class="flex has-space-around" id="journal-entry-associations">
                 {% for a in entry.associations %}
                 <div class="column is-shrink ">
                     <a href="/{{a.path}}">

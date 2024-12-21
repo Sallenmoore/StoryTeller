@@ -4,7 +4,7 @@
 <title>{{obj.name}} - Map</title>
 <h2 class='has-text-dark'>Map</h2>
 <hr>
-<div class="row fade-it-in" id='object-map-view'>
+<div class="flex fade-it-in" id='object-map-view'>
     {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle'] and
     user.world_user(obj) %}
     <div class="column is-full">
@@ -14,9 +14,9 @@
                 {{form_components.texteditor(user, obj, 'map_prompt')}}
             </form>
         </div>
-        <div class="row">
+        <div class="flex">
             <div class="column">
-                <div class="row">
+                <div class="flex">
                     {% if obj.backstory_summary %}
                     <div class="column">
                         <button class="button is-full is-primary"
@@ -49,12 +49,12 @@
                     </div>
                 </div>
                 <hr class="has-bg-primary">
-                <div class="row">
+                <div class="flex">
                     <div class="column">
                         <form hx-post="/api/manage/update" hx-select='#model-owner-map'
                               hx-target="#model-owner-map"
                               hx-confirm="Are you sure you want to upload and overwrite the current map?">
-                            <div class="row">
+                            <div class="flex">
                                 <div class="column is-shrink">
                                     <button class="button is-primary is-small" type="submit">
                                         <iconify-icon icon="lucide:link"></iconify-icon>

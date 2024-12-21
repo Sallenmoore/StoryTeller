@@ -3,7 +3,7 @@
 <h2 class='has-text-dark'>History</h2>
 <hr>
 <div class="panel has-bg-muted">
-    <div class="row" id="model-history-container">
+    <div class="flex" id="model-history-container">
         <div class="column has-no-padding">
             <div id="history-image" class="is-float-right" style="position:relative;width:50%;">
                 <div class="image is-extra-large "
@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div id='history-text'>
-                <div class="row">
+                <div class="flex">
                     {% if obj.start_date and obj.start_date.year %}
                     <div class="column">
                         <h4 class='has-text-dark-grey'>

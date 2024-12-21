@@ -6,7 +6,7 @@
 
 {% macro gm(user, world, party=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
-<div id='auto-gm-container' class="row" style='position: relative;'>
+<div id='auto-gm-container' class="flex" style='position: relative;'>
     {% if party and party.last_scene and party.last_scene.prompt %}
     <div class="column is-full" style='position:relative;'>
         <button class='button is-small' style='position:absolute; top:0; right:0;'
@@ -26,7 +26,7 @@
               hx-target='#page-content'
               hx-trigger='change'
               onchange='history.pushState({}, "", `/faction/${this.querySelector("#partypk").value}/gm`);'>
-            <div class="row has-centered">
+            <div class="flex has-centered">
                 <div class="column is-shrink is-vertically-centered">
                     <div class="is-select">
                         <select class='has-text-center' name='partypk' id='partypk'>
@@ -103,7 +103,7 @@
 {% macro autogm_start_session(user, world, party) -%}
 <div class="panel">
     <h3>Party</h3>
-    <div id='party-members-list' class="row has-space-around">
+    <div id='party-members-list' class="flex has-space-around">
         {% for member in party.characters %}
         <div class="column is-3">
 
@@ -116,7 +116,7 @@
           hx-push-url='/{{party.path}}/gm'>
         <input type='hidden' name='partypk' value='{{party.pk}}'>
         <div class="panel has-bg-muted">
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 <div class="column is-shrink is-vertically-centered">
 
                     <h4 class='has-text-primary has-text-center'>AI Mode</h4>
@@ -143,7 +143,7 @@
                 </div>
             </div>
         </div>
-        <div class="row has-centered">
+        <div class="flex has-centered">
             <div class="column is-full is-vertically-centered">
                 <div class="panel has-bg-muted">
                     <h4 class='has-text-primary has-text-center'>Scenario</h4>
@@ -164,7 +164,7 @@
 
 {% macro autogm_gm_session(user, world, party) -%}
 <h2 class="has-text-primary">Player Session</h2>
-<div class="row has-space-around has-bg-muted" style='z-index:100; position: sticky; top:0;'>
+<div class="flex has-space-around has-bg-muted" style='z-index:100; position: sticky; top:0;'>
     {% for player in party.players %}
     <div class="column is-shrink">
         <div class="panel has-bg-dark-grey has-border">
@@ -180,12 +180,12 @@
 {{ scene_description(user, world, party) }}
 {% endif %}
 <hr>
-<div class="row has-space-around">
+<div class="flex has-space-around">
     <div id="autogm-gm-form" class="column is-full is-vertically-centered">
         <form hx-post="/api/autogm/{{party.pk}}/update"
               hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
             <div class="panel has-text-center has-bg-muted">
-                <div class="row has-space-around">
+                <div class="flex has-space-around">
                     <div class="column is-shrink is-vertically-centered">
                         <h4 class='has-text-primary has-text-center'>Date</h4>
                         <input class="has-text-center" type="string" name="date" id="date"
@@ -211,7 +211,7 @@
 <div class="panel has-bg-white generated-text-lightbg">
     {# needed to contain floated image #}
     {% if party.last_scene %}
-    <div class="row has-space-around">
+    <div class="flex has-space-around">
         {% if party.last_scene.image %}
         <div class="column is-4">
             <div class="image is-tile is-margin-center">
@@ -243,23 +243,23 @@
     </div>
     {% endif %}
 </div>
-<div class="row">
+<div class="flex">
     <div class="column">
         {{scene_associations(user, world, party)}}
     </div>
     <div id="autogm-gm-form" class="column">
-        <div class="row has-space-around">
+        <div class="flex has-space-around">
             <div class="column is-full is-vertically-centered">
                 <form hx-post="/api/autogm/{{party.pk}}/update"
                       hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-full is-vertically-centered">
                             <h3 class='has-text-center has-text-primary'>Scenario</h3>
                             {{form_components.texteditor(user, party.next_scene, "description", content=party.next_scene.description or "")}}
                         </div>
                     </div>
                     <div class="panel has-text-center has-bg-muted">
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             <div class="column is-shrink is-vertically-centered">
                                 <label class='has-text-primary'>Scene Type</label>
                                 <div class="select" style="width: 100%;">
@@ -287,7 +287,7 @@
                             </div>
                             <div class="column is-shrink is-vertically-centered">
                                 <h4 class="has-text-screen has-text-center">Roll Required</h4>
-                                <div class='row has-centered'>
+                                <div class='flex has-centered'>
                                     <div class="column is-shrink">
                                         <div class="is-select">
                                             <select name="pc_roll_player">
@@ -351,7 +351,7 @@
 <h2 class='has-text-center has-text-primary'>Combat Initiative</h2>
 <div class="panel has-bg-white">
     {% if party.last_scene.current_combat_turn().scene_description %}
-    <div class='row'>
+    <div class='flex'>
         <div class="column generated-text-lightbg" style='padding: 0.5rem;'>
             <button class="button has-text-muted"
                     onclick='gmvoiced("/audio/gm/combat/{{party.last_scene.current_combat_turn().pk}}",
@@ -388,14 +388,14 @@
             }
         }
     </script>
-    <div id="player-card-panels" class="row has-space-around">
+    <div id="player-card-panels" class="flex has-space-around">
         {% for iniplayer in party.last_scene.initiative.order %}
         <div id="player-{{iniplayer.pk}}-card-container"
              class="column is-1"
              {% if party.last_scene.current_combat_turn()==iniplayer %}
              style='border: solid 2px rgb(114, 17, 17);'
              {% endif %}>
-            <div class="row has-bg-primary" style='position: relative;'>
+            <div class="flex has-bg-primary" style='position: relative;'>
                 <div class="column is-shrink has-bg-screen"
                      style='position:absolute; top: 0; right: 0; z-index:100;'>
                     <h6 class='has-text-center'>AC: {{iniplayer.actor.ac}}</h6>
@@ -410,7 +410,7 @@
                     {{display_components.object_display(iniplayer.actor, dim=250, type=False)}}
                 </div>
                 <div class="column is-full initiative-details is-hidden">
-                    <div class="row has-centered">
+                    <div class="flex has-centered">
                         <div class="column is-full">
                             <h6 class='has-text-muted has-text-center'>Status</h6>
                             <textarea hx-post="/api/autogm/{{party.pk}}/status/{{iniplayer.pk}}"
@@ -420,7 +420,7 @@
                                       style='width:100%; height: 3rem;'>{{iniplayer.status}}</textarea>
                         </div>
                         <div class="column">
-                            <div class="row">
+                            <div class="flex">
                                 <div class="column is-6 is-vertically-centered inputlabel">
                                     <h6 class='has-text-center'>HP</h6>
                                     <input class="has-text-center has-text-dark "
@@ -448,15 +448,15 @@
 </div>
 <hr class='has-bg-muted'>
 {% set actor = party.last_scene.current_combat_turn().actor %}
-<div id="scene-combat-container" class="row has-space-around">
+<div id="scene-combat-container" class="flex has-space-around">
     <div class="column is-4">
-        <div class="row">
+        <div class="flex">
             <div class="column is-full">
                 <div class="container">
-                    <div class="row has-centered">
+                    <div class="flex has-centered">
                         <div class="column">
                             <div class="panel has-bg-screen">
-                                <div class="row has-centered">
+                                <div class="flex has-centered">
                                     <div class="column is-shrink">
                                         <h4><iconify-icon class="has-text-light"
                                                           icon="arcticons:dice-1"
@@ -492,7 +492,7 @@
                                                value="+0">
                                     </div>
                                 </div>
-                                <div class="row has-centered">
+                                <div class="flex has-centered">
                                     <div class="column">
                                         <button class=" button is-primary is-small is-full"
                                                 onclick="rollDice();">Roll</button>
@@ -542,7 +542,7 @@
     <div class="column is-8">
         <form id="scene-combat-update" hx-post='/api/autogm/{{party.pk}}/combat/update'
               hx-trigger="input delay:500ms consume" hx-swap='none'>
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 <div class="column">
                     <h4 class='has-text-dark has-text-center'>Action</h4>
                     <textarea class="has-bg-white" id="initiative-action-description"
@@ -551,7 +551,7 @@
                               {% if not actor.is_player %} readonly {% endif %}>
                     {{party.last_scene.current_combat_turn().action.description}}
                     </textarea>
-                    <div class="row has-space-around">
+                    <div class="flex has-space-around">
                         <div class="column is-2 inputlabel">
                             <h6 class='has-text-primary'>Attack Roll</h6>
                             <input class="has-text-primary"
@@ -617,7 +617,7 @@
                     {% if actor.is_player %}
                     <div class="panel has-bg-muted">
                         <h6 class='has-text-primary has-text-center'>Available Abilities</h6>
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             {% for ability in actor.abilities %}
                             {% if not ability.action or"main" in ability.action %}
                             <div class="column is-shrink">
@@ -635,7 +635,7 @@
                                         </button>
                                         <h3 class='has-text-dark'>{{ability.name}}</h3>
                                         {{ability.description | safe}}
-                                        <div class="row">
+                                        <div class="flex">
                                             <div class="column">
                                                 <div class="panel is-full has-text-white">
                                                     <h4>Effects</h4>
@@ -677,7 +677,7 @@
                               {% if not actor.is_player %} readonly {%
                               endif
                               %}>{{party.last_scene.current_combat_turn().bonus_action.description}}</textarea>
-                    <div class="row ">
+                    <div class="flex ">
                         <div class="column is-2 inputlabel">
                             <h6 class='has-text-primary'>Attack Roll</h6>
                             <input class="has-text-primary"
@@ -745,7 +745,7 @@
                     <hr>
                     <div class="panel has-bg-muted">
                         <h6 class='has-text-primary has-text-center'>Available Abilities</h6>
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             {% for ability in actor.abilities %}
                             {% if not ability.action or"bonus" in ability.action %}
                             <div class="column is-shrink">
@@ -763,7 +763,7 @@
                                         </button>
                                         <h3 class='has-text-dark'>{{ability.name}}</h3>
                                         {{ability.description | safe}}
-                                        <div class="row">
+                                        <div class="flex">
                                             <div class="column">
                                                 <div class="panel is-full has-text-white">
                                                     <h4>Effects</h4>
@@ -830,9 +830,9 @@
 {%- endmacro %}
 
 {% macro scene_party_details(user, world, party) -%}
-<div id="scene-party-details-container" class='row has-space-around'>
+<div id="scene-party-details-container" class='flex has-space-around'>
     <div class="column is-full">
-        <div id="player-card-panels" class="row has-space-around">
+        <div id="player-card-panels" class="flex has-space-around">
             {% for player in party.players %}
             <div id="player-{{player.pk}}-card-container"
                  class="column is-full {% if false %} is-hidden {% endif%}">
@@ -846,10 +846,10 @@
 
 
 {% macro scene_party_summary(user, world, party) -%}
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <div class="panel has-bg-light">
-            <div class="row">
+            <div class="flex">
                 {%if party.last_scene and party.last_scene.summary %}
                 <div class="column is-full">
                     <div class='generated-text-lightbg'>
@@ -859,7 +859,7 @@
                 {% endif %}
                 <div class="column is-full">
                     <div class="panel has-bg-white">
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             {% for ags in party.autogm_summary[-8:] %}
                             {% if ags.image %}
                             <div
@@ -884,7 +884,7 @@
 
 {% macro autogm_submit_session(user, world, party) -%}
 <section id="next-session-container" class='section is-small'>
-    <div class="row has-space-between">
+    <div class="flex has-space-between">
         <div class="column is-full">
             {% if party.next_scene.roll_required and not party.next_scene.roll_result %}
             <h6 class='has-text-center has-text-primary'>Roll Required before advancing to next
@@ -953,9 +953,9 @@
     <h3 class='has-text-center has-text-dark'>
         {{player.name}}
     </h3>
-    <div id="object-card-{{player.pk}}" class='row has-bg-white initiative-card'>
+    <div id="object-card-{{player.pk}}" class='flex has-bg-white initiative-card'>
         <div class="column">
-            <div class="row">
+            <div class="flex">
                 <div class="column is-shrink">
                     <a href='/{{player.path}}' target='_blank'>
                         {% if player.image %}
@@ -967,7 +967,7 @@
                 </div>
                 <div class="column is-shrink player-card-abilities">
                     <div class="panel has-bg-screen">
-                        <div class="row has-space-around has-text-center has-text-dark"
+                        <div class="flex has-space-around has-text-center has-text-dark"
                              style='cursor: pointer;'>
                             <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
                                 <h4 class="has-text-dark">STR</h4>
@@ -998,10 +998,10 @@
                         </div>
                     </div>
 
-                    <div class="row has-space-around">
+                    <div class="flex has-space-around">
                         <div class="column is-shrink">
                             <h4 class='has-text-dark has-text-center'>Current HP</h4>
-                            <div class="row has-space-around">
+                            <div class="flex has-space-around">
                                 <div class="column is-shrink  inputlabel">
                                     <input class="has-text-center has-text-dark"
                                            style='font-size:1.25rem; width:5rem;'
@@ -1026,7 +1026,7 @@
                 <div id="player-response-container-{{player.pk}}" class="column is-full">
                     {% if party.gm_mode == 'pc' and party.last_scene.get_player_message(player)
                     %}
-                    <div class="row">
+                    <div class="flex">
                         <div class="column is-shrink" style='position:relative;'>
 
                             {{display_components.obj_display(player, name=False, type=False)}}
@@ -1051,7 +1051,7 @@
                         </div>
                     </div>
                     {% elif party.next_scene.gm_mode == 'gm' %}
-                    <div class="row">
+                    <div class="flex">
                         <div class="column">
                             <form autocomplete="off"
                                   hx-post='/api/autogm/{{party.pk}}/update'
@@ -1062,7 +1062,7 @@
                                 <div class="panel is-full has-bg-light has-text-dark">
                                     {% set msg =
                                     party.next_scene.get_player_message(player) %}
-                                    <div class="row has-space-around">
+                                    <div class="flex has-space-around">
                                         <div class="column is-full">
                                             <h4 class='has-text-dark'>Action</h4>
                                             <textarea class="has-bg-white" autocomplete="false"
@@ -1198,14 +1198,14 @@
                     }
                 </script>
             </div>
-            <div class="row has-bg-white">
+            <div class="flex has-bg-white">
                 <div id="card-abilities-details-panel"
                      class="column card-details-panel is-full generated-text-lightbg is-hidden">
                     {{abilities_components.abilities(user, player)}}
                 </div>
                 <div id="card-items-details-panel" class="column card-details-panel is-full">
                     <div class="panel has-bg-dark-grey">
-                        <div class="row">
+                        <div class="flex">
                             {% for item in player.items %}
                             <div class="column is-4">
                                 {{display_components.object_display(item, size="tiny", type=False, name=False, modal=True)}}
@@ -1230,9 +1230,9 @@
 {% macro scene_description(user, world, party)%}
 <div class="panel has-bg-white generated-text-lightbg"
      style='position:relative; border-top-left-radius: 0;border-top-right-radius:0;'>
-    <div class="row">
+    <div class="flex">
         <div class="column">
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 {% if party.last_scene.audio %}
                 <div class="column is-shrink">
                     <button class="button is-small has-bg-screen"
@@ -1249,7 +1249,7 @@
             </div>
             {% if party.last_scene.roll_required%}
             <div class="panel">
-                <div class="row">
+                <div class="flex">
                     <div class="column is-shrink">
                         <a class='button is-small'
                            onclick='this.closest(".panel").nextElementSibling.classList.remove("is-hidden"); this.remove();'>
@@ -1309,7 +1309,7 @@
 {%- endmacro %}
 
 {% macro scene_associations(user, world, party)%}
-<div id='autogm-associations-list-container' class="row has-space-around">
+<div id='autogm-associations-list-container' class="flex has-space-around">
     <div class="column is-half">
         <h4 class='has-text-center has-text-primary'>Search Associations</h4>
         <div class="has-dropdown" style="width: 100%;">
@@ -1326,7 +1326,7 @@
     </div>
     <div class="column is-half">
         <h4 class='has-text-center has-text-primary'>Create a new...</h4>
-        <div class="row has-space-around">
+        <div class="flex has-space-around">
             {% for child in party.all_models() %}
             <div class="column is-shrink">
                 <button class="button is-primary is-small"
@@ -1341,11 +1341,11 @@
     </div>
     <div class="column is-full">
         <div class="panel has-bg-screen">
-            <div id='autogm-associations-list' class="row has-space-around">
+            <div id='autogm-associations-list' class="flex has-space-around">
                 {% for a in party.next_scene.get_additional_associations() %}
                 <div class="column is-3 has-space-around autogm-association-entry">
                     {{display_components.object_display(a, size="small")}}
-                    <div class="row has-space-around">
+                    <div class="flex has-space-around">
                         <div class="column is-shrink"
                              style='font-size: 0.75rem;'>
                             <a class="has-text-primary"
@@ -1383,7 +1383,7 @@
        hx-target='#autogm-associations-list'
        hx-select='#autogm-associations-list' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
+        <div class="flex">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
@@ -1401,12 +1401,12 @@
 {%- endmacro %}
 
 {% macro autogm_scene_objects(user, world, party) -%}
-<div id="autogm_scene_objects" class="row has-space-around">
+<div id="autogm_scene_objects" class="flex has-space-around">
     {% if party.next_scene.get_npcs() %}
     <div class="column is-shrink">
         <div class="panel has-bg-screen">
             <h4 class="has-text-center">NPCs</h4>
-            <div class="row">
+            <div class="flex">
                 {% for npc in party.next_scene.npcs%}
                 <div id="npc-{{npc.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if npc.image %}
@@ -1435,7 +1435,7 @@
     <div class="column is-shrink">
         <div class="panel has-bg-screen">
             <h4 class="has-text-center">Combatants</h4>
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 {% for cbt in party.next_scene.combatants%}
                 <div id="cbt-{{cbt.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if cbt.image %}
@@ -1464,7 +1464,7 @@
     <div class="column is-shrink">
         <div class="panel has-bg-screen">
             <h4 class="has-text-center">Places</h4>
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 {% for plc in party.next_scene.places%}
                 <div id="plc-{{plc.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if plc.image %}
@@ -1493,7 +1493,7 @@
     <div class="column is-shrink">
         <div class="panel is-full has-bg-screen">
             <h4 class="has-text-center">Loot</h4>
-            <div class="row has-space-around">
+            <div class="flex has-space-around">
                 {% for loot in party.next_scene.loot %}
                 <div id="loot-{{loot.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if loot.image %}
@@ -1522,7 +1522,7 @@
     <div class="column is-shrink">
         <div class="panel has-bg-screen">
             <h4 class="has-text-center">Factions</h4>
-            <div class="row">
+            <div class="flex">
                 {% for fct in party.next_scene.factions%}
                 <div id="fct-{{fct.pk}}" class='column is-shrink' style='position:relative;'>
                     {% if fct.image %}
@@ -1552,7 +1552,7 @@
 
 {% macro scene_dice_results(party, scene, roll_form=False, id='')%}
 {% if scene and scene.roll_required%}
-<div id="roll-form-{{scene.pk}}-{{id}}" class="row has-space-around">
+<div id="roll-form-{{scene.pk}}-{{id}}" class="flex has-space-around">
     <div class="column is-full">
         <h3 class='has-text-primary'>
             {% if scene.roll_player %}
@@ -1604,12 +1604,12 @@
                   hx-target='#roll-form-{{scene.pk}}-{{id}}'
                   hx-select='#roll-form-{{scene.pk}}-{{id}}'
                   hx-swap='outerHTML'>
-                <div class='row has-space-around'>
+                <div class='flex has-space-around'>
                     <div class="column is-shrink is-vertically-centered">
                         <button class=" button" type='submit'>Roll</button>
                     </div>
                     <div class="column is-shrink">
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             <div class="column is-2 is-vertically-centered">
                                 <input type="number" value="1"
                                        name="pc_roll_num_dice">
@@ -1659,7 +1659,7 @@
 border-top-right-radius:0;'>
 
         {% for quest in party.next_scene.quest_log %}
-        <div class="row has-space-between"
+        <div class="flex has-space-between"
              onclick='this.querySelector("#quest-{{quest.pk}}").classList.toggle("is-hidden");'>
             <div class="column is-shrink">
                 {% if party.next_scene.current_quest == quest%}
@@ -1684,13 +1684,13 @@ border-top-right-radius:0;'>
             <div class="column is-shrink is-vertically-centered">
                 <button class='button is-small has-bg-dark-grey'
                         hx-post='/api/autogm/party/{{party.pk}}/quest/delete/{{quest.pk}}'
-                        hx-target='closest .row' hx-swap='delete'>
+                        hx-target='closest .flex' hx-swap='delete'>
                     Remove Quest
                 </button>
             </div>
             <div id="quest-{{quest.pk}}"
                  class="column is-full is-vertically-centered is-hidden">
-                <div class="row">
+                <div class="flex">
                     <div class="column has-text-primary">
                         <h5 class="has-text-primary has-text-center">Objective</h5>
                         <div class="panel has-bg-muted">

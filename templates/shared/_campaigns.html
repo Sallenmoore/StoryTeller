@@ -6,7 +6,7 @@
 <h3 class='has-text-center has-text-secondary'>Not yet associated with any campaigns
 </h3>
 {% else %}
-<div class="row">
+<div class="flex">
     <div class="column is-shrink has-vertically-centered">
         <h5 class='has-text-secondary'>Select Campaign</h5>
     </div>
@@ -29,7 +29,7 @@
 {% if campaign %}
 <div class="section is-small">
     <h3 class='has-text-primary has-text-center'>{{campaign.name}}</h>
-        <div class="row">
+        <div class="flex">
             <div class="column is-half">
                 <h4 class="has-text-dark-grey has-text-center">
                     Started: {{campaign.start_date.datestr() if campaign.start_date else 'TBD'}}
@@ -57,14 +57,14 @@
         </div>
 </div>
 <h3 class='has-text-center'>Associated Sessions</h3>
-<div class="row">
+<div class="flex">
     <div class="column is-full">
         <div class="accordion">
             <ul class="accordion__list">
                 {% for entry in obj.get_campaign_sessions(campaign) %}
                 <li class="accordion__item" style='margin-bottom: 1rem;'>
                     <div class="panel has-bg-muted">
-                        <div class="row" class='has-text-secondary'
+                        <div class="flex" class='has-text-secondary'
                              onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                             <div class="column is-vertically-centered">
                                 <h5 class=' has-text-dark'>{{entry.name}}</h5>
@@ -104,7 +104,7 @@
                         </div>
                         <hr class="has-bg-primary">
                         <h4 class='has-text-dark has-text-center'>Associations</h4>
-                        <div class="row has-space-around">
+                        <div class="flex has-space-around">
                             {% for ass in entry.associations %}
                             <div class="column has-text-center is-shrink">
                                 <a
@@ -137,7 +137,7 @@
     <div class="column is-full">
         <h2 class=" has-text-secondary has-text-center is-subtitle">
             Associations</h2>
-        <div class="row">
+        <div class="flex">
             {% for o in campaign.associations | organize_models(['title', 'name']) %}
             {% if loop.first or loop.previtem.title != o.title %}
             <div class="column is-full">
