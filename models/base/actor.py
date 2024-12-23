@@ -21,7 +21,6 @@ class Actor(TTRPGObject):
     is_player = BoolAttr(default=False)
     gender = StringAttr(default="Unknown")
     age = IntAttr(default=0)
-    race = StringAttr(default="Unknown")
     species = StringAttr(default="Unknown")
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     hitpoints = IntAttr(default=30)
@@ -58,7 +57,7 @@ class Actor(TTRPGObject):
         },
         "species": {
             "type": "string",
-            "description": "species",
+            "description": "species, such as human, orc, monster, etc.",
         },
         "traits": {
             "type": "string",
@@ -163,6 +162,14 @@ class Actor(TTRPGObject):
     def map(self):
         return self.parent.map if self.parent else None
 
+    @property
+    def race(self):
+        return self.species
+
+    @race.setter
+    def race(self, value):
+        self.species = value
+
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj
         super().generate(prompt)
@@ -181,9 +188,6 @@ class Actor(TTRPGObject):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_ac()
         document.pre_save_ability()
-
-        ## Migration ##
-        document.species = document.race
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):

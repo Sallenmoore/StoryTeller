@@ -19,9 +19,8 @@
                               height="1.25rem"></iconify-icon>
             </span>
             <div class="has-dropdown" style="width:100%;">
-                <input type="text" autocomplete="off" class="has-bg-secondary has-text-secondary"
+                <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
                        type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
-                       hx-vals='{"module":"shared/_nav.html", "macro":"nav_dropdown"}'
                        hx-trigger="input changed delay:500ms, search"
                        hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
                 <ul class="dropdown has-bg-light" id="nav-search">
@@ -58,7 +57,7 @@
 {% macro nav_dropdown(user, obj, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link">
-    <a href='/{{o.model_name() | lower}}/{{o.pk}}'>
+    <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
         <div class=" row">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">

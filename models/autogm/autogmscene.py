@@ -8,6 +8,7 @@ from autonomous import log
 from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
     BoolAttr,
+    DictAttr,
     FileAttr,
     IntAttr,
     ListAttr,
@@ -37,6 +38,7 @@ class AutoGMScene(AutoModel):
         ]
     )
     description = StringAttr(default="")
+    next_actions = ListAttr(StringAttr(default=""))
     tone = StringAttr(
         default="Noblebright",
         choices=["Noblebright", "Grimdark", "Gilded", "Heroic", "Fairytale"],
@@ -68,7 +70,19 @@ class AutoGMScene(AutoModel):
     )
     image_prompt = StringAttr()
     audio = FileAttr()
-    music_ = StringAttr(default="theme")
+    music_ = StringAttr(
+        default="theme",
+        choices=[
+            "battle",
+            "suspense",
+            "celebratory",
+            "restful",
+            "creepy",
+            "relaxed",
+            "skirmish",
+            "themesong",
+        ],
+    )
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     current_quest = ReferenceAttr(choices=[AutoGMQuest])
     quest_log = ListAttr(ReferenceAttr(choices=[AutoGMQuest]))
@@ -85,15 +99,7 @@ class AutoGMScene(AutoModel):
 
     @property
     def music(self):
-        music_file = f"/static/sounds/music/{self.music_}{random.randint(1, 10)}.mp3"
-        for _ in range(10):
-            if os.path.exists(music_file):
-                return music_file
-            else:
-                music_file = (
-                    f"/static/sounds/music/{self.music_}{random.randint(1, 10)}.mp3"
-                )
-        return None
+        return f"/static/sounds/music/{self.music_}{random.randint(1, 2)}.mp3"
 
     @music.setter
     def music(self, value):
@@ -103,6 +109,15 @@ class AutoGMScene(AutoModel):
     def player(self):
         members = self.party.characters
         return members[0] if members else None
+
+    @property
+    def is_ready(self):
+        return all([p.ready for p in self.player_messages])
+
+    def resolve_scene(self):
+        return requests.post(
+            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{self.party.pk}"
+        )
 
     def add_association(self, obj):
         if obj not in self.associations:
@@ -119,8 +134,16 @@ class AutoGMScene(AutoModel):
 
         if not self.description:
             raise ValueError("Scene Description are required to generate audio")
+        description = f"""
+        {self.description}
 
-        description = BeautifulSoup(self.description, "html.parser").get_text()
+Now you must decide on the next course of action:
+
+{'...\n\n Or, '.join(self.next_actions)}
+
+Or you may decide your own path.
+"""
+        description = BeautifulSoup(description, "html.parser").get_text()
         voiced_scene = AudioAgent().generate(description, voice=voice or "echo")
         if self.audio:
             self.audio.delete()
@@ -145,7 +168,7 @@ DESCRIPTION OF CHARACTERS IN THE SCENE
         characters = [self.roll_player] if self.roll_player else self.party.players
         for char in characters:
             desc += f"""
--{char.age} year old {char.race} {char.gender} {char.occupation}. {char.description_summary or char.description}
+-{char.age} year old {char.species} {char.gender} {char.occupation}. {char.description_summary or char.description}
     - Motif: {char.motif}
 """
         desc += f"""
@@ -183,7 +206,7 @@ SCENE DESCRIPTION
             if not char:
                 char = Character(
                     world=self.party.world,
-                    race=obj["species"],
+                    species=obj["species"],
                     name=obj["name"],
                     desc=obj["description"],
                     backstory=obj["backstory"],
@@ -325,12 +348,15 @@ SCENE DESCRIPTION
                     msg["playerpk"], msg["message"], msg["intent"], msg["emotion"]
                 )
 
-    def set_player_message(self, character_pk, response, intention, emotion):
+    def set_player_message(
+        self, character_pk, response="", intention="", emotion="", ready=False
+    ):
         player = Character.get(character_pk)
         if pc_msg := self.get_player_message(player):
             pc_msg.message = response
             pc_msg.intent = intention
             pc_msg.emotion = emotion
+            pc_msg.ready = ready
             pc_msg.save()
         else:
             pc_msg = AutoGMMessage(
@@ -339,6 +365,7 @@ SCENE DESCRIPTION
                 message=response,
                 intent=intention,
                 emotion=emotion,
+                ready=ready,
             )
             pc_msg.save()
             self.player_messages += [pc_msg]
@@ -444,18 +471,27 @@ SCENE DESCRIPTION
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
-    @classmethod
-    def auto_post_init(cls, sender, document, **kwargs):
-        # log("Auto Pre Save World")
-        super().auto_post_init(sender, document, **kwargs)
-        # if not isinstance(document.player_messages, list):
-        #     document.player_messages = []
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     # log("Auto Pre Save World")
+    #     super().auto_post_init(sender, document, **kwargs)
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_associations()
         document.pre_save_pcmessages()
+        if document.music_ not in [
+            "battle",
+            "suspense",
+            "celebratory",
+            "restful",
+            "creepy",
+            "relaxed",
+            "skirmish",
+            "themesong",
+        ]:
+            document.music_ = "themesong"
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):

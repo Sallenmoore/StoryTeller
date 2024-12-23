@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
+    BoolAttr,
     FileAttr,
     ReferenceAttr,
     StringAttr,
@@ -17,6 +18,7 @@ class AutoGMMessage(AutoModel):
     scene = ReferenceAttr(choices=["AutoGMScene"])
     player = ReferenceAttr(choices=[Character])
     audio = FileAttr()
+    ready = BoolAttr(default=False)
 
     def generate_audio(self):
         if not self.message or not self.scene:

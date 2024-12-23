@@ -354,7 +354,7 @@ def test_autogm_scene_generate_npcs(mock_autogm, mock_party, mocker):
         "backstory": "Test",
     }
     ags.generate_npcs([obj])
-    assert ags.npcs[0].race == "Test"
+    assert ags.npcs[0].species == "Test"
 
 
 def test_autogm_scene_generate_combatants(mock_autogm, mock_party, mocker):

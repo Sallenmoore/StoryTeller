@@ -146,13 +146,18 @@ class Faction(TTRPGObject):
             else:
                 self.next_scene.type = "investigation"
                 self.next_scene.save()
-                self.autogm_session(party=self)
+                self.autogm_session()
         else:
             raise ValueError("Invalid Scene Type")
 
-    def clear_autogm(self):
+    def end_autogm(self):
         self.autogm_history += self.autogm_summary
         self.autogm_summary = []
+        self.save()
+
+    def clear_autogm(self):
+        for ags in self.autogm_summary:
+            ags.delete()
         self.save()
 
     def get_next_scene(self, create=False):
@@ -195,6 +200,9 @@ class Faction(TTRPGObject):
 
                 for assoc in self.last_scene.associations:
                     assoc.add_associations(ags.associations)
+
+                for player in self.players:
+                    self.next_scene.set_player_message(player)
 
                 self.next_scene.save()
             self.save()

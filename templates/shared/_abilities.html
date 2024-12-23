@@ -10,10 +10,13 @@
         {%for ability in ability_list%}
         <div class="column is-half has-text-dark">
             <h4 class='has-text-dark has-text-center'
-                onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                onclick='this.parentElement.nextElementSibling.classList.toggle("is-hidden")'>
                 {{ability.name}}
             </h4>
-            <div class="row is-hidden">
+            <hr>
+        </div>
+        <div class="column is-full is-hidden">
+            <div class="row">
                 {% if ability.description %}
                 <div class="column is-full">
                     <div class="panel has-bg-muted">
@@ -54,7 +57,6 @@
                 </div>
                 {% endif %}
             </div>
-            <hr>
         </div>
         {% endfor %}
     </div>

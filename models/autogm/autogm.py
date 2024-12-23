@@ -99,6 +99,14 @@ class AutoGM(AutoModel):
                     "type": "string",
                     "description": "Detailed description of the scene in MARKDOWN, driving the story forward and providing relevant information.",
                 },
+                "next_actions": {
+                    "type": "array",
+                    "description": "The next set of at least 3 possible actions the players can take to advance the scene or story.",
+                    "items": {
+                        "type": "string",
+                        "description": "Detailed description in MARKDOWN of the next possible action players can take that will drive the scene or story forward.",
+                    },
+                },
                 "image": {
                     "type": "object",
                     "additionalProperties": False,
@@ -557,7 +565,7 @@ Return the responses in the following structured JSON format:
     def get_pc_prompt(self, party, start=False):
         if start:
             prompt = f"""
-You are an expert AI Game Master for a {self.world.genre} tabletop roleplaying game. Your task is to craft an evocative and gripping description of the first session by describing the world, campaign setting, and a plot hook for the players in a vivid and captivating way. The first session should also explain what brought these characters together and what their common goal is. The scene should:
+You are an expert AI Game Master for a {self.world.genre} tabletop roleplaying game. Your task is to narrate in the style of George Orwell and Ernest Hemingway an evocative and gripping description of the first session by describing the world, campaign setting, and a plot hook for the players using vivid and captivating language. The first session should also explain what brought these characters together and what their common goal is. The scene should:
 - Build suspense, tension, or excitement.
 - Incorporate elements from established lore decribed in the uploaded file.
 
@@ -574,16 +582,16 @@ Provide your response in a way that:
 """
         else:
             prompt = f"""
-You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to craft a concrete, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to crafte a scene that has concrete consequences from the previous scene while also driving the story forward in ways that are surprising yet logical and grounded in the game's established lore. Ensure that your response adheres to the following guidelines:
+You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to narrate in the style of George Orwell and Ernest Hemingway a concrete, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to narrate a scene using active language that players can understand quickly. The scene contains concrete consequences from the party's actions in the previous scene while also driving the story forward in ways that are surprising yet logical, consistent, and grounded in the game's established lore. Ensure that your response adheres to the following guidelines:
 
-- INTEGRATION: Seamlessly incorporate elements and logical consequences from previous events, the player's most recent message and roll, as well as lore from the uploaded file.
+- INTEGRATION: Incorporate elements and logical consequences from previous events, each player's most recent message and roll, and lore from the uploaded file.
 - CONSISTENCY: Maintain alignment with the previous scene's events as well as the game's tone, pacing, and narrative style.
-- ATMOSPHERE: Use concrete and sensory-rich imagery to bring the scene to life.
-- ENAGEMENT: Introduce unexpected challenges, twists, enemy ambushes, or opportunities that inspire creative thinking and problem-solving.
+- ATMOSPHERE: Give a vague description of the overall scene, followed by detailed, concrete, and vivid imagery of any important elements in the scene.
+- ENAGEMENT: Introduce a wide range of unexpected challenges, twists, enemy ambushes, or opportunities that inspire creative thinking and problem-solving.
 - CLARITY: Offer clear and concrete next steps or options for player actions, while setting up logical and specific consequences or outcomes.
 - FLEXIBILITY: Leave room for player creativity, encouraging responses that shape the unfolding story.
 - PLAYER AGENCY: Reflect the player's self-described actions, intentions, emotions, and any dice roll results in the scene.
-- CONSEQUENCES: Negative outcomes should have negative consequences, and vice versa. The severity of the consequences should be proportional to the player characters' described actions and dice roll results in the scene, where 1 is the worst possible outcome and >=20 is the best possible outcome.
+- CONSEQUENCES: Negative outcomes should have negative consequences, and vice versa. The severity should be proportional to the dice roll results in the previous scene, where 1 == worst possible outcome and >=20 == best possible outcome.
 
 {self._prompt(party)}
 """
@@ -595,6 +603,7 @@ You are an expert AI Game Master for an ongoing {self.world.genre} tabletop role
 
             prompt += f"""
 PREVIOUS SCENE
+
 {description}
 
 """
@@ -608,7 +617,7 @@ PREVIOUS SCENE
                 instructions=f"""You are highly skilled and creative AI trained to act as a Game Master for a {self.world.genre} TableTop RPG. Use the uploaded file to reference the existing world objects, such as characters, creatures, items, locations, encounters, and storylines.
 
                 Use existing world elements and their connections to expand on existing storylines or generate a new story consistent with the existing elements and timeline of the world. While the new story should be unique, there should also be appropriate connections to one or more existing elements in the world as described by the uploaded file.""",
-                description=f"You are a helpful AI assistant trained to act as the Table Top Game Master for 1 or more players. You will create consistent, mysterious, and unique homebrewed {self.world.genre} stories that will challenge, surprise, and delight players. You will also ensure that your stories are consistent with the existing world as described by the uploaded file.",
+                description=f"You are a helpful AI assistant trained to act as the Table Top Game Master for 1 or more players. You will write consistent, mysterious, and unique homebrewed {self.world.genre} stories in the writing style of George Orwell and Earnest Hemingway. Each scene should challenge, surprise, and occasionally frighten players. You will also ensure that your stories are consistent with the existing world as described by the uploaded file.",
             )
             self.agent.save()
             self.update_refs()
@@ -749,7 +758,8 @@ ROLL RESULT
         party.next_scene.generate_loot(response.get("loot"))
         party.next_scene.generate_places(response.get("places"))
         party.next_scene.generate_audio(voice="onyx")
-        party.next_scene.generate_image(response["image"]["description"])
+        if response.get("image"):
+            party.next_scene.generate_image(response["image"]["description"])
 
         if party.next_scene.combatants and party.next_scene.type == "combat":
             party.next_scene.start_combat()
@@ -780,8 +790,10 @@ ROLL RESULT
                     roll_description, voice=self.voice or "onyx"
                 )
                 next_scene.roll_audio.put(voiced_roll, content_type="audio/mpeg")
-            next_scene.save()
+
         next_scene.music = response.get("music")
+        next_scene.next_actions = response["next_actions"]
+        next_scene.save()
         self.update_refs()
         return next_scene
 
@@ -818,8 +830,10 @@ ROLL REQUIRED
                 "roll_description"
             ]
             party.next_scene.roll_formula = response["requires_roll"]["roll_formula"]
+        if response.get("image"):
+            party.next_scene.generate_image(response["image"]["description"])
         next_scene = party.get_next_scene(create=True)
-        party.last_scene.generate_image(response["image"]["description"])
+        party.next_scene.save()
         self.update_refs()
         return next_scene
 

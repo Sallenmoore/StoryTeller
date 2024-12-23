@@ -84,7 +84,7 @@ LIFE EVENTS
     @property
     def image_tags(self):
         age_tag = f"{self.age//10}0s"
-        return super().image_tags + [self.gender, age_tag, self.race]
+        return super().image_tags + [self.gender, age_tag, self.species]
 
     @property
     def image_prompt(self):
@@ -92,19 +92,11 @@ LIFE EVENTS
             self.age = random.randint(15, 50)
             self.save()
         prompt = f"""
-A full-body color portrait of a fictional {self.gender} {self.race} {self.genre} character aged {self.age} who is a {self.occupation} and described as: {self.description}
+A full-body color portrait of a fictional {self.gender} {self.species} {self.genre} character aged {self.age} who is a {self.occupation} and described as: {self.description}
 
 PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
-
-    @property
-    def species(self):
-        return self.race
-
-    @species.setter
-    def species(self, value):
-        self.race = value
 
     @property
     def voice(self):
@@ -138,7 +130,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         age = self.age if self.age else random.randint(15, 45)
         gender = self.gender or random.choices(self._genders, weights=[4, 5, 1], k=1)[0]
 
-        prompt = f"Generate a {gender} {self.race} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect."
+        prompt = f"Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect."
 
         return super().generate(prompt=prompt)
 
@@ -154,7 +146,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             "gender": self.gender,
             "age": self.age,
             "occupation": self.occupation,
-            "race": self.race,
+            "species": self.species,
             "hitpoints": self.hitpoints,
             "attributes": {
                 "strength": self.strength,

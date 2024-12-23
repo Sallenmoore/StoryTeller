@@ -26,7 +26,10 @@ autogm_endpoint = Blueprint("autogm", __name__)
 def index(model=None, pk=None):
     user, obj, world, *_ = _loader(model=model, pk=pk)
     party = None
-    party = Faction.get(pk or request.json.get("partypk"))
+    if party := Faction.get(pk or request.json.get("partypk")):
+        next_scene = party.get_next_scene()
+        for player in party.players:
+            next_scene.set_player_message(player)
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
@@ -57,22 +60,49 @@ def combatupdate(pk):
     party = Faction.get(pk)
     if not party.last_scene.initiative:
         raise ValueError("No Initiative List")
+    hp = request.json.get("hp")
+    status = request.json.get("status")
+    action = request.json.get("action-description")
+    bonus_action = request.json.get("bonus_action")
+    movement = request.json.get("movement")
+    action_target = request.json.get("action_target")
+    action_attack_roll = request.json.get("action_attack_roll")
+    action_dmg_roll = request.json.get("action_dmg_roll")
+    action_saving_throw = request.json.get("action_saving_throw")
+    action_skill_check = request.json.get("action_skill_check")
+    bonus_action_target = request.json.get("bonus_action_target")
+    bonus_action_attack_roll = request.json.get("bonus_action_attack_roll")
+    bonus_action_dmg_roll = request.json.get("bonus_action_dmg_roll")
+    bonus_action_saving_throw = request.json.get("bonus_action_saving_throw")
+    bonus_action_skill_check = request.json.get("bonus_action_skill_check")
+    if atarget := Character.get(action_target) or Creature.get(action_target):
+        if action_attack_roll >= atarget.ac:
+            atarget.current_hitpoints -= int(action_dmg_roll) if action_dmg_roll else 0
+        atarget.save()
+    if atarget := Character.get(bonus_action_target) or Creature.get(
+        bonus_action_target
+    ):
+        if bonus_action_attack_roll >= atarget.ac:
+            atarget.current_hitpoints -= (
+                int(bonus_action_dmg_roll) if bonus_action_dmg_roll else 0
+            )
+        atarget.save()
     party.last_scene.current_combat_turn(
-        hp=request.json.get("hp"),
-        status=request.json.get("status"),
-        action=request.json.get("action-description"),
-        bonus_action=request.json.get("bonus_action"),
-        movement=request.json.get("movement"),
-        action_target=request.json.get("action_target"),
-        action_attack_roll=request.json.get("action_attack_roll"),
-        action_dmg_roll=request.json.get("action_dmg_roll"),
-        action_saving_throw=request.json.get("action_saving_throw"),
-        action_skill_check=request.json.get("action_skill_check"),
-        bonus_action_target=request.json.get("bonus_action_target"),
-        bonus_action_attack_roll=request.json.get("bonus_action_attack_roll"),
-        bonus_action_dmg_roll=request.json.get("bonus_action_dmg_roll"),
-        bonus_action_saving_throw=request.json.get("bonus_action_saving_throw"),
-        bonus_action_skill_check=request.json.get("bonus_action_skill_check"),
+        hp=hp,
+        status=status,
+        action=action,
+        bonus_action=bonus_action,
+        movement=movement,
+        action_target=action_target,
+        action_attack_roll=action_attack_roll,
+        action_dmg_roll=action_dmg_roll,
+        action_saving_throw=action_saving_throw,
+        action_skill_check=action_skill_check,
+        bonus_action_target=bonus_action_target,
+        bonus_action_attack_roll=bonus_action_attack_roll,
+        bonus_action_dmg_roll=bonus_action_dmg_roll,
+        bonus_action_saving_throw=bonus_action_saving_throw,
+        bonus_action_skill_check=bonus_action_skill_check,
     )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
@@ -228,7 +258,8 @@ def scene_update(pk):
         party.next_scene.scene_type = scene_type
 
     if date := request.json.get("date"):
-        party.next_scene.date = date
+        party.last_scene.date = date
+        party.last_scene.save()
 
     if message := request.json.get("message"):
         party.next_scene.set_player_message(
@@ -236,6 +267,7 @@ def scene_update(pk):
             response=message["player_message"],
             intention=message["intentions"],
             emotion=message["emotion"],
+            ready=bool(message.get("ready")),
         )
 
     if party.next_scene.roll_required:
@@ -270,6 +302,10 @@ def scene_update(pk):
         #     party.next_scene.roll_result,
         # )
     party.next_scene.save()
+    if party.next_scene.is_ready:
+        return f"""
+<div id="scene-party-details-container">{party.next_scene.resolve_scene()}</div>
+"""
     # log(json.dumps(json.loads(party.next_scene.to_json()), indent=4))
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
