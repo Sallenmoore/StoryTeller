@@ -1,24 +1,3 @@
-{% macro menu(user, obj) -%}
-{% if obj.dungeon and user.world_user(obj) %}
-<ul class="menu__list">
-    <li>
-        <a class="menu-anchor" hx-get="/api/{{obj.path}}/dungeon" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/dungeon">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="mdi:family-tree" width="2rem"></iconify-icon>
-                </div>
-                <div class="column is-9 is-mobile-9 is-mobile-only slide-it-in menu-anchor-text">
-                    <span>Dungeon</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
-{% endif %}
-{%- endmacro %}
-
 {% macro info(user, obj) -%}
 <div class="row">
     <div class="column is-shrink is-vertically-centered">

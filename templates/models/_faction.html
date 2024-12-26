@@ -43,8 +43,10 @@
                 <div class="column has-text-center is-3">
                     <a href="/character/{{member.pk}}">
                         <div class="image is-medium is-thumbnail is-margin-center">
+                            {% if member.image %}
                             <img src="{{member.image.url(size='100')}}" loading="lazy"
                                  alt="{{obj.name}}" style="width:100%; height:100%;" />
+                            {% endif %}
                         </div>
                         <h4 class="has-text-dark">
                             {% if member.name %} {{member.name}} {% else %} {{member.title}} {%

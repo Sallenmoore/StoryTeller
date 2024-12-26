@@ -1,3 +1,6 @@
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
 <div class="row">
@@ -28,11 +31,7 @@
         <div class="column is-full">
             <div class="is-float-left"
                  style="position:relative; padding-right: 2rem; padding-bottom: 2rem;">
-                <div class="image is-extra-large is-thumbnail">
-                    {% if obj.image %}
-                    <img src="{{obj.image.url()}}" loading="lazy" alt="{{obj.name}}" />
-                    {% endif %}
-                </div>
+                {{display_components.object_display(obj, dim=500, name=False, type=False)}}
             </div>
             {% if obj.backstory_summary %}
             {{ obj.backstory_summary | safe }}

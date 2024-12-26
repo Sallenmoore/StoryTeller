@@ -2,24 +2,6 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro menu(user, obj) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/lineage" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/lineage">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="mdi:family-tree" width="2rem"></iconify-icon>
-                </div>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Lineage</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
-{%- endmacro %}
 
 {% macro info(user, obj) -%}
 <div class="panel has-bg-screen">

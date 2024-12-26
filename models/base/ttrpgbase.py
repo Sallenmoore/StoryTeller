@@ -395,18 +395,22 @@ Use and expand on the existing object data listed below for the {self.title} obj
         images = []
         for img in Image.all():
             # log(img.asset_id)
-            if all(t in img.tags for t in ["map", self.model_name().lower, self.genre]):
+            if all(
+                t in img.tags for t in ["map", self.model_name().lower(), self.genre]
+            ):
                 images.append(img)
         return images
 
     # MARK: generate_map
     def generate_map(self):
+        log("Generating map...", _print=True)
         self.map = Image.generate(
             prompt=self.map_prompt or self.system.map_prompt(self),
-            tags=["map", self.model_name().lower, self.genre],
+            tags=["map", self.model_name().lower(), self.genre],
             img_quality="hd",
             img_size="1792x1024",
         )
+        log("Map Generated.", _print=True)
         self.map.save()
         self.save()
         return self.map

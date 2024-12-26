@@ -41,6 +41,7 @@ class World(TTRPGBase):
     users = ListAttr(ReferenceAttr(choices=["User"]))
     gm = ReferenceAttr(choices=[AutoGM])
     map = ReferenceAttr(choices=["Image"])
+    map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     current_date = StringAttr(
         default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ])} {random.randint(1, 5000)}"
@@ -347,6 +348,7 @@ class World(TTRPGBase):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_system()
+        document.pre_save_map_prompt()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -358,6 +360,11 @@ class World(TTRPGBase):
     #     super().clean()
 
     ################### verification methods ##################
+
+    @property
+    def pre_save_map_prompt(self):
+        if not self.map_prompt:
+            self.map_prompt = self.description_summary or self.description
 
     def pre_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")

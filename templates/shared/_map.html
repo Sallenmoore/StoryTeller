@@ -39,9 +39,9 @@
                     </div>
                     {% endif %}
                     <div class="column">
-                        <button class="button is-full is-primary" hx-post="/api/search/gallery/map"
-                                hx-target="#model-owner-map"
-                                hx-swap="innerHTML show:#model-owner-map:bottom"
+                        <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
+                                hx-target="#map-image-container"
+                                hx-swap="innerHTML show:#map-image-container:bottom"
                                 hx-indicator='#request-indicator'>
                             <iconify-icon icon="game-icons:card-random"></iconify-icon>
                             Select From Gallery
@@ -51,8 +51,8 @@
                 <hr class="has-bg-primary">
                 <div class="row">
                     <div class="column">
-                        <form hx-post="/api/manage/update" hx-select='#model-owner-map'
-                              hx-target="#model-owner-map"
+                        <form hx-post="/api/manage/update" hx-select='#map-image-container'
+                              hx-target="#map-image-container"
                               hx-confirm="Are you sure you want to upload and overwrite the current map?">
                             <div class="row">
                                 <div class="column is-shrink">
@@ -78,7 +78,7 @@
         </div>
     </div>
     {% endif%}
-    <div class="column is-full" id='model-owner-map'>
+    <div class="column is-full">
         <div id="map-image-container" width="100%" height="100%">
             <div class="image" width="100%">
                 {% if obj.map %}
@@ -87,6 +87,25 @@
                 {% endif %}
             </div>
         </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{%macro mapgallery(user, obj, maps) -%}
+<div class="panel has-bg-primary">
+    <div class="row has-space-around">
+        {% for image in maps%}
+        <div class="column is-shrink has-text-center has-centered">
+            <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
+                <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
+                     hx-post="/api/manage/update"
+                     hx-target="#map-image-container" hx-select="#map-image-container"
+                     hx-swap="outerHTML"
+                     hx-vals='{"map":"{{image.pk}}"}'
+                     hx-indicator="#request-indicator" />
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {%- endmacro %}

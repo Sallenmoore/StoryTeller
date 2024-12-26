@@ -813,14 +813,12 @@ SCENARIO
 
 ROLL REQUIRED
 
-{party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type}
+{party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type} and state the result.
 """
 
         self._update_response_function(party)
 
         log(prompt, _print=True)
-        party.next_scene.prompt = prompt
-        party.next_scene.save()
 
         if party.next_scene.roll_required:
             self._gm_funcobj["parameters"]["properties"]["requires_roll"] = {
@@ -834,15 +832,15 @@ ROLL REQUIRED
                 "properties": {
                     "result": {
                         "type": "integer",
-                        "description": "The numerical result of the dice roll.",
+                        "description": "The numerical result of the player's dice roll.",
                     },
                     "formula": {
                         "type": "string",
-                        "description": "The formula used for the roll, such as 1d20+4, 2d6 Advantage, or 3d10-1 Disadvantage.",
+                        "description": "The formula the player for their roll, such as 1d20+4, 2d6 Advantage, or 3d10-1 Disadvantage.",
                     },
                     "description": {
                         "type": "string",
-                        "description": "Markdown description of the event requiring a roll, including the success value the player must meet or beat.",
+                        "description": "Markdown description of the player's reaction or actions to the result of the roll.",
                     },
                 },
             }
@@ -851,12 +849,24 @@ ROLL REQUIRED
             prompt,
             self._gm_funcobj,
         )
+        party.next_scene.prompt = (
+            f"{prompt}\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
+        )
+        log(response, _print=True)
         party.next_scene.set_player_messages(response["responses"])
-        log(party.next_scene.roll_required, _print=True)
+
         if party.next_scene.roll_required:
             party.next_scene.roll_result = response["requires_roll"]["result"]
             party.next_scene.roll_description = response["requires_roll"]["description"]
             party.next_scene.roll_formula = response["requires_roll"]["formula"]
+            if not party.next_scene.roll_result:
+                try:
+                    party.next_scene.roll_result = dmtools.roll_dice(
+                        party.next_scene.roll_formula
+                    )
+                except Exception as e:
+                    log(e, party.next_scene.roll_formula, _print=True)
+                    party.next_scene.roll_result = dmtools.roll_dice("1d20")
         party.next_scene.generate_image()
         party.next_scene.save()
         log([m.message for m in party.next_scene.player_messages], _print=True)

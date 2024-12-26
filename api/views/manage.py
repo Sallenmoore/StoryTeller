@@ -113,6 +113,24 @@ def image_gallery():
     )
 
 
+# MARK: image route
+###########################################################
+##                      Map Routes                       ##
+###########################################################
+@manage_endpoint.route("/map", methods=("POST",))
+def maps():
+    user, obj, *_ = _loader()
+    return get_template_attribute("shared/_map.html", "map")(user, obj)
+
+
+@manage_endpoint.route("/map/gallery", methods=("POST",))
+def maps_gallery():
+    user, obj, *_ = _loader()
+    return get_template_attribute("shared/_map.html", "mapgallery")(
+        user, obj, maps=obj.get_map_list()
+    )
+
+
 # MARK: History route
 ###########################################################
 ##                    History Routes                      ##

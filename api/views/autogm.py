@@ -30,11 +30,13 @@ def index(model=None, pk=None):
         next_scene = party.get_next_scene()
         for player in party.players:
             next_scene.set_player_message(player.pk)
-    log(
-        party.last_scene.roll_required,
-        party.last_scene.roll_result,
-        party.last_scene.roll_formula,
-    )
+
+    if party.last_scene:
+        log(
+            party.last_scene.roll_required,
+            party.last_scene.roll_result,
+            party.last_scene.roll_formula,
+        )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
