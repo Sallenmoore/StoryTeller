@@ -86,7 +86,7 @@ class AutoGMScene(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     current_quest = ReferenceAttr(choices=[AutoGMQuest])
     quest_log = ListAttr(ReferenceAttr(choices=[AutoGMQuest]))
-    gm_mode = StringAttr(default="pc", choices=["pc", "gm"])
+    gm_mode = StringAttr(default="manual", choices=["manual", "pc", "gm"])
 
     def delete(self):
         if self.image:
@@ -113,6 +113,12 @@ class AutoGMScene(AutoModel):
     @property
     def is_ready(self):
         return all([p.ready for p in self.player_messages])
+
+    @is_ready.setter
+    def is_ready(self, value):
+        for p in self.player_messages:
+            p.ready = value
+            p.save()
 
     def resolve_scene(self):
         return requests.post(
@@ -152,31 +158,28 @@ Or you may decide your own path.
             self.audio.put(voiced_scene, content_type="audio/mpeg")
         self.save()
 
-    def generate_player_audio(self):
-        for msg in self.player_messages:
-            msg.generate_audio()
-
-    def generate_image(self, image_prompt):
+    def generate_image(self, image_prompt=None):
         from models.world import World
 
         # log("image prompt:", image_prompt, _print=True)
-        self.image_prompt = image_prompt
-        desc = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single graphic novel style panel in the art style of {self.image_style} for the scene.
+        self.image_prompt = f"""Based on the below description of characters, setting, and events in a scene of a {self.party.genre} TTRPG session, generate a single graphic novel style panel in the art style of {self.image_style} for the scene.
 
 DESCRIPTION OF CHARACTERS IN THE SCENE
 """
         characters = [self.roll_player] if self.roll_player else self.party.players
         for char in characters:
-            desc += f"""
--{char.age} year old {char.species} {char.gender} {char.occupation}. {char.description_summary or char.description}
+            self.image_prompt += f"""
+- {char.age} year old {char.species} {char.gender} {char.occupation}. {char.description}
     - Motif: {char.motif}
 """
-        desc += f"""
+        self.image_prompt += f"""
+
 SCENE DESCRIPTION
-{self.image_prompt}
+
+{image_prompt or self.description}
 """
         img = Image.generate(
-            desc,
+            self.image_prompt,
             tags=[
                 "scene",
                 self.party.name,
@@ -343,22 +346,23 @@ SCENE DESCRIPTION
 
     def set_player_messages(self, messages):
         for msg in messages:
-            if msg.get("playerpk"):
+            if msg.get("character_pk"):
                 self.set_player_message(
-                    msg["playerpk"], msg["message"], msg["intent"], msg["emotion"]
+                    msg["character_pk"], msg["response"], msg["intent"], msg["emotion"]
                 )
 
     def set_player_message(
         self, character_pk, response="", intention="", emotion="", ready=False
     ):
         player = Character.get(character_pk)
+        log(player, response, _print=True)
         if pc_msg := self.get_player_message(player):
             pc_msg.message = response
             pc_msg.intent = intention
             pc_msg.emotion = emotion
             pc_msg.ready = ready
             pc_msg.save()
-        else:
+        elif player:
             pc_msg = AutoGMMessage(
                 player=player,
                 scene=self,
@@ -367,10 +371,11 @@ SCENE DESCRIPTION
                 emotion=emotion,
                 ready=ready,
             )
-            pc_msg.save()
+            pc_msg.scene = self
             self.player_messages += [pc_msg]
-            self.save()
-        # log(self.pk, player.name, player.pk, message, _print=True)
+            pc_msg.save()
+        # log([pm.message for pm in self.player_messages], _print=True)
+        self.save()
 
     def start_combat(self):
         if self.initiative:
@@ -481,6 +486,7 @@ SCENE DESCRIPTION
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_associations()
         document.pre_save_pcmessages()
+        document.pre_save_rolls()
         if document.music_ not in [
             "battle",
             "suspense",
@@ -512,5 +518,15 @@ SCENE DESCRIPTION
         self.associations.sort(key=lambda x: (x.title, x.name))
 
     def pre_save_pcmessages(self):
-        if not isinstance(self.player_messages, list):
-            self.player_messages = []
+        playermsgs = []
+        for pm in self.player_messages:
+            if not playermsgs or all(pmsg.player != pm.player for pmsg in playermsgs):
+                playermsgs += [pm]
+        self.player_messages = playermsgs
+
+    def pre_save_rolls(self):
+        try:
+            self.roll_result = int(self.roll_result)
+        except Exception as e:
+            log(e, self.roll_result, _print=True)
+            self.roll_result = 0

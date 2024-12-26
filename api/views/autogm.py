@@ -29,7 +29,12 @@ def index(model=None, pk=None):
     if party := Faction.get(pk or request.json.get("partypk")):
         next_scene = party.get_next_scene()
         for player in party.players:
-            next_scene.set_player_message(player)
+            next_scene.set_player_message(player.pk)
+    log(
+        party.last_scene.roll_required,
+        party.last_scene.roll_result,
+        party.last_scene.roll_formula,
+    )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
@@ -49,9 +54,12 @@ def start(model=None, pk=None):
         if scenario := request.json.get("scenario"):
             next_scene.description = scenario
         next_scene.save()
-    return requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
-    ).text
+    if gmmode == "manual":
+        return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    else:
+        return requests.post(
+            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
+        ).text
 
 
 @autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))
@@ -270,28 +278,22 @@ def scene_update(pk):
             ready=bool(message.get("ready")),
         )
 
-    if party.next_scene.roll_required:
-        # log(party.next_scene.gm_mode)
-        if party.next_scene.gm_mode == "pc":
-            party.next_scene.roll_required = True
-            party.next_scene.roll_player = Character.get(
-                request.json.get("pc_roll_player")
-            )
-            party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
-            party.next_scene.roll_type = request.json.get("pc_roll_type")
-        elif party.next_scene.gm_mode == "gm":
-            if (
-                request.json.get("pc_roll_num_dice")
-                and request.json.get("pc_roll_type_dice")
-                and request.json.get("pc_roll_modifier")
-            ):
-                party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
-                party.next_scene.roll_result = dmtools.dice_roll(
-                    party.next_scene.roll_formula
-                )
-                log(party.next_scene.roll_result)
+    if request.json.get("pc_roll_player") and party.next_scene.gm_mode == "pc":
         party.next_scene.roll_required = True
-        party.next_scene.save()
+        party.next_scene.roll_player = Character.get(request.json.get("pc_roll_player"))
+        party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
+        party.next_scene.roll_type = request.json.get("pc_roll_type")
+        party.next_scene.roll_required = True
+    elif (
+        party.next_scene.roll_required
+        and party.next_scene.gm_mode == "gm"
+        and request.json.get("pc_roll_num_dice")
+        and request.json.get("pc_roll_type_dice")
+        and request.json.get("pc_roll_modifier")
+    ):
+        party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
+        party.next_scene.roll_result = dmtools.dice_roll(party.next_scene.roll_formula)
+        log(party.next_scene.roll_result)
 
         # log(
         #     party.next_scene.roll_required,
@@ -375,4 +377,4 @@ def clearsession(pk):
         ags.delete()
     party.autogm_summary = []
     party.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world)
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)

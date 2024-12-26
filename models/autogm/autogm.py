@@ -576,9 +576,6 @@ Provide your response in a way that:
 
 {self._prompt(party)}
 
-## SCENARIO
-
-{party.next_scene.description}
 """
         else:
             prompt = f"""
@@ -614,10 +611,10 @@ PREVIOUS SCENE
         if not self.agent:
             self.agent = JSONAgent(
                 name=f"TableTop RPG Game Master for {self.world.name}, in a {self.world.genre} setting",
-                instructions=f"""You are highly skilled and creative AI trained to act as a Game Master for a {self.world.genre} TableTop RPG. Use the uploaded file to reference the existing world objects, such as characters, creatures, items, locations, encounters, and storylines.
+                instructions=f"""You are highly skilled and creative AI trained to participate in a {self.world.genre} TableTop RPG. Use the uploaded file to reference the existing world objects, such as characters, creatures, items, locations, encounters, and storylines.
 
                 Use existing world elements and their connections to expand on existing storylines or generate a new story consistent with the existing elements and timeline of the world. While the new story should be unique, there should also be appropriate connections to one or more existing elements in the world as described by the uploaded file.""",
-                description=f"You are a helpful AI assistant trained to act as the Table Top Game Master for 1 or more players. You will write consistent, mysterious, and unique homebrewed {self.world.genre} stories in the writing style of George Orwell and Earnest Hemingway. Each scene should challenge, surprise, and occasionally frighten players. You will also ensure that your stories are consistent with the existing world as described by the uploaded file.",
+                description=f"You are a helpful AI assistant trained to participate in a TTRPG for 1 or more players. You will write consistent, mysterious, and unique homebrewed {self.world.genre} stories and reponses in the writing style of George Orwell and Earnest Hemingway. Each scene should challenge, surprise, and occasionally frighten players. You will also ensure that your stories are consistent with the existing world as described by the uploaded file.",
             )
             self.agent.save()
             self.update_refs()
@@ -801,14 +798,21 @@ ROLL RESULT
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
-        if party.last_scene:
-            prompt = self.get_gm_prompt(party)
-        else:
-            prompt = self.get_gm_prompt(party, start=True)
+        prompt = f"""
+{self.get_gm_prompt(party, start=not bool(party.last_scene))}
+
+SCENARIO
+
+{party.last_scene.description if party.last_scene else ""}
+
+{party.next_scene.description}
+"""
 
         if party.next_scene.roll_required:
             prompt += f"""
+
 ROLL REQUIRED
+
 {party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type}
 """
 
@@ -818,24 +822,48 @@ ROLL REQUIRED
         party.next_scene.prompt = prompt
         party.next_scene.save()
 
+        if party.next_scene.roll_required:
+            self._gm_funcobj["parameters"]["properties"]["requires_roll"] = {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "result",
+                    "formula",
+                    "description",
+                ],
+                "properties": {
+                    "result": {
+                        "type": "integer",
+                        "description": "The numerical result of the dice roll.",
+                    },
+                    "formula": {
+                        "type": "string",
+                        "description": "The formula used for the roll, such as 1d20+4, 2d6 Advantage, or 3d10-1 Disadvantage.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Markdown description of the event requiring a roll, including the success value the player must meet or beat.",
+                    },
+                },
+            }
+        log(self._gm_funcobj, _print=True)
         response = self.gm.generate(
             prompt,
             self._gm_funcobj,
         )
         party.next_scene.set_player_messages(response["responses"])
-        party.next_scene.generate_player_audio()
+        log(party.next_scene.roll_required, _print=True)
         if party.next_scene.roll_required:
-            party.next_scene.roll_result = response["requires_roll"]["roll_result"]
-            party.next_scene.roll_description = response["requires_roll"][
-                "roll_description"
-            ]
-            party.next_scene.roll_formula = response["requires_roll"]["roll_formula"]
-        if response.get("image"):
-            party.next_scene.generate_image(response["image"]["description"])
-        next_scene = party.get_next_scene(create=True)
+            party.next_scene.roll_result = response["requires_roll"]["result"]
+            party.next_scene.roll_description = response["requires_roll"]["description"]
+            party.next_scene.roll_formula = response["requires_roll"]["formula"]
+        party.next_scene.generate_image()
         party.next_scene.save()
+        log([m.message for m in party.next_scene.player_messages], _print=True)
+        for msg in party.next_scene.player_messages:
+            msg.generate_audio()
         self.update_refs()
-        return next_scene
+        return party.get_next_scene(create=True)
 
     def run_combat_round(self, party):
         if not party.last_scene:

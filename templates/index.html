@@ -82,24 +82,24 @@
             {% endblock %}
         </div>
         <div class="container has-no-padding is-full" id="content">
-            <div class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
-                 id='page-container'>
+            <div id='page-container'
+                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
+                 style='position:relative;'>
                 {% if obj %}
                 {{title.object_title(user, obj)}}
                 {% endif %}
-                <div class="row has-centered has-no-padding-left slide-it-in"
-                     style='position:relative;'>
+                <div class="row has-no-padding-left slide-it-in">
                     {% if obj %}
                     <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
-                         style='position:absolute;top:0;left:0;'>
+                         style='position:sticky;top:0;left:0;'>
                         <button id="mobile-menu-burger" class='button is-mobile-only'
-                                style='position:fixed; z-index:1002;border-radius:0 10px 10px 0;'>
+                                style='position:fixed; z-index:1002; border-radius:0 10px 10px 0;'>
                             <iconify-icon icon="ci:hamburger-lg" width="1.5rem"></iconify-icon>
                         </button>
                         {{nav.sidemenu_active(user, obj)}}
                     </div>
                     {% endif %}
-                    <div class="column is-full is-mobile-full" style="padding-left:4rem;">
+                    <div class="column is-mobile-full has-no-padding-right">
                         {% if page_url %}
                         <div class='panel has-bg-muted raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content"

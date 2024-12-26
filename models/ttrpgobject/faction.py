@@ -205,6 +205,7 @@ class Faction(TTRPGObject):
                     self.next_scene.set_player_message(player)
 
                 self.next_scene.save()
+                # log(next_scene=self.next_scene.gm_mode, _print=True)
             self.save()
         return self.next_scene
 

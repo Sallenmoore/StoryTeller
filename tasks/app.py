@@ -117,7 +117,7 @@ def create_app():
             party.next_scene.delete()
             party.next_scene = party.autogm_summary.pop()
             party.save()
-
+        party.next_scene.is_ready = True
         task = (
             AutoTasks()
             .task(
@@ -126,7 +126,6 @@ def create_app():
             )
             .result
         )
-
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/autogm/<string:pk>/combat", methods=("POST",))
