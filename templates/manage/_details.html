@@ -129,11 +129,17 @@
 <div class="panel has-bg-light-grey is-small">
     <div class="row" id="image-manage-container">
         <div class="column is-8" id="model-owner-image">
+            {% if obj.image %}
             <div class="image is-margin-center">
-                {% if obj.image %}
                 <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
-                {% endif %}
             </div>
+            {% else %}
+            <div class="is-vertically-centered has-text-center" hx-post="/api/manage/{{obj.path}}"
+                 hx-trigger='load delay:5s' hx-target="#model-owner-image"
+                 hx-select="#model-owner-image" hx-swap="outerHTML">
+                <h5 class='has-text-dark'>No Image</h5>
+            </div>
+            {% endif %}
         </div>
         <div class="column is-4">
             <div class="row">
@@ -170,6 +176,24 @@
                     </button>
                 </div>
             </div>
+            <form hx-post="/api/manage/update" hx-select='#image-manage-container'
+                  hx-target="#image-manage-container" hx-swap="outerHTML"
+                  hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                <div class="row">
+                    <div class="column is-shrink">
+                        <button class="button is-primary is-small" type="submit">
+                            <iconify-icon icon="lucide:link"></iconify-icon>
+                            Upload from URL
+                        </button>
+                    </div>
+                    <div class="column">
+                        <div class="inputlabel">
+                            <input class="has-bg-muted has-text-secondary" type="url" name="image"
+                                   placeholder="enter url...">
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

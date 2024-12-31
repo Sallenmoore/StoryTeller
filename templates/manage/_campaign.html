@@ -17,7 +17,7 @@
                 {% for cmp in campaign_list %}
                 <option class="has-text-dark" value="{{cmp.pk}}" {% if campaign.pk==cmp.pk %}
                         selected {% endif %}>
-                    {{cmp.name}} : {{ cmp.start_date }} - {{cmp.end_date }}
+                    {{cmp.name}} : {{ cmp.start_date }} - {{cmp.end_date}}
                 </option>
                 {% endfor %}
             </select>
@@ -219,11 +219,9 @@
                 <option value="{{ep.pk}}" {%if episode and
                         ep==episode %} selected {% endif %}>
                     {{ep.name}}:
-                    {% if ep.start_date and ep.start_date.year
-                    %}{{ep.start_date.datestr()}}{% else %}Unknown{% endif %}
+                    {{ep.start_date}}
                     -
-                    {% if ep.end_date and ep.end_date.year %}{{ep.end_date.datestr()}}{%
-                    else %}Unknown{% endif %}
+                    {{ ep.end_date }}
                 </option>
                 {% endfor %}
             </select>
@@ -274,22 +272,20 @@
                                value="{{episode.episode_num}}">
                     </div>
                 </div>
-                <div class="panel is-small has-bg-screen">
-                    <div class="row">
-                        <div class="column inputlabel">
-                            <h5 class='has-text-primarybg has-text-center'>Start Date</h5>
-                            <input class='has-bg-light' type="text" name="start_date"
-                                   value="{{episode.start_date}}">
-                        </div>
-                        <div class="column inputlabel">
-                            <h5 class='has-text-primarybg  has-text-center'>End Date</h5>
-                            <input class='has-bg-light' type="text" name="end_date"
-                                   value="{{episode.end_date}}">
-                        </div>
+                <div class="row">
+                    <div class="column inputlabel">
+                        <h5 class='has-text-primary has-text-center'>Start Date</h5>
+                        <input class='has-bg-light has-text-center' type="text"
+                               name="start_date"
+                               value="{{episode.start_date}}">
+                    </div>
+                    <div class="column inputlabel">
+                        <h5 class='has-text-primary has-text-center'>End Date</h5>
+                        <input class='has-bg-light has-text-center' type="text" name="end_date"
+                               value="{{episode.end_date}}">
                     </div>
                 </div>
             </form>
-            <hr class='has-bg-primary'>
             <div class="tabs has-border">
                 <ul class="episode_tablist tabs__list has-centered ">
                     <li class="has-text-dark">
@@ -320,7 +316,6 @@
                     </div>
                 </div>
             </div>
-            <hr class='has-bg-primary'>
             <div class="row ">
                 <div class="column is-end is-shrink">
                     <button class="button is-light has-text-dark"

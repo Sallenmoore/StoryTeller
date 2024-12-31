@@ -31,18 +31,18 @@ def index(model=None, pk=None):
         for player in party.players:
             next_scene.set_player_message(player.pk)
 
-    if party.last_scene:
-        log(
-            party.last_scene.roll_required,
-            party.last_scene.roll_result,
-            party.last_scene.roll_formula,
-        )
+    # if party.last_scene:
+    #     log(
+    #         party.last_scene.roll_required,
+    #         party.last_scene.roll_result,
+    #         party.last_scene.roll_formula,
+    #     )
     return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/start", methods=("POST",))
-def start(model=None, pk=None):
-    user, obj, world, *_ = _loader(model=model, pk=pk)
+def start(pk=None):
+    user, obj, world, *_ = _loader()
     party = None
     if party := Faction.get(pk):
         next_scene = party.get_next_scene()
@@ -62,6 +62,17 @@ def start(model=None, pk=None):
         return requests.post(
             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
         ).text
+
+
+@autogm_endpoint.route("/<string:pk>/mode", methods=("POST",))
+def mode(pk=None):
+    user, obj, world, *_ = _loader()
+    party = None
+    if party := Faction.get(pk):
+        next_scene = party.get_next_scene()
+        next_scene.gm_mode = request.json.get("gmmode")
+        next_scene.save()
+    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))

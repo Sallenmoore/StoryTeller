@@ -73,14 +73,14 @@
             <div class="column is-shrink">
                 <button type="button" class="button is-small"
                         hx-post='/api/manage/details/add/listitem/ability'
-                        hx-target='#model-abilities'
-                        hx-select='#{{attr}}-item-list'
+                        hx-target='#ability-item-list'
+                        hx-select='#ability-item-list'
                         hx-swap='outerHTML' hx-trigger="click consume">
                     <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
                     New Ability
                 </button>
             </div>
-            <div class="row">
+            <div class="row" id='ability-item-list'>
                 {% for ability in ability_list %}
                 <div class="column is-half" style='position:relative;'>
                     <a class="has-text-dark-grey"

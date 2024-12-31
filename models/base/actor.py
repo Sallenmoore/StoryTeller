@@ -35,6 +35,7 @@ class Actor(TTRPGObject):
     charisma = IntAttr(default=10)
     archetype = StringAttr(default="Unknown")
     voice_description = StringAttr(default="")
+    lookalike = StringAttr(default="")
 
     _genders = ["male", "female", "non-binary"]
 
@@ -54,6 +55,10 @@ class Actor(TTRPGObject):
         "voice_description": {
             "type": "string",
             "description": "where applicable, description of the voice including pitch, placement (i.e. throaty to nasally), tempo, volume, tone, and accent",
+        },
+        "lookalike": {
+            "type": "string",
+            "description": "A public figure or character that the npc looks like",
         },
         "species": {
             "type": "string",
@@ -216,7 +221,11 @@ class Actor(TTRPGObject):
                 self.abilities[idx] = a
             else:
                 ability.description = (
-                    markdown.markdown(ability.description.replace("```markdown", ""))
+                    markdown.markdown(
+                        ability.description.replace("```markdown", "").replace(
+                            "```", ""
+                        )
+                    )
                     .replace("h1>", "h3>")
                     .replace("h2>", "h3>")
                 )

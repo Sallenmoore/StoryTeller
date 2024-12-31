@@ -14,6 +14,7 @@ class Place(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     owner = ReferenceAttr(choices=["Character", "Creature"])
     map = ReferenceAttr(choices=["Image"])
+    maps = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
 
     _traits_list = [
@@ -146,4 +147,4 @@ class Place(TTRPGObject):
         elif not self.map.tags:
             self.map.tags = ["map", *self.image_tags]
             self.map.save()
-        #log(self.map)
+        # log(self.map)

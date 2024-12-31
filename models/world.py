@@ -361,7 +361,6 @@ class World(TTRPGBase):
 
     ################### verification methods ##################
 
-    @property
     def pre_save_map_prompt(self):
         if not self.map_prompt:
             self.map_prompt = self.description_summary or self.description

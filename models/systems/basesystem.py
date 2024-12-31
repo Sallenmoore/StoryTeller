@@ -124,12 +124,12 @@ class BaseSystem(AutoModel):
             - SCALE: 1 inch == 500 miles
             {"- DESCRIPTION: " + obj.description if obj.description else ""}
             """,
-        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
             - MAP TYPE: directly overhead, top-down
             - SCALE: 1 inch == 5 feet
             {"- DESCRIPTION: " + obj.description if obj.description else ""}
             """,
-        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
             - MAP TYPE: directly overhead, top-down
             - SCALE: 1 inch == 5 feet
             {"- DESCRIPTION: " + obj.description if obj.description else ""}

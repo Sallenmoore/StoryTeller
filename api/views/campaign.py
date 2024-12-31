@@ -50,7 +50,7 @@ def index(pk=None, episodepk=None):
 
 @campaign_endpoint.route("/<string:pk>/details", methods=("POST",))
 def campaigndetails(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
     campaign.save()
     return get_template_attribute("manage/_campaign.html", "campaign_details")(
@@ -96,7 +96,7 @@ def campaignupdate(pk=None):
 
 @campaign_endpoint.route("/<string:pk>/add/player", methods=("POST",))
 def addplayer(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
     for playerpk in request.json.get("players"):
         player = Character.get(playerpk)
@@ -132,7 +132,7 @@ def removeplayer(pk, playerpk):
 @campaign_endpoint.route("/<string:pk>/episode/", methods=("POST",))
 @campaign_endpoint.route("/<string:pk>/episode/<string:episodepk>", methods=("POST",))
 def episode(pk, episodepk=None):
-    user, obj, world, *_ = _loader()
+    user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
     episode = Episode.get(episodepk)
     return get_template_attribute("manage/_campaign.html", "episode_details")(
@@ -149,7 +149,7 @@ def episode(pk, episodepk=None):
 )
 @campaign_endpoint.route("/<string:pk>/episode/manage", methods=("POST",))
 def episodemanage(pk, episodepk=None):
-    user, obj, world, *_ = _loader()
+    user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
     episodepk = episodepk or request.json.get("episodepk")
     if episode := Episode.get(episodepk):
@@ -225,7 +225,7 @@ def episodegmplannerpanel(pk):
 def episodegmnoteaddscene(campaignpk, episodepk):
     user, obj, *_ = _loader()
     episode = Episode.get(episodepk)
-    episode.add_scene_note(name=f"Scene #{len(episode.gmnotes) + 1}:")
+    episode.add_scene_note(name=f"Scene #{len(episode.scenenotes) + 1}:")
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )

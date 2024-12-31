@@ -285,12 +285,19 @@ def addlistitem(attr):
     user, obj, *_ = _loader()
     if isinstance(getattr(obj, attr, None), list):
         item = getattr(obj, attr)
-        # log(item)
-        # .append("New Entry")
-        # obj.save()
-    result = get_template_attribute("shared/_form.html", "listeditor")(user, obj, attr)
-    # log(attr, elemid, result)
-    return result
+        if item is not None:
+            item += [""]
+    return get_template_attribute("manage/_details.html", "details")(user, obj)
+
+
+@manage_endpoint.route("/details/add/listitem/ability", methods=("POST",))
+def addability():
+    user, obj, *_ = _loader()
+    ab = Ability(name="New Ability")
+    ab.save()
+    obj.abilities += [ab]
+    obj.save()
+    return get_template_attribute("manage/_details.html", "details")(user, obj)
 
 
 @manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))
