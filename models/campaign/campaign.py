@@ -88,7 +88,7 @@ class Campaign(AutoModel):
     ################################################################
     def resummarize(self):
         text = ""
-        for entry in sorted(self.episodes, key=lambda x: x.num):
+        for entry in sorted(self.episodes, key=lambda x: x.episode_num):
             if entry.summary.strip():
                 text += f"\n{entry.summary}\n"
             elif entry.end_date and entry.end_date.year:

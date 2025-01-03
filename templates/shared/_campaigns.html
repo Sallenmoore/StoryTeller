@@ -48,7 +48,7 @@
             <div class="column is-full">
                 <div class="panel has-bg-muted">
                     <hr>
-                    <div class='has-text-dark generated-text-lightbg'>
+                    <div class='has-text-dark  has-text-justified generated-text-lightbg'>
                         {{campaign.summary | safe}}
                     </div>
                     <hr>
@@ -56,12 +56,14 @@
             </div>
         </div>
 </div>
-<h3 class='has-text-center'>Associated Sessions</h3>
+
 <div class="row">
     <div class="column is-full">
+        <h3 class='has-text-center'>Associated Sessions</h3>
         <div class="accordion">
             <ul class="accordion__list">
-                {% for entry in obj.get_campaign_sessions(campaign) %}
+                {% for entry in campaign.episodes %}
+                {% if obj.model_name() == 'World' or obj in entry.associations %}
                 <li class="accordion__item" style='margin-bottom: 1rem;'>
                     <div class="panel has-bg-muted">
                         <div class="row" class='has-text-secondary'
@@ -130,6 +132,7 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
                 {% endfor %}
             </ul>
         </div>
@@ -138,10 +141,10 @@
         <h2 class=" has-text-secondary has-text-center is-subtitle">
             Associations</h2>
         <div class="row">
-            {% for o in campaign.associations | organize_models(['title', 'name']) %}
+            {% for o in campaign.associations %}
             {% if loop.first or loop.previtem.title != o.title %}
             <div class="column is-full">
-                <h3 class='has-bg-screen has-text-secondary has-text-center'>
+                <h3 class='has-bg-screen has-text-muted has-text-center'>
                     {{o.title}}
                 </h3>
             </div>

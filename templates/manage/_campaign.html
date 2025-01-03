@@ -364,7 +364,7 @@
                         hx-trigger='click consume'
                         hx-vals='{"episodepk":"{{episode.pk}}"}'
                         hx-swap='outerHTML'>
-                    {{model}}
+                    {{obj.get_title(model)}}
                 </button>
             </div>
             {% endfor %}

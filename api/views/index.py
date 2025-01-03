@@ -13,6 +13,7 @@ from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
+from models.campaign.campaign import Campaign
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -115,7 +116,7 @@ def campaignmanage(pk, campaignpk=None):
             f"http://api:{os.environ.get('COMM_PORT')}/campaign/{campaignpk if campaignpk else ''}",
             json={"user": str(user.pk), "model": obj.model_name(), "pk": str(obj.pk)},
         )
-        #log(results.text)
+        # log(results.text)
         return results.text
     return "Unauthorized"
 
@@ -168,4 +169,25 @@ def associations(model, pk, modelstr=None):
         associations = [o for o in associations if filter_str.lower() in o.name.lower()]
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
+    )
+
+
+# MARK: Campaign routes
+###########################################################
+##                    Association Routes                 ##
+###########################################################
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/campaigns",
+    methods=("GET", "POST"),
+)
+def campaigns(model, pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    args = dict(request.args) if request.method == "GET" else request.json
+    campaign = (
+        Campaign.get(args.get("campaignpk")) or obj.campaigns[0]
+        if obj.campaigns
+        else None
+    )
+    return get_template_attribute("shared/_campaigns.html", "campaigns")(
+        user, obj, campaign
     )

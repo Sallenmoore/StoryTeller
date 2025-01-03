@@ -784,6 +784,7 @@
                                            hx-target='#player-card-panels'
                                            hx-select='#player-card-panels'
                                            hx-swap='outerHTML'
+                                           hx-confirm='Are you sure you want to mark {{player.name}} as ready? You will not be able to make further changes.'
                                            type="checkbox"
                                            name="ready"
                                            {% if party.next_scene.get_player_message(player).ready

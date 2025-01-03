@@ -6,6 +6,8 @@ from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from models.autogm.autogmscene import AutoGMScene
+from models.campaign.campaign import Campaign
+from models.campaign.episode import Episode
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -66,6 +68,18 @@ def _generate_image_task(model, pk):
         obj.resummarize()
         obj.generate_image()
     return {"url": f"/api/{obj.path}/details"}
+
+
+def _generate_campaign_summary_task(pk):
+    if obj := Campaign.get(pk):
+        obj.resummarize()
+    return {"url": f"/api/campaign/{obj.pk}"}
+
+
+def _generate_session_summary_task(pk):
+    if obj := Episode.get(pk):
+        obj.resummarize()
+    return {"url": f"/api/campaign/{obj.campaign.pk}/episode/{obj.pk}"}
 
 
 def _generate_audio_task(pk):

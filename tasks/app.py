@@ -108,6 +108,30 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/campaign/<string:pk>/summary", methods=("POST",))
+    def generate_campaign_summary(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_campaign_summary_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/campaign/episode/<string:pk>/summary", methods=("POST",))
+    def generate_session_summary(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_session_summary_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/autogm/<string:pk>", methods=("POST",))
     @app.route("/generate/autogm/<string:pk>/regenerate", methods=("POST",))
     def autogm(pk):
