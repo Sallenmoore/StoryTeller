@@ -117,7 +117,6 @@ def create_app():
             party.next_scene.delete()
             party.next_scene = party.autogm_summary.pop()
             party.save()
-        party.next_scene.is_ready = True
         task = (
             AutoTasks()
             .task(

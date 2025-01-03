@@ -105,6 +105,14 @@ class Faction(TTRPGObject):
     def players(self):
         return [c for c in self.characters if c.is_player]
 
+    @property
+    def ready(self):
+        return len(self.is_ready()) == len(self.players)
+
+    @ready.setter
+    def ready(self, val):
+        self.next_scene.is_ready = bool(val)
+
     ################### Crud Methods #####################
 
     def generate(self):
@@ -134,6 +142,8 @@ class Faction(TTRPGObject):
             self.gm.rungm(party=self)
         elif self.next_scene.gm_mode == "pc":
             self.gm.runpc(party=self)
+        elif self.next_scene.gm_mode == "manual":
+            self.gm.runmanual(party=self)
         else:
             raise ValueError("Invalid GM Mode")
 
@@ -211,6 +221,20 @@ class Faction(TTRPGObject):
 
     def get_last_player_message(self, player):
         return self.last_scene.get_player_message(player) if self.last_scene else ""
+
+    def is_ready(self, player=None):
+        if not player:
+            return self.next_scene.is_ready
+
+        return bool(
+            all(
+                [
+                    msg.ready
+                    for msg in self.next_scene.player_messages
+                    if msg.player == player
+                ]
+            )
+        )
 
     ############################# Serialization Methods #############################
     ## MARK: Serialization

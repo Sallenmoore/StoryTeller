@@ -26,6 +26,7 @@ from models.ttrpgobject.item import Item
 
 
 class AutoGMScene(AutoModel):
+    gm_ready = BoolAttr(default=False)
     type = StringAttr(
         choices=[
             "social",
@@ -53,6 +54,7 @@ class AutoGMScene(AutoModel):
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
     places = ListAttr(ReferenceAttr(choices=["Place"]))
     factions = ListAttr(ReferenceAttr(choices=["Faction"]))
+    vehicles = ListAttr(ReferenceAttr(choices=["Vehicle"]))
     initiative = ReferenceAttr(choices=["AutoGMInitiativeList"])
     roll_required = BoolAttr(default=False)
     roll_type = StringAttr()
@@ -112,18 +114,14 @@ class AutoGMScene(AutoModel):
 
     @property
     def is_ready(self):
-        return all([p.ready for p in self.player_messages])
+        return [p.player for p in self.player_messages if p.ready]
 
     @is_ready.setter
     def is_ready(self, value):
+        self.save()
         for p in self.player_messages:
-            p.ready = value
+            p.ready = bool(value)
             p.save()
-
-    def resolve_scene(self):
-        return requests.post(
-            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{self.party.pk}"
-        )
 
     def add_association(self, obj):
         if obj not in self.associations:
@@ -168,6 +166,11 @@ DESCRIPTION OF CHARACTERS IN THE SCENE
 """
         characters = [self.roll_player] if self.roll_player else self.party.players
         for char in characters:
+            description = (
+                char.description
+                if len(char.description.split()) < 100
+                else char.description_summary
+            )
             self.image_prompt += f"""
 - {char.age} year old {char.species} {char.gender} {char.occupation}. {char.description}
     - Motif: {char.motif}
@@ -315,6 +318,16 @@ SCENE DESCRIPTION
                         f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
                     )
 
+    def scene_objects(self):
+        return [
+            *self.npcs,
+            *self.combatants,
+            *self.loot,
+            *self.vehicles,
+            *self.places,
+            *self.factions,
+        ]
+
     def get_additional_associations(self):
         """
         Retrieves additional associations that are not part of the current scene objects.
@@ -330,6 +343,7 @@ SCENE DESCRIPTION
             *self.npcs,
             *self.combatants,
             *self.loot,
+            *self.vehicles,
             *self.places,
             *self.factions,
         ]
@@ -340,6 +354,8 @@ SCENE DESCRIPTION
         return [o for o in self.associations if o not in scene_objects]
 
     def get_player_message(self, player):
+        if isinstance(player, str):
+            player = Character.get(player)
         for msg in self.player_messages:
             if msg.player == player:
                 return msg
@@ -352,30 +368,23 @@ SCENE DESCRIPTION
                 )
 
     def set_player_message(
-        self, character_pk, response="", intention="", emotion="", ready=False
+        self, character, response="", intent="", emotion="", ready=False
     ):
-        player = Character.get(character_pk)
-        log(player, response, _print=True)
+        player = (
+            character if isinstance(character, Character) else Character.get(character)
+        )
         if pc_msg := self.get_player_message(player):
             pc_msg.message = response
-            pc_msg.intent = intention
+            pc_msg.intent = intent
             pc_msg.emotion = emotion
             pc_msg.ready = ready
             pc_msg.save()
-        elif player:
-            pc_msg = AutoGMMessage(
-                player=player,
-                scene=self,
-                message=response,
-                intent=intention,
-                emotion=emotion,
-                ready=ready,
-            )
-            pc_msg.scene = self
-            self.player_messages += [pc_msg]
-            pc_msg.save()
-        # log([pm.message for pm in self.player_messages], _print=True)
-        self.save()
+        else:
+            raise ValueError("Player Message not found")
+
+    ########################################################
+    ##                    COMBAT METHODS                  ##
+    ########################################################
 
     def start_combat(self):
         if self.initiative:
@@ -415,6 +424,27 @@ SCENE DESCRIPTION
         bonus_action_saving_throw=None,
         bonus_action_skill_check=None,
     ):
+        """
+        Handles the current combat turn by updating the combatant's state and actions.
+        Parameters:
+        hp (int, optional): The hit points of the combatant.
+        status (str, optional): The status of the combatant.
+        movement (int, optional): The movement points of the combatant.
+        action_target (int, optional): The target of the main action.
+        action (str, optional): The description of the main action.
+        action_attack_roll (int, optional): The attack roll of the main action.
+        action_dmg_roll (int, optional): The damage roll of the main action.
+        action_saving_throw (int, optional): The saving throw of the main action.
+        action_skill_check (int, optional): The skill check of the main action.
+        bonus_action_target (int, optional): The target of the bonus action.
+        bonus_action (str, optional): The description of the bonus action.
+        bonus_action_attack_roll (int, optional): The attack roll of the bonus action.
+        bonus_action_dmg_roll (int, optional): The damage roll of the bonus action.
+        bonus_action_saving_throw (int, optional): The saving throw of the bonus action.
+        bonus_action_skill_check (int, optional): The skill check of the bonus action.
+        Returns:
+        object: The current combat turn object with updated state and actions.
+        """
         if not self.initiative or not self.initiative.order:
             self.start_combat()
 
@@ -463,6 +493,15 @@ SCENE DESCRIPTION
         return cct
 
     def next_combat_turn(self):
+        """
+        Advances to the next combat turn if combat is ongoing, otherwise switches to investigation mode.
+        If the initiative is active and combat has not ended, this method will call the `next_combat_turn`
+        method on the initiative object to proceed to the next turn. If the combat has ended or there is
+        no active initiative, it will change the type to "investigation" and save the current state.
+        Returns:
+            The result of `initiative.next_combat_turn()` if combat is ongoing, otherwise None.
+        """
+
         if self.initiative and not self.initiative.combat_ended:
             return self.initiative.next_combat_turn()
         else:
@@ -470,6 +509,16 @@ SCENE DESCRIPTION
             self.save()
 
     def initiative_index(self, combatant):
+        """
+        Get the index of a combatant in the initiative order.
+        Args:
+            combatant (object): The combatant whose index in the initiative order is to be found.
+        Returns:
+            int: The index of the combatant in the initiative list.
+        Raises:
+            ValueError: If the combatant is not found in the initiative list.
+        """
+
         return self.initiative.index(combatant)
 
     ## MARK: - Verification Methods
@@ -483,9 +532,27 @@ SCENE DESCRIPTION
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
+        """
+        Automatically called before saving a document to perform pre-save operations.
+        This method is intended to be used as a pre-save signal handler for a document.
+        It performs several pre-save operations such as handling associations, private
+        messages, and rolls. Additionally, it ensures that the document's music attribute
+        is set to a valid value.
+        Args:
+            cls (type): The class that this method is bound to.
+            sender (type): The model class that sent the signal.
+            document (object): The document instance that is being saved.
+            **kwargs: Additional keyword arguments.
+        Operations:
+            - Calls the superclass's auto_pre_save method.
+            - Calls the document's pre_save_associations method.
+            - Calls the document's pre_save_pcmessages method.
+            - Calls the document's pre_save_rolls method.
+            - Ensures the document's music attribute is set to a valid value, defaulting to "themesong" if not.
+        """
+
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_associations()
-        document.pre_save_pcmessages()
         document.pre_save_rolls()
         if document.music_ not in [
             "battle",
@@ -499,9 +566,10 @@ SCENE DESCRIPTION
         ]:
             document.music_ = "themesong"
 
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
+    @classmethod
+    def auto_post_save(cls, sender, document, **kwargs):
+        super().auto_post_save(sender, document, **kwargs)
+        document.post_save_pcmessages()
 
     # def clean(self):
     #     super().clean()
@@ -509,6 +577,16 @@ SCENE DESCRIPTION
     ################### verification methods ##################
 
     def pre_save_associations(self):
+        """
+        Prepares the associations, NPCs, combatants, loot, places, and factions
+        by removing duplicates and sorting them.
+        This method performs the following steps:
+        1. Removes duplicate entries from the associations, NPCs, combatants, loot, places, and factions lists.
+        2. Sorts the associations list by the title and name attributes.
+        Returns:
+            None
+        """
+
         self.associations = list(set(self.associations))
         self.npcs = list(set(self.npcs))
         self.combatants = list(set(self.combatants))
@@ -517,16 +595,40 @@ SCENE DESCRIPTION
         self.factions = list(set(self.factions))
         self.associations.sort(key=lambda x: (x.title, x.name))
 
-    def pre_save_pcmessages(self):
-        playermsgs = []
-        for pm in self.player_messages:
-            if not playermsgs or all(pmsg.player != pm.player for pmsg in playermsgs):
-                playermsgs += [pm]
-        self.player_messages = playermsgs
+    def post_save_pcmessages(self):
+        """
+        Pre-save player messages for the scene.
+        This method iterates over all players in the party and checks if a message
+        for each player already exists. If a message does not exist, it creates a new
+        AutoGMMessage for the player and the current scene, saves it, and adds it to
+        the player_messages list.
+        Attributes:
+            self (AutoGMScene): The instance of the AutoGMScene class.
+        Methods:
+            get_player_message(player): Checks if a message for the given player exists.
+            AutoGMMessage(player, scene): Creates a new AutoGMMessage instance.
+            save(): Saves the AutoGMMessage instance.
+        """
+
+        for player in self.party.players:
+            if not self.get_player_message(player):
+                msg = AutoGMMessage(player=player, scene=self)
+                msg.save()
+                self.player_messages += [msg]
+                self.save()
 
     def pre_save_rolls(self):
+        """
+        Attempts to convert the roll_result attribute to an integer before saving.
+        If the conversion fails, logs the exception and the current roll_result,
+        then sets roll_result to 0.
+        Raises:
+            Exception: If an error occurs during the conversion of roll_result.
+        Logs:
+            The exception and the current roll_result if the conversion fails.
+        """
+
         try:
             self.roll_result = int(self.roll_result)
-        except Exception as e:
-            log(e, self.roll_result, _print=True)
+        except Exception:
             self.roll_result = 0

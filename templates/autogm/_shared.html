@@ -61,24 +61,8 @@
         </form>
     </div>
     {% elif not party.next_scene %}
-    <div id="autogm-start-session-container" class="column is-full">
+    <div id="autogm-scene-container" class="column is-full">
         {{ autogm_start_session(user, world, party) }}
-    </div>
-    {% elif party.next_scene.gm_mode == 'gm' %}
-    <div id="autogm-gm-session-container" class="column is-full">
-        {% if party.last_scene.type == 'combat' %}
-        {{ scene_combat(user, world, party) }}
-        {% else %}
-        {{ autogm_gm_session(user, world, party) }}
-        {% endif %}
-    </div>
-    {% elif party.next_scene.gm_mode == 'pc' %}
-    <div id="autogm-pc-session-container" class="column is-full">
-        {{ autogm_pc_session(user, world, party) }}
-    </div>
-    {% else %}
-    <div id="autogm-pc-session-container" class="column is-full">
-        {{ autogm_manual_session(user, world, party) }}
     </div>
     {% endif %}
 </div>
@@ -134,8 +118,8 @@
         </div>
         {% endfor %}
     </div>
-    <form hx-post="/api/autogm/{{party.pk}}/start"
-          hx-push-url='/{{party.path}}/gm' hx-swap='outerHTML'>
+    <form hx-post="/api/autogm/{{party.pk}}/start" hx-swap='outerHTML'
+          hx-push-url='/{{party.path}}/gm'>
         <input type='hidden' name='partypk' value='{{party.pk}}'>
         <div class="row has-centered">
             <div class="column is-full is-vertically-centered">
@@ -157,417 +141,446 @@
 {%- endmacro %}
 
 
-{% macro autogm_gm_session(user, world, party) -%}
-<section class="section is-small">
-    <div class="row has-space-around has-bg-muted" style='z-index:100; position: sticky; top:0;'>
-        {% for player in party.players %}
-        <div class="column is-shrink">
-            <div class="panel has-bg-dark-grey has-border">
-                <a onclick='htmx.find("#player-{{player.pk}}-card-container").scrollIntoView({ behavior: "smooth"});'
-                   style='border-radius: 5px 5px 0 0;'>
-                    <h4 class='has-text-center'>{{player.name}}</h4>
-                </a>
-            </div>
+{% macro scene_overview(user, world, party)%}
+<div id="scene-description-panel" class="panel has-bg-white generated-text-lightbg"
+     style='position:relative; border-top-left-radius: 0;border-top-right-radius:0;'>
+    <div class="row">
+        {% if party.last_scene and party.last_scene.summary %}
+        <div class="column is-full">
+            {{scene_party_summary(user, world, party)}}
+            <hr>
         </div>
-        {% endfor %}
-    </div>
-    <form hx-post="/api/autogm/{{party.pk}}/update"
-          hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
-        <div class="panel has-text-center has-bg-muted">
+        <div id="autogm-last-scene-description" class='column is-full'>
             <div class="row has-space-around">
-                <div class="column is-shrink is-vertically-centered">
-                    <input class="has-text-center has-text-primary has-bg-transparent is-big-heading"
-                           type="string"
-                           name="date" id="date"
-                           value='{{party.next_scene.date or party.world.current_date}}'>
+                <div class="column">
+                    <div class="panel has-bg-primary generated-text-darkbg">
+                        {{party.last_scene.description | safe}}
+                    </div>
+                    <div class="image is-tile is-margin-center">
+                        <img src="{{party.last_scene.image.url()}}"
+                             loading="lazy"
+                             alt="{{party.name}}" />
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
-    {% if party.last_scene %}
-    {{ scene_description(user, world, party) }}
-    {% endif %}
-    <hr>
-    <div class="row has-space-around">
-        <div class="column is-full">
-            {{autogm_submit_session(user, world, party)}}>
-            <hr>
-            <hr>
-            {{scene_party_summary(user, world, party)}}
+        {% if party.last_scene.roll_required %}
+        <div class='column is-full'>
+            {{ scene_dice_results(party, party.last_scene) }}
         </div>
-    </div>
-</section>
-{%- endmacro %}
-
-
-{% macro autogm_pc_session(user, world, party) -%}
-<section class="section is-small">
-    <div class="panel has-bg-white generated-text-lightbg">
-        {# needed to contain floated image #}
-        {% if party.last_scene %}
-        {{ scene_description(user, world, party) }}
         {% endif %}
-    </div>
-    <div id="autogm-gm-form" class="row has-space-around">
-        <div class="column is-full">
-            {{autogm_submit_session(user, world, party)}}
-            {{scene_party_summary(user, world, party)}}
+        {% endif %}
+        <div class='column is-full'>
+            {{scene_party_details(user, world, party)}}
         </div>
-    </div>
-</section>
-{%- endmacro %}
-
-
-{% macro autogm_manual_session(user, world, party) -%}
-<section class="section is-small">
-    <div class="panel has-bg-white generated-text-lightbg">
-        {# needed to contain floated image #}
-        {% if party.last_scene %}
-        {{ scene_description(user, world, party) }}
-        {% endif %}
-        <div id="scene-party-details-container" class='row has-space-around'>
-            <div class="column is-full">
-                {{scene_party_summary(user, world, party)}}
-            </div>
-            <div class="column is-full">
-                <div id="player-card-panels" class="row has-space-around">
-                    {% for player in party.players %}
-                    <div id="player-{{player.pk}}-card-container"
-                         class="column is-half {% if false %} is-hidden {% endif%}">
-                        {{scene_player_card(user, party, player)}}
+        <div id="scene_quest_log" class='column is-full'>
+            <div class="panel has-no-padding-left has-no-padding-right ">
+                <h3 class='has-text-center has-text-dark'> Quest Log </h3>
+                <div class="panel has-bg-white has-text-primary" style='border-top-left-radius: 0;
+            border-top-right-radius:0;'>
+                    {% for quest in party.next_scene.quest_log %}
+                    <div class="row has-space-between"
+                         onclick='this.querySelector("#quest-{{quest.pk}}").classList.toggle("is-hidden");'>
+                        <div class="column is-shrink">
+                            {% if party.next_scene.current_quest == quest%}
+                            <span class='tag is-muted'>
+                                Current Quest
+                            </span>
+                            {% else %}
+                            <button class='button is-small has-bg-screen'
+                                    hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
+                                    hx-target='#scene_quest_log'
+                                    hx-select='#scene_quest_log' hx-swap='outerHTML'>
+                                Set as Current Quest
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div class="column is-shrink has-text-center is-vertically-centered">
+                            <h3 class="has-text-primary has-text-center">
+                                {{quest.name}}
+                            </h3>
+                            <h6 class="has-text-primary has-text-center">{{quest.status | title}}
+                            </h6>
+                        </div>
+                        <div class="column is-shrink is-vertically-centered">
+                            <button class='button is-small has-bg-dark-grey'
+                                    hx-post='/api/autogm/party/{{party.pk}}/quest/delete/{{quest.pk}}'
+                                    hx-target='closest .row' hx-swap='delete'>
+                                Remove Quest
+                            </button>
+                        </div>
+                        <div id="quest-{{quest.pk}}"
+                             class="column is-full is-vertically-centered is-hidden">
+                            <div class="row">
+                                <div class="column has-text-primary">
+                                    <h5 class="has-text-primary has-text-center">Objective</h5>
+                                    <div class="panel has-bg-muted">
+                                        {{quest.description | safe}}
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <h5 class="has-text-primary has-text-center">Importance</h5>
+                                    <div class="panel has-bg-muted">{{quest.importance | safe}}
+                                    </div>
+                                </div>
+                                <div class="column is-full">
+                                    <h5 class="has-text-primary has-text-center">Next Actions</h5>
+                                    <div class='panel'>
+                                        <p class="has-text-white">{{quest.next_steps | safe}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <hr>
                     {% endfor %}
                 </div>
             </div>
         </div>
-    </div>
-    <div id="autogm-gm-form" class="row has-space-around">
-        <div class="column is-full is-vertically-centered">
-            <form hx-post="/api/autogm/{{party.pk}}/update"
-                  hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
-                <div class="row">
-                    <div class="column is-full is-vertically-centered">
-                        <h3 class='has-text-center has-text-primary'>Scenario</h3>
-                        {{form_components.texteditor(user, party.next_scene, "description", content=party.next_scene.description or "")}}
+        <div id='autogm-associations-list-container' class='column is-full'>
+            <div class="row has-space-around">
+                <div class="column is-half">
+                    <h4 class='has-text-center has-text-primary'>Search Associations</h4>
+                    <div class="has-dropdown" style="width: 100%;">
+                        <input class="has-bg-light" autocomplete="off" type="search"
+                               name="query"
+                               style="border-bottom: solid #000;"
+                               hx-post="/api/autogm/{{party.pk}}/associations/search"
+                               hx-target="#autogm-new-associations-list"
+                               hx-trigger="input changed delay:500ms consume"
+                               hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                        <ul class="dropdown has-bg-light" id="autogm-new-associations-list">
+                        </ul>
                     </div>
                 </div>
-                <div class="panel has-text-center has-bg-muted">
+                <div class="column is-full">
+                    <h4 class='has-text-center has-text-primary'>Create a new...</h4>
                     <div class="row has-space-around">
-                        <div class="column is-shrink is-vertically-centered">
-                            <label class='has-text-primary'>Scene Type</label>
-                            <div class="select" style="width: 100%;">
-                                <select name="scene_type" id="scene_type">
-                                    {% for st in [
-                                    "social",
-                                    "combat",
-                                    "investigation",
-                                    "exploration",
-                                    "stealth",
-                                    "puzzle",
-                                    ]
-                                    %}
-                                    <option value="{{st}}">
-                                        {{st | title}}
-                                    </option>
+                        {% for child in party.all_models() %}
+                        <div class="column is-shrink has-text-center">
+                            <button class="button is-primary has-text-white is-small"
+                                    hx-post="/api/autogm/{{party.pk}}/associations/add/{{child.__name__ | lower}}"
+                                    hx-target="#page-content"
+                                    hx-indicator='#request-indicator'>
+                                {{party.get_title(child)}}
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="column is-full">
+                    <div class="panel has-bg-screen">
+                        <div id='autogm-associations-list' class="row has-space-around">
+                            {% for a in party.next_scene.get_additional_associations() %}
+                            <div class="column is-3 has-space-around autogm-association-entry">
+                                {{display_components.object_display(a, size="small")}}
+                                <div class="row has-space-around">
+                                    <div class="column is-shrink"
+                                         style='font-size: 0.75rem;'>
+                                        <a class="has-text-primary"
+                                           hx-post="/api/autogm/{{party.pk}}/scene/add/{{a.path}}"
+                                           hx-target='#autogm-associations-list-container'
+                                           hx-select='#autogm-associations-list-container'
+                                           hx-swap='outerHTML'>
+                                            {{icon_components.add(size='1.25rem')}}
+                                        </a>
+                                        Add to Scene
+                                    </div>
+                                    <div class="column is-shrink">
+                                        <a hx-post="/api/autogm/{{party.pk}}/association/remove/{{a.path}}"
+                                           hx-target='closest .autogm-association-entry'
+                                           hx-swap='delete'>
+                                            {{icon_components.remove(size='1rem')}}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% if party.next_scene.scene_objects() %}
+                <div class="column is-full">
+                    <h4 class='has-text-center has-text-primary'>Scene Objects</h4>
+                    <div id="autogm_scene_objects" class="row has-space-around">
+                        {% for obj in party.next_scene.scene_objects() %}
+                        <div id="obj-{{obj.pk}}" class='column is-4' style='position:relative;'>
+                            {% if obj.image %}
+                            {{display_components.object_display(obj, size="small")}}
+                            {% endif %}
+                            <a style="position:absolute;bottom:0;right:0;"
+                               hx-post="/api/autogm/{{party.pk}}/scene/remove/{{obj.path}}"
+                               hx-target='closest .column'
+                               hx-swap='delete'>
+                                {{icon_components.remove(size='1rem')}}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+
+{% macro scene_next_actions(user, world, party, scene)%}
+{% if party.next_scene.next_actions %}
+<section class="section is-small">
+    {% if party.next_scene.gm_mode in ['manual', 'pc'] and not party.next_scene.gm_ready %}
+    <button class='button is-small is-full'
+            onclick='document.querySelector("#next-actions-container").insertAdjacentHTML("afterbegin", `<div class="column is-full"><h4 class="has-text-light-grey has-text-center">Possible Action</h4><textarea class="has-bg-muted" name="next_actions[]"></textarea></div>`);'>
+        {{icon_components.text(size='3rem')}}
+        Add Next Action
+    </button>
+    <form hx-post='/api/autogm/{{party.pk}}/update' hx-trigger='input delay:1s'
+          hx-swap='none'>
+        <div id="next-actions-container" class="row has-space-around">
+            {% for na in party.next_scene.next_actions %}
+            <div class='column is-full'>
+                <h4 class='has-text-dark-grey has-text-center'>Possible Action #{{loop.index}}</h4>
+                <textarea class="has-bg-muted" style="padding:1rem;"
+                          name='next_actions[]'>{{na}}</textarea>
+            </div>
+            {% endfor %}
+            {% if not party.ready %}
+            <div class='column is-full'>
+                <h4 class='has-text-center has-text-primary'>...Or decide your own fate</h4>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+    {% else %}
+    <h3 class='has-text-center'>Next Actions</h3>
+    <div class="row has-space-around">
+        {% for na in party.last_scene.next_actions %}
+        <div class='column is-full'>
+            <div class="panel has-text-white">
+                <h4 class='has-text-light-grey has-text-center'>Possible Action #{{loop.index}}</h4>
+                {{na}}
+            </div>
+        </div>
+        {% endfor %}
+        <div class='column is-full'>
+            <h4 class='has-text-center has-text-primary'>...Or decide your own fate</h4>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+{% endmacro %}
+
+
+{% macro scene_description(user, world, party)%}
+<div class="row has-space-around">
+    {% if party.last_scene.audio %}
+    <div class="column is-shrink">
+        <iconify-icon icon="mdi:speaking" width="2.5rem"></iconify-icon>
+        <audio id="scene-narration-player" autoplay controls>
+            <source src="/audio/gm/{{party.last_scene.pk}}" type="audio/mpeg">
+        </audio>
+    </div>
+    <div class="column is-shrink">
+        <h6>Music</h6>
+        <div class="is-switch">
+            <input type="checkbox" id="scene-music-player-switch">
+            <label for="scene-music-player-switch"></label>
+        </div>
+        <audio autoplay id="scene-music-player" loop>
+            <source src="{{party.last_scene.music}}" type="audio/mpeg">
+        </audio>
+        <script>
+            var narrator = document.getElementById("scene-narration-player");
+            narrator.volume = 1;
+            var music_player = document.getElementById('scene-music-player');
+            var music_switch = document.getElementById('scene-music-player-switch');
+            function playmusic() {
+                console.log(music_switch.checked);
+                if (music_switch.checked) {
+                    music_player.volume = 0.1;
+                    music_player.play();
+                } else {
+                    music_player.pause();
+                }
+            };
+            music_switch.addEventListener('click', playmusic);
+            playmusic();
+
+        </script>
+    </div>
+    {% endif %}
+    <div class="column">
+        <div class="panel has-bg-primary generated-text-darkbg">
+            {{party.last_scene.description | safe}}
+        </div>
+        <div class="image is-tile is-margin-center">
+            {% if not party.last_scene.image %}
+            <span id="last-scene-image-{{party.pk}}"
+                  hx-trigger='load delay:3s'
+                  hx-target='#last-scene-image-{{party.pk}}'
+                  hx-select='#last-scene-image-{{party.pk}}'
+                  hx-swap='outerHTML'></span>
+            {% else %}
+            <img src="{{party.last_scene.image.url()}}"
+                 loading="lazy"
+                 alt="{{party.name}}" />
+            {% endif %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro scene_scenario_details(user, world, party) %}
+<div class="section is-small">
+    <form hx-post="/api/autogm/{{party.pk}}/update"
+          hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
+        <div class="row">
+            <div class="column is-full is-vertically-centered">
+                <h3 class='has-text-center has-text-primary'>Scenario</h3>
+                {{form_components.texteditor(user, party.next_scene, "description", content=party.next_scene.description or "")}}
+            </div>
+        </div>
+        <div class="panel has-text-center has-bg-muted">
+            <div class="row has-space-around">
+                <div class="column is-shrink is-vertically-centered">
+                    <label class='has-text-primary'>Scene Type</label>
+                    <div class="select" style="width: 100%;">
+                        <select name="scene_type" id="scene_type">
+                            {% for st in [
+                            "social",
+                            "combat",
+                            "investigation",
+                            "exploration",
+                            "stealth",
+                            "puzzle",
+                            ]
+                            %}
+                            <option value="{{st}}" {% if
+                                    party.last_scene.type|lower==st|lower %}
+                                    selected
+                                    {% endif %}>
+                                {{st | title}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-shrink is-vertically-centered">
+                    <label class='has-text-primary' for="date">Date</label>
+                    <input type="string" name="date" id="date"
+                           value='{{party.next_scene.date or party.world.current_date}}'>
+                </div>
+                <div class="column is-full is-vertically-centered">
+                    <h4 class="has-text-screen has-text-center">Roll Required</h4>
+                    <div class='row has-centered'>
+                        <div class="column is-shrink">
+                            <div class="is-select">
+                                <select name="pc_roll_player">
+                                    <option value=''>== Select Player ==</option>
+                                    {% for pc in party.players %}
+                                    <option value='{{pc.pk}}'>{{pc.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
-                        <div class="column is-shrink is-vertically-centered">
-                            <label class='has-text-primary' for="date">Date</label>
-                            <input type="string" name="date" id="date"
-                                   value='{{party.next_scene.date or party.world.current_date}}'>
+                        <div class="column is-shrink has-text-dark">
+                            needs to make a
                         </div>
-                        <div class="column is-shrink is-vertically-centered">
-                            <h4 class="has-text-screen has-text-center">Roll Required</h4>
-                            <div class='row has-centered'>
-                                <div class="column is-shrink">
-                                    <div class="is-select">
-                                        <select name="pc_roll_player">
-                                            <option value=''>== Select Player ==</option>
-                                            {% for pc in party.players %}
-                                            <option value='{{pc.pk}}'>{{pc.name}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column is-shrink has-text-dark">
-                                    needs to make a
-                                </div>
-                                <div class="column is-shrink">
-                                    <div class="panel has-bg-muted has-text-center">
-                                        <div class="is-select">
-                                            <select name="pc_roll_attribute">
-                                                {% for attr in ['strength', 'dexterity',
-                                                'constitution',
-                                                'intelligence', 'wisdom', 'charisma'] %}
-                                                <option value='{{attr}}'>{{attr | title}}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="column is-shrink">
-                                    <div class="is-select">
-                                        <select class="has-text-center"
-                                                name="pc_roll_type">
-                                            <option value='Ability Check'>Ability Check
-                                            </option>
-                                            <option value='Saving Throw'>Saving Throw
-                                            </option>
-                                            {% if party.next_scene.type == "combat" %}
-                                            <option value='Attack'>Attack</option>
-                                            <option value='Damage'>Damage</option>
-                                            {% endif %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="column is-full">
-            {{autogm_submit_session(user, world, party)}}
-            {{scene_party_summary(user, world, party)}}
-        </div>
-    </div>
-</section>
-{%- endmacro %}
-
-
-{% macro scene_description(user, world, party)%}
-<div id="scene-description-panel" class="panel has-bg-white generated-text-lightbg"
-     style='position:relative; border-top-left-radius: 0;border-top-right-radius:0;'>
-    <div class="row">
-        <div class="column" style='position: relative;'>
-            <div class="row has-space-around">
-                {% if party.last_scene.audio %}
-                <div class="column is-shrink">
-                    <iconify-icon icon="mdi:speaking" width="2.5rem"></iconify-icon>
-                    <audio id="scene-narration-player" autoplay controls>
-                        <source src="/audio/gm/{{party.last_scene.pk}}" type="audio/mpeg">
-                    </audio>
-                </div>
-                <div class="column is-shrink">
-                    <h6>Music</h6>
-                    <div class="is-switch">
-                        <input type="checkbox" id="scene-music-player-switch">
-                        <label for="scene-music-player-switch"></label>
-                    </div>
-                    <audio autoplay id="scene-music-player" loop>
-                        <source src="{{party.last_scene.music}}" type="audio/mpeg">
-                    </audio>
-                    <script>
-                        var narrator = document.getElementById("scene-narration-player");
-                        narrator.volume = 1;
-                        var music_player = document.getElementById('scene-music-player');
-                        var music_switch = document.getElementById('scene-music-player-switch');
-                        function playmusic() {
-                            console.log(music_switch.checked);
-                            if (music_switch.checked) {
-                                music_player.volume = 0.1;
-                                music_player.play();
-                            } else {
-                                music_player.pause();
-                            }
-                        };
-                        music_switch.addEventListener('click', playmusic);
-                        playmusic();
-
-                    </script>
-                </div>
-                {% endif %}
-            </div>
-            {% if party.last_scene %}
-            <h3 class='has-text-center'>Next Actions</h3>
-            <div class="row has-space-around">
-                {% for na in party.last_scene.next_actions %}
-                <div class='column'>
-                    <div class="panel has-text-white">
-                        {{na}}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <hr>
-            {% endif %}
-            {{scene_party_details(user, world, party)}}
-            <hr>
-            {% if party.quests %}
-            {{scene_quest_log(user, world, party)}}
-            {% endif %}
-        </div>
-        <div class="column">
-            <a class='button is-small is-full'
-               onclick='this.nextElementSibling.classList.add("is-active");'>
-                {{icon_components.text(size='3rem')}}
-                Scene Description
-            </a>
-            <div class="modal" onclick='this.classList.remove("is-active");'>
-                <div class="modal__background has-bg-screen"></div>
-                <div class="modal__content has-bg-white generated-text-lightbg">
-                    <div class="modal__close"
-                         onclick='this.closest(".modal").classList.remove("is-active");'>
-                        <a class="button--close has-text-dark">
-                            {{icon_components.close(size='2rem')}}
-                        </a>
-                    </div>
-                    {{party.last_scene.description | safe}}
-                </div>
-            </div>
-            <div class="image is-tile is-margin-center">
-                {% if not party.last_scene.image %}
-                <span id="last-scene-image-{{party.pk}}"
-                      hx-trigger='load delay:3s'
-                      hx-target='#last-scene-image-{{party.pk}}'
-                      hx-select='#last-scene-image-{{party.pk}}'
-                      hx-swap='outerHTML'></span>
-                {% else %}
-                <img src="{{party.last_scene.image.url()}}"
-                     loading="lazy"
-                     alt="{{party.name}}" />
-                {% endif %}
-            </div>
-            <span class='tag'>{{party.last_scene.type}}</span>
-            <span class='tag'>{{party.last_scene.tone}}</span>
-            {{ scene_dice_results(party, party.last_scene) }}
-            <hr>
-            <div class="column is-full is-vertically-centered">
-                <form hx-post="/api/autogm/{{party.pk}}/update"
-                      hx-trigger='input delay:1s, from:#continue-session-button' hx-swap='none'>
-                    <div class="row">
-                        <div class="column is-full is-vertically-centered">
-                            <h3 class='has-text-center has-text-primary'>Scenario</h3>
-                            {{form_components.texteditor(user, party.next_scene, "description", content=party.next_scene.description or "")}}
-                        </div>
-                    </div>
-                    <div class="panel has-text-center has-bg-muted">
-                        <div class="row has-space-around">
-                            <div class="column is-shrink is-vertically-centered">
-                                <label class='has-text-primary'>Scene Type</label>
-                                <div class="select" style="width: 100%;">
-                                    <select name="scene_type" id="scene_type">
-                                        {% for st in [
-                                        "social",
-                                        "combat",
-                                        "investigation",
-                                        "exploration",
-                                        "stealth",
-                                        "puzzle",
-                                        ]
-                                        %}
-                                        <option value="{{st}}" {% if
-                                                party.last_scene.type|lower==st|lower %}
-                                                selected
-                                                {% endif %}>
-                                            {{st | title}}
+                        <div class="column is-shrink">
+                            <div class="panel has-bg-muted has-text-center">
+                                <div class="is-select">
+                                    <select name="pc_roll_attribute">
+                                        {% for attr in ['strength', 'dexterity',
+                                        'constitution',
+                                        'intelligence', 'wisdom', 'charisma'] %}
+                                        <option value='{{attr}}'>{{attr | title}}
                                         </option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
-                            <div class="column is-shrink is-vertically-centered">
-                                <label class='has-text-primary' for="date">Date</label>
-                                <input type="string" name="date" id="date"
-                                       value='{{party.next_scene.date or party.world.current_date}}'>
-                            </div>
-                            <div class="column is-full is-vertically-centered">
-                                <h4 class="has-text-screen has-text-center">Roll Required</h4>
-                                <div class='row has-centered'>
-                                    <div class="column is-shrink">
-                                        <div class="is-select">
-                                            <select name="pc_roll_player">
-                                                <option value=''>== Select Player ==</option>
-                                                {% for pc in party.players %}
-                                                <option value='{{pc.pk}}'>{{pc.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="column is-shrink has-text-dark">
-                                        needs to make a
-                                    </div>
-                                    <div class="column is-shrink">
-                                        <div class="panel has-bg-muted has-text-center">
-                                            <div class="is-select">
-                                                <select name="pc_roll_attribute">
-                                                    {% for attr in ['strength', 'dexterity',
-                                                    'constitution',
-                                                    'intelligence', 'wisdom', 'charisma'] %}
-                                                    <option value='{{attr}}'>{{attr | title}}
-                                                    </option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="column is-shrink">
-                                        <div class="is-select">
-                                            <select class="has-text-center"
-                                                    name="pc_roll_type">
-                                                <option value='Ability Check'>Ability Check
-                                                </option>
-                                                <option value='Saving Throw'>Saving Throw
-                                                </option>
-                                                {% if party.next_scene.type == "combat" %}
-                                                <option value='Attack'>Attack</option>
-                                                <option value='Damage'>Damage</option>
-                                                {% endif %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <div class="is-select">
+                                <select class="has-text-center"
+                                        name="pc_roll_type">
+                                    <option value='Ability Check'>Ability Check
+                                    </option>
+                                    <option value='Saving Throw'>Saving Throw
+                                    </option>
+                                    {% if party.next_scene.type == "combat" %}
+                                    <option value='Attack'>Attack</option>
+                                    <option value='Damage'>Damage</option>
+                                    {% endif %}
+                                </select>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
-            <hr>
-            {{scene_associations(user, world, party)}}
+        </div>
+    </form>
+</div>
+{% endmacro %}
+
+
+{% macro scene_party_details(user, world, party, size="large", collapse=True) -%}
+<div id="scene-party-details-container" class='row has-space-around'>
+    <div class="column is-full">
+        <div class="tabs has-bg-muted is-vertically-centered">
+            <ul class="tabs__list has-centered has-text-primary">
+                {% for player in party.players %}
+                <li style='padding: 1rem;'
+                    onclick='playerPanelSelect("#player-{{player.pk}}-card-container");'>
+                    <a href="#scene-party-details-container"
+                       class='is-small-heading has-text-center has-text-primary'>{{player.name}}</a>
+                </li>
+                {% if not loop.last %}
+                <li>{{icon_components.d20dice(size="1rem")}}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            <script>
+                function playerPanelSelect(target) {
+                    for (var panel of document.querySelector("#player-card-panels").children) {
+                        panel.classList.add("is-hidden");
+                    }
+                    document.querySelector(target).classList.remove("is-hidden");
+                }
+            </script>
         </div>
     </div>
-</div>
-{%- endmacro %}
-
-
-{% macro scene_party_details(user, world, party) -%}
-<div id="scene-party-details-container" class='row has-space-around'>
-    {% if party.next_scene.is_ready %}
-    <div class="column is-full">
-        {{scene_party_summary(user, world, party)}}
-    </div>
-    {% else %}
     <div class="column is-full">
         <div id="player-card-panels" class="row has-space-around">
             {% for player in party.players %}
             <div id="player-{{player.pk}}-card-container"
-                 class="column is-full {% if false %} is-hidden {% endif%}">
-                {{scene_player_card(user, party, player)}}
+                 class="column is-full {% if collapse and not loop.first %} is-hidden {% endif%}">
+                {{scene_player_card(user, party, player, size)}}
             </div>
             {% endfor %}
         </div>
     </div>
-    {% endif %}
 </div>
 {%- endmacro %}
 
 
-{% macro scene_player_card(user, party, player) %}
-<div id="player-card-container-{{player.pk}}" class='panel has-bg-muted'>
-    <h3 class='has-text-center has-text-dark'>
+{% macro scene_player_card(user, party, player, size='large') %}
+<div id="player-card-container-{{player.pk}}" class='panel has-bg-screen'>
+    <h3 class='has-text-center has-text-black'>
         {{player.name}}
     </h3>
-    <div id="object-card-{{player.pk}}" class='row has-bg-white initiative-card'>
+    <div id="object-card-{{player.pk}}" class='row initiative-card'>
         <div class="column is-shrink">
-            {{display_components.object_display(player, size="large", dim="250", name=False, type=False)}}
+            {{display_components.object_display(player, size="{{size}}", dim="250", name=False,
+            type=False)}}
         </div>
-        <div class="column">
+        {% if size == 'large'%}
+        <div class="column is-shrink">
             <div class="row">
                 <div class="column is-full player-card-abilities">
-                    <div class="panel has-bg-screen">
+                    <div class="panel has-bg-muted">
                         <div class="row has-space-around has-text-center has-text-dark"
                              style='cursor: pointer;'>
                             <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
@@ -624,213 +637,229 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="panel has-bg-dark-grey">
-        <div class="row">
-            {% for item in player.items %}
-            <div class="column is-4">
-                {{display_components.object_display(item, size="tiny", type=False, name=False, modal=True)}}
+        {% endif %}
+        <div class="column">
+            <div class="tabs has-bg-muted">
+                <ul class="tabs__list has-centered has-space-around has-text-primary">
+                    {% if party.last_scene %}
+                    <li
+                        onclick='panelselect("#card-actions-details-panel-{{player.pk}}");'>
+                        <a>Actions</a>
+                    </li>
+                    {% endif %}
+                    <li
+                        onclick='panelselect("#card-abilities-details-panel-{{player.pk}}");'>
+                        <a>Abilities</a>
+                    </li>
+                    {% if party.last_scene.type != 'combat' %}
+                    <li
+                        onclick='panelselect("#card-history-details-panel-{{player.pk}}");'>
+                        <a>History</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <script>
+                    function panelselect(target) {
+                        for (var panel of document.querySelectorAll(".card-details-panel")) {
+                            panel.classList.add("is-hidden");
+                        }
+                        document.querySelector(target).classList.remove("is-hidden");
+                    }
+                </script>
             </div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="tabs has-bg-muted">
-        <ul class="tabs__list has-centered has-space-around has-text-primary">
-            {% if party.last_scene %}
-            <li
-                onclick='panelselect("#card-actions-details-panel-{{player.pk}}");'>
-                <a>Actions</a>
-            </li>
-            {% endif %}
-            <li
-                onclick='panelselect("#card-abilities-details-panel-{{player.pk}}");'>
-                <a>Abilities</a>
-            </li>
-            {% if party.last_scene.type != 'combat' %}
-            <li
-                onclick='panelselect("#card-history-details-panel-{{player.pk}}");'>
-                <a>History</a>
-            </li>
-            {% endif %}
-        </ul>
-        <script>
-            function panelselect(target) {
-                for (var panel of document.querySelectorAll(".card-details-panel")) {
-                    panel.classList.add("is-hidden");
-                }
-                document.querySelector(target).classList.remove("is-hidden");
-            }
-        </script>
-    </div>
-    <div class="row">
-        <div id="card-actions-details-panel-{{player.pk}}"
-             class="column card-details-panel is-full generated-text-lightbg">
-            {%if party.next_scene.gm_mode == 'pc' and party.last_scene %}
-            {% set msg = party.last_scene.get_player_message(player) %}
-            <div class="panel is-full has-bg-muted has-text-dark">
-                <h4 class='has-text-dark'>Action</h4>
-                <div class="row has-space-around">
-                    <div class="column is-full">
-                        <audio controls>
-                            <source src="/audio/{{msg.pk}}"
-                                    type="audio/mpeg">
-                        </audio>
-                        <span class='tag'>Feeling {{msg.emotion | safe}} and intending to
-                            {{msg.intent | safe}}:
-                        </span>
-                        <div>{{msg.message | safe}}</div>
+            <div class="row">
+                <div id="card-actions-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-full generated-text-lightbg">
+                    {%if party.next_scene.gm_mode == 'pc' and party.last_scene %}
+                    {% set msg = party.last_scene.get_player_message(player) %}
+                    <div class="panel is-full has-bg-muted has-text-dark">
+                        <h4 class='has-text-dark'>Action</h4>
+                        <div class="row has-space-around">
+                            <div class="column is-full">
+                                <audio controls>
+                                    <source src="/audio/{{msg.pk}}"
+                                            type="audio/mpeg">
+                                </audio>
+                                <span class='tag'>Feeling {{msg.emotion | safe}} and intending to
+                                    {{msg.intent | safe}}:
+                                </span>
+                                <div>{{msg.message | safe}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif party.next_scene.gm_mode in ['gm', 'manual'] and party.last_scene.type
+                    !=
+                    "combat" %}
+                    <div class="row">
+                        <div class="column">
+                            <form autocomplete="off"
+                                  hx-post='/api/autogm/{{party.pk}}/update'
+                                  hx-target='#scene-party-details-container'
+                                  hx-select='#scene-party-details-container'
+                                  hx-swap='outerHTML'
+                                  hx-trigger='input delay:2s, from:#continue-session-button'>
+                                <input type='hidden' name='message.playerpk' value='{{player.pk}}'>
+                                <div class="panel is-full has-bg-light has-text-dark">
+                                    {% set msg = party.next_scene.get_player_message(player) %}
+                                    <div class="row has-space-around">
+                                        <div class="column is-full">
+                                            <h4 class='has-text-dark'>Action</h4>
+                                            {%if party.next_scene.gm_ready %}
+                                            <textarea class="has-bg-white" autocomplete="false"
+                                                      name="message.player_message">{{msg.message}}</textarea>
+                                            {% elif party.last_scene %}
+                                            <span>{{party.last_scene.get_player_message(player)}}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="column is-shrink">
+                                            <div class="panel has-bg-muted">
+                                                <label class='has-text-dark'>Emotion</label>
+                                                {%if party.next_scene.gm_ready%}
+                                                <div class="is-select">
+                                                    <select name="message.emotion">
+                                                        <option value='steady'>Steady
+                                                        </option>
+                                                        <option value='happy'
+                                                                {% if
+                                                                msg.emotion=='happy' %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Happy
+                                                        </option>
+                                                        <option value='playful'
+                                                                {% if
+                                                                msg.emotion=='playful'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Playful</option>
+                                                        <option value='confident'
+                                                                {% if
+                                                                msg.emotion=='confident'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Confident</option>
+                                                        <option value='curious'
+                                                                {% if
+                                                                msg.emotion=='curious'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Curious</option>
+                                                        <option value='reluctant'
+                                                                {% if
+                                                                msg.emotion=='reluctant'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Reluctant</option>
+                                                        <option value='impatient'
+                                                                {% if
+                                                                msg.emotion=='impatient'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Impatient</option>
+                                                        <option value='wary'
+                                                                {% if
+                                                                msg.emotion=='wary' %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Wary</option>
+                                                        <option value='sad'
+                                                                {% if msg.emotion=='sad'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Sad</option>
+                                                        <option value='afraid'
+                                                                {% if
+                                                                msg.emotion=='afraid' %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Afraid</option>
+                                                        <option value='desperate'
+                                                                {% if
+                                                                msg.emotion=='desperate'
+                                                                %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Desperate</option>
+                                                        <option value='angry'
+                                                                {% if
+                                                                msg.emotion=='angry' %}
+                                                                selected
+                                                                {% endif %}>
+                                                            Angry</option>
+                                                    </select>
+                                                </div>
+                                                {% elif party.last_scene %}
+                                                <span>{{msg.emotion}}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="panel has-bg-muted">
+                                                <label class='has-text-dark'>Player
+                                                    Intentions</label>
+                                                {%if party.ready%}
+                                                <input type="text"
+                                                       value='{{msg.intent}}'
+                                                       name="message.intentions" {%if
+                                                       party.next_scene.is_ready%} readonly {% endif
+                                                       %} />
+                                                {% else %}
+                                                <span>{{msg.intent}}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {%if party.ready %}
+                                        <div
+                                             class="column is-vertically-centered is-shrink has-text-center">
+                                            <h4 class='has-text-center'>Ready</h4>
+                                            <div class="is-switch has-bg-muted has-text-screen">
+                                                <input type="checkbox" name="message.ready"
+                                                       {% if msg.ready %} checked {% endif %}
+                                                       id="message-ready-{{player.pk}}">
+                                                <label
+                                                       for="message-ready-{{player.pk}}"></label>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif%}
+                </div>
+                <div id="card-abilities-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-full generated-text-lightbg is-hidden">
+                    {{abilities_components.abilities(user, player)}}
+                </div>
+                <div id="card-history-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-hidden is-full generated-text-lightbg has-text-justified">
+                    <h2 class='has-text-dark'>History</h2>
+                    <div class="panel has-bg-light-grey">
+                        {{ player.history | safe }}
                     </div>
                 </div>
             </div>
-            {% elif party.next_scene.gm_mode in ['gm', 'manual'] and party.last_scene.type !=
-            "combat" %}
-            <div class="row">
-                <div class="column">
-                    <form autocomplete="off"
-                          hx-post='/api/autogm/{{party.pk}}/update'
-                          hx-target='#scene-party-details-container'
-                          hx-select='#scene-party-details-container'
-                          hx-swap='outerHTML'
-                          hx-trigger='input delay:2s, from:#continue-session-button'>
-                        <input type='hidden' name='message.playerpk'
-                               value='{{player.pk}}'>
-                        <div class="panel is-full has-bg-light has-text-dark">
-                            {% set msg =
-                            party.next_scene.get_player_message(player) %}
-                            <div class="row has-space-around">
-                                <div class="column is-full">
-                                    <h4 class='has-text-dark'>Action</h4>
-                                    <textarea class="has-bg-white" autocomplete="false"
-                                              name="message.player_message" {%if
-                                              party.next_scene.is_ready%} readonly {% endif
-                                              %}>{{msg.message}}</textarea>
-                                </div>
-                                <div class="column is-shrink">
-                                    <div class="panel has-bg-muted">
-                                        <label class='has-text-dark'>Emotion</label>
-                                        <div class="is-select">
-                                            <select name="message.emotion" {%if
-                                                    party.next_scene.is_ready%} readonly {%
-                                                    endif %}>
-                                                <option value='steady'>Steady
-                                                </option>
-                                                <option value='happy'
-                                                        {% if
-                                                        msg.emotion=='happy' %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Happy
-                                                </option>
-                                                <option value='playful'
-                                                        {% if
-                                                        msg.emotion=='playful'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Playful</option>
-                                                <option value='confident'
-                                                        {% if
-                                                        msg.emotion=='confident'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Confident</option>
-                                                <option value='curious'
-                                                        {% if
-                                                        msg.emotion=='curious'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Curious</option>
-                                                <option value='reluctant'
-                                                        {% if
-                                                        msg.emotion=='reluctant'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Reluctant</option>
-                                                <option value='impatient'
-                                                        {% if
-                                                        msg.emotion=='impatient'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Impatient</option>
-                                                <option value='wary'
-                                                        {% if
-                                                        msg.emotion=='wary' %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Wary</option>
-                                                <option value='sad'
-                                                        {% if msg.emotion=='sad'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Sad</option>
-                                                <option value='afraid'
-                                                        {% if
-                                                        msg.emotion=='afraid' %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Afraid</option>
-                                                <option value='desperate'
-                                                        {% if
-                                                        msg.emotion=='desperate'
-                                                        %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Desperate</option>
-                                                <option value='angry'
-                                                        {% if
-                                                        msg.emotion=='angry' %}
-                                                        selected
-                                                        {% endif %}>
-                                                    Angry</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <div class="panel has-bg-muted">
-                                        <label class='has-text-dark'>Player
-                                            Intentions</label>
-                                        <input type="text"
-                                               value='{{msg.intent}}'
-                                               name="message.intentions" {%if
-                                               party.next_scene.is_ready%} readonly {% endif
-                                               %} />
-                                    </div>
-                                </div>
-                                <div
-                                     class="column is-vertically-centered is-shrink has-text-center">
-                                    <h4 class='has-text-center'>Ready</h4>
-                                    <div class="is-switch has-bg-muted has-text-screen">
-                                        <input type="checkbox" name="message.ready"
-                                               {% if msg.ready %} checked {% endif %}
-                                               id="message-ready-{{player.pk}}">
-                                        <label
-                                               for="message-ready-{{player.pk}}"></label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+        </div>
+        {% if player.items %}
+        <div class="column is-shrink">
+            <div class="panel has-bg-dark-grey">
+                <div class="row">
+                    {% for item in player.items %}
+                    <div class="column is-4">
+                        {{display_components.object_display(item, size="tiny", type=False, name=False, modal=True)}}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endif%}
         </div>
-        <div id="card-abilities-details-panel-{{player.pk}}"
-             class="column card-details-panel is-full generated-text-lightbg is-hidden">
-            {{abilities_components.abilities(user, player)}}
-        </div>
-        <div id="card-history-details-panel-{{player.pk}}"
-             class="column card-details-panel is-hidden is-full generated-text-lightbg has-text-justified">
-            <h2 class='has-text-dark'>History</h2>
-            <div class="panel has-bg-light-grey">
-                {{ player.history | safe }}
-            </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 {%- endmacro %}
@@ -845,21 +874,18 @@
                 scene</h6>
             {% endif %}
             <button id='continue-session-button' class="button is-full" type='submit'
-                    {% if party.next_scene.gm_mode=='gm' and party.next_scene.roll_required and
-                    not
-                    party.next_scene.roll_result %}
+                    {% if party.next_scene.roll_required and not party.next_scene.roll_result %}
                     disabled
                     {% endif %}
-                    hx-post="/task/generate/autogm/{{party.pk}}"
-                    hx-target='#scene-party-details-container'
-                    hx-swap="afterbegin show:#scene-party-details-container:top"
+                    hx-post="/api/autogm/{{party.pk}}/submit"
+                    hx-target='#next-session-container'
+                    hx-swap="delete"
                     hx-push-url='/{{party.path}}/gm'
-                    onsubmit='document.getElementById("next-session-container").remove();'>
-                {% if party.autogm_summary %}
-                Continue Session
-                {% endif %}
-            </button>
-            <hr>
+                    {% if party.next_scene %}
+                    Continue Session
+                    {% endif %}
+                    </button>
+                <hr>
         </div>
         {% if party.autogm_summary %}
         <div class="column is-shrink is-vertically-centered">
@@ -904,6 +930,7 @@
 
 {% macro scene_associations(user, world, party)%}
 <div id='autogm-associations-list-container' class="row has-space-around">
+    {% if party.next_scene.gm_mode != "manual" or not party.ready %}
     <div class="column is-half">
         <h4 class='has-text-center has-text-primary'>Search Associations</h4>
         <div class="has-dropdown" style="width: 100%;">
@@ -922,7 +949,7 @@
         <h4 class='has-text-center has-text-primary'>Create a new...</h4>
         <div class="row has-space-around">
             {% for child in party.all_models() %}
-            <div class="column is-3 has-text-center">
+            <div class="column is-shrink has-text-center">
                 <button class="button is-primary has-text-white is-small"
                         hx-post="/api/autogm/{{party.pk}}/associations/add/{{child.__name__ | lower}}"
                         hx-target="#page-content"
@@ -964,9 +991,13 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    {% if party.next_scene.scene_objects() %}
     <div class="column is-full">
+        <h4 class='has-text-center has-text-primary'>Scene Objects</h4>
         {{autogm_scene_objects(user, world, party)}}
     </div>
+    {% endif %}
 </div>
 {%- endmacro %}
 
@@ -1086,6 +1117,35 @@
         </div>
     </div>
     {% endif %}
+    {% if party.next_scene.vehicles %}
+    <div class="column is-full">
+        <div class="panel has-bg-screen">
+            <h4 class="has-text-center">Vehicles</h4>
+            <div class="row has-space-around">
+                {% for cbt in party.next_scene.vehicles%}
+                <div id="cbt-{{cbt.pk}}" class='column is-4' style='position:relative;'>
+                    {% if cbt.image %}
+                    {{display_components.object_display(cbt, size="small")}}
+                    <a style="position:absolute;bottom:0;right:0;"
+                       hx-post="/api/autogm/{{party.pk}}/scene/remove/{{cbt.path}}"
+                       hx-target='closest .column'
+                       hx-swap='delete'>
+                        {{icon_components.remove(size='1rem')}}
+                    </a>
+                    {# {% else %}
+                    <div hx-post="/api/autogm/{{party.pk}}"
+                         hx-target='#cbt-{{cbt.pk}}'
+                         hx-select='#cbt-{{cbt.pk}}'
+                         hx-trigger='load delay:3s'
+                         hx-swap='outerHTML'>
+                    </div> #}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% if party.next_scene.loot %}
     <div class="column is-full">
         <div class="panel is-full has-bg-screen">
@@ -1175,8 +1235,7 @@
     </div>
     {% if scene.roll_description %}
     <div class="column is-full">
-        <div
-             class='panel has-text-light has-text-justified generated-text-lightbg'>
+        <div class='panel has-text-light has-text-justified generated-text-lightbg'>
             {% if scene.roll_audio %}
             <button class="button is-small has-bg-screen"
                     onclick='gmvoiced("/audio/gm/roll/{{scene.pk}}");'>
@@ -1194,21 +1253,20 @@
             <form hx-post="/api/autogm/{{party.pk}}/update"
                   hx-trigger='submit, from:#continue-session-button'
                   hx-target='#roll-form-{{scene.pk}}-{{id}}'
-                  hx-select='#roll-form-{{scene.pk}}-{{id}}'
-                  hx-swap='outerHTML'>
+                  hx-select='#roll-form-{{scene.pk}}-{{id}}' hx-swap='outerHTML'>
                 <div class='row has-space-around'>
                     <div class="column is-full is-vertically-centered">
-                        <button class=" button" type='submit'>Roll</button>
+                        <button class="button" type='submit'>Roll</button>
                     </div>
                     <div class="column">
                         <div class="row has-space-around">
                             <div class="column is-3 is-vertically-centered">
-                                <input type="number" value="1"
-                                       name="pc_roll_num_dice">
+                                <input type="number" value="1" name="pc_roll_num_dice">
                             </div>
                             <div class="column is-2 is-vertically-centered">
                                 <p class='has-text-primary'
-                                   style='font-size: 1.5rem; font-weight: bold;'>D
+                                   style='font-size: 1.5rem; font-weight: bold;'>
+                                    D
                                 </p>
                             </div>
                             <div class="column is-3 is-vertically-centered">
@@ -1243,6 +1301,7 @@
 
 
 {% macro scene_quest_log(user, world, party) -%}
+{% if party.next_scene.quest_log %}
 <div id="scene_quest_log"
      class="panel  has-no-padding-left has-no-padding-right ">
 
@@ -1307,9 +1366,10 @@ border-top-right-radius:0;'>
         {% endfor %}
     </div>
 </div>
+{% endif %}
 {%- endmacro %}
 
-{% macro scene_party_summary(user, world, party) -%}
+{% macro scene_party_summary(user, world, party, small=False) -%}
 <div class="row">
     <div class="column is-full">
         <div class="panel has-bg-light">
@@ -1345,6 +1405,7 @@ border-top-right-radius:0;'>
 </div>
 {%- endmacro %}
 
+
 {% macro scene_combat(user, world, party) -%}
 <section class="section is-small">
     <h2 class='has-text-center has-text-primary'>Combat Initiative</h2>
@@ -1363,7 +1424,8 @@ border-top-right-radius:0;'>
             {% if party.last_scene.initiative.current_combat_turn().image %}
             <div class="column is-shrink">
                 <div class="image is-extra-large">
-                    <img src="{{party.last_scene.initiative.current_combat_turn().image.url()}}">
+                    <img
+                         src="{{party.last_scene.initiative.current_combat_turn().image.url()}}">
                 </div>
             </div>
             {% endif %}
@@ -1371,7 +1433,8 @@ border-top-right-radius:0;'>
         {% endif %}
 
     </div>
-    <div class="panel has-no-padding has-bg-screen" style='z-index:100; position: sticky; top:0;'>
+    <div class="panel has-no-padding has-bg-screen"
+         style='z-index:100; position: sticky; top:0;'>
         <a style='z-index:101; position: absolute; top:0;'
            onclick="toggleinitdetails(this);">
             {{icon_components.dropdownarrow(size="3rem")}}
@@ -1617,7 +1680,8 @@ border-top-right-radius:0;'>
                         <hr>
                         {% if actor.is_player %}
                         <div class="panel has-bg-muted">
-                            <h6 class='has-text-primary has-text-center'>Available Abilities</h6>
+                            <h6 class='has-text-primary has-text-center'>Available Abilities
+                            </h6>
                             <div class="row has-space-around">
                                 {% for ability in actor.abilities %}
                                 {% if not ability.action or"main" in ability.action %}
@@ -1745,7 +1809,8 @@ border-top-right-radius:0;'>
                         {% if actor.is_player %}
                         <hr>
                         <div class="panel has-bg-muted">
-                            <h6 class='has-text-primary has-text-center'>Available Abilities</h6>
+                            <h6 class='has-text-primary has-text-center'>Available Abilities
+                            </h6>
                             <div class="row has-space-around">
                                 {% for ability in actor.abilities %}
                                 {% if not ability.action or"bonus" in ability.action %}
@@ -1812,7 +1877,8 @@ border-top-right-radius:0;'>
         {% if not party.last_scene.current_combat_turn().ready %}
         <div class="column is-4">
             <button class="button is-full has-bg-muted has-text-dark"
-                    hx-post='/task/generate/autogm/{{party.pk}}/combat' hx-target='closest .column'>
+                    hx-post='/task/generate/autogm/{{party.pk}}/combat'
+                    hx-target='closest .column'>
                 Run Turn
             </button>
         </div>
@@ -1820,7 +1886,8 @@ border-top-right-radius:0;'>
         <div class="column is-3">
             <button class='button is-full has-bg-screen'
                     hx-post='/task/generate/autogm/{{party.pk}}/combat/next'
-                    hx-target='closest .column' hx-confirm='This will end your turn. Are you sure?'>
+                    hx-target='closest .column'
+                    hx-confirm='This will end your turn. Are you sure?'>
                 {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} Next
                 Turn {%
                 endif %}

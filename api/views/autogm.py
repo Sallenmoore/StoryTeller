@@ -1,5 +1,6 @@
 import os
 
+import markdown
 import requests
 from dmtoolkit import dmtools
 from flask import Blueprint, get_template_attribute, request
@@ -19,25 +20,25 @@ autogm_endpoint = Blueprint("autogm", __name__)
 
 
 ###########################################################
-##                    Main Routes                       ##
+##                     Main Routes                       ##
 ###########################################################
 @autogm_endpoint.route("/", methods=("POST",))
 @autogm_endpoint.route("/<string:pk>", methods=("POST",))
 def index(model=None, pk=None):
     user, obj, world, *_ = _loader(model=model, pk=pk)
-    party = None
-    if party := Faction.get(pk or request.json.get("partypk")):
-        next_scene = party.get_next_scene()
-        for player in party.players:
-            next_scene.set_player_message(player.pk)
-
-    # if party.last_scene:
-    #     log(
-    #         party.last_scene.roll_required,
-    #         party.last_scene.roll_result,
-    #         party.last_scene.roll_formula,
-    #     )
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    party = Faction.get(pk or request.json.get("partypk"))
+    if party and party.next_scene:
+        # party.next_scene.is_ready = False
+        # party.next_scene.save()
+        log(
+            [p.ready for p in party.next_scene.player_messages],
+            party.is_ready(),
+            party.next_scene.scene_objects(),
+        )
+        return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+            user, world, party
+        )
+    return get_template_attribute("autogm/_shared.html", "gm")(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/start", methods=("POST",))
@@ -45,34 +46,162 @@ def start(pk=None):
     user, obj, world, *_ = _loader()
     party = None
     if party := Faction.get(pk):
-        next_scene = party.get_next_scene()
+        party.get_next_scene()
 
         if gmmode := request.json.get("gmmode"):
-            next_scene.gm_mode = gmmode
+            party.next_scene.gm_mode = gmmode
 
         if tone := request.json.get("tone"):
-            next_scene.tone = tone.title()
+            party.next_scene.tone = tone.title()
 
         if scenario := request.json.get("scenario"):
-            next_scene.description = scenario
-        next_scene.save()
-    if gmmode == "manual":
-        return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
-    else:
+            party.next_scene.description = markdown.markdown(scenario)
+        party.next_scene.is_ready = False
+        party.next_scene.gm_ready = True
+        party.next_scene.save()
+    return requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
+    ).text
+
+
+@autogm_endpoint.route("/<string:pk>/canonize", methods=("POST",))
+def canonizesession(pk):
+    user, obj, world, *_ = _loader()
+    if party := Faction.get(pk):
+        party.end_gm_session()
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
+
+
+@autogm_endpoint.route("/<string:pk>/clear", methods=("POST",))
+def clearsession(pk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    party.next_scene.delete() if party.next_scene else None
+    party.next_scene = None
+    for ags in party.autogm_summary:
+        ags.delete()
+    party.autogm_summary = []
+    party.save()
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
+
+
+## MARK: Submission
+###########################################################
+##                   Submission Routes                   ##
+###########################################################
+@autogm_endpoint.route("/<string:pk>/submit", methods=("POST",))
+def submit(pk=None):
+    party = Faction.get(pk)
+    if party.next_scene.gm_mode == "pc":
+        pass
+    elif party.next_scene.gm_mode == "gm":
+        pass
+    elif party.next_scene.gm_mode == "manual":
+        party.next_scene.gm_ready = True
+        party.next_scene.save()
+    return requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{pk}"
+    ).text
+
+
+@autogm_endpoint.route("/<string:pk>/<string:playerpk>/ready", methods=("POST",))
+def ready(pk, playerpk):
+    party = Faction.get(pk)
+    player = Character.get(playerpk)
+    party.next_scene.get_player_message(player).ready = bool(request.json.get("ready"))
+    party.next_scene.get_player_message(player).save()
+    log(
+        [p.ready for p in party.next_scene.player_messages],
+        party.is_ready(),
+        party.next_scene.scene_objects(),
+    )
+    if party.next_scene.gm_ready and party.ready:
         return requests.post(
             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
         ).text
+    else:
+        return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+            party.user, party.world, party
+        )
 
 
-@autogm_endpoint.route("/<string:pk>/mode", methods=("POST",))
-def mode(pk=None):
+## MARK: Update
+###########################################################
+##                   Update Routes                       ##
+###########################################################
+@autogm_endpoint.route("/<string:pk>/edit", methods=("POST",))
+def scene_edit(pk):
     user, obj, world, *_ = _loader()
-    party = None
-    if party := Faction.get(pk):
-        next_scene = party.get_next_scene()
-        next_scene.gm_mode = request.json.get("gmmode")
-        next_scene.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    party = Faction.get(pk)
+    return get_template_attribute("audogm/_shared.html", "autogm_description_edit")(
+        user, world, party
+    )
+
+
+@autogm_endpoint.route("/<string:pk>/update", methods=("POST",))
+def scene_update(pk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    log(request.json)
+    if desc := request.json.get("description"):
+        party.next_scene.description = markdown.markdown(desc)
+
+    if scene_type := request.json.get("scene_type"):
+        party.next_scene.scene_type = scene_type
+
+    if date := request.json.get("date"):
+        party.next_scene.date = date
+        party.next_scene.save()
+
+    if quest := request.json.get("quest"):
+        quest_obj = AutoGMQuest.get(quest["pk"])
+        name = quest["name"]
+        type = quest["type"]
+        description = quest["description"]
+        status = quest["status"]
+        next_steps = quest["next_steps"]
+        importance = quest["importance"]
+        quest_obj.save()
+
+    if message := request.json.get("message"):
+        party.next_scene.set_player_message(
+            message["playerpk"],
+            response=message["player_message"],
+            intent=message["intentions"],
+            emotion=message["emotion"],
+            ready=bool(message.get("ready")),
+        )
+
+    if next_actions := request.json.get("next_actions"):
+        party.next_scene.next_actions = [na for na in next_actions if na.strip()]
+        log(party.next_scene.next_actions)
+
+    if request.json.get("pc_roll_player"):
+        party.next_scene.roll_required = True
+        party.next_scene.roll_player = Character.get(request.json.get("pc_roll_player"))
+        party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
+        party.next_scene.roll_type = request.json.get("pc_roll_type")
+    elif (
+        party.next_scene.roll_required
+        and request.json.get("pc_roll_num_dice")
+        and request.json.get("pc_roll_type_dice")
+        and request.json.get("pc_roll_modifier")
+    ):
+        party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
+        party.next_scene.roll_result = dmtools.dice_roll(party.next_scene.roll_formula)
+    party.next_scene.save()
+    # log(
+    #     [p.ready for p in party.next_scene.player_messages],
+    #     party.is_ready(),
+    #     party.next_scene.gm_ready,
+    # )
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))
@@ -125,21 +254,37 @@ def combatupdate(pk):
         bonus_action_saving_throw=bonus_action_saving_throw,
         bonus_action_skill_check=bonus_action_skill_check,
     )
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route(
-    "/<string:pk>/combat/<string:actorpk>/hitpoints", methods=("POST",)
+    "/<string:pk>/<string:playerpk>/current_hitpoints", methods=("POST",)
 )
-def combathp(pk, actorpk):
+def autogm_player_current_hp(pk, playerpk):
     user, obj, world, *_ = _loader()
     party = Faction.get(pk)
-    if not party.last_scene.initiative:
-        raise ValueError("No Initiative List")
-    if ini := AutoGMInitiative.get(actorpk):
-        ini.hp = request.json.get("current_hitpoints")
-        ini.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    player = Character.get(playerpk)
+    if player:
+        player.current_hitpoints = int(request.json.get("current_hitpoints"))
+        player.save()
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
+
+
+@autogm_endpoint.route("/<string:pk>/mode", methods=("POST",))
+def mode(pk=None):
+    user, obj, world, *_ = _loader()
+    party = None
+    if party := Faction.get(pk):
+        next_scene = party.get_next_scene()
+        next_scene.gm_mode = request.json.get("gmmode")
+        next_scene.save()
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route("/<string:pk>/status/<string:actorpk>", methods=("POST",))
@@ -151,7 +296,9 @@ def playerstatus(pk, actorpk):
     if ini := AutoGMInitiative.get(actorpk):
         ini.status = request.json.get("status")
         ini.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
 
 
 # MARK: Associations
@@ -185,9 +332,9 @@ def autogm_search(pk):
             if not party.next_scene
             or (party.next_scene and w not in party.next_scene.associations)
         ]
-    return get_template_attribute("shared/_gm.html", "autogm_association_search")(
-        user, party, objs
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_association_search"
+    )(user, party, objs)
 
 
 @autogm_endpoint.route(
@@ -218,6 +365,8 @@ def autogm_association_add(pk, amodel, apk=None):
                 party.next_scene.npcs += [ass]
             elif amodel == "item":
                 party.next_scene.loot += [ass]
+            elif amodel == "vehicle":
+                party.next_scene.vehicles += [ass]
             elif amodel == "creature":
                 party.next_scene.combatants += [ass]
             elif amodel == "faction":
@@ -225,7 +374,9 @@ def autogm_association_add(pk, amodel, apk=None):
             elif amodel in ["region", "city", "district", "location"]:
                 party.next_scene.places += [ass]
             party.next_scene.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route(
@@ -255,92 +406,21 @@ def autogm_association_remove(pk, amodel, apk):
         else:
             party.next_scene.remove_association(ass)
         party.next_scene.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
-
-
-@autogm_endpoint.route("/<string:pk>/edit", methods=("POST",))
-def scene_edit(pk):
-    user, obj, world, *_ = _loader()
-    party = Faction.get(pk)
-    return get_template_attribute("shared/_gm.html", "autogm_description_edit")(
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
         user, world, party
     )
 
 
-@autogm_endpoint.route("/<string:pk>/update", methods=("POST",))
-def scene_update(pk):
-    user, obj, world, *_ = _loader()
-    party = Faction.get(pk)
-
-    if desc := request.json.get("description"):
-        party.next_scene.description = desc
-
-    if scene_type := request.json.get("scene_type"):
-        party.next_scene.scene_type = scene_type
-
-    if date := request.json.get("date"):
-        party.last_scene.date = date
-        party.last_scene.save()
-
-    if message := request.json.get("message"):
-        party.next_scene.set_player_message(
-            message["playerpk"],
-            response=message["player_message"],
-            intention=message["intentions"],
-            emotion=message["emotion"],
-            ready=bool(message.get("ready")),
-        )
-
-    if request.json.get("pc_roll_player") and party.next_scene.gm_mode == "pc":
-        party.next_scene.roll_required = True
-        party.next_scene.roll_player = Character.get(request.json.get("pc_roll_player"))
-        party.next_scene.roll_attribute = request.json.get("pc_roll_attribute")
-        party.next_scene.roll_type = request.json.get("pc_roll_type")
-        party.next_scene.roll_required = True
-    elif (
-        party.next_scene.roll_required
-        and party.next_scene.gm_mode == "gm"
-        and request.json.get("pc_roll_num_dice")
-        and request.json.get("pc_roll_type_dice")
-        and request.json.get("pc_roll_modifier")
-    ):
-        party.next_scene.roll_formula = f"{request.json.get("pc_roll_num_dice")}d{request.json.get("pc_roll_type_dice")}{request.json.get("pc_roll_modifier")}"
-        party.next_scene.roll_result = dmtools.dice_roll(party.next_scene.roll_formula)
-        log(party.next_scene.roll_result)
-
-        # log(
-        #     party.next_scene.roll_required,
-        #     party.next_scene.roll_formula,
-        #     party.next_scene.roll_attribute,
-        #     party.next_scene.roll_type,
-        #     party.next_scene.roll_player,
-        #     party.next_scene.roll_result,
-        # )
-    party.next_scene.save()
-    if party.next_scene.is_ready:
-        return f"""
-<div id="scene-party-details-container">{party.next_scene.resolve_scene()}</div>
-"""
-    # log(json.dumps(json.loads(party.next_scene.to_json()), indent=4))
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
-
-
-@autogm_endpoint.route("/<string:playerpk>/current_hitpoints", methods=("POST",))
-def autogm_player_current_hp(playerpk):
-    user, obj, world, *_ = _loader()
-    player = Character.get(playerpk)
-    if player:
-        player.current_hitpoints = int(request.json.get("current_hitpoints"))
-        player.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world)
-
-
+# MARK: Quests
+###########################################################
+##              Quest       Routes                       ##
+###########################################################
 @autogm_endpoint.route(
-    "/party/<string:partypk>/quest",
+    "/<string:partypk>/quest",
     methods=("POST",),
 )
 @autogm_endpoint.route(
-    "/party/<string:partypk>/quest/current/<string:pk>",
+    "/<string:partypk>/quest/current/<string:pk>",
     methods=("POST",),
 )
 def autogm_party_current_quest(partypk, pk=None):
@@ -352,13 +432,32 @@ def autogm_party_current_quest(partypk, pk=None):
                 party.next_scene.current_quest = quest
                 party.next_scene.save()
 
-    return get_template_attribute("shared/_gm.html", "scene_quest_log")(
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "scene_quest_log"
+    )(user, world, party)
+
+
+@autogm_endpoint.route(
+    "/<string:partypk>/quest/add",
+    methods=("POST",),
+)
+def autogm_party_quest_add(partypk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(partypk)
+    """
+    associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+    """
+    quest = AutoGMQuest(name="New Quest", associations=[party, *party.players])
+    quest.save()
+    party.next_scene.quest_log += [quest]
+    party.next_scene.save()
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
         user, world, party
     )
 
 
 @autogm_endpoint.route(
-    "/party/<string:partypk>/quest/delete/<string:pk>",
+    "/<string:partypk>/quest/delete/<string:pk>",
     methods=("POST",),
 )
 def autogm_party_quest_delete(partypk, pk=None):
@@ -369,25 +468,6 @@ def autogm_party_quest_delete(partypk, pk=None):
         party.next_scene.quest_log.remove(quest)
         quest.delete()
         party.next_scene.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world)
-
-
-@autogm_endpoint.route("/<string:pk>/canonize", methods=("POST",))
-def canonizesession(pk):
-    user, obj, world, *_ = _loader()
-    if party := Faction.get(pk):
-        party.end_gm_session()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world)
-
-
-@autogm_endpoint.route("/<string:pk>/clear", methods=("POST",))
-def clearsession(pk):
-    user, obj, world, *_ = _loader()
-    party = Faction.get(pk)
-    party.next_scene.delete() if party.next_scene else None
-    party.next_scene = None
-    for ags in party.autogm_summary:
-        ags.delete()
-    party.autogm_summary = []
-    party.save()
-    return get_template_attribute("shared/_gm.html", "gm")(user, world, party)
+    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
+        user, world, party
+    )

@@ -71,7 +71,9 @@ class Location(Place):
         result = super().page_data()
         if self.districts:
             result |= {
-                "district": self.districts,
+                "districts": [
+                    {"name": r.name, "pk": str(r.pk)} for r in self.districts
+                ],
             }
         return result
 

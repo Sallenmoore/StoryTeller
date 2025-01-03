@@ -1,0 +1,22 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_tasks.html" as task_components %}
+{% import "shared/_abilities.html" as abilities_components %}
+
+
+{% macro autogm_pc_session(user, world, party) -%}
+<section class="section is-small">
+    {% if party.last_scene %}
+    <div class="panel has-bg-white generated-text-lightbg">
+        {{ scene_overview(user, world, party) }}
+    </div>
+    {% endif %}
+    <div id="autogm-gm-form" class="row has-space-around">
+        <div class="column is-full">
+            {{autogm_submit_session(user, world, party)}}
+            {{scene_party_summary(user, world, party)}}
+        </div>
+    </div>
+</section>
+{%- endmacro %}

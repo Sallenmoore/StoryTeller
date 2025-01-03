@@ -76,7 +76,6 @@ def _generate_audio_task(pk):
 
 def _generate_autogm_task(pk):
     party = Faction.get(pk)
-    # log(messagestr)
     party.autogm_session()
     return {"url": f"/api/autogm/{party.pk}"}
 

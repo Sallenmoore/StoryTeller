@@ -875,6 +875,29 @@ ROLL REQUIRED
         self.update_refs()
         return party.get_next_scene(create=True)
 
+    def runmanual(self, party):
+        if not party.next_scene:
+            raise ValueError("No next scene to run.")
+
+        log(party.next_scene.gm_ready, party.ready, _print=True)
+        if party.next_scene.gm_ready and not party.ready:
+            party.next_scene.generate_audio()
+            party.next_scene.generate_image()
+        elif party.next_scene.gm_ready and party.ready:
+            for msg in party.next_scene.player_messages:
+                if msg.message:
+                    party.next_scene.description += f"""
+- {msg.player.name}'s [with a {msg.emotion or "neutral"} demeanor]: {BeautifulSoup(msg.message, "html.parser").get_text()}
+  {f"- intentions: {msg.intent}" if msg.intent else ""}
+"""
+            party.get_next_scene(create=True)
+            party.next_scene.gm_ready = False
+            party.next_scene.is_ready = False
+            party.next_scene.save()
+            self.update_refs()
+
+        return party.next_scene
+
     def run_combat_round(self, party):
         if not party.last_scene:
             raise ValueError("No combat scene to run.")
