@@ -12,6 +12,7 @@ from autonomous.model.autoattr import (
 )
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
+from models.images.image import Image
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
 
@@ -199,7 +200,9 @@ class Episode(AutoModel):
             for actor in sn.actors:
                 prompt += f"""{actor.name}: {actor.description_summary}\n  - Looks Like: {actor.lookalike}\n"""
             prompt += f"\nSCENE DESCRIPTION\n\n{sn.description}\n"
-            log(prompt, _print=True)
+            img = Image.generate(prompt=prompt)
+            sn.images += [img]
+            sn.save()
 
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
