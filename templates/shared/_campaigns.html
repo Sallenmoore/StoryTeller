@@ -32,12 +32,12 @@
         <div class="row">
             <div class="column is-half">
                 <h4 class="has-text-dark-grey has-text-center">
-                    Started: {{campaign.start_date.datestr() if campaign.start_date else 'TBD'}}
+                    Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
                 </h4>
             </div>
             <div class="column is-half">
                 <h4 class="has-text-dark-grey has-text-center">
-                    Ended: {{campaign.end_date.datestr() if campaign.end_date else 'TBD'}}
+                    Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
                 </h4>
             </div>
             <div class="column is-full">
@@ -75,8 +75,7 @@
                                 {% if entry.start_date %}
                                 <span class='tag is-primary has-text-primary'>
                                     Start:
-                                    {{entry.start_date.datestr()}}
-                                    {{obj.calendar.year_string}}
+                                    {{entry.start_date}}
                                 </span>
                                 {% endif %}
                             </div>
@@ -84,8 +83,7 @@
                                 {% if entry.end_date %}
                                 <span class='tag is-primary has-text-primary'>
                                     End:
-                                    {{entry.end_date.datestr()}}
-                                    {{obj.calendar.year_string}}
+                                    {{entry.end_date}}
                                 </span>
                                 {% endif %}
                             </div>

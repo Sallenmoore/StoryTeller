@@ -10,6 +10,7 @@ import random
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
+from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode, SceneNote
 from models.ttrpgobject.character import Character
@@ -241,8 +242,26 @@ def episodenoteupdate(campaignpk, episodepk, scenenotepk):
     if sn_obj := SceneNote.get(scenenotepk):
         sn_obj.name = request.json.get("name")
         sn_obj.num = request.json.get("num")
+        sn_obj.description = request.json.get("description")
         sn_obj.notes = request.json.get("notes")
         sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/delete",
+    methods=("POST",),
+)
+def episodenotedelete(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        if sn_obj in episode.scenenotes:
+            episode.scenenotes.remove(sn_obj)
+            episode.save()
+        sn_obj.delete()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
@@ -315,6 +334,39 @@ def episodenoteencounterremove(campaignpk, episodepk, scenenotepk):
     )
 
 
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/actor/add",
+    methods=("POST",),
+)
+def episodenoteactoradd(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        if enc := request.json.get("actor"):
+            enc = World.get_model(*enc.split("/"))
+            sn_obj.add_actor(enc)
+            sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/actor/remove",
+    methods=("POST",),
+)
+def episodenoteactorremove(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        enc = request.json.get("actor")
+        if obj := AutoModel.get_model(*enc.split("/")):
+            sn_obj.remove_actor(obj)
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
 @campaign_endpoint.route("/episode/<string:pk>/associations", methods=("POST",))
 def episodeassociationslist(pk):
     user, obj, *_ = _loader()
@@ -382,19 +434,6 @@ def episodeassociationsearch(pk):
 
 
 @campaign_endpoint.route(
-    "/episode/<string:pk>/association/togglecanon/<string:amodel>/<string:apk>",
-    methods=("POST",),
-)
-def episodeassociationtogglecanon(pk, amodel, apk):
-    user, obj, *_ = _loader(model=amodel, pk=apk)
-    if episode := Episode.get(pk):
-        episode.campaign.save()
-        obj.canon = not obj.canon
-        obj.save()
-    return "<p>success</p>"
-
-
-@campaign_endpoint.route(
     "/episode/<string:pk>/association/<string:amodel>/<string:apk>/delete",
     methods=("POST",),
 )
@@ -405,3 +444,12 @@ def episodeassociationentrydelete(pk, amodel, apk):
         episode = episode.remove_association(a)
         a.save()
     return "<p>success</p>"
+
+
+@campaign_endpoint.route("/episode/<string:pk>/extras", methods=("POST",))
+def episodeextras(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    return get_template_attribute("manage/_campaign.html", "episode_extras")(
+        user, obj, episode
+    )

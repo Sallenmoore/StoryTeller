@@ -197,4 +197,16 @@ Combat Ends, and the party investigates the area.
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/campaign/episode/<string:pk>/gn", methods=("POST",))
+    def create_gn(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_gn_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

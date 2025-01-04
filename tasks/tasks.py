@@ -82,6 +82,12 @@ def _generate_session_summary_task(pk):
     return {"url": f"/api/campaign/{obj.campaign.pk}/episode/{obj.pk}"}
 
 
+def _generate_gn_task(pk):
+    ep = Episode.get(pk)
+    ep.generate_gn()
+    return {"url": f"/api/campaign/{ep.campaign.pk}/episode/{ep.pk}"}
+
+
 def _generate_audio_task(pk):
     ags = AutoGMScene.get(pk)
     ags.generate_audio()

@@ -68,27 +68,35 @@
     </div>
 </div>
 <div class='row has-space-around'>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Age</h4>
-        {% if obj.age %}
-        <p class="has-text-dark">{{obj.age}}</p>
-        {% else%}
-        <p class="has-text-dark">Unknown</p>
-        {% endif %}
+    <div class="column is-full is-mobile-full">
+        <div class="row has-space-around">
+            <div class="column is-shrink">
+                <h4 class='has-text-screen'>Age</h4>
+                {% if obj.age %}
+                <p class="has-text-dark">{{obj.age}}</p>
+                {% else%}
+                <p class="has-text-dark">Unknown</p>
+                {% endif %}
+            </div>
+            <div class="column is-shrink">
+                <h4 class='has-text-screen'>Species</h4>
+                <p class="has-text-dark">{{obj.species}}</p>
+            </div>
+            <div class="column is-shrink">
+                <h4 class='has-text-screen'>Gender</h4>
+                <p class="has-text-dark">{{obj.gender}}</p>
+            </div>
+            <div class="column is-shrink">
+                <h4 class='has-text-screen'>Status</h4>
+                <p class="has-text-dark">{{obj.status}}</p>
+            </div>
+            <div class="column is-shrink">
+                <h4 class='has-text-screen'>Look-A-Like</h4>
+                <p class="has-text-dark">{{obj.lookalike}}</p>
+            </div>
+        </div>
     </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Species</h4>
-        <p class="has-text-dark">{{obj.species}}</p>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Gender</h4>
-        <p class="has-text-dark">{{obj.gender}}</p>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Status</h4>
-        <p class="has-text-dark">{{obj.status}}</p>
-    </div>
-    <div class="column is-6 is-mobile-6">
+    <div class="column is-8 is-mobile-6">
         <h4 class='has-text-screen'>Voice</h4>
         <p class="has-text-dark">{{obj.voice_description}}</p>
     </div>
@@ -208,6 +216,10 @@
         <div class="column">
             <h4 class='has-text-primary'>Archetype</h4>
             <input type="text" value="{{obj.archetype}}" name="archetype">
+        </div>
+        <div class="column">
+            <h4 class='has-text-primary'>Look-A-Like</h4>
+            <input type="text" value="{{obj.lookalike}}" name="lookalike">
         </div>
     </div>
     <hr>

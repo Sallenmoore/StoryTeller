@@ -5,8 +5,6 @@ import markdown
 
 from autonomous import log
 from autonomous.model.autoattr import (
-    BoolAttr,
-    DictAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -15,7 +13,6 @@ from autonomous.model.autoattr import (
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 from models.ttrpgobject.district import District
-from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.location import Location
 
 
@@ -23,9 +20,16 @@ class SceneNote(AutoModel):
     name = StringAttr(default="")
     num = IntAttr(default=0)
     notes = StringAttr(default="")
+    description = StringAttr(default="")
     setting = ListAttr(ReferenceAttr(choices=["Place"]))
-    encounters = ListAttr(ReferenceAttr(choices=[Encounter]))
+    encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
+    actors = ListAttr(ReferenceAttr(choices=["Character", "Creature"]))
     initiative = ListAttr(StringAttr(default=""))
+    images = ListAttr(ReferenceAttr(choices=["Image"]))
+
+    @property
+    def associations(self):
+        return [*self.setting, *self.encounters, *self.actors]
 
     def add_setting(self, obj):
         if obj not in self.setting:
@@ -45,6 +49,16 @@ class SceneNote(AutoModel):
 
     def remove_encounter(self, obj):
         self.encounters = [e for e in self.encounters if e.pk != obj.pk]
+        self.save()
+
+    def add_actor(self, obj):
+        if obj not in self.actors:
+            self.actors += [obj]
+            self.save()
+        return obj
+
+    def remove_actor(self, obj):
+        self.actors = [e for e in self.actors if e.pk != obj.pk]
         self.save()
 
 
@@ -175,6 +189,17 @@ class Episode(AutoModel):
         self.scenenotes += [scenenote]
         self.save()
         return scenenote
+
+    def generate_gn(self):
+        for sn in self.scenenotes:
+            prompt = f"Generate a single comic panel for the following {self.campaign.genre} TTRPG session scene."
+            for setting in sn.setting:
+                prompt += f"\nSETTING: {setting.description_summary}\n"
+            prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
+            for actor in sn.actors:
+                prompt += f"""{actor.name}: {actor.description_summary}\n  - Looks Like: {actor.lookalike}\n"""
+            prompt += f"\nSCENE DESCRIPTION\n\n{sn.description}\n"
+            log(prompt, _print=True)
 
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]

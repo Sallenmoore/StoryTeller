@@ -42,6 +42,10 @@ class Campaign(AutoModel):
         return [a for a in self.associations if a.model_name() == "Faction"]
 
     @property
+    def genre(self):
+        return self.world.genre
+
+    @property
     def items(self):
         return [a for a in self.associations if a.model_name() == "Item"]
 
@@ -91,7 +95,7 @@ class Campaign(AutoModel):
         for entry in sorted(self.episodes, key=lambda x: x.episode_num):
             if entry.summary.strip():
                 text += f"\n{entry.summary}\n"
-            elif entry.end_date and entry.end_date.year:
+            elif entry.end_date:
                 entry.resummarize()
                 text += entry.summary
         if text:

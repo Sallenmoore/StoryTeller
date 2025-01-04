@@ -35,6 +35,10 @@ class TTRPGObject(TTRPGBase):
             return False
 
     @property
+    def campaigns(self):
+        return [c for c in self.world.campaigns if self in c.associations]
+
+    @property
     def characters(self):
         return [a for a in self.associations if a.model_name() == "Character"]
 
@@ -131,6 +135,9 @@ class TTRPGObject(TTRPGBase):
         from models.world import World
 
         return self.world
+
+    def episodes(self, campaign):
+        return [c for c in campaign.episodes if self in c.associations]
 
     ## MARK: - Verification Methods
     ###############################################################

@@ -28,42 +28,42 @@
     <div class="column is-4">
         <input type="search" name="filter" placeholder="Begin typing to filter..."
                style="border-bottom: solid #000;"
-               hx-post="/api/manage/associations"
+               hx-post="/api/{{obj.path}}/associations"
                hx-trigger="input changed delay:250ms, search"
                hx-target='#associated-objects'
                hx-select='#associated-objects'
                hx-swap='outerHTML'>
-    </div>
-    <div class="column is-3">
-        <form hx-post="/api/manage/associations"
-              hx-target='#associated-objects'
-              hx-select='#associated-objects'
-              hx-swap='outerHTML'>
-            <div class="row">
-                <div class="column is-shrink is-vertically-centered">
-                    <h5>Sort by</h5>
-                </div>
-                <div class="column">
-                    <div class="is-select">
-                        <select name="sorter">
-                            <option value='name'>Name</option>
-                            <option value='date'>Date</option>
-                            <option value='type'>Type</option>
-                        </select>
+        <div class="panel is-small" style='border-radius: 0 0 5px 5px;'>
+            <form hx-post="/api/{{obj.path}}/associations"
+                  hx-target='#associated-objects'
+                  hx-select='#associated-objects'
+                  hx-swap='outerHTML'>
+                <div class="row">
+                    <div class="column is-shrink is-vertically-centered">
+                        <h5 class="has-text-muted">Sort by</h5>
+                    </div>
+                    <div class="column">
+                        <div class="is-select">
+                            <select class="has-text-white" name="sorter">
+                                <option value='name'>Name</option>
+                                <option value='date'>Date</option>
+                                <option value='type'>Type</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column is-shrink">
+                        <button type="submit" class="button is-small" name="order" value="asc">
+                            <iconify-icon icon="mdi:sort-ascending" width="1rem"></iconify-icon>
+                        </button>
+                    </div>
+                    <div class="column is-shrink">
+                        <button type="submit" class="button is-small" name="order" value="desc">
+                            <iconify-icon icon="mdi:sort-descending" width="1rem"></iconify-icon>
+                        </button>
                     </div>
                 </div>
-                <div class="column is-shrink">
-                    <button type="submit" class="button is-small" name="order" value="asc">
-                        <iconify-icon icon="mdi:sort-ascending" width="1rem"></iconify-icon>
-                    </button>
-                </div>
-                <div class="column is-shrink">
-                    <button type="submit" class="button is-small" name="order" value="desc">
-                        <iconify-icon icon="mdi:sort-descending" width="1rem"></iconify-icon>
-                    </button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     <div class="column">
         <div class="row has-centered">
