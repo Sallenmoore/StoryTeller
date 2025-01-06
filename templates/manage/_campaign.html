@@ -767,10 +767,24 @@
         </div>
         <div class="column is-full lower-it">
             <h4>GN Panels</h4>
-            <div class="row">
-                {% for i in episode.images %}
-                <div class="image">
-                    <img src='{{i.url(size=500)}}' />
+            <div class="row has-space-around">
+                {% for i in episode.scenenotes %}
+                <div id="gnimage-{{i.pk}}" class="column is-6" style='position:relative;'>
+
+                    <div class="image">
+                        {% if i.image %}
+                        <img src='{{i.image.url()}}'>
+                        {% endif %}
+                    </div>
+
+                    <button class="button is-small has-bg-screen"
+                            style="position:absolute; top:5px; right:5px;"
+                            hx-post="/api/campaign/episode/{{episode.pk}}/image/{{i.pk}}/regenerate"
+                            hx-target="#gnimage-{{i.pk}}"
+                            hx-select="#gnimage-{{i.pk}}"
+                            hx-swap="outerHTML">
+                        {{icon_components.regenerate()}}
+                    </button>
                 </div>
                 {% endfor %}
             </div>

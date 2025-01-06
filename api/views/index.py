@@ -170,24 +170,3 @@ def associations(model, pk, modelstr=None):
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
     )
-
-
-# MARK: Campaign routes
-###########################################################
-##                    Association Routes                 ##
-###########################################################
-@index_endpoint.route(
-    "/<string:model>/<string:pk>/campaigns",
-    methods=("GET", "POST"),
-)
-def campaigns(model, pk):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    args = dict(request.args) if request.method == "GET" else request.json
-    campaign = (
-        Campaign.get(args.get("campaignpk")) or obj.campaigns[0]
-        if obj.campaigns
-        else None
-    )
-    return get_template_attribute("shared/_campaigns.html", "campaigns")(
-        user, obj, campaign
-    )

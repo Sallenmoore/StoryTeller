@@ -1,4 +1,5 @@
 import io
+import json
 import os
 
 import requests
@@ -203,3 +204,22 @@ def tasks(rest_path):
         )
         # log(response.text)
     return response.text
+
+
+# MARK: List routes
+###########################################################
+##                    List        Routes                 ##
+###########################################################
+@index_page.route(
+    "/<pk>/list/<string:model>",
+    methods=("GET", "POST"),
+)
+def listobjs(pk, model):
+    world = World.get(pk)
+    objs = World.get_model(model).search(world=world)
+    result = []
+    for objs in objs:
+        objs_dict = json.loads(objs.to_json())
+        result += [objs_dict]
+        log(objs_dict)
+    return result

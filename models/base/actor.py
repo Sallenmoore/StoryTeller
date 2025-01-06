@@ -1,9 +1,6 @@
-import copy
-
 import markdown
 
 from autonomous import log
-from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
     IntAttr,
@@ -17,11 +14,11 @@ from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 class Actor(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
-    goal = StringAttr(default="Unknown")
+    goal = StringAttr(default="")
     is_player = BoolAttr(default=False)
-    gender = StringAttr(default="Unknown")
+    gender = StringAttr(default="")
     age = IntAttr(default=0)
-    species = StringAttr(default="Unknown")
+    species = StringAttr(default="")
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     hitpoints = IntAttr(default=30)
     status = StringAttr(default="healthy")
@@ -33,7 +30,7 @@ class Actor(TTRPGObject):
     wisdom = IntAttr(default=10)
     intelligence = IntAttr(default=10)
     charisma = IntAttr(default=10)
-    archetype = StringAttr(default="Unknown")
+    archetype = StringAttr(default="")
     voice_description = StringAttr(default="")
     lookalike = StringAttr(default="")
 

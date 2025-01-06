@@ -92,7 +92,7 @@ LIFE EVENTS
             self.age = random.randint(15, 50)
             self.save()
         prompt = f"""
-A full-body color portrait of a fictional {self.gender} {self.species} {self.genre} character aged {self.age} who is a {self.occupation} and described as: {self.description}
+A full-body color portrait of a fictional {self.gender} {self.species} {self.genre} character aged {self.age or 32} who is a {self.occupation}, looks like {self.lookalike}, and is described as: {self.description}
 
 PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """

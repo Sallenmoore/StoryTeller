@@ -453,3 +453,16 @@ def episodeextras(pk):
     return get_template_attribute("manage/_campaign.html", "episode_extras")(
         user, obj, episode
     )
+
+
+@campaign_endpoint.route(
+    "/episode/<string:pk>/image/<string:snpk>/regenerate", methods=("POST",)
+)
+def episodeextrasimageregenerate(pk, snpk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    if sn := SceneNote.get(snpk):
+        sn.generate_image()
+    return get_template_attribute("manage/_campaign.html", "episode_extras")(
+        user, obj, episode
+    )

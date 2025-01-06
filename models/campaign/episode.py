@@ -2,6 +2,7 @@ import json
 import re
 
 import markdown
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from autonomous.model.autoattr import (
@@ -26,11 +27,21 @@ class SceneNote(AutoModel):
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
     actors = ListAttr(ReferenceAttr(choices=["Character", "Creature"]))
     initiative = ListAttr(StringAttr(default=""))
-    images = ListAttr(ReferenceAttr(choices=["Image"]))
+    image = ReferenceAttr(choices=["Image"])
 
     @property
     def associations(self):
         return [*self.setting, *self.encounters, *self.actors]
+
+    @property
+    def genre(self):
+        if self.actors:
+            return self.actors[0].genre
+        elif self.setting:
+            return self.setting[0].genre
+        elif self.encounters:
+            return self.encounters[0].genre
+        return "Fictional"
 
     def add_setting(self, obj):
         if obj not in self.setting:
@@ -62,6 +73,32 @@ class SceneNote(AutoModel):
         self.actors = [e for e in self.actors if e.pk != obj.pk]
         self.save()
 
+    def generate_image(self):
+        if self.image:
+            self.image.delete()
+
+        prompt = f"Generate a single comic panel for the following {self.genre} TableTop RPG session scene."
+
+        prompt += f"\nSCENE DESCRIPTION\n\n{BeautifulSoup(self.description, 'html.parser').get_text()}\n"
+        for setting in self.setting:
+            prompt += f"\nSETTING: {setting.description}\n"
+
+        prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
+        for actor in self.actors:
+            prompt += f"""{actor.name}: {actor.description}
+  - Looks Like: {actor.lookalike}\n
+"""
+
+        prompt += f"""ART STYLE
+- In the art style of Jim Lee.
+- Choose a color palette that fits a {self.genre} theme.
+"""
+
+        log(prompt, _print=True)
+        self.image = Image.generate(prompt=prompt)
+        self.image.save()
+        self.save()
+
 
 class Episode(AutoModel):
     name = StringAttr(default="")
@@ -74,7 +111,7 @@ class Episode(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     episode_report = StringAttr(default="")
     summary = StringAttr(default="")
-
+    images = ListAttr(ReferenceAttr(choices=["Image"]))
     ##################### PROPERTY METHODS ####################
 
     @property
@@ -192,17 +229,8 @@ class Episode(AutoModel):
         return scenenote
 
     def generate_gn(self):
-        for sn in self.scenenotes:
-            prompt = f"Generate a single comic panel for the following {self.campaign.genre} TTRPG session scene."
-            for setting in sn.setting:
-                prompt += f"\nSETTING: {setting.description_summary}\n"
-            prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
-            for actor in sn.actors:
-                prompt += f"""{actor.name}: {actor.description_summary}\n  - Looks Like: {actor.lookalike}\n"""
-            prompt += f"\nSCENE DESCRIPTION\n\n{sn.description}\n"
-            img = Image.generate(prompt=prompt)
-            sn.images += [img]
-            sn.save()
+        for scene in self.scenenotes:
+            scene.generate_image()
 
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]

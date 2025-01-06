@@ -89,3 +89,5 @@ services:
 networks:
   default:
     name: ${APP_NAME}_net
+  world_net:
+    external: true
