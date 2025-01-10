@@ -52,25 +52,6 @@ class BaseSystem(AutoModel):
         "money": "gold pieces",
     }
 
-    _icons = {
-        "character": "f7:person-2-fill",
-        "creature": "fa6-solid:spaghetti-monster-flying",
-        "item": "mdi:treasure-chest",
-        "faction": "dashicons:shield",
-        "district": "lets-icons:map-fill",
-        "location": "mdi:home-location",
-        "city": "mdi:city",
-        "region": "carbon:choropleth-map",
-        "world": "mdi:world",
-    }
-
-    [
-        "investigation",
-        "exploration",
-        "stealth",
-        "puzzle",
-    ]
-
     _music_lists = {
         "social": ["themesong.mp3"],
         "encounter": [
@@ -237,6 +218,6 @@ class BaseSystem(AutoModel):
 
         summary = ""
         for p in updated_prompt_list:
-            summary += f"{self.text_agent.summarize_text(summary+p, primer=primer)}"
+            summary += f"{self.text_agent.summarize_text(summary + p, primer=primer)}"
 
         return summary

@@ -28,6 +28,7 @@ class SciFiSystem(BaseSystem):
         "region": "Star-System",
         "world": "Galactic-Sector",
         "location": "Location",
+        "shop": "Shop",
         "vehicle": "Vehicle",
         "district": "Outpost",
         "item": "Tech",

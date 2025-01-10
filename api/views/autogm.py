@@ -31,14 +31,18 @@ def index(model=None, pk=None):
         # party.next_scene.is_ready = False
         # party.next_scene.save()
         log(
+            party.name,
+            party.next_scene.gm_mode,
             [p.ready for p in party.next_scene.player_messages],
             party.is_ready(),
             party.next_scene.scene_objects(),
         )
-        return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-            user, world, party
-        )
-    return get_template_attribute("autogm/_shared.html", "gm")(user, world, party)
+        # return get_template_attribute(
+        #     f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+        # )(user, world, party)
+    return get_template_attribute("autogm/_shared.html", "autogm_3d")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route("/<string:pk>/start", methods=("POST",))
@@ -69,9 +73,9 @@ def canonizesession(pk):
     user, obj, world, *_ = _loader()
     if party := Faction.get(pk):
         party.end_gm_session()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/clear", methods=("POST",))
@@ -84,9 +88,9 @@ def clearsession(pk):
         ags.delete()
     party.autogm_summary = []
     party.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 ## MARK: Submission
@@ -124,9 +128,9 @@ def ready(pk, playerpk):
             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
         ).text
     else:
-        return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-            party.user, party.world, party
-        )
+        return get_template_attribute(
+            f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+        )(party.user, party.world, party)
 
 
 ## MARK: Update
@@ -199,9 +203,9 @@ def scene_update(pk):
     #     party.is_ready(),
     #     party.next_scene.gm_ready,
     # )
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/combat/update", methods=("POST",))
@@ -254,9 +258,9 @@ def combatupdate(pk):
         bonus_action_saving_throw=bonus_action_saving_throw,
         bonus_action_skill_check=bonus_action_skill_check,
     )
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route(
@@ -269,9 +273,9 @@ def autogm_player_current_hp(pk, playerpk):
     if player:
         player.current_hitpoints = int(request.json.get("current_hitpoints"))
         player.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/mode", methods=("POST",))
@@ -282,9 +286,9 @@ def mode(pk=None):
         next_scene = party.get_next_scene()
         next_scene.gm_mode = request.json.get("gmmode")
         next_scene.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route("/<string:pk>/status/<string:actorpk>", methods=("POST",))
@@ -296,9 +300,9 @@ def playerstatus(pk, actorpk):
     if ini := AutoGMInitiative.get(actorpk):
         ini.status = request.json.get("status")
         ini.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 # MARK: Associations
@@ -374,9 +378,9 @@ def autogm_association_add(pk, amodel, apk=None):
             elif amodel in ["region", "city", "district", "location"]:
                 party.next_scene.places += [ass]
             party.next_scene.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route(
@@ -406,9 +410,9 @@ def autogm_association_remove(pk, amodel, apk):
         else:
             party.next_scene.remove_association(ass)
         party.next_scene.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 # MARK: Quests
@@ -451,9 +455,9 @@ def autogm_party_quest_add(partypk):
     quest.save()
     party.next_scene.quest_log += [quest]
     party.next_scene.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)
 
 
 @autogm_endpoint.route(
@@ -468,6 +472,6 @@ def autogm_party_quest_delete(partypk, pk=None):
         party.next_scene.quest_log.remove(quest)
         quest.delete()
         party.next_scene.save()
-    return get_template_attribute(f"autogm/_{party.next_scene.gm_mode}.html", "gm")(
-        user, world, party
-    )
+    return get_template_attribute(
+        f"autogm/_{party.next_scene.gm_mode}.html", "autogm_session"
+    )(user, world, party)

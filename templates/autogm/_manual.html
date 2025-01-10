@@ -5,9 +5,9 @@
 {% import "shared/_abilities.html" as abilities_components %}
 {% import "autogm/_shared.html" as autogm_components %}
 
-{% macro gm(user, world, party=None) -%}
+{% macro autogm_session(user, world, party=None) -%}
 
-{{autogm_components.gm(user, world, party)}}
+{{autogm_components.autogm_session(user, world, party)}}
 
 {% if party.next_scene %}
 <div id='auto-gm-container' class="row" style='position: relative;'>
@@ -1107,7 +1107,7 @@
                 </div>
                 <div class="column is-shrink is-vertically-centered">
                     <button class='button is-small has-bg-dark-grey'
-                            hx-post='/api/autogm/party/{{party.pk}}/quest/delete/{{quest.pk}}'
+                            hx-post='/api/autogm/{{party.pk}}/quest/delete/{{quest.pk}}'
                             hx-target='closest .row' hx-swap='delete'>
                         Remove Quest
                     </button>

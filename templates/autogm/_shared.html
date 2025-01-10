@@ -4,7 +4,7 @@
 {% import "shared/_tasks.html" as task_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro gm(user, world, party=None) -%}
+{% macro autogm_session(user, world, party=None) -%}
 <title>{{world.name | title}} - Auto GM</title>
 <div class="row">
     {% if party and party.last_scene and party.last_scene.prompt %}
@@ -1896,4 +1896,10 @@ border-top-right-radius:0;'>
         {% endif %}
     </div>
 </section>
+{%- endmacro %}
+
+
+{% macro autogm_3d(user, world, party) -%}
+<div id="autogm-3d" style='z-index: 9999; width: 100%; height: 80vh;'></div>
+<script type="module" src="/static/js/autogm/main.js"></script>
 {%- endmacro %}

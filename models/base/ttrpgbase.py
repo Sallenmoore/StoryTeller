@@ -312,7 +312,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Theme: " + self.traits if self.traits else ""}
 {"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
-{"- Description: "+self.description.strip() if self.description.strip() else ""}
+{"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
         """
         if associations := [*self.geneology, *self.children]:
@@ -339,7 +339,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
                     self.save()
                 for idx, note in enumerate(notes):
                     self.journal.add_entry(
-                        title=f"SECRET #{idx+1}",
+                        title=f"SECRET #{idx + 1}",
                         text=note,
                         importance=1,
                     )
@@ -494,13 +494,17 @@ Use and expand on the existing object data listed below for the {self.title} obj
         model = model.lower()
         return self.system._titles.get(model, model.capitalize())
 
-    def get_icon(self, model):
+    def get_icon(self, model, size="1rem"):
         if inspect.isclass(model):
             model = model.__name__
         elif not isinstance(model, str):
             model = model.__class__.__name__
-        model = model.lower()
-        return self.system._icons.get(model, "line-md:question")
+        icon = self.get_title(model).lower().replace("-", "_")
+        try:
+            return get_template_attribute("shared/_icons.html", icon)(size=size)
+        except Exception as e:
+            log(e)
+            return get_template_attribute("shared/_icons.html", "d1dice")(size=size)
 
     def page_data(self):
         return {}
@@ -565,6 +569,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_image()
+        document.pre_save_map()
         document.pre_save_backstory()
         document.pre_save_traits()
 
@@ -576,6 +581,26 @@ Use and expand on the existing object data listed below for the {self.title} obj
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
+
+    def pre_save_map(self):
+        if isinstance(self.map, str):
+            if validators.url(self.map):
+                self.map = Image.from_url(
+                    self.map,
+                    prompt=self.map_prompt,
+                    tags=["map", *self.image_tags],
+                )
+                self.map.save()
+            elif image := Image.get(self.map):
+                self.map = image
+            else:
+                raise ValidationError(
+                    f"Image must be an Image object, url, or Image pk, not {self.map}"
+                )
+        elif self.map and not self.map.tags:
+            self.map.tags = self.map_tags
+            self.map.save()
+        log(self.map)
 
     def pre_save_image(self):
         if isinstance(self.image, str):
@@ -602,7 +627,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
             self.image.save()
-        # log(self.image)
+        log(self.image)
 
     def pre_save_backstory(self):
         if not self.backstory:

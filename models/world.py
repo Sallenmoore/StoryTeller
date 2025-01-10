@@ -3,6 +3,7 @@ import os
 import random
 
 import requests
+import validators
 
 from autonomous import log
 from autonomous.db import ValidationError
@@ -14,6 +15,7 @@ from autonomous.model.autoattr import (
 from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
 from models.campaign.campaign import Campaign
+from models.images.image import Image
 from models.journal import Journal
 from models.systems import (
     FantasySystem,
@@ -385,7 +387,7 @@ class World(TTRPGBase):
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
         if self.system.world != self:
-            self.system.world != self
+            self.system.world = self
             self.system.save()
 
     def post_save_gm(self):

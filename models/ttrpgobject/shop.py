@@ -1,12 +1,9 @@
-from autonomous.model.autoattr import (
-    StringAttr,
-)
+from autonomous.model.autoattr import ListAttr, StringAttr
 from models.base.place import Place
 
 
-class Location(Place):
-    district = StringAttr(default="")
-    location_type = StringAttr()
+class Shop(Place):
+    inventory_ = ListAttr(StringAttr(default=""))
 
     _funcobj = {
         "name": "generate_location",
@@ -36,26 +33,8 @@ class Location(Place):
 
     categories = sorted(
         [
-            "forest",
-            "swamp",
-            "mountain",
-            "lair",
-            "stronghold",
-            "tower",
-            "palace",
-            "temple",
-            "fortress",
-            "cave",
-            "ruins",
             "shop",
             "tavern",
-            "sewer",
-            "graveyard",
-            "shrine",
-            "library",
-            "academy",
-            "workshop",
-            "arena",
             "market",
         ]
     )
@@ -64,14 +43,17 @@ class Location(Place):
         "Location",
         "District",
         "City",
-        "Region",
     ]
+
+    @property
+    def inventory(self):
+        return self.inventory_ + self.items
 
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = (
             prompt
-            or f"Generate a {self.genre} TTRPG {self.location_type} {f"with the following description: {self.backstory}" if self.backstory else ""}. Add a backstory containing a {self.traits} history for players to discover."
+            or f"Generate a {self.genre} TTRPG establishment, such as a shop or tavern, {f"with the following description: {self.backstory}" if self.backstory else ""}. Add a backstory containing a {self.traits} history for players to discover."
         )
         if self.owner:
             prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"

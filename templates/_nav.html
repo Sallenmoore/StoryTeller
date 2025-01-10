@@ -83,7 +83,7 @@
         <div class="column has-no-padding-bottom is-vertically-centered">
             <div class="row slide-it-in">
                 <div id="collapse-sidemenu"
-                     class="column is-mobile-only is-mobile-2 is-end menu-anchor-text is-hidden">
+                     class="column is-mobile-only is-mobile-3 is-end menu-anchor-text is-hidden">
                     <iconify-icon icon="material-symbols:close" width="2rem"
                                   height="2rem"></iconify-icon>
                 </div>
@@ -255,8 +255,7 @@
                            hx-push-url="/{{obj.path}}/associations/{{model | lower}}">
                             <div class="row">
                                 <div class="column is-3 is-mobile-shrink">
-                                    <iconify-icon icon="{{obj.get_icon(model)}}"
-                                                  width="1rem"></iconify-icon>
+                                    {{obj.get_icon(model)}}
                                 </div>
                                 <div
                                      class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">

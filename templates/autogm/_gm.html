@@ -3,9 +3,9 @@
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_tasks.html" as task_components %}
 {% import "shared/_abilities.html" as abilities_components %}
+{% import "autogm/_shared.html" as autogm_components %}
 
-
-{% macro autogm_gm_session(user, world, party) -%}
+{% macro autogm_session(user, world, party) -%}
 <section class="section is-small">
     <div class="row has-space-around has-bg-muted" style='z-index:100; position: sticky; top:0;'>
         {% for player in party.players %}
@@ -33,15 +33,15 @@
         </div>
     </form>
     {% if party.last_scene %}
-    {{ scene_overview(user, world, party) }}
+    {{ autogm_components.scene_overview(user, world, party) }}
     {% endif %}
     <hr>
     <div class="row has-space-around">
         <div class="column is-full">
-            {{autogm_submit_session(user, world, party)}}>
+            {{autogm_components.autogm_submit_session(user, world, party)}}>
             <hr>
             <hr>
-            {{scene_party_summary(user, world, party)}}
+            {{autogm_components.scene_party_summary(user, world, party)}}
         </div>
     </div>
 </section>

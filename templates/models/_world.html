@@ -46,22 +46,6 @@
     </div>
 </div>
 {% endif %}
-<hr>
-<h3 class='has-text-center'>Statistics</h3>
-<div class="row">
-    {% for m in obj._models%}
-    <div class="column is-3">
-        <div class="card has-bg-muted">
-            <div class="card__header has-bg-screen">
-                <h4 class='has-text-light'>{{obj.get_title(m)}}</h4>
-            </div>
-            <div class="card__content">
-                <h5 class='has-text-dark'>Total: {{obj.get_associations(m) | length}}</h5>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
 {%- endmacro %}
 
 {% macro players(user, obj) -%}
@@ -124,7 +108,7 @@
 <div class="panel is-small has-bg-light">
     <div id="associated-objects">
         <div class="row has-space-around">
-            {% for a in obj.get_associations(filter) %}
+            {% for a in obj.associations %}
             <div class="column is-3 is-mobile-4 card-container">
                 <div class="row">
                     <div class="column is-half">

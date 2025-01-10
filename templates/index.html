@@ -64,6 +64,14 @@
         #}
 
         <!-- JavaScript Libs -->
+        <script type="importmap">
+          {
+            "imports": {
+              "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+              "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+            }
+          }
+        </script>
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
         {% endblock %}
@@ -81,14 +89,18 @@
             {{nav.topnav(user)}}
             {% endblock %}
         </div>
-        <div class="container has-no-padding is-full" id="content">
+        <div class="container has-no-padding is-full is-mobile-full" id="content">
             <div id='page-container'
                  class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
                  style='position:relative;'>
                 {% if obj %}
-                {{title.object_title(user, obj)}}
+                <div class="row has-no-padding has-no-margin has-centered">
+                    <div class="column is-11 is-mobile-full has-no-padding has-no-margin">
+                        {{title.object_title(user, obj)}}
+                    </div>
+                </div>
                 {% endif %}
-                <div class="row has-no-padding-left slide-it-in">
+                <div class="row has-no-padding-left slide-it-in has-centered">
                     {% if obj %}
                     <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
                          style='position:absolute;top:0;left:0;'>
@@ -99,7 +111,7 @@
                         {{nav.sidemenu_active(user, obj)}}
                     </div>
                     {% endif %}
-                    <div class="column is-mobile-full" style='padding:0 3rem;'>
+                    <div class="column is-11 is-mobile-full has-no-padding">
                         {% if page_url %}
                         <div class='panel has-bg-muted raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content"
