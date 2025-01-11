@@ -126,8 +126,7 @@
                         <li style='padding: 1rem;'
                             onclick='playerPanelSelect("#player-card-container-{{player.pk}}");'>
                             <a href="#scene-party-details-container"
-                               class='is-small-heading has-text-center has-text-primary'>{{player.name}}
-                                ({{party.next_scene.get_player_message(player).ready}})</a>
+                               class='is-small-heading has-text-center has-text-primary'>{{player.name}}</a>
                         </li>
                         {% if not loop.last %}
                         <li>{{icon_components.d20dice(size="1rem")}}</li>
@@ -523,7 +522,8 @@
                         <h3 class='has-text-center has-text-primary'>Scenario</h3>
                     </div>
                     <div class="column is-vertically-centered is-shrink">
-                        <button class="button" hx-post='/task/generate/autogm/{{party.pk}}'>
+                        <button class="button" hx-post='/task/generate/autogm/{{party.pk}}'
+                                hx-target='#autogm-manual-scenario-container'>
                             {{icon_components.ai()}}
                             Generate
                         </button>
@@ -768,13 +768,16 @@
         <div class="tabs has-bg-primary has-text-muted is-vertically-centered">
             <ul class="tabs__list has-centered has-text-muted">
                 {% for player in party.players %}
+                {% if not party.next_scene.get_player_message(player).ready %}
                 <li style='padding: 1rem;'
-                    onclick='playerPanelSelect("#player-{{player.pk}}-card-container");'>
+                    onclick='playerPanelSelect("#player-card-container-{{player.pk}}");'>
                     <a href="#scene-party-details-container"
-                       class='is-small-heading has-text-center has-text-muted'>{{player.name}}</a>
+                       class='is-small-heading has-text-center has-text-primary'>{{player.name}}
+                        ({{party.next_scene.get_player_message(player).ready}})</a>
                 </li>
                 {% if not loop.last %}
                 <li>{{icon_components.d20dice(size="1rem")}}</li>
+                {% endif %}
                 {% endif %}
                 {% endfor %}
             </ul>
@@ -925,132 +928,145 @@
                         <div class="row">
                             <div id="card-actions-details-panel-{{player.pk}}"
                                  class="column card-details-panel is-full generated-text-lightbg">
-                                <form autocomplete="off"
-                                      hx-post='/api/autogm/{{party.pk}}/update'
-                                      hx-swap='none'
-                                      hx-trigger='input delay:500ms'>
-                                    <input type='hidden' name='message.playerpk'
-                                           value='{{player.pk}}'>
-                                    {% set msg =
-                                    party.next_scene.get_player_message(player) %}
-                                    <div class="row has-space-around">
-                                        <div class="column is-full">
-                                            <h4 class='has-text-dark'>Action</h4>
-                                            <textarea class="has-bg-white"
-                                                      autocomplete="false"
-                                                      name="message.player_message"
-                                                      {% if msg.ready %} disabled {%
-                                                      endif %}
-                                                      style='padding:0.5rem'>{{msg.message}}</textarea>
-                                        </div>
-                                        <div class="column is-shrink">
-                                            <div class="panel has-bg-muted">
-                                                <label
-                                                       class='has-text-dark'>Emotion</label>
-                                                <div class="is-select">
-                                                    <select name="message.emotion" {% if
-                                                            msg.ready %} disabled {%
-                                                            endif %}>
-                                                        <option value='steady'>
-                                                            Steady
-                                                        </option>
-                                                        <option value='happy'
-                                                                {% if
-                                                                msg.emotion=='happy'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Happy
-                                                        </option>
-                                                        <option value='playful'
-                                                                {% if
-                                                                msg.emotion=='playful'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Playful</option>
-                                                        <option value='confident'
-                                                                {% if
-                                                                msg.emotion=='confident'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Confident</option>
-                                                        <option value='curious'
-                                                                {% if
-                                                                msg.emotion=='curious'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Curious</option>
-                                                        <option value='reluctant'
-                                                                {% if
-                                                                msg.emotion=='reluctant'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Reluctant</option>
-                                                        <option value='impatient'
-                                                                {% if
-                                                                msg.emotion=='impatient'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Impatient</option>
-                                                        <option value='wary'
-                                                                {% if
-                                                                msg.emotion=='wary'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Wary</option>
-                                                        <option value='sad'
-                                                                {% if
-                                                                msg.emotion=='sad'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Sad</option>
-                                                        <option value='afraid'
-                                                                {% if
-                                                                msg.emotion=='afraid'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Afraid</option>
-                                                        <option value='desperate'
-                                                                {% if
-                                                                msg.emotion=='desperate'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Desperate</option>
-                                                        <option value='angry'
-                                                                {% if
-                                                                msg.emotion=='angry'
-                                                                %}
-                                                                selected
-                                                                {% endif %}>
-                                                            Angry</option>
-                                                    </select>
+                                <div class="row">
+                                    <div class="column is-full">
+                                        <form autocomplete="off"
+                                              hx-post='/api/autogm/{{party.pk}}/update'
+                                              hx-swap='none'
+                                              hx-trigger='input delay:500ms'>
+                                            <input type='hidden' name='message.playerpk'
+                                                   value='{{player.pk}}'>
+                                            {% set msg =
+                                            party.next_scene.get_player_message(player) %}
+                                            <div class="row has-space-around">
+                                                <div class="column is-full">
+                                                    <h4 class='has-text-dark'>Action</h4>
+                                                    <textarea class="has-bg-white"
+                                                              autocomplete="false"
+                                                              name="message.player_message"
+                                                              {% if msg.ready %} disabled {%
+                                                              endif %}
+                                                              style='padding:0.5rem'>{{msg.message}}</textarea>
+                                                </div>
+                                                <div class="column is-shrink">
+                                                    <div class="panel has-bg-muted">
+                                                        <label
+                                                               class='has-text-dark'>Emotion</label>
+                                                        <div class="is-select">
+                                                            <select name="message.emotion" {% if
+                                                                    msg.ready %} disabled {%
+                                                                    endif %}>
+                                                                <option value='steady'>
+                                                                    Steady
+                                                                </option>
+                                                                <option value='happy'
+                                                                        {% if
+                                                                        msg.emotion=='happy'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Happy
+                                                                </option>
+                                                                <option value='playful'
+                                                                        {% if
+                                                                        msg.emotion=='playful'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Playful</option>
+                                                                <option value='confident'
+                                                                        {% if
+                                                                        msg.emotion=='confident'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Confident</option>
+                                                                <option value='curious'
+                                                                        {% if
+                                                                        msg.emotion=='curious'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Curious</option>
+                                                                <option value='reluctant'
+                                                                        {% if
+                                                                        msg.emotion=='reluctant'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Reluctant</option>
+                                                                <option value='impatient'
+                                                                        {% if
+                                                                        msg.emotion=='impatient'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Impatient</option>
+                                                                <option value='wary'
+                                                                        {% if
+                                                                        msg.emotion=='wary'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Wary</option>
+                                                                <option value='sad'
+                                                                        {% if
+                                                                        msg.emotion=='sad'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Sad</option>
+                                                                <option value='afraid'
+                                                                        {% if
+                                                                        msg.emotion=='afraid'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Afraid</option>
+                                                                <option value='desperate'
+                                                                        {% if
+                                                                        msg.emotion=='desperate'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Desperate</option>
+                                                                <option value='angry'
+                                                                        {% if
+                                                                        msg.emotion=='angry'
+                                                                        %}
+                                                                        selected
+                                                                        {% endif %}>
+                                                                    Angry</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="column is-4">
+                                                    <div class="panel has-bg-muted">
+                                                        <label class='has-text-dark'>Player
+                                                            Intentions</label>
+                                                        <input type="text"
+                                                               value='{{msg.intent}}'
+                                                               name="message.intentions"
+                                                               {% if msg.ready %} disabled {%
+                                                               endif
+                                                               %} />
+
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="column is-4">
-                                            <div class="panel has-bg-muted">
-                                                <label class='has-text-dark'>Player
-                                                    Intentions</label>
-                                                <input type="text"
-                                                       value='{{msg.intent}}'
-                                                       name="message.intentions"
-                                                       {% if msg.ready %} disabled {%
-                                                       endif
-                                                       %} />
-
-                                            </div>
-                                        </div>
+                                        </form>
                                     </div>
-                                </form>
+                                    <div class="column is-shrink is-vertically-centered">
+                                        <button class="button is-small"
+                                                hx-post='/task/generate/autogm/{{party.pk}}/{{player.pk}}'
+                                                hx-target='#player-card-panels'
+                                                hx-select='#player-card-panels'
+                                                hx-swap='outerHTML'>
+                                            {{icon_components.ai()}} Generate
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div id="card-abilities-details-panel-{{player.pk}}"
                                  class="column card-details-panel is-full generated-text-lightbg is-hidden">
@@ -1482,28 +1498,7 @@
             <div class="row">
                 <div id="card-actions-details-panel-{{player.pk}}"
                      class="column card-details-panel is-full generated-text-lightbg">
-                    {%if party.next_scene.gm_mode == 'pc' and party.last_scene %}
-                    {% set msg = party.last_scene.get_player_message(player) %}
-                    <div class="panel is-full has-bg-muted has-text-dark">
-                        <h4 class='has-text-dark'>Action</h4>
-                        <div class="row has-space-around">
-                            <div class="column is-full">
-                                <audio controls>
-                                    <source src="/audio/{{msg.pk}}"
-                                            type="audio/mpeg">
-                                </audio>
-                                <span class='tag'>Feeling {{msg.emotion | safe}} and intending
-                                    to
-                                    {{msg.intent | safe}}:
-                                </span>
-                                <div>{{msg.message | safe}}</div>
-                            </div>
-                        </div>
-                    </div>
-                    {% elif party.next_scene.gm_mode in ['gm', 'manual'] and
-                    party.last_scene.type
-                    !=
-                    "combat" %}
+                    {% if party.last_scene.type != "combat" %}
                     <div class="row">
                         <div class="column">
                             <form autocomplete="off"
@@ -1521,7 +1516,7 @@
                                             <h4 class='has-text-dark'>Action</h4>
                                             {%if party.next_scene.gm_ready %}
                                             <textarea class="has-bg-white" autocomplete="false"
-                                                      name="message.player_message">{{msg.message}}</textarea>
+                                                      name="message.player_message">{{msg.message or ""}}</textarea>
                                             {% elif party.last_scene %}
                                             <span>{{party.last_scene.get_player_message(player)}}</span>
                                             {% endif %}
@@ -1647,6 +1642,11 @@
                                 </div>
                             </form>
                         </div>
+                        <div class="column">
+                            <button class="button">
+                                {{icon_components.ai()}} Generate
+                            </button>
+                        </div>
                     </div>
                     {% endif%}
                 </div>
@@ -1695,8 +1695,9 @@
                     disabled
                     {% endif %}
                     hx-post="/api/autogm/{{party.pk}}/submit"
-                    hx-target='#next-session-container'
-                    hx-swap="delete"
+                    hx-target='#auto-gm-container'
+                    hx-select='#auto-gm-container'
+                    hx-swap="outerHTML"
                     hx-push-url='/{{party.path}}/gm'
                     {% if party.next_scene %}
                     Continue Session
@@ -1705,14 +1706,6 @@
             <hr>
         </div>
         {% if party.autogm_summary %}
-        <div class="column is-shrink is-vertically-centered">
-            <button id='regenerate-session-button' class="button is-small has-bg-light-grey"
-                    hx-post="/task/generate/autogm/{{party.pk}}/regenerate"
-                    hx-target='#auto-gm-container'
-                    hx-push-url='/{{party.path}}/gm'>
-                Regenerate Session
-            </button>
-        </div>
         <div class="column is-shrink is-vertically-centered">
             <button class="button is-small has-bg-muted has-text-screen"
                     hx-post="/api/autogm/{{party.pk}}/canonize"

@@ -13,9 +13,9 @@ from models.ttrpgobject.character import Character
 
 
 class AutoGMMessage(AutoModel):
-    message = StringAttr()
-    intent = StringAttr()
-    emotion = StringAttr()
+    message = StringAttr(default="")
+    intent = StringAttr(default="")
+    emotion = StringAttr(default="")
     scene = ReferenceAttr(choices=["AutoGMScene"])
     player = ReferenceAttr(choices=[Character])
     audio = FileAttr()

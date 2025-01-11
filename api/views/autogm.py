@@ -70,7 +70,7 @@ def clearsession(pk):
         ags.delete()
     party.autogm_summary = []
     party.save()
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
@@ -81,17 +81,19 @@ def clearsession(pk):
 ###########################################################
 @autogm_endpoint.route("/<string:pk>/submit", methods=("POST",))
 def submit(pk=None):
+    user, obj, world, *_ = _loader()
     party = Faction.get(pk)
-    if party.next_scene.gm_mode == "pc":
-        pass
-    elif party.next_scene.gm_mode == "gm":
-        pass
-    elif party.next_scene.gm_mode == "manual":
+    if not party.next_scene.gm_ready:
         party.next_scene.gm_ready = True
-        party.next_scene.save()
-    return requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{pk}"
-    ).text
+    elif not party.ready:
+        party.next_scene.is_ready = True
+    else:
+        party.next_scene.gm_ready = False
+        party.next_scene.is_ready = False
+    party.next_scene.save()
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
+        user, world, party
+    )
 
 
 @autogm_endpoint.route("/<string:pk>/<string:playerpk>/ready", methods=("POST",))

@@ -94,9 +94,13 @@ def _generate_audio_task(pk):
     return {"url": f"/api/autogm/{ags.party.pk}"}
 
 
-def _generate_autogm_task(pk):
+def _generate_autogm_task(pk, pcpk=None):
     party = Faction.get(pk)
-    party.autogm_session()
+    if pcpk:
+        pc = Character.get(pcpk)
+        party.autogm_session(pc=pc)
+    else:
+        party.autogm_session()
     return {"url": f"/api/autogm/{party.pk}"}
 
 

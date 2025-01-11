@@ -137,9 +137,8 @@ class Faction(TTRPGObject):
         self.gm.end(party=self)
         self.save()
 
-    def autogm_session(self):
-        self.gm.run(party=self)
-
+    def autogm_session(self, pc=None):
+        self.gm.run(party=self, pc=pc)
         self.save()
 
     def autogm_combat(self):

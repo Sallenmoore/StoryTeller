@@ -144,6 +144,19 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/autogm/<string:pk>/<string:pcpk>", methods=("POST",))
+    def autogmpc(pk, pcpk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_autogm_task,
+                pk,
+                pcpk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/autogm/<string:pk>/combat", methods=("POST",))
     def autogm_combat(pk):
         task = (

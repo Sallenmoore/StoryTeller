@@ -20,16 +20,14 @@ class AutoGM(AutoModel):
     agent = ReferenceAttr(choices=[JSONAgent])
     voice = StringAttr(default="onyx")
 
-    _gm_funcobj = {
-        "name": "run_scene",
-        "description": "Generates a structured JSON response for each party member's reaction to the GM's described scene.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "responses": {
-                    "type": "array",
-                    "description": "List of responses from all party members.",
-                    "items": {
+    _pc_funcobj = (
+        {
+            "name": "run_scene",
+            "description": "Generates a structured JSON response for a party member's reaction to the GM's described scene.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "response": {
                         "type": "object",
                         "additionalProperties": False,
                         "required": [
@@ -49,7 +47,7 @@ class AutoGM(AutoModel):
                             },
                             "intent": {
                                 "type": "string",
-                                "description": "The primary intent behind the character's response (e.g., 'prepare for combat').",
+                                "description": "The primary intent behind the character's response (e.g., 'preparing for combat').",
                             },
                             "emotion": {
                                 "type": "string",
@@ -59,10 +57,11 @@ class AutoGM(AutoModel):
                     },
                 },
             },
-            "required": ["responses"],
+            "required": ["response"],
         },
-    }
-    _pc_funcobj = {
+    )
+
+    _gm_funcobj = {
         "name": "run_scene",
         "description": "Creates a TTRPG scene that advances the story in a clear direction for the player, maintains narrative consistency, and integrates elements from the uploaded world file.",
         "parameters": {
@@ -453,7 +452,7 @@ class AutoGM(AutoModel):
 
     ##################### PROPERTY METHODS ####################
 
-    def _prompt(self, party):
+    def _prompt(self, party, pc=None):
         prompt = f"""
 CAMPAIGN TONE
 {party.next_scene.tone}
@@ -532,21 +531,25 @@ PARTY PLAYER CHARACTERS
 - Backstory: {BeautifulSoup(pc.backstory_summary, "html.parser").get_text()}
 - Abilities:
     - {"\n    - ".join(abilities)}
-
+"""
+        if pc:
+            prompt += f"""
+Respond as the character, {pc.name}, in the scene described above informed by the following character history:
+{BeautifulSoup(pc.history, "html.parser").get_text()}
 """
         return prompt
 
-    def get_pc_prompt(self, party):
-        return f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response where each party member reacts to the GM's described scene.
+    def get_pc_prompt(self, party, pc):
+        return f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response for a single party member reaction to the GM's described scene.
 
-For each character:
+The character should:
 1. Respond in a way that is consistent with their personality, backstory, abilities, and motivations as described in the campaign.
 2. Incorporate relevant elements from previous campaign events and the world described in the uploaded file.
 3. Address the scene's challenges or opportunities uniquely, reflecting each character's perspective and role in the group.
 4. Ensure the responses align with the tone and stakes of the scene while driving the story forward.
 5. Acknowledge or react to the responses of other party members where appropriate, enhancing the sense of collaboration or conflict within the group.
 
-Return the responses in the following structured JSON format:
+Return the response in the following structured JSON format:
 ```json
 {{
   "responses": [
@@ -559,7 +562,7 @@ Return the responses in the following structured JSON format:
   ]
 }}
 
-{self._prompt(party)}
+{self._prompt(party, pc)}
 """
 
     def get_gm_prompt(self, party):
@@ -677,19 +680,23 @@ PREVIOUS SCENE
         self.save()
 
     def _rungm(self, party):
-        prompt = self.get_gm_prompt(party, start=True)
+        prompt = self.get_gm_prompt(party)
 
-        prompt += """
-PLAYER ACTIONS
-"""
+        had_action = False
         for msg in party.next_scene.player_messages:
             if msg.message:
+                if not had_action:
+                    had_action = True
+                    prompt += """
+PLAYER ACTIONS
+
+"""
                 prompt += f"""
 - {msg.player.name}'s [with a {msg.emotion or "neutral"} demeanor]: {BeautifulSoup(msg.message, "html.parser").get_text()}
   {f"- intentions: {msg.intent}" if msg.intent else ""}
 """
 
-        if party.last_scene.roll_required:
+        if party.last_scene and party.last_scene.roll_required:
             prompt += f"""
 ROLL RESULT
 {party.last_scene.roll_description}
@@ -705,7 +712,7 @@ ROLL RESULT
 
         response = self.gm.generate(
             prompt,
-            self._pc_funcobj,
+            self._gm_funcobj,
         )
         log(json.dumps(response, indent=4), _print=True)
         party.next_scene.prompt += f"\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
@@ -805,7 +812,7 @@ ROLL REQUIRED
         log(prompt, _print=True)
 
         if party.next_scene.roll_required:
-            self._gm_funcobj["parameters"]["properties"]["requires_roll"] = {
+            self._pc_funcobj["parameters"]["properties"]["requires_roll"] = {
                 "type": "object",
                 "additionalProperties": False,
                 "required": [
@@ -829,7 +836,7 @@ ROLL REQUIRED
                 },
             }
         log(self._gm_funcobj, _print=True)
-        response = self.gm.generate(prompt, self._gm_funcobj)
+        response = self.gm.generate(prompt, self._pc_funcobj)
         party.next_scene.prompt = (
             f"{prompt}\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
         )
@@ -856,19 +863,19 @@ ROLL REQUIRED
         self.update_refs()
         return party.get_next_scene()
 
-    def run(self, party):
+    def run(self, party, pc=None):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
         if not party.next_scene.gm_ready:
             self._rungm(party)
-            party.next_scene.gm_ready = True
-            party.next_scene.save()
-        elif not party.ready:
-            self._runpc(party)
+        elif pc:
+            self._runpc(pc)
+        elif party.ready:
+            party.get_next_scene(create=True)
             party.next_scene.gm_ready = False
             party.next_scene.is_ready = False
-            party.next_scene.save()
+        party.next_scene.save()
 
         return party.next_scene
 
