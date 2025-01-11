@@ -17,6 +17,7 @@ class HorrorSystem(BaseSystem):
         "region": "Town",
         "world": "Area",
         "location": "Room",
+        "shop": "Shop",
         "district": "Floor",
         "item": "Item",
         "encounter": "Encounter",

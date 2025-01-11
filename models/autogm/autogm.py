@@ -466,7 +466,7 @@ CAMPAIGN SUMMARY
         if party.next_scene.quest_log:
             prompt += f"""
 PLOT LINES AND QUESTS
-- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ""}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
+- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ''}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
 """
 
         if party.next_scene.places:
@@ -536,7 +536,7 @@ PARTY PLAYER CHARACTERS
 """
         return prompt
 
-    def get_gm_prompt(self, party, start=False):
+    def get_pc_prompt(self, party):
         return f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response where each party member reacts to the GM's described scene.
 
 For each character:
@@ -562,8 +562,8 @@ Return the responses in the following structured JSON format:
 {self._prompt(party)}
 """
 
-    def get_pc_prompt(self, party, start=False):
-        if start:
+    def get_gm_prompt(self, party):
+        if not party.last_scene:
             prompt = f"""
 You are an expert AI Game Master for a {self.world.genre} tabletop roleplaying game. Your task is to narrate in the style of George Orwell and Ernest Hemingway an evocative and gripping description of the first session by describing the world, campaign setting, and a plot hook for the players using vivid and captivating language. The first session should also explain what brought these characters together and what their common goal is. The scene should:
 - Build suspense, tension, or excitement.
@@ -676,14 +676,8 @@ PREVIOUS SCENE
             log(e, "Failed to attach file.", _print=True)
         self.save()
 
-    def rungm(self, party):
-        if not party.next_scene:
-            raise ValueError("No next scene to run.")
-
-        if party.last_scene:
-            prompt = self.get_pc_prompt(party)
-        else:
-            prompt = self.get_pc_prompt(party, start=True)
+    def _rungm(self, party):
+        prompt = self.get_gm_prompt(party, start=True)
 
         prompt += """
 PLAYER ACTIONS
@@ -695,12 +689,12 @@ PLAYER ACTIONS
   {f"- intentions: {msg.intent}" if msg.intent else ""}
 """
 
-        if party.next_scene and party.next_scene.roll_required:
+        if party.last_scene.roll_required:
             prompt += f"""
 ROLL RESULT
-{party.next_scene.roll_description}
+{party.last_scene.roll_description}
 
-{(party.next_scene.roll_player and party.next_scene.roll_player.name) or ""} rolled a {party.next_scene.roll_attribute} {party.next_scene.roll_type} with a result of {party.next_scene.roll_result}
+{(party.last_scene.roll_player and party.next_scene.roll_player.name) or ""} rolled a {party.next_scene.roll_attribute} {party.next_scene.roll_type} with a result of {party.next_scene.roll_result}
 """
 
         self._update_response_function(party)
@@ -757,53 +751,43 @@ ROLL RESULT
         party.next_scene.generate_audio(voice="onyx")
         if response.get("image"):
             party.next_scene.generate_image(response["image"]["description"])
-
-        if party.next_scene.combatants and party.next_scene.type == "combat":
-            party.next_scene.start_combat()
-
-        next_scene = party.get_next_scene(create=True)
         # sanity test
         if response.get("requires_roll") and response["requires_roll"].get(
             "roll_required"
         ):
-            next_scene.roll_required = True
-            next_scene.roll_type = response["requires_roll"].get("type")
-            next_scene.roll_attribute = response["requires_roll"].get("attribute")
-            next_scene.roll_description = response["requires_roll"].get("description")
+            party.next_scene.roll_required = True
+            party.next_scene.roll_type = response["requires_roll"].get("type")
+            party.next_scene.roll_attribute = response["requires_roll"].get("attribute")
+            party.next_scene.roll_description = response["requires_roll"].get(
+                "description"
+            )
             roll_player = response["requires_roll"].get("roll_player")
             for pc in party.players:
-                # log(
-                #     f"{pc.pk} == {roll_player} or {pc.name} == {roll_player}",
-                #     _print=True,
-                # )
                 if str(pc.pk) == roll_player or pc.name == roll_player:
-                    next_scene.roll_player = pc
+                    party.next_scene.roll_player = pc
                     break
-            if next_scene.roll_description:
-                roll_description = BeautifulSoup(
-                    next_scene.roll_description, "html.parser"
-                ).get_text()
-                voiced_roll = AudioAgent().generate(
-                    roll_description, voice=self.voice or "onyx"
-                )
-                next_scene.roll_audio.put(voiced_roll, content_type="audio/mpeg")
+            roll_description = BeautifulSoup(
+                party.next_scene.roll_description, "html.parser"
+            ).get_text()
+            voiced_roll = AudioAgent().generate(
+                roll_description, voice=self.voice or "onyx"
+            )
+            party.next_scene.roll_audio.put(voiced_roll, content_type="audio/mpeg")
 
-        next_scene.music = response.get("music")
-        next_scene.next_actions = response["next_actions"]
-        next_scene.save()
+        party.next_scene.music = response.get("music")
+        party.next_scene.next_actions = response["next_actions"]
+        party.next_scene.save()
         self.update_refs()
-        return next_scene
+        return party.next_scene
 
-    def runpc(self, party):
+    def _runpc(self, party):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
         prompt = f"""
-{self.get_gm_prompt(party, start=not bool(party.last_scene))}
+{self.get_pc_prompt(party)}
 
 SCENARIO
-
-{party.last_scene.description if party.last_scene else ""}
 
 {party.next_scene.description}
 """
@@ -845,10 +829,7 @@ ROLL REQUIRED
                 },
             }
         log(self._gm_funcobj, _print=True)
-        response = self.gm.generate(
-            prompt,
-            self._gm_funcobj,
-        )
+        response = self.gm.generate(prompt, self._gm_funcobj)
         party.next_scene.prompt = (
             f"{prompt}\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
         )
@@ -873,28 +854,21 @@ ROLL REQUIRED
         for msg in party.next_scene.player_messages:
             msg.generate_audio()
         self.update_refs()
-        return party.get_next_scene(create=True)
+        return party.get_next_scene()
 
-    def runmanual(self, party):
+    def run(self, party):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
-        log(party.next_scene.gm_ready, party.ready, _print=True)
-        if party.next_scene.gm_ready and not party.ready:
-            party.next_scene.generate_audio()
-            party.next_scene.generate_image()
-        elif party.next_scene.gm_ready and party.ready:
-            for msg in party.next_scene.player_messages:
-                if msg.message:
-                    party.next_scene.description += f"""
-- {msg.player.name}'s [with a {msg.emotion or "neutral"} demeanor]: {BeautifulSoup(msg.message, "html.parser").get_text()}
-  {f"- intentions: {msg.intent}" if msg.intent else ""}
-"""
-            party.get_next_scene(create=True)
+        if not party.next_scene.gm_ready:
+            self._rungm(party)
+            party.next_scene.gm_ready = True
+            party.next_scene.save()
+        elif not party.ready:
+            self._runpc(party)
             party.next_scene.gm_ready = False
             party.next_scene.is_ready = False
             party.next_scene.save()
-            self.update_refs()
 
         return party.next_scene
 
@@ -930,7 +904,7 @@ ROLL REQUIRED
             prompt += f"""
 ## ALLIED NPCS
 
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies ])}
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies])}
 
 """
 
@@ -943,7 +917,7 @@ ROLL REQUIRED
             prompt += f"""
 ## OPPONENTS
 
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants ])}
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants])}
 
 """
         ondeck = party.last_scene.current_combat_turn()
@@ -954,7 +928,7 @@ ROLL REQUIRED
             prompt += f"""
 ## PARTY PLAYER CHARACTERS
 
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp}\n  - Description: {ass.actor.age}, {ass.actor.gender}, {ass.actor.species, }{ass.actor.description_summary}" for ass in pcs ])}
+- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp}\n  - Description: {ass.actor.age}, {ass.actor.gender}, {(ass.actor.species,)}{ass.actor.description_summary}" for ass in pcs])}
 
 ---
 
@@ -974,11 +948,11 @@ ROLL REQUIRED
             prompt += f"""
 ## {ondeck.actor.name}'S ACTION
 
-- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.action.action_dict().items()]) }
+- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.action.action_dict().items()])}
 
 ## {ondeck.actor.name}'S BONUS ACTION
 
-- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.bonus_action.action_dict().items()]) }
+- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.bonus_action.action_dict().items()])}
 
 ## {ondeck.actor.name}'S MOVEMENT
 

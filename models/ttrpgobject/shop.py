@@ -53,7 +53,7 @@ class Shop(Place):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = (
             prompt
-            or f"Generate a {self.genre} TTRPG establishment, such as a shop or tavern, {f"with the following description: {self.backstory}" if self.backstory else ""}. Add a backstory containing a {self.traits} history for players to discover."
+            or f"Generate a {self.genre} TTRPG establishment, such as a shop or tavern, {f'with the following description: {self.backstory}' if self.backstory else ''}. Add a backstory containing a {self.traits} history for players to discover."
         )
         if self.owner:
             prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
@@ -62,11 +62,10 @@ class Shop(Place):
 
     def page_data(self):
         result = super().page_data()
-        if self.districts:
+        if self.inventory_:
             result |= {
-                "districts": [
-                    {"name": r.name, "pk": str(r.pk)} for r in self.districts
-                ],
+                "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
+                "inventory": self.inventory_,
             }
         return result
 

@@ -138,14 +138,7 @@ class Faction(TTRPGObject):
         self.save()
 
     def autogm_session(self):
-        if self.next_scene.gm_mode == "gm":
-            self.gm.rungm(party=self)
-        elif self.next_scene.gm_mode == "pc":
-            self.gm.runpc(party=self)
-        elif self.next_scene.gm_mode == "manual":
-            self.gm.runmanual(party=self)
-        else:
-            raise ValueError("Invalid GM Mode")
+        self.gm.run(party=self)
 
         self.save()
 

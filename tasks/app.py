@@ -133,14 +133,7 @@ def create_app():
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/autogm/<string:pk>", methods=("POST",))
-    @app.route("/generate/autogm/<string:pk>/regenerate", methods=("POST",))
     def autogm(pk):
-        party = Faction.get(pk)
-
-        if "regenerate" in request.url and party.autogm_summary:
-            party.next_scene.delete()
-            party.next_scene = party.autogm_summary.pop()
-            party.save()
         task = (
             AutoTasks()
             .task(

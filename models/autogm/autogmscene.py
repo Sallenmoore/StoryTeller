@@ -143,7 +143,7 @@ class AutoGMScene(AutoModel):
 
 Now you must decide on the next course of action:
 
-{'...\n\n Or, '.join(self.next_actions)}
+{"...\n\n Or, ".join(self.next_actions)}
 
 Or you may decide your own path.
 """
@@ -356,9 +356,16 @@ SCENE DESCRIPTION
     def get_player_message(self, player):
         if isinstance(player, str):
             player = Character.get(player)
+        result = None
         for msg in self.player_messages:
             if msg.player == player:
-                return msg
+                result = msg
+        if not result:
+            result = AutoGMMessage(player=player, scene=self)
+            result.save()
+            self.player_messages += [result]
+            self.save()
+        return result
 
     def set_player_messages(self, messages):
         for msg in messages:
