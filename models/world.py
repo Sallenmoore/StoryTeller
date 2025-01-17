@@ -26,6 +26,7 @@ from models.systems import (
     SciFiSystem,
     WesternSystem,
 )
+from models.systems.swn import StarsWithoutNumber
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -46,8 +47,19 @@ class World(TTRPGBase):
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     current_date = StringAttr(
-        default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ])} {random.randint(1, 5000)}"
+        default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])} {random.randint(1, 5000)}"
     )
+
+    SYSTEMS = {
+        "fantasy": FantasySystem,
+        "scifi": SciFiSystem,
+        "swn": StarsWithoutNumber,
+        "hardboiled": HardboiledSystem,
+        "horror": HorrorSystem,
+        "historical": HistoricalSystem,
+        "postapocalyptic": PostApocalypticSystem,
+        "western": WesternSystem,
+    }
 
     _funcobj = {
         "name": "generate_world",
@@ -301,10 +313,28 @@ class World(TTRPGBase):
     def get_world(self):
         return self
 
+    ###################### Setter Methods ########################
     def add_association(self, obj):
         obj.world = self
         obj.save()
         return self.associations
+
+    def set_system(self, System):
+        if System:
+            self.system.delete()
+            self.system = System(world=self)
+            self.system.save()
+            self.save()
+
+        for obj in [*self.characters, *self.creatures]:
+            obj.skills = self.system.skills.copy()
+            obj.save()
+
+        for obj in self.creatures:
+            obj.skills = self.system.skills.copy()
+            obj.save()
+
+        return self.system
 
     ###################### Data Methods ########################
     ################### Instance Methods #####################
@@ -349,6 +379,7 @@ class World(TTRPGBase):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_users()
         document.pre_save_system()
         document.pre_save_map_prompt()
 
@@ -362,6 +393,13 @@ class World(TTRPGBase):
     #     super().clean()
 
     ################### verification methods ##################
+
+    def pre_save_users(self):
+        users = []
+        for u in self.users:
+            if u not in users:
+                users.append(u)
+        self.users = users
 
     def pre_save_map_prompt(self):
         if not self.map_prompt:

@@ -19,7 +19,7 @@
             <div class="row">
                 {% if ability.description %}
                 <div class="column is-full">
-                    <div class="panel has-bg-muted">
+                    <div class="panel has-bg-muted has-text-dark ">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline; has-text-center'>
                             Description</h5>
@@ -33,7 +33,7 @@
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Roll
                             Mechanics</h5>
-                        <p>{{ability.dice_roll}}</p>
+                        <span class='has-text-dark'>{{ability.dice_roll}}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -43,7 +43,7 @@
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Effects
                         </h5>
-                        <p>{{ability.effects}}</p>
+                        <span class='has-text-dark'>{{ability.effects}}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -52,7 +52,7 @@
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Duration</h5>
-                        <p>{{ability.duration}}</p>
+                        <span class='has-text-dark'>{{ability.duration}}</span>
                     </div>
                 </div>
                 {% endif %}

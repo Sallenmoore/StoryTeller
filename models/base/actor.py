@@ -3,6 +3,7 @@ import markdown
 from autonomous import log
 from autonomous.model.autoattr import (
     BoolAttr,
+    DictAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -16,6 +17,7 @@ class Actor(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     goal = StringAttr(default="")
     is_player = BoolAttr(default=False)
+    level = IntAttr(default=1)
     gender = StringAttr(default="")
     age = IntAttr(default=0)
     species = StringAttr(default="")
@@ -33,6 +35,7 @@ class Actor(TTRPGObject):
     archetype = StringAttr(default="")
     voice_description = StringAttr(default="")
     lookalike = StringAttr(default="")
+    skills = DictAttr(default={})
 
     _genders = ["male", "female", "non-binary"]
 
@@ -184,6 +187,7 @@ class Actor(TTRPGObject):
     def auto_post_init(cls, sender, document, **kwargs):
         super().auto_post_init(sender, document, **kwargs)
         document.pre_save_ac()
+        document.pre_save_skills()
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -199,6 +203,10 @@ class Actor(TTRPGObject):
     #     super().clean()
 
     ############### Verification Methods ##############
+
+    def pre_save_skills(self):
+        if not self.skills:
+            self.skills = self.system.skills.copy()
 
     def pre_save_ac(self):
         self.ac = max(

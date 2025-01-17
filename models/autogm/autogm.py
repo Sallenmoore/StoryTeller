@@ -20,46 +20,38 @@ class AutoGM(AutoModel):
     agent = ReferenceAttr(choices=[JSONAgent])
     voice = StringAttr(default="onyx")
 
-    _pc_funcobj = (
-        {
-            "name": "run_scene",
-            "description": "Generates a structured JSON response for a party member's reaction to the GM's described scene.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "response": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": [
-                            "character_pk",
-                            "response",
-                            "intent",
-                            "emotion",
-                        ],
-                        "properties": {
-                            "character_pk": {
-                                "type": "string",
-                                "description": "The primary key (pk) of the character responding.",
-                            },
-                            "response": {
-                                "type": "string",
-                                "description": "A detailed description of the character's reaction or dialogue.",
-                            },
-                            "intent": {
-                                "type": "string",
-                                "description": "The primary intent behind the character's response (e.g., 'preparing for combat').",
-                            },
-                            "emotion": {
-                                "type": "string",
-                                "description": "Emotion the character is experiencing.",
-                            },
-                        },
-                    },
+    _pc_funcobj = {
+        "name": "run_scene",
+        "description": "Generates a structured JSON response for a party member's reaction to the GM's described scene.",
+        "parameters": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": [
+                "character_pk",
+                "response",
+                "intent",
+                "emotion",
+            ],
+            "properties": {
+                "character_pk": {
+                    "type": "string",
+                    "description": "The primary key (pk) of the character responding.",
+                },
+                "response": {
+                    "type": "string",
+                    "description": "A detailed description of the character's reaction or dialogue.",
+                },
+                "intent": {
+                    "type": "string",
+                    "description": "The primary intent behind the character's response (e.g., 'preparing for combat').",
+                },
+                "emotion": {
+                    "type": "string",
+                    "description": "Emotion the character is experiencing.",
                 },
             },
-            "required": ["response"],
         },
-    )
+    }
 
     _gm_funcobj = {
         "name": "run_scene",
@@ -452,7 +444,7 @@ class AutoGM(AutoModel):
 
     ##################### PROPERTY METHODS ####################
 
-    def _prompt(self, party, pc=None):
+    def _prompt(self, party):
         prompt = f"""
 CAMPAIGN TONE
 {party.next_scene.tone}
@@ -516,31 +508,29 @@ PARTY DESCRIPTION
 
 PARTY PLAYER CHARACTERS
 """
-        for pc in party.players:
+        for playercharacter in party.players:
             abilities = [
-                BeautifulSoup(str(a), "html.parser").get_text() for a in pc.abilities
+                BeautifulSoup(str(a), "html.parser").get_text()
+                for a in playercharacter.abilities
             ]
+            message = party.next_scene.get_player_message(playercharacter).message
             prompt += f"""
-- Name: {pc.name}
-- pk: {pc.pk}
-- Species: {pc.species}
-- Gender: {pc.gender}
-- Age: {pc.age}
-- Occupation: {pc.occupation}
-- Goal: {pc.goal.strip()}
-- Backstory: {BeautifulSoup(pc.backstory_summary, "html.parser").get_text()}
+- Name: {playercharacter.name}
+- pk: {playercharacter.pk}
+- Species: {playercharacter.species}
+- Gender: {playercharacter.gender}
+- Age: {playercharacter.age}
+- Occupation: {playercharacter.occupation}
+- Goal: {playercharacter.goal.strip()}
+- Backstory: {BeautifulSoup(playercharacter.backstory_summary, "html.parser").get_text()}
 - Abilities:
     - {"\n    - ".join(abilities)}
-"""
-        if pc:
-            prompt += f"""
-Respond as the character, {pc.name}, in the scene described above informed by the following character history:
-{BeautifulSoup(pc.history, "html.parser").get_text()}
+{f"- Last Action: {message}" if message else ""}
 """
         return prompt
 
     def get_pc_prompt(self, party, pc):
-        return f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response for a single party member reaction to the GM's described scene.
+        prompt = f"""You are the AI roleplayer for a {self.world.genre} TTRPG campaign. Your task is to generate a structured JSON response for a single party member reaction to the GM's described scene.
 
 The character should:
 1. Respond in a way that is consistent with their personality, backstory, abilities, and motivations as described in the campaign.
@@ -562,8 +552,22 @@ Return the response in the following structured JSON format:
   ]
 }}
 
-{self._prompt(party, pc)}
+
+SCENARIO
+
+{party.next_scene.description}
+
+{self._prompt(party)}
+
+NEXT POSSIBLE ACTIONS
+
+- {"\n- ".join(party.next_scene.next_actions)}
+- ...or decide your own path.
+
+Respond as the character, {pc.name}, in the scene described above informed by the following character history:
+{BeautifulSoup(pc.history, "html.parser").get_text()}
 """
+        return prompt
 
     def get_gm_prompt(self, party):
         if not party.last_scene:
@@ -668,7 +672,10 @@ PREVIOUS SCENE
             }
 
     def update_refs(self):
-        self.gm.get_client().clear_files()
+        try:
+            self.gm.get_client().clear_files()
+        except Exception as e:
+            log(e)
         world_data = self.world.page_data()
         ref_db = json.dumps(world_data).encode("utf-8")
         try:
@@ -701,7 +708,7 @@ PLAYER ACTIONS
 ROLL RESULT
 {party.last_scene.roll_description}
 
-{(party.last_scene.roll_player and party.next_scene.roll_player.name) or ""} rolled a {party.next_scene.roll_attribute} {party.next_scene.roll_type} with a result of {party.next_scene.roll_result}
+{(party.last_scene.roll_player and party.last_scene.roll_player.name) or ""} rolled a {party.last_scene.roll_attribute} {party.last_scene.roll_type} with a result of {party.last_scene.roll_result}
 """
 
         self._update_response_function(party)
@@ -724,7 +731,7 @@ ROLL RESULT
         description = markdown.markdown(description)
         party.next_scene.description = description
         party.next_scene.save()
-
+        log(party.next_scene.description, _print=True)
         for q in response.get("quest_log", []):
             if party.last_scene:
                 quest = [
@@ -758,7 +765,7 @@ ROLL RESULT
         party.next_scene.generate_audio(voice="onyx")
         if response.get("image"):
             party.next_scene.generate_image(response["image"]["description"])
-        # sanity test
+
         if response.get("requires_roll") and response["requires_roll"].get(
             "roll_required"
         ):
@@ -787,17 +794,11 @@ ROLL RESULT
         self.update_refs()
         return party.next_scene
 
-    def _runpc(self, party):
+    def _runpc(self, party, pc):
         if not party.next_scene:
             raise ValueError("No next scene to run.")
 
-        prompt = f"""
-{self.get_pc_prompt(party)}
-
-SCENARIO
-
-{party.next_scene.description}
-"""
+        prompt = self.get_pc_prompt(party, pc)
 
         if party.next_scene.roll_required:
             prompt += f"""
@@ -806,12 +807,6 @@ ROLL REQUIRED
 
 {party.next_scene.roll_player.name} must roll a {party.next_scene.roll_attribute} {party.next_scene.roll_type} and state the result.
 """
-
-        self._update_response_function(party)
-
-        log(prompt, _print=True)
-
-        if party.next_scene.roll_required:
             self._pc_funcobj["parameters"]["properties"]["requires_roll"] = {
                 "type": "object",
                 "additionalProperties": False,
@@ -835,13 +830,19 @@ ROLL REQUIRED
                     },
                 },
             }
+
+        self._update_response_function(party)
+
+        log(prompt, _print=True)
         log(self._gm_funcobj, _print=True)
         response = self.gm.generate(prompt, self._pc_funcobj)
         party.next_scene.prompt = (
             f"{prompt}\n\nRESPONSE:\n{json.dumps(response, indent=4)}"
         )
-        log(response, _print=True)
-        party.next_scene.set_player_messages(response["responses"])
+        log(list(response.keys()), _print=True)
+        party.next_scene.set_player_message(
+            pc, response["response"], response["intent"], response["emotion"]
+        )
 
         if party.next_scene.roll_required:
             party.next_scene.roll_result = response["requires_roll"]["result"]
@@ -855,11 +856,9 @@ ROLL REQUIRED
                 except Exception as e:
                     log(e, party.next_scene.roll_formula, _print=True)
                     party.next_scene.roll_result = dmtools.roll_dice("1d20")
-        party.next_scene.generate_image()
         party.next_scene.save()
         log([m.message for m in party.next_scene.player_messages], _print=True)
-        for msg in party.next_scene.player_messages:
-            msg.generate_audio()
+
         self.update_refs()
         return party.get_next_scene()
 
@@ -870,8 +869,10 @@ ROLL REQUIRED
         if not party.next_scene.gm_ready:
             self._rungm(party)
         elif pc:
-            self._runpc(pc)
+            self._runpc(party, pc)
         elif party.ready:
+            for message in party.next_scene.player_messages:
+                message.generate_audio()
             party.get_next_scene(create=True)
             party.next_scene.gm_ready = False
             party.next_scene.is_ready = False

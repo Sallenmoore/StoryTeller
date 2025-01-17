@@ -198,6 +198,8 @@ Combat Ends, and the party investigates the area.
             .task(
                 tasks._generate_audio_task,
                 pk=pk,
+                pre_text=request.json.get("pre_text", ""),
+                post_text=request.json.get("post_text", ""),
             )
             .result
         )

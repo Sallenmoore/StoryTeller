@@ -3,9 +3,12 @@
 
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
-<div class="row">
+<div class="row has-space-between">
     <div class="column is-vertically-centered">
         <h2 class='has-text-dark'>Details</h2>
+    </div>
+    <div class="column is-shrink">
+        <a hx-get="/api/card/{{obj.path}}" hx-target="#page-content" class="button">Card</a>
     </div>
     {% if obj.traits %}
     <div class="column is-shrink is-end">

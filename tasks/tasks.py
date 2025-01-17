@@ -88,19 +88,15 @@ def _generate_gn_task(pk):
     return {"url": f"/api/campaign/{ep.campaign.pk}/episode/{ep.pk}"}
 
 
-def _generate_audio_task(pk):
+def _generate_audio_task(pk, pre_text="", post_text=""):
     ags = AutoGMScene.get(pk)
-    ags.generate_audio()
+    ags.generate_audio(pre_text=pre_text, post_text=post_text)
     return {"url": f"/api/autogm/{ags.party.pk}"}
 
 
 def _generate_autogm_task(pk, pcpk=None):
     party = Faction.get(pk)
-    if pcpk:
-        pc = Character.get(pcpk)
-        party.autogm_session(pc=pc)
-    else:
-        party.autogm_session()
+    party.autogm_session(pc=Character.get(pcpk))
     return {"url": f"/api/autogm/{party.pk}"}
 
 

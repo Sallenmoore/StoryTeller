@@ -46,8 +46,6 @@
             <li class="{% if episode %} is-active {% endif %} has-text-dark"
                 hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
                 hx-target='#details-container'
-                hx-select='#details-container'
-                hx-swap="outerHTML"
                 onclick="activeTab(this)">
                 <a>
                     Episode Details
@@ -157,8 +155,8 @@
                 <h3 class='has-text-center'> Players </h3>
                 <div class="row has-space-around">
                     {% for p in campaign.players %}
-                    <div class="column is-4 has-text-center">
-                        {{display_components.object_display(p, size="medium", type=False)}}
+                    <div class="column is-2 has-text-center">
+                        {{display_components.object_display(p, dim=250, type=False)}}
                         <a
                            hx-post="/api/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
                            hx-target="#campaign-players" hx-select="#campaign-players"
@@ -185,7 +183,7 @@
                 <div class="column is-3 episode-association-entry">
                     <div class="row">
                         <div class="column is-full">
-                            {{display_components.object_display(a, size="medium")}}
+                            {{display_components.object_display(a)}}
                         </div>
                     </div>
                 </div>
@@ -210,7 +208,7 @@
 
 {% macro episode_details(user, obj, campaign, episode=None) -%}
 <div class="section is-small">
-    <h3>Episode Select</h3>
+    <h3 class='has-text-primary'>Episode Select</h3>
     <div class="row">
         <div class="column">
             <select id="episode-select" class="has-bg-muted" name="episodepk"
@@ -497,10 +495,10 @@
 <hr class='has-bg-muted'>
 <div class="row">
     {% for a in children %}
-    <div class="column is-3 is-mobile-6 episode-association-entry fade-it-in">
+    <div class="column is-2 is-mobile-6 episode-association-entry fade-it-in">
         <div class="row">
             <div class="column is-full">
-                {{display_components.object_display(a, size="medium", type=False)}}
+                {{display_components.object_display(a, type=False, dim=250)}}
             </div>
             <div class="column is-full">
                 <div class="row has-centered">
@@ -600,7 +598,7 @@
                                value="{{scenenote.name}}">
                     </div>
                     <div class="column is-shrink is-vertically-centered">
-                        <label>Epsiode Num: </label>
+                        <label>Scene Num: </label>
                     </div>
                     <div class="column">
                         <input class="has-bg-muted" type="number"
@@ -647,9 +645,9 @@
                         </div>
                         {% for a in scenenote.setting %}
                         <div class="screenote-setting column is-6">
-                            {{display_components.object_display(a, size="medium")}}
+                            {{display_components.object_display(a)}}
                             <div class="row has-centered">
-                                <div class="column is-shrink"
+                                <div class="column is-3"
                                      hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/remove"
                                      hx-target="closest .screenote-setting"
                                      hx-swap="delete"
@@ -690,9 +688,9 @@
                         </div>
                         {% for a in scenenote.encounters %}
                         <div class="screenote-encounter column is-6">
-                            {{display_components.object_display(a, size="medium")}}
+                            {{display_components.object_display(a)}}
                             <div class="row has-centered">
-                                <div class="column is-shrink"
+                                <div class="column is-3"
                                      hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"
@@ -733,9 +731,9 @@
                         </div>
                         {% for a in scenenote.actors %}
                         <div class="screenote-encounter column is-6">
-                            {{display_components.object_display(a, size="medium")}}
+                            {{display_components.object_display(a)}}
                             <div class="row has-centered">
-                                <div class="column is-shrink"
+                                <div class="column is-3"
                                      hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/remove"
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"

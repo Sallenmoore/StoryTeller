@@ -133,22 +133,22 @@ class AutoGMScene(AutoModel):
             self.associations.remove(obj)
             self.save()
 
-    def generate_audio(self, voice=None):
+    def generate_audio(self, voice=None, pre_text="", post_text=""):
         from models.world import World
 
         if not self.description:
             raise ValueError("Scene Description are required to generate audio")
         description = f"""
-        {self.description}
+{pre_text} {self.description} {post_text}
 
-Now you must decide on the next course of action:
+{"Now you must decide on the next course of action:" if self.next_actions else ""}
 
 {"...\n\n Or, ".join(self.next_actions)}
 
-Or you may decide your own path.
+{"Or you may decide your own path." if self.next_actions else "What are you going to do?"}
 """
         description = BeautifulSoup(description, "html.parser").get_text()
-        voiced_scene = AudioAgent().generate(description, voice=voice or "echo")
+        voiced_scene = AudioAgent().generate(description, voice=voice or "onyx")
         if self.audio:
             self.audio.delete()
             self.audio.replace(voiced_scene, content_type="audio/mpeg")
@@ -172,8 +172,9 @@ DESCRIPTION OF CHARACTERS IN THE SCENE
                 else char.description_summary
             )
             self.image_prompt += f"""
-- {char.age} year old {char.species} {char.gender} {char.occupation}. {char.description}
+- {char.age} year old {char.species} {char.gender} {char.occupation}. {description}
     - Motif: {char.motif}
+    - Looks Like: {char.lookalike}
 """
         self.image_prompt += f"""
 
@@ -375,19 +376,21 @@ SCENE DESCRIPTION
                 )
 
     def set_player_message(
-        self, character, response="", intent="", emotion="", ready=False
+        self, character, response=None, intent=None, emotion="steady", ready=False
     ):
         player = (
             character if isinstance(character, Character) else Character.get(character)
         )
         if pc_msg := self.get_player_message(player):
-            pc_msg.message = response
-            pc_msg.intent = intent
-            pc_msg.emotion = emotion
+            pc_msg.message = response if response is not None else pc_msg.message
+            pc_msg.intent = intent if intent is not None else pc_msg.intent
+            pc_msg.emotion = emotion if emotion is not None else pc_msg.emotion
             pc_msg.ready = ready
             pc_msg.save()
         else:
             raise ValueError("Player Message not found")
+        log(pc_msg.message, pc_msg.intent, pc_msg.emotion, pc_msg.ready)
+        return pc_msg
 
     ########################################################
     ##                    COMBAT METHODS                  ##

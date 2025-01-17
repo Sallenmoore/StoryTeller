@@ -21,6 +21,169 @@ class BaseSystem(AutoModel):
     json_client = ReferenceAttr(choices=[JSONAgent])
     world = ReferenceAttr(choices=["World"])
 
+    _backgrounds = {
+        "Acolyte": "You have spent your life in the service of a temple to a specific god or pantheon of gods. You act as an intermediary between the realm of the holy and the mortal world, performing sacred rites and offering sacrifices.",
+        "Charlatan": "You have always had a way with people. You know what makes them tick, and you can tease out their hearts’ desires after a few minutes of conversation. You use this skill to your advantage in your line of work.",
+        "Criminal": "You have a history of breaking the law. You have spent a lot of time among other criminals and still have contacts within the criminal underworld.",
+        "Entertainer": "You thrive in front of an audience. You know how to entrance them, entertain them, and inspire them. Your poise, confidence, and theatrical flair make you a master of performance.",
+        "Folk Hero": "You come from a humble social rank, but you are destined for so much more. The people of your home village regard you as their champion, and your destiny calls you to stand against the tyrants and monsters threatening the common folk everywhere.",
+        "Guild Artisan": "You are a member of an artisan’s guild, skilled in a particular field and closely associated with other artisans. You are well established in the mercantile world, owning a shop and working with trade networks.",
+        "Hermit": "You lived in seclusion—either in a sheltered community such as a monastery or entirely alone—for a formative part of your life. In your time apart from the clamor of society, you found quiet, solitude, and perhaps a bit of insanity.",
+        "Noble": "You understand wealth, power, and privilege. You carry a noble title, and your family owns land, collects taxes, and wields significant political influence. You might be a pampered aristocrat or a disinherited scoundrel.",
+        "Outlander": "You grew up in the wilds, far from civilization and the comforts of town and technology. You’ve witnessed the migration of herds larger than forests, survived weather more extreme than any city-dweller could comprehend, and enjoyed the solitude of being the only thinking creature for miles in any direction.",
+        "Sage": "You spent years learning the lore of the multiverse. You scoured manuscripts, studied scrolls, and listened to the greatest experts on the subjects that interest you.",
+        "Sailor": "You sailed on a seagoing vessel for years. In that time, you faced down mighty storms, monsters of the deep, and those who wanted to sink your craft to the bottomless depths.",
+        "Soldier": "War has been your life for as long as you care to remember. You trained as a youth, studied the use of weapons and armor, learned survival strategies, and perhaps took part in a war.",
+        "Urchin": "You grew up on the streets alone, orphaned, and poor. You had no one to watch over you or to provide for you, so you learned to provide for yourself. You fought fiercely over food and kept a constant watch out for other desperate souls who might take it from you.",
+    }
+
+    _classes = {
+        "Barbarian": [
+            "Path of the Berserker",
+            "Path of the Totem Warrior",
+            "Path of the Ancestral Guardian",
+            "Path of the Battlerager",
+            "Path of the Storm Herald",
+            "Path of the Zealot",
+            "Path of Wild Magic",
+        ],
+        "Bard": [
+            "College of Lore",
+            "College of Valor",
+            "College of Glamour",
+            "College of Swords",
+            "College of Whispers",
+            "College of Creation",
+            "College of Eloquence",
+        ],
+        "Cleric": [
+            "Arcana Domain",
+            "Death Domain",
+            "Forge Domain",
+            "Grave Domain",
+            "Knowledge Domain",
+            "Life Domain",
+            "Light Domain",
+            "Nature Domain",
+            "Order Domain",
+            "Tempest Domain",
+            "Trickery Domain",
+            "War Domain",
+        ],
+        "Druid": [
+            "Circle of Dreams",
+            "Circle of the Land",
+            "Circle of the Moon",
+            "Circle of the Shepherd",
+            "Circle of Spores",
+            "Circle of Stars",
+            "Circle of Wildfire",
+        ],
+        "Fighter": [
+            "Arcane Archer",
+            "Banneret",
+            "Battle Master",
+            "Cavalier",
+            "Champion",
+            "Echo Knight",
+            "Eldritch Knight",
+            "Psi Warrior",
+            "Rune Knight",
+            "Samurai",
+        ],
+        "Monk": [
+            "Way of the Open Hand",
+            "Way of Shadow",
+            "Way of the Four Elements",
+            "Way of the Drunken Master",
+            "Way of the Kensei",
+            "Way of the Sun Soul",
+            "Way of Mercy",
+            "Way of the Astral Self",
+        ],
+        "Paladin": [
+            "Oath of Devotion",
+            "Oath of the Ancients",
+            "Oath of Vengeance",
+            "Oath of the Crown",
+            "Oath of Conquest",
+            "Oath of Redemption",
+            "Oath of Glory",
+            "Oath of the Watchers",
+        ],
+        "Ranger": [
+            "Beast Master Conclave",
+            "Hunter Conclave",
+            "Gloom Stalker Conclave",
+            "Horizon Walker Conclave",
+            "Monster Slayer Conclave",
+            "Fey Wanderer",
+            "Swarmkeeper",
+        ],
+        "Rogue": [
+            "Arcane Trickster",
+            "Assassin",
+            "Inquisitive",
+            "Mastermind",
+            "Phantom",
+            "Scout",
+            "Soulknife",
+            "Swashbuckler",
+            "Thief",
+        ],
+        "Sorcerer": [
+            "Divine Soul",
+            "Draconic Bloodline",
+            "Shadow Magic",
+            "Storm Sorcery",
+            "Wild Magic",
+            "Aberrant Mind",
+            "Clockwork Soul",
+        ],
+        "Warlock": [
+            "The Archfey",
+            "The Fiend",
+            "The Great Old One",
+            "The Celestial",
+            "The Hexblade",
+            "The Fathomless",
+            "The Genie",
+        ],
+        "Wizard": [
+            "School of Abjuration",
+            "School of Conjuration",
+            "School of Divination",
+            "School of Enchantment",
+            "School of Evocation",
+            "School of Illusion",
+            "School of Necromancy",
+            "School of Transmutation",
+            "Bladesinging",
+            "Order of Scribes",
+        ],
+    }
+
+    _skills = {
+        "Acrobatics": 0,
+        "Animal Handling": 0,
+        "Arcana": 0,
+        "Athletics": 0,
+        "Deception": 0,
+        "History": 0,
+        "Insight": 0,
+        "Intimidation": 0,
+        "Investigation": 0,
+        "Medicine": 0,
+        "Nature": 0,
+        "Perception": 0,
+        "Performance": 0,
+        "Persuasion": 0,
+        "Religion": 0,
+        "Sleight of Hand": 0,
+        "Stealth": 0,
+        "Survival": 0,
+    }
+
     _genre = "Mixed"
     MAX_TOKEN_LENGTH = 7500
     _titles = {
@@ -176,6 +339,18 @@ class BaseSystem(AutoModel):
     @property
     def description(self):
         return f"A helpful AI assistant trained to return structured JSON data for help in world-building a consistent, mysterious, and dangerous universe as the setting for a series of {self._genre} TTRPG campaigns."
+
+    @property
+    def skills(self):
+        return self._skills
+
+    @property
+    def classes(self):
+        return self._classes
+
+    @property
+    def backgrounds(self):
+        return self._backgrounds
 
     ############# CRUD Methods #############
 

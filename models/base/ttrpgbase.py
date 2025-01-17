@@ -600,7 +600,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
         elif self.map and not self.map.tags:
             self.map.tags = self.map_tags
             self.map.save()
-        log(self.map)
 
     def pre_save_image(self):
         if isinstance(self.image, str):
@@ -627,7 +626,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
             self.image.save()
-        log(self.image)
 
     def pre_save_backstory(self):
         if not self.backstory:

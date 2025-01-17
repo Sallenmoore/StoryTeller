@@ -1,3 +1,4 @@
+import json
 import os
 
 import markdown
@@ -28,13 +29,7 @@ def index(model=None, pk=None):
     user, obj, world, *_ = _loader(model=model, pk=pk)
     party = Faction.get(pk or request.json.get("partypk"))
     if party and party.get_next_scene():
-        log(
-            party.name,
-            party.next_scene.gm_mode,
-            [p.ready for p in party.next_scene.player_messages],
-            party.is_ready(),
-            party.next_scene.scene_objects(),
-        )
+        log(party.players)
         party.get_next_scene()
         if tone := request.json.get("tone"):
             party.next_scene.tone = tone.title()
@@ -55,7 +50,7 @@ def canonizesession(pk):
     user, obj, world, *_ = _loader()
     if party := Faction.get(pk):
         party.end_gm_session()
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
@@ -70,6 +65,7 @@ def clearsession(pk):
         ags.delete()
     party.autogm_summary = []
     party.save()
+    party.get_next_scene()
     return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
@@ -81,40 +77,45 @@ def clearsession(pk):
 ###########################################################
 @autogm_endpoint.route("/<string:pk>/submit", methods=("POST",))
 def submit(pk=None):
-    user, obj, world, *_ = _loader()
     party = Faction.get(pk)
     if not party.next_scene.gm_ready:
         party.next_scene.gm_ready = True
-    elif not party.ready:
-        party.next_scene.is_ready = True
-    else:
-        party.next_scene.gm_ready = False
-        party.next_scene.is_ready = False
-    party.next_scene.save()
-    return get_template_attribute("autogm/_shared.html", "autogm_session")(
-        user, world, party
-    )
-
-
-@autogm_endpoint.route("/<string:pk>/<string:playerpk>/ready", methods=("POST",))
-def ready(pk, playerpk):
-    party = Faction.get(pk)
-    player = Character.get(playerpk)
-    party.next_scene.get_player_message(player).ready = bool(request.json.get("ready"))
-    party.next_scene.get_player_message(player).save()
-    log(
-        [p.ready for p in party.next_scene.player_messages],
-        party.is_ready(),
-        party.next_scene.scene_objects(),
-    )
-    if party.next_scene.gm_ready and party.ready:
-        return requests.post(
+        pre_text = f"{party.last_scene.summary}" if party.last_scene else ""
+        res = requests.post(
+            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/audio/{party.next_scene.pk}",
+            json={"pre_text": pre_text},
+        ).text
+        log(res)
+    elif party.ready:
+        res = requests.post(
             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
         ).text
+        log(res)
     else:
-        return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
-            party.user, party.world, party
-        )
+        res = get_template_attribute("autogm/_shared.html", "autogm_session")
+    party.next_scene.save()
+    return res
+
+
+# @autogm_endpoint.route("/<string:pk>/<string:playerpk>/ready", methods=("POST",))
+# def ready(pk, playerpk):
+#     party = Faction.get(pk)
+#     player = Character.get(playerpk)
+#     party.next_scene.get_player_message(player).ready = bool(request.json.get("ready"))
+#     party.next_scene.get_player_message(player).save()
+#     log(
+#         [p.ready for p in party.next_scene.player_messages],
+#         party.is_ready(),
+#         party.next_scene.scene_objects(),
+#     )
+#     if party.next_scene.gm_ready and party.ready:
+#         return requests.post(
+#             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
+#         ).text
+#     else:
+#         return get_template_attribute("autogm/_shared.html", "autogm_session")(
+#             party.user, party.world, party
+#         )
 
 
 ## MARK: Update
@@ -147,17 +148,19 @@ def scene_update(pk):
 
     if quest := request.json.get("quest"):
         quest_obj = AutoGMQuest.get(quest["pk"])
-        name = quest["name"]
-        type = quest["type"]
-        description = quest["description"]
-        status = quest["status"]
-        next_steps = quest["next_steps"]
-        importance = quest["importance"]
+        quest_obj.name = quest["name"]
+        quest_obj.type = quest["type"]
+        quest_obj.description = quest["description"]
+        quest_obj.status = quest["status"]
+        quest_obj.next_steps = quest["next_steps"]
+        quest_obj.importance = quest["importance"]
         quest_obj.save()
 
     if message := request.json.get("message"):
+        log(message)
+        pc = Character.get(message["playerpk"])
         party.next_scene.set_player_message(
-            message["playerpk"],
+            pc,
             response=message["player_message"],
             intent=message["intentions"],
             emotion=message["emotion"],

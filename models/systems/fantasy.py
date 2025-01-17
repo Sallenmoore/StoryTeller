@@ -2,7 +2,10 @@ from models.systems.basesystem import BaseSystem
 
 
 class FantasySystem(BaseSystem):
-    # meta = {"collection": "FantasySystem"}
+    meta = {
+        "allow_inheritance": True,
+        "strict": False,
+    }
 
     _genre = "Fantasy"
 

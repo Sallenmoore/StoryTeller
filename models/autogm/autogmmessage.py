@@ -21,7 +21,7 @@ class AutoGMMessage(AutoModel):
     audio = FileAttr()
     ready = BoolAttr(default=False)
 
-    def generate_audio(self):
+    def generate_audio(self, pre_text="", post_text=""):
         if not self.message or not self.scene:
             log(
                 f"Message and scene are required to generate audio: {self.scene}, '{self.message}'",
@@ -31,7 +31,7 @@ class AutoGMMessage(AutoModel):
         from models.world import World
 
         message = f"""
-{self.message}
+{pre_text}{self.message}{post_text}
 """
         pc_message = BeautifulSoup(message, "html.parser").get_text()
         voice = self.player.voice if self.player else "onyx"

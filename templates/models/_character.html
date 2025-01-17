@@ -31,6 +31,17 @@
             <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
         </div>
     </div>
+    <div class="row has-space-around">
+        {% for skill, val in obj.skills.items() %}
+
+        <div class="column is-1 is-mobile-3">
+            <div class="panel has-bg-screen">
+                <h5 class='has-text-center'>{{skill}}</h5>
+                <p class='has-text-center'>{{val}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 <div class="row has-space-around">
     <div class="column is-3 is-mobile-4">
@@ -121,7 +132,7 @@
             <div class="row">
                 {% for item in obj.items %}
                 <div class="column is-2">
-                    {{display_components.object_display(item, size='small', type=False)}}
+                    {{display_components.object_display(item, type=False)}}
                 </div>
                 {% endfor %}
             </div>
@@ -140,6 +151,28 @@
 {% macro manage_details(user, obj) -%}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row has-space-around">
+        <div class="column is-shrink ">
+            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
+            <div class="is-select">
+                <select class="has-no-border" name="is_player">
+                    <option value="False">NPC</option>
+                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
+                </select>
+            </div>
+        </div>
+        {% if obj.is_player %}
+        <div class="column is-shrink " id="dnd-beyond-id-input-container">
+            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
+            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
+        </div>
+        {% endif %}
+        <div class="column is-4">
+            <h4 class='has-text-primary'>Look-A-Like</h4>
+            <input type="text" value="{{obj.lookalike}}" name="lookalike">
+        </div>
+    </div>
+    <hr>
     <div class="row has-space-between">
         <div class="column">
             <h4 class="has-text-center has-text-primary">STR</h4>
@@ -168,6 +201,17 @@
                    name="constitution">
         </div>
     </div>
+    <div class="row has-space-around">
+        {% for skill, val in obj.skills.items() %}
+        <div class="column is-1 is-mobile-3">
+            <div class="panel has-bg-screen">
+                <h5 class='has-text-center'>{{skill}}</h5>
+                <input class="has-text-center" type="number" value="{{val}}"
+                       name="skills.{{skill}}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     <hr>
     <div class="row has-space-around">
         <div class="column is-shrink ">
@@ -180,21 +224,6 @@
             <input class="has-text-center" id="model-ac" type="number"
                    value="{{obj.ac}}" name="ac">
         </div>
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
-            <div class="is-select">
-                <select class="has-no-border" name="is_player">
-                    <option value="False">NPC</option>
-                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
-                </select>
-            </div>
-        </div>
-        {% if obj.is_player %}
-        <div class="column is-shrink " id="dnd-beyond-id-input-container">
-            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
-            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
-        </div>
-        {% endif %}
     </div>
     <div class="row has-space-between">
         <div class="column is-2">
@@ -209,18 +238,24 @@
             <h4 class='has-text-center has-text-primary'>Age</h4>
             <input class="has-text-center" type="number" value="{{obj.age}}" name="age">
         </div>
-        <div class="column">
-            <h4 class='has-text-primary'>Occupation</h4>
-            <input type="text" value="{{obj.occupation}}" name="occupation">
-        </div>
-        <div class="column">
+        <div class="column is-shrink">
             <h4 class='has-text-primary'>Archetype</h4>
-            <input type="text" value="{{obj.archetype}}" name="archetype">
+            <select name="archetype">
+                {%for a in obj.system.classes.keys() %}
+                <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="column">
-            <h4 class='has-text-primary'>Look-A-Like</h4>
-            <input type="text" value="{{obj.lookalike}}" name="lookalike">
+        <div class="column is-shrink">
+            <h4 class='has-text-primary'>Occupation</h4>
+            <select name="occupation">
+                {%for k, v in obj.system.backgrounds.items() %}
+                <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
+                </option>
+                {% endfor %}
+            </select>
         </div>
+
     </div>
     <hr>
     <div class="row">

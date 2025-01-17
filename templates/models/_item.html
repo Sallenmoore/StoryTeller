@@ -25,13 +25,8 @@
 <hr>
 {% if obj.features %}
 <div class="row">
-    <div class="column is-full" id="model-features">
-        <div class="panel has-bg-primary">
-            <h3 class='has-text-center '>Features</h3>
-            <div id="model-abilities" class="column is-full">
-                {{abilities_components.abilities(user, obj, abilities=obj.features)}}
-            </div>
-        </div>
+    <div id="model-abilities" class="column is-full">
+        {{abilities_components.abilities(user, obj, abilities=obj.features)}}
     </div>
 </div>
 {% endif %}

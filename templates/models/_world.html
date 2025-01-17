@@ -171,9 +171,35 @@
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}
-<h2 class='has-text-dark has-text-center' id='manage-users'>Manage Users</h2>
+<h2 class='has-text-dark has-text-center' id='manage-users'>Manage</h2>
 <div class="row">
     <div class="column is-4">
+        <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"
+              hx-target="#change_system_form"
+              hx-select="#change_system_form"
+              hx-swap="outerHTML"
+              hx-confirm="By changing the system, all previous system data (skills, classes, and backgrounds) will be lost. Are you sure?">
+            <div class="row ">
+                <div class="column">
+                    <h4>Change System</h4>
+                    <div class="select">
+                        <select class='has-bg-light' name="system">
+                            {% for k, v in obj.SYSTEMS.items() %}
+                            <option value="{{k}}" {% if v==obj.system.__class__ %} selected {% endif
+                                    %}>
+                                {{k | title}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-full">
+                    <input class="button is-primary" type="submit" value="change">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="column">
         <h4>Add Users</h4>
         <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
               hx-target="closest .row"
@@ -189,8 +215,6 @@
                 </div>
             </div>
         </form>
-    </div>
-    <div class="column">
         <div class="panel has-bg-primary is-small">
             <div class="row">
                 <div class="column">

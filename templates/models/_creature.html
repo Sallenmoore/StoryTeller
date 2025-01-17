@@ -29,9 +29,24 @@
     </div>
 </div>
 <div class="row has-space-around">
+    {% for skill, val in obj.skills.items() %}
+
+    <div class="column is-1 is-mobile-3">
+        <div class="panel has-bg-screen">
+            <h5 class='has-text-center'>{{skill}}</h5>
+            <p class='has-text-center'>{{val}}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="row has-space-around">
     <div class="column inputlabel is-shrink">
         <h5 class='has-text-dark'>HP</h5>
         <p>{{obj.hitpoints}}</p>
+    </div>
+    <div class="column inputlabel is-shrink">
+        <h5 class='has-text-dark'>AC</h5>
+        <p>{{obj.ac}}</p>
     </div>
     <div class="column inputlabel is-shrink">
         <h5 class='has-text-dark'>Size</h5>
@@ -94,6 +109,18 @@
         </div>
     </div>
     <div class="row has-space-around">
+        {% for skill, val in obj.skills.items() %}
+        <div class="column is-1 is-mobile-3">
+            <div class="panel has-bg-screen">
+                <h5 class='has-text-center'>{{skill}}</h5>
+                <input class="has-text-center" type="number" value="{{val}}"
+                       name="skills.{{skill}}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+    <div class="row has-space-around">
         <div class="column is-shrink">
             <label class="is-subheading">Group</label>
             <div class="is-select">
@@ -132,6 +159,10 @@
         <div class="column is-shrink">
             <label for="model-hitpoints" class="is-subheading">HP</label>
             <input id="model-hitpoints" type="text" value="{{obj.hitpoints}}" name="hitpoints">
+        </div>
+        <div class="column is-shrink">
+            <label for="model-hitpoints" class="is-subheading">AC</label>
+            <input id="model-hitpoints" type="text" value="{{obj.ac}}" name="ac">
         </div>
         <div class="column is-shrink">
             <label for="model-size" class="is-subheading">Size</label>

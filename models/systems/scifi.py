@@ -2,7 +2,10 @@ from models.systems.basesystem import BaseSystem
 
 
 class SciFiSystem(BaseSystem):
-    # meta = {"collection": "SciFiSystem"}
+    meta = {
+        "allow_inheritance": True,
+        "strict": False,
+    }
     _genre = "Sci-Fi"
 
     _currency = {

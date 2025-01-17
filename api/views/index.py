@@ -14,6 +14,14 @@ from jinja2 import TemplateNotFound
 
 from autonomous import log
 from models.campaign.campaign import Campaign
+from models.systems.fantasy import FantasySystem
+from models.systems.hardboiled import HardboiledSystem
+from models.systems.historical import HistoricalSystem
+from models.systems.horror import HorrorSystem
+from models.systems.postapocalyptic import PostApocalypticSystem
+from models.systems.scifi import SciFiSystem
+from models.systems.swn import StarsWithoutNumber
+from models.systems.western import WesternSystem
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -121,6 +129,15 @@ def campaignmanage(pk, campaignpk=None):
     return "Unauthorized"
 
 
+@index_endpoint.route("/world/<string:pk>/system/update", methods=("POST",))
+def worldsystem(pk):
+    user, obj, world, *_ = _loader()
+    system = world.SYSTEMS.get(request.json.get("system"), None)
+    log()
+    world.set_system(system)
+    return get_template_attribute("shared/_details.html", "details")(user, world)
+
+
 @index_endpoint.route("/world/<string:pk>/delete", methods=("POST",))
 def worlddelete(pk):
     user, *_ = _loader()
@@ -144,6 +161,18 @@ def worlddelete(pk):
 def model(model, pk, page):
     user, obj, *_ = _loader(model=model, pk=pk)
     return get_template(obj, page)(user, obj)
+
+
+@index_endpoint.route(
+    "/card/<string:model>/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def card(model, pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    return get_template_attribute("shared/_display.html", "card")(user, obj)
 
 
 # MARK: Association routes
