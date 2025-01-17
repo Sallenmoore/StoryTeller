@@ -293,6 +293,7 @@ class AutoGM(AutoModel):
                             "importance",
                             "status",
                             "next_steps",
+                            "plot",
                         ],
                         "properties": {
                             "name": {
@@ -330,6 +331,10 @@ class AutoGM(AutoModel):
                             "next_steps": {
                                 "type": "string",
                                 "description": "Markdown description of actions to advance the objective.",
+                            },
+                            "plot": {
+                                "type": "string",
+                                "description": "An outline of the basic plot points for the quest",
                             },
                         },
                     },
@@ -457,7 +462,7 @@ CAMPAIGN SUMMARY
         if party.next_scene.quest_log:
             prompt += f"""
 PLOT LINES AND QUESTS
-- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ''}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
+- {"\n- ".join([f"name: {ass.name}{"\n  - Party's Primary Focus" if ass == party.next_scene.current_quest else ''}\n  - type: {ass.type}\n  - description: {ass.description} \n  - status: {ass.status}\n  - importance: {ass.importance}\n  - plot points outline: {ass.plot}" for ass in party.next_scene.quest_log]) if party.next_scene.quest_log else "None"}
 """
 
         if party.next_scene.places:
@@ -586,8 +591,9 @@ Provide your response in a way that:
 """
         else:
             prompt = f"""
-You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to narrate in the style of George Orwell and Ernest Hemingway a concrete, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to narrate a scene using active language that players can understand quickly. The scene contains concrete consequences from the party's actions in the previous scene while also driving the story forward in ways that are surprising yet logical, consistent, and grounded in the game's established lore. Ensure that your response adheres to the following guidelines:
+You are an expert AI Game Master for an ongoing {self.world.genre} tabletop roleplaying game. Your primary objective is to narrate, in the terse style of George Orwell and Ernest Hemingway, a concrete, immersive, and interactive description for the next event, scene, or combat round in a game session. The goal is to narrate a scene using active language that players can understand quickly. Ensure that your response adheres to the following guidelines:
 
+- PROGRESSION: Ensure the scene logically follows previous events and advances the story toward one of the next active quest plot points.
 - INTEGRATION: Incorporate elements and logical consequences from previous events, each player's most recent message and roll, and lore from the uploaded file.
 - CONSISTENCY: Maintain alignment with the previous scene's events as well as the game's tone, pacing, and narrative style.
 - ATMOSPHERE: Give a vague description of the overall scene, followed by detailed, concrete, and vivid imagery of any important elements in the scene.
@@ -744,6 +750,7 @@ ROLL RESULT
                     quest.importance = q.get("importance")
                     quest.status = q["status"]
                     quest.next_steps = q["next_steps"]
+                    quest.plot = q["plot"]
                 else:
                     quest = AutoGMQuest(
                         name=q["name"],
@@ -752,6 +759,7 @@ ROLL RESULT
                         status=q["status"],
                         next_steps=q["next_steps"],
                         importance=q.get("importance"),
+                        plot=q.get("plot"),
                     )
                     party.next_scene.quest_log += [quest]
                 quest.save()

@@ -850,53 +850,18 @@
             <div class="row">
                 <div class="column is-full">
                     <div class="panel has-bg-muted" style=' width:40%; float:left;'>
-                        <div class="row">
-                            <div class="column is-full">
-                                <div class="row has-space-around">
-                                    {% for ags in party.autogm_summary[-2:] %}
-                                    {% if ags.image %}
-                                    <div class="column is-6">
-                                        <div class="image">
-                                            <img src="{{ags.image.url(size=500)}}"
-                                                 loading="lazy"
-                                                 alt="{{party.name}}" />
-                                        </div>
-                                    </div>
-                                    {% endif%}
-                                    {% endfor %}
+                        <div class="row has-space-around">
+                            {% for ags in party.autogm_summary[-7:] %}
+                            {% if ags.image %}
+                            <div class="column is-6">
+                                <div class="image">
+                                    <img src="{{ags.image.url(size=500)}}"
+                                         loading="lazy"
+                                         alt="{{party.name}}" />
                                 </div>
                             </div>
-                            <div class="column is-full">
-                                <div class="row has-space-around">
-                                    {% for ags in party.autogm_summary[-4:-2] %}
-                                    {% if ags.image %}
-                                    <div class="column is-6">
-                                        <div class="image">
-                                            <img src="{{ags.image.url()}}"
-                                                 loading="lazy"
-                                                 alt="{{party.name}}" />
-                                        </div>
-                                    </div>
-                                    {% endif%}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="column is-full">
-                                <div class="row has-space-around">
-                                    {% for ags in party.autogm_summary[-6:-4] %}
-                                    {% if ags.image %}
-                                    <div
-                                         class="column is-6">
-                                        <div class="image">
-                                            <img src="{{ags.image.url()}}"
-                                                 loading="lazy"
-                                                 alt="{{party.name}}" />
-                                        </div>
-                                    </div>
-                                    {% endif%}
-                                    {% endfor %}
-                                </div>
-                            </div>
+                            {% endif%}
+                            {% endfor %}
                         </div>
                     </div>
                     <div class='generated-text-lightbg'>
