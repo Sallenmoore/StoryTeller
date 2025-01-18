@@ -27,7 +27,7 @@ class AutoGMInitiativeAction(AutoModel):
     result = StringAttr(default="")
 
     def __str__(self):
-        return f"{"\n".join([f"{k}:  {v}" for k, v in self.action_dict().items()])}"
+        return f"{'\n'.join([f'{k}:  {v}' for k, v in self.action_dict().items()])}"
 
     def is_bonus_action(self):
         return self.type == "bonus"
@@ -167,6 +167,8 @@ class AutoGMInitiative(AutoModel):
             self.save()
 
     def generate_image(self, image_style):
+        if self.image:
+            self.image.delete()
         desc = f"""Based on the below description of the character, setting, and event in a scene of a {self.actor.genre} TTRPG combat round, generate a single graphic novel style panel in the art style of {image_style} for the scene.
 
 DESCRIPTION OF CHARACTERS IN THE SCENE

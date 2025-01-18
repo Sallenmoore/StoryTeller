@@ -157,6 +157,19 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/autogm/<string:pk>/combat", methods=("POST",))
+    def autogm_combat(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_autogm_combat_task,
+                pk,
+            )
+            .result
+        )
+
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/autogm/<string:pk>/combat/next", methods=("POST",))
     def autogm_combat_next(pk):
         party = Faction.get(pk)
@@ -165,27 +178,15 @@ def create_app():
         next = party.next_scene.next_combat_turn()
 
         if not next:
-            party.next_scene.description = f"""
+            party.last_scene.description = f"""
 {party.last_scene.current_combat_turn.description}
 
 Combat Ends, and the party investigates the area.
 """
             return autogm(pk)
-        elif next.actor and next.actor.is_player:
-            return get_template_attribute("shared/_tasks.html", "completetask")(
-                url=f"/api/autogm/{party.pk}"
-            )
-        else:
-            task = (
-                AutoTasks()
-                .task(
-                    tasks._generate_autogm_combat_task,
-                    pk,
-                )
-                .result
-            )
-
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return get_template_attribute("shared/_tasks.html", "completetask")(
+            url=f"/api/autogm/{party.pk}"
+        )
 
     @app.route("/generate/audio/<string:pk>", methods=("POST",))
     def create_audio(pk):

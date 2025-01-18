@@ -1262,16 +1262,12 @@
                     hx-target='closest .column'>
                 Run Turn
             </button>
-        </div>
-        {% else %}
-        <div class="column is-3">
             <button class='button is-full has-bg-screen'
                     hx-post='/task/generate/autogm/{{party.pk}}/combat/next'
                     hx-target='closest .column'
                     hx-confirm='This will end your turn. Are you sure?'>
-                {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} Next
-                Turn {%
-                endif %}
+                {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} End
+                Turn {% endif %}
             </button>
         </div>
         {% endif %}

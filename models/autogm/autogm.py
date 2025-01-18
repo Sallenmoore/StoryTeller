@@ -893,104 +893,92 @@ ROLL REQUIRED
             raise ValueError("No combat scene to run.")
         if not party.next_scene.combatants:
             raise ValueError("No combatants in the scene.")
-
-        prompt = f"""
-# SCENE
-
-{BeautifulSoup(party.next_scene.description, "html.parser").get_text()}
-
-"""
-
-        if party.next_scene.places:
-            place = party.next_scene.places[0]
-            prompt += f"""
-## LOCATION
-
-- name: {place.name}
-- desciption: {place.description_summary}
-
-"""
-
-        if party.next_scene.initiative.allies:
-            allies = [
-                a
-                for a in party.next_scene.initiative.order
-                if a.actor in party.allies and a.hp > 0
-            ]
-            prompt += f"""
-## ALLIED NPCS
-
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies])}
-
-"""
-
-        if party.next_scene.initiative.combatants:
-            combatants = [
-                a
-                for a in party.next_scene.initiative.order
-                if a.actor in party.next_scene.combatants and a.hp > 0
-            ]
-            prompt += f"""
-## OPPONENTS
-
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants])}
-
-"""
         ondeck = party.next_scene.current_combat_turn()
-        # log(ondeck.movement, _print=True)
-        if pcs := [
-            a for a in party.next_scene.initiative.order if a.actor in party.players
-        ]:
-            prompt += f"""
-## PARTY PLAYER CHARACTERS
+        if not (ondeck.actor.model_name() == "Character" and ondeck.actor.is_player):
+            prompt = f"""
+    # SCENE
 
-- {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp}\n  - Description: {ass.actor.age}, {ass.actor.gender}, {(ass.actor.species,)}{ass.actor.description_summary}" for ass in pcs])}
+    {BeautifulSoup(party.next_scene.description, "html.parser").get_text()}
 
----
+    """
 
-{ondeck.actor.name}'S [{ondeck.actor.pk}] IS NEXT IN COMBAT:
+            if party.next_scene.places:
+                place = party.next_scene.places[0]
+                prompt += f"""
+    ## LOCATION
 
-## {ondeck.actor.name}'S ABILITIES
+    - name: {place.name}
+    - desciption: {place.description_summary}
 
-{"\n- ".join([str(a) for a in ondeck.actor.abilities])}
-"""
-        log(
-            ondeck.actor.name,
-            ondeck.action,
-            ondeck.bonus_action,
-            _print=True,
-        )
-        if ondeck.actor.model_name() == "Character" and ondeck.actor.is_player:
-            prompt += f"""
-## {ondeck.actor.name}'S ACTION
+    """
 
-- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.action.action_dict().items()])}
+            if party.next_scene.initiative.allies:
+                allies = [
+                    a
+                    for a in party.next_scene.initiative.order
+                    if a.actor in party.allies and a.hp > 0
+                ]
+                prompt += f"""
+    ## ALLIED NPCS
 
-## {ondeck.actor.name}'S BONUS ACTION
+    - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in allies])}
 
-- {"\n- ".join([f"{key}: {val}" for key, val in ondeck.bonus_action.action_dict().items()])}
+    """
 
-## {ondeck.actor.name}'S MOVEMENT
+            if party.next_scene.initiative.combatants:
+                combatants = [
+                    a
+                    for a in party.next_scene.initiative.order
+                    if a.actor in party.next_scene.combatants and a.hp > 0
+                ]
+                prompt += f"""
+    ## OPPONENTS
 
-{ondeck.movement}
+    - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants])}
 
-"""
-        log(prompt, _print=True)
-        response = self.gm.generate(
-            prompt,
-            self._combat_funcobj,
-        )
-        log(json.dumps(response, indent=4), _print=True)
-        ondeck.description = response["description"]
-        ondeck.movement = response["movement"]
-        ondeck.save()
-        action = response["action"]
-        ondeck.add_action(**action)
-        bonus_action = response["bonus_action"]
-        ondeck.add_action(**bonus_action, bonus=True)
+    """
+
+            # log(ondeck.movement, _print=True)
+            if pcs := [
+                a for a in party.next_scene.initiative.order if a.actor in party.players
+            ]:
+                prompt += f"""
+    ## PARTY PLAYER CHARACTERS
+
+    - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp}\n  - Description: {ass.actor.age}, {ass.actor.gender}, {(ass.actor.species,)}{ass.actor.description_summary}" for ass in pcs])}
+
+    ---
+
+    {ondeck.actor.name}'S [{ondeck.actor.pk}] IS NEXT IN COMBAT:
+
+    ## {ondeck.actor.name}'S ABILITIES
+
+    {"\n- ".join([str(a) for a in ondeck.actor.abilities])}
+    """
+            log(
+                ondeck.actor.name,
+                ondeck.action,
+                ondeck.bonus_action,
+                _print=True,
+            )
+
+            log(prompt, _print=True)
+            response = self.gm.generate(
+                prompt,
+                self._combat_funcobj,
+            )
+            log(json.dumps(response, indent=4), _print=True)
+            ondeck.description = response["description"]
+            ondeck.movement = response["movement"]
+            ondeck.save()
+            action = response["action"]
+            ondeck.add_action(**action)
+            bonus_action = response["bonus_action"]
+            ondeck.add_action(**bonus_action, bonus=True)
         ondeck.generate_audio(self.voice)
         if not ondeck.image:
             ondeck.generate_image(party.next_scene.image_style)
+        return ondeck
 
     ############################ End Campaign #############################
     def end(self, party):
