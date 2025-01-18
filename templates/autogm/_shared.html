@@ -64,7 +64,9 @@
     <div id='auto-gm-container' class="row" style='position: relative;'>
         <div id="autogm-scene-container" class="column is-full">
             <section class="section is-small">
-                {% if not party.next_scene.gm_ready %}
+                {% if party.next_scene.type == 'combat' %}
+                {{scene_combat(user, world, party)}}
+                {% elif not party.next_scene.gm_ready %}
                 {{autogm_gm_session(user, world, party)}}
                 {% elif not party.ready %}
                 {{autogm_party_session(user, world, party)}}
@@ -776,70 +778,505 @@
     </div>
     {% endif %}
     {% if party.next_scene.quest_log %}
-    <div id="scene_quest_log" class='column is-full'>
-        <h3 class='has-text-center has-text-dark'> Quest Log </h3>
-        <div class="panel has-bg-white has-text-primary" style='border-top-left-radius: 0;
-    border-top-right-radius:0;'>
+    {{scene_quest_log(user, world, party)}}
+    {% endif %}
+</div>
+{{ autogm_submit_session(user, world, party) }}
+{%- endmacro %}
 
-            {% for quest in party.next_scene.quest_log %}
-            <div class="row has-space-between"
-                 onclick='this.querySelector("#quest-{{quest.pk}}").classList.toggle("is-hidden");'>
-                <div class="column is-shrink">
-                    {% if party.next_scene.current_quest == quest%}
-                    <span class='tag is-muted'>
-                        Current Quest
-                    </span>
-                    {% else %}
-                    <button class='button is-small has-bg-screen'
-                            hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
-                            hx-target='#scene_quest_log'
-                            hx-select='#scene_quest_log' hx-swap='outerHTML'>
-                        Set as Current Quest
-                    </button>
-                    {% endif %}
+
+{% macro scene_combat(user, world, party) -%}
+<section class="section is-small">
+    <h2 class='has-text-center has-text-primary'>Combat Initiative</h2>
+    <div class="panel has-bg-white">
+        {% if party.next_scene.current_combat_turn().description %}
+        <div class='row'>
+            <div class="column generated-text-lightbg" style='padding: 0.5rem;'>
+                <button class="button has-text-muted">
+                    <iconify-icon icon="mdi:speaking"
+                                  width="2rem"></iconify-icon>
+                </button>
+                {{party.next_scene.current_combat_turn().description | safe}}
+            </div>
+            {% if party.next_scene.initiative.current_combat_turn().image %}
+            <div class="column is-shrink">
+                <div class="image is-extra-large">
+                    <img
+                         src="{{party.last_scene.initiative.current_combat_turn().image.url()}}">
                 </div>
-                <div class="column is-shrink has-text-center is-vertically-centered">
-                    <h3 class="has-text-primary has-text-center">
-                        {{quest.name}}
-                    </h3>
-                    <h6 class="has-text-primary has-text-center">{{quest.status | title}}</h6>
-                </div>
-                <div class="column is-shrink is-vertically-centered">
-                    <button class='button is-small has-bg-dark-grey'
-                            hx-post='/api/autogm/{{party.pk}}/quest/delete/{{quest.pk}}'
-                            hx-target='closest .row' hx-swap='delete'>
-                        Remove Quest
-                    </button>
-                </div>
-                <div id="quest-{{quest.pk}}"
-                     class="column is-full is-vertically-centered is-hidden">
-                    <div class="row">
-                        <div class="column has-text-primary">
-                            <h5 class="has-text-primary has-text-center">Objective</h5>
-                            <div class="panel has-bg-muted">
-                                {{quest.description | safe}}
-                            </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+    <div class="panel has-no-padding has-bg-screen"
+         style='z-index:100; position: sticky; top:0;'>
+        <a style='z-index:101; position: absolute; top:0;'
+           onclick="toggleinitdetails(this);">
+            {{icon_components.dropdownarrow(size="3rem")}}
+        </a>
+        <script>
+            function toggleinitdetails(elem) {
+                document.querySelectorAll('.initiative-details').forEach((elem) => {
+                    elem.classList.toggle('is-hidden');
+                });
+                if (elem.innerHTML.includes('up')) {
+                    elem.innerHTML = `{{icon_components.dropuparrow(size='3rem')}}`;
+                } else {
+                    `{{icon_components.dropdownarrow(size='3rem')}}`;
+                }
+            }
+        </script>
+        <div id="player-card-panels" class="row has-space-around">
+            {% for iniplayer in party.last_scene.initiative.order %}
+            <div id="player-{{iniplayer.pk}}-card-container"
+                 class="column is-2"
+                 {% if party.last_scene.current_combat_turn()==iniplayer %}
+                 style='border: solid 2px rgb(114, 17, 17);'
+                 {% endif %}>
+                <div class="panel has-bg-primary is-full">
+                    <div class="row" style='position: relative;'>
+                        <div class="column is-shrink has-bg-screen"
+                             style='position:absolute; top: 0; right: 0; z-index:100;'>
+                            <h6 class='has-text-center'>AC: {{iniplayer.actor.ac}}</h6>
                         </div>
-                        <div class="column">
-                            <h5 class="has-text-primary has-text-center">Importance</h5>
-                            <div class="panel has-bg-muted">{{quest.importance | safe}}</div>
+                        <div class="column is-shrink has-bg-screen"
+                             style='position:absolute; top: 0; left: 0; z-index:100;'>
+                            <h6 class='has-text-light'>
+                                {{party.last_scene.initiative_index(iniplayer)}}
+                            </h6>
                         </div>
                         <div class="column is-full">
-                            <h5 class="has-text-primary has-text-center">Next Actions</h5>
-                            <div class='panel'>
-                                <p class="has-text-white">{{quest.next_steps | safe}}</p>
+                            {{display_components.object_display(iniplayer.actor, dim=250, type=False)}}
+                        </div>
+                        <div class="column is-full initiative-details is-hidden">
+                            <div class="row has-centered">
+                                <div class="column is-full">
+                                    <h6 class='has-text-muted has-text-center'>Status</h6>
+                                    <textarea hx-post="/api/autogm/{{party.pk}}/status/{{iniplayer.pk}}"
+                                              hx-trigger='input delay:500ms'
+                                              hx-swap='none'
+                                              class="has-bg-white" name='status'
+                                              style='width:100%; height: 3rem;'>{{iniplayer.status}}</textarea>
+                                </div>
+                                <div class="column">
+                                    <div class="row">
+                                        <div class="column is-6 is-vertically-centered inputlabel">
+                                            <h6 class='has-text-center'>HP</h6>
+                                            <input class="has-text-center has-text-dark "
+                                                   name='current_hitpoints'
+                                                   style='font-size: 1.25rem;'
+                                                   value="{{iniplayer.hp}}"
+                                                   hx-post='/api/autogm/{{party.pk}}/combat/{{iniplayer.pk}}/hitpoints'
+                                                   hx-trigger='input delay:500ms'
+                                                   hx-swap='none' />
+                                        </div>
+                                        <div class="column is-shrink is-end is-vertically-centered">
+                                            <h6 class='has-text-right'>Max</h6>
+                                            <p class='has-text-dark'>
+                                                / {{iniplayer.actor.hitpoints}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <hr>
             {% endfor %}
         </div>
     </div>
-    {% endif %}
-</div>
-{{ autogm_submit_session(user, world, party) }}
+    <hr class='has-bg-muted'>
+    {% set actor = party.last_scene.current_combat_turn().actor %}
+    <div id="scene-combat-container" class="row has-space-around">
+        <div class="column is-4">
+            <div class="row">
+                <div class="column is-full" style='position: relative;'>
+                    <div
+                         class="is-hidden panel has-bg-screen has-text-light-grey has-text-center"
+                         style='z-index:1001;width:50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>
+                        <span id="dice_roll_result"></span>
+                    </div>
+                    {{scene_player_card(user, party, actor)}}
+                </div>
+            </div>
+        </div>
+        <div class="column is-8">
+            <div class="row">
+                <div class="column is-full">
+                    <div class="container">
+                        <div class="row has-centered">
+                            <div class="column">
+                                <div class="panel has-bg-screen">
+                                    <div class="row has-centered">
+                                        <div class="column is-shrink">
+                                            <h4><iconify-icon class="has-text-light"
+                                                              icon="arcticons:dice-1"
+                                                              width="2rem"></iconify-icon></h4>
+                                        </div>
+                                        <div class="column is-3 is-vertically-centered">
+                                            <h5><iconify-icon icon="f7:number"
+                                                              width="1rem"></iconify-icon> Dice
+                                            </h5>
+                                            <input class="has-bg-muted has-text-center"
+                                                   type="number" id="numDice" min="1"
+                                                   value="1">
+                                        </div>
+                                        <div class="column is-shrink is-vertically-centered">
+                                            <h5>Dice Type</h5>
+                                            <div class="select">
+                                                <select class="has-text-center has-bg-light-grey"
+                                                        id="typeDice">
+                                                    <option value="20" selected>D20</option>
+                                                    <option value="4">D4</option>
+                                                    <option value="6">D6</option>
+                                                    <option value="8">D8</option>
+                                                    <option value="10">D10</option>
+                                                    <option value="12">D12</option>
+                                                    <option value="100">D100</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="column is-3 is-vertically-centered">
+                                            <h5>Modifier</h5>
+                                            <input class="has-text-center has-bg-muted"
+                                                   type="text" id="bonus" maxlength="4"
+                                                   value="+0">
+                                        </div>
+                                    </div>
+                                    <div class="row has-centered">
+                                        <div class="column">
+                                            <button class=" button is-primary is-small is-full"
+                                                    onclick="rollDice();">Roll</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function rollDice() {
+                            const numDice = parseInt(document.getElementById('numDice').value, 10);
+                            const typeDice = parseInt(document.getElementById('typeDice').value, 10);
+                            var bonus = parseInt(document.getElementById('bonus').value, 10);
+
+                            if (numDice <= 0 || typeDice <= 0) {
+                                document.getElementById('dice_roll_result').textContent = 'Please enter valid inputs.';
+                                return;
+                            }
+
+                            let total = 0;
+                            let rolls = [];
+
+                            for (let i = 0; i < numDice; i++) {
+                                const roll = Math.floor(Math.random() * typeDice) + 1;
+                                rolls.push(roll);
+                                total += roll;
+                            }
+
+                            total += bonus;
+
+                            document.getElementById('dice_roll_result').innerHTML = `<h4 class="has-text-center">Rolls: [${rolls.join(', ')}] + Bonus: ${bonus} </h4> <h1 class="has-text-center"> ${total} </h1>`;
+                            document.getElementById('dice_roll_result').parentNode.classList.remove('is-hidden');
+                        }
+                    </script>
+                </div>
+            </div>
+            <form id="scene-combat-update" hx-post='/api/autogm/{{party.pk}}/combat/update'
+                  hx-trigger="input delay:500ms consume" hx-swap='none'>
+                <div class="row has-space-around">
+                    <div class="column">
+                        <h4 class='has-text-dark has-text-center'>Action</h4>
+                        <textarea class="has-bg-white" id="initiative-action-description"
+                                  name='action-description'
+                                  style='height: 5rem; padding: 1rem;'
+                                  {% if not actor.is_player %} readonly {% endif %}>
+                        {{party.last_scene.current_combat_turn().action.description}}
+                        </textarea>
+                        <div class="row has-space-around">
+                            <div class="column is-2 inputlabel">
+                                <h6 class='has-text-primary'>Attack Roll</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='action_attack_roll'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif %}
+                                       value='{{party.last_scene.current_combat_turn().action.attack_roll}}'>
+                            </div>
+                            <div class="column  is-2 inputlabel">
+                                <h6 class='has-text-primary'>Damage Roll</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='action_dmg_roll'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().action.damage_roll}}'>
+                            </div>
+                            <div class="column  is-2 inputlabel">
+                                <h6 class='has-text-primary'>Saving Throw</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='action_saving_throw'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().action.saving_throw}}'>
+                            </div>
+                            <div class="column  is-2 inputlabel">
+                                <h6 class='has-text-primary'>Skill Check</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='action_skill_check'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().action.skill_check}}'>
+                            </div>
+                            <div class="column is-3">
+                                <h6 class='has-text-primary'>Target</h6>
+                                <div class='select'>
+                                    <select name='action_target'
+                                            {% if not actor.is_player %}
+                                            disabled {% endif
+                                            %}>
+                                        {% for target in party.last_scene.initiative.order
+                                        %}
+                                        <option value='{{target.pk}}' {%if
+                                                target.actor and
+                                                party.last_scene.current_combat_turn().action.target
+                                                and
+                                                party.last_scene.current_combat_turn().action.target==target.actor
+                                                %} selected {% endif %}>
+                                            {{target.actor.name}}
+                                            [{{party.last_scene.initiative_index(target)}}]
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        {% if actor.is_player %}
+                        <div class="panel has-bg-muted">
+                            <h6 class='has-text-primary has-text-center'>Available Abilities
+                            </h6>
+                            <div class="row has-space-around">
+                                {% for ability in actor.abilities %}
+                                {% if not ability.action or"main" in ability.action %}
+                                <div class="column is-shrink">
+                                    <h6 class="has-text-dark"
+                                        onclick='this.nextElementSibling.classList.add("is-active");'>
+                                        {{ability.name}}
+                                    </h6>
+                                    <div class="modal is-small"
+                                         onclick='event.preventDefault(); this.classList.remove("is-active");'>
+                                        <div class="modal__background"></div>
+                                        <div class="modal__content">
+                                            <button class="button is-full"
+                                                    onclick="setactionability('{{ability.name}}');">
+                                                Use
+                                            </button>
+                                            <h3 class='has-text-dark'>{{ability.name}}</h3>
+                                            {{ability.description | safe}}
+                                            <div class="row">
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-white">
+                                                        <h4>Effects</h4>
+                                                        {{ability.effects | safe}}
+                                                    </div>
+                                                </div>
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-light">
+                                                        <h4>Duration</h4>
+                                                        {{ability.duration | safe}}
+                                                    </div>
+                                                </div>
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-muted">
+                                                        <h4>Roll Requirements</h4>
+                                                        {{ability.dice_roll | safe}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                <script>
+                                    function setactionability(name) {
+                                        document.querySelector('#initiative-action-description').value = `Uses ${name}`;
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="column is-full">
+                        <h4 class='has-text-dark has-text-center'>Bonus Action</h4>
+                        <textarea id="initiative-bonus-action-description" class="has-bg-white"
+                                  name='bonus_action'
+                                  style='height: 5rem;padding: 1rem;'
+                                  {% if not actor.is_player %} readonly {%
+                                  endif
+                                  %}>{{party.last_scene.current_combat_turn().bonus_action.description}}</textarea>
+                        <div class="row ">
+                            <div class="column is-2 inputlabel">
+                                <h6 class='has-text-primary'>Attack Roll</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='bonus_action_attack_roll'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().bonus_action.attack_roll}}'>
+                            </div>
+                            <div class="column is-2 inputlabel">
+                                <h6 class='has-text-primary'>Damage Roll</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='bonus_action_dmg_roll'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().bonus_action.damage_roll}}'>
+                            </div>
+                            <div class="column is-2 inputlabel">
+                                <h6 class='has-text-primary'>Saving Throw</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='bonus_action_saving_throw'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
+                            </div>
+                            <div class="column is-2 inputlabel">
+                                <h6 class='has-text-primary'>Skill Check</h6>
+                                <input class="has-text-primary"
+                                       style='font-size: 1.5rem;'
+                                       name='bonus_action_skill_check'
+                                       {% if not actor.is_player %} readonly
+                                       {% endif
+                                       %}
+                                       value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
+                            </div>
+                            <div class="column is-3">
+                                <h6 class='has-text-primary'>Target</h6>
+                                <div class='select'>
+                                    <select name='bonus_action_target'
+                                            {% if not actor.is_player %}
+                                            disabled {% endif
+                                            %}>
+                                        {% for target in party.last_scene.initiative.order
+                                        %}
+                                        <option value='{{target.pk}}' {%if
+                                                target.actor and
+                                                party.last_scene.current_combat_turn().bonus_action.target
+                                                and
+                                                party.last_scene.current_combat_turn().bonus_action.target==target.actor
+                                                %} selected {% endif %}>
+                                            {{target.actor.name}}
+                                            [{{party.last_scene.initiative_index(target)}}]
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% if actor.is_player %}
+                        <hr>
+                        <div class="panel has-bg-muted">
+                            <h6 class='has-text-primary has-text-center'>Available Abilities
+                            </h6>
+                            <div class="row has-space-around">
+                                {% for ability in actor.abilities %}
+                                {% if not ability.action or"bonus" in ability.action %}
+                                <div class="column is-shrink">
+                                    <h6 class="has-text-dark"
+                                        onclick='this.nextElementSibling.classList.add("is-active");'>
+                                        {{ability.name}}
+                                    </h6>
+                                    <div class="modal is-small"
+                                         onclick='event.preventDefault(); this.classList.remove("is-active");'>
+                                        <div class="modal__background"></div>
+                                        <div class="modal__content">
+                                            <button class="button is-full"
+                                                    onclick="setbonusactionability('{{ability.name}}')">
+                                                Use
+                                            </button>
+                                            <h3 class='has-text-dark'>{{ability.name}}</h3>
+                                            {{ability.description | safe}}
+                                            <div class="row">
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-white">
+                                                        <h4>Effects</h4>
+                                                        {{ability.effects | safe}}
+                                                    </div>
+                                                </div>
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-light">
+                                                        <h4>Duration</h4>
+                                                        {{ability.duration | safe}}
+                                                    </div>
+                                                </div>
+                                                <div class="column">
+                                                    <div class="panel is-full has-text-muted">
+                                                        <h4>Roll Requirements</h4>
+                                                        {{ability.dice_roll | safe}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                <script>
+                                    function setbonusactionability(name) {
+                                        document.querySelector('#initiative-bonus-action-description').innerHTML = `Uses ${name}`;
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="column is-full">
+                        <h4 class='has-text-dark has-text-center'>Movement</h4>
+                        <textarea class="has-bg-white" name='movement'
+                                  style='height: 5rem;padding: 1rem;'
+                                  {% if not actor.is_player %} readonly {%
+                                  endif
+                                  %}>{{party.last_scene.current_combat_turn().movement}}</textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% if not party.last_scene.current_combat_turn().ready %}
+        <div class="column is-4">
+            <button class="button is-full has-bg-muted has-text-dark"
+                    hx-post='/task/generate/autogm/{{party.pk}}/combat'
+                    hx-target='closest .column'>
+                Run Turn
+            </button>
+        </div>
+        {% else %}
+        <div class="column is-3">
+            <button class='button is-full has-bg-screen'
+                    hx-post='/task/generate/autogm/{{party.pk}}/combat/next'
+                    hx-target='closest .column'
+                    hx-confirm='This will end your turn. Are you sure?'>
+                {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} Next
+                Turn {%
+                endif %}
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {%- endmacro %}
 
 
@@ -1072,6 +1509,7 @@
                 </div>
             </div>
         </div>
+        {% if party.next_scene.type != 'combat'%}
         <div class="column">
             <div class="tabs has-bg-muted">
                 <ul class="tabs__list has-centered has-space-around has-text-primary">
@@ -1257,6 +1695,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% endif %}
     </div>
 </div>
@@ -1573,7 +2012,7 @@ border-top-right-radius:0;'>
                 </span>
                 {% else %}
                 <button class='button is-small has-bg-screen'
-                        hx-post='/api/autogm/party/{{party.pk}}/quest/current/{{quest.pk}}'
+                        hx-post='/api/autogm/{{party.pk}}/quest/current/{{quest.pk}}'
                         hx-target='#scene_quest_log'
                         hx-select='#scene_quest_log' hx-swap='outerHTML'>
                     Set as Current Quest
@@ -1656,497 +2095,6 @@ border-top-right-radius:0;'>
         </div>
     </div>
 </div>
-{%- endmacro %}
-
-
-{% macro scene_combat(user, world, party) -%}
-<section class="section is-small">
-    <h2 class='has-text-center has-text-primary'>Combat Initiative</h2>
-    <div class="panel has-bg-white">
-        {% if party.last_scene.current_combat_turn().description %}
-        <div class='row'>
-            <div class="column generated-text-lightbg" style='padding: 0.5rem;'>
-                <button class="button has-text-muted">
-                    <iconify-icon icon="mdi:speaking"
-                                  width="2rem"></iconify-icon>
-                </button>
-                {{party.last_scene.current_combat_turn().description | safe}}
-            </div>
-            {% if party.last_scene.initiative.current_combat_turn().image %}
-            <div class="column is-shrink">
-                <div class="image is-extra-large">
-                    <img
-                         src="{{party.last_scene.initiative.current_combat_turn().image.url()}}">
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
-
-    </div>
-    <div class="panel has-no-padding has-bg-screen"
-         style='z-index:100; position: sticky; top:0;'>
-        <a style='z-index:101; position: absolute; top:0;'
-           onclick="toggleinitdetails(this);">
-            {{icon_components.dropdownarrow(size="3rem")}}
-        </a>
-        <script>
-            function toggleinitdetails(elem) {
-                document.querySelectorAll('.initiative-details').forEach((elem) => {
-                    elem.classList.toggle('is-hidden');
-                });
-                if (elem.innerHTML.includes('up')) {
-                    elem.innerHTML = `{{icon_components.dropuparrow(size='3rem')}}`;
-                } else {
-                    `{{icon_components.dropdownarrow(size='3rem')}}`;
-                }
-            }
-        </script>
-        <div id="player-card-panels" class="row has-space-around">
-            {% for iniplayer in party.last_scene.initiative.order %}
-            <div id="player-{{iniplayer.pk}}-card-container"
-                 class="column is-1"
-                 {% if party.last_scene.current_combat_turn()==iniplayer %}
-                 style='border: solid 2px rgb(114, 17, 17);'
-                 {% endif %}>
-                <div class="row has-bg-primary" style='position: relative;'>
-                    <div class="column is-shrink has-bg-screen"
-                         style='position:absolute; top: 0; right: 0; z-index:100;'>
-                        <h6 class='has-text-center'>AC: {{iniplayer.actor.ac}}</h6>
-                    </div>
-                    <div class="column is-shrink has-bg-screen"
-                         style='position:absolute; top: 0; left: 0; z-index:100;'>
-                        <h6 class='has-text-light'>
-                            {{party.last_scene.initiative_index(iniplayer)}}
-                        </h6>
-                    </div>
-                    <div class="column is-full">
-                        {{display_components.object_display(iniplayer.actor, dim=250, type=False)}}
-                    </div>
-                    <div class="column is-full initiative-details is-hidden">
-                        <div class="row has-centered">
-                            <div class="column is-full">
-                                <h6 class='has-text-muted has-text-center'>Status</h6>
-                                <textarea hx-post="/api/autogm/{{party.pk}}/status/{{iniplayer.pk}}"
-                                          hx-trigger='input delay:500ms'
-                                          hx-swap='none'
-                                          class="has-bg-white" name='status'
-                                          style='width:100%; height: 3rem;'>{{iniplayer.status}}</textarea>
-                            </div>
-                            <div class="column">
-                                <div class="row">
-                                    <div class="column is-6 is-vertically-centered inputlabel">
-                                        <h6 class='has-text-center'>HP</h6>
-                                        <input class="has-text-center has-text-dark "
-                                               name='current_hitpoints'
-                                               style='font-size: 1.25rem;'
-                                               value="{{iniplayer.hp}}"
-                                               hx-post='/api/autogm/{{party.pk}}/combat/{{iniplayer.pk}}/hitpoints'
-                                               hx-trigger='input delay:500ms'
-                                               hx-swap='none' />
-                                    </div>
-                                    <div class="column is-shrink is-end is-vertically-centered">
-                                        <h6 class='has-text-right'>Max</h6>
-                                        <p class='has-text-dark'>
-                                            / {{iniplayer.actor.hitpoints}}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    <hr class='has-bg-muted'>
-    {% set actor = party.last_scene.current_combat_turn().actor %}
-    <div id="scene-combat-container" class="row has-space-around">
-        <div class="column is-4">
-            <div class="row">
-                <div class="column is-full">
-                    <div class="container">
-                        <div class="row has-centered">
-                            <div class="column">
-                                <div class="panel has-bg-screen">
-                                    <div class="row has-centered">
-                                        <div class="column is-shrink">
-                                            <h4><iconify-icon class="has-text-light"
-                                                              icon="arcticons:dice-1"
-                                                              width="2rem"></iconify-icon></h4>
-                                        </div>
-                                        <div class="column is-3 is-vertically-centered">
-                                            <h5><iconify-icon icon="f7:number"
-                                                              width="1rem"></iconify-icon> Dice
-                                            </h5>
-                                            <input class="has-bg-muted has-text-center"
-                                                   type="number" id="numDice" min="1"
-                                                   value="1">
-                                        </div>
-                                        <div class="column is-shrink is-vertically-centered">
-                                            <h5>Dice Type</h5>
-                                            <div class="select">
-                                                <select class="has-text-center has-bg-light-grey"
-                                                        id="typeDice">
-                                                    <option value="20" selected>D20</option>
-                                                    <option value="4">D4</option>
-                                                    <option value="6">D6</option>
-                                                    <option value="8">D8</option>
-                                                    <option value="10">D10</option>
-                                                    <option value="12">D12</option>
-                                                    <option value="100">D100</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="column is-3 is-vertically-centered">
-                                            <h5>Modifier</h5>
-                                            <input class="has-text-center has-bg-muted"
-                                                   type="text" id="bonus" maxlength="4"
-                                                   value="+0">
-                                        </div>
-                                    </div>
-                                    <div class="row has-centered">
-                                        <div class="column">
-                                            <button class=" button is-primary is-small is-full"
-                                                    onclick="rollDice();">Roll</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <script>
-                        function rollDice() {
-                            const numDice = parseInt(document.getElementById('numDice').value, 10);
-                            const typeDice = parseInt(document.getElementById('typeDice').value, 10);
-                            var bonus = parseInt(document.getElementById('bonus').value, 10);
-
-                            if (numDice <= 0 || typeDice <= 0) {
-                                document.getElementById('dice_roll_result').textContent = 'Please enter valid inputs.';
-                                return;
-                            }
-
-                            let total = 0;
-                            let rolls = [];
-
-                            for (let i = 0; i < numDice; i++) {
-                                const roll = Math.floor(Math.random() * typeDice) + 1;
-                                rolls.push(roll);
-                                total += roll;
-                            }
-
-                            total += bonus;
-
-                            document.getElementById('dice_roll_result').innerHTML = `<h4 class="has-text-center">Rolls: [${rolls.join(', ')}] + Bonus: ${bonus} </h4> <h1 class="has-text-center"> ${total} </h1>`;
-                            document.getElementById('dice_roll_result').parentNode.classList.remove('is-hidden');
-                        }
-                    </script>
-                </div>
-                <div class="column is-full" style='position: relative;'>
-                    <div
-                         class="is-hidden panel has-bg-screen has-text-light-grey has-text-center"
-                         style='width:50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>
-                        <span id="dice_roll_result"></span>
-                    </div>
-                    {{scene_player_card(user, party, actor)}}
-                </div>
-            </div>
-        </div>
-        <div class="column is-8">
-            <form id="scene-combat-update" hx-post='/api/autogm/{{party.pk}}/combat/update'
-                  hx-trigger="input delay:500ms consume" hx-swap='none'>
-                <div class="row has-space-around">
-                    <div class="column">
-                        <h4 class='has-text-dark has-text-center'>Action</h4>
-                        <textarea class="has-bg-white" id="initiative-action-description"
-                                  name='action-description'
-                                  style='height: 5rem; padding: 1rem;'
-                                  {% if not actor.is_player %} readonly {% endif %}>
-                        {{party.last_scene.current_combat_turn().action.description}}
-                        </textarea>
-                        <div class="row has-space-around">
-                            <div class="column is-2 inputlabel">
-                                <h6 class='has-text-primary'>Attack Roll</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='action_attack_roll'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif %}
-                                       value='{{party.last_scene.current_combat_turn().action.attack_roll}}'>
-                            </div>
-                            <div class="column  is-2 inputlabel">
-                                <h6 class='has-text-primary'>Damage Roll</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='action_dmg_roll'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().action.damage_roll}}'>
-                            </div>
-                            <div class="column  is-2 inputlabel">
-                                <h6 class='has-text-primary'>Saving Throw</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='action_saving_throw'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().action.saving_throw}}'>
-                            </div>
-                            <div class="column  is-2 inputlabel">
-                                <h6 class='has-text-primary'>Skill Check</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='action_skill_check'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().action.skill_check}}'>
-                            </div>
-                            <div class="column is-3">
-                                <h6 class='has-text-primary'>Target</h6>
-                                <div class='select'>
-                                    <select name='action_target'
-                                            {% if not actor.is_player %}
-                                            disabled {% endif
-                                            %}>
-                                        {% for target in party.last_scene.initiative.order
-                                        %}
-                                        <option value='{{target.pk}}' {%if
-                                                target.actor and
-                                                party.last_scene.current_combat_turn().action.target
-                                                and
-                                                party.last_scene.current_combat_turn().action.target==target.actor
-                                                %} selected {% endif %}>
-                                            {{target.actor.name}}
-                                            [{{party.last_scene.initiative_index(target)}}]
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        {% if actor.is_player %}
-                        <div class="panel has-bg-muted">
-                            <h6 class='has-text-primary has-text-center'>Available Abilities
-                            </h6>
-                            <div class="row has-space-around">
-                                {% for ability in actor.abilities %}
-                                {% if not ability.action or"main" in ability.action %}
-                                <div class="column is-shrink">
-                                    <h6 class="has-text-dark"
-                                        onclick='this.nextElementSibling.classList.add("is-active");'>
-                                        {{ability.name}}
-                                    </h6>
-                                    <div class="modal is-small"
-                                         onclick='event.preventDefault(); this.classList.remove("is-active");'>
-                                        <div class="modal__background"></div>
-                                        <div class="modal__content">
-                                            <button class="button is-full"
-                                                    onclick="setactionability('{{ability.name}}');">
-                                                Use
-                                            </button>
-                                            <h3 class='has-text-dark'>{{ability.name}}</h3>
-                                            {{ability.description | safe}}
-                                            <div class="row">
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-white">
-                                                        <h4>Effects</h4>
-                                                        {{ability.effects | safe}}
-                                                    </div>
-                                                </div>
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-light">
-                                                        <h4>Duration</h4>
-                                                        {{ability.duration | safe}}
-                                                    </div>
-                                                </div>
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-muted">
-                                                        <h4>Roll Requirements</h4>
-                                                        {{ability.dice_roll | safe}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% endfor %}
-                                <script>
-                                    function setactionability(name) {
-                                        document.querySelector('#initiative-action-description').value = `Uses ${name}`;
-                                    }
-                                </script>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="column">
-                        <h4 class='has-text-dark has-text-center'>Bonus Action</h4>
-                        <textarea id="initiative-bonus-action-description" class="has-bg-white"
-                                  name='bonus_action'
-                                  style='height: 5rem;padding: 1rem;'
-                                  {% if not actor.is_player %} readonly {%
-                                  endif
-                                  %}>{{party.last_scene.current_combat_turn().bonus_action.description}}</textarea>
-                        <div class="row ">
-                            <div class="column is-2 inputlabel">
-                                <h6 class='has-text-primary'>Attack Roll</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='bonus_action_attack_roll'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().bonus_action.attack_roll}}'>
-                            </div>
-                            <div class="column is-2 inputlabel">
-                                <h6 class='has-text-primary'>Damage Roll</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='bonus_action_dmg_roll'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().bonus_action.damage_roll}}'>
-                            </div>
-                            <div class="column is-2 inputlabel">
-                                <h6 class='has-text-primary'>Saving Throw</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='bonus_action_saving_throw'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
-                            </div>
-                            <div class="column is-2 inputlabel">
-                                <h6 class='has-text-primary'>Skill Check</h6>
-                                <input class="has-text-primary"
-                                       style='font-size: 1.5rem;'
-                                       name='bonus_action_skill_check'
-                                       {% if not actor.is_player %} readonly
-                                       {% endif
-                                       %}
-                                       value='{{party.last_scene.current_combat_turn().bonus_action.saving_throw}}'>
-                            </div>
-                            <div class="column is-3">
-                                <h6 class='has-text-primary'>Target</h6>
-                                <div class='select'>
-                                    <select name='bonus_action_target'
-                                            {% if not actor.is_player %}
-                                            disabled {% endif
-                                            %}>
-                                        {% for target in party.last_scene.initiative.order
-                                        %}
-                                        <option value='{{target.pk}}' {%if
-                                                target.actor and
-                                                party.last_scene.current_combat_turn().bonus_action.target
-                                                and
-                                                party.last_scene.current_combat_turn().bonus_action.target==target.actor
-                                                %} selected {% endif %}>
-                                            {{target.actor.name}}
-                                            [{{party.last_scene.initiative_index(target)}}]
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        {% if actor.is_player %}
-                        <hr>
-                        <div class="panel has-bg-muted">
-                            <h6 class='has-text-primary has-text-center'>Available Abilities
-                            </h6>
-                            <div class="row has-space-around">
-                                {% for ability in actor.abilities %}
-                                {% if not ability.action or"bonus" in ability.action %}
-                                <div class="column is-shrink">
-                                    <h6 class="has-text-dark"
-                                        onclick='this.nextElementSibling.classList.add("is-active");'>
-                                        {{ability.name}}
-                                    </h6>
-                                    <div class="modal is-small"
-                                         onclick='event.preventDefault(); this.classList.remove("is-active");'>
-                                        <div class="modal__background"></div>
-                                        <div class="modal__content">
-                                            <button class="button is-full"
-                                                    onclick="setbonusactionability('{{ability.name}}')">
-                                                Use
-                                            </button>
-                                            <h3 class='has-text-dark'>{{ability.name}}</h3>
-                                            {{ability.description | safe}}
-                                            <div class="row">
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-white">
-                                                        <h4>Effects</h4>
-                                                        {{ability.effects | safe}}
-                                                    </div>
-                                                </div>
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-light">
-                                                        <h4>Duration</h4>
-                                                        {{ability.duration | safe}}
-                                                    </div>
-                                                </div>
-                                                <div class="column">
-                                                    <div class="panel is-full has-text-muted">
-                                                        <h4>Roll Requirements</h4>
-                                                        {{ability.dice_roll | safe}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% endfor %}
-                                <script>
-                                    function setbonusactionability(name) {
-                                        document.querySelector('#initiative-bonus-action-description').innerHTML = `Uses ${name}`;
-                                    }
-                                </script>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="column is-full">
-                        <h4 class='has-text-dark has-text-center'>Movement</h4>
-                        <textarea class="has-bg-white" name='movement'
-                                  style='height: 5rem;padding: 1rem;'
-                                  {% if not actor.is_player %} readonly {%
-                                  endif
-                                  %}>{{party.last_scene.current_combat_turn().movement}}</textarea>
-                    </div>
-                </div>
-            </form>
-        </div>
-        {% if not party.last_scene.current_combat_turn().ready %}
-        <div class="column is-4">
-            <button class="button is-full has-bg-muted has-text-dark"
-                    hx-post='/task/generate/autogm/{{party.pk}}/combat'
-                    hx-target='closest .column'>
-                Run Turn
-            </button>
-        </div>
-        {% else %}
-        <div class="column is-3">
-            <button class='button is-full has-bg-screen'
-                    hx-post='/task/generate/autogm/{{party.pk}}/combat/next'
-                    hx-target='closest .column'
-                    hx-confirm='This will end your turn. Are you sure?'>
-                {% if party.last_scene.initiative.combat_ended %} End Combat {% else %} Next
-                Turn {%
-                endif %}
-            </button>
-        </div>
-        {% endif %}
-    </div>
-</section>
 {%- endmacro %}
 
 

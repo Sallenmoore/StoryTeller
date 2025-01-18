@@ -37,9 +37,7 @@ def index(model=None, pk=None):
         if scenario := request.json.get("scenario"):
             party.next_scene.description = markdown.markdown(scenario)
 
-        # return get_template_attribute(
-        #     f"autogm/_shared.html", "autogm_session"
-        # )(user, world, party)
+        log(party.next_scene.type)
     return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
@@ -97,27 +95,6 @@ def submit(pk=None):
     return res
 
 
-# @autogm_endpoint.route("/<string:pk>/<string:playerpk>/ready", methods=("POST",))
-# def ready(pk, playerpk):
-#     party = Faction.get(pk)
-#     player = Character.get(playerpk)
-#     party.next_scene.get_player_message(player).ready = bool(request.json.get("ready"))
-#     party.next_scene.get_player_message(player).save()
-#     log(
-#         [p.ready for p in party.next_scene.player_messages],
-#         party.is_ready(),
-#         party.next_scene.scene_objects(),
-#     )
-#     if party.next_scene.gm_ready and party.ready:
-#         return requests.post(
-#             f"http://tasks:{os.environ.get('COMM_PORT')}/generate/autogm/{party.pk}"
-#         ).text
-#     else:
-#         return get_template_attribute("autogm/_shared.html", "autogm_session")(
-#             party.user, party.world, party
-#         )
-
-
 ## MARK: Update
 ###########################################################
 ##                   Update Routes                       ##
@@ -140,7 +117,7 @@ def scene_update(pk):
         party.next_scene.description = markdown.markdown(desc)
 
     if scene_type := request.json.get("scene_type"):
-        party.next_scene.scene_type = scene_type
+        party.next_scene.type = scene_type
 
     if date := request.json.get("date"):
         party.next_scene.date = date
@@ -190,7 +167,7 @@ def scene_update(pk):
     #     party.is_ready(),
     #     party.next_scene.gm_ready,
     # )
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
@@ -245,7 +222,7 @@ def combatupdate(pk):
         bonus_action_saving_throw=bonus_action_saving_throw,
         bonus_action_skill_check=bonus_action_skill_check,
     )
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
@@ -260,7 +237,7 @@ def autogm_player_current_hp(pk, playerpk):
     if player:
         player.current_hitpoints = int(request.json.get("current_hitpoints"))
         player.save()
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
@@ -273,7 +250,7 @@ def mode(pk=None):
         next_scene = party.get_next_scene()
         next_scene.gm_mode = request.json.get("gmmode")
         next_scene.save()
-    return get_template_attribute(f"autogm/_shared.html", "autogm_session")(
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 

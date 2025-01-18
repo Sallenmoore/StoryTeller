@@ -142,13 +142,12 @@ class Faction(TTRPGObject):
         self.save()
 
     def autogm_combat(self):
-        if self.last_scene.type == "combat":
-            if self.last_scene.initiative.combat_ended:
-                self.gm.run_combat_round(party=self)
-            else:
+        if self.next_scene.type == "combat":
+            if self.next_scene.initiative.combat_ended:
                 self.next_scene.type = "investigation"
                 self.next_scene.save()
-                self.autogm_session()
+            else:
+                self.gm.run_combat_round(party=self)
         else:
             raise ValueError("Invalid Scene Type")
 

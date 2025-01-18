@@ -889,20 +889,20 @@ ROLL REQUIRED
         return party.next_scene
 
     def run_combat_round(self, party):
-        if not party.last_scene:
+        if not party.next_scene:
             raise ValueError("No combat scene to run.")
-        if not party.last_scene.combatants:
+        if not party.next_scene.combatants:
             raise ValueError("No combatants in the scene.")
 
         prompt = f"""
 # SCENE
 
-{BeautifulSoup(party.last_scene.description, "html.parser").get_text()}
+{BeautifulSoup(party.next_scene.description, "html.parser").get_text()}
 
 """
 
-        if party.last_scene.places:
-            place = party.last_scene.places[0]
+        if party.next_scene.places:
+            place = party.next_scene.places[0]
             prompt += f"""
 ## LOCATION
 
@@ -911,10 +911,10 @@ ROLL REQUIRED
 
 """
 
-        if party.last_scene.initiative.allies:
+        if party.next_scene.initiative.allies:
             allies = [
                 a
-                for a in party.last_scene.initiative.order
+                for a in party.next_scene.initiative.order
                 if a.actor in party.allies and a.hp > 0
             ]
             prompt += f"""
@@ -924,11 +924,11 @@ ROLL REQUIRED
 
 """
 
-        if party.last_scene.initiative.combatants:
+        if party.next_scene.initiative.combatants:
             combatants = [
                 a
-                for a in party.last_scene.initiative.order
-                if a.actor in party.last_scene.combatants and a.hp > 0
+                for a in party.next_scene.initiative.order
+                if a.actor in party.next_scene.combatants and a.hp > 0
             ]
             prompt += f"""
 ## OPPONENTS
@@ -936,10 +936,10 @@ ROLL REQUIRED
 - {"\n- ".join([f"name: {ass.actor.name}\n  - pk: {ass.actor.pk} \n  - HP: {ass.hp} \n  - Description: {ass.actor.description_summary}" for ass in combatants])}
 
 """
-        ondeck = party.last_scene.current_combat_turn()
+        ondeck = party.next_scene.current_combat_turn()
         # log(ondeck.movement, _print=True)
         if pcs := [
-            a for a in party.last_scene.initiative.order if a.actor in party.players
+            a for a in party.next_scene.initiative.order if a.actor in party.players
         ]:
             prompt += f"""
 ## PARTY PLAYER CHARACTERS
@@ -990,7 +990,7 @@ ROLL REQUIRED
         ondeck.add_action(**bonus_action, bonus=True)
         ondeck.generate_audio(self.voice)
         if not ondeck.image:
-            ondeck.generate_image(party.last_scene.image_style)
+            ondeck.generate_image(party.next_scene.image_style)
 
     ############################ End Campaign #############################
     def end(self, party):
