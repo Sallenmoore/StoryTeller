@@ -692,6 +692,23 @@ PREVIOUS SCENE
             log(e, "Failed to attach file.", _print=True)
         self.save()
 
+    def run(self, party, pc=None):
+        if not party.next_scene:
+            raise ValueError("No next scene to run.")
+        if not party.next_scene.gm_ready:
+            self._rungm(party)
+        elif pc:
+            self._runpc(party, pc)
+        elif party.ready:
+            for message in party.next_scene.player_messages:
+                message.generate_audio()
+            party.get_next_scene(create=True)
+            party.next_scene.gm_ready = False
+            party.next_scene.is_ready = False
+        party.next_scene.save()
+
+        return party.next_scene
+
     def _rungm(self, party):
         prompt = self.get_gm_prompt(party)
 
@@ -808,7 +825,7 @@ ROLL RESULT
 
         prompt = self.get_pc_prompt(party, pc)
 
-        if party.next_scene.roll_required:
+        if party.next_scene.roll_required and party.next_scene.roll_player:
             prompt += f"""
 
 ROLL REQUIRED
@@ -852,10 +869,12 @@ ROLL REQUIRED
             pc, response["response"], response["intent"], response["emotion"]
         )
 
-        if party.next_scene.roll_required:
-            party.next_scene.roll_result = response["requires_roll"]["result"]
-            party.next_scene.roll_description = response["requires_roll"]["description"]
-            party.next_scene.roll_formula = response["requires_roll"]["formula"]
+        if party.next_scene.roll_required and response.get("requires_roll"):
+            party.next_scene.roll_result = response.get("requires_roll").get("result")
+            party.next_scene.roll_description = response["requires_roll"].get(
+                "description", ""
+            )
+            party.next_scene.roll_formula = response["requires_roll"].get("formula", "")
             if not party.next_scene.roll_result:
                 try:
                     party.next_scene.roll_result = dmtools.roll_dice(
@@ -869,24 +888,6 @@ ROLL REQUIRED
 
         self.update_refs()
         return party.get_next_scene()
-
-    def run(self, party, pc=None):
-        if not party.next_scene:
-            raise ValueError("No next scene to run.")
-
-        if not party.next_scene.gm_ready:
-            self._rungm(party)
-        elif pc:
-            self._runpc(party, pc)
-        elif party.ready:
-            for message in party.next_scene.player_messages:
-                message.generate_audio()
-            party.get_next_scene(create=True)
-            party.next_scene.gm_ready = False
-            party.next_scene.is_ready = False
-        party.next_scene.save()
-
-        return party.next_scene
 
     def run_combat_round(self, party):
         if not party.next_scene:
@@ -916,7 +917,7 @@ ROLL REQUIRED
                 allies = [
                     a
                     for a in party.next_scene.initiative.order
-                    if a.actor in party.allies and a.hp > 0
+                    if a.actor in party.next_scene.initiative.allies and a.hp > 0
                 ]
                 prompt += f"""
     ## ALLIED NPCS

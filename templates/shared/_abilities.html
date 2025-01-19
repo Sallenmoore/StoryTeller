@@ -107,10 +107,10 @@
                                     <select name='abilities[].action'
                                             value="{{ability.action}}">
                                         {%for a in ["main action", "bonus action", "reaction",
-                                        "free
-                                        action",
+                                        "free action",
                                         "passive"] %}
-                                        <option value="{{a}}">{{a}}</option>
+                                        <option value="{{a}}" {% if ability.action==a %} selected {%
+                                                endif %}>{{a}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>

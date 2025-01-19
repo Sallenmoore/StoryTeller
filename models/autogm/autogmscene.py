@@ -27,6 +27,7 @@ from models.ttrpgobject.item import Item
 
 class AutoGMScene(AutoModel):
     gm_ready = BoolAttr(default=False)
+    campaign = ReferenceAttr(choices=["Campaign"])
     type = StringAttr(
         choices=[
             "social",
@@ -517,6 +518,13 @@ SCENE DESCRIPTION
         else:
             self.type = "investigation"
             self.save()
+
+    def remove_initiative(self, cbtpk):
+        for idx, ini in enumerate(self.initiative.order):
+            if str(ini.pk) == str(cbtpk):
+                ini.delete()
+                del self.initiative.order[idx]
+                break
 
     def initiative_index(self, combatant):
         """

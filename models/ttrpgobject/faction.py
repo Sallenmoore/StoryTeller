@@ -11,6 +11,7 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.autogm.autogmscene import AutoGMScene
+from models.campaign.campaign import Campaign
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 from .character import Character
@@ -198,6 +199,7 @@ class Faction(TTRPGObject):
                 self.next_scene.loot = self.last_scene.loot
                 self.next_scene.quest_log = self.last_scene.quest_log
                 self.next_scene.current_quest = self.last_scene.current_quest
+                self.next_scene.campaign = self.last_scene.campaign
 
                 for assoc in self.last_scene.associations:
                     assoc.add_associations(ags.associations)
@@ -207,6 +209,11 @@ class Faction(TTRPGObject):
 
                 self.next_scene.save()
                 # log(next_scene=self.next_scene.gm_mode, _print=True)
+        if not self.next_scene.campaign:
+            self.next_scene.campaign = Campaign(world=self.world)
+            self.next_scene.campaign.save()
+            self.next_scene.campaign.generate_outline()
+            self.next_scene.save()
             self.save()
         return self.next_scene
 

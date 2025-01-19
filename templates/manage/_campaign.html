@@ -90,6 +90,30 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="column is-full">
+            <div class="row has-space-around">
+                <div class="column is-shrink">
+                    <button class="button is-small"
+                            onclick='document.getElementById("campaign_outline").classList.toggle("is-hidden")'>Show
+                        Outline</button>
+                </div>
+                <div class="column  is-shrink">
+                    <button class="button is-small"
+                            hx-post="/task/generate/campaign/{{campaign.pk}}/outline">Generate
+                        Campaign</button>
+                </div>
+            </div>
+        </div>
+        <div class="column is-full is-hidden" id="campaign_outline">
+            <form hx-post="/api/campaign/{{campaign.pk}}/overview"
+                  hx-swap='closest .column'
+                  hx-trigger='input delay:1s, change'>
+                <h4 class='has-text-center has-text-dark'>Campaign Outline</h4>
+                {{form_components.texteditor(user, campaign, 'outline')}}
+            </form>
+        </div>
+    </div>
     <div class="panel has-bg-muted has-text-dark" style='position:relative;'>
         {{campaign.summary | safe}}
         <div style='position: absolute; bottom:0px; right:0px;'>

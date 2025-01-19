@@ -1,5 +1,5 @@
 import markdown
-
+import random
 from autonomous import log
 from autonomous.model.autoattr import (
     BoolAttr,
@@ -36,6 +36,7 @@ class Actor(TTRPGObject):
     voice_description = StringAttr(default="")
     lookalike = StringAttr(default="")
     skills = DictAttr(default={})
+    pc_voice = StringAttr(default="")
 
     _genders = ["male", "female", "non-binary"]
 
@@ -174,6 +175,32 @@ class Actor(TTRPGObject):
     @race.setter
     def race(self, value):
         self.species = value
+
+    @property
+    def voice(self):
+        if not self.pc_voice:
+            _voices = [
+                "alloy",
+                "echo",
+                "fable",
+                "onyx",
+                "nova",
+                "shimmer",
+            ]
+            if self.gender.lower() == "male":
+                if self.age < 30:
+                    self.pc_voice = random.choice(["alloy", "echo", "fable"])
+                else:
+                    self.pc_voice = random.choice(["onyx", "echo"])
+            elif self.gender.lower() == "female":
+                if self.age < 30:
+                    self.pc_voice = random.choice(["nova", "shimmer"])
+                else:
+                    self.pc_voice = random.choice(["fable", "shimmer"])
+            else:
+                self.pc_voice = random.choice(_voices)
+            self.save()
+        return self.pc_voice
 
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj

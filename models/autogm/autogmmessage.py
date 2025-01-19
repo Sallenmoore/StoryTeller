@@ -9,7 +9,6 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
-from models.ttrpgobject.character import Character
 
 
 class AutoGMMessage(AutoModel):
@@ -17,7 +16,7 @@ class AutoGMMessage(AutoModel):
     intent = StringAttr(default="")
     emotion = StringAttr(default="")
     scene = ReferenceAttr(choices=["AutoGMScene"])
-    player = ReferenceAttr(choices=[Character])
+    player = ReferenceAttr(choices=["Character", "Creature"])
     audio = FileAttr()
     ready = BoolAttr(default=False)
 

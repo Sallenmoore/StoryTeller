@@ -176,14 +176,13 @@ def create_app():
         if not party.next_scene.initiative:
             raise ValueError("No Initiative List")
         next = party.next_scene.next_combat_turn()
-
         if not next:
-            party.last_scene.description = f"""
-{party.last_scene.current_combat_turn.description}
+            party.next_scene.description = f"""
+{party.last_scene.current_combat_turn().description}
 
 Combat Ends, and the party investigates the area.
 """
-            return autogm(pk)
+            party.next_scene.save()
         return get_template_attribute("shared/_tasks.html", "completetask")(
             url=f"/api/autogm/{party.pk}"
         )
@@ -208,6 +207,18 @@ Combat Ends, and the party investigates the area.
             AutoTasks()
             .task(
                 tasks._generate_gn_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/campaign/<string:pk>/outline", methods=("POST",))
+    def create_outline(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_campaign_outline_task,
                 pk=pk,
             )
             .result

@@ -21,6 +21,9 @@ from models.ttrpgobject.location import Location
 class SceneNote(AutoModel):
     name = StringAttr(default="")
     num = IntAttr(default=0)
+    act = IntAttr()
+    scene = IntAttr()
+    type = StringAttr(choices=["main quest", "side quest", "optional objective"])
     notes = StringAttr(default="")
     description = StringAttr(default="")
     setting = ListAttr(ReferenceAttr(choices=["Place"]))

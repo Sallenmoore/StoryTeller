@@ -242,18 +242,26 @@ def autogm_player_current_hp(pk, playerpk):
     )
 
 
-@autogm_endpoint.route("/<string:pk>/mode", methods=("POST",))
-def mode(pk=None):
+@autogm_endpoint.route("/<string:pk>/combat/<string:inipk>/remove", methods=("POST",))
+def iniremove(pk, inipk):
     user, obj, world, *_ = _loader()
     party = None
     if party := Faction.get(pk):
-        next_scene = party.get_next_scene()
-        next_scene.gm_mode = request.json.get("gmmode")
-        next_scene.save()
+        party.next_scene.remove_initiative(inipk)
     return get_template_attribute("autogm/_shared.html", "autogm_session")(
         user, world, party
     )
 
+@autogm_endpoint.route("/<string:pk>/combat/<string:inipk>/hitpoints", methods=("POST",))
+def hitpoints(pk, inipk):
+    user, obj, world, *_ = _loader()
+    party = Faction.get(pk)
+    if iniplayer := AutoGMInitiative.get(inipk):
+        iniplayer.hp = int(request.json.get('current_hitpoints', iniplayer.hp))
+        iniplayer.save()
+    return get_template_attribute("autogm/_shared.html", "autogm_session")(
+        user, world, party
+    )
 
 @autogm_endpoint.route("/<string:pk>/status/<string:actorpk>", methods=("POST",))
 def playerstatus(pk, actorpk):

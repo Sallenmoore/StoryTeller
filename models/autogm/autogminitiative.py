@@ -137,7 +137,6 @@ class AutoGMInitiative(AutoModel):
                 self.action.skill_check = skill_check or 0
                 self.action.target = target
                 self.action.result = result or self.action.result
-                self.action.save()
             else:
                 self.action = AutoGMInitiativeAction(
                     type="action",
@@ -279,39 +278,42 @@ class AutoGMInitiativeList(AutoModel):
 
     def current_combat_turn(self):
         # log(self.order, self.current_turn)
-        ini_actor = self.order[self.current_turn]
-        while not ini_actor.hp:
-            self.current_turn = (self.current_turn + 1) % len(self.order)
-            ini_actor = self.order[self.current_turn]
-        self.save()
+        ini_actor = self.order[0]
+        while ini_actor and not ini_actor.hp:
+            ini_actor = self.next_combat_turn()
         return ini_actor
 
     def next_combat_turn(self):
+
         if self.combat_ended:
             return None
-        self.current_turn = (self.current_turn + 1) % len(self.order)
-        result = self.current_combat_turn()
-        result.description = f"{result.actor.name} is up next."
-        result.movement = ""
-        if result.audio:
-            result.audio.delete()
-        if result.image:
-            result.image.delete()
-        result.save()
-        if result.action:
-            result.action.result = ""
-            result.action.description = ""
-            result.action.attack_roll = 0
-            result.action.damage_roll = 0
-            result.action.saving_throw = 0
-            result.action.skill_check = 0
-            result.action.save()
-        if result.bonus_action:
-            result.bonus_action.result = ""
-            result.bonus_action.description = ""
-            result.bonus_action.attack_roll = 0
-            result.bonus_action.damage_roll = 0
-            result.bonus_action.saving_throw = 0
-            result.bonus_action.skill_check = 0
-            result.bonus_action.save()
-        return result
+        self.order = self.order[1:] + [self.order[0]]
+
+        while not self.order[0].actor:
+            self.order[0].delete()
+            del self.order[0]
+        self.order[0].description = f"{self.order[0].actor.name} is up next."
+        self.order[0].movement = ""
+        if self.order[0].audio:
+            self.order[0].audio.delete()
+        if self.order[0].image:
+            self.order[0].image.delete()
+        self.order[0].save()
+        if self.order[0].action:
+            self.order[0].action.result = ""
+            self.order[0].action.description = ""
+            self.order[0].action.attack_roll = 0
+            self.order[0].action.damage_roll = 0
+            self.order[0].action.saving_throw = 0
+            self.order[0].action.skill_check = 0
+            self.order[0].action.save()
+        if self.order[0].bonus_action:
+            self.order[0].bonus_action.result = ""
+            self.order[0].bonus_action.description = ""
+            self.order[0].bonus_action.attack_roll = 0
+            self.order[0].bonus_action.damage_roll = 0
+            self.order[0].bonus_action.saving_throw = 0
+            self.order[0].bonus_action.skill_check = 0
+            self.order[0].bonus_action.save()
+        self.save()
+        return self.order[0]

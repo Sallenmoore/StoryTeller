@@ -18,7 +18,6 @@ class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
-    pc_voice = StringAttr(default="")
 
     parent_list = ["Location", "District", "Faction", "City", "Vehicle"]
     _traits_list = [
@@ -98,31 +97,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
 
-    @property
-    def voice(self):
-        if not self.pc_voice:
-            _voices = [
-                "alloy",
-                "echo",
-                "fable",
-                "onyx",
-                "nova",
-                "shimmer",
-            ]
-            if self.gender.lower() == "male":
-                if self.age < 30:
-                    self.pc_voice = random.choice(["alloy", "echo", "fable"])
-                else:
-                    self.pc_voice = random.choice(["onyx", "echo"])
-            elif self.gender.lower() == "female":
-                if self.age < 30:
-                    self.pc_voice = random.choice(["nova", "shimmer"])
-                else:
-                    self.pc_voice = random.choice(["fable", "shimmer"])
-            else:
-                self.pc_voice = random.choice(_voices)
-            self.save()
-        return self.pc_voice
+
 
     ################# Instance Methods #################
 

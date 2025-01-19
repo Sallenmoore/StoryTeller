@@ -381,6 +381,13 @@ class BaseSystem(AutoModel):
         prompt = self.sanitize(prompt)
         return self.text_agent.generate(prompt, additional_instructions=primer)
 
+    def generate_json(self, prompt, primer, funcobj):
+        prompt = self.sanitize(prompt)
+        response = self.json_agent.generate(
+            prompt, function=funcobj, additional_instructions=primer
+        )
+        return response
+
     def generate_summary(self, prompt, primer=""):
         prompt = self.sanitize(prompt)
         updated_prompt_list = []

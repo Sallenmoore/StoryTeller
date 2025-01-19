@@ -1,5 +1,8 @@
 # from autonomous.model.autoattr import AutoAttribute
+import os
+
 import markdown
+import requests
 
 from autonomous import log
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
@@ -17,7 +20,193 @@ class Campaign(AutoModel):
     players = ListAttr(ReferenceAttr(choices=["Character"]))
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
+    outline = ListAttr(ReferenceAttr(choices=["SceneNote"]))
+    side_quests = ListAttr(ReferenceAttr(choices=["SceneNote"]))
     current_episode = ReferenceAttr(choices=[Episode])
+
+    _outline_funcobj = {
+        "name": "generate_campaign_outline",
+        "description": "generates a campaign outline for a Table Top RPG with characters, items, and settings",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the campaign",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A brief description of the members of the faction. Only include publicly known information.",
+                },
+                "plot_outline": {
+                    "type": "array",
+                    "description": "Create an outline breakdown for a main storyline with at least 3 acts, including an inciting event, key conflicts, and a climactic resolution. Mention major twists and opportunities.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["name", "act", "scene", "description"],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the side quest.",
+                            },
+                            "act": {
+                                "type": "integer",
+                                "description": "The Act Number",
+                            },
+                            "scene": {
+                                "type": "integer",
+                                "description": "The Scene Number",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of the scene, including characters involved in the scene.",
+                            },
+                        },
+                    },
+                },
+                "side_quests": {
+                    "type": "array",
+                    "description": "List of optional side quests the party players may encounter.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["name", "description"],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the side quest.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of the side quest.",
+                            },
+                        },
+                    },
+                },
+                "npcs": {
+                    "type": "array",
+                    "description": "List of non-combatant NPCs, including details for interaction or lore.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["species", "name", "description", "backstory"],
+                        "properties": {
+                            "species": {
+                                "type": "string",
+                                "description": "NPC species (e.g., human, elf).",
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Unique name for the NPC.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of NPC's appearance.",
+                            },
+                            "backstory": {
+                                "type": "string",
+                                "description": "Markdown description of the NPC's history and motivations.",
+                            },
+                        },
+                    },
+                },
+                "antagonists": {
+                    "type": "array",
+                    "description": "List of antagonists for the campaign.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["combatant_type", "name", "description"],
+                        "properties": {
+                            "combatant_type": {
+                                "type": "string",
+                                "enum": ["humanoid", "animal", "monster", "unique"],
+                                "description": "Combatant type (e.g., humanoid, monster).",
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the combatant.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of the combatant's appearance and behavior.",
+                            },
+                        },
+                    },
+                },
+                "places": {
+                    "type": "array",
+                    "description": "List of locations relevant to the scenario, or empty if none.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "location_type",
+                            "name",
+                            "description",
+                            "backstory",
+                        ],
+                        "properties": {
+                            "location_type": {
+                                "type": "string",
+                                "enum": ["region", "city", "district", "poi"],
+                                "description": "Type of location (e.g., city, point of interest).",
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Unique name for the location.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of the location's appearance.",
+                            },
+                            "backstory": {
+                                "type": "string",
+                                "description": "Publicly known history of the location in Markdown.",
+                            },
+                        },
+                    },
+                },
+                "items": {
+                    "type": "array",
+                    "description": "List of items the players may aquire during the campaign, or empty if none.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["rarity", "name", "description", "attributes"],
+                        "properties": {
+                            "rarity": {
+                                "type": "string",
+                                "enum": [
+                                    "common",
+                                    "uncommon",
+                                    "rare",
+                                    "very rare",
+                                    "legendary",
+                                    "artifact",
+                                ],
+                                "description": "Rarity of the loot item.",
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Unique name for the item.",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Markdown description of the item's appearance.",
+                            },
+                            "attributes": {
+                                "type": "array",
+                                "description": "Markdown list of item's features, limitations, or value.",
+                                "items": {"type": "string"},
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }
 
     def delete(self):
         all(e.delete() for e in self.episodes)
@@ -58,6 +247,14 @@ class Campaign(AutoModel):
         return [a for a in self.associations if a.model_name() == "Location"]
 
     @property
+    def places(self):
+        return [
+            a
+            for a in self.associations
+            if a.model_name() in ["Region", "City", "District", "Location"]
+        ]
+
+    @property
     def vehicles(self):
         return [a for a in self.associations if a.model_name() == "Vehicle"]
 
@@ -90,6 +287,232 @@ class Campaign(AutoModel):
     ################################################################
     ##                     INSTANCE METHODS                       ##
     ################################################################
+    def generate_outline(self):
+        prompt = f"""Generate an outline of campaign events in MARKDOWN format. Using the information provided in the uploaded file describing a {self.genre} world, generate a complete Tabletop RPG campaign outline. The campaign should include the following details:
+
+Major Plot Points:
+
+- Create a main storyline with at least 3 acts, including an inciting event, key conflicts, and a climactic resolution.
+  - Include optional side quests that connect to the world’s lore or characters.
+  - Mention major twists and opportunities for character development.
+
+Characters:
+
+- Develop a diverse cast of NPCs, including allies, neutral parties, and foes.
+  - Provide brief backstories, motivations, and potential interactions with the players.
+  - Include a main villain or antagonist with a detailed goal and a network of supporting antagonists.
+  - incorporate the following characters into the story:
+    - {"    - ".join([f"{c.name}: {c.backstory_summary}" for c in self.characters])}
+
+Items:
+
+- Describe key magical, technological, or significant items relevant to the story.
+  - Include their origins, powers, and any consequences or risks associated with their use.
+  - Mention how players might obtain or interact with these items.
+  - incorporate the following items:
+    - {"    - ".join([f"{c.name}: {c.backstory_summary}" for c in self.items])}
+
+Antagonists:
+
+- Create compelling primary and secondary antagonists with clear motivations.
+  - Outline their methods, resources, and key locations they control or influence.
+  - Highlight ways they challenge the players throughout the campaign.
+  - incorporate the following creatures:
+    - {"    - ".join([f"{c.name}: {c.backstory_summary}" for c in self.creatures])}
+
+Locations:
+
+- Develop a variety of settings where the story unfolds, from bustling cities to dangerous wilderness or mysterious ruins.
+  - Describe each location’s key features, cultural aspects, and role in the story.
+  - Include at least one central hub or recurring area where players can regroup and gather resources.
+  - incorporate the following places:
+    - {"    - ".join([f"{c.name}: {c.backstory_summary}" for c in self.places])}
+
+The campaign outline should be consistent with the world described in the uploaded file, incorporating its themes, factions, geography, and unique elements. Make the storyline and details flexible enough to allow player choices to influence the narrative direction.
+"""
+
+        primer = """
+# AI Primer: Understanding the World
+
+**1. Genre and Themes:**
+- The world described in the uploaded file is a [genre: fantasy, sci-fi, steampunk, post-apocalyptic, etc.] setting. It emphasizes [key themes: exploration, survival, rebellion, mystery, etc.].
+- The tone of the world is [dark/gritty, hopeful, heroic, whimsical, etc.], and the characters within it navigate challenges involving [e.g., political intrigue, ancient magic, advanced technology, natural disasters].
+
+**2. Setting Overview:**
+- The world contains [key geographical or environmental details, e.g., sprawling deserts, lush forests, floating islands, cyberpunk megacities].
+- Factions include [major groups or entities like kingdoms, guilds, corporations, or tribes], and they have unique goals and rivalries.
+- Major cultural or technological aspects include [e.g., reliance on ancient artifacts, a thriving trade system, or advanced AI governing society].
+
+**3. Key Historical/Lore Points:**
+- The history includes significant events like [e.g., ancient wars, the rise or fall of an empire, the awakening of a sleeping deity, the discovery of interdimensional travel].
+- This past shapes the present conflicts and the motivations of various characters and factions.
+- Any unresolved mysteries, curses, or legendary figures are integral to the world’s identity.
+
+**4. Magic/Technology:**
+- The world's magic or technology operates on principles of [describe, e.g., elemental harmony, clockwork precision, or neural networks].
+- Access to magic/technology is [common, rare, or restricted], and its misuse can lead to [consequences, e.g., environmental decay, madness, or war].
+
+**5. Player Interaction:**
+- The players will likely start as [e.g., underdogs, chosen heroes, mercenaries, wanderers] but can shape their roles as the campaign progresses.
+- Their choices should meaningfully affect the world, impacting alliances, environments, or outcomes.
+"""
+        log(prompt)
+        response = self.world.system.generate_json(
+            prompt, primer=primer, funcobj=self._outline_funcobj
+        )
+        self.name = response["name"]
+        self.description = response["description"]
+
+        from models.campaign.episode import SceneNote
+
+        for po in response["plot_outline"]:
+            self.plot_outline += [
+                SceneNote(
+                    name=po["name"],
+                    act=po["act"],
+                    scene=po["scene"],
+                    description=po["description"],
+                )
+            ]
+        self.save()
+
+        for sq in response["side_quests"]:
+            self.side_quests += [
+                SceneNote(
+                    name=po["name"],
+                    description=po["description"],
+                )
+            ]
+        self.save()
+
+        self.associations += self.generate_npcs(response["npcs"])
+        self.associations += self.generate_combatants(response["antagonists"])
+        self.associations += self.generate_places(response["places"])
+        self.associations += self.generate_items(response["items"])
+
+        self.save()
+
+    def generate_npcs(self, objs):
+        from models.ttrpgobject.character import Character
+
+        if not objs:
+            return
+        for obj in objs:
+            first_name = obj["name"].split()[0]
+            last_name = obj["name"].split()[-1]
+            npc = [
+                c
+                for c in Character.search(world=self.world, name=first_name)
+                if last_name in c.name
+            ]
+            char = npc[0] if npc else []
+            if not char:
+                char = Character(
+                    world=self.world,
+                    species=obj["species"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                    backstory=obj["backstory"],
+                )
+                char.save()
+                self.associations += [char]
+                self.save()
+                requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
+
+    def generate_combatants(self, objs):
+        from models.ttrpgobject.creature import Creature
+
+        if not objs:
+            return
+        for obj in objs:
+            first_name = obj["name"].split()[0]
+            last_name = obj["name"].split()[-1]
+            npc = [
+                c
+                for c in Creature.search(world=self.world, name=first_name)
+                if last_name == first_name or last_name in c.name
+            ]
+            char = npc[0] if npc else []
+
+            if not char:
+                char = Creature(
+                    world=self.world,
+                    type=obj["combatant_type"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                )
+                char.save()
+                self.associations += [char]
+                self.save()
+                requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
+
+    def generate_items(self, objs):
+        from models.ttrpgobject.item import Item
+
+        if not objs:
+            return
+        for obj in objs:
+            first_name = obj["name"].split()[0]
+            last_name = obj["name"].split()[-1]
+            item = [
+                c
+                for c in Item.search(world=self.world, name=first_name)
+                if last_name == first_name or last_name in c.name
+            ]
+            char = item[0] if item else []
+
+            if not char:
+                char = Item(
+                    world=self.world,
+                    rarity=obj["rarity"],
+                    name=obj["name"],
+                    desc=obj["description"],
+                    features=obj["attributes"],
+                )
+                char.save()
+                self.associations += [char]
+                self.save()
+                requests.post(
+                    f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                )
+
+    def generate_places(self, objs):
+        if not objs:
+            return
+        for obj in objs:
+            Model = None
+            if obj["location_type"] == "poi":
+                obj["location_type"] = "location"
+            for key, val in self.party.system._titles.items():
+                if val.lower() == obj["location_type"].lower():
+                    Model = AutoModel.load_model(key)
+                    break
+            if Model:
+                first_name = obj["name"].split()[0]
+                last_name = obj["name"].split()[-1]
+                char = None
+                for c in Model.search(world=self.world, name=first_name):
+                    if last_name == first_name or last_name in c.name:
+                        char = c
+                        break
+                if not char:
+                    char = Model(
+                        world=self.world,
+                        name=obj["name"],
+                        desc=obj["description"],
+                        backstory=obj["backstory"],
+                    )
+                    char.save()
+                    self.associations += [char]
+                    self.save()
+                    requests.post(
+                        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{char.path}"
+                    )
+
     def resummarize(self):
         text = ""
         for entry in sorted(self.episodes, key=lambda x: x.episode_num):
