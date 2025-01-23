@@ -12,7 +12,6 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
-from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
 from models.campaign.campaign import Campaign
 from models.images.image import Image
@@ -42,7 +41,6 @@ from models.ttrpgobject.vehicle import Vehicle
 class World(TTRPGBase):
     system = ReferenceAttr(choices=["BaseSystem"])
     users = ListAttr(ReferenceAttr(choices=["User"]))
-    gm = ReferenceAttr(choices=[AutoGM])
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
@@ -251,7 +249,12 @@ class World(TTRPGBase):
 
     @property
     def parties(self):
-        return Faction.search(world=self, is_player_faction=True) if self.pk else []
+        ps = []
+        for f in Faction.search(world=self):
+            log(f"Faction: {f}, {f.is_player_faction}")
+            if f.is_player_faction:
+                ps += [f]
+        return ps
 
     @property
     def end_date(self):
@@ -387,7 +390,6 @@ class World(TTRPGBase):
     def auto_post_save(cls, sender, document, **kwargs):
         super().auto_post_save(sender, document, **kwargs)
         document.post_save_system()
-        document.post_save_gm()
 
     # def clean(self):
     #     super().clean()
@@ -427,10 +429,3 @@ class World(TTRPGBase):
         if self.system.world != self:
             self.system.world = self
             self.system.save()
-
-    def post_save_gm(self):
-        if not self.gm:
-            gm = AutoGM(world=self)
-            gm.save()
-            self.gm = gm
-            self.save()

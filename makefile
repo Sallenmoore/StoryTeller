@@ -50,7 +50,7 @@ cleantests: refresh tests
 tests: inittests
 	docker exec -it $(APP_NAME) python -m pytest
 
-RUNTEST?=test_autogm
+RUNTEST?=test_campaign
 test: inittests
 	docker exec -it $(APP_NAME) python -m pytest -k $(RUNTEST)
 

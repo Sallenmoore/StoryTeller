@@ -13,9 +13,6 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
-from models.autogm.autogminitiative import AutoGMInitiative
-from models.autogm.autogmmessage import AutoGMMessage
-from models.autogm.autogmscene import AutoGMScene
 from models.images.image import Image
 from models.ttrpgobject.faction import Faction
 from models.world import World
@@ -89,34 +86,15 @@ def image(pk, size):
 
 
 @index_page.route(
-    "/audio/<string:pk>",
+    "/audio/<string:model>/<string:pk>",
     methods=("GET",),
 )
-@index_page.route(
-    "/audio/gm/<string:pk>",
-    methods=("GET",),
-)
-@index_page.route(
-    "/audio/gm/combat/<string:pk>",
-    methods=("GET",),
-)
-@index_page.route(
-    "/audio/gm/roll/<string:pk>",
-    methods=("GET",),
-)
-def audio(pk):
-    if "combat" in request.url:
-        audio = AutoGMInitiative.get(pk).audio
-    elif "roll" in request.url:
-        audio = AutoGMScene.get(pk).roll_audio
-    elif "gm" in request.url:
-        audio = AutoGMScene.get(pk).audio
-    else:
-        audio = AutoGMMessage.get(pk).audio
+def audio(model, pk):
+    obj = World.get_model(model, pk)
     # log(msg)
-    if audio:
+    if hasattr(obj, "audio") and obj.audio:
         return Response(
-            audio.read(),
+            obj.audio.read(),
             mimetype=audio.content_type,
             headers={"Content-Disposition": f"inline; filename={pk}.mp3"},
         )

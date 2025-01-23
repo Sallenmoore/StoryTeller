@@ -5,7 +5,6 @@ from dmtoolkit import dmtools
 from autonomous import log
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
-from models.autogm.autogmscene import AutoGMScene
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.ttrpgobject.character import Character
@@ -76,9 +75,9 @@ def _generate_campaign_summary_task(pk):
     return {"url": f"/api/campaign/{obj.pk}"}
 
 
-def _generate_campaign_outline_task(pk):
-    if obj := Campaign.get(pk):
-        obj.generate_outline()
+def _generate_campaign_outline_task(pk, scenario=""):
+    if obj := Faction.get(pk):
+        obj.current_campaign.generate_outline(scenario)
     return {"url": f"/api/campaign/{obj.pk}"}
 
 
@@ -94,8 +93,8 @@ def _generate_gn_task(pk):
     return {"url": f"/api/campaign/{ep.campaign.pk}/episode/{ep.pk}"}
 
 
-def _generate_audio_task(pk, pre_text="", post_text=""):
-    ags = AutoGMScene.get(pk)
+def _generate_audio_task(model, pk, pre_text="", post_text=""):
+    ags = World.get_model(model, pk)
     ags.generate_audio(pre_text=pre_text, post_text=post_text)
     return {"url": f"/api/autogm/{ags.party.pk}"}
 
@@ -104,6 +103,12 @@ def _generate_autogm_task(pk, pcpk=None):
     party = Faction.get(pk)
     party.autogm_session(pc=Character.get(pcpk))
     return {"url": f"/api/autogm/{party.pk}"}
+
+
+def _generate_autogm_start_task(pk, pcpk=None):
+    party = Faction.get(pk)
+    party.autogm_start_session()
+    return {"url": f"/api/autogm/{party.pk}/start"}
 
 
 def _generate_autogm_combat_task(pk):

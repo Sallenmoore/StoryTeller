@@ -120,14 +120,15 @@
                                 <input name='abilities[].duration' type="text"
                                        value="{{ability.duration}}">
                             </div>
-                            <div class="column is-half inputlabel">
+                            <div class="column is-half">
                                 <label for="ability-dice-roll">Dice Roll</label>
                                 <textarea
+                                          class="has-bg-white"
                                           name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
                             </div>
-                            <div class="column is-half inputlabel">
+                            <div class="column is-half">
                                 <label for="ability-effects">Effects</label>
-                                <textarea
+                                <textarea class="has-bg-white"
                                           name='abilities[].effects'>{{ability.effects}}</textarea>
                             </div>
                             <div class="column is-full inputlabel">

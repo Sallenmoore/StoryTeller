@@ -1,5 +1,6 @@
 {% import "manage/_models.html" as children_macros %}
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
 
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
@@ -171,7 +172,19 @@
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}
-<h2 class='has-text-dark has-text-center' id='manage-users'>Manage</h2>
+<h2 class='has-text-dark has-text-center' id='manage-users'>Faction Control</h2>
+<div class="row">
+    {% for region in obj.regions %}
+    <div class="column is-2">
+        <div class="panel">
+            <h4 class="has-text-dark has-text-center">
+                {{(region.owner and region.owner.name) or "Unknown"}}
+            </h4>
+            {{display_components.object_display(region, type=False) | safe }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
 <div class="row">
     <div class="column is-4">
         <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"

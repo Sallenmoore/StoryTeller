@@ -12,7 +12,7 @@ from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 class Place(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
-    owner = ReferenceAttr(choices=["Character", "Creature"])
+    owner = ReferenceAttr(choices=["Character", "Creature", "Faction"])
     map = ReferenceAttr(choices=["Image"])
     maps = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")

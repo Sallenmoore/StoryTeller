@@ -132,67 +132,13 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/autogm/<string:pk>", methods=("POST",))
-    def autogm(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_autogm_task,
-                pk,
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/autogm/<string:pk>/<string:pcpk>", methods=("POST",))
-    def autogmpc(pk, pcpk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_autogm_task,
-                pk,
-                pcpk,
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/autogm/<string:pk>/combat", methods=("POST",))
-    def autogm_combat(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_autogm_combat_task,
-                pk,
-            )
-            .result
-        )
-
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/autogm/<string:pk>/combat/next", methods=("POST",))
-    def autogm_combat_next(pk):
-        party = Faction.get(pk)
-        if not party.next_scene.initiative:
-            raise ValueError("No Initiative List")
-        next = party.next_scene.next_combat_turn()
-        if not next:
-            party.next_scene.description = f"""
-{party.last_scene.current_combat_turn().description}
-
-Combat Ends, and the party investigates the area.
-"""
-            party.next_scene.save()
-        return get_template_attribute("shared/_tasks.html", "completetask")(
-            url=f"/api/autogm/{party.pk}"
-        )
-
-    @app.route("/generate/audio/<string:pk>", methods=("POST",))
-    def create_audio(pk):
+    @app.route("/generate/audio/<string:model>/<string:pk>", methods=("POST",))
+    def create_audio(model, pk):
         task = (
             AutoTasks()
             .task(
                 tasks._generate_audio_task,
+                model=model,
                 pk=pk,
                 pre_text=request.json.get("pre_text", ""),
                 post_text=request.json.get("post_text", ""),
@@ -220,6 +166,7 @@ Combat Ends, and the party investigates the area.
             .task(
                 tasks._generate_campaign_outline_task,
                 pk=pk,
+                scenario=request.json.get("scenario", ""),
             )
             .result
         )

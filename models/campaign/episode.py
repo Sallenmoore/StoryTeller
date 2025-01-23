@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from autonomous import log
 from autonomous.model.autoattr import (
+    FileAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -14,27 +15,45 @@ from autonomous.model.autoattr import (
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 from models.images.image import Image
+from models.mixins.audio import AudioMixin
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
 
 
-class SceneNote(AutoModel):
+class SceneNote(AutoModel, AudioMixin):
     name = StringAttr(default="")
     num = IntAttr(default=0)
     act = IntAttr()
     scene = IntAttr()
-    type = StringAttr(choices=["main quest", "side quest", "optional objective"])
+    type = StringAttr(
+        choices=[
+            "social",
+            "encounter",
+            "combat",
+            "investigation",
+            "exploration",
+            "stealth",
+            "puzzle",
+        ]
+    )
     notes = StringAttr(default="")
     description = StringAttr(default="")
     setting = ListAttr(ReferenceAttr(choices=["Place"]))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
     actors = ListAttr(ReferenceAttr(choices=["Character", "Creature"]))
+    loot = ListAttr(ReferenceAttr(choices=["Item"]))
     initiative = ListAttr(StringAttr(default=""))
     image = ReferenceAttr(choices=["Image"])
+    music = StringAttr(default="")
+    audio = FileAttr()
 
     @property
     def associations(self):
         return [*self.setting, *self.encounters, *self.actors]
+
+    @property
+    def audio_text(self):
+        return self.description
 
     @property
     def genre(self):

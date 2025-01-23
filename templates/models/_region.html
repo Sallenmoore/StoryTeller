@@ -3,11 +3,9 @@
     {% if obj.ruling_faction %}
     <div class="column is-full">
         <div class="panel is-small has-bg-dark-grey">
-            <h4 class='has-text-center has-text-dark'>Ruling Faction</h4>
+            <h4 class='has-text-center has-text-muted'>Ruling Faction</h4>
             <h5>{{obj.ruling_faction.name}}</h5>
-            <p>
-                {{obj.ruling_faction.backstory_summary}}
-            </p>
+            {{obj.ruling_faction.backstory | safe}}
         </div>
     </div>
     {% elif obj.factions %}
@@ -16,9 +14,7 @@
         {% for faction in obj.factions %}
         <div class="panel is-small has-bg-dark-grey">
             <h5>{{faction.name}}</h5>
-            <p>
-                {{faction.backstory_summary}}
-            </p>
+            {{faction.backstory | safe}}
         </div>
         {% endfor %}
     </div>
@@ -36,8 +32,10 @@
                 <div class="is-select">
                     <select name='ruling_faction'>
                         <option value=''>=== Select a Faction ===</option>
-                        {%for f in obj.factions %}
-                        <option value='{{f.pk}}'>{{f.name}}</option>
+                        {%for f in obj.world.factions %}
+                        <option value='{{f.pk}}' {% if f==obj.owner %} selected {% endif %}>
+                            {{f.name}}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>

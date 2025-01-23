@@ -7,8 +7,6 @@ from models.ttrpgobject.faction import Faction
 
 
 class Region(Place):
-    ruling_faction = ReferenceAttr(choices=[Faction])
-
     parent_list = ["World"]
     _traits_list = [
         "coastal",
@@ -53,6 +51,14 @@ class Region(Place):
             prompt += f"The region contains the following cities: {cities}."
         return prompt
 
+    @property
+    def ruling_faction(self):
+        return self.owner
+
+    @ruling_faction.setter
+    def ruling_faction(self, value):
+        self.owner = value
+
     ################### Crud Methods #####################
     def generate(self):
         prompt = f"Generate a detailed information for a {self.genre} {self.title}. The {self.title} is primarily {self.traits}. The {self.title} should also contain a story thread for players to slowly uncover. The story thread should be connected to 1 or more additional elements in the existing world as described by the uploaded file."
@@ -85,6 +91,7 @@ class Region(Place):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_map()
+        document.pre_save_owner()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -98,9 +105,16 @@ class Region(Place):
     def pre_save_map(self):
         if "With the following" not in self.map_prompt:
             self.map_prompt += f"""
-With the following {self.get_title('City')}s:
+With the following {self.get_title("City")}s:
 - {", ".join([c.name for c in self.cities])}
 """
+
+    def pre_save_owner(self):
+        if isinstance(self.owner, str):
+            if faction := Faction.get(self.owner):
+                self.owner = faction
+            else:
+                raise ValueError(f"Faction {self.owner} not found")
 
     def post_save_backstory(self):
         if not self.backstory:

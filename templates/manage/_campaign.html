@@ -106,12 +106,7 @@
             </div>
         </div>
         <div class="column is-full is-hidden" id="campaign_outline">
-            <form hx-post="/api/campaign/{{campaign.pk}}/overview"
-                  hx-swap='closest .column'
-                  hx-trigger='input delay:1s, change'>
-                <h4 class='has-text-center has-text-dark'>Campaign Outline</h4>
-                {{form_components.texteditor(user, campaign, 'outline')}}
-            </form>
+
         </div>
     </div>
     <div class="panel has-bg-muted has-text-dark" style='position:relative;'>
@@ -761,7 +756,7 @@
                                      hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/remove"
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"
-                                     hx-vals='{"actorpath":"{{a.path}}"}'>
+                                     hx-vals='{"actor":"{{a.path}}"}'>
                                     <iconify-icon icon="mdi:remove" width="2rem">
                                     </iconify-icon>
                                 </div>

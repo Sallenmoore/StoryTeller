@@ -360,7 +360,7 @@ def episodenoteactorremove(campaignpk, episodepk, scenenotepk):
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
         enc = request.json.get("actor")
-        if obj := AutoModel.get_model(*enc.split("/")):
+        if obj := World.get_model(*enc.split("/")):
             sn_obj.remove_actor(obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode

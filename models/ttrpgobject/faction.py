@@ -1,16 +1,12 @@
 import random
 
-import markdown
-
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
-    ListAttr,
     ReferenceAttr,
     StringAttr,
 )
-from models.autogm.autogmscene import AutoGMScene
 from models.campaign.campaign import Campaign
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
@@ -22,11 +18,7 @@ class Faction(TTRPGObject):
     status = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
-    # autogm attributes
-    next_scene = ReferenceAttr(choices=["AutoGMScene"])
-    autogm_summary = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
-    autogm_history = ListAttr(ReferenceAttr(choices=["AutoGMScene"]))
-
+    current_campaign = ReferenceAttr(choices=["Campaign"])
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
         "secretive",
@@ -78,10 +70,6 @@ class Faction(TTRPGObject):
     ################### Instance Properties #####################
 
     @property
-    def first_scene(self):
-        return self.autogm_summary[0] if self.autogm_summary else None
-
-    @property
     def gm(self):
         return self.world.gm
 
@@ -91,28 +79,12 @@ class Faction(TTRPGObject):
         """
 
     @property
-    def last_scene(self):
-        return self.autogm_summary[-1] if self.autogm_summary else None
-
-    @property
     def map(self):
         return self.parent.map if self.parent else self.world.map
 
     @property
-    def quests(self):
-        return self.last_scene.quest_log if self.last_scene else []
-
-    @property
     def players(self):
         return [c for c in self.characters if c.is_player]
-
-    @property
-    def ready(self):
-        return len(self.is_ready()) == len(self.players)
-
-    @ready.setter
-    def ready(self, val):
-        self.next_scene.is_ready = bool(val)
 
     ################### Crud Methods #####################
 
@@ -134,105 +106,12 @@ class Faction(TTRPGObject):
     ############################# AutoGM #############################
     ## MARK: AUTOGM
 
-    def end_gm_session(self):
-        self.gm.end(party=self)
-        self.save()
-
-    def autogm_session(self, pc=None):
-        self.gm.run(party=self, pc=pc)
-        self.save()
-
-    def autogm_combat(self):
-        if self.next_scene.type == "combat":
-            if self.next_scene.initiative.combat_ended:
-                self.next_scene.type = "investigation"
-                self.next_scene.save()
-            else:
-                self.gm.run_combat_round(party=self)
-        else:
-            raise ValueError("Invalid Scene Type")
-
-    def end_autogm(self):
-        self.autogm_history += self.autogm_summary
-        self.autogm_summary = []
-        self.save()
-
-    def clear_autogm(self):
-        for ags in self.autogm_summary:
-            ags.delete()
-        self.save()
-
-    def get_next_scene(self, create=False):
-        if self.next_scene and create:
-            prompt = (
-                self.autogm_summary[3].summary if len(self.autogm_summary) > 3 else ""
-            )
-            for ags in self.autogm_summary[:3]:
-                prompt += f" {ags.description}"
-
-            primer = "Generate an evocative, narrative summary of less than 250 words for the given players and events of a TTRPG in MARKDOWN format."
-            summary = self.system.generate_summary(prompt, primer)
-            summary = summary.replace("```markdown", "").replace("```", "")
-            summary = (
-                markdown.markdown(summary).replace("h1>", "h3>").replace("h2>", "h3>")
-            )
-            self.next_scene.summary = summary
-            self.next_scene.save()
-            self.autogm_summary += [self.next_scene]
-            self.next_scene = None
+    def generate_campaign(self, pc=None):
+        if not self.current_campaign:
+            self.current_campaign = Campaign(world=self.world)
+            self.current_campaign.save()
             self.save()
-
-        if not self.next_scene:
-            date = (self.last_scene and self.last_scene.date) or self.world.current_date
-            ags = AutoGMScene(party=self, date=date)
-            ags.save()
-            self.next_scene = ags
-
-            if self.last_scene:
-                self.next_scene.gm_mode = self.last_scene.gm_mode
-                self.next_scene.tone = self.last_scene.tone
-                self.next_scene.image_style = self.last_scene.image_style
-                self.next_scene.associations = self.last_scene.associations
-                self.next_scene.npcs = self.last_scene.npcs
-                self.next_scene.combatants = self.last_scene.combatants
-                self.next_scene.places = self.last_scene.places
-                self.next_scene.loot = self.last_scene.loot
-                self.next_scene.quest_log = self.last_scene.quest_log
-                self.next_scene.current_quest = self.last_scene.current_quest
-                self.next_scene.campaign = self.last_scene.campaign
-
-                for assoc in self.last_scene.associations:
-                    assoc.add_associations(ags.associations)
-
-                for player in self.players:
-                    self.next_scene.set_player_message(player)
-
-                self.next_scene.save()
-                # log(next_scene=self.next_scene.gm_mode, _print=True)
-        if not self.next_scene.campaign:
-            self.next_scene.campaign = Campaign(world=self.world)
-            self.next_scene.campaign.save()
-            self.next_scene.campaign.generate_outline()
-            self.next_scene.save()
-            self.save()
-        return self.next_scene
-
-    def get_last_player_message(self, player):
-        return self.last_scene.get_player_message(player) if self.last_scene else ""
-
-    def is_ready(self, player=None):
-        if not player:
-            return self.next_scene.is_ready
-
-        return bool(
-            all(
-                [
-                    msg.ready
-                    for msg in self.next_scene.player_messages
-                    if msg.player == player
-                ]
-            )
-        )
+        self.current_campaign.generate_outline()
 
     ############################# Serialization Methods #############################
     ## MARK: Serialization
@@ -266,6 +145,7 @@ class Faction(TTRPGObject):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_leader()
         document.pre_save_player_faction()
+        document.pre_save_current_campaign()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -286,3 +166,18 @@ class Faction(TTRPGObject):
         if self.is_player_faction == "on":
             self.is_player_faction = True
         # log(self.is_player_faction)
+
+    def pre_save_current_campaign(self):
+        if not self.current_campaign:
+            self.current_campaign = Campaign(
+                world=self.world, players=self.players, associations=self.associations
+            )
+        else:
+            self.current_campaign.world = self.world
+            self.current_campaign.players = self.players[:]
+            for ass in self.associations:
+                if ass not in self.current_campaign.associations[:]:
+                    self.current_campaign.associations += [ass]
+        log(self.current_campaign.associations)
+        self.current_campaign.save()
+        log(self.current_campaign.associations)
