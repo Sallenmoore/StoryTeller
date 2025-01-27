@@ -1,9 +1,11 @@
+import random
 from copy import deepcopy
 
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from models.base.ttrpgbase import TTRPGBase
+from models.calendar.date import Date
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -14,8 +16,8 @@ class TTRPGObject(TTRPGBase):
     world = ReferenceAttr(choices=["World"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     parent = ReferenceAttr(choices=[TTRPGBase])
-    start_date = StringAttr(default="")
-    end_date = StringAttr(default="")
+    start_date = ReferenceAttr(choices=["Date"])
+    end_date = ReferenceAttr(choices=["Date"])
     parent_list = []
 
     _no_copy = TTRPGBase._no_copy | {
@@ -33,6 +35,10 @@ class TTRPGObject(TTRPGBase):
         except Exception as e:
             log(e, cls, "Object has no world")
             return False
+
+    @property
+    def calendar(self):
+        return self.world.calendar
 
     @property
     def campaigns(self):
@@ -143,15 +149,35 @@ class TTRPGObject(TTRPGBase):
     ###############################################################
     ##                    VERIFICATION HOOKS                   ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     super().auto_post_init(sender, document, **kwargs)
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        super().auto_post_init(sender, document, **kwargs)
+
+        ##### MIGRATION ######
+        if not document.start_date or not isinstance(document.start_date, Date):
+            document.start_date = Date(
+                obj=document,
+                calendar=document.calendar,
+                day=random.randint(1, 28),
+                month=random.randrange(len(document.calendar.months)),
+                year=0,
+            )
+
+        if not document.end_date or not isinstance(document.end_date, Date):
+            document.end_date = Date(
+                obj=document,
+                calendar=document.calendar,
+                day=random.randint(1, 28),
+                month=random.randrange(len(document.calendar.months)),
+                year=0,
+            )
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_world()
         document.pre_save_associations()
+        document.pre_save_dates()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -176,3 +202,71 @@ class TTRPGObject(TTRPGBase):
     def pre_save_world(self):
         if not self.get_world():
             raise ValidationError("Must be associated with a World object")
+
+    def pre_save_dates(self):
+        if self.pk and self.calendar:
+            if isinstance(self.start_date, dict):
+                if dates := Date.search(obj=self, calendar=self.calendar):
+                    dates.sort(key=lambda x: (x.year, x.month, x.day))
+                    dates[0].delete()
+                start_date = Date(obj=self, calendar=self.calendar)
+                start_date.day, start_date.month, start_date.year = (
+                    self.start_date["day"],
+                    self.start_date["month"],
+                    self.start_date["year"],
+                )
+                start_date.month = self.calendar.months.index(start_date.month.title())
+                start_date.day = int(start_date.day)
+                start_date.year = int(start_date.year)
+                start_date.save()
+                self.start_date = start_date
+            elif not self.start_date or not isinstance(self.start_date, Date):
+                self.start_date = Date(
+                    obj=self,
+                    calendar=self.calendar,
+                    day=random.randint(1, 28),
+                    month=random.randrange(len(self.calendar.months)),
+                    year=0,
+                )
+                self.start_date.save()
+
+            if isinstance(self.end_date, dict):
+                if dates := Date.search(obj=self, calendar=self.calendar):
+                    dates.sort(key=lambda x: (x.year, x.month, x.day))
+                    dates[-1].delete()
+                end_date = Date(obj=self, calendar=self.calendar)
+                end_date.day, end_date.month, end_date.year = (
+                    self.end_date["day"],
+                    self.end_date["month"],
+                    self.end_date["year"],
+                )
+                end_date.month = self.calendar.months.index(end_date.month.title())
+                end_date.day = int(end_date.day)
+                end_date.year = int(end_date.year)
+                end_date.save()
+                self.end_date = end_date
+            elif not self.end_date or not isinstance(self.end_date, Date):
+                self.end_date = Date(
+                    obj=self,
+                    calendar=self.calendar,
+                    day=random.randint(1, 28),
+                    month=random.randrange(len(self.calendar.months)),
+                    year=0,
+                )
+                self.end_date.save()
+
+        if self.start_date and (
+            not self.world.current_date
+            or isinstance(self.world.current_date, (str))
+            or self.start_date > self.world.current_date
+        ):
+            self.world.current_date = self.start_date
+            self.world.save()
+
+        if self.end_date and (
+            not self.world.current_date
+            or isinstance(self.world.current_date, (str))
+            or self.end_date > self.world.current_date
+        ):
+            self.world.current_date = self.end_date
+            self.world.save()

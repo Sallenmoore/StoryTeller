@@ -1,6 +1,8 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
+{% import "shared/_tasks.html" as task_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro campaigns(user, obj, campaign_list, campaign=None, episode=None) -%}
 <title>{{obj.name | title}} - Manage Campaign</title>
@@ -90,25 +92,6 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="column is-full">
-            <div class="row has-space-around">
-                <div class="column is-shrink">
-                    <button class="button is-small"
-                            onclick='document.getElementById("campaign_outline").classList.toggle("is-hidden")'>Show
-                        Outline</button>
-                </div>
-                <div class="column  is-shrink">
-                    <button class="button is-small"
-                            hx-post="/task/generate/campaign/{{campaign.pk}}/outline">Generate
-                        Campaign</button>
-                </div>
-            </div>
-        </div>
-        <div class="column is-full is-hidden" id="campaign_outline">
-
-        </div>
-    </div>
     <div class="panel has-bg-muted has-text-dark" style='position:relative;'>
         {{campaign.summary | safe}}
         <div style='position: absolute; bottom:0px; right:0px;'>
@@ -149,25 +132,34 @@
     <hr class='has-bg-primary'>
     <div class="row" id='campaign-players'>
         <div class="column is-4">
-            <h5>Add Player</h5>
+            <h5>Add Faction</h5>
             <div class="panel has-bg-muted">
                 <div class="is-multiple-select">
-                    <select multiple
-                            size="{{obj.players}} | length"
-                            name='players'
+                    <select
+                            name='party'
                             style='max-height: 20rem;'
-                            hx-post="/api/campaign/{{campaign.pk}}/add/player"
+                            hx-post="/api/campaign/{{campaign.pk}}/add/party"
                             hx-target="#campaign-players" hx-select="#campaign-players"
                             hx-swap="outerHTML" hx-indicator='#request-indicator'>
-                        {% for player in obj.players%}
-                        <option value='{{player.pk}}'
-                                style='height:3rem; text-align: end; {% if player.image %} background: left / contain no-repeat url({{player.image.url(size=50)}});{% endif %} font: 1.25rem "Rosarivo", cursive;'>
-                            {{player.name}}
+                        {% for faction in obj.factions%}
+                        {% if faction.is_player_faction %}
+                        <option value='{{faction.pk}}' {% if faction==campaign.party %} selected {%
+                                endif %}
+                                style='height:3rem; text-align: end; {% if faction.image %} background:
+                            left / contain no-repeat url({{faction.image.url(size=50)}});{% endif %}
+                            font: 1.25rem "Rosarivo", cursive;'>
+                            {{faction.name}}
                         </option>
+                        {%endif%}
                         {% endfor %}
                     </select>
                 </div>
             </div>
+        </div>
+        <div class="column is-shrink">
+            {% if campaign.party %}
+            {{display_components.object_display(campaign.party, dim=250, type=False)}}
+            {% endif %}
         </div>
         <div class="column">
             <div class="panel">
@@ -199,7 +191,7 @@
             <h3 class='has-text-center'> {{title}} </h3>
             <div class="row has-space-around" id="episode-encounters">
                 {% for a in campaign[obj_key] %}
-                <div class="column is-3 episode-association-entry">
+                <div class="column is-2 episode-association-entry">
                     <div class="row">
                         <div class="column is-full">
                             {{display_components.object_display(a)}}
@@ -309,11 +301,32 @@
             </form>
             <div class="tabs has-border">
                 <ul class="episode_tablist tabs__list has-centered ">
-                    <li class="has-text-dark">
+                    <li class="has-text-dark is-active">
                         <a hx-post='/api/campaign/episode/{{episode.pk}}/gmplanner'
                            hx-target='#episode-manage-container'
                            onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>GM Tools</h5>
+                            <h5 class='has-text-center has-text-dark'>GM Planner</h5>
+                        </a>
+                    </li>
+                    <li class='has-text-dark'>
+                        <a hx-post='/api/campaign/episode/{{episode.pk}}/generator'
+                           hx-target='#episode-manage-container'
+                           onclick="activeTab(this)">
+                            <h5 class='has-text-center has-text-dark'>Campaign Generator</h5>
+                        </a>
+                    </li>
+                    <li class='has-text-dark'>
+                        <a hx-post='/api/campaign/episode/{{episode.pk}}/report'
+                           hx-target='#episode-manage-container'
+                           onclick="activeTab(this)">
+                            <h5 class='has-text-center has-text-dark'>Episode Report</h5>
+                        </a>
+                    </li>
+                    <li class="has-text-dark">
+                        <a hx-post='/api/campaign/episode/{{episode.pk}}/party'
+                           hx-target='#episode-manage-container'
+                           onclick="activeTab(this)">
+                            <h5 class='has-text-center has-text-dark'>Party Members</h5>
                         </a>
                     </li>
                     <li class="has-text-dark">
@@ -321,13 +334,6 @@
                            hx-target='#episode-manage-container'
                            onclick="activeTab(this)">
                             <h5 class='has-text-center has-text-dark'>Associations</h5>
-                        </a>
-                    </li>
-                    <li class='has-text-dark is-active'>
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/report'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Episode Report</h5>
                         </a>
                     </li>
                     <li class="has-text-dark">
@@ -340,7 +346,7 @@
                 </ul>
                 <div class="row">
                     <div id="episode-manage-container" class="column episode_tabs fade-it-in">
-                        {{episode_report(user, obj, episode)}}
+                        {{episode_gmplanner(user, obj, episode)}}
                     </div>
                 </div>
             </div>
@@ -361,6 +367,179 @@
     </div>
 </div>
 {%- endmacro %}
+
+{% macro episode_party_details(user, world, party) -%}
+<hr>
+{% if party%}
+<div class="tabs has-bg-primary has-text-muted is-vertically-centered">
+    <ul class="tabs__list has-centered has-text-muted">
+        {% for player in party.players %}
+        <li style='padding: 1rem;'>
+            <a href="#player-card-container-{{player.pk}}"
+               class='is-small-heading has-text-center has-text-muted'>
+                {{player.name}}
+            </a>
+        </li>
+        {% if not loop.last %}
+        <li>{{icon_components.d20dice(size="1rem")}}</li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+<div class="row has-space-around">
+    {% for player in party.players %}
+    <div class="column has-no-padding has-no-margin is-full">
+        {{episode_player_card(user, party, player)}}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro episode_player_card(user, party, player) %}
+<div id="player-card-container-{{player.pk}}" class='panel has-bg-screen'>
+    <h3 class='has-text-center has-text-black'>
+        {{player.name}}
+    </h3>
+    <div id="object-card-{{player.pk}}" class='row initiative-card'>
+        <div class="column is-shrink has-text-center">
+            {{display_components.object_display(player, dim="250", name=False, type=False)}}
+            <div class="row">
+                <div class="column is-full player-card-abilities">
+                    <div class="panel has-bg-muted">
+                        <div class="row has-space-around has-text-center has-text-dark"
+                             style='cursor: pointer;'>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h4 class="has-text-dark">STR</h4>
+                                <p>{{player.strength}} ({{(player.strength|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h5 class="has-text-dark">DEX</h5>
+                                <p>{{player.dexterity}} ({{(player.dexterity|int-10)//2}})
+                                </p>
+                            </div>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h5 class="has-text-dark">INT</h5>
+                                <p>{{player.intelligence}}
+                                    ({{(player.intelligence|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h5 class="has-text-dark">WIS</h5>
+                                <p>{{player.wisdom}} ({{(player.wisdom|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h5 class="has-text-dark">CHA</h5>
+                                <p>{{player.charisma}} ({{(player.charisma|int-10)//2}})</p>
+                            </div>
+                            <div class="column is-4 is-mobile-3" onclick='setbonus(this);'>
+                                <h5 class="has-text-dark">CON</h5>
+                                <p>{{player.constitution}}
+                                    ({{(player.constitution|int-10)//2}})</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row has-space-around">
+                        <div class="column is-shrink">
+                            <h4 class='has-text-dark has-text-center'>Current HP</h4>
+                            <div class="row has-space-around">
+                                <div class="column is-shrink  inputlabel">
+                                    <input class="has-text-center has-text-white"
+                                           style='font-size:1.25rem; width:5rem;'
+                                           name='current_hitpoints'
+                                           value="{{player.current_hitpoints}}"
+                                           hx-post='/api/autogm/{{player.pk}}/current_hitpoints'
+                                           hx-swap='none' />
+                                </div>
+                                <div class="column is-shrink">
+                                    <h5 class='has-text-dark'>/{{player.hitpoints}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-shrink">
+                            <h4 class='has-text-dark has-text-center'>AC</h4>
+                            <h5 class='has-text-dark has-text-center'>{{player.ac}}</h5>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="tabs has-bg-muted">
+                <ul class="tabs__list has-centered has-space-around has-text-primary">
+                    <li
+                        onclick='panelselect("#card-history-details-panel-{{player.pk}}");'>
+                        <a>History</a>
+                    </li>
+                    <li
+                        onclick='panelselect("#card-skills-details-panel-{{player.pk}}");'>
+                        <a>Skills</a>
+                    </li>
+                    <li
+                        onclick='panelselect("#card-abilities-details-panel-{{player.pk}}");'>
+                        <a>Abilities</a>
+                    </li>
+                    <li
+                        onclick='panelselect("#card-inventory-details-panel-{{player.pk}}");'>
+                        <a>Inventory</a>
+                    </li>
+                </ul>
+                <script>
+                    function panelselect(target) {
+                        for (var panel of document.querySelectorAll(".card-details-panel")) {
+                            panel.classList.add("is-hidden");
+                        }
+                        document.querySelector(target).classList.remove("is-hidden");
+                    }
+                </script>
+            </div>
+            <div class="row">
+                <div id="card-skills-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-full generated-text-lightbg">
+                    <div class="row has-space-around">
+                        {% for skill, val in player.skills.items() %}
+                        <div class="column is-shrink is-mobile-3">
+                            <div class="panel has-bg-muted is-full">
+                                <h5 class='has-text-center '>{{skill}}</h5>
+                                <p class='has-text-center'>{{val}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="card-abilities-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-hidden is-full generated-text-lightbg">
+                    {{abilities_components.abilities(user, player)}}
+                </div>
+                <div id="card-history-details-panel-{{player.pk}}"
+                     class="column card-details-panel is-hidden is-full generated-text-lightbg has-text-justified">
+                    <h2 class='has-text-dark'>History</h2>
+                    <div class="panel has-bg-light-grey">
+                        {{ player.history | safe }}
+                    </div>
+                </div>
+                {% if player.items %}
+                <div id='card-inventory-details-panel-{{player.pk}}'
+                     class="column card-details-panel is-full is-hidden ">
+                    <div class="panel has-bg-dark-grey">
+                        <div class="row has-space-around">
+                            {% for item in player.items %}
+                            <div class="column is-1">
+                                {{display_components.object_display(item, dim=250, type=False, name=False, modal=True)}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
 
 {% macro episode_report(user, obj, episode, afilter=None) -%}
 <div class="row">
@@ -663,7 +842,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.setting %}
-                        <div class="screenote-setting column is-6">
+                        <div class="screenote-setting column is-4">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -671,7 +850,7 @@
                                      hx-target="closest .screenote-setting"
                                      hx-swap="delete"
                                      hx-vals='{"settingpk":"{{a.pk}}", "settingmodel":"{{a.model_name()}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="2rem">
+                                    <iconify-icon icon="mdi:remove" width="1rem">
                                     </iconify-icon>
                                 </div>
                             </div>
@@ -706,7 +885,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.encounters %}
-                        <div class="screenote-encounter column is-6">
+                        <div class="screenote-encounter column is-4">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -714,7 +893,7 @@
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"
                                      hx-vals='{"encounterpk":"{{a.pk}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="2rem">
+                                    <iconify-icon icon="mdi:remove" width="1rem">
                                     </iconify-icon>
                                 </div>
                             </div>
@@ -749,7 +928,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.actors %}
-                        <div class="screenote-encounter column is-6">
+                        <div class="screenote-encounter column is-4">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -757,7 +936,7 @@
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"
                                      hx-vals='{"actor":"{{a.path}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="2rem">
+                                    <iconify-icon icon="mdi:remove" width="1rem">
                                     </iconify-icon>
                                 </div>
                             </div>
@@ -807,5 +986,87 @@
             </div>
         </div>
     </div>
+</div>
+{%- endmacro %}
+
+{% macro episode_generator(user, world, campaign) %}
+<title>{{world.name | title}} - Auto GM</title>
+<div class="row">
+    <div id="autogm-scenario-container" class="column is-full">
+        <form>
+            <div class="row">
+                <div class="column is-4">
+                    {% if not campaign.party%}
+                    <h5 class='has-text-primary'>Campaign must have a party</h5>
+                    {%endif %}
+                    <p class='has-text-primary'>Complete the campaign description to guide the
+                        scenario</p>
+
+                </div>
+                <div class="column is-shrink is-end is-vertically-centered">
+                    <button class='button'
+                            hx-post='/task/generate/campaign/{{campaign.pk}}/outline'
+                            {% if not campaign.party%} disabled {%endif %}>Generate
+                        Campaign</button>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="column is-full">
+                {{ autogm_campaign_display(user, world, campaign) }}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+
+{% macro autogm_campaign_display(user, world, campaign) -%}
+<div class="row">
+    {%for scene in campaign.outline %}
+    <div class="column is-full">
+        <div class="panel">
+            <div class="row has-space-between">
+                <div class="column is-shrink">
+                    <h3>{{scene.name}} - Act {{scene.act}} Session {{scene.scene}}</h3>
+                </div>
+                <div class="column is-shrink">
+                    <small>{{scene.type}}</small>
+                </div>
+            </div>
+            <form hx-post='/api/campaign/{{campaign.pk}}/outline/scene/{{scene.pk}}/update'
+                  hx-trigger='input delay:1s, change'
+                  hx-swap='none'>
+                <div class="row">
+                    <div class="column is-full">
+                        <h5>Description</h5>
+                        {{form_components.texteditor(user, scene, "description") }}
+                    </div>
+                    <div class="column is-full">
+                        <h5>Scenario</h5>
+                        {{form_components.texteditor(user, scene, "notes") }}
+                    </div>
+                </div>
+            </form>
+            <div class="row has-space-around">
+                {% for o in scene.setting%}
+                <div class="column is-2">
+                    {{display_components.object_display(o)}}
+                </div>
+                {% endfor %}
+                {% for o in scene.actors%}
+                <div class="column is-2">
+                    {{display_components.object_display(o)}}
+                </div>
+                {% endfor %}
+                {% for o in scene.loot%}
+                <div class="column  is-2">
+                    {{display_components.object_display(o)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 {%- endmacro %}

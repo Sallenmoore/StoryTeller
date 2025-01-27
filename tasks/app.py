@@ -166,7 +166,6 @@ def create_app():
             .task(
                 tasks._generate_campaign_outline_task,
                 pk=pk,
-                scenario=request.json.get("scenario", ""),
             )
             .result
         )

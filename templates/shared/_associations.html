@@ -25,6 +25,14 @@
 {% endif %}
 <hr>
 <div class="row has-space-around">
+    <div class="column is-2">
+        <button class="button is-primary is-small"
+                hx-post="/api/manage/associations/random"
+                hx-target="#page-content"
+                hx-indicator='#request-indicator'>
+            Random Associations
+        </button>
+    </div>
     <div class="column is-4">
         <div class="panel has-bg-muted is-small" style='border-radius: 5px 5px 0 0 ;'>
             <input type="search" name="filter" placeholder="Begin typing to filter..."
@@ -50,6 +58,7 @@
                                 <option value='name'>Name</option>
                                 <option value='date'>Date</option>
                                 <option value='type'>Type</option>
+                                <option value='parent'>No Parent</option>
                             </select>
                         </div>
                     </div>

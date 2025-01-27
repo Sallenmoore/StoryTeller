@@ -96,17 +96,69 @@ def buildform():
 ###########################################################
 ##                    World Routes                       ##
 ###########################################################
+# @index_endpoint.route(
+#     "/world/<string:pk>",
+#     methods=(
+#         "GET",
+#         "POST",
+#     ),
+# )
+# def world(pk):
+#     user, *_ = _loader()
+#     world = World.get(pk)
+#     return get_template_attribute("shared/_gm.html", "home")(user, world)
+
+
 @index_endpoint.route(
-    "/world/<string:pk>",
+    "/world/<string:pk>/calendar/update",
     methods=(
         "GET",
         "POST",
     ),
 )
-def world(pk):
+def worldcalendar(pk):
     user, *_ = _loader()
     world = World.get(pk)
-    return get_template_attribute("shared/_gm.html", "home")(user, world)
+    log(request.json)
+    if not world.calendar:
+        world.pre_save_current_date()
+        world.save()
+    world.calendar.age = request.json.get("age")
+    if request.json.get("month_names") == "12" and not request.json.get(
+        "month_names_list"
+    ):
+        world.calendar.months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
+    else:
+        world.calendar.months = request.json.get("month_names_list")
+    if request.json.get("day_names") == "7" and not request.json.get("day_names_list"):
+        world.calendar.days = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ]
+    else:
+        world.calendar.days = request.json.get("day_names_list")
+    world.calendar.days_per_year = request.json.get("num_days_per_year")
+    world.calendar.save()
+    log(world.calendar.months, world.calendar.days)
+    return get_template_attribute("models/_world.html", "manage_details")(user, world)
 
 
 @index_endpoint.route(
@@ -196,6 +248,56 @@ def associations(model, pk, modelstr=None):
     args = dict(request.args) if request.method == "GET" else request.json
     if filter_str := args.get("filter"):
         associations = [o for o in associations if filter_str.lower() in o.name.lower()]
+    if sort_str := args.get("sorter"):
+        if sort_str.lower() == "name":
+            associations.sort(key=lambda x: x.name)
+        elif sort_str.lower() == "date":
+            associations.sort(key=lambda x: x.start_date)
+        elif sort_str.lower() == "type":
+            associations.sort(key=lambda x: x.model_name())
+        elif sort_str.lower() == "parent":
+            associations = [o for o in associations if not o.parent]
+
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
+    )
+
+
+###########################################################
+##                    Timeline Routes                 ##
+###########################################################
+@index_endpoint.route("/<string:model>/<string:pk>/timeline", methods=("GET", "POST"))
+def timeline(model, pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    associations = (
+        obj.associations if obj.model_name() == "World" else [obj, *obj.associations]
+    )
+    events = []
+    for a in associations:
+        if a.start_date:
+            event = {
+                "date": a.start_date,
+                "name": a.name,
+                "event": "start",
+                "description": a.description_summary,
+                "icon": a.get_icon(),
+                "image": a.image.url() if a.image else None,
+                "obj": a,
+            }
+            events += [event]
+        if a.end_date:
+            event = {
+                "date": a.end_date,
+                "name": a.name,
+                "event": "end",
+                "description": a.description_summary,
+                "icon": a.get_icon(),
+                "image": a.image.url() if a.image else None,
+                "obj": a,
+            }
+            events += [event]
+    log(events)
+    events.sort(key=lambda x: x["date"], reverse=True)
+    return get_template_attribute("shared/_timeline.html", "timeline")(
+        user, obj, events
     )

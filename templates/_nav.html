@@ -105,24 +105,6 @@
                     </div>
                 </a>
             </li>
-            {% if user.world_user(obj) %}
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-post="/api/autogm/{{obj.pk}}" hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/gm">
-                    <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="la:dice-d20" width="1rem"></iconify-icon>
-                        </div>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Campaign Generator</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% endif %}
         </ul>
         <p class="menu__divider"></p>
         <ul class="menu__list">
@@ -156,6 +138,24 @@
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>History</span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="" class="menu-anchor"
+                   hx-get="/api/{{obj.path}}/timeline"
+                   hx-target="#page-content"
+                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+                   hx-push-url="/{{obj.path}}/timeline">
+                    <div class="row">
+                        <div class="column is-3 is-mobile-shrink">
+                            <iconify-icon icon="mingcute:timeline-line"
+                                          width="1rem"></iconify-icon>
+                        </div>
+                        <div
+                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                            <span>Timeline</span>
                         </div>
                     </div>
                 </a>

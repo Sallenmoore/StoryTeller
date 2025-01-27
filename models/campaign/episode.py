@@ -103,11 +103,11 @@ class SceneNote(AutoModel, AudioMixin):
 
         prompt += f"\nSCENE DESCRIPTION\n\n{BeautifulSoup(self.description, 'html.parser').get_text()}\n"
         for setting in self.setting:
-            prompt += f"\nSETTING: {setting.description}\n"
+            prompt += f"\nSETTING: {setting.description_summary}\n"
 
         prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
         for actor in self.actors:
-            prompt += f"""{actor.name}: {actor.description}
+            prompt += f"""{actor.name}: {actor.description_summary}
   - Looks Like: {actor.lookalike}\n
 """
 

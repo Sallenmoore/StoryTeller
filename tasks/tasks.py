@@ -75,9 +75,9 @@ def _generate_campaign_summary_task(pk):
     return {"url": f"/api/campaign/{obj.pk}"}
 
 
-def _generate_campaign_outline_task(pk, scenario=""):
-    if obj := Faction.get(pk):
-        obj.current_campaign.generate_outline(scenario)
+def _generate_campaign_outline_task(pk):
+    if obj := Campaign.get(pk):
+        obj.generate_outline()
     return {"url": f"/api/campaign/{obj.pk}"}
 
 

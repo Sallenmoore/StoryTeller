@@ -125,7 +125,7 @@ BACKSTORY
 
     @property
     def image_prompt(self):
-        return f"""A full color image of a {self.genre} {self.type or 'vehicle'} with the following description:
+        return f"""A full color image of a {self.genre} {self.type or "vehicle"} with the following description:
 {("- TYPE: " if self.group else "- NAME: ") + self.name}
 {"- DESCRIPTION: " + self.description if self.description else ""}
 {"- SIZE: " + self.size if self.size else ""}
@@ -138,7 +138,7 @@ BACKSTORY
     ################### CRUD Methods #####################
     def generate(self):
         group = "type of vehicle that" if self.group else "unique vehicle whose owner "
-        prompt = f"""Create a {random.choice(['highly advanced', 'dilapidated', 'warclad', 'commercial', 'opulent'])} {self.genre} {self.type} {group} has a {random.choice(('unexpected', 'mysterious', 'sinister', 'incredible'))} history.
+        prompt = f"""Create a {random.choice(["highly advanced", "dilapidated", "warclad", "commercial", "opulent"])} {self.genre} {self.type} {group} has a {random.choice(("unexpected", "mysterious", "sinister", "incredible"))} history.
         """
         return super().generate(prompt=prompt)
 
@@ -196,9 +196,7 @@ BACKSTORY
             self.size = "medium"
 
     def pre_save_ability(self):
-        log(self.abilities, _print=True)
         for idx, ability in enumerate(self.abilities):
-            log(ability)
             if isinstance(ability, str):
                 a = Ability(description=ability)
                 a.save()
@@ -215,5 +213,3 @@ BACKSTORY
                 )
 
         self.abilities = [a for a in self.abilities if a.name]
-
-        log(self.abilities, _print=True)

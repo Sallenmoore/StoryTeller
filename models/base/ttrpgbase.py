@@ -331,7 +331,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 """
         name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
-            # log(results, _print=True)
+            log(results, _print=True)
             if notes := results.pop("notes", None):
                 if not self.journal:
                     self.journal = Journal(world=self.get_world(), parent=self)
@@ -457,10 +457,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()
         # generate backstory summary
-        if len(self.backstory) < 250:
+        if len(self.backstory) < 50:
             self.backstory_summary = self.backstory
         else:
-            primer = "Generate a summary of less than 250 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
+            primer = "Generate a summary of less than 50 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
             self.backstory_summary = self.system.generate_summary(
                 self.backstory, primer
             )
@@ -494,11 +494,15 @@ Use and expand on the existing object data listed below for the {self.title} obj
         model = model.lower()
         return self.system._titles.get(model, model.capitalize())
 
-    def get_icon(self, model, size="1rem"):
-        if inspect.isclass(model):
-            model = model.__name__
+    def get_icon(self, model=None, size="1rem"):
+        if not model:
+            model = self.__class__.__name__
         elif not isinstance(model, str):
             model = model.__class__.__name__
+        elif inspect.isclass(model):
+            model = model.__name__
+        else:
+            model = str(model).lower()
         icon = self.get_title(model).lower().replace("-", "_")
         try:
             return get_template_attribute("shared/_icons.html", icon)(size=size)

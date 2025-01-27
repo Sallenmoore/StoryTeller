@@ -4,6 +4,7 @@ import random
 
 import markdown
 import requests
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
@@ -18,7 +19,7 @@ class Campaign(AutoModel):
     description = StringAttr(default="")
     world = ReferenceAttr(choices=["World"], required=True)
     episodes = ListAttr(ReferenceAttr(choices=[Episode]))
-    players = ListAttr(ReferenceAttr(choices=["Character"]))
+    party = ReferenceAttr(choices=["Faction"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
     outline = ListAttr(ReferenceAttr(choices=["SceneNote"]))
@@ -306,6 +307,10 @@ class Campaign(AutoModel):
         ]
 
     @property
+    def players(self):
+        return self.party.players if self.party else []
+
+    @property
     def vehicles(self):
         return [a for a in self.associations if a.model_name() == "Vehicle"]
 
@@ -338,8 +343,8 @@ class Campaign(AutoModel):
     ################################################################
     ##                     INSTANCE METHODS                       ##
     ################################################################
-    def generate_outline(self, scenario=""):
-        prompt = f"""Generate a complete and full Tabletop RPG campaign outline with a clear story arc events in valid JSON. Create a main storyline with at least 3 ACTS and 4-8 SCENES per ACT, including an inciting event, key conflicts, and a climactic resolution. Include a main villain or antagonist with a detailed goal and a network of supporting antagonists.
+    def generate_outline(self):
+        prompt = f"""Generate a complete and full Tabletop RPG campaign outline with a clear story arc events in valid JSON. Create a main storyline with at least 3 ACTS and 4-8 SESSIONS per ACT, including an inciting event, key conflicts, and a climactic resolution. Include a main villain or antagonist with a detailed goal and a network of supporting antagonists.
 
  In Addition, use the information provided in the uploaded file to connect elements to the existing {self.genre} world. Each Scene in the outline should include the following details:
 
@@ -347,14 +352,24 @@ DESCRIPTION
 
 - Description of the scene, including any relevant plot points in the scene
 - Mention major twists and opportunities for character development.
+"""
+        description = f"{self.description}\n\n " + "\n\n".join(
+            {ep.summary for ep in self.episodes if ep.summary}
+        )
+        description = BeautifulSoup(description, "html.parser").get_text()
+        prompt += f"""
+{f"CURRENT SCENARIO\n\n{description}" if description else ""}
 
-{f"SCENARIO\n\n{scenario}" if scenario else ""}
+PARTY
 
-CHARACTERS
+- The party members include:
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.players])}
+
+ADDITIONAL CHARACTERS
 
 - Incorporate the following characters into the story:
-  - {"  - ".join([f"{c.name}: {c.backstory_summary}" for c in self.characters])}
-  - {"  - ".join([f"{c.name}: {c.backstory_summary}" for c in self.creatures])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.characters if c not in self.players])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.creatures])}
 - For each scene, describe any NPCs in the scene, including allies, neutral parties, and foes for each scene.
   - Provide brief backstories, motivations, and potential interactions with the players.
 
@@ -362,7 +377,7 @@ CHARACTERS
 ITEMS
 
 - Incorporate the following items:
-  - {"  - ".join([f"{c.name}: {c.backstory_summary}" for c in self.items])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.items])}
 - For each scene, describe key magical, technological, or significant items available in the scene.
   - Include their origins, powers, and any consequences or risks associated with their use.
   - Mention how players might obtain or interact with these items.
@@ -371,7 +386,7 @@ ITEMS
 LOCATION:
 
 - Incorporate the following places:
-  - {"  - ".join([f"{c.name}: {c.backstory_summary}" for c in self.places])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.places])}
 - For each scene, describe the location where the scene unfolds.
   - Describe the location’s key features, cultural aspects, and role in the story.
   - Include at least one central hub or recurring area where players can regroup and gather resources.
@@ -406,7 +421,7 @@ The campaign outline should be consistent with the world described in the upload
         response = self.world.system.generate_json(
             prompt, primer=primer, funcobj=self._outline_funcobj
         )
-        self.name = response["name"]
+        self.name = response["name"] if not self.name else self.name
         self.description = response["description"]
 
         from models.campaign.episode import SceneNote
@@ -438,6 +453,7 @@ The campaign outline should be consistent with the world described in the upload
 
     def generate_npcs(self, objs):
         from models.ttrpgobject.character import Character
+        from models.ttrpgobject.creature import Creature
 
         if not objs:
             return []
@@ -446,11 +462,10 @@ The campaign outline should be consistent with the world described in the upload
         for obj in objs:
             first_name = obj["name"].split()[0]
             last_name = obj["name"].split()[-1]
-            npc = [
-                c
-                for c in Character.search(world=self.world, name=first_name)
-                if last_name in c.name
-            ]
+            results = Character.search(
+                world=self.world, name=first_name
+            ) + Creature.search(world=self.world, name=first_name)
+            npc = [c for c in results if last_name in c.name]
             char = npc[0] if npc else []
 
             if not char:
@@ -471,6 +486,7 @@ The campaign outline should be consistent with the world described in the upload
         return actors
 
     def generate_combatants(self, objs):
+        from models.ttrpgobject.character import Character
         from models.ttrpgobject.creature import Creature
 
         if not objs:
@@ -480,11 +496,10 @@ The campaign outline should be consistent with the world described in the upload
         for obj in objs:
             first_name = obj["name"].split()[0]
             last_name = obj["name"].split()[-1]
-            npc = [
-                c
-                for c in Creature.search(world=self.world, name=first_name)
-                if last_name == first_name or last_name in c.name
-            ]
+            results = Character.search(
+                world=self.world, name=first_name
+            ) + Creature.search(world=self.world, name=first_name)
+            npc = [c for c in results if last_name == first_name or last_name in c.name]
             char = npc[0] if npc else []
 
             if not char:

@@ -18,7 +18,6 @@ class Faction(TTRPGObject):
     status = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
-    current_campaign = ReferenceAttr(choices=["Campaign"])
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
         "secretive",
@@ -103,16 +102,6 @@ class Faction(TTRPGObject):
 
     ################### Instance Methods #####################
 
-    ############################# AutoGM #############################
-    ## MARK: AUTOGM
-
-    def generate_campaign(self, pc=None):
-        if not self.current_campaign:
-            self.current_campaign = Campaign(world=self.world)
-            self.current_campaign.save()
-            self.save()
-        self.current_campaign.generate_outline()
-
     ############################# Serialization Methods #############################
     ## MARK: Serialization
     def page_data(self):
@@ -145,7 +134,6 @@ class Faction(TTRPGObject):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_leader()
         document.pre_save_player_faction()
-        document.pre_save_current_campaign()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -166,18 +154,3 @@ class Faction(TTRPGObject):
         if self.is_player_faction == "on":
             self.is_player_faction = True
         # log(self.is_player_faction)
-
-    def pre_save_current_campaign(self):
-        if not self.current_campaign:
-            self.current_campaign = Campaign(
-                world=self.world, players=self.players, associations=self.associations
-            )
-        else:
-            self.current_campaign.world = self.world
-            self.current_campaign.players = self.players[:]
-            for ass in self.associations:
-                if ass not in self.current_campaign.associations[:]:
-                    self.current_campaign.associations += [ass]
-        log(self.current_campaign.associations)
-        self.current_campaign.save()
-        log(self.current_campaign.associations)

@@ -76,22 +76,59 @@
         {% if obj.model_name() != "World" %}
         <div class="column is-shrink is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>Start</h5>
-
         </div>
 
-        <div class="column is-shrink  is-vertically-centered">
-            <input id='model-name'
-                   class="has-bg-light has-text-center" type="text"
-                   name="start_date"
-                   value="{{obj.start_date or ''}}">
+        <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
+            <input class="has-bg-light has-text-center" type="number"
+                   name="start_date.day"
+                   placeholder='day'
+                   value="{{obj.start_date.day}}">
+        </div>
+        <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
+            <div class="is-select">
+                <select name="start_date.month">
+                    {% for m in obj.get_world().calendar.months %}
+                    <option class="has-text-center" value='{{m}}' {% if m==obj.start_date.month %}
+                            selected {% endif %}>
+                        {{m}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
+            <input class="has-bg-light has-text-center" type="number"
+                   name="start_date.year"
+                   placeholder='year'
+                   value="{{obj.start_date.year}}">
         </div>
         <div class="column is-shrink  is-vertically-centered">
             <iconify-icon icon="octicon:dash-16" width="2rem"></iconify-icon>
         </div>
         {% endif %}
-        <div class="column is-shrink  is-vertically-centered">
-            <input class="has-bg-light has-text-center" type="text" name="end_date"
-                   value="{{obj.end_date}}" maxlength="64">
+        <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
+            <input class="has-bg-light has-text-center" type="number"
+                   name="end_date.day"
+                   placeholder='day'
+                   value="{{obj.end_date.day}}">
+        </div>
+        <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
+            <div class="is-select">
+                <select name="end_date.month">
+                    {% for m in obj.get_world().calendar.months %}
+                    <option class="has-text-center" value='{{m}}' {% if m==obj.end_date.month %}
+                            selected {% endif %}>
+                        {{m}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
+            <input class="has-bg-light has-text-center" type="number"
+                   name="end_date.year"
+                   placeholder='year'
+                   value="{{obj.end_date.year}}">
         </div>
         {% if obj.model_name() != "World" %}
         <div class="column is-shrink  is-vertically-centered">

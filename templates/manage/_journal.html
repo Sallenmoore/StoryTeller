@@ -59,7 +59,6 @@
                    hx-post="/api/manage/journal/search"
                    hx-target="#journal-entry-association-search"
                    hx-trigger="input delay:750ms, change, search"
-                   hx-vals='{"macro":"journal_associations_dropdown"}'
                    hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <ul class="dropdown has-bg-light" id="journal-entry-association-search"
                 hx-vals='{"entrypk":"{{entry.pk}}"}'>
@@ -91,3 +90,29 @@
     </div>
 </div>
 {%- endmacro %}
+
+{% macro journal_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link">
+    <form hx-post='/api/manage/journal/entry/association/add'
+          hx-target='#page-content'
+          hx-trigger='click'
+          hx-indicator='#request-indicator'>
+        <input type="hidden" name="ass_model" value="{{o.model_name()}}">
+        <input type="hidden" name="ass_pk" value="{{o.pk}}">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </form>
+</li>
+{% endfor %}
+{%- endmacro%}

@@ -16,7 +16,10 @@ from autonomous import log
 from models.journal import JournalEntry
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.character import Character
+from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.district import District
+from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.user import User
 from models.world import World
@@ -151,7 +154,7 @@ def edit_journal_entry(entrypk=None):
     user, obj, *_ = _loader()
     entry = obj.journal.get_entry(entrypk)
     if not entry:
-        entry = JournalEntry(title=f"Entry #{len(obj.journal.entries)+1}")
+        entry = JournalEntry(title=f"Entry #{len(obj.journal.entries) + 1}")
         entry.save()
         obj.journal.entries.append(entry)
         obj.journal.save()
@@ -197,6 +200,35 @@ def delete_journal_entry(entrypk):
     return "Not found"
 
 
+@manage_endpoint.route("/journal/search", methods=("POST",))
+def journal_search():
+    """
+    ## Description
+    Deletes the world object's journal entry based on the provided primary keys.
+    """
+    user, obj, world, *_ = _loader()
+    query = request.json.get("query")
+    associations = world.search_autocomplete(query) if query and len(query) > 2 else []
+    return get_template_attribute("manage/_journal.html", "journal_dropdown")(
+        user, obj, associations
+    )
+
+
+@manage_endpoint.route("/journal/entry/association/add", methods=("POST",))
+def journal_add_association(entrypk=None):
+    user, obj, *_ = _loader()
+    entrypk = request.json.get("entrypk")
+    if entry := obj.journal.get_entry(entrypk):
+        if association := World.get_model(
+            request.json.get("ass_model"), request.json.get("ass_pk")
+        ):
+            entry.associations.append(association)
+            entry.save()
+    return get_template_attribute("manage/_journal.html", "journal_entry")(
+        user, obj, entry
+    )
+
+
 # MARK: Association route
 ###########################################################
 ##                 Associations Routes                   ##
@@ -220,6 +252,43 @@ def association_add(amodel, apk):
     user, obj, *_ = _loader()
     child = World.get_model(amodel, apk)
     child.add_association(obj)
+    params = {
+        "user": user,
+        "obj": obj,
+        "associations": obj.associations,
+    }
+    return get_template_attribute("shared/_associations.html", "associations")(**params)
+
+
+@manage_endpoint.route("/associations/random", methods=("POST",))
+def association_random():
+    user, obj, world, *_ = _loader()
+    log(obj.parent_list)
+    if "City" not in obj.parent_list:
+        if cities := [o for o in world.cities if o.parent is None]:
+            log(cities)
+            obj.add_association()
+    if "District" not in obj.parent_list:
+        if districts := [o for o in world.districts if o.parent is None]:
+            log(districts)
+            obj.add_association(random.choice(districts))
+    if "Creature" not in obj.parent_list:
+        if creatures := [o for o in world.creatures if o.parent is None]:
+            log(creatures)
+            obj.add_association(random.choice(creatures))
+    if "Item" not in obj.parent_list:
+        if items := [o for o in world.cities if o.parent is None]:
+            log(items)
+            obj.add_association(random.choice(items))
+    if "Character" not in obj.parent_list:
+        if characters := [o for o in world.characters if o.parent is None]:
+            log(characters)
+            obj.add_association(random.choice(characters))
+    if "Faction" not in obj.parent_list:
+        if factions := [o for o in world.factions if o.parent is None]:
+            log(factions)
+            obj.add_association(random.choice(factions))
+
     params = {
         "user": user,
         "obj": obj,

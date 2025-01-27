@@ -1,0 +1,177 @@
+{% macro timeline(user, obj, events) -%}
+<style>
+    .timeline {
+        position: relative;
+        width: 100%;
+        margin: 0 auto;
+        padding: 15px 0;
+    }
+
+    .timeline::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        background: #00466e;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -1px;
+    }
+
+
+    .timeline .tentry {
+        position: relative;
+        background: inherit;
+        width: 50%;
+        padding: 15px 30px;
+    }
+
+    .tentry.left {
+        left: 0;
+    }
+
+    .tentry.right {
+        left: 50%;
+    }
+
+    .timeline .tentry::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: calc(50% - 8px);
+        right: -8px;
+        background: #ffffff;
+        border: 2px solid #003c6e;
+        border-radius: 16px;
+        z-index: 1;
+    }
+
+    .timeline .tentry.right::after {
+        left: -8px;
+    }
+
+    .timeline .tentry::before {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 2px;
+        top: calc(50% - 1px);
+        right: 8px;
+        background: #00446e;
+        z-index: 1;
+    }
+
+    .timeline .tentry.right::before {
+        left: 8px;
+    }
+
+    .timeline .tentry .date {
+        position: absolute;
+        display: inline-block;
+        top: calc(50% - 15px);
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #000e3e;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 1;
+    }
+
+    .timeline .tentry.left .date {
+        right: -15rem;
+    }
+
+    .timeline .tentry.right .date {
+        left: -15rem;
+    }
+
+    .timeline .tentry .icon {
+        position: absolute;
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        padding: 4px 0;
+        top: calc(50% - 15px);
+        background: #c0eaea;
+        border: 2px solid #004d6e;
+        border-radius: 40px;
+        text-align: center;
+        font-size: 18px;
+        color: #012544;
+        z-index: 1;
+    }
+
+    .timeline .tentry.left .icon {
+        right: 56px;
+    }
+
+    .timeline .tentry.right .icon {
+        left: 56px;
+    }
+
+    .timeline .tentry .content {
+        padding: 30px 90px 30px 30px;
+        background: #becaca;
+        position: relative;
+        border-radius: 0 500px 500px 0;
+    }
+
+    .timeline .tentry.right .content {
+        padding: 30px 30px 30px 90px;
+        border-radius: 500px 0 0 500px;
+    }
+
+    .timeline .tentry .content h2 {
+        margin: 0 0 10px 0;
+        color: #00126e;
+    }
+
+    .timeline .tentry .content span {
+        margin: 0;
+        font-size: 14px;
+        line-height: 22px;
+        color: #000000;
+    }
+</style>
+<div class="row">
+    <div class="column">
+        <h1 class="has-text-center has-text-primary">
+            Timeline
+        </h1>
+    </div>
+    <div class="column is-full">
+        <div class="timeline">
+            {% for a in events %}
+            <div class='tentry {{ loop.cycle("right", "left" ) }}'>
+                <div class="date ">{{a.date}}</div>
+                <span class='icon'>{{a.icon}}</span>
+                <div class="content">
+                    <div class="row">
+                        <div class="column is-3">
+                            <a href="/{{a.obj.path}}">
+                                <div class="image">
+                                    <img src="{{a.image}}" alt="{{a.name}}">
+                                </div>
+                            </a>
+                        </div>
+                        <div class="column">
+                            <a href="/{{a.obj.path}}">
+                                <h4 class='has-text-center'>{{a.name}}</h4>
+                                <h6 class='has-text-center has-text-dark'>{{a.event | upper}}</h6>
+                            </a>
+                        </div>
+                        <div class="column is-full">
+                            <span>
+                                {{a.description | safe}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endmacro %}

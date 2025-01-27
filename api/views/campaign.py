@@ -15,6 +15,7 @@ from models.campaign import Campaign
 from models.campaign.episode import Episode, SceneNote
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.encounter import Encounter
+from models.ttrpgobject.faction import Faction
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -84,7 +85,7 @@ def campaigndelete(pk):
 
 
 @campaign_endpoint.route("/<string:pk>/update", methods=("POST",))
-def campaignupdate(pk=None):
+def campaignupdate(pk):
     user, obj, world, *_ = _loader()
     if campaign := Campaign.get(pk):
         campaign.name = request.json.get("name") or campaign.name
@@ -95,33 +96,38 @@ def campaignupdate(pk=None):
     )
 
 
-@campaign_endpoint.route("/<string:pk>/add/player", methods=("POST",))
+@campaign_endpoint.route(
+    "/<string:pk>/outline/scene//<string:scenepk>/update", methods=("POST",)
+)
+def campaignoutlineupdate(pk, scenepk):
+    user, obj, world, *_ = _loader()
+    if campaign := Campaign.get(pk):
+        scene = SceneNote.get(scenepk)
+        scene.notes = request.json.get("notes") or campaign.name
+        scene.description = request.json.get("description") or campaign.description
+        scene.save()
+    return get_template_attribute("manage/_campaign.html", "autogm_campaign_display")(
+        user, world, campaign
+    )
+
+
+@campaign_endpoint.route("/<string:pk>/add/party", methods=("POST",))
 def addplayer(pk):
     user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
-    for playerpk in request.json.get("players"):
-        player = Character.get(playerpk)
-        # log(player.name, campaign.players)
-        if player and player not in campaign.players:
-            # log("appended player", player.name, "to", campaign.players)
-            campaign.players += [player]
-            # log("appended player", campaign.players)
-            campaign.save()
+    campaign.party = Faction.get(request.json.get("party"))
+    campaign.save()
     return get_template_attribute("manage/_campaign.html", "campaign_details")(
         user, obj, campaign=campaign
     )
 
 
-@campaign_endpoint.route(
-    "/<string:pk>/removeplayer/<string:playerpk>", methods=("POST",)
-)
-def removeplayer(pk, playerpk):
+@campaign_endpoint.route("/<string:pk>/removeplayer", methods=("POST",))
+def removeparty(pk, partypk):
     user, obj, world, *_ = _loader()
     campaign = Campaign.get(pk)
-    player = Character.get(playerpk)
-    if player in campaign.players:
-        campaign.players.remove(player)
-        campaign.save()
+    campaign.party = None
+    campaign.save()
     return get_template_attribute(module, macro)(
         user, obj, campaign_list=world.campaigns, campaign=campaign
     )
@@ -452,6 +458,24 @@ def episodeextras(pk):
     episode = Episode.get(pk)
     return get_template_attribute("manage/_campaign.html", "episode_extras")(
         user, obj, episode
+    )
+
+
+@campaign_endpoint.route("/episode/<string:pk>/party", methods=("POST",))
+def episodeparty(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    return get_template_attribute("manage/_campaign.html", "episode_party_details")(
+        user, obj, episode.campaign.party
+    )
+
+
+@campaign_endpoint.route("/episode/<string:pk>/generator", methods=("POST",))
+def episodegenerator(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, episode.campaign
     )
 
 

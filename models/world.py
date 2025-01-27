@@ -13,6 +13,7 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.base.ttrpgbase import TTRPGBase
+from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
 from models.images.image import Image
 from models.journal import Journal
@@ -41,12 +42,11 @@ from models.ttrpgobject.vehicle import Vehicle
 class World(TTRPGBase):
     system = ReferenceAttr(choices=["BaseSystem"])
     users = ListAttr(ReferenceAttr(choices=["User"]))
+    calendar = ReferenceAttr(choices=["Calendar"])
+    current_date = ReferenceAttr(choices=["Date"])
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
-    current_date = StringAttr(
-        default=lambda: f"{random.randint(1, 30)}, {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])} {random.randint(1, 5000)}"
-    )
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -385,6 +385,7 @@ class World(TTRPGBase):
         document.pre_save_users()
         document.pre_save_system()
         document.pre_save_map_prompt()
+        document.pre_save_current_date()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -423,6 +424,13 @@ class World(TTRPGBase):
                 )
 
         # log(f"Verifying system for {self.name}: self.system={self.system}")
+
+    def pre_save_current_date(self):
+        if not self.calendar:
+            self.calendar = Calendar()
+            self.calendar.save()
+        if not self.current_date or isinstance(self.current_date, str):
+            self.current_date = None
 
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
