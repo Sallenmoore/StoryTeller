@@ -36,6 +36,12 @@ manage_endpoint = Blueprint("manage", __name__)
 @manage_endpoint.route("/<string:model>/<string:pk>", methods=("POST",))
 def index(model, pk):
     user, obj, *_ = _loader(model=model, pk=pk)
+    log(
+        f"dates for {obj}",
+        obj.start_date,
+        obj.end_date,
+        obj.world.current_date,
+    )
     return get_template_attribute("manage/_details.html", "details")(user, obj)
 
 
@@ -50,8 +56,11 @@ def add(model):
     new_obj.save()
     # log(new_obj.pk)
     obj.add_association(new_obj)
+    associations = [
+        a for a in obj.associations if a.model_name().lower() == model.lower()
+    ]
     return get_template_attribute("shared/_associations.html", "associations")(
-        user, obj, obj.associations
+        user, obj, associations
     )
 
 

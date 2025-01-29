@@ -28,6 +28,15 @@
             </div>
         </div>
     </div>
+    <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
+        {% if 'manage_screens' not in request.path and user and obj and user.world_user(obj) %}
+        <button class='button'
+                onclick='htmx.find("#screen-container").classList.add("is-active");'>
+            <iconify-icon icon="material-symbols:keyboard-onscreen-outline-sharp"></iconify-icon>
+            GM Screen
+        </button>
+        {% endif %}
+    </div>
     <div class="column is-shrink is-tablet-up is-vertically-centered">
         <a href="/">
             <h4>

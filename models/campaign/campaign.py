@@ -689,8 +689,8 @@ The campaign outline should be consistent with the world described in the upload
             "description": self.description,
             "summary": self.summary,
         }
-        data["start_date"] = self.start_date.datestr() if self.start_date else "Unknown"
-        data["end_date"] = self.end_date.datestr() if self.end_date else "Ongoing"
+        data["start_date"] = str(self.start_date) if self.start_date else "Unknown"
+        data["end_date"] = str(self.end_date) if self.end_date else "Ongoing"
         return data
 
     # MARK: Verification

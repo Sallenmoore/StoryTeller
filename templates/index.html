@@ -1,5 +1,6 @@
 {% import "_nav.html" as nav %}
 {% import "shared/_title.html" as title %}
+{% import "manage/_gmscreen.html" as gmscreen %}
 <!doctype html>
 <html lang="en">
 
@@ -89,6 +90,11 @@
             {{nav.topnav(user)}}
             {% endblock %}
         </div>
+        {% if 'manage_screens' not in request.path and user and obj and user.world_user(obj) %}
+        <div id='screen-container' class='is-tablet-up has-bg-screen'>
+            {{gmscreen.screen(user, obj)}}
+        </div>
+        {% endif %}
         <div class="container has-no-padding is-full is-mobile-full" id="content">
             <div id='page-container'
                  class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"

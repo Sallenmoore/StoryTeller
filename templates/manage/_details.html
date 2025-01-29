@@ -72,23 +72,24 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
-    <div class="row has-centered">
+    <div class="row has-centered" style='position:relative;'>
         {% if obj.model_name() != "World" %}
         <div class="column is-shrink is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>Start</h5>
         </div>
 
         <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-bg-light has-text-center" type="number"
+            <input class="has-text-center" type="number"
                    name="start_date.day"
                    placeholder='day'
                    value="{{obj.start_date.day}}">
         </div>
         <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-            <div class="is-select">
+            <div class="is-select" style='position:relative;top: -2px;'>
                 <select name="start_date.month">
                     {% for m in obj.get_world().calendar.months %}
-                    <option class="has-text-center" value='{{m}}' {% if m==obj.start_date.month %}
+                    <option class="has-text-center" value='{{m}}' {% if
+                            loop.index0==obj.start_date.month %}
                             selected {% endif %}>
                         {{m}}
                     </option>
@@ -97,7 +98,7 @@
             </div>
         </div>
         <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-bg-light has-text-center" type="number"
+            <input class="has-text-center" type="number"
                    name="start_date.year"
                    placeholder='year'
                    value="{{obj.start_date.year}}">
@@ -107,16 +108,17 @@
         </div>
         {% endif %}
         <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-bg-light has-text-center" type="number"
+            <input class="has-text-center" type="number"
                    name="end_date.day"
                    placeholder='day'
                    value="{{obj.end_date.day}}">
         </div>
         <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-            <div class="is-select">
+            <div class="is-select" style='position:relative;top: -2px;'>
                 <select name="end_date.month">
                     {% for m in obj.get_world().calendar.months %}
-                    <option class="has-text-center" value='{{m}}' {% if m==obj.end_date.month %}
+                    <option class="has-text-center" value='{{m}}' {% if
+                            loop.index0==obj.end_date.month %}
                             selected {% endif %}>
                         {{m}}
                     </option>
@@ -125,7 +127,7 @@
             </div>
         </div>
         <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-bg-light has-text-center" type="number"
+            <input class="has-text-center" type="number"
                    name="end_date.year"
                    placeholder='year'
                    value="{{obj.end_date.year}}">

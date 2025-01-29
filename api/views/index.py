@@ -13,19 +13,9 @@ from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
-from models.campaign.campaign import Campaign
-from models.systems.fantasy import FantasySystem
-from models.systems.hardboiled import HardboiledSystem
-from models.systems.historical import HistoricalSystem
-from models.systems.horror import HorrorSystem
-from models.systems.postapocalyptic import PostApocalypticSystem
-from models.systems.scifi import SciFiSystem
-from models.systems.swn import StarsWithoutNumber
-from models.systems.western import WesternSystem
 from models.world import World
 
 from ._utilities import loader as _loader
-from .campaign import index as campaign_endpoint
 
 index_endpoint = Blueprint("page", __name__)
 
@@ -274,7 +264,7 @@ def timeline(model, pk):
     )
     events = []
     for a in associations:
-        if a.start_date:
+        if a.start_date and a.start_date.year >= 0:
             event = {
                 "date": a.start_date,
                 "name": a.name,
@@ -285,7 +275,7 @@ def timeline(model, pk):
                 "obj": a,
             }
             events += [event]
-        if a.end_date:
+        if a.end_date and a.end_date.year >= 0:
             event = {
                 "date": a.end_date,
                 "name": a.name,

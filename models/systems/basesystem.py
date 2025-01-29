@@ -38,6 +38,9 @@ class BaseSystem(AutoModel):
     }
 
     _classes = {
+        "Artificer": [
+            "TBD",
+        ],
         "Barbarian": [
             "Path of the Berserker",
             "Path of the Totem Warrior",

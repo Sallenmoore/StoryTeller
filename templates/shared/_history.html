@@ -14,20 +14,18 @@
                 </div>
             </div>
             <div id='history-text'>
-                <div class="row">
+                <div class="row has-centered">
                     {% if obj.start_date and obj.start_date.year %}
-                    <div class="column">
+                    <div class="column is-shrink">
                         <h4 class='has-text-dark-grey'>
-                            {{obj.start_date.name}}:
-                            {{obj.start_date.datestr()}}
+                            {{obj.start_date}}
                         </h4>
                     </div>
                     {% endif %}
                     {% if obj.end_date and obj.end_date.year %}
-                    <div class="column">
+                    <div class="column is-shrink">
                         <h4 class='has-text-dark-grey'>
-                            {{obj.end_date.name}}:
-                            {{obj.end_date.datestr()}}
+                            - {{obj.end_date}}
                         </h4>
                     </div>
                     {% endif %}

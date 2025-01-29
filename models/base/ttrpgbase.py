@@ -352,7 +352,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
             self.save()
         else:
             log(results, _print=True)
-
+        self.update_system_references(self.pk)
         return results
 
     ############# Boolean Methods #############

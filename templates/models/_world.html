@@ -32,6 +32,21 @@
             </div>
         </a>
     </li>
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/gmscreen/" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url="/{{obj.path}}/manage_screens">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="carbon:gui-management" width="2rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>GM Screen Manager</span>
+                </div>
+            </div>
+
+        </a>
+    </li>
     {% endif %}
 </ul>
 {%- endmacro %}
@@ -164,11 +179,11 @@
                         <a href="/{{a.path}}">
                             <h6 class='is-subtitle has-text-light-grey has-no-padding'>
                                 {% if a.start_date %}
-                                {{a.start_date.datestr()}}
+                                {{a.start_date}}
                                 {% endif %}
                                 -
                                 {% if a.end_date %}
-                                {{a.end_date.datestr()}}
+                                {{a.end_date}}
                                 {% endif %}
                             </h6>
                             <h5 class='has-text-secondary'>

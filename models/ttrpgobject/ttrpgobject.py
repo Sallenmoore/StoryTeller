@@ -160,7 +160,7 @@ class TTRPGObject(TTRPGBase):
                 calendar=document.calendar,
                 day=random.randint(1, 28),
                 month=random.randrange(len(document.calendar.months)),
-                year=0,
+                year=-1,
             )
 
         if not document.end_date or not isinstance(document.end_date, Date):
@@ -169,7 +169,7 @@ class TTRPGObject(TTRPGBase):
                 calendar=document.calendar,
                 day=random.randint(1, 28),
                 month=random.randrange(len(document.calendar.months)),
-                year=0,
+                year=-1,
             )
 
     @classmethod
@@ -204,11 +204,18 @@ class TTRPGObject(TTRPGBase):
             raise ValidationError("Must be associated with a World object")
 
     def pre_save_dates(self):
+        if self.start_date and not self.start_date.pk:
+            self.start_date = None
+        if self.end_date and not self.end_date.pk:
+            self.end_date = None
+
         if self.pk and self.calendar:
+            # log(f"Pre-saving dates for {self}", self.start_date, self.end_date)
             if isinstance(self.start_date, dict):
                 if dates := Date.search(obj=self, calendar=self.calendar):
-                    dates.sort(key=lambda x: (x.year, x.month, x.day))
-                    dates[0].delete()
+                    while len(dates):
+                        dates[-1].delete()
+                        dates.pop()
                 start_date = Date(obj=self, calendar=self.calendar)
                 start_date.day, start_date.month, start_date.year = (
                     self.start_date["day"],
@@ -233,7 +240,11 @@ class TTRPGObject(TTRPGBase):
             if isinstance(self.end_date, dict):
                 if dates := Date.search(obj=self, calendar=self.calendar):
                     dates.sort(key=lambda x: (x.year, x.month, x.day))
-                    dates[-1].delete()
+                    log(dates)
+                    while len(dates) > 1:
+                        dates[-1].delete()
+                        dates.pop()
+                    log(dates)
                 end_date = Date(obj=self, calendar=self.calendar)
                 end_date.day, end_date.month, end_date.year = (
                     self.end_date["day"],
@@ -270,3 +281,9 @@ class TTRPGObject(TTRPGBase):
         ):
             self.world.current_date = self.end_date
             self.world.save()
+        # log(
+        #     f"Pre-saved dates for {self}",
+        #     self.start_date,
+        #     self.end_date,
+        #     self.world.current_date,
+        # )

@@ -1,29 +1,32 @@
+import random
 from models.systems.scifi import SciFiSystem
 
 
 class StarsWithoutNumber(SciFiSystem):
     # meta = {"collection": "SciFiSystem"}
 
+    _genre = "Stars Without Number"
+
     _skills = {
-        "Administer": -1,
-        "Connect": -1,
-        "Exert": -1,
-        "Fix": -1,
-        "Heal": -1,
-        "Know": -1,
-        "Lead": -1,
-        "Notice": -1,
-        "Perform": -1,
-        "Pilot": -1,
-        "Program": -1,
-        "Punch": -1,
-        "Shoot": -1,
-        "Sneak": -1,
-        "Stab": -1,
-        "Survive": -1,
-        "Talk": -1,
-        "Trade": -1,
-        "Work": -1,
+        "Administer": random.randint(-1, 2),
+        "Connect": random.randint(-1, 2),
+        "Exert": random.randint(-1, 2),
+        "Fix": random.randint(-1, 2),
+        "Heal": random.randint(-1, 2),
+        "Know": random.randint(-1, 2),
+        "Lead": random.randint(-1, 2),
+        "Notice": random.randint(-1, 2),
+        "Perform": random.randint(-1, 2),
+        "Pilot": random.randint(-1, 2),
+        "Program": random.randint(-1, 2),
+        "Punch": random.randint(-1, 2),
+        "Shoot": random.randint(-1, 2),
+        "Sneak": random.randint(-1, 2),
+        "Stab": random.randint(-1, 2),
+        "Survive": random.randint(-1, 2),
+        "Talk": random.randint(-1, 2),
+        "Trade": random.randint(-1, 2),
+        "Work": random.randint(-1, 2),
     }
 
     _classes = {

@@ -14,8 +14,10 @@ class Vehicle(Place):
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
     hitpoints = IntAttr(default=lambda: random.randint(10, 250))
+    armor = IntAttr(default=lambda: random.randint(1, 20))
+    ac = IntAttr(default=lambda: random.randint(1, 20))
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
-    group = IntAttr(default=False)
+    capacity = IntAttr(default=1)
 
     parent_list = ["Location", "District", "City", "Region"]
     _funcobj = {
@@ -44,9 +46,17 @@ class Vehicle(Place):
                     "type": "string",
                     "description": "huge, large, medium, small, or tiny",
                 },
-                "group": {
+                "hitpoints": {
                     "type": "integer",
-                    "description": "The average number of vehicles of this kind that usually travel together, or 0 for a unique vehicle (i.e. BBEV)",
+                    "description": "The maximum number of hit points the vehicle has.",
+                },
+                "armor": {
+                    "type": "integer",
+                    "description": "The armor level of the vehicle. No Armor == 0, Highest Armor == 20.",
+                },
+                "capacity": {
+                    "type": "integer",
+                    "description": "The maximum number of crew that can be aboard the vehicle.",
                 },
                 "abilities": {
                     "type": "array",
@@ -119,14 +129,14 @@ BACKSTORY
 ---
 {self.backstory_summary}
 
-{"EVENTS INVOLVING THIS VEHICLE TYPE" if not self.group else "TIMELINE OF EVENTS"}
+{"TIMELINE OF EVENTS"}
 ---
 """
 
     @property
     def image_prompt(self):
         return f"""A full color image of a {self.genre} {self.type or "vehicle"} with the following description:
-{("- TYPE: " if self.group else "- NAME: ") + self.name}
+"- NAME: {self.name}
 {"- DESCRIPTION: " + self.description if self.description else ""}
 {"- SIZE: " + self.size if self.size else ""}
 """
@@ -137,8 +147,7 @@ BACKSTORY
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = "type of vehicle that" if self.group else "unique vehicle whose owner "
-        prompt = f"""Create a {random.choice(["highly advanced", "dilapidated", "warclad", "commercial", "opulent"])} {self.genre} {self.type} {group} has a {random.choice(("unexpected", "mysterious", "sinister", "incredible"))} history.
+        prompt = f"""Create a {random.choice(["highly advanced", "dilapidated", "warclad", "commercial", "opulent"])} {self.genre} {self.type} that has a {random.choice(("unexpected", "mysterious", "sinister", "incredible"))} history.
         """
         return super().generate(prompt=prompt)
 
