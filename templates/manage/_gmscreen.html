@@ -1,65 +1,70 @@
 {% import "shared/_form.html" as form_components %}
 
 {% macro screen(user, obj) -%}
-<div class="row has-bg-primary">
-    <div class="column is-half">
-        <h3 class='has-text-center'>
-            {% if user.current_screen %}
-            {{user.current_screen.name}}
-            {% else %}
-            You have not created any screens yet
-            {% endif %}
-        </h3>
-    </div>
-    <div class="column is-shrink is-end">
-        <button class="button is-small"
-                onclick="htmx.find('#screen-container').classList.remove('is-active');">
-            Hide
-        </button>
-    </div>
-    <div class="column is-3">
-        <div class="row">
-            <div class="column">
-                <h5 class='has-text-center has-text-primary'>Set GM Screen</h5>
-            </div>
-            <div class="column">
-                <div class="is-select has-text-primary">
-                    <select class="has-bg-secondary has-text-secondary" name='screenpk'
-                            hx-post='/api/gmscreen/display'
-                            hx-target='#screen-container'
-                            hx-trigger='change'>
-                        <option value=""></option>
-                        {%for s in user.screens %}
-                        <option value="{{s.pk}}" {% if user.current_screen and
-                                user.current_screen==s %} selected {%endif%}>
-                            {{s.name or "New Screen"}}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
+<div id="scene-dropdown-container" class='has-bg-primary'>
+    <div class="row has-bg-primary">
+        <div class="column is-half">
+            <h3 class='has-text-center'>
+                {% if user.current_screen %}
+                {{user.current_screen.name}}
+                {% else %}
+                You have not created any screens yet
+                {% endif %}
+            </h3>
         </div>
-    </div>
-</div>
-<div class="row" style='overflow:auto;'>
-    <div class="column is-full has-no-padding">
-        {% if user.current_screen %}
-        <div class="row has-space-around screen-area">
-            {% for area in user.current_screen.areas %}
-            <div class="column is-3">
-                <div class="row">
-                    <div class="column">
-                        <h5 class='has-text-primary  has-text-center'>
-                            {{area.name}}
-                        </h5>
+        <div class="column is-shrink is-end">
+            <button class="button is-small"
+                    onclick='htmx.find("#screen-container").style="transform: translateY(-100%);";'
+                    hx-post="" hx-trigger="click"
+                    hx-target="#scene-dropdown-container"
+                    hx-swap='delete'>
+                Hide
+            </button>
+        </div>
+        <div class="column is-3">
+            <div class="row">
+                <div class="column">
+                    <h5 class='has-text-center has-text-primary'>Set GM Screen</h5>
+                </div>
+                <div class="column">
+                    <div class="is-select has-text-primary">
+                        <select class="has-bg-secondary has-text-secondary" name='screenpk'
+                                hx-post='/api/gmscreen/display'
+                                hx-target='#screen-container'
+                                hx-trigger='change'>
+                            <option value=""></option>
+                            {%for s in user.screens %}
+                            <option value="{{s.pk}}" {% if user.current_screen and
+                                    user.current_screen==s %} selected {%endif%}>
+                                {{s.name or "New Screen"}}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    {{ area.area() | safe }}
                 </div>
-                <hr class='has-bg-light'>
             </div>
-            {% endfor %}
         </div>
-        {% endif %}
+    </div>
+    <div class="row" style='overflow:auto;'>
+        <div class="column is-full has-no-padding">
+            {% if user.current_screen %}
+            <div class="row has-space-around screen-area">
+                {% for area in user.current_screen.areas %}
+                <div class="column is-3">
+                    <div class="row">
+                        <div class="column">
+                            <h5 class='has-text-primary  has-text-center'>
+                                {{area.name}}
+                            </h5>
+                        </div>
+                        {{ area.area() | safe }}
+                    </div>
+                    <hr class='has-bg-light'>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {%- endmacro %}

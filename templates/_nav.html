@@ -29,7 +29,8 @@
         </div>
     </div>
     <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
-        <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container">
+        <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+                onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
             <iconify-icon icon="material-symbols:keyboard-onscreen-outline-sharp"></iconify-icon>
             GM Screen
         </button>
