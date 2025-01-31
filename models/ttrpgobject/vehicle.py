@@ -141,10 +141,6 @@ BACKSTORY
 {"- SIZE: " + self.size if self.size else ""}
 """
 
-    @property
-    def unique(self):
-        return bool(self.group)
-
     ################### CRUD Methods #####################
     def generate(self):
         prompt = f"""Create a {random.choice(["highly advanced", "dilapidated", "warclad", "commercial", "opulent"])} {self.genre} {self.type} that has a {random.choice(("unexpected", "mysterious", "sinister", "incredible"))} history.
@@ -164,7 +160,7 @@ BACKSTORY
             "size": self.size,
             "hit points": self.hitpoints,
             "abilities": [str(a) for a in self.abilities],
-            "group": self.group,
+            "capacity": self.capacity,
             "crew": [c.path for c in self.crew],
         }
 

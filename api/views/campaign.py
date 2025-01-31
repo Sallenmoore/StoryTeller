@@ -97,7 +97,7 @@ def campaignupdate(pk):
 
 
 @campaign_endpoint.route(
-    "/<string:pk>/outline/scene//<string:scenepk>/update", methods=("POST",)
+    "/<string:pk>/outline/scene/<string:scenepk>/update", methods=("POST",)
 )
 def campaignoutlineupdate(pk, scenepk):
     user, obj, world, *_ = _loader()
@@ -210,6 +210,17 @@ def episodedelete(episodepk):
 def episodereportpanel(pk):
     user, obj, *_ = _loader()
     episode = Episode.get(pk)
+    return get_template_attribute("manage/_campaign.html", "episode_report")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route("/episode/<string:pk>/report/build", methods=("POST",))
+def episodereportbuild(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    episode.episode_report = " ".join([e.notes for e in episode.scenenotes])
+    episode.save()
     return get_template_attribute("manage/_campaign.html", "episode_report")(
         user, obj, episode
     )

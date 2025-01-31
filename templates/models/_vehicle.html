@@ -2,59 +2,36 @@
 {% import "shared/_form.html" as form_components %}
 
 {% macro info(user, obj) -%}
-<div class="row">
+<div class="row has-space-around">
     <div class="column is-shrink">
-        <label class="is-subheading">Group</label>
-        <div class="is-select">
-            <select name="group">
-                {%for i in range(25) %}
-                <option value='{{i}}'
-                        {%if obj.group==i %} selected {% endif %}>
-                    {%if not i %}
-                    Unique
-                    {% else %}
-                    {{i}}
-                    {% endif %}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <script>
-            // Function to show/hide the element based on the select value
-
-            function toggleVisibility() {
-                let selectGroupElement = document.querySelector('select[name="group"]');
-                let objDatesElement = document.getElementById('manage-obj-dates');
-                selectGroupElement.value === '0' ?
-                    objDatesElement.classList.remove('is-hidden') :
-                    objDatesElement.classList.add('is-hidden');
-                //console.log("================  selectGroupElement.value  =================", selectGroupElement.value);
-            }
-
-            // Run the function when the page loads
-            toggleVisibility();
-
-            // Add an event listener to the select element to run the function on change
-            document.querySelector('select[name="group"]').addEventListener('change', toggleVisibility);
-        </script>
+        <h5 class='has-text-primary'>Type</h5>
+        <p>{{obj.type}}</p>
     </div>
     <div class="column is-shrink">
-        <label for="model-hitpoints" class="is-subheading">HP</label>
-        <input id="model-hitpoints" type="text" value="{{obj.hitpoints}}" name="hitpoints">
+        <h5 class='has-text-primary'>HP</h5>
+        <p>{{obj.hitpoints}}</p>
     </div>
     <div class="column is-shrink">
-        <label for="model-size" class="is-subheading">Size</label>
-        <input id="model-size" type="text" value="{{obj.size}}" name="size">
+        <h5 class='has-text-primary'>AC</h5>
+        <p>{{obj.ac}}</p>
     </div>
     <div class="column is-shrink">
-        <label for="model-type" class="is-subheading">Type</label>
-        <input id="model-type" type="text" value="{{obj.type}}" name="type">
+        <h5 class='has-text-primary'>Armor</h5>
+        <p>{{obj.armor}}</p>
+    </div>
+    <div class="column is-shrink">
+        <h5 class='has-text-primary'>Size</h5>
+        <p>{{obj.size}}</p>
+    </div>
+    <div class="column is-shrink">
+        <h5 class='has-text-primary'>Crew Capacity</h5>
+        <p>{{obj.capacity}}</p>
     </div>
     {% if obj.owner %}
     <div class="column is-3">
         <div class="panel has-bg-primary">
             <h4 class="has-text-secondary">Owner</h4>
-            <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
+            <a href="/{{obj.owner.path}}">
                 <div class="image is-large is-thumbnail is-margin-center">
                     {% if obj.owner.image %}
                     <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
@@ -67,21 +44,25 @@
         </div>
     </div>
     {% endif %}
-    <div class="column is-9">
+    <div class="column is-full">
         <div class="panel has-bg-primary">
-            <h4 class="has-text-secondary">Crew</h4>
-            {% if obj.owner %}
-            <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
-                <div class="image is-large is-thumbnail is-margin-center">
-                    {% if obj.owner.image %}
-                    <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
-                    {% endif %}
+            <h4 class="has-text-muted">Crew</h4>
+            <div class="row has-space-around">
+                {% for member in obj.crew %}
+                <div class="column is-shrink">
+                    <a href="/{{member.path}}">
+                        <div class="image is-medium is-thumbnail is-margin-center">
+                            {% if member.image %}
+                            <img src="{{member.image.url()}}" alt="{{member.name}}" />
+                            {% endif %}
+                        </div>
+                        <h4 class="has-text-light has-text-center">
+                            {{member.name}}
+                        </h4>
+                    </a>
                 </div>
-                <h4 class="has-text-light">
-                    {{obj.owner.name}}
-                </h4>
-            </a>
-            {% endif %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

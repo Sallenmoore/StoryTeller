@@ -1,3 +1,4 @@
+import markdown
 import validators
 
 from autonomous import log
@@ -16,6 +17,7 @@ class Place(TTRPGObject):
     map = ReferenceAttr(choices=["Image"])
     maps = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
+    dungeon = StringAttr(default="")
 
     _traits_list = [
         "long hidden",
@@ -64,6 +66,36 @@ class Place(TTRPGObject):
                 "Object must have a backstory and description to generate a map"
             )
         return self.map
+
+    def generate_dungeon(self):
+        primer = f"""As an expert AI tabletop rpg GM assistant, you will assist in creating a encounters, traps, and puzzles in a dungeon for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the dungeon, as well as a backstory. You will then generate a list of at least 20 possible enemy encounters, traps, and puzzles that player characters will encounter in the dungeon. The list should be in a bullet list format with the following structure:
+- Encounter/Trap/Puzzle Name
+  - Explanation:
+  - Solution:
+  - Outcome on Failure:
+  - Rewards on Success
+"""
+        prompt = f"""Generate a list of 20 possible enemy encounters, traps, and puzzles in MARKDOWN that player characters will encounter in the dungeon described below and is appropriate to a {self.genre.title()} setting. Each item should have an explanantion of the encounter, trap, or puzzle, how it can be solved, as well as the outcome if the players fail or succeed. The list should be in a bullet list format with the following structure:
+- Encounter/Trap/Puzzle Name
+  - Explanation:
+  - Solution:
+  - Outcome on Failure:
+  - Rewards on Success
+
+DUNGEON DESCRIPTION
+
+{self.description}
+
+DUNGEON BACKSTORY
+
+{self.backstory}
+"""
+        self.dungeon = self.system.generate_text(prompt, primer)
+        self.dungeon = self.dungeon.replace("```markdown", "").replace("```", "")
+        self.dungeon = (
+            markdown.markdown(self.dungeon).replace("h1>", "h3>").replace("h2>", "h3>")
+        )
+        self.save()
 
     def get_map_list(self):
         images = []

@@ -7,6 +7,7 @@ from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
+from models.gmscreen.gmscreentable import GMScreenTable
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -18,25 +19,12 @@ from models.ttrpgobject.region import Region
 from models.user import User
 from models.world import World
 
-models = {
-    "player": "Character",
-    "player_faction": "Faction",
-}  # add model names that cannot just be be titlecased from lower case, such as 'player':Character
-
-
-def _import_model(model):
-    model_name = models.get(model, model.title())
-    if Model := AutoModel.load_model(model_name):
-        return Model
-    return None
-
 
 ####################################################################################################
 # Tasks
 ####################################################################################################
 def _generate_task(model, pk):
-    if Model := World.get_model(model):
-        obj = Model.get(pk)
+    if obj := World.get_model(model, pk):
         obj.generate()
         if not obj.image:
             AutoTasks().task(
@@ -48,22 +36,19 @@ def _generate_task(model, pk):
 
 
 def _generate_map_task(model, pk):
-    if Model := World.get_model(model):
-        obj = Model.get(pk)
+    if obj := World.get_model(model, pk):
         obj.generate_map()
     return {"url": f"/api/{obj.path}/map"}
 
 
 def _generate_history_task(model, pk):
-    if Model := World.get_model(model):
-        obj = Model.get(pk)
+    if obj := World.get_model(model, pk):
         obj.resummarize(upload=True)
     return {"url": f"/api/{obj.path}/history"}
 
 
 def _generate_image_task(model, pk):
-    if Model := World.get_model(model):
-        obj = Model.get(pk)
+    if obj := World.get_model(model, pk):
         obj.resummarize()
         obj.generate_image()
     return {"url": f"/api/{obj.path}/details"}
@@ -99,20 +84,13 @@ def _generate_audio_task(model, pk, pre_text="", post_text=""):
     return {"url": f"/api/autogm/{ags.party.pk}"}
 
 
-def _generate_autogm_task(pk, pcpk=None):
-    party = Faction.get(pk)
-    party.autogm_session(pc=Character.get(pcpk))
-    return {"url": f"/api/autogm/{party.pk}"}
+def _generate_table_items_task(pk, worldpk, prompt):
+    table = GMScreenTable.get(pk)
+    table.generate_table(prompt)
+    return {"url": f"/world/{worldpk}/manage_screens"}
 
 
-def _generate_autogm_start_task(pk, pcpk=None):
-    party = Faction.get(pk)
-    party.autogm_start_session()
-    return {"url": f"/api/autogm/{party.pk}/start"}
-
-
-def _generate_autogm_combat_task(pk):
-    party = Faction.get(pk)
-    # log(messagestr)
-    party.autogm_combat()
-    return {"url": f"/api/autogm/{party.pk}"}
+def _generate_dungeon_task(model, pk):
+    obj = World.get_model(model, pk)
+    obj.generate_dungeon()
+    return {"url": f"/api/{obj.path}/map"}

@@ -17,15 +17,43 @@
     {% endif %}
 </div>
 <hr>
+{%if obj.model_name() != "World" %}
 <div class="row has-centered">
+    {% if obj.start_date %}
+    <div class="column is-shrink is-vertically-centered">
+        {% if obj.model_name() in ['Character', 'Creature'] %}
+        <h4 class='has-text-muted'>Born</h4>
+        {% elif obj.model_name() in ['Faction', 'Item', 'Vehicle'] %}
+        <h4 class='has-text-muted'>Created</h4>
+        {%elif obj.model_name() in ['Location', 'City'] %}
+        <h4 class='has-text-muted'>Built</h4>
+        {%else %}
+        <h4 class='has-text-muted'>Founded</h4>
+        {% endif %}
+    </div>
     <div class="column is-shrink is-vertically-centered">
         <h3 class='has-text-dark'>{{obj.start_date}}</h3>
     </div>
+    {% endif %}
+    {% if obj.end_date and obj.end_date.year > 0 %}
     <div class="column is-shrink is-vertically-centered">
-        <h3 class='has-text-dark'>- {{obj.end_date}}</h3>
+        <h3 class='has-text-dark'>- {{obj.end_date}}
+        </h3>
     </div>
+    <div class="column is-shrink is-vertically-centered">
+        {% if obj.model_name() in ['Character', 'Creature'] %}
+        <h4 class='has-text-muted'>Died</h4>
+        {% elif obj.model_name() in ['Faction'] %}
+        <h4 class='has-text-muted'>Disbanded</h4>
+        {%elif obj.model_name() in ['Location', 'City', 'Item', 'Vehicle'] %}
+        <h4 class='has-text-muted'>Destroyed</h4>
+        {% else %}
+        <h4 class='has-text-muted'>Lost</h4>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
-<hr>
+{%endif%}
 <div class="panel has-bg-light has-text-dark generated-text-lightbg">
     <div class="row">
         <div class="column is-full">

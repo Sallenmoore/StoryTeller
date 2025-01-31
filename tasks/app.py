@@ -171,4 +171,31 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/gmscreen/table/<string:pk>", methods=("POST",))
+    def create_table(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_table_items_task,
+                pk=pk,
+                worldpk=request.json.get("worldpk"),
+                prompt=request.json.get("prompt"),
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/<string:model>/<string:pk>/dungeon", methods=("POST",))
+    def create_dungeon(model, pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_dungeon_task,
+                model=model,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

@@ -30,6 +30,7 @@ def gmscreendisplay():
     user.current_screen = (
         GMScreen.get(request.json.get("screenpk")) or user.current_screen
     )
+    log(user.current_screen, request.json.get("screenpk"))
     user.save()
     return get_template_attribute("manage/_gmscreen.html", "screen")(user, obj)
 
@@ -43,6 +44,7 @@ def gmscreenmanage():
     user.current_screen = (
         GMScreen.get(request.json.get("screenpk")) or user.current_screen
     )
+
     user.save()
     return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
         user, obj, user.current_screen
@@ -59,7 +61,7 @@ def gmscreenadd():
         user.current_screen = gm_screen
     user.save()
     return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
-        user, obj, gm_screen
+        user, obj
     )
 
 
@@ -74,7 +76,7 @@ def gmscreenupdate(screenpk):
         gm_screen.name = name
         gm_screen.save()
     return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
-        user, obj, gm_screen
+        user, obj
     )
 
 
@@ -89,7 +91,7 @@ def gmscreenupdate(screenpk):
 def gmscreenareaupdate(screenpk, areapk):
     gm_screen = GMScreen.get(screenpk)
     for area in gm_screen.areas:
-        if area.pk == areapk:
+        if str(area.pk) == areapk:
             area.name = request.json.get("name")
             area.save()
             return "success"
@@ -112,7 +114,7 @@ def gmscreenarearemove(screenpk, areapk):
     gm_screen.areas = areas
     gm_screen.save()
     return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
-        user, obj, gm_screen
+        user, obj
     )
 
 

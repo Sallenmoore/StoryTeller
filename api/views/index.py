@@ -100,6 +100,21 @@ def buildform():
 
 
 @index_endpoint.route(
+    "/world/<string:pk>/manage_screens",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def world(pk):
+    user, *_ = _loader()
+    world = World.get(pk)
+    return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
+        user, world
+    )
+
+
+@index_endpoint.route(
     "/world/<string:pk>/calendar/update",
     methods=(
         "GET",
@@ -264,7 +279,7 @@ def timeline(model, pk):
     )
     events = []
     for a in associations:
-        if a.start_date and a.start_date.year >= 0:
+        if a.start_date and a.start_date.year > 0:
             event = {
                 "date": a.start_date,
                 "name": a.name,
@@ -275,7 +290,7 @@ def timeline(model, pk):
                 "obj": a,
             }
             events += [event]
-        if a.end_date and a.end_date.year >= 0:
+        if a.end_date and a.end_date.year > 0:
             event = {
                 "date": a.end_date,
                 "name": a.name,

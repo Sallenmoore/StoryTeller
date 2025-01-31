@@ -155,22 +155,10 @@ class TTRPGObject(TTRPGBase):
 
         ##### MIGRATION ######
         if not document.start_date or not isinstance(document.start_date, Date):
-            document.start_date = Date(
-                obj=document,
-                calendar=document.calendar,
-                day=random.randint(1, 28),
-                month=random.randrange(len(document.calendar.months)),
-                year=-1,
-            )
+            document.start_date = None
 
         if not document.end_date or not isinstance(document.end_date, Date):
-            document.end_date = Date(
-                obj=document,
-                calendar=document.calendar,
-                day=random.randint(1, 28),
-                month=random.randrange(len(document.calendar.months)),
-                year=-1,
-            )
+            document.end_date = None
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -204,9 +192,9 @@ class TTRPGObject(TTRPGBase):
             raise ValidationError("Must be associated with a World object")
 
     def pre_save_dates(self):
-        if self.start_date and not self.start_date.pk:
+        if hasattr(self.start_date, "pk") and not self.start_date.pk:
             self.start_date = None
-        if self.end_date and not self.end_date.pk:
+        if hasattr(self.end_date, "pk") and not self.end_date.pk:
             self.end_date = None
 
         if self.pk and self.calendar:
@@ -222,9 +210,15 @@ class TTRPGObject(TTRPGBase):
                     self.start_date["month"],
                     self.start_date["year"],
                 )
-                start_date.month = self.calendar.months.index(start_date.month.title())
-                start_date.day = int(start_date.day)
-                start_date.year = int(start_date.year)
+                start_date.month = (
+                    self.calendar.months.index(start_date.month.title())
+                    if start_date.month
+                    else random.randrange(len(self.calendar.months))
+                )
+                start_date.day = (
+                    int(start_date.day) if start_date.day else random.randint(1, 28)
+                )
+                start_date.year = int(start_date.year) if start_date.year else -1
                 start_date.save()
                 self.start_date = start_date
             elif not self.start_date or not isinstance(self.start_date, Date):
@@ -251,9 +245,15 @@ class TTRPGObject(TTRPGBase):
                     self.end_date["month"],
                     self.end_date["year"],
                 )
-                end_date.month = self.calendar.months.index(end_date.month.title())
-                end_date.day = int(end_date.day)
-                end_date.year = int(end_date.year)
+                end_date.month = (
+                    self.calendar.months.index(end_date.month.title())
+                    if end_date.month
+                    else random.randrange(len(self.calendar.months))
+                )
+                end_date.day = (
+                    int(end_date.day) if end_date.day else random.randint(1, 28)
+                )
+                end_date.year = int(end_date.year) if end_date.year else -1
                 end_date.save()
                 self.end_date = end_date
             elif not self.end_date or not isinstance(self.end_date, Date):

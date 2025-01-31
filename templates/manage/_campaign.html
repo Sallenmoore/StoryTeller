@@ -542,8 +542,17 @@
 
 
 {% macro episode_report(user, obj, episode, afilter=None) -%}
-<div class="row">
-    <div class="column">
+<div class="row has-centered">
+    <div class="column is-shrink">
+        <button class='button is-primary is-small'
+                hx-post='/api/campaign/episode/{{episode.pk}}/report/build'
+                hx-target="#episode-report-container"
+                hx-select="#episode-report-container"
+                hx-swap='outerHTML'>
+            Build Report
+        </button>
+    </div>
+    <div class="column is-full">
         <hr>
         <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
               hx-swap='none'

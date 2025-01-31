@@ -245,6 +245,7 @@ class Episode(AutoModel):
         if not name:
             name = f"Episode {len(self.scenenotes)}:"
         scenenote = SceneNote(name=name, num=num)
+        scenenote.actors += self.players
         scenenote.save()
         self.scenenotes += [scenenote]
         self.save()

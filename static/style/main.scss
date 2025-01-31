@@ -73,21 +73,12 @@
     position: fixed;
     transition: all 0.5s ease-in;
     transform: translateY(-100%);
-    visibility: collapse;
-    opacity: 0;
+    padding: 5rem;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 90vh;
+    height: 100vh;
     z-index: 9999;
-
-    &.is-active
-    {
-        transition: all 0.5s ease-out;
-        visibility: visible;
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .ql-container

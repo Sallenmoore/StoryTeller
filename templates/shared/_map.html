@@ -8,11 +8,15 @@
     {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle'] and
     user.world_user(obj) %}
     <div class="column is-full">
-        <div class="panel">
-            <h5 class='has-text-center'>Map Prompt</h5>
-            <form hx-post='/api/manage/update' hx-trigger="input delay:1s" hx-swap='none'>
-                {{form_components.texteditor(user, obj, 'map_prompt')}}
-            </form>
+        <div class="row">
+            <div class="column">
+                <div class="panel">
+                    <h5 class='has-text-center'>Map Prompt</h5>
+                    <form hx-post='/api/manage/update' hx-trigger="input delay:1s" hx-swap='none'>
+                        {{form_components.texteditor(user, obj, 'map_prompt')}}
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="column">
@@ -86,6 +90,17 @@
                      style='border-radius:5px;' />
                 {% endif %}
             </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <button class='button' class="button is-primary"
+                hx-post="/task/generate/{{obj.path}}/dungeon"
+                hx-target='closest .column'>
+            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+            Build Dungeon
+        </button>
+        <div class="panel has-bg-muted has-text-dark">
+            {{obj.dungeon | safe }}
         </div>
     </div>
 </div>

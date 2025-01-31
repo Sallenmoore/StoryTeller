@@ -33,12 +33,12 @@
         </a>
     </li>
     <li>
-        <a href="" class="menu-anchor" hx-get="/api/gmscreen/" hx-target="#page-content"
+        <a href="" class="menu-anchor" hx-post="/api/gmscreen/" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML"
            hx-push-url="/{{obj.path}}/manage_screens">
             <div class="row">
                 <div class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="carbon:gui-management" width="2rem"></iconify-icon>
+                    <iconify-icon icon="carbon:gui-management" width="1rem"></iconify-icon>
                 </div>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>GM Screen Manager</span>
