@@ -240,8 +240,8 @@ EVENTS
         return {
             "pk": str(self.pk),
             "name": self.name,
-            "start_date": self.start_date if self.start_date else "Unknown",
-            "end_date": self.end_date if self.end_date else "Unknown",
+            "start_date": str(self.start_date) if self.start_date else "Unknown",
+            "end_date": str(self.end_date) if self.end_date else "Unknown",
             "backstory": self.backstory,
             "difficulty": self.difficulty,
             "creatures": [{"name": r.name, "pk": str(r.pk)} for r in self.creatures],

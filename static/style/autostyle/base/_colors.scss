@@ -7,7 +7,7 @@ $color-type: hsl !default;
     $color-type: hsl;
 }
 
-//$primary: #3b3333 !default;
+//$primary: #01112f !default;
 $primary: #353d44 !default;
 $primarytext: getTextColor($primary) !default;
 $secondary: getSecondaryColor($primary) !default;

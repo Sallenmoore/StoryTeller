@@ -315,7 +315,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
         """
-        if associations := [*self.geneology, *self.children]:
+        if associations := [*self.geneology, *self.associations]:
             prompt += """
 ===
 - Associated Objects:
@@ -485,6 +485,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
                 markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
             )
             self.save()
+        self.get_world().update_system_references(self.pk)
 
     def get_title(self, model):
         if inspect.isclass(model):

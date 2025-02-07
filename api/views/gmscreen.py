@@ -18,6 +18,7 @@ from models.gmscreen.gmscreen import (
     GMScreenNote,
     GMScreenTable,
 )
+from models.gmscreen.gmscreennoncanon import GMScreenNonCanon
 
 from ._utilities import loader as _loader
 
@@ -47,7 +48,7 @@ def gmscreenmanage():
 
     user.save()
     return get_template_attribute("manage/_gmscreen.html", "manage_gmscreens")(
-        user, obj, user.current_screen
+        user, obj
     )
 
 
@@ -107,7 +108,7 @@ def gmscreenarearemove(screenpk, areapk):
     gm_screen = GMScreen.get(screenpk)
     areas = []
     for area in gm_screen.areas:
-        if area.pk != areapk:
+        if str(area.pk) != areapk:
             areas.append(area)
         else:
             area.delete()
@@ -268,3 +269,17 @@ def dnd5esearch(screenpk, areapk):
     )
 
     return snippet
+
+
+## MARK: Non-Canon Lookup Area
+############# Non-Canon Lookup Area ################
+@gmscreen_endpoint.route(
+    "/<string:screenpk>/area/<string:areapk>/noncanon",
+    methods=("POST",),
+)
+def gmscreennoncanon(screenpk, areapk):
+    gm_screen_area = GMScreenNonCanon.get(areapk)
+    gm_screen_area.filter = request.json.get("filtermodel", "Character")
+    gm_screen_area.save()
+    log(gm_screen_area.filter)
+    return gm_screen_area.area(gm_screen_area)

@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from autonomous import log
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 
@@ -14,6 +14,7 @@ IMAGES_BASE_PATH = "static/images/tabletop"
 class TTRPGObject(TTRPGBase):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     world = ReferenceAttr(choices=["World"])
+    canon = BoolAttr(default=False)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     parent = ReferenceAttr(choices=[TTRPGBase])
     start_date = ReferenceAttr(choices=["Date"])
@@ -166,6 +167,7 @@ class TTRPGObject(TTRPGBase):
         document.pre_save_world()
         document.pre_save_associations()
         document.pre_save_dates()
+        document.pre_save_canon()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -186,6 +188,16 @@ class TTRPGObject(TTRPGBase):
                             break
                     if self.parent:
                         break
+
+    def pre_save_canon(self):
+        for campaign in self.world.campaigns:
+            for ass in campaign.associations:
+                log(self.pk, ass.pk, str(self.pk) == str(ass.pk))
+                if str(self.pk) == str(ass.pk):
+                    self.canon = True
+                    log(f"{ass.name} canoinized")
+                    return
+        self.canon = False
 
     def pre_save_world(self):
         if not self.get_world():

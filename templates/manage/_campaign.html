@@ -1002,24 +1002,62 @@
 <title>{{world.name | title}} - Auto GM</title>
 <div class="row">
     <div id="autogm-scenario-container" class="column is-full">
-        <form>
-            <div class="row">
-                <div class="column is-4">
-                    {% if not campaign.party%}
-                    <h5 class='has-text-primary'>Campaign must have a party</h5>
-                    {%endif %}
-                    <p class='has-text-primary'>Complete the campaign description to guide the
-                        scenario</p>
+        <div id="outline-associations" class="row">
+            <div class="column is-full">
+                {% if not campaign.party%}
+                <h5 class='has-text-primary'>Campaign must have a party</h5>
+                {%endif %}
+                <p class='has-text-primary'>Complete the campaign description to guide the
+                    scenario</p>
 
-                </div>
-                <div class="column is-shrink is-end is-vertically-centered">
-                    <button class='button'
-                            hx-post='/task/generate/campaign/{{campaign.pk}}/outline'
-                            {% if not campaign.party%} disabled {%endif %}>Generate
-                        Campaign</button>
+            </div>
+            <div class="column is-shrink is-vertically-centered">
+                <h5 class='has-text-primary'>Add Association</h5>
+                <div class="is-select">
+                    <select
+                            name='outline_association'
+                            style='max-height: 20rem;'
+                            hx-post="/api/campaign/{{campaign.pk}}/associations/add/outline"
+                            hx-target="#outline-associations" hx-select="#outline-associations"
+                            hx-swap="outerHTML" hx-indicator='#request-indicator'>
+                        <option value=''>--Select Association--</option>
+                        {% for ass in campaign.current_episode.associations%}
+                        {% if ass not in campaign.outline_associations %}
+                        <option value='{{ass.path}}'
+                                style='height:3rem; text-align: end; {% if ass.image %} background:
+                                            left / contain no-repeat url({{ass.image.url(size=50)}});{% endif %}
+                                            font: 1.25rem "Rosarivo", cursive;'>
+                            {{ass.name}}
+                        </option>
+                        {%
+                        endif %}
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
-        </form>
+            <div class="column">
+                <div class="row">
+                    {% for p in campaign.outline_associations %}
+                    <div class="column is-2 has-text-center">
+                        {{display_components.object_display(p, dim=250, type=False)}}
+                        <a
+                           hx-post="/api/campaign/{{campaign.pk}}/associations/clear/outline"
+                           hx-target="#campaign-players" hx-select="#campaign-players"
+                           hx-swap="outerHTML" hx-indicator=' #request-indicator'
+                           hx-confirm="Are you sure you want to remove this player from the campaign?">
+                            <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
+                        </a>
+                    </div>
+                    {% endfor%}
+                </div>
+            </div>
+            <div class="column is-shrink is-vertically-centered">
+                <button class='button'
+                        hx-post='/task/generate/campaign/{{campaign.pk}}/outline'
+                        {% if not campaign.party%} disabled {%endif %}>Generate
+                    Session</button>
+            </div>
+        </div>
         <div class="row">
             <div class="column is-full">
                 {{ autogm_campaign_display(user, world, campaign) }}

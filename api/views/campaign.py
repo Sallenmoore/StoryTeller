@@ -451,6 +451,36 @@ def episodeassociationsearch(pk):
 
 
 @campaign_endpoint.route(
+    "/<string:pk>/associations/add/outline",
+    methods=("POST",),
+)
+def episodeassociationaddoutline(pk):
+    user, obj, world, *_ = _loader()
+    campaign = Campaign.get(pk)
+    obj_list = request.json.get("outline_association").split("/")
+    if obj := world.get_model(*obj_list):
+        campaign.outline_associations += [obj]
+        campaign.save()
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, campaign
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:pk>/associations/clear/outline",
+    methods=("POST",),
+)
+def episodeassociationclearoutline(pk):
+    user, obj, world, *_ = _loader()
+    campaign = Campaign.get(pk)
+    campaign.outline_associations = []
+    campaign.save()
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, campaign
+    )
+
+
+@campaign_endpoint.route(
     "/episode/<string:pk>/association/<string:amodel>/<string:apk>/delete",
     methods=("POST",),
 )

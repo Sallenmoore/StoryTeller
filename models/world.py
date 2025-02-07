@@ -166,6 +166,7 @@ class World(TTRPGBase):
                 *self.factions,
                 *self.cities,
                 *self.locations,
+                *self.encounters,
                 *self.regions,
                 *self.vehicles,
                 *self.districts,
@@ -293,6 +294,7 @@ class World(TTRPGBase):
             *Journal.search(parent=self),
             *Vehicle.search(world=self),
             *District.search(world=self),
+            *Encounter.search(world=self),
             *Faction.search(world=self),
             *Creature.search(world=self),
             *Character.search(world=self),
@@ -346,7 +348,7 @@ class World(TTRPGBase):
             "worldname": self.name,
             "genre": self.genre,
             "backstory": self.backstory,
-            "current_date": self.current_date,
+            "current_date": str(self.current_date),
             "world_objects": {
                 "Regions": [o.page_data() for o in self.regions],
                 "Locations": [o.page_data() for o in self.locations],
@@ -381,6 +383,8 @@ class World(TTRPGBase):
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
+        from models.gmscreen.gmscreen import GMScreen
+
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_users()
         document.pre_save_system()

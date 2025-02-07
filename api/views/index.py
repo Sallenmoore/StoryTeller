@@ -280,22 +280,44 @@ def timeline(model, pk):
     events = []
     for a in associations:
         if a.start_date and a.start_date.year > 0:
+            if a.model_name() in ["Character", "Creature"]:
+                start = "Born"
+            elif a.model_name() in ["Faction", "Item", "Vehicle"]:
+                start = "Created"
+            elif a.model_name() in ["Location", "City"]:
+                start = "Built"
+            elif a.model_name() in ["Encounter"]:
+                start = "Started"
+            else:
+                start = "Founded"
             event = {
                 "date": a.start_date,
                 "name": a.name,
-                "event": "start",
-                "description": a.description_summary,
+                "event": start,
+                "description": a.backstory_summary,
                 "icon": a.get_icon(),
                 "image": a.image.url() if a.image else None,
                 "obj": a,
             }
             events += [event]
         if a.end_date and a.end_date.year > 0:
+            if a.model_name() in ["Character", "Creature"]:
+                end = "Died"
+            elif a.model_name() in ["Item", "Vehicle"]:
+                end = "Lost"
+            elif a.model_name() in ["Location", "City"]:
+                end = "Destroyed"
+            elif a.model_name() in ["Encounter"]:
+                start = "Ended"
+            elif a.model_name() in ["Faction"]:
+                start = "Disbanded"
+            else:
+                start = "Abandoned"
             event = {
                 "date": a.end_date,
                 "name": a.name,
-                "event": "end",
-                "description": a.description_summary,
+                "event": end,
+                "description": a.backstory_summary,
                 "icon": a.get_icon(),
                 "image": a.image.url() if a.image else None,
                 "obj": a,

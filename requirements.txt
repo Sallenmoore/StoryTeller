@@ -33,7 +33,7 @@ rq-dashboard
 Authlib
 
 ##### AI #####
-
+ollama
 openai >= 1.35.6
 
 ##### Parsing #####

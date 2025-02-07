@@ -14,6 +14,7 @@ from autonomous.model.automodel import AutoModel
 from models.gmscreen.gmscreenarea import GMScreenArea
 from models.gmscreen.gmscreendnd5e import GMScreenDnD5E
 from models.gmscreen.gmscreenlink import GMScreenLink
+from models.gmscreen.gmscreennoncanon import GMScreenNonCanon
 from models.gmscreen.gmscreennote import GMScreenNote
 from models.gmscreen.gmscreentable import GMScreenTable
 
@@ -30,14 +31,14 @@ class GMScreen(AutoModel):
         "table": GMScreenTable,
         "link": GMScreenLink,
         "wildmagic": GMScreenTable,
-        "loot": GMScreenTable,
+        "noncanon": GMScreenNonCanon,
         "dnd5e": GMScreenDnD5E,
     }
 
     def add_area(self, area_type, name=""):
         params = {"name": name or area_type}
         if AreaModel := self.area_types.get(area_type):
-            if area_type in ["wildmagic", "loot"]:
+            if area_type in ["wildmagic"]:
                 params["datafile"] = f"static/gmscreendata/{area_type}.json"
             area = AreaModel(**params)
         else:

@@ -14,7 +14,7 @@
     </div>
     {% if name %}
     <h5 class='has-text-center' style='font-size: clamp(0.5rem, 1rem, 1.25rem);'>
-        {{obj.name}}
+        {{obj.name}} <sup>({% if obj.canon %}c{%else%}nc{% endif %})</sup>
     </h5>
     {% endif %}
     <div class="row has-space-around">

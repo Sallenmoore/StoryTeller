@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
 
 {% macro screen(user, obj) -%}
 <div id="scene-dropdown-container" class='has-bg-primary'>
@@ -51,14 +52,10 @@
             <div class="row has-space-around screen-area">
                 {% for area in user.current_screen.areas %}
                 <div class="column is-3">
-                    <div class="row">
-                        <div class="column">
-                            <h5 class='has-text-primary  has-text-center'>
-                                {{area.name}}
-                            </h5>
-                        </div>
-                        {{ area.area() | safe }}
-                    </div>
+                    <h5 class='has-text-primary  has-text-center'>
+                        {{area.name}}
+                    </h5>
+                    {{ area.area() | safe }}
                     <hr class='has-bg-light'>
                 </div>
                 {% endfor %}
@@ -131,6 +128,11 @@
                                             <option value='note'>Text</option>
                                             <option value='table'>Roll Table</option>
                                             <option value='link'>World Links</option>
+                                            <option value='noncanon'>
+                                                Non-Canon
+                                            </option>
+                                        </optgroup>
+                                        <optgroup label="Special">
                                             <option value='wildmagic'>
                                                 Wild Magic Table (Special)
                                             </option>
@@ -151,9 +153,9 @@
             </div>
         </div>
         <hr>
-        <div id="screen-area-container" class="row screen-area">
+        <div id="screen-area-container" class="row ">
             {% for area in user.current_screen.areas %}
-            <div class="column is-4 ">
+            <div class="column is-4 screen-area">
                 <div class="row">
                     <div class="column">
                         <input class="has-bg-light" type="text" name="name"
@@ -378,4 +380,39 @@
     {{res.name}}
 </li>res
 {% endfor %}
+{%- endmacro %}
+
+
+{% macro screen_noncanon_area(screenarea) -%}
+<div>
+    <div class="row">
+        <div class="column is-full">
+            <form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/noncanon'
+                  hx-target='#noncanon-{{screenarea.pk}}-item-list'
+                  hx-select='#noncanon-{{screenarea.pk}}-item-list' hx-swap="outerHTML"
+                  hx-trigger='change'>
+                <div class="row has-centered">
+                    <div class="column is-8">
+                        <div class="is-select">
+                            <select name='filtermodel'>
+                                <option>---</option>
+                                {% for m in screenarea.screen.world.all_models_str() %}
+                                <option value='{{m}}'>{{m}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <hr>
+            <div id="noncanon-{{screenarea.pk}}-item-list" class="row">
+                {% for o in screenarea.get_objs(3) %}
+                <div class="column">
+                    {{display_components.object_display(o)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 {%- endmacro %}

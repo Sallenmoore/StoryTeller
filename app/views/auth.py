@@ -17,14 +17,14 @@ auth_page = Blueprint("auth", __name__)
 
 @auth_page.route("/login", methods=("GET", "POST"))
 def login():
-    #log(AutoAuth.current_user().to_json())
+    # log(AutoAuth.current_user().to_json())
     user = AutoAuth.current_user()
     if user.role != "guest":
         if user.last_login:
-            #f"last login: {user.last_login}")
+            # f"last login: {user.last_login}")
             diff = datetime.now() - user.last_login
             if diff.days <= 30 and AutoAuth.current_user().state == "authenticated":
-                #log(f"successfully logged in {AutoAuth.current_user().email}")
+                # log(f"successfully logged in {AutoAuth.current_user().email}")
                 return redirect("/home")
 
     if request.method == "POST":
@@ -45,12 +45,12 @@ def authorize():
     user_info, token = authorizer.handle_response(
         response, state=request.args.get("state")
     )
-    #log(user_info)
+    # log(user_info)
     if user := User.authenticate(user_info, token):
         session["user"] = user.to_json()
     else:
         session["user"] = None
-    #log(session["user"])
+    # log(session["user"])
     return redirect(url_for("auth.login"))
 
 
@@ -60,7 +60,7 @@ def logout():
         try:
             user = User.from_json(session["user"])
             user.state = "unauthenticated"
-            #log(f"User {user} logged out")
+            # log(f"User {user} logged out")
             user.save()
         except Exception as e:
             log(e)

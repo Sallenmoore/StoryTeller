@@ -23,6 +23,7 @@ class Campaign(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
     outline = ListAttr(ReferenceAttr(choices=["SceneNote"]))
+    outline_associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     side_quests = ListAttr(ReferenceAttr(choices=["SceneNote"]))
     current_episode = ReferenceAttr(choices=[Episode])
 
@@ -344,7 +345,7 @@ class Campaign(AutoModel):
     ##                     INSTANCE METHODS                       ##
     ################################################################
     def generate_outline(self):
-        prompt = f"""Generate a complete and full Tabletop RPG campaign outline with a clear story arc events in valid JSON. Create a main storyline with at least 3 ACTS and 4-8 SESSIONS per ACT, including an inciting event, key conflicts, and a climactic resolution. Include a main villain or antagonist with a detailed goal and a network of supporting antagonists.
+        prompt = f"""Generate a complete and full Tabletop RPG session outline with a clear story arc of events in valid JSON. Create a main storyline with at least 3 ACTS, including an inciting event, key conflicts, and a climactic resolution. Include a main villain or antagonist with a detailed goal and a network of supporting antagonists.
 
  In Addition, use the information provided in the uploaded file to connect elements to the existing {self.genre} world. Each Scene in the outline should include the following details:
 
@@ -368,8 +369,8 @@ PARTY
 ADDITIONAL CHARACTERS
 
 - Incorporate the following characters into the story:
-  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.characters if c not in self.players])}
-  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.creatures])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.characters if c not in self.players and c in self.outline_associations])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.creatures if c in self.outline_associations])}
 - For each scene, describe any NPCs in the scene, including allies, neutral parties, and foes for each scene.
   - Provide brief backstories, motivations, and potential interactions with the players.
 
@@ -377,7 +378,7 @@ ADDITIONAL CHARACTERS
 ITEMS
 
 - Incorporate the following items:
-  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.items])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.items if c in self.outline_associations])}
 - For each scene, describe key magical, technological, or significant items available in the scene.
   - Include their origins, powers, and any consequences or risks associated with their use.
   - Mention how players might obtain or interact with these items.
@@ -386,13 +387,13 @@ ITEMS
 LOCATION:
 
 - Incorporate the following places:
-  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.places])}
+  - {"\n  - ".join([f"{c.name}: {BeautifulSoup(c.backstory_summary, 'html.parser').get_text()}" for c in self.places if c in self.outline_associations])}
 - For each scene, describe the location where the scene unfolds.
   - Describe the location’s key features, cultural aspects, and role in the story.
   - Include at least one central hub or recurring area where players can regroup and gather resources.
 
 
-The campaign outline should be consistent with the world described in the uploaded file, incorporating its themes, factions, geography, and unique elements. Make the storyline and details flexible enough to allow player choices to influence the narrative direction.
+The session outline should be consistent with the world described in the uploaded file, incorporating its themes, factions, geography, and unique elements. Make the storyline and details flexible enough to allow player choices to influence the narrative direction.
 """
 
         primer = f"""
@@ -402,12 +403,12 @@ The campaign outline should be consistent with the world described in the upload
 - The world described in the uploaded file is a {self.genre} setting. It emphasizes {self.world.traits}.
 
 **2. Setting Overview:**
-- The world contains {self.world.get_title("Region")}s, {self.world.get_title("City")}s, and {self.world.get_title("District")}s.
+- The setting scale is {self.world.get_title("Region")}s, {self.world.get_title("City")}s, and {self.world.get_title("District")}s.
 - Factions include {random.choice(self.world.factions).name}, {random.choice(self.world.factions).name}, {random.choice(self.world.factions).name}, and they have unique goals and rivalries.
 
 
 **4. Player Interaction:**
-- The players will likely start as underdog adventurers but can shape their roles as the campaign progresses.
+- The players will likely start as underdog adventurers but can shape their roles as the session progresses.
 - Their choices should meaningfully affect the world, impacting alliances, environments, or outcomes.
 - The Player Characters are:
   - {"  -  ".join([f"{c.name}: {c.backstory_summary}" for c in self.players])}
@@ -740,28 +741,19 @@ The campaign outline should be consistent with the world described in the upload
                 p.save()
 
     def pre_save_associations(self):
+        self.associations = []
         for ep in self.episodes:
             for a in ep.associations:
                 if a and a not in self.associations:
                     self.associations += [a]
+                    if not a.canon:
+                        a.canon = True
+                        a.save()
         for a in self.associations:
             if a.world != self.world:
                 a.world = self.world
                 a.save()
         self.associations = sorted(
             self.associations,
-            key=lambda x: (
-                x.model_name() == "World",
-                x.model_name() == "Region",
-                x.model_name() == "City",
-                x.model_name() == "Location",
-                x.model_name() == "District",
-                x.model_name() == "Vehicle",
-                x.model_name() == "Faction",
-                x.model_name() == "Character",
-                x.model_name() == "Creature",
-                x.model_name() == "Item",
-                x.model_name() == "Encounter",
-                x.name,
-            ),
+            key=lambda x: (x.name,),
         )

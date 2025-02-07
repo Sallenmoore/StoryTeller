@@ -85,7 +85,7 @@
                 "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
                 "pk": "{%if obj%}{{obj.pk}}{%endif%}"
             }'>
-        <div class="is-full" id="nav">
+        <div class="is-full" id="nav" style='box-shadow: 0px 1px 5px; margin-bottom:2px;'>
             {% block topnav %}
             {{nav.topnav(user)}}
             {% endblock %}
@@ -94,7 +94,7 @@
         </div>
         <div class="container has-no-padding is-full is-mobile-full" id="content">
             <div id='page-container'
-                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
+                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full has-bg-muted"
                  style='position:relative;'>
                 {% if obj %}
                 <div class="row has-no-padding has-no-margin has-centered">
