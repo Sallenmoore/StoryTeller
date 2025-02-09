@@ -1,0 +1,125 @@
+from bs4 import BeautifulSoup
+
+from autonomous import log
+from autonomous.model.autoattr import (
+    FileAttr,
+    IntAttr,
+    ListAttr,
+    ReferenceAttr,
+    StringAttr,
+)
+from autonomous.model.automodel import AutoModel
+from models.images.image import Image
+from models.mixins.audio import AudioMixin
+
+
+class SceneNote(AutoModel, AudioMixin):
+    name = StringAttr(default="")
+    num = IntAttr(default=0)
+    act = IntAttr()
+    scene = IntAttr()
+    type = StringAttr(
+        choices=[
+            "social",
+            "encounter",
+            "combat",
+            "investigation",
+            "exploration",
+            "stealth",
+            "puzzle",
+        ]
+    )
+    notes = StringAttr(default="")
+    description = StringAttr(default="")
+    setting = ListAttr(ReferenceAttr(choices=["Place"]))
+    encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
+    actors = ListAttr(ReferenceAttr(choices=["Character", "Creature"]))
+    loot = ListAttr(ReferenceAttr(choices=["Item"]))
+    initiative = ListAttr(StringAttr(default=""))
+    image = ReferenceAttr(choices=["Image"])
+    music = StringAttr(default="")
+    audio = FileAttr()
+
+    @property
+    def associations(self):
+        return [*self.setting, *self.encounters, *self.actors]
+
+    @property
+    def audio_text(self):
+        return self.description
+
+    @property
+    def genre(self):
+        if self.actors:
+            return self.actors[0].genre
+        elif self.setting:
+            return self.setting[0].genre
+        elif self.encounters:
+            return self.encounters[0].genre
+        return "Fictional"
+
+    def add_setting(self, obj):
+        if obj not in self.setting:
+            self.setting += [obj]
+            self.save()
+        return obj
+
+    def remove_setting(self, obj):
+        self.setting = [s for s in self.setting if s.pk != obj.pk]
+        self.save()
+
+    def add_encounter(self, obj):
+        if obj not in self.encounters:
+            self.encounters += [obj]
+            self.save()
+        return obj
+
+    def remove_encounter(self, obj):
+        self.encounters = [e for e in self.encounters if e.pk != obj.pk]
+        self.save()
+
+    def add_loot(self, obj):
+        if obj not in self.loot:
+            self.loot += [obj]
+            self.save()
+        return obj
+
+    def remove_loot(self, obj):
+        self.loot = [e for e in self.loot if e.pk != obj.pk]
+        self.save()
+
+    def add_actor(self, obj):
+        if obj not in self.actors:
+            self.actors += [obj]
+            self.save()
+        return obj
+
+    def remove_actor(self, obj):
+        self.actors = [e for e in self.actors if e.pk != obj.pk]
+        self.save()
+
+    def generate_image(self):
+        if self.image:
+            self.image.delete()
+
+        prompt = f"Generate a single comic panel for the following {self.genre} TableTop RPG session scene."
+
+        prompt += f"\nSCENE DESCRIPTION\n\n{BeautifulSoup(self.description, 'html.parser').get_text()}\n"
+        for setting in self.setting:
+            prompt += f"\nSETTING: {setting.description_summary}\n"
+
+        prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
+        for actor in self.actors:
+            prompt += f"""{actor.name}: {actor.description_summary}
+  - Looks Like: {actor.lookalike}\n
+"""
+
+        prompt += f"""ART STYLE
+- In the art style of Jim Lee.
+- Choose a color palette that fits a {self.genre} theme.
+"""
+
+        log(prompt, _print=True)
+        self.image = Image.generate(prompt=prompt)
+        self.image.save()
+        self.save()

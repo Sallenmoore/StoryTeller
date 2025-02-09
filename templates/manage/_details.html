@@ -64,7 +64,8 @@
         <div class="column">
             <h5 class='has-text-center has-text-dark'>Name</h5>
             <input id='model-name' class="has-bg-light has-text-center" type="text" name="name"
-                   value="{{obj.name}}">
+                   value="{{obj.name}}"
+                   oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
         </div>
         <div class="column">
             <h5 class='has-text-center has-text-dark'>Theme</h5>

@@ -159,12 +159,12 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/campaign/<string:pk>/outline", methods=("POST",))
+    @app.route("/generate/episode/<string:pk>/outline", methods=("POST",))
     def create_outline(pk):
         task = (
             AutoTasks()
             .task(
-                tasks._generate_campaign_outline_task,
+                tasks._generate_episode_outline_task,
                 pk=pk,
             )
             .result

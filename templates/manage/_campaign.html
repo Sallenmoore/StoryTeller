@@ -765,6 +765,15 @@
                     Add Scene
                 </a>
             </div>
+            <div class="column is-shrink">
+                <a class="button is-small"
+                   hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/gmplanner/addfiveroom"
+                   hx-target="#scenenotes-forms"
+                   hx-select="#scenenotes-forms"
+                   hx-swap='outerHTML'>
+                    5 room dungeon
+                </a>
+            </div>
         </div>
         <span id="scenenotes-forms">
             {{ episode_scenenotes(user, obj, episode)}}
@@ -823,7 +832,7 @@
                 </div>
             </form>
             <div class="row">
-                <div class="column">
+                <div class="column is-full">
                     <hr class='has-bg-light'>
                     <h4 class='has-text-center'>Setting</h4>
                     <div class="row has-space-around">
@@ -851,7 +860,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.setting %}
-                        <div class="screenote-setting column is-4">
+                        <div class="screenote-setting column is-2">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -867,7 +876,7 @@
                         {%endfor%}
                     </div>
                 </div>
-                <div class="column">
+                <div class="column is-full">
                     <hr class='has-bg-light'>
                     <h4 class=' has-text-center'>Encounters</h4>
                     <div class="row has-space-around">
@@ -894,7 +903,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.encounters %}
-                        <div class="screenote-encounter column is-4">
+                        <div class="screenote-encounter column is-2">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -910,7 +919,7 @@
                         {%endfor%}
                     </div>
                 </div>
-                <div class="column">
+                <div class="column is-full">
                     <hr class='has-bg-light'>
                     <h4 class='has-text-center'>Characters/Creatures</h4>
                     <div class="row has-space-around">
@@ -937,7 +946,7 @@
                             </form>
                         </div>
                         {% for a in scenenote.actors %}
-                        <div class="screenote-encounter column is-4">
+                        <div class="screenote-encounter column is-2">
                             {{display_components.object_display(a)}}
                             <div class="row has-centered">
                                 <div class="column is-3"
@@ -945,6 +954,49 @@
                                      hx-target="closest .screenote-encounter"
                                      hx-swap="delete"
                                      hx-vals='{"actor":"{{a.path}}"}'>
+                                    <iconify-icon icon="mdi:remove" width="1rem">
+                                    </iconify-icon>
+                                </div>
+                            </div>
+                        </div>
+                        {%endfor%}
+                    </div>
+                </div>
+                <div class="column is-full">
+                    <hr class='has-bg-light'>
+                    <h4 class=' has-text-center'>Loot</h4>
+                    <div class="row has-space-around">
+                        <div class="column is-full">
+                            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/add"
+                                  hx-target="#scenenotes-forms"
+                                  hx-select="#scenenotes-forms"
+                                  hx-swap='outerHTML'
+                                  hx-trigger='input delay:1s, change'>
+                                <div class="is-select has-bg-light">
+                                    <select name='item'>
+                                        <option value=''>
+                                            --Select Item--
+                                        </option>
+                                        {% for enc in episode.items %}
+                                        {% if enc not in scenenote.loot %}
+                                        <option value='{{enc.pk}}'>
+                                            {{enc.name}}
+                                        </option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        {% for a in scenenote.loot %}
+                        <div class="screenote-encounter column is-2">
+                            {{display_components.object_display(a)}}
+                            <div class="row has-centered">
+                                <div class="column is-3"
+                                     hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/remove"
+                                     hx-target="closest .screenote-encounter"
+                                     hx-swap="delete"
+                                     hx-vals='{"itempk":"{{a.pk}}"}'>
                                     <iconify-icon icon="mdi:remove" width="1rem">
                                     </iconify-icon>
                                 </div>
@@ -1002,65 +1054,24 @@
 <title>{{world.name | title}} - Auto GM</title>
 <div class="row">
     <div id="autogm-scenario-container" class="column is-full">
-        <div id="outline-associations" class="row">
-            <div class="column is-full">
+        <div id="outline-associations" class="row has-space-between">
+            <div class="column is-shrink">
                 {% if not campaign.party%}
                 <h5 class='has-text-primary'>Campaign must have a party</h5>
                 {%endif %}
-                <p class='has-text-primary'>Complete the campaign description to guide the
-                    scenario</p>
+                <p class='has-text-primary'>Create an Episode Report to guide the scenario</p>
 
             </div>
             <div class="column is-shrink is-vertically-centered">
-                <h5 class='has-text-primary'>Add Association</h5>
-                <div class="is-select">
-                    <select
-                            name='outline_association'
-                            style='max-height: 20rem;'
-                            hx-post="/api/campaign/{{campaign.pk}}/associations/add/outline"
-                            hx-target="#outline-associations" hx-select="#outline-associations"
-                            hx-swap="outerHTML" hx-indicator='#request-indicator'>
-                        <option value=''>--Select Association--</option>
-                        {% for ass in campaign.current_episode.associations%}
-                        {% if ass not in campaign.outline_associations %}
-                        <option value='{{ass.path}}'
-                                style='height:3rem; text-align: end; {% if ass.image %} background:
-                                            left / contain no-repeat url({{ass.image.url(size=50)}});{% endif %}
-                                            font: 1.25rem "Rosarivo", cursive;'>
-                            {{ass.name}}
-                        </option>
-                        {%
-                        endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="column">
-                <div class="row">
-                    {% for p in campaign.outline_associations %}
-                    <div class="column is-2 has-text-center">
-                        {{display_components.object_display(p, dim=250, type=False)}}
-                        <a
-                           hx-post="/api/campaign/{{campaign.pk}}/associations/clear/outline"
-                           hx-target="#campaign-players" hx-select="#campaign-players"
-                           hx-swap="outerHTML" hx-indicator=' #request-indicator'
-                           hx-confirm="Are you sure you want to remove this player from the campaign?">
-                            <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
-                        </a>
-                    </div>
-                    {% endfor%}
-                </div>
-            </div>
-            <div class="column is-shrink is-vertically-centered">
                 <button class='button'
-                        hx-post='/task/generate/campaign/{{campaign.pk}}/outline'
+                        hx-post='/task/generate/episode/{{campaign.current_episode.pk}}/outline'
                         {% if not campaign.party%} disabled {%endif %}>Generate
                     Session</button>
             </div>
         </div>
         <div class="row">
             <div class="column is-full">
-                {{ autogm_campaign_display(user, world, campaign) }}
+                {{ autogm_campaign_display(user, world, campaign.current_episode) }}
             </div>
         </div>
     </div>
@@ -1068,9 +1079,9 @@
 {%- endmacro %}
 
 
-{% macro autogm_campaign_display(user, world, campaign) -%}
+{% macro autogm_campaign_display(user, world, episode) -%}
 <div class="row">
-    {%for scene in campaign.outline %}
+    {%for scene in episode.outline %}
     <div class="column is-full">
         <div class="panel">
             <div class="row has-space-between">
@@ -1081,7 +1092,7 @@
                     <small>{{scene.type}}</small>
                 </div>
             </div>
-            <form hx-post='/api/campaign/{{campaign.pk}}/outline/scene/{{scene.pk}}/update'
+            <form hx-post='/api/campaign/{{episode.pk}}/outline/scene/{{scene.pk}}/update'
                   hx-trigger='input delay:1s, change'
                   hx-swap='none'>
                 <div class="row">

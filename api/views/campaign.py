@@ -16,6 +16,7 @@ from models.campaign.episode import Episode, SceneNote
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
+from models.ttrpgobject.item import Item
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -250,6 +251,33 @@ def episodegmnoteaddscene(campaignpk, episodepk):
 
 
 @campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/gmplanner/addfiveroom",
+    methods=("POST",),
+)
+def episodegmnoteaddfiveroom(campaignpk, episodepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    episode.add_scene_note(
+        name=f"Scene #{len(episode.scenenotes) + 1}: The Entrance and Guardian"
+    )
+    episode.add_scene_note(
+        name=f"Scene #{len(episode.scenenotes) + 1}: The Puzzle or Role Playing Challenge"
+    )
+    episode.add_scene_note(
+        name=f"Scene #{len(episode.scenenotes) + 1}: The Trick or Setback"
+    )
+    episode.add_scene_note(
+        name=f"Scene #{len(episode.scenenotes) + 1}: The Climax, Big Battle or Conflict"
+    )
+    episode.add_scene_note(
+        name=f"Scene #{len(episode.scenenotes) + 1}: The Reward, Revelation, Plot Twist"
+    )
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
     "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/update",
     methods=("POST",),
 )
@@ -346,6 +374,38 @@ def episodenoteencounterremove(campaignpk, episodepk, scenenotepk):
         pk = request.json.get("encounterpk")
         if obj := Encounter.get(pk):
             sn_obj.remove_encounter(obj)
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/item/add",
+    methods=("POST",),
+)
+def episodenoteitemadd(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        if enc := Item.get(request.json.get("item")):
+            sn_obj.add_loot(enc)
+            sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/item/remove",
+    methods=("POST",),
+)
+def episodenoteitemremove(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        pk = request.json.get("itempk")
+        if obj := Item.get(pk):
+            sn_obj.remove_loot(obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
