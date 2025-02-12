@@ -309,13 +309,6 @@
                         </a>
                     </li>
                     <li class='has-text-dark'>
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/generator'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Campaign Generator</h5>
-                        </a>
-                    </li>
-                    <li class='has-text-dark'>
                         <a hx-post='/api/campaign/episode/{{episode.pk}}/report'
                            hx-target='#episode-manage-container'
                            onclick="activeTab(this)">
@@ -340,7 +333,7 @@
                         <a hx-post='/api/campaign/episode/{{episode.pk}}/extras'
                            hx-target='#episode-manage-container'
                            onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Extras</h5>
+                            <h5 class='has-text-center has-text-dark'>Graphic Novel Generator</h5>
                         </a>
                     </li>
                 </ul>
@@ -803,206 +796,209 @@
             </div>
         </div>
         <div class="column is-full is-hidden lower-it">
-            <hr class='has-bg-muted'>
-            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/update"
-                  hx-swap='none'
-                  hx-trigger='input delay:1s, change, end'>
-                <div class="row">
-                    <div class="column is-8">
-                        <input class="has-bg-muted" type="text"
-                               name="name"
-                               value="{{scenenote.name}}">
-                    </div>
-                    <div class="column is-shrink is-vertically-centered">
-                        <label>Scene Num: </label>
-                    </div>
-                    <div class="column">
-                        <input class="has-bg-muted" type="number"
-                               name="num"
-                               value="{{scenenote.num}}">
-                    </div>
-                    <div class="column is-full">
-                        <h5 class='has-text-center'>Scene Description</h5>
-                        {{form_components.texteditor(user, scenenote, 'description', content=scenenote.description)}}
-                    </div>
-                    <div class="column is-full">
-                        <h5 class='has-text-center'>General Notes</h5>
-                        {{form_components.texteditor(user, scenenote, 'notes', content=scenenote.notes)}}
-                    </div>
-                </div>
-            </form>
             <div class="row">
-                <div class="column is-full">
-                    <hr class='has-bg-light'>
-                    <h4 class='has-text-center'>Setting</h4>
-                    <div class="row has-space-around">
-                        <div class="column is-full">
-                            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/add"
-                                  hx-target="#scenenotes-forms"
-                                  hx-select="#scenenotes-forms"
-                                  hx-swap='outerHTML'
-                                  hx-trigger='input delay:1s, change'>
-                                <div class="is-select has-bg-light">
-                                    <select name='setting'>
-                                        <option value=''>
-                                            --Select Setting--
-                                        </option>
-                                        {% for setting in episode.places %}
-                                        {% if setting not in scenenote.setting %}
-                                        <option
-                                                value='{{setting.model_name()}}--{{setting.pk}}'>
-                                            {{setting.name}}
-                                        </option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </form>
-                        </div>
-                        {% for a in scenenote.setting %}
-                        <div class="screenote-setting column is-2">
-                            {{display_components.object_display(a)}}
-                            <div class="row has-centered">
-                                <div class="column is-3"
-                                     hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/remove"
-                                     hx-target="closest .screenote-setting"
-                                     hx-swap="delete"
-                                     hx-vals='{"settingpk":"{{a.pk}}", "settingmodel":"{{a.model_name()}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="1rem">
-                                    </iconify-icon>
-                                </div>
+                <div class="column">
+                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/update"
+                          hx-swap='none'
+                          hx-trigger='input delay:1s, change, end'>
+                        <div class="row">
+                            <div class="column is-8">
+                                <input class="has-bg-muted" type="text"
+                                       name="name"
+                                       value="{{scenenote.name}}">
+                            </div>
+                            <div class="column is-shrink is-vertically-centered">
+                                <label>Scene Num: </label>
+                            </div>
+                            <div class="column">
+                                <input class="has-bg-muted" type="number"
+                                       name="num"
+                                       value="{{scenenote.num}}">
+                            </div>
+                            <div class="column is-full">
+                                <h5 class='has-text-center'>Scene Description</h5>
+                                {{form_components.texteditor(user, scenenote, 'description', content=scenenote.description)}}
+                            </div>
+                            <div class="column is-full">
+                                <h5 class='has-text-center'>General Notes</h5>
+                                {{form_components.texteditor(user, scenenote, 'notes', content=scenenote.notes)}}
                             </div>
                         </div>
-                        {%endfor%}
-                    </div>
+                    </form>
                 </div>
-                <div class="column is-full">
-                    <hr class='has-bg-light'>
-                    <h4 class=' has-text-center'>Encounters</h4>
-                    <div class="row has-space-around">
-                        <div class="column is-full">
-                            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/add"
-                                  hx-target="#scenenotes-forms"
-                                  hx-select="#scenenotes-forms"
-                                  hx-swap='outerHTML'
-                                  hx-trigger='input delay:1s, change'>
-                                <div class="is-select has-bg-light">
-                                    <select name='encounter'>
-                                        <option value=''>
-                                            --Select Encounter--
-                                        </option>
-                                        {% for enc in episode.encounters %}
-                                        {% if enc not in scenenote.encounters %}
-                                        <option value='{{enc.pk}}'>
-                                            {{enc.name}}
-                                        </option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
+                <div class="column">
+                    <div class="row">
+                        <div class="column is-6">
+                            <h4 class='has-text-center'>Setting</h4>
+                            <div class="row has-space-around">
+                                <div class="column is-full">
+                                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/add"
+                                          hx-target="#scenenotes-forms"
+                                          hx-select="#scenenotes-forms"
+                                          hx-swap='outerHTML'
+                                          hx-trigger='input delay:1s, change'>
+                                        <div class="is-select has-bg-light">
+                                            <select name='setting'>
+                                                <option value=''>
+                                                    --Select Setting--
+                                                </option>
+                                                {% for setting in episode.places %}
+                                                {% if setting not in scenenote.setting %}
+                                                <option
+                                                        value='{{setting.model_name()}}--{{setting.pk}}'>
+                                                    {{setting.name}}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
-                        {% for a in scenenote.encounters %}
-                        <div class="screenote-encounter column is-2">
-                            {{display_components.object_display(a)}}
-                            <div class="row has-centered">
-                                <div class="column is-3"
-                                     hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"
-                                     hx-target="closest .screenote-encounter"
-                                     hx-swap="delete"
-                                     hx-vals='{"encounterpk":"{{a.pk}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="1rem">
-                                    </iconify-icon>
+                                {% for a in scenenote.setting %}
+                                <div class="screenote-setting column is-4">
+                                    {{display_components.object_display(a)}}
+                                    <div class="row has-centered">
+                                        <div class="column is-3"
+                                             hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/remove"
+                                             hx-target="closest .screenote-setting"
+                                             hx-swap="delete"
+                                             hx-vals='{"settingpk":"{{a.pk}}", "settingmodel":"{{a.model_name()}}"}'>
+                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            </iconify-icon>
+                                        </div>
+                                    </div>
                                 </div>
+                                {%endfor%}
                             </div>
                         </div>
-                        {%endfor%}
-                    </div>
-                </div>
-                <div class="column is-full">
-                    <hr class='has-bg-light'>
-                    <h4 class='has-text-center'>Characters/Creatures</h4>
-                    <div class="row has-space-around">
-                        <div class="column is-full">
-                            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/add"
-                                  hx-target="#scenenotes-forms"
-                                  hx-select="#scenenotes-forms"
-                                  hx-swap='outerHTML'
-                                  hx-trigger='input delay:1s, change'>
-                                <div class="is-select has-bg-light">
-                                    <select name='actor'>
-                                        <option value=''>
-                                            --Select Character/Creature--
-                                        </option>
-                                        {% for enc in episode.actors %}
-                                        {% if enc not in scenenote.actors %}
-                                        <option value='{{enc.path}}'>
-                                            {{enc.name}}
-                                        </option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
+                        <div class="column is-6">
+                            <h4 class=' has-text-center'>Encounters</h4>
+                            <div class="row has-space-around">
+                                <div class="column is-full">
+                                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/add"
+                                          hx-target="#scenenotes-forms"
+                                          hx-select="#scenenotes-forms"
+                                          hx-swap='outerHTML'
+                                          hx-trigger='input delay:1s, change'>
+                                        <div class="is-select has-bg-light">
+                                            <select name='encounter'>
+                                                <option value=''>
+                                                    --Select Encounter--
+                                                </option>
+                                                {% for enc in episode.encounters %}
+                                                {% if enc not in scenenote.encounters %}
+                                                <option value='{{enc.pk}}'>
+                                                    {{enc.name}}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
-                        {% for a in scenenote.actors %}
-                        <div class="screenote-encounter column is-2">
-                            {{display_components.object_display(a)}}
-                            <div class="row has-centered">
-                                <div class="column is-3"
-                                     hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/remove"
-                                     hx-target="closest .screenote-encounter"
-                                     hx-swap="delete"
-                                     hx-vals='{"actor":"{{a.path}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="1rem">
-                                    </iconify-icon>
+                                {% for a in scenenote.encounters %}
+                                <div class="screenote-encounter column is-4">
+                                    {{display_components.object_display(a)}}
+                                    <div class="row has-centered">
+                                        <div class="column is-3"
+                                             hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"
+                                             hx-target="closest .screenote-encounter"
+                                             hx-swap="delete"
+                                             hx-vals='{"encounterpk":"{{a.pk}}"}'>
+                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            </iconify-icon>
+                                        </div>
+                                    </div>
                                 </div>
+                                {%endfor%}
                             </div>
                         </div>
-                        {%endfor%}
-                    </div>
-                </div>
-                <div class="column is-full">
-                    <hr class='has-bg-light'>
-                    <h4 class=' has-text-center'>Loot</h4>
-                    <div class="row has-space-around">
-                        <div class="column is-full">
-                            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/add"
-                                  hx-target="#scenenotes-forms"
-                                  hx-select="#scenenotes-forms"
-                                  hx-swap='outerHTML'
-                                  hx-trigger='input delay:1s, change'>
-                                <div class="is-select has-bg-light">
-                                    <select name='item'>
-                                        <option value=''>
-                                            --Select Item--
-                                        </option>
-                                        {% for enc in episode.items %}
-                                        {% if enc not in scenenote.loot %}
-                                        <option value='{{enc.pk}}'>
-                                            {{enc.name}}
-                                        </option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
+                        <div class="column is-6">
+                            <hr class='has-bg-light'>
+                            <h4 class='has-text-center'>Characters/Creatures</h4>
+                            <div class="row has-space-around">
+                                <div class="column is-full">
+                                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/add"
+                                          hx-target="#scenenotes-forms"
+                                          hx-select="#scenenotes-forms"
+                                          hx-swap='outerHTML'
+                                          hx-trigger='input delay:1s, change'>
+                                        <div class="is-select has-bg-light">
+                                            <select name='actor'>
+                                                <option value=''>
+                                                    --Select Character/Creature--
+                                                </option>
+                                                {% for enc in episode.actors %}
+                                                {% if enc not in scenenote.actors %}
+                                                <option value='{{enc.path}}'>
+                                                    {{enc.name}}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
-                        {% for a in scenenote.loot %}
-                        <div class="screenote-encounter column is-2">
-                            {{display_components.object_display(a)}}
-                            <div class="row has-centered">
-                                <div class="column is-3"
-                                     hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/remove"
-                                     hx-target="closest .screenote-encounter"
-                                     hx-swap="delete"
-                                     hx-vals='{"itempk":"{{a.pk}}"}'>
-                                    <iconify-icon icon="mdi:remove" width="1rem">
-                                    </iconify-icon>
+                                {% for a in scenenote.actors %}
+                                <div class="screenote-encounter column is-4">
+                                    {{display_components.object_display(a)}}
+                                    <div class="row has-centered">
+                                        <div class="column is-3"
+                                             hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/remove"
+                                             hx-target="closest .screenote-encounter"
+                                             hx-swap="delete"
+                                             hx-vals='{"actor":"{{a.path}}"}'>
+                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            </iconify-icon>
+                                        </div>
+                                    </div>
                                 </div>
+                                {%endfor%}
                             </div>
                         </div>
-                        {%endfor%}
+                        <div class="column is-6">
+                            <hr class='has-bg-light'>
+                            <h4 class=' has-text-center'>Loot</h4>
+                            <div class="row has-space-around">
+                                <div class="column is-full">
+                                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/add"
+                                          hx-target="#scenenotes-forms"
+                                          hx-select="#scenenotes-forms"
+                                          hx-swap='outerHTML'
+                                          hx-trigger='input delay:1s, change'>
+                                        <div class="is-select has-bg-light">
+                                            <select name='item'>
+                                                <option value=''>
+                                                    --Select Item--
+                                                </option>
+                                                {% for enc in episode.items %}
+                                                {% if enc not in scenenote.loot %}
+                                                <option value='{{enc.pk}}'>
+                                                    {{enc.name}}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                {% for a in scenenote.loot %}
+                                <div class="screenote-encounter column is-4">
+                                    {{display_components.object_display(a)}}
+                                    <div class="row has-centered">
+                                        <div class="column is-3"
+                                             hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/remove"
+                                             hx-target="closest .screenote-encounter"
+                                             hx-swap="delete"
+                                             hx-vals='{"itempk":"{{a.pk}}"}'>
+                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            </iconify-icon>
+                                        </div>
+                                    </div>
+                                </div>
+                                {%endfor%}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1047,84 +1043,5 @@
             </div>
         </div>
     </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_generator(user, world, campaign) %}
-<title>{{world.name | title}} - Auto GM</title>
-<div class="row">
-    <div id="autogm-scenario-container" class="column is-full">
-        <div id="outline-associations" class="row has-space-between">
-            <div class="column is-shrink">
-                {% if not campaign.party%}
-                <h5 class='has-text-primary'>Campaign must have a party</h5>
-                {%endif %}
-                <p class='has-text-primary'>Create an Episode Report to guide the scenario</p>
-
-            </div>
-            <div class="column is-shrink is-vertically-centered">
-                <button class='button'
-                        hx-post='/task/generate/episode/{{campaign.current_episode.pk}}/outline'
-                        {% if not campaign.party%} disabled {%endif %}>Generate
-                    Session</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="column is-full">
-                {{ autogm_campaign_display(user, world, campaign.current_episode) }}
-            </div>
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-
-{% macro autogm_campaign_display(user, world, episode) -%}
-<div class="row">
-    {%for scene in episode.outline %}
-    <div class="column is-full">
-        <div class="panel">
-            <div class="row has-space-between">
-                <div class="column is-shrink">
-                    <h3>{{scene.name}} - Act {{scene.act}} Session {{scene.scene}}</h3>
-                </div>
-                <div class="column is-shrink">
-                    <small>{{scene.type}}</small>
-                </div>
-            </div>
-            <form hx-post='/api/campaign/{{episode.pk}}/outline/scene/{{scene.pk}}/update'
-                  hx-trigger='input delay:1s, change'
-                  hx-swap='none'>
-                <div class="row">
-                    <div class="column is-full">
-                        <h5>Description</h5>
-                        {{form_components.texteditor(user, scene, "description") }}
-                    </div>
-                    <div class="column is-full">
-                        <h5>Scenario</h5>
-                        {{form_components.texteditor(user, scene, "notes") }}
-                    </div>
-                </div>
-            </form>
-            <div class="row has-space-around">
-                {% for o in scene.setting%}
-                <div class="column is-2">
-                    {{display_components.object_display(o)}}
-                </div>
-                {% endfor %}
-                {% for o in scene.actors%}
-                <div class="column is-2">
-                    {{display_components.object_display(o)}}
-                </div>
-                {% endfor %}
-                {% for o in scene.loot%}
-                <div class="column  is-2">
-                    {{display_components.object_display(o)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endfor %}
 </div>
 {%- endmacro %}

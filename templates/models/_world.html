@@ -67,9 +67,9 @@
     {% for region in obj.regions %}
     <div class="column is-2">
         <div class="panel">
-            <h4 class="has-text-dark has-text-center">
+            <h6 class="has-text-dark has-text-center">
                 {{(region.owner and region.owner.name) or "Unknown"}}
-            </h4>
+            </h6>
             {{display_components.object_display(region, type=False) | safe }}
         </div>
     </div>

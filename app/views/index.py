@@ -39,11 +39,6 @@ def _authenticate(user, obj):
 @auth_required()
 def index():
     user = AutoAuth.current_user()
-    for w in World.all():
-        w.users += [user]
-        w.save()
-
-    user = AutoAuth.current_user()
     session["page"] = "/home"
     return render_template("index.html", user=user, page_url="/home")
 

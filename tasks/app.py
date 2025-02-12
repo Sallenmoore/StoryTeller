@@ -159,18 +159,6 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/episode/<string:pk>/outline", methods=("POST",))
-    def create_outline(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_episode_outline_task,
-                pk=pk,
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
     @app.route("/generate/gmscreen/table/<string:pk>", methods=("POST",))
     def create_table(pk):
         task = (

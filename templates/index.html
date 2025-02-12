@@ -92,9 +92,9 @@
         </div>
         <div id='screen-container' class='is-tablet-up'>
         </div>
-        <div class="container has-no-padding is-full is-mobile-full" id="content">
+        <div class="container has-no-padding has-bg-muted is-full is-mobile-full" id="content">
             <div id='page-container'
-                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full has-bg-muted"
+                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
                  style='position:relative;'>
                 {% if obj %}
                 <div class="row has-no-padding has-no-margin has-centered">
@@ -116,14 +116,14 @@
                     {% endif %}
                     <div class="column is-11 is-mobile-full has-no-padding">
                         {% if page_url %}
-                        <div class='panel has-bg-muted raise-it'
+                        <div class='panel has-bg-transparent raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content"
                              hx-get='/api{{page_url}}'
                              hx-trigger='load'
                              hx-indicator='#request-indicator'>
                         </div>
                         {% elif page_content %}
-                        <div class='panel has-bg-muted raise-it'
+                        <div class='panel raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content">
                             {{page_content | safe}}
                         </div>

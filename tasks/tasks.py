@@ -60,12 +60,6 @@ def _generate_campaign_summary_task(pk):
     return {"url": f"/api/campaign/{obj.pk}"}
 
 
-def _generate_episode_outline_task(pk):
-    if obj := Episode.get(pk):
-        obj.generate_outline()
-    return {"url": f"/api/campaign/{obj.pk}"}
-
-
 def _generate_session_summary_task(pk):
     if obj := Episode.get(pk):
         obj.resummarize()
