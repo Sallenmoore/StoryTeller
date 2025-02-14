@@ -78,6 +78,13 @@ class Faction(TTRPGObject):
         """
 
     @property
+    def jobs(self):
+        jobs = []
+        for c in self.characters:
+            jobs += c.quests
+        return jobs
+
+    @property
     def map(self):
         return self.parent.map if self.parent else self.world.map
 

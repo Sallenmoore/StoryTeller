@@ -42,6 +42,13 @@ class Place(TTRPGObject):
         return [*self.characters, *self.creatures]
 
     @property
+    def jobs(self):
+        jobs = []
+        for c in self.characters:
+            jobs += c.quests
+        return jobs
+
+    @property
     def map_thumbnail(self):
         return self.map.image.url(100)
 

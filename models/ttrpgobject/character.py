@@ -3,6 +3,7 @@ import random
 import markdown
 
 from autonomous import log
+from autonomous.ai.jsonagent import JSONAgent
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
@@ -18,6 +19,7 @@ class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
+    quests = ListAttr(ReferenceAttr(choices=["Quest"]))
 
     parent_list = ["Location", "District", "Faction", "City", "Vehicle"]
     _traits_list = [
@@ -82,7 +84,7 @@ LIFE EVENTS
 
     @property
     def image_tags(self):
-        age_tag = f"{self.age//10}0s"
+        age_tag = f"{self.age // 10}0s"
         return super().image_tags + [self.gender, age_tag, self.species]
 
     @property
@@ -97,8 +99,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
 
-
-
     ################# Instance Methods #################
 
     def generate(self):
@@ -108,6 +108,63 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         prompt = f"Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect."
 
         return super().generate(prompt=prompt)
+
+    def generate_quest(self):
+        from models.ttrpgobject.quest import Quest
+
+        funcobj = {
+            "name": "generate_quest",
+            "description": "creates a morally complicated, interesting, and challenging side quest that player characters can complete for or with the described character",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the quest",
+                    },
+                    "rewards": {
+                        "type": "string",
+                        "description": "The rewards for completing the quest depending on the outcome of the quest",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "A detailed description of the quest, what is required, and including any ethical complications involved in completing the quest",
+                    },
+                    "location": {
+                        "type": "string",
+                        "description": "A detailed description of the primary starting location of the quest",
+                    },
+                },
+            },
+        }
+
+        prompt = f"Generate a {self.genre} tabletop RPG side quest that is morally complicated, interesting, and challenging for the player characters to complete. The quest should be suitable for a party of 4-6 players. The quest should be able to be completed for or with the character {self.name} who is a {self.occupation} described as: {self.description}. Include any ethical complications involved in completing the quest."
+
+        result = JSONAgent(
+            name=f"{self._genre} TableTop RPG Worldbuiding JSON Agent",
+            instructions=self.instructions,
+            description=self.description,
+        ).generate(prompt, function=funcobj)
+        self.add_quest(**result)
+
+    def add_quest(self, name, description, rewards, location):
+        from models.ttrpgobject.quest import Quest
+
+        q = Quest(
+            name=name,
+            reward=rewards,
+            description=description,
+            contact=self,
+            location=location,
+        )
+        q.save()
+        self.quests += [q]
+        self.save()
+
+    def remove_quest(self, quest):
+        self.quests = [q for q in self.quests if q != quest]
+        self.save()
+        quest.delete()
 
     ############################# Object Data #############################
     ## MARK: Object Data

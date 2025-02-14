@@ -10,7 +10,7 @@
         </a>
     </div>
     <div class="column is-shrink is-vertically-centered">
-        <small>ver. 0.2.0</small>
+        <small>ver. 0.2.1</small>
     </div>
     <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
         <div class="is-input-group has-bg-secondary">
@@ -204,6 +204,24 @@
                     </div>
                 </a>
             </li>
+            {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
+            <li>
+                <a href="" class="menu-anchor"
+                   hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
+                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+                   hx-push-url="/{{obj.path}}/jobs">
+                    <div class="row">
+                        <div class="column is-3 is-mobile-shrink">
+                            <iconify-icon icon="ooui:journal-ltr" width="1rem"></iconify-icon>
+                        </div>
+                        <div
+                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                            <span>Job Board</span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {% endif %}
             <li>
                 <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
                    hx-target="#page-content" hx-indicator="#request-indicator"

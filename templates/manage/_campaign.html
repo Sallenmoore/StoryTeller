@@ -6,7 +6,7 @@
 
 {% macro campaigns(user, obj, campaign_list, campaign=None, episode=None) -%}
 <title>{{obj.name | title}} - Manage Campaign</title>
-<h2 class='has-text-dark' id='manage-campaigns'>
+<h2 id='manage-campaigns'>
     Manage Campaigns
 </h2>
 <div id="world-campaign-details" class="raise-it">
@@ -48,6 +48,8 @@
             <li class="{% if episode %} is-active {% endif %} has-text-dark"
                 hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
                 hx-target='#details-container'
+                hx-select='#details-container'
+                hx-swap='outerHTML'
                 onclick="activeTab(this)">
                 <a>
                     Episode Details
