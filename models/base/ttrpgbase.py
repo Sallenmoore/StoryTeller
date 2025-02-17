@@ -454,6 +454,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
     ########## Object Data ######################
     # MARK: History
     def resummarize(self, upload=False):
+        from models.ttrpgobject.quest import Quest
+
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()
         # generate backstory summary
@@ -633,11 +635,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
             self.image.save()
 
     def pre_save_backstory(self):
-        if not self.backstory:
-            self.backstory = f"A {self.traits} {self.title}."
-        self.backstory_summary = self.backstory_summary.replace("h1>", "h3>").replace(
-            "h2>", "h3>"
-        )
+        if ">" in self.backstory_summary:
+            self.backstory_summary = self.backstory_summary.replace(
+                "h1>", "h3>"
+            ).replace("h2>", "h3>")
 
     def pre_save_traits(self):
         if not self.traits:

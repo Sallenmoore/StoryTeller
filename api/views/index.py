@@ -13,6 +13,7 @@ from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
+from models.ttrpgobject.quest import Quest  # for the importer
 from models.world import World
 
 from ._utilities import loader as _loader

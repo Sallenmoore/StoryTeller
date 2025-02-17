@@ -14,6 +14,44 @@ class Creature(Actor):
     )
     group = IntAttr(default=False)
 
+    _traits_list = [
+        "secretly evil",
+        "shy and gentle",
+        "collective",
+        "dominating",
+        "cruel and sadistic",
+        "power-hungry and ambitious",
+        "despair",
+        "proud and self-absorbed",
+        "fear",
+        "honor",
+        "incredibly greedy",
+        "journeying",
+        "hardworking",
+        "cowardly and insecure",
+        "practical to a fault",
+        "dangerously curious",
+        "cautious and occasionally paranoid",
+        "pride",
+        "Ambition",
+        "Avarice",
+        "Bitterness",
+        "Courage",
+        "Cowardice",
+        "Curiosity",
+        "Deceitfulness",
+        "Determination",
+        "Devotion to a cause",
+        "Filiality",
+        "Hatred",
+        "Nihilism",
+        "Paternalism",
+        "Pessimism",
+        "Protectiveness",
+        "Resentment",
+        "Shame",
+    ]
+
     parent_list = ["Location", "District", "Vehicle"]
     _funcobj = {
         "name": "generate_creature",
@@ -56,7 +94,7 @@ BACKSTORY
 
     @property
     def image_prompt(self):
-        return f"""A full-length color portrait of a {self.genre} {self.type or 'creature'} with the following description:
+        return f"""A full-length color portrait of a {self.genre} {self.type or "creature"} with the following description:
         {("- TYPE: " if self.group else "- NAME: ") + self.name}
         {"- DESCRIPTION: " + self.description if self.description else ""}
         {"- SIZE: " + self.size if self.size else ""}
@@ -70,7 +108,7 @@ BACKSTORY
     ################### CRUD Methods #####################
     def generate(self):
         group = "type of enemy whose species" if self.group else "adversary who"
-        prompt = f"""Create a {random.choice(['dangerous', 'evil', 'misunderstood', 'manipulative', 'mindless'])} {self.genre} {self.type} {group} has a {random.choice(('unexpected', 'mysterious', 'sinister', 'selfish'))} goal they are working toward.
+        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} {group} has a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
         """
         return super().generate(prompt=prompt)
 

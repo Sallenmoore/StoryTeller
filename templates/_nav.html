@@ -207,7 +207,7 @@
             {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
             <li>
                 <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
+                   hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/jobs">
                     <div class="row">

@@ -21,6 +21,7 @@ from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.district import District
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
+from models.ttrpgobject.quest import Quest
 from models.user import User
 from models.world import World
 
@@ -233,6 +234,80 @@ def journal_add_association(entrypk=None):
     )
 
 
+# MARK: journal route
+###########################################################
+##                    Quest Routes                     ##
+###########################################################
+@manage_endpoint.route("/quest/edit", methods=("POST",))
+@manage_endpoint.route("/quest/<string:entrypk>/edit", methods=("POST",))
+def edit_quest_entry(entrypk=None):
+    user, obj, *_ = _loader()
+    entry = Quest.get(entrypk)
+    if not entry:
+        entry = Quest(name=f"Quest #{len(obj.journal.entries) + 1}")
+        entry.save()
+        obj.quests += [entry]
+        obj.save()
+    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, entry)
+
+
+@manage_endpoint.route("/quest/update", methods=("POST",))
+@manage_endpoint.route("/quest/<string:entrypk>/update", methods=("POST",))
+def update_quest_entry(entrypk=None):
+    user, obj, *_ = _loader()
+    associations = []
+    for association in request.json.get("associations", []):
+        if obj := World.get_model(association.get("model"), association.get("pk")):
+            associations.append(obj)
+    quest = Quest.get(entrypk)
+    quest.name = request.json.get("name")
+    quest.description = request.json.get("description")
+    quest.rewards = request.json.get("rewards")
+    quest.summary = request.json.get("summary")
+    quest.location = request.json.get("location")
+    quest.associations = associations
+    quest.save()
+    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
+
+
+@manage_endpoint.route("/quest/<string:entrypk>/delete", methods=("POST",))
+def delete_quest_entry(entrypk):
+    user, obj, *_ = _loader()
+    if quest := Quest.get(entrypk):
+        quest.delete()
+        return "<p>success</p>"
+    return "Not found"
+
+
+@manage_endpoint.route("/quest/search", methods=("POST",))
+def quest_search():
+    """
+    ## Description
+    Deletes the world object's journal entry based on the provided primary keys.
+    """
+    user, obj, world, *_ = _loader()
+    query = request.json.get("query")
+    associations = world.search_autocomplete(query) if query and len(query) > 2 else []
+    return get_template_attribute("manage/_quest.html", "quest_dropdown")(
+        user, obj, associations
+    )
+
+
+@manage_endpoint.route("/quest/entry/association/add", methods=("POST",))
+def quest_add_association(entrypk=None):
+    user, obj, *_ = _loader()
+    entrypk = request.json.get("entrypk")
+    if quest := Quest.get(entrypk):
+        if association := World.get_model(
+            request.json.get("ass_model"), request.json.get("ass_pk")
+        ):
+            quest.associations += [association]
+            quest.save()
+    return get_template_attribute("manage/_journal.html", "quest_entry")(
+        user, obj, quest
+    )
+
+
 # MARK: Association route
 ###########################################################
 ##                 Associations Routes                   ##
@@ -405,7 +480,7 @@ def removecharacterlineage(pk):
 
 @manage_endpoint.route("/character/hitpoints", methods=("POST",))
 def characterhitpoints():
-    user, obj, world, macro, module = _loader()
+    user, obj, *_ = _loader()
     obj.current_hitpoints = int(request.json.get("current_hitpoints", obj.hitpoints))
     obj.save()
     return get_template_attribute("models/_character.html", "info")(user, obj)

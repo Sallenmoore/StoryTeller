@@ -235,6 +235,14 @@ class World(TTRPGBase):
         return f"A full color, high resolution illustrated map of a fictional {self.genre} setting called {self.name} and described as {self.desc or 'filled with points of interest to explore, antagonistic factions, and a rich, mysterious history.'}"
 
     @property
+    def jobs(self):
+        jobs = []
+        for c in self.characters:
+            jobs += c.quests
+        jobs = list(set(jobs))
+        return jobs
+
+    @property
     def locations(self):
         return sorted(
             Location.search(world=self) if self.pk else [], key=lambda x: x.name

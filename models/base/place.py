@@ -46,6 +46,10 @@ class Place(TTRPGObject):
         jobs = []
         for c in self.characters:
             jobs += c.quests
+        for a in self.associations:
+            for c in a.characters:
+                jobs += c.quests
+        jobs = list(set(jobs))
         return jobs
 
     @property

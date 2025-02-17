@@ -192,10 +192,8 @@ class TTRPGObject(TTRPGBase):
     def pre_save_canon(self):
         for campaign in self.world.campaigns:
             for ass in campaign.associations:
-                log(self.pk, ass.pk, str(self.pk) == str(ass.pk))
                 if str(self.pk) == str(ass.pk):
                     self.canon = True
-                    log(f"{ass.name} canoinized")
                     return
         self.canon = False
 

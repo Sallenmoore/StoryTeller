@@ -20,13 +20,13 @@ class Faction(TTRPGObject):
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]
     _traits_list = [
-        "secretive",
-        "reckless",
-        "cautious",
+        "colonists",
+        "deep rooted",
+        "cult",
         "suspicious",
         "violent",
         "sinister",
-        "religous",
+        "fanatical",
         "racist",
         "egalitarian",
         "ambitious",
@@ -34,6 +34,9 @@ class Faction(TTRPGObject):
         "charitable",
         "greedy",
         "generous",
+        "imperialist",
+        "isolationist",
+        "mercenary",
     ]
 
     _funcobj = {

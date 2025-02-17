@@ -41,7 +41,80 @@ class Character(Actor):
         "dangerously curious",
         "cautious and occasionally paranoid",
         "reckless, but heroic",
+        "Ambition",
+        "Avarice",
+        "Bitterness",
+        "Courage",
+        "Cowardice",
+        "Curiosity",
+        "Deceitfulness",
+        "Determination",
+        "Devotion to a cause",
+        "Filiality",
+        "Hatred",
+        "Honesty",
+        "Hopefulness",
+        "Love of a person",
+        "Nihilism",
+        "Paternalism",
+        "Pessimism",
+        "Protectiveness",
+        "Resentment",
+        "Shame",
     ]
+    _template = [
+        [
+            "Criminal, thug, thief, swindler",
+            "Menial, cleaner, retail worker, servant",
+            "Unskilled heavy labor, porter, construction",
+            "Skilled trade, electrician, mechanic, pilot",
+            "Idea worker, programmer, writer",
+            "Merchant, business owner, trader, banker",
+            "Official, bureaucrat, courtier, clerk",
+            "Military, soldier, enforcer, law officer",
+        ],
+        [
+            "The local underclass",
+            "Common laborer",
+            "Aspiring bourgeoise or upper class",
+            "The elite of this society",
+            "Minority or foreigner",
+            "Offworlders or exotic",
+        ],
+        [
+            "They have significant debt or money woes",
+            "A loved one is in trouble",
+            "Romantic failure with a desired person",
+            "Drug or behavioral addiction",
+            "Their superior dislikes or resents them",
+            "They have a persistent sickness",
+            "They hate their job or life situation",
+            "Someone dangerous is targeting them",
+            "They're pursuing a disastrous purpose",
+            "They have no problems worth mentioning",
+        ],
+        [
+            "Unusually young or old for their role",
+            "Young adult",
+            "Mature prime",
+            "Middle-aged or elderly",
+        ],
+        [
+            "They want a particular romantic partner",
+            "They want money for them or a loved one",
+            "They want a promotion in their job",
+            "They want answers about a past trauma",
+            "They want revenge on an enemy",
+            "They want to help a beleaguered friend",
+            "They want an entirely different job",
+            "They want protection from an enemy",
+            "They want to leave their current life",
+            "They want fame and glory",
+            "They want power over those around them",
+            "They have everything they want from life",
+        ],
+    ]
+
     _funcobj = {
         "name": "generate_npc",
         "description": "creates, completes, and expands on the attributes and story of an existing NPC",
@@ -103,7 +176,9 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
     def generate(self):
         age = self.age if self.age else random.randint(15, 45)
-        gender = self.gender or random.choices(self._genders, weights=[4, 5, 1], k=1)[0]
+        gender = (
+            self.gender or random.choices(self._genders, weights=[10, 10, 1], k=1)[0]
+        )
 
         prompt = f"Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect."
 
@@ -114,46 +189,54 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         funcobj = {
             "name": "generate_quest",
-            "description": "creates a morally complicated, interesting, and challenging side quest that player characters can complete for or with the described character",
+            "description": "creates a morally complicated, interesting, and multi-part mystery that player characters can discover for or with the described character",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "The name of the quest",
+                        "description": "The name of the mystery",
                     },
                     "rewards": {
                         "type": "string",
-                        "description": "The rewards for completing the quest depending on the outcome of the quest",
+                        "description": "The specific rewards for completing the quest depending on the outcome of the mystery",
                     },
                     "description": {
                         "type": "string",
-                        "description": "A detailed description of the quest, what is required, and including any ethical complications involved in completing the quest",
+                        "description": "A detailed description of the mystery, what is required, and including any ethical complications involved in completing the quest",
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "A one sentence summary of the mystery, including rewards",
                     },
                     "location": {
                         "type": "string",
-                        "description": "A detailed description of the primary starting location of the quest",
+                        "description": "A detailed description of the primary starting location of the mystery",
                     },
                 },
             },
         }
 
-        prompt = f"Generate a {self.genre} tabletop RPG side quest that is morally complicated, interesting, and challenging for the player characters to complete. The quest should be suitable for a party of 4-6 players. The quest should be able to be completed for or with the character {self.name} who is a {self.occupation} described as: {self.description}. Include any ethical complications involved in completing the quest."
+        prompt = f"Generate a multipart mystery for a sci-fi Table Top rpg. The mysteries should be revealed as each part is discovered, and should tell a complete story  that is morally complicated, interesting, and challenging for the player characters to complete. Include specific ethical complications involved in various possible outcomes of completing the mystery. The mystery should be suitable for a party of 4-6 players. The mystery should be more than just item retrieval, involving aspects of political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and be able to be completed for or with the character {self.name} who is a {self.occupation} described as: {self.description}."
 
-        result = JSONAgent(
-            name=f"{self._genre} TableTop RPG Worldbuiding JSON Agent",
-            instructions=self.instructions,
-            description=self.description,
-        ).generate(prompt, function=funcobj)
-        self.add_quest(**result)
+        agent = JSONAgent(
+            name=f"{self.genre} TableTop RPG Quest Generation JSON Agent",
+            instructions="You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate a mystery that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete. The mystery should be suitable for a party of 4-6 players. Include specific ethical complications involved in completing the quest using various methods with different outcomes.",
+            description="An expert AI Table Top RPG Mystery Generator that generates quests that are morally complicated, interesting, and challenging for the player characters to complete",
+        )
+        agent.save()
+        results = agent.generate(prompt, function=funcobj)
+        self.add_quest(**results)
+        agent.delete()
 
-    def add_quest(self, name, description, rewards, location):
+    def add_quest(self, name, description, summary, rewards, location):
         from models.ttrpgobject.quest import Quest
 
         q = Quest(
             name=name,
-            reward=rewards,
+            rewards=rewards,
             description=description,
+            summary=summary,
             contact=self,
             location=location,
         )
@@ -206,6 +289,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_is_player()
+        document.pre_save_description()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -222,3 +306,10 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         else:
             self.is_player = bool(self.is_player)
         # log(self.is_player)
+
+    def pre_save_description(self):
+        if not self.backstory:
+            for t in self._template:
+                self.backstory += f"""
+<p>{random.choice(t)}</p>
+"""
