@@ -173,6 +173,7 @@ class TTRPGBase(AutoModel):
             # log(klass)
             if klass.__name__.lower() == model.lower():
                 Model = klass
+                break
         return Model.get(pk) if Model and pk else Model
 
     @classmethod
@@ -315,7 +316,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
         """
-        if associations := [*self.geneology, *self.associations]:
+        if associations := list(set([*self.geneology, *self.associations])):
             prompt += """
 ===
 - Associated Objects:

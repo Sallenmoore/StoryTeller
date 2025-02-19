@@ -277,6 +277,11 @@ class BaseSystem(AutoModel):
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
+        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG  map of an establishment suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+- MAP TYPE: directly overhead, top-down
+- SCALE: 1 inch == 5 feet
+{"- DESCRIPTION: " + obj.description if obj.description else ""}
+""",
         "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet

@@ -1,0 +1,40 @@
+{% macro info(user, obj) -%}
+<div class="row">
+    {% if obj.owner %}
+    <div class="column">
+        <div class="panel has-bg-primary">
+            <h4 class="has-text-secondary">Owner</h4>
+            <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
+                <div class="image is-large is-thumbnail is-margin-center">
+                    {% if obj.owner.image %}
+                    <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
+                    {% endif %}
+                </div>
+                <h4 class="has-text-light">
+                    {{obj.owner.name}}
+                </h4>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row has-space-around">
+        <div class="column is-shrink">
+            <h4>Owner</h4>
+            <input class="has-bg-light" disabled id='owner' type="text" name="owner" value='TBD...'>
+        </div>
+        <div class="column is-full">
+            <div class="row">
+                {%for i in obj.inventory %}
+                <input class="has-bg-light" type="text" name="inventory[]" value='{{i}}'>
+                {% endfor%}
+            </div>
+        </div>
+    </div>
+</form>
+{%- endmacro %}

@@ -1,3 +1,5 @@
+import random
+
 from autonomous.model.autoattr import ListAttr, StringAttr
 from models.base.place import Place
 
@@ -17,27 +19,33 @@ class Shop(Place):
                 },
                 "location_type": {
                     "type": "string",
-                    "description": "The type of location",
+                    "description": "The type of shop",
                 },
                 "backstory": {
                     "type": "string",
-                    "description": "A description of the history of the location. Only include what would be publicly known information.",
+                    "description": "A description of the history of the shop. Only include what would be publicly known information.",
+                },
+                "inventory": {
+                    "type": "array",
+                    "description": "A list of inventory items in the shop.",
+                    "items": {
+                        "type": "string",
+                        "description": "The name, short description, and cost of an item that can be found in the shop. There should be more mundane items than specialty items.",
+                    },
                 },
                 "desc": {
                     "type": "string",
-                    "description": "A short physical description that will be used to generate an evocative image of the location",
+                    "description": "A short physical description that will be used to generate an evocative image of the shop",
                 },
             },
         },
     }
 
-    categories = sorted(
-        [
-            "shop",
-            "tavern",
-            "market",
-        ]
-    )
+    categories = [
+        "market",
+        "shop",
+        "tavern",
+    ]
 
     parent_list = [
         "Location",
@@ -47,13 +55,17 @@ class Shop(Place):
 
     @property
     def inventory(self):
-        return self.inventory_ + self.items
+        return self.inventory_ + [i.name for i in self.items]
+
+    @inventory.setter
+    def inventory(self, value):
+        self.inventory_ = value
 
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = (
             prompt
-            or f"Generate a {self.genre} TTRPG establishment, such as a shop or tavern, {f'with the following description: {self.backstory}' if self.backstory else ''}. Add a backstory containing a {self.traits} history for players to discover."
+            or f"Generate a {self.genre} TTRPG {random.choice(self.categories)} establishment, {f'with the following description: {self.backstory}' if self.backstory else f'Add a backstory containing a {self.traits} history for players to discover'}."
         )
         if self.owner:
             prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
@@ -65,7 +77,7 @@ class Shop(Place):
         if self.inventory_:
             result |= {
                 "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
-                "inventory": self.inventory_,
+                "inventory": self.inventory,
             }
         return result
 

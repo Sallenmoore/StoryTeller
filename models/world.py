@@ -36,6 +36,7 @@ from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
 from models.ttrpgobject.region import Region
+from models.ttrpgobject.shop import Shop
 from models.ttrpgobject.vehicle import Vehicle
 
 
@@ -169,6 +170,7 @@ class World(TTRPGBase):
                 *self.encounters,
                 *self.regions,
                 *self.vehicles,
+                *self.shops,
                 *self.districts,
             ],
             key=lambda x: (
@@ -278,6 +280,10 @@ class World(TTRPGBase):
         return sorted(
             Region.search(world=self) if self.pk else [], key=lambda x: x.name
         )
+
+    @property
+    def shops(self):
+        return sorted(Shop.search(world=self) if self.pk else [], key=lambda x: x.name)
 
     @property
     def user(self):

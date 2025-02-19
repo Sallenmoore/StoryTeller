@@ -1,5 +1,7 @@
-import markdown
 import random
+
+import markdown
+
 from autonomous import log
 from autonomous.model.autoattr import (
     BoolAttr,
@@ -37,6 +39,8 @@ class Actor(TTRPGObject):
     lookalike = StringAttr(default="")
     skills = DictAttr(default={})
     pc_voice = StringAttr(default="")
+    chat_summary = StringAttr(default="")
+    chats = ListAttr(DictAttr(default={}))
 
     _genders = ["male", "female", "non-binary"]
 
@@ -165,6 +169,10 @@ class Actor(TTRPGObject):
     }
 
     @property
+    def last_chat(self):
+        return self.chats[-1] if self.chats else {}
+
+    @property
     def map(self):
         return self.parent.map if self.parent else None
 
@@ -205,6 +213,50 @@ class Actor(TTRPGObject):
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj
         super().generate(prompt)
+
+    def chat(self, message=""):
+        # summarize conversation
+        if self.chats and self.chats[-1]["pc"] and self.chats[-1]["npc"]:
+            primer = f"""As an expert AI in {self.world.genre} TTRPG Worldbuilding, use the previous chat CONTEXT as a starting point to generate a readable summary from the PLAYER MESSAGE and NPC RESPONSE that clarifies the main points of the conversation.
+            """
+            text = f"""
+            CONTEXT:\n{self.chat_summary or "This is the beginning of the conversation."}
+            PLAYER MESSAGE:\n{self.chats[-1]["pc"]}
+            NPC RESPONSE:\n{self.chats[-1]["npc"]}"
+            """
+
+            self.chat_summary = self.system.text_agent.summarize_text(
+                text, primer=primer
+            )
+
+        message = message.strip() or "Tell me a little more about yourself..."
+        primer = f"You are playing the role of a {self.gender} NPC named {self.name} who is talking to a Player. You should reference the Character model information in the uploaded file with the primary key: {self.pk}."
+        prompt = "Respond as the NPC matching the following description:"
+        prompt += f"""
+            PERSONALITY: {self.traits}
+
+            DESCRIPTION: {self.desc}
+
+            BACKSTORY: {self.backstory}
+
+            GOAL: {self.goal}
+
+        Use the following chat CONTEXT as a starting point:
+
+        CONTEXT: {self.chat_summary or "This is the beginning of the conversation."}
+
+        PLAYER MESSAGE: {message}
+        """
+
+        response = self.system.generate_text(prompt, primer)
+        self.chats += [{"pc": message, "npc": response}]
+        self.save()
+
+        return self.chats
+
+    def clear_chat(self):
+        self.chats = []
+        self.save()
 
     ## MARK: - Verification Methods
     ###############################################################

@@ -281,10 +281,6 @@ def delete_quest_entry(entrypk):
 
 @manage_endpoint.route("/quest/search", methods=("POST",))
 def quest_search():
-    """
-    ## Description
-    Deletes the world object's journal entry based on the provided primary keys.
-    """
     user, obj, world, *_ = _loader()
     query = request.json.get("query")
     associations = world.search_autocomplete(query) if query and len(query) > 2 else []
@@ -303,9 +299,8 @@ def quest_add_association(entrypk=None):
         ):
             quest.associations += [association]
             quest.save()
-    return get_template_attribute("manage/_journal.html", "quest_entry")(
-        user, obj, quest
-    )
+        log(association)
+    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
 
 
 # MARK: Association route
@@ -459,29 +454,17 @@ def removeability(pk):
 ###########################################################
 ##                Character Routes                    ##
 ###########################################################
-@manage_endpoint.route("/character/lineage/<string:pk>", methods=("POST",))
-def characterlineage(pk):
-    user, obj, world, macro, module = _loader()
-    character = Character.get(pk)
-    if macro == "lineage_form":
-        obj = character
-    elif request.json.get("relationship"):
-        obj.add_lineage(character, request.json.get("relationship"))
-    return get_template_attribute("models/_character.html", macro)(user, obj)
-
-
-@manage_endpoint.route("/character/lineage/remove/<string:pk>", methods=("POST",))
-def removecharacterlineage(pk):
-    user, obj, world, macro, module = _loader()
-    character = Character.get(pk)
-    obj.remove_lineage(character)
-    return "<p>Success</p>"
-
-
-@manage_endpoint.route("/character/hitpoints", methods=("POST",))
+@manage_endpoint.route(
+    "/character/hitpoints",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def characterhitpoints():
     user, obj, *_ = _loader()
-    obj.current_hitpoints = int(request.json.get("current_hitpoints", obj.hitpoints))
+    log(request.args.get("current_hitpoints", obj.hitpoints))
+    obj.current_hitpoints = int(request.args.get("current_hitpoints", obj.hitpoints))
     obj.save()
     return get_template_attribute("models/_character.html", "info")(user, obj)
 

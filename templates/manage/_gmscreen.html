@@ -29,7 +29,7 @@
                 </div>
                 <div class="column">
                     <div class="is-select has-text-primary">
-                        <select class="has-bg-secondary has-text-secondary" name='screenpk'
+                        <select class="has-bg-secondary has-text-primary" name='screenpk'
                                 hx-post='/api/gmscreen/display'
                                 hx-target='#screen-container'
                                 hx-trigger='change'>
@@ -51,7 +51,7 @@
             {% if user.current_screen %}
             <div class="row has-space-around screen-area">
                 {% for area in user.current_screen.areas %}
-                <div class="column is-3">
+                <div class="column">
                     <h5 class='has-text-primary  has-text-center'>
                         {{area.name}}
                     </h5>

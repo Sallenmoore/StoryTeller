@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
 
 {% macro quest_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Quest Editor</title>
@@ -60,11 +61,11 @@
         <div class="panel has-bg-light-grey is-small">
             <div class="row has-space-around" id="quest-entry-associations">
                 {% for a in entry.associations %}
-                <div class="column has-text-center is-2">
+                <div class="column is-1">
                     {{display_components.object_display(a)}}
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>
@@ -74,7 +75,7 @@
 {% macro quest_dropdown(user, obj, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link">
-    <form hx-post='/api/manage/journal/entry/association/add'
+    <form hx-post='/api/manage/quest/entry/association/add'
           hx-target='#page-content'
           hx-trigger='click'
           hx-indicator='#request-indicator'>

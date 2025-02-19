@@ -1,6 +1,25 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url=" /{{obj.path}}/chat">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="gridicons:chat" width="1rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Chat</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{%- endmacro %}
+
 {% macro info(user, obj) -%}
 <div class="row has-space-around">
     <div class="column is-shrink">

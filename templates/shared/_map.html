@@ -5,7 +5,8 @@
 <h2>Map</h2>
 <hr>
 <div class="row fade-it-in" id='object-map-view'>
-    {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle'] and
+    {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle', 'Shop']
+    and
     user.world_user(obj) %}
     <div class="column is-full">
         <div class="row">

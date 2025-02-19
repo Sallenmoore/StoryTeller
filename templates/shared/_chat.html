@@ -1,0 +1,63 @@
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+
+{% macro chat(user, obj) -%}
+<title>{{obj.name or obj.title}} - Chat</title>
+<div class="row has-space-between">
+    <div class="column is-vertically-centered">
+        <h2>Chat</h2>
+    </div>
+</div>
+<hr>
+<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+    <div id="model-chat" class="row has-space-around">
+        <div class="column is-2">
+            {{display_components.object_display(obj, dim=250, name=False, type=False)}}
+        </div>
+        <div class="column is-10">
+            {% if obj.backstory_summary %}
+            <div class="panel generated-text-darkbg">
+                {{ obj.backstory_summary | safe }}
+            </div>
+            {% endif %}
+            <form hx-post="/task/generate/character/{{obj.pk}}/chat"
+                  hx-target="#model-chat">
+                <textarea class="textarea" name="chat" id="chat" rows="5"
+                          placeholder="{{obj.last_chat.get('pc', 'What would you like to talk about?')}}"></textarea>
+                <button class="button is-full is-small" type="submit">Chat</button>
+            </form>
+            <hr>
+        </div>
+        <div class="column is-full">
+            <div class="panel has-bg-muted">
+                {{obj.last_chat.get('npc', "") | safe}}
+            </div>
+        </div>
+        <div class="column is-full">
+            {% if obj.chat_summary %}
+            <div class="panel has-bg-black generated-text-darkbg">
+                {{obj.chat_summary | safe}}
+            </div>
+            <hr>
+            {% for chat in obj.chats %}
+            <div class="panel has-bg-light">
+                <div class="row">
+                    <div class="column ">
+                        <div class="panel ">
+                            {{chat['pc']}}
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="panel generated-text-darkbg">
+                            {{chat['npc']}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{%- endmacro %}

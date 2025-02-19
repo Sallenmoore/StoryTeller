@@ -10,10 +10,24 @@
            hx-push-url=" /{{obj.path}}/quests">
             <div class="row">
                 <div class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="game-icons:tabletop-players" width="1rem"></iconify-icon>
+                    <iconify-icon icon="hugeicons:adventure" width="1rem"></iconify-icon>
                 </div>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>Quests</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url=" /{{obj.path}}/chat">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="gridicons:chat" width="1rem"></iconify-icon>
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Chat</span>
                 </div>
             </div>
         </a>
@@ -185,6 +199,10 @@
             <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
         </div>
         {% endif %}
+        <div class="column is-4">
+            <h4 class='has-text-primary'>Status</h4>
+            <input type="text" value="{{obj.status}}" name="status">
+        </div>
         <div class="column is-4">
             <h4 class='has-text-primary'>Look-A-Like</h4>
             <input type="text" value="{{obj.lookalike}}" name="lookalike">
@@ -361,7 +379,7 @@
                         <div class="row has-space-around">
                             {% if entry.associations %}
                             {% for ass in entry.associations %}
-                            <div class="column has-text-center is-2">
+                            <div class="column is-1">
                                 {{display_components.object_display(ass)}}
                             </div>
                             {% endfor %}
@@ -374,5 +392,5 @@
             {% endfor %}
         </ul>
     </div>
-
-    {%- endmacro %}
+</div>
+{%- endmacro %}

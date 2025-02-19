@@ -16,6 +16,8 @@ from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
 from models.ttrpgobject.region import Region
+from models.ttrpgobject.vehicle import Vehicle
+from models.ttrpgobject.quest import Quest
 from models.user import User
 from models.world import World
 
@@ -64,6 +66,12 @@ def _generate_session_summary_task(pk):
     if obj := Episode.get(pk):
         obj.resummarize()
     return {"url": f"/api/campaign/{obj.campaign.pk}/episode/{obj.pk}"}
+
+
+def _generate_character_chat_task(pk, chat):
+    if obj := Character.get(pk) or Creature.get(pk):
+        obj.chat(chat)
+    return {"url": f"/api/{obj.path}/chat"}
 
 
 def _generate_gn_task(pk):

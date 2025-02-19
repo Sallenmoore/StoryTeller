@@ -1,13 +1,7 @@
 import random
 
-import markdown
-
 from autonomous import log
-from autonomous.ai.jsonagent import JSONAgent
-from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
-    BoolAttr,
-    IntAttr,
     ListAttr,
     ReferenceAttr,
     StringAttr,
@@ -21,7 +15,7 @@ class Character(Actor):
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
 
-    parent_list = ["Location", "District", "Faction", "City", "Vehicle"]
+    parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
     _traits_list = [
         "secretly evil",
         "shy and gentle",
@@ -199,11 +193,11 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                     },
                     "rewards": {
                         "type": "string",
-                        "description": "The specific rewards for completing the quest depending on the outcome of the mystery",
+                        "description": "The specific rewards for solving the mystery depending on the outcome, including financial compensation",
                     },
                     "description": {
                         "type": "string",
-                        "description": "A detailed description of the mystery, what is required, and including any ethical complications involved in completing the quest",
+                        "description": "A detailed description of the mystery, what is required to solve it, including any ethical complications involved in solving the mystery",
                     },
                     "summary": {
                         "type": "string",
@@ -217,17 +211,11 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             },
         }
 
-        prompt = f"Generate a multipart mystery for a sci-fi Table Top rpg. The mysteries should be revealed as each part is discovered, and should tell a complete story  that is morally complicated, interesting, and challenging for the player characters to complete. Include specific ethical complications involved in various possible outcomes of completing the mystery. The mystery should be suitable for a party of 4-6 players. The mystery should be more than just item retrieval, involving aspects of political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and be able to be completed for or with the character {self.name} who is a {self.occupation} described as: {self.description}."
+        prompt = f"Generate a multipart mystery for a {self.genre} Table Top RPG. The mysteries should be revealed as each part is discovered, and should tell a complete story that is morally complicated, interesting, and challenging for the player characters to complete. Include specific ethical complications involved in various possible outcomes of completing the mystery. The mystery should be suitable for a party of 4-6 players. The mystery should be more than just item retrieval, involving aspects of political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.description}."
 
-        agent = JSONAgent(
-            name=f"{self.genre} TableTop RPG Quest Generation JSON Agent",
-            instructions="You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate a mystery that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete. The mystery should be suitable for a party of 4-6 players. Include specific ethical complications involved in completing the quest using various methods with different outcomes.",
-            description="An expert AI Table Top RPG Mystery Generator that generates quests that are morally complicated, interesting, and challenging for the player characters to complete",
-        )
-        agent.save()
-        results = agent.generate(prompt, function=funcobj)
+        primer = "You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate a mystery that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete. The mystery should be suitable for a party of 4-6 players. Include specific ethical complications involved in solving the mystery using various methods with different outcomes."
+        results = self.system.generate_json(prompt, primer, funcobj)
         self.add_quest(**results)
-        agent.delete()
 
     def add_quest(self, name, description, summary, rewards, location):
         from models.ttrpgobject.quest import Quest

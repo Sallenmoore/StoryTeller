@@ -132,6 +132,19 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/character/<string:pk>/chat", methods=("POST",))
+    def generate_character_chat(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_character_chat_task,
+                pk=pk,
+                chat=request.json.get("chat"),
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/audio/<string:model>/<string:pk>", methods=("POST",))
     def create_audio(model, pk):
         task = (

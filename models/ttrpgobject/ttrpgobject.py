@@ -107,6 +107,10 @@ class TTRPGObject(TTRPGBase):
         return [a for a in self.associations if a.model_name() == "Region"]
 
     @property
+    def shops(self):
+        return [a for a in self.associations if a.model_name() == "Shop"]
+
+    @property
     def system(self):
         return self.get_world().system
 
