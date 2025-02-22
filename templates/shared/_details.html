@@ -16,16 +16,16 @@
 <hr>
 {%if obj.model_name() != "World" %}
 <div class="row has-centered">
-    {% if obj.start_date %}
+    {% if obj.start_date and obj.start_date.year > 0 %}
     <div class="column is-shrink is-vertically-centered">
         {% if obj.model_name() in ['Character', 'Creature'] %}
-        <h4 class='has-text-muted'>Born</h4>
+        <h4 class='has-text-dark'>Born</h4>
         {% elif obj.model_name() in ['Faction', 'Item', 'Vehicle'] %}
-        <h4 class='has-text-muted'>Created</h4>
+        <h4 class='has-text-dark'>Created</h4>
         {%elif obj.model_name() in ['Location', 'City'] %}
-        <h4 class='has-text-muted'>Built</h4>
+        <h4 class='has-text-dark'>Built</h4>
         {%else %}
-        <h4 class='has-text-muted'>Founded</h4>
+        <h4 class='has-text-dark'>Founded</h4>
         {% endif %}
     </div>
     <div class="column is-shrink is-vertically-centered">
@@ -39,13 +39,13 @@
     </div>
     <div class="column is-shrink is-vertically-centered">
         {% if obj.model_name() in ['Character', 'Creature'] %}
-        <h4 class='has-text-muted'>Died</h4>
+        <h4 class='has-text-dark'>Died</h4>
         {% elif obj.model_name() in ['Faction'] %}
-        <h4 class='has-text-muted'>Disbanded</h4>
+        <h4 class='has-text-dark'>Disbanded</h4>
         {%elif obj.model_name() in ['Location', 'City', 'Item', 'Vehicle'] %}
-        <h4 class='has-text-muted'>Destroyed</h4>
+        <h4 class='has-text-dark'>Destroyed</h4>
         {% else %}
-        <h4 class='has-text-muted'>Lost</h4>
+        <h4 class='has-text-dark'>Lost</h4>
         {% endif %}
     </div>
     {% endif %}
@@ -58,17 +58,11 @@
                  style="position:relative; padding-right: 2rem; padding-bottom: 2rem;">
                 {{display_components.object_display(obj, dim=250, name=False, type=False)}}
             </div>
-            {% if obj.backstory_summary %}
-            {{ obj.backstory_summary | safe }}
-            {% endif %}
+            <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
         </div>
     </div>
 </div>
-
-<span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-
 <hr>
-
 <div class="panel has-bg-light has-text-dark generated-text-lightbg">
     <h3 class='has-text-center has-text-dark'>Full Backstory</h3>
     {{obj.backstory | safe}}
