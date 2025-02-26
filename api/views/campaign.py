@@ -137,8 +137,10 @@ def removeparty(pk, partypk):
 ###########################################################
 ##                    Episode Routes                    ##
 ###########################################################
-@campaign_endpoint.route("/<string:pk>/episode/", methods=("POST",))
-@campaign_endpoint.route("/<string:pk>/episode/<string:episodepk>", methods=("POST",))
+@campaign_endpoint.route("/<string:pk>/episode/details", methods=("POST",))
+@campaign_endpoint.route(
+    "/<string:pk>/episode/<string:episodepk>/details", methods=("POST",)
+)
 def episode(pk, episodepk=None):
     user, obj, *_ = _loader()
     campaign = Campaign.get(pk)

@@ -46,7 +46,7 @@
                 </a>
             </li>
             <li class="{% if episode %} is-active {% endif %} has-text-dark"
-                hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
+                hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}/details'
                 hx-target='#details-container'
                 onclick="activeTab(this)">
                 <a>
@@ -1022,7 +1022,7 @@
             <h4>GN Panels</h4>
             <div class="row has-space-around">
                 {% for i in episode.scenenotes %}
-                <div id="gnimage-{{i.pk}}" class="column is-6" style='position:relative;'>
+                <div id="gnimage-{{i.pk}}" class="column is-4" style='position:relative;'>
 
                     <div class="image">
                         {% if i.image %}

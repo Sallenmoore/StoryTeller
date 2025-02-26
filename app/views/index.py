@@ -67,11 +67,11 @@ def image(pk, size):
 )
 def audio(model, pk):
     obj = World.get_model(model, pk)
-    # log(msg)
+    log(hasattr(obj, "audio"), obj.audio)
     if hasattr(obj, "audio") and obj.audio:
         return Response(
             obj.audio.read(),
-            mimetype=audio.content_type,
+            mimetype="audio/mpeg",
             headers={"Content-Disposition": f"inline; filename={pk}.mp3"},
         )
     else:

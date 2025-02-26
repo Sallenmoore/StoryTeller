@@ -322,28 +322,17 @@ Use and expand on the existing object data listed below for the {self.title} obj
 - Associated Objects:
 """
             for ass in associations:
-                if ass.name and ass.backstory_summary:
+                if ass.name and ass.backstory:
                     prompt += f"""
     - pk: {ass.pk}
         - Model: {ass.model_name()}
         - Type: {ass.title}
         - Name: {ass.name}
-        - Backstory: {ass.backstory_summary}
+        - Backstory: {ass.backstory}
 """
         name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
             log(results, _print=True)
-            if notes := results.pop("notes", None):
-                if not self.journal:
-                    self.journal = Journal(world=self.get_world(), parent=self)
-                    self.journal.save()
-                    self.save()
-                for idx, note in enumerate(notes):
-                    self.journal.add_entry(
-                        title=f"SECRET #{idx + 1}",
-                        text=note,
-                        importance=1,
-                    )
             for k, v in results.items():
                 setattr(self, k, v)
             if name:
@@ -353,6 +342,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
             self.save()
         else:
             log(results, _print=True)
+        self.resummarize()
         self.update_system_references(self.pk)
         return results
 
@@ -464,14 +454,18 @@ Use and expand on the existing object data listed below for the {self.title} obj
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()
         # generate backstory summary
-        if len(self.backstory) < 50:
+        if len(self.backstory.split()) < 50:
             self.backstory_summary = self.backstory
         else:
             primer = "Generate a summary of less than 50 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
             self.backstory_summary = self.system.generate_summary(
                 self.backstory, primer
             )
-            self.backstory_summary = markdown.markdown(self.backstory_summary)
+            self.backstory_summary = (
+                markdown.markdown(self.backstory_summary)
+                .replace("h1>", "h3>")
+                .replace("h2>", "h3>")
+            )
         # generate backstory summary
         if len(self.description.split()) < 25:
             self.description_summary = self.description

@@ -28,7 +28,18 @@
             </form>
             <hr>
         </div>
-        <div class="column is-full">
+        <div class="column is-full" style="position:relative">
+            <div class="row has-space-between">
+                <div class="column is-6">
+                    <h3>Last Response</h3>
+                </div>
+                <div class="column is-6 has-text-right">
+                    <audio src='/audio/{{obj.path}}' controls
+                           style="width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
+                        <p>Your browser does not support the audio element.</p>
+                    </audio>
+                </div>
+            </div>
             <div class="panel has-bg-muted">
                 {{obj.last_chat.get('npc', "") | safe}}
             </div>
@@ -39,7 +50,7 @@
                 {{obj.chat_summary | safe}}
             </div>
             <hr>
-            {% for chat in obj.chats %}
+            {% for chat in obj.chats[::-1] %}
             <div class="panel has-bg-light">
                 <div class="row">
                     <div class="column ">

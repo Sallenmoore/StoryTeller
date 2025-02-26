@@ -2,7 +2,7 @@
 <div class="row">
     {% if obj.ruling_faction %}
     <div class="column is-full">
-        <div class="panel is-small has-bg-dark-grey">
+        <div class="panel is-small has-bg-dark-grey generated-text-darkbg">
             <h4 class='has-text-center has-text-muted'>Ruling Faction</h4>
             <h5>{{obj.ruling_faction.name}}</h5>
             {{obj.ruling_faction.backstory | safe}}

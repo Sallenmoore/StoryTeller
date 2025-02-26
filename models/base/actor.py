@@ -1,11 +1,14 @@
 import random
 
 import markdown
+from bs4 import BeautifulSoup
 
 from autonomous import log
+from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
     BoolAttr,
     DictAttr,
+    FileAttr,
     IntAttr,
     ListAttr,
     ReferenceAttr,
@@ -41,6 +44,7 @@ class Actor(TTRPGObject):
     pc_voice = StringAttr(default="")
     chat_summary = StringAttr(default="")
     chats = ListAttr(DictAttr(default={}))
+    audio = FileAttr(default="")
 
     _genders = ["male", "female", "non-binary"]
 
@@ -233,13 +237,13 @@ class Actor(TTRPGObject):
         primer = f"You are playing the role of a {self.gender} NPC named {self.name} who is talking to a Player. You should reference the Character model information in the uploaded file with the primary key: {self.pk}."
         prompt = "Respond as the NPC matching the following description:"
         prompt += f"""
-            PERSONALITY: {self.traits}
+            MOTIF: {self.traits}
 
             DESCRIPTION: {self.desc}
 
             BACKSTORY: {self.backstory}
 
-            GOAL: {self.goal}
+            SECRET GOAL: {self.goal}
 
         Use the following chat CONTEXT as a starting point:
 
@@ -250,6 +254,16 @@ class Actor(TTRPGObject):
 
         response = self.system.generate_text(prompt, primer)
         self.chats += [{"pc": message, "npc": response}]
+        self.save()
+
+        npc_message = BeautifulSoup(response, "html.parser").get_text()
+        voice = self.voice if hasattr(self, "voice") else "onyx"
+        voiced_scene = AudioAgent().generate(npc_message, voice=voice)
+        if self.audio:
+            self.audio.delete()
+            self.audio.replace(voiced_scene, content_type="audio/mpeg")
+        else:
+            self.audio.put(voiced_scene, content_type="audio/mpeg")
         self.save()
 
         return self.chats
