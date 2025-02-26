@@ -12,10 +12,11 @@ class Date(AutoModel):
     calendar = ReferenceAttr(choices=["Calendar"], required=True)
 
     def __str__(self):
-        return f"{self.day:02d} {self.calendar.months[self.month]} {self.year}"
+        month = self.calendar.months[self.month] if self.calendar.months else "Unknown"
+        return f"{self.day:02d} {month} {self.year}"
 
     def __repr__(self):
-        return f"Date({self.year}, {self.calendar.months[self.month]}, {self.day})"
+        return f"Date(day={self.day:02d}, month={self.month}, year={self.year})"
 
     def __eq__(self, other):
         if isinstance(other, Date):

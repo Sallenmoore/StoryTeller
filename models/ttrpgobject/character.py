@@ -1,5 +1,7 @@
 import random
 
+import markdown
+
 from autonomous import log
 from autonomous.model.autoattr import (
     ListAttr,
@@ -197,7 +199,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                     },
                     "description": {
                         "type": "string",
-                        "description": "A detailed description of the mystery, what is required to solve it, including any ethical complications involved in solving the mystery",
+                        "description": "A detailed description of the mystery in MARKDOWN, including what is required to solve the mystery and any ethical complications involved in solving the mystery",
                     },
                     "summary": {
                         "type": "string",
@@ -219,6 +221,12 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
     def add_quest(self, name, description, summary, rewards, location):
         from models.ttrpgobject.quest import Quest
+
+        description = (
+            markdown.markdown(description.replace("```markdown", "").replace("```", ""))
+            .replace("h1>", "h3>")
+            .replace("h2>", "h3>")
+        )
 
         q = Quest(
             name=name,

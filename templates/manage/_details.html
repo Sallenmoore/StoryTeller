@@ -73,12 +73,11 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
+    {% if obj.model_name() != "World" %}
     <div class="row has-centered" style='position:relative;'>
-        {% if obj.model_name() != "World" %}
         <div class="column is-shrink is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>Start</h5>
         </div>
-
         <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
             <input class="has-text-center" type="number"
                    name="start_date.day"
@@ -107,7 +106,6 @@
         <div class="column is-shrink  is-vertically-centered">
             <iconify-icon icon="octicon:dash-16" width="2rem"></iconify-icon>
         </div>
-        {% endif %}
         <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
             <input class="has-text-center" type="number"
                    name="end_date.day"
@@ -133,13 +131,11 @@
                    placeholder='year'
                    value="{{obj.end_date.year}}">
         </div>
-        {% if obj.model_name() != "World" %}
         <div class="column is-shrink  is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>End</h5>
         </div>
-        {% endif %}
-
     </div>
+    {% endif %}
 </form>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">

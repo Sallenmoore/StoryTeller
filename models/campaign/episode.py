@@ -114,6 +114,10 @@ class Episode(AutoModel):
         return self.campaign.world
 
     ##################### INSTANCE METHODS ####################
+    def delete(self):
+        all(e.delete() for e in self.scenenotes)
+        return super().delete()
+
     def resummarize(self):
         self.summary = (
             self.world.system.generate_summary(

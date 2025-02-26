@@ -29,3 +29,56 @@ class Calendar(AutoModel):
         date.save()
         self.dates += [date]
         self.save()
+
+    ## MARK: - Verification Methods
+    ###############################################################
+    ##                    VERIFICATION HOOKS                     ##
+    ###############################################################
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     # log("Auto Pre Save World")
+    #     super().auto_post_init(sender, document, **kwargs)
+    #     =
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        from models.gmscreen.gmscreen import GMScreen
+
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_calendar()
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
+
+    # def clean(self):
+    #     super().clean()
+
+    ################### verification methods ##################
+
+    def pre_save_calendar(self):
+        if not self.months:
+            self.months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ]
+        if not self.days:
+            self.days = [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+            ]

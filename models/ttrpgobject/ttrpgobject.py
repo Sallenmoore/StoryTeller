@@ -240,7 +240,7 @@ class TTRPGObject(TTRPGBase):
                     obj=self,
                     calendar=self.calendar,
                     day=random.randint(1, 28),
-                    month=random.randrange(len(self.calendar.months)),
+                    month=random.randrange(len(self.calendar.months) or 12),
                     year=0,
                 )
                 self.start_date.save()
@@ -275,7 +275,7 @@ class TTRPGObject(TTRPGBase):
                     obj=self,
                     calendar=self.calendar,
                     day=random.randint(1, 28),
-                    month=random.randrange(len(self.calendar.months)),
+                    month=random.randrange(len(self.calendar.months) or 12),
                     year=0,
                 )
                 self.end_date.save()

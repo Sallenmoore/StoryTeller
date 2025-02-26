@@ -22,13 +22,10 @@ class Campaign(AutoModel):
     party = ReferenceAttr(choices=["Faction"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
-    side_quests = ListAttr(ReferenceAttr(choices=["SceneNote"]))
     current_episode = ReferenceAttr(choices=[Episode])
 
     def delete(self):
         all(e.delete() for e in self.episodes)
-        all(e.delete() for e in self.outline)
-        all(e.delete() for e in self.side_quests)
         super().delete()
 
     ## MARK: Properties

@@ -299,7 +299,6 @@ class World(TTRPGBase):
 
     def delete(self):
         objs = [
-            self.gm,
             self.system,
             *Campaign.search(world=self),
             *Region.search(world=self),
@@ -444,11 +443,12 @@ class World(TTRPGBase):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def pre_save_current_date(self):
+        # log(
+        #     f"Verifying current_date for {self.name}: self.current_date={self.current_date}:{type(self.current_date)}"
+        # )
         if not self.calendar:
             self.calendar = Calendar()
             self.calendar.save()
-        if not self.current_date or isinstance(self.current_date, str):
-            self.current_date = None
 
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
