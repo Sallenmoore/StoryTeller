@@ -387,9 +387,13 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
 {self.image_prompt}
 """
-        self.image = Image.generate(prompt=prompt, tags=self.image_tags)
-        self.image.save()
-        self.save()
+
+        if image := Image.generate(prompt=prompt, tags=self.image_tags):
+            self.image = image
+            self.image.save()
+            self.save()
+        else:
+            log(prompt, "Image generation failed.", _print=True)
         return self.image
 
     def get_map_list(self):
@@ -469,7 +473,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
             )
             self.backstory_summary = markdown.markdown(self.backstory_summary)
         # generate backstory summary
-        if len(self.description.split()) < 15:
+        if len(self.description.split()) < 25:
             self.description_summary = self.description
         else:
             primer = f"Generate a plain text summary of the provided {self.title}'s description in 15 words or fewer."

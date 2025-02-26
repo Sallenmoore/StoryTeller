@@ -125,7 +125,6 @@ def world(pk):
 def worldcalendar(pk):
     user, *_ = _loader()
     world = World.get(pk)
-    log(request.json)
     if not world.calendar:
         world.pre_save_current_date()
         world.save()

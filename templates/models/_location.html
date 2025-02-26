@@ -33,7 +33,7 @@
         <div class="column">
             <h3>Location Type</h3>
             <input list="location_list" class="has-bg-light" type="text" id='location_type'
-                   name="location_type" value='{{obj.location_type}}'>
+                   name="type" value='{{obj.type}}'>
             <datalist id="location_list">
                 {% for ltype in obj.categories %}
                 <option value="{{ltype}}" {% if obj.location_type==ltype %} selected {% endif %}>

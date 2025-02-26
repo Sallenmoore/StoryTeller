@@ -48,8 +48,6 @@
             <li class="{% if episode %} is-active {% endif %} has-text-dark"
                 hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
                 hx-target='#details-container'
-                hx-select='#details-container'
-                hx-swap='outerHTML'
                 onclick="activeTab(this)">
                 <a>
                     Episode Details

@@ -62,15 +62,15 @@
     </div>
 </div>
 {% endif %}
-<h2 class='has-text-dark has-text-center' id='manage-users'>Faction Control</h2>
+<h2 class='has-text-center' id='manage-users'>Faction Control</h2>
 <div class="row">
     {% for region in obj.regions %}
     <div class="column is-2">
-        <div class="panel">
-            <h6 class="has-text-dark has-text-center">
+        <div class="panel has-bg-screen is-full">
+            {{display_components.object_display(region, type=False) | safe }}
+            <h6 class="has-text-white has-text-center">
                 {{(region.owner and region.owner.name) or "Unknown"}}
             </h6>
-            {{display_components.object_display(region, type=False) | safe }}
         </div>
     </div>
     {% endfor %}

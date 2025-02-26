@@ -52,19 +52,11 @@
 </div>
 {%endif%}
 <div class="panel has-bg-light has-text-dark generated-text-lightbg">
-    <div class="row">
-        <div class="column is-full">
-            <div class="is-float-left"
-                 style="position:relative; padding-right: 2rem; padding-bottom: 2rem;">
-                {{display_components.object_display(obj, dim=250, name=False, type=False)}}
-            </div>
-            <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-        </div>
-    </div>
+    <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
 </div>
 <hr>
-<div class="panel has-bg-light has-text-dark generated-text-lightbg">
-    <h3 class='has-text-center has-text-dark'>Full Backstory</h3>
+<div class="panel has-bg-light generated-text-lightbg">
+    <h3 class='has-text-center'>Backstory</h3>
     {{obj.backstory | safe}}
 </div>
 
