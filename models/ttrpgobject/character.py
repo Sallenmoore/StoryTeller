@@ -254,6 +254,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
     def page_data(self):
         return {
             "pk": str(self.pk),
+            "image_pk": str(self.image.pk) if self.image else None,
             "name": self.name,
             "desc": self.desc,
             "backstory": self.backstory,

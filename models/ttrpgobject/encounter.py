@@ -239,6 +239,7 @@ EVENTS
     def page_data(self):
         return {
             "pk": str(self.pk),
+            "image_pk": str(self.image.pk) if self.image else None,
             "name": self.name,
             "start_date": str(self.start_date) if self.start_date else "Unknown",
             "end_date": str(self.end_date) if self.end_date else "Unknown",

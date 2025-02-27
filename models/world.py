@@ -368,10 +368,12 @@ class World(TTRPGBase):
                 "Vehicles": [o.page_data() for o in self.vehicles],
                 "Cities": [o.page_data() for o in self.cities],
                 "Factions": [o.page_data() for o in self.factions],
+                "Players": [o.page_data() for o in self.players],
                 "Characters": [o.page_data() for o in self.characters],
                 "Items": [o.page_data() for o in self.items],
                 "Creatures": [o.page_data() for o in self.creatures],
                 "Districts": [o.page_data() for o in self.districts],
+                "Shops": [o.page_data() for o in self.shops],
                 "Encounters": [o.page_data() for o in self.encounters],
             },
         }

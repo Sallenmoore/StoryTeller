@@ -177,3 +177,12 @@ def listobjs(pk, model):
         result += [objs_dict]
         log(objs_dict)
     return result
+
+
+@index_page.route(
+    "/data/<string:model>/<pk>",
+    methods=("GET", "POST"),
+)
+def getobjs(pk, model):
+    obj = World.get_model(model, pk)
+    return obj.page_data()

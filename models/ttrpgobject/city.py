@@ -99,6 +99,8 @@ class City(Place):
     def page_data(self):
         return super().page_data() | {
             "population": self.population,
+            "image_pk": str(self.image.pk) if self.image else None,
+            "map_pk": str(self.map.pk) if self.map else None,
             "districts": [{"name": r.name, "pk": str(r.pk)} for r in self.districts],
             "encounters": [{"name": r.name, "pk": str(r.pk)} for r in self.encounters],
             "factions": [{"name": r.name, "pk": str(r.pk)} for r in self.factions],

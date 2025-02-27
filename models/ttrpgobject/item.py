@@ -155,6 +155,8 @@ class Item(TTRPGObject):
     def page_data(self):
         return {
             "pk": str(self.pk),
+            "image_pk": str(self.image.pk) if self.image else None,
+            "map_pk": str(self.map.pk) if self.map else None,
             "name": self.name,
             "rarity": self.rarity if self.rarity else "Unknown",
             "history": self.history if self.history else "Unknown",

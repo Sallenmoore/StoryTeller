@@ -117,6 +117,7 @@ class Faction(TTRPGObject):
     def page_data(self):
         return {
             "pk": str(self.pk),
+            "image_pk": str(self.image.pk) if self.image else None,
             "name": self.name,
             "backstory": self.backstory,
             "history": self.history,
