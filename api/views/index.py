@@ -101,6 +101,19 @@ def buildform():
 
 
 @index_endpoint.route(
+    "/world/<string:pk>/autogm",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def autogm(pk):
+    user, *_ = _loader()
+    world = World.get(pk)
+    return get_template_attribute("autogm/_index.html", "autogm")(user, world)
+
+
+@index_endpoint.route(
     "/world/<string:pk>/manage_screens",
     methods=(
         "GET",

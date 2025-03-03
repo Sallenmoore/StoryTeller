@@ -15,9 +15,9 @@ from models.ttrpgobject.district import District
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
+from models.ttrpgobject.quest import Quest
 from models.ttrpgobject.region import Region
 from models.ttrpgobject.vehicle import Vehicle
-from models.ttrpgobject.quest import Quest
 from models.user import User
 from models.world import World
 
@@ -102,3 +102,9 @@ def _generate_quest_task(pk):
     obj = Character.get(pk)
     obj.generate_quest()
     return {"url": f"/api/{obj.path}/quests"}
+
+
+def _generate_autogm_episode(pk):
+    obj = World.get(pk)
+    obj.autogm.generate_episode()
+    return {"url": "/api/autogm/"}

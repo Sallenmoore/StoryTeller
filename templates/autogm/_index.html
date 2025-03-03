@@ -1,0 +1,36 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+
+{% macro autogm(user, world) -%}
+<div id="scene-dropdown-container" class='has-bg-primary'>
+    <div class="row has-space-between has-bg-primary">
+        <div class="column is-3">
+            <h1 class="title has-text-centered">AutoGM</h1>
+        </div>
+        <div class="column is-3">
+            <div id="user-container" class="panel has-bg-muted">
+                <div class='select'>
+                    <select name="party_pk" hx-post="/api/autogm/party"
+                            hx-target="#user-container" hx-select="#user-container"
+                            hx-swap="outerHTML">
+                        <option value="0">Select a Party</option>
+                        {% for party in world.parties %}
+                        <option value="{{party.pk}}">{{party.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="column is-shrink">
+            <button hx-post='/api/autogm/episode/clear' hx-target="#page-content"
+                    class="button is-primary">Clear</button>
+        </div>
+        <div class="column is-full">
+            <div class="panel has-bg-white generated-text-lightbg inset">
+                {{world.autogm.episode | safe}}
+            </div>
+        </div>
+
+    </div>
+</div>
+{%- endmacro %}

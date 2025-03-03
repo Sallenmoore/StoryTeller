@@ -211,4 +211,9 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/<string:pk>/autogm/episode", methods=("POST",))
+    def create_autogm_episode(pk):
+        task = AutoTasks().task(tasks._generate_autogm_episode, pk=pk).result
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

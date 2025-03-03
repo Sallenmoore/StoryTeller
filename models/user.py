@@ -2,7 +2,6 @@ import traceback
 
 from autonomous import log
 from autonomous.auth.user import AutoUser
-from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
     ListAttr,
@@ -15,11 +14,6 @@ class User(AutoUser):
     admin = BoolAttr(default=False)
     current_screen = ReferenceAttr("Screen", default=None)
     screens = ListAttr(ReferenceAttr("Screen"), default=[])
-
-    @classmethod
-    def get(cls, pk):
-        # traceback.print_stack(limit=5)
-        return super().get(pk)
 
     @property
     def worlds(self):
