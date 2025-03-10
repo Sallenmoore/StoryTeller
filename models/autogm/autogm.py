@@ -42,7 +42,11 @@ class AutoGM(AutoModel):
 The session starts in the following location:
     {self.quest.location}
 
-Base the story on the following mystery:
+The player characters are described as follows:
+
+- {"- ".join([f"{c.name}: {c.description}" for c in self.party.players])}
+
+Base the story on the following npc mystery:
     {self.quest.description}
 """
         self.episode = self.world.system.generate_text(prompt)

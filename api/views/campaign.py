@@ -320,13 +320,14 @@ def episodenotedelete(campaignpk, episodepk, scenenotepk):
 )
 def episodenotesettingadd(campaignpk, episodepk, scenenotepk):
     user, obj, *_ = _loader()
-    episode = Episode.get(episodepk)
+
     if sn_obj := SceneNote.get(scenenotepk):
         model, pk = request.json.get("setting").split("--")
         # log(model, pk)
-        if obj := World.get_model(model, pk):
-            sn_obj.add_setting(obj)
+        if scene_obj := World.get_model(model, pk):
+            sn_obj.add_setting(scene_obj)
             sn_obj.save()
+    episode = Episode.get(episodepk)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
@@ -342,8 +343,8 @@ def episodenotesettingremove(campaignpk, episodepk, scenenotepk):
     if sn_obj := SceneNote.get(scenenotepk):
         pk = request.json.get("settingpk")
         model = request.json.get("settingmodel")
-        if obj := World.get_model(model, pk):
-            sn_obj.remove_setting(obj)
+        if scene_obj := World.get_model(model, pk):
+            sn_obj.remove_setting(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
@@ -357,8 +358,8 @@ def episodenoteencounteradd(campaignpk, episodepk, scenenotepk):
     user, obj, *_ = _loader()
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
-        if enc := Encounter.get(request.json.get("encounter")):
-            sn_obj.add_encounter(enc)
+        if scene_obj := Encounter.get(request.json.get("encounter")):
+            sn_obj.add_encounter(scene_obj)
             sn_obj.save()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
@@ -374,8 +375,8 @@ def episodenoteencounterremove(campaignpk, episodepk, scenenotepk):
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
         pk = request.json.get("encounterpk")
-        if obj := Encounter.get(pk):
-            sn_obj.remove_encounter(obj)
+        if scene_obj := Encounter.get(pk):
+            sn_obj.remove_encounter(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
@@ -389,8 +390,8 @@ def episodenoteitemadd(campaignpk, episodepk, scenenotepk):
     user, obj, *_ = _loader()
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
-        if enc := Item.get(request.json.get("item")):
-            sn_obj.add_loot(enc)
+        if scene_obj := Item.get(request.json.get("item")):
+            sn_obj.add_loot(scene_obj)
             sn_obj.save()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
@@ -406,8 +407,8 @@ def episodenoteitemremove(campaignpk, episodepk, scenenotepk):
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
         pk = request.json.get("itempk")
-        if obj := Item.get(pk):
-            sn_obj.remove_loot(obj)
+        if scene_obj := Item.get(pk):
+            sn_obj.remove_loot(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )
@@ -421,9 +422,9 @@ def episodenoteactoradd(campaignpk, episodepk, scenenotepk):
     user, obj, *_ = _loader()
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
-        if enc := request.json.get("actor"):
-            enc = World.get_model(*enc.split("/"))
-            sn_obj.add_actor(enc)
+        if scene_obj := request.json.get("actor"):
+            scene_obj = World.get_model(*scene_obj.split("/"))
+            sn_obj.add_actor(scene_obj)
             sn_obj.save()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
@@ -439,8 +440,8 @@ def episodenoteactorremove(campaignpk, episodepk, scenenotepk):
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
         enc = request.json.get("actor")
-        if obj := World.get_model(*enc.split("/")):
-            sn_obj.remove_actor(obj)
+        if scene_obj := World.get_model(*enc.split("/")):
+            sn_obj.remove_actor(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )

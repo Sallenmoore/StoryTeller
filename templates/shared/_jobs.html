@@ -10,7 +10,9 @@
         <div class="column is-full has-text-dark">
             <div class="row">
                 <div class="column has-bg-light-grey">
+                    {% if user.world_user(obj)%}
                     <a href="/{{job.contact.path}}/quests">
+                        {% endif %}
                         <div class="row has-space-between">
                             <div class="column is-4 is-vertically-centered">
                                 <h2 class='has-text-center'>{{job.name}}</h2>
@@ -39,7 +41,9 @@
                                 </h3>
                             </div>
                         </div>
+                        {% if user.world_user(obj)%}
                     </a>
+                    {% endif %}
                 </div>
                 <div class="column is-full">
                     {{job.summary | safe}}

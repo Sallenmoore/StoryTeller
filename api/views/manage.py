@@ -9,7 +9,7 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from dmtoolkit import dmtools
-from flask import Blueprint, get_template_attribute, request
+from flask import Blueprint, get_template_attribute, render_template, request
 from slugify import slugify
 
 from autonomous import log
@@ -331,7 +331,10 @@ def association_add(amodel, apk):
         "obj": obj,
         "associations": obj.associations,
     }
-    return get_template_attribute("shared/_associations.html", "associations")(**params)
+    page_content = get_template_attribute("shared/_associations.html", "associations")(
+        **params
+    )
+    return render_template("index.html", user=user, obj=obj, page_content=page_content)
 
 
 @manage_endpoint.route("/associations/random", methods=("POST",))

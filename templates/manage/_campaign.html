@@ -141,6 +141,9 @@
                             hx-post="/api/campaign/{{campaign.pk}}/add/party"
                             hx-target="#campaign-players" hx-select="#campaign-players"
                             hx-swap="outerHTML" hx-indicator='#request-indicator'>
+                        <option value=''>
+                            ---
+                        </option>
                         {% for faction in obj.factions%}
                         {% if faction.is_player_faction %}
                         <option value='{{faction.pk}}' {% if faction==campaign.party %} selected {%
@@ -828,13 +831,13 @@
                 </div>
                 <div class="column">
                     <div class="row">
-                        <div class="column is-full">
+                        <div id='screenote-settings-{{scenenote.pk}}' class="column is-full">
                             <h5 class='has-text-center'>Setting</h5>
                             <div class="row has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/add"
-                                          hx-target="#scenenotes-forms"
-                                          hx-select="#scenenotes-forms"
+                                          hx-target="#screenote-settings-{{scenenote.pk}}"
+                                          hx-select="#screenote-settings-{{scenenote.pk}}"
                                           hx-swap='outerHTML'
                                           hx-trigger='input delay:1s, change'>
                                         <div class="is-select has-bg-light">
@@ -855,10 +858,12 @@
                                     </form>
                                 </div>
                                 {% for a in scenenote.setting %}
-                                <div class="screenote-setting column is-4">
-                                    {{display_components.object_display(a)}}
+                                <div class="screenote-setting column is-4"
+                                     style='position:relative;'>
+                                    {{display_components.object_display(a, type=False)}}
                                     <div class="row has-centered">
                                         <div class="column is-3"
+                                             style='position:absolute; top:0px; right:0.5rem;'
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/setting/remove"
                                              hx-target="closest .screenote-setting"
                                              hx-swap="delete"
@@ -871,13 +876,14 @@
                                 {%endfor%}
                             </div>
                         </div>
-                        <div class="column is-full">
+                        <div id="screenote-encounters-{{scenenote.pk}}" class="column is-full">
+                            <hr class='has-bg-light'>
                             <h5 class=' has-text-center'>Encounters</h5>
                             <div class="row has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/add"
-                                          hx-target="#scenenotes-forms"
-                                          hx-select="#scenenotes-forms"
+                                          hx-target="#screenote-encounters-{{scenenote.pk}}"
+                                          hx-select="#screenote-encounters-{{scenenote.pk}}"
                                           hx-swap='outerHTML'
                                           hx-trigger='input delay:1s, change'>
                                         <div class="is-select has-bg-light">
@@ -897,10 +903,12 @@
                                     </form>
                                 </div>
                                 {% for a in scenenote.encounters %}
-                                <div class="screenote-encounter column is-4">
-                                    {{display_components.object_display(a)}}
+                                <div class="screenote-encounter column is-4"
+                                     style='position:relative;'>
+                                    {{display_components.object_display(a, type=False)}}
                                     <div class="row has-centered">
                                         <div class="column is-3"
+                                             style='position:absolute; top:0px; right:0.5rem;'
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/encounter/remove"
                                              hx-target="closest .screenote-encounter"
                                              hx-swap="delete"
@@ -913,16 +921,16 @@
                                 {%endfor%}
                             </div>
                         </div>
-                        <div class="column is-full">
+                        <div id="screenote-characters-{{scenenote.pk}}" class="column is-full">
                             <hr class='has-bg-light'>
                             <h5 class='has-text-center'>Characters/Creatures</h5>
                             <div class="row has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/add"
-                                          hx-target="#scenenotes-forms"
-                                          hx-select="#scenenotes-forms"
+                                          hx-target="#screenote-characters-{{scenenote.pk}}"
+                                          hx-select="#screenote-characters-{{scenenote.pk}}"
                                           hx-swap='outerHTML'
-                                          hx-trigger='input delay:1s, change'>
+                                          hx-trigger='input, change'>
                                         <div class="is-select has-bg-light">
                                             <select name='actor'>
                                                 <option value=''>
@@ -940,15 +948,18 @@
                                     </form>
                                 </div>
                                 {% for a in scenenote.actors %}
-                                <div class="screenote-encounter column is-4">
-                                    {{display_components.object_display(a)}}
-                                    <div class="row has-centered">
-                                        <div class="column is-3"
+                                <div class="screenote-encounter column is-4"
+                                     style='position:relative;'>
+                                    {{display_components.object_display(a, type=False)}}
+                                    <div class="row has-centered"
+                                         style='position:absolute; top:0px; right:0.5rem;'>
+                                        <div class="column is-shrink"
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/actor/remove"
                                              hx-target="closest .screenote-encounter"
                                              hx-swap="delete"
                                              hx-vals='{"actor":"{{a.path}}"}'>
-                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            <iconify-icon class="has-bg-screen" icon="mdi:remove"
+                                                          width="1rem">
                                             </iconify-icon>
                                         </div>
                                     </div>
@@ -956,14 +967,14 @@
                                 {%endfor%}
                             </div>
                         </div>
-                        <div class="column is-full">
+                        <div id="screenote-items-{{scenenote.pk}}" class="column is-full">
                             <hr class='has-bg-light'>
                             <h5 class=' has-text-center'>Loot</h5>
                             <div class="row has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/add"
-                                          hx-target="#scenenotes-forms"
-                                          hx-select="#scenenotes-forms"
+                                          hx-target="#screenote-items-{{scenenote.pk}}"
+                                          hx-select="#screenote-items-{{scenenote.pk}}"
                                           hx-swap='outerHTML'
                                           hx-trigger='input delay:1s, change'>
                                         <div class="is-select has-bg-light">
@@ -983,10 +994,12 @@
                                     </form>
                                 </div>
                                 {% for a in scenenote.loot %}
-                                <div class="screenote-encounter column is-4">
-                                    {{display_components.object_display(a)}}
+                                <div class="screenote-encounter column is-4"
+                                     style='position:relative'>
+                                    {{display_components.object_display(a, type=False)}}
                                     <div class="row has-centered">
                                         <div class="column is-3"
+                                             style='position:absolute; top:0px; right:0.5rem;'
                                              hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/item/remove"
                                              hx-target="closest .screenote-encounter"
                                              hx-swap="delete"

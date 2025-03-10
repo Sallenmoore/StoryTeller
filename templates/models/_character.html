@@ -4,6 +4,7 @@
 
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
+    {% if user.world_user(obj) %}
     <li>
         <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML"
@@ -18,6 +19,7 @@
             </div>
         </a>
     </li>
+    {% endif %}
     <li>
         <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML"
@@ -145,6 +147,7 @@
     </div>
 </div>
 <hr>
+{% if user.world_user(obj)%}
 <div class="row">
     <div class="column is-full">
         <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
@@ -178,6 +181,7 @@
     </div>
     {% endif %}
 </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}

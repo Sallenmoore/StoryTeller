@@ -204,6 +204,7 @@
                     </div>
                 </a>
             </li>
+            {% endif %}
             {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
             <li>
                 <a href="" class="menu-anchor"
@@ -222,6 +223,7 @@
                 </a>
             </li>
             {% endif %}
+            {% if user.world_user(obj) %}
             <li>
                 <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
                    hx-target="#page-content" hx-indicator="#request-indicator"
