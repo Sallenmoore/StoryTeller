@@ -13,6 +13,7 @@ from flask import Blueprint, get_template_attribute, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
+from models.campaign.campaign import Campaign
 from models.ttrpgobject.quest import Quest  # for the importer
 from models.world import World
 
@@ -245,6 +246,29 @@ def card(model, pk):
     return get_template_attribute("shared/_display.html", "card")(user, obj)
 
 
+###########################################################
+##                    Model Routes                       ##
+###########################################################
+
+
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/campaigns",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def campaigns(
+    model,
+    pk,
+):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    campaign = Campaign.get(request.args.get("campaignpk"))
+    return get_template_attribute("shared/_campaigns.html", "campaigns")(
+        user, obj, campaign
+    )
+
+
 # MARK: Association routes
 ###########################################################
 ##                    Association Routes                 ##
@@ -295,7 +319,7 @@ def timeline(model, pk):
         if a.start_date and a.start_date.year > 0:
             if a.model_name() in ["Character", "Creature"]:
                 start = "Born"
-            elif a.model_name() in ["Faction", "Item", "Vehicle"]:
+            elif a.model_name() in ["Item", "Vehicle"]:
                 start = "Created"
             elif a.model_name() in ["Location", "City"]:
                 start = "Built"
@@ -318,14 +342,14 @@ def timeline(model, pk):
                 end = "Died"
             elif a.model_name() in ["Item", "Vehicle"]:
                 end = "Lost"
-            elif a.model_name() in ["Location", "City"]:
+            elif a.model_name() in ["Location"]:
                 end = "Destroyed"
             elif a.model_name() in ["Encounter"]:
-                start = "Ended"
+                end = "Ended"
             elif a.model_name() in ["Faction"]:
-                start = "Disbanded"
+                end = "Disbanded"
             else:
-                start = "Abandoned"
+                end = "Abandoned"
             event = {
                 "date": a.end_date,
                 "name": a.name,

@@ -1,7 +1,6 @@
 {% import "shared/_display.html" as element %}
 
 {% macro associations(user, obj, associations) -%}
-{% if user.world_user(obj) %}
 <title>{{obj.name}} - Associations</title>
 
 <h2>Associations</h2>
@@ -25,14 +24,6 @@
 {% endif %}
 <hr>
 <div class="row has-space-around">
-    <div class="column is-2">
-        <button class="button is-primary is-small"
-                hx-post="/api/manage/associations/random"
-                hx-target="#page-content"
-                hx-indicator='#request-indicator'>
-            Random Associations
-        </button>
-    </div>
     <div class="column is-4">
         <div class="panel has-bg-muted is-small" style='border-radius: 5px 5px 0 0 ;'>
             <input type="search" name="filter" placeholder="Begin typing to filter..."
@@ -76,6 +67,16 @@
             </form>
         </div>
     </div>
+    {% if obj.model_name() != "World"%}
+    <div class="column is-2">
+        <button class="button is-primary is-small"
+                hx-post="/api/manage/associations/random"
+                hx-target="#page-content"
+                hx-indicator='#request-indicator'>
+            Random Associations
+        </button>
+    </div>
+    {% endif %}
     <div class="column is-6">
         <div class="row has-centered">
             {% for child in obj.all_models() %}
@@ -149,7 +150,6 @@
     </div>
     {% endfor %}
 </div>
-{% endif%}
 {%- endmacro %}
 
 {% macro association_dropdown(user, obj, objs=[]) -%}
