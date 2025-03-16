@@ -435,6 +435,7 @@ class World(TTRPGBase):
     def pre_save_map_prompt(self):
         if not self.map_prompt:
             self.map_prompt = self.description_summary or self.description
+        log(f"Verifying map for {self.name}: self.map={self.map}")
 
     def pre_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")

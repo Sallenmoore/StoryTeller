@@ -83,17 +83,6 @@ IMPORTANT: The image MUST NOT contain any TEXT.
             if not response.headers["Content-Type"].startswith("image/"):
                 raise ValueError("URL does not point to a valid image.")
             with ImageTools.open(io.BytesIO(response.content)) as img:
-                width, height = img.size
-                if width != height:
-                    max_size = min(width, height)
-                    img = img.crop(
-                        (
-                            (width - max_size) / 2,
-                            (height - max_size) / 2,
-                            (width + max_size) / 2,
-                            (height + max_size) / 2,
-                        )
-                    )
                 img = img.copy()
                 img_byte_arr = io.BytesIO()
                 img.save(img_byte_arr, format="WEBP")
