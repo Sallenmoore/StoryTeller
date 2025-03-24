@@ -25,6 +25,16 @@
             <input class="has-bg-muted has-text-center" type="text" name="name"
                    value="{{entry.name}}">
         </div>
+        <div class="column is-half">
+            <h5 class='has-text-center'>Status</h5>
+            <select class="has-bg-muted" name="status">
+                {% for i in ['available','active', 'failed', 'completed'] %}
+                <option value="{{i}}" {% if entry.status=='{{i}}' %}selected{% endif %}>
+                    {{i | title}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="column is-full">
             <h5 class='has-text-center'>Description</h5>
             {{form_components.texteditor(user, entry, 'description')}}

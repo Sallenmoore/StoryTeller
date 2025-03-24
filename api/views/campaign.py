@@ -5,8 +5,10 @@
 """
 
 import json
+import os
 import random
 
+import requests
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
@@ -555,3 +557,48 @@ def episodeextrasimageregenerate(pk, snpk):
     return get_template_attribute("manage/_campaign.html", "episode_extras")(
         user, obj, episode
     )
+
+
+@campaign_endpoint.route("/episode/<string:pk>/episodegenerator", methods=("POST",))
+def episodegenerator(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route("/episode/<string:pk>/generate", methods=("POST",))
+def episodegenerate(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    result = requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode"
+    ).text
+    return result
+
+
+@campaign_endpoint.route("/episode/<string:pk>/update", methods=("POST",))
+def generatedepisodeupdate(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    scenes = request.json.get("scenes")
+    log(scenes)
+    episode.campaign.autogm.scenes = scenes
+    episode.campaign.autogm.save()
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/episode/<string:pk>/scene/<int:scenenum>/generate", methods=("POST",)
+)
+def generatescene(pk, scenenum):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    log(episode.campaign.autogm.scenes[scenenum])
+    result = requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode/scene/{scenenum}",
+    ).text
+    return result

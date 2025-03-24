@@ -298,8 +298,9 @@ class Actor(TTRPGObject):
     ############### Verification Methods ##############
 
     def pre_save_skills(self):
-        if not self.skills:
-            self.skills = self.system.skills.copy()
+        if not self.skills or all(v == 0 for k, v in self.skills.items()):
+            self.skills = self.system.get_skills(self)
+            # log(f"pre_save_skills: {self.skills}")
 
     def pre_save_ac(self):
         self.ac = max(

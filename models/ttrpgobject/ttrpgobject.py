@@ -295,6 +295,16 @@ class TTRPGObject(TTRPGBase):
         ):
             self.world.current_date = self.end_date
             self.world.save()
+
+        if self.start_date and self.start_date.day <= 0:
+            self.start_date.day = random.randint(1, 28)
+        if self.start_date and self.start_date.month <= 0:
+            self.start_date.month = random.randint(1, 12)
+        if self.end_date and self.end_date.day <= 0:
+            self.end_date.day = random.randint(1, 28)
+        if self.end_date and self.end_date.month <= 0:
+            self.end_date.month = random.randint(1, 12)
+
         # log(
         #     f"Pre-saved dates for {self}",
         #     self.start_date,

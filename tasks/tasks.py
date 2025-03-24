@@ -105,6 +105,10 @@ def _generate_quest_task(pk):
 
 
 def _generate_autogm_episode(pk):
-    obj = World.get(pk)
-    obj.autogm.generate_episode()
-    return {"url": "/api/autogm/"}
+    Campaign.get(pk).autogm.generate_episode()
+    return {"url": f"/api/campaign/{pk}"}
+
+
+def _generate_autogm_episode_scene(pk, idx):
+    Campaign.get(pk).autogm.generate_scene(idx)
+    return {"url": f"/api/campaign/{pk}"}

@@ -1,3 +1,4 @@
+import random
 import re
 
 from bs4 import BeautifulSoup
@@ -364,6 +365,53 @@ class BaseSystem(AutoModel):
 
     def get_title(self, model):
         return self._titles.get(model, "Object")
+
+    def get_skills(self, actor=None):
+        if actor:
+            # log(actor.dexterity, (actor.dexterity - 10) // 2)
+            result = {
+                "Acrobatics": (actor.dexterity - 10) // 2,
+                "Animal Handling": (actor.charisma - 10) // 2,
+                "Arcana": (actor.intelligence - 10) // 2,
+                "Athletics": (actor.dexterity - 10) // 2,
+                "Deception": (actor.charisma - 10) // 2,
+                "History": (actor.intelligence - 10) // 2,
+                "Insight": (actor.wisdom - 10) // 2,
+                "Intimidation": (actor.charisma - 10) // 2,
+                "Investigation": (actor.intelligence - 10) // 2,
+                "Medicine": (actor.intelligence - 10) // 2,
+                "Nature": (actor.intelligence - 10) // 2,
+                "Perception": (actor.wisdom - 10) // 2,
+                "Performance": (actor.charisma - 10) // 2,
+                "Persuasion": (actor.charisma - 10) // 2,
+                "Religion": (actor.wisdom - 10) // 2,
+                "Sleight of Hand": (actor.dexterity - 10) // 2,
+                "Stealth": (actor.dexterity - 10) // 2,
+                "Survival": (actor.wisdom - 10) // 2,
+            }
+        else:
+            result = {
+                "Acrobatics": random.randint(-2, 5),
+                "Animal Handling": random.randint(-2, 5),
+                "Arcana": random.randint(-2, 5),
+                "Athletics": random.randint(-2, 5),
+                "Deception": random.randint(-2, 5),
+                "History": random.randint(-2, 5),
+                "Insight": random.randint(-2, 5),
+                "Intimidation": random.randint(-2, 5),
+                "Investigation": random.randint(-2, 5),
+                "Medicine": random.randint(-2, 5),
+                "Nature": random.randint(-2, 5),
+                "Perception": random.randint(-2, 5),
+                "Performance": random.randint(-2, 5),
+                "Persuasion": random.randint(-2, 5),
+                "Religion": random.randint(-2, 5),
+                "Sleight of Hand": random.randint(-2, 5),
+                "Stealth": random.randint(-2, 5),
+                "Survival": random.randint(-2, 5),
+            }
+        # log(result)
+        return result
 
     def delete(self):
         if self.text_client:

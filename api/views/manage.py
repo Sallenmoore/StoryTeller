@@ -265,6 +265,7 @@ def update_quest_entry(entrypk=None):
     quest.rewards = request.json.get("rewards")
     quest.summary = request.json.get("summary")
     quest.location = request.json.get("location")
+    quest.status = request.json.get("status")
     quest.associations = associations
     quest.save()
     return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)

@@ -157,6 +157,8 @@
 <li class="dropdown__link">
     <a hx-post='/api/manage/association/add/{{o.path}}'
        hx-target='#page-container'
+       hx-select='#page-container'
+       hx-swap='outerHTML'
        hx-indicator='#request-indicator'>
         <div class="row">
             <div class="column is-shrink">

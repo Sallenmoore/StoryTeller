@@ -7,6 +7,7 @@
 <div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="row">
         {%for job in obj.jobs%}
+        {% if job.status in ['active', 'available']%}
         <div class="column is-full has-text-dark">
             <div class="row">
                 <div class="column has-bg-light-grey">
@@ -18,24 +19,33 @@
                                 <h2 class='has-text-center'>{{job.name}}</h2>
                             </div>
                             {% if job.contact.parent%}
-                            <div class="column is-4 is-vertically-centered">
+                            <div class="column is-vertically-centered">
                                 <h4 class='has-text-center'>
                                     {% set curr = job.contact.parent %}
                                     {% if curr %}
+                                    {{curr.name}},
+                                    {% set curr = curr.parent %}
+                                    {% if curr %}
+                                    {{curr.name}},
+                                    {% set curr = curr.parent %}
+                                    {% if curr %}
+                                    {{curr.name}},
+                                    {% set curr = curr.parent %}
+                                    {% if curr %}
                                     {{curr.name}}
-                                    {% set curr = curr.parent %}
                                     {% endif %}
-                                    {% if curr %}
-                                    , {{curr.name}}
-                                    {% set curr = curr.parent %}
                                     {% endif %}
-                                    {% if curr %}
-                                    , {{curr.name}}
+                                    {% endif %}
                                     {% endif %}
                                 </h4>
                             </div>
                             {%endif%}
-                            <div class="column is-4 is-vertically-centered">
+                            <div class="column is-3 is-vertically-centered">
+                                <h3 class='has-text-center'>
+                                    Status: {{job.status}}
+                                </h3>
+                            </div>
+                            <div class="column is-3 is-vertically-centered">
                                 <h3 class='has-text-center'>
                                     Contact: {{job.contact.name}}
                                 </h3>
@@ -51,6 +61,7 @@
             </div>
             <hr>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </div>

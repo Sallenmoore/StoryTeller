@@ -40,7 +40,8 @@
 </div>
 {%- endmacro %}
 
-{% macro listeditor(user, obj, attr, limit=0 ) -%}
+{% macro listeditor(user, obj, attr, limit=0, new=True) -%}
+{% if new %}
 <div class="row is-vertical">
     <div class="column is-shrink">
         <button type="button" class="button is-small"
@@ -52,6 +53,7 @@
         </button>
     </div>
 </div>
+{% endif %}
 <div class="row is-vertical" id='{{attr}}-item-list' data-max='{{limit}}'>
     {% for item in obj[attr] %}
     <div class="column">

@@ -216,4 +216,15 @@ def create_app():
         task = AutoTasks().task(tasks._generate_autogm_episode, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route(
+        "/generate/<string:pk>/autogm/episode/scene/<int:idx>", methods=("POST",)
+    )
+    def create_autogm_episode_scene(pk, idx):
+        task = (
+            AutoTasks()
+            .task(tasks._generate_autogm_episode_scene, pk=pk, idx=idx)
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

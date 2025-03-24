@@ -32,13 +32,23 @@ def index():
 
 @autogm_endpoint.route("/party", methods=("POST",))
 def partygenerate():
-    user, obj, *_ = _loader()
-    world = obj.get_world()
+    user, obj, world, *_ = _loader()
     world.autogm.party = Faction.get(request.json.get("party_pk"))
     world.autogm.save()
     result = requests.post(
         f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{world.pk}/autogm/episode",
         json={"msg": ""},
+    ).text
+    log(result)
+    return result
+
+
+@autogm_endpoint.route("/episode/generate", methods=("POST",))
+def episodegenerate():
+    user, obj, world, *_ = _loader()
+    result = requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{world.pk}/autogm/episode",
+        json={"msg": request.json.get("msg")},
     ).text
     log(result)
     return result
