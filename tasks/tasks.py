@@ -104,8 +104,8 @@ def _generate_quest_task(pk):
     return {"url": f"/api/{obj.path}/quests"}
 
 
-def _generate_autogm_episode(pk):
-    Campaign.get(pk).autogm.generate_episode()
+def _generate_autogm_episode(pk, prompt):
+    Campaign.get(pk).autogm.generate_episode(prompt)
     return {"url": f"/api/campaign/{pk}"}
 
 

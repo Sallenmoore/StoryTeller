@@ -14,6 +14,7 @@ from jinja2 import TemplateNotFound
 
 from autonomous import log
 from models.campaign.campaign import Campaign
+from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.quest import Quest  # for the importer
 from models.world import World
 
@@ -300,6 +301,17 @@ def associations(model, pk, modelstr=None):
         elif sort_str.lower() == "parent":
             associations = [o for o in associations if not o.parent]
 
+    # cleaned_associations = []
+    # for a in associations:
+    #     try:
+    #         a.save()
+    #     except Exception as e:
+    #         log(e)
+    #     else:
+    #         cleaned_associations += [a]
+    # associations = cleaned_associations
+    # obj.associations = associations
+    # obj.save()
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
     )

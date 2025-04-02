@@ -397,7 +397,9 @@
                             <select name='filtermodel'>
                                 <option>---</option>
                                 {% for m in screenarea.screen.world.all_models_str() %}
-                                <option value='{{m}}'>{{m}}</option>
+                                <option value='{{m}}'>
+                                    {{screenarea.screen.world.get_title(m)}}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -405,6 +407,8 @@
                 </div>
             </form>
             <hr>
+        </div>
+        <div class="column is-full">
             <div id="noncanon-{{screenarea.pk}}-item-list" class="row">
                 {% for o in screenarea.get_objs(3) %}
                 <div class="column">

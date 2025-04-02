@@ -282,4 +282,6 @@ def gmscreennoncanon(screenpk, areapk):
     gm_screen_area.filter = request.json.get("filtermodel", "Character")
     gm_screen_area.save()
     log(gm_screen_area.filter)
-    return gm_screen_area.area(gm_screen_area)
+    result = gm_screen_area.area()
+    log(result)
+    return result

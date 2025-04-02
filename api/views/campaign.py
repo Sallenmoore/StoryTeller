@@ -572,8 +572,10 @@ def episodegenerator(pk):
 def episodegenerate(pk):
     user, obj, *_ = _loader()
     episode = Episode.get(pk)
+    prompt = request.json.get("prompt")
     result = requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode"
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode",
+        json={"prompt": prompt},
     ).text
     return result
 

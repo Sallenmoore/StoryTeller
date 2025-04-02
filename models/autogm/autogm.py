@@ -17,8 +17,6 @@ class AutoGM(AutoModel):
     AutoGM is a class for generating and managing graphs using the AutoGM framework.
     """
 
-    quest = ReferenceAttr(choices=["Quest"], default=None)
-    npc = ReferenceAttr(choices=["Character"], default=None)
     scenes = ListAttr(StringAttr(default=""))
     campaign = ReferenceAttr(choices=["Campaign"])
 
@@ -54,16 +52,10 @@ class AutoGM(AutoModel):
         """
         return self.scenes[-1] if self.scenes else ""
 
-    def generate_episode(self):
+    def generate_episode(self, msg):
         """
         Generates the next scene using the AutoGM framework.
         """
-        npc = random.choice([c for c in self.campaign.characters if not c.is_player])
-        if not npc.quests:
-            npc.generate_quest()
-        self.quest = random.choice(npc.quests)
-        self.npc = npc
-        self.save()
         prompt = f"""Generate a 5 act TTRPG session outline in MARKDOWN using the following structure:
 Act 1: The Guardian or the Call to Adventure
 Act 2: A roleplay opportunity or puzzle
@@ -82,14 +74,27 @@ CAMPAIGN ELEMENTS TO BE INCORPORATED
 - {"\n- ".join([f"{c.name} [{c.title}]: {c.backstory}" for c in self.campaign.associations if hasattr(c, "is_player") and not c.is_player])}
 
 
-BASE THE SESSION ON THE FOLLOWING NPC STORYLINE:
+BASE THE SESSION ON THE FOLLOWING STORYLINE:
 
+"""
+        if msg:
+            prompt += f"""
+            {msg}
+"""
+        else:
+            npc = random.choice(
+                [c for c in self.campaign.characters if not c.is_player]
+            )
+            if not npc.quests:
+                npc.generate_quest()
+            quest = random.choice(self.npc.quests)
+            prompt += f"""
 NPC
-{self.npc.name}
-{self.npc.backstory}
+{npc.name}
+{npc.backstory}
 
-STORYLINE:
-{self.quest.description}
+STORY:
+{quest.description}
 """
         log(prompt, _print=True)
         results = self.campaign.world.system.generate_json(
