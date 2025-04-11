@@ -147,6 +147,13 @@ def episode(pk, episodepk=None):
     user, obj, *_ = _loader()
     campaign = Campaign.get(pk)
     episode = Episode.get(episodepk)
+    log(
+        "episode details",
+        episode.name,
+        episode.episode_num,
+        episode.start_date,
+        episode.end_date,
+    )
     return get_template_attribute("manage/_campaign.html", "episode_details")(
         user, obj, campaign=campaign, episode=episode
     )
@@ -172,6 +179,7 @@ def episodemanage(pk, episodepk=None):
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
         )
+        # log("episode dates", episode.start_date, request.json.get("start_date"))
         episode.save()
         campaign.current_episode = episode
         campaign.save()
@@ -537,15 +545,6 @@ def episodeextras(pk):
     )
 
 
-@campaign_endpoint.route("/episode/<string:pk>/party", methods=("POST",))
-def episodeparty(pk):
-    user, obj, *_ = _loader()
-    episode = Episode.get(pk)
-    return get_template_attribute("manage/_campaign.html", "episode_party_details")(
-        user, obj, episode.campaign.party
-    )
-
-
 @campaign_endpoint.route(
     "/episode/<string:pk>/image/<string:snpk>/regenerate", methods=("POST",)
 )
@@ -574,7 +573,7 @@ def episodegenerate(pk):
     episode = Episode.get(pk)
     prompt = request.json.get("prompt")
     result = requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode",
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.pk}/autogm/episode",
         json={"prompt": prompt},
     ).text
     return result
@@ -593,14 +592,12 @@ def generatedepisodeupdate(pk):
     )
 
 
-@campaign_endpoint.route(
-    "/episode/<string:pk>/scene/<int:scenenum>/generate", methods=("POST",)
-)
+@campaign_endpoint.route("/episode/<string:pk>/generate/expand", methods=("POST",))
 def generatescene(pk, scenenum):
     user, obj, *_ = _loader()
     episode = Episode.get(pk)
     log(episode.campaign.autogm.scenes[scenenum])
     result = requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.campaign.pk}/autogm/episode/scene/{scenenum}",
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.pk}/autogm/episode/expand",
     ).text
     return result

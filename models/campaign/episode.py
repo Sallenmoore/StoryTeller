@@ -18,6 +18,7 @@ from autonomous.model.autoattr import (
 )
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
+from models.calendar.date import Date
 from models.campaign.scenenote import SceneNote
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
@@ -29,12 +30,13 @@ class Episode(AutoModel):
     episode_num = IntAttr(default=0)
     description = StringAttr(default="")
     scenenotes = ListAttr(ReferenceAttr(choices=[SceneNote]))
-    start_date = StringAttr(default="")
-    end_date = StringAttr(default="")
+    start_date_obj = ReferenceAttr(choices=["Date"])
+    end_date_obj = ReferenceAttr(choices=["Date"])
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     episode_report = StringAttr(default="")
     summary = StringAttr(default="")
+    outline = StringAttr(default="")
     images = ListAttr(ReferenceAttr(choices=["Image"]))
 
     ##################### PROPERTY METHODS ####################
@@ -102,8 +104,57 @@ class Episode(AutoModel):
         ]
 
     @property
-    def music_choices(self):
-        return json.load(open("static/sounds/music.json"))
+    def start_date(self):
+        if self.start_date_obj:
+            self.save()
+            self.start_date_obj.obj = self
+            self.start_date_obj.calendar = self.world.calendar
+            self.start_date_obj.save()
+        return self.start_date_obj
+
+    @start_date.setter
+    def start_date(self, date):
+        if isinstance(date, Date):
+            self.start_date_obj = date
+        elif isinstance(date, dict):
+            self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **date)
+            self.start_date_obj.save()
+        elif isinstance(date, str):
+            verify_date_format = date.split()
+            if verify_date_format[0].isdigit() and verify_date_format[2].isdigit():
+                date = Date.from_string(self, self.world.calendar, date)
+                self.start_date_obj = date
+                self.start_date_obj.save()
+            else:
+                raise ValueError(
+                    "date must be a Date object or a string in the format: <day> <month> <year>"
+                )
+
+    @property
+    def end_date(self):
+        if self.end_date_obj:
+            self.end_date_obj.obj = self
+            self.end_date_obj.calendar = self.world.calendar
+            self.save()
+        return self.end_date_obj
+
+    @end_date.setter
+    def end_date(self, date):
+        if isinstance(date, Date):
+            self.end_date_obj = date
+        elif isinstance(date, dict):
+            self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **date)
+            self.end_date_obj.save()
+        elif isinstance(date, str):
+            verify_date_format = date.split()
+            if verify_date_format[0].isdigit() and verify_date_format[2].isdigit():
+                date = Date.from_string(self, self.world.calendar, date)
+                self.end_date_obj = date
+                self.end_date_obj.save()
+            else:
+                raise ValueError(
+                    "date must be a Date object or a string in the format: <day> <month> <year>"
+                )
 
     @property
     def world(self):
@@ -186,10 +237,12 @@ class Episode(AutoModel):
         document.pre_save_associations()
         document.pre_save_episode_num()
         document.pre_save_scene_note()
+        document.pre_save_dates()
+        document.pre_save_outline()
 
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     # def clean(self):
     #     super().clean()
@@ -198,6 +251,8 @@ class Episode(AutoModel):
     def pre_save_campaign(self):
         if self not in self.campaign.episodes:
             self.campaign.episodes += [self]
+            if self.pk:
+                self.campaign.save()
 
     def pre_save_associations(self):
         assoc = []
@@ -220,3 +275,14 @@ class Episode(AutoModel):
     def pre_save_scene_note(self):
         self.scenenotes = [s for s in self.scenenotes if s]
         self.scenenotes.sort(key=lambda x: x.num)
+
+    def pre_save_dates(self):
+        pass
+        # log(self.start_date_obj)
+        # log(self.end_date_obj)
+
+    def pre_save_outline(self):
+        # if not isinstance(self.outline, str):
+        #     self.outline = ""
+        #     log("Outline is not a string. FIXED.")
+        pass

@@ -105,10 +105,14 @@ def _generate_quest_task(pk):
 
 
 def _generate_autogm_episode(pk, prompt):
-    Campaign.get(pk).autogm.generate_episode(prompt)
+    ep = Episode.get(pk)
+    ep.outline = ep.campaign.autogm.generate_episode(prompt, ep.associations)
+    ep.save()
     return {"url": f"/api/campaign/{pk}"}
 
 
-def _generate_autogm_episode_scene(pk, idx):
-    Campaign.get(pk).autogm.generate_scene(idx)
+def _generate_autogm_episode_scene(pk):
+    ep = Episode.get(pk)
+    ep.outline = ep.campaign.autogm.generate_scene(ep.outline)
+    ep.save()
     return {"url": f"/api/campaign/{pk}"}

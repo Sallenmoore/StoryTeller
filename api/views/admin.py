@@ -12,6 +12,7 @@ from flask import Blueprint, get_template_attribute, request
 from autonomous import log
 from autonomous.auth.autoauth import AutoAuth
 from autonomous.tasks.autotask import AutoTasks
+from models.calendar.date import Date
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode, SceneNote
 from models.images.image import Image
@@ -149,6 +150,20 @@ def delete_world():
 
 @admin_endpoint.route("/migration/data", methods=("GET", "POST"))
 def migration():
+    for obj in Campaign.all():
+        for ep in obj.episodes:
+            if not ep.campaign:
+                ep.campaign = obj
+            if not ep.start_date.calendar:
+                ep.start_date.calendar = obj.world.calendar
+                ep.start_date.save()
+            if not ep.end_date.calendar:
+                ep.end_date.calendar = obj.world.calendar
+                ep.end_date.save()
+    # for obj in Episode.all():
+    #     if not obj.campaign:
+    #         obj.delete()
+
     return "Success"
 
 
