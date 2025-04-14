@@ -115,21 +115,16 @@ class SceneNote(AutoModel, AudioMixin):
 
         prompt = f"Generate a single comic panel for the following {self.genre} TableTop RPG session scene."
 
-        prompt += f"\nSCENE DESCRIPTION\n\n{BeautifulSoup(self.description, 'html.parser').get_text()}\n"
-        prompt += "\n\nSETTINGS\n"
-        for setting in self.setting:
-            prompt += f"{setting.name}: {setting.description_summary}\n"
-
-        prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
+        prompt += "\nDESCRIPTION OF CHARACTERS\n"
         for actor in self.actors:
-            prompt += f"""{actor.name}: {actor.description_summary}
-  - Looks Like: {actor.lookalike}\n
+            prompt += f"""{actor.name} Looks Like: {actor.lookalike}\n
 """
 
-        prompt += f"""ART STYLE
-- In the art style of Jim Lee.
-- Choose a color palette that fits a {self.genre} theme.
+        prompt += """ART STYLE
+- In the art style of Jim Lee, with a focus on an active scene composition.
 """
+
+        prompt += f"\nSCENE DESCRIPTION\n\nCreate an image of a scene that consists of {BeautifulSoup(self.description, 'html.parser').get_text()}\n"
 
         log(prompt, _print=True)
         self.image = Image.generate(prompt=prompt)
