@@ -973,22 +973,32 @@
     </div>
     <div id='autogm_session_panel' class="column is-full">
         <div class="panel has-bg-white generated-text-lightbg inset">
-            <form hx-post="/api/campaign/episode/{{episode.pk}}/update" hx-swap="none"
-                  hx-trigger="input delay:1s, change">
-                <div id="scenes-container" class="row">
-                    <div class="column is-full">
-                        <h4 class='has-text-center'>Outline</h4>
-                        {{form_components.texteditor(user, episode, 'outline')}}
-                    </div>
-                    <div class="column is-shrink is-end">
-                        <button class="button is-primary"
-                                hx-post='/api/campaign/episode/{{episode.pk}}/generate/expand'
-                                hx-target="#scenes-container"
-                                hx-swap="outerHTML"
-                                hx-trigger='click consume'>Expand Scene</button>
-                    </div>
+            <div id="scenes-container" class="row has-centered">
+                <div class="column is-shrink">
+                    <h4 class='has-text-center'>Outline</h4>
                 </div>
-            </form>
+                <div class="column is-shrink is-end">
+                    <button class="button is-primary is-small"
+                            hx-post='/api/campaign/episode/{{episode.pk}}/outline/refresh'
+                            hx-target="#scenes-container"
+                            hx-swap="outerHTML"
+                            hx-trigger='click consume'>Refresh from Scenes</button>
+                </div>
+                <div class="column is-full">
+                    <form hx-post="/api/campaign/episode/{{episode.pk}}/outline/update"
+                          hx-swap="none"
+                          hx-trigger="input delay:1s, change">
+                        {{form_components.texteditor(user, episode, 'outline')}}
+                    </form>
+                </div>
+                <div class="column is-shrink is-end">
+                    <button class="button is-primary"
+                            hx-post='/api/campaign/episode/{{episode.pk}}/generate/expand'
+                            hx-target="#scenes-container"
+                            hx-swap="outerHTML"
+                            hx-trigger='click consume'>Expand Scene</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,7 @@
 import random
 
 import markdown
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from autonomous.model.autoattr import (
@@ -77,6 +78,7 @@ STORY:
         return results
 
     def generate_scene(self, msg):
+        msg = BeautifulSoup(msg, "html.parser").get_text()
         prompt = (
             "You are a TTRPG GM. Your party consists of the following characters:\n"
         )

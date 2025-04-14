@@ -33,7 +33,8 @@ class SceneNote(AutoModel, AudioMixin):
     description = StringAttr(default="")
     setting = ListAttr(ReferenceAttr(choices=["Place"]))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
-    actors = ListAttr(ReferenceAttr(choices=["Character", "Creature"]))
+    factions = ListAttr(ReferenceAttr(choices=["Faction"]))
+    actors = ListAttr(ReferenceAttr(choices=["Actor"]))
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
     initiative = ListAttr(StringAttr(default=""))
     image = ReferenceAttr(choices=["Image"])
@@ -88,6 +89,16 @@ class SceneNote(AutoModel, AudioMixin):
         self.loot = [e for e in self.loot if e.pk != obj.pk]
         self.save()
 
+    def add_faction(self, obj):
+        if obj not in self.factions:
+            self.factions += [obj]
+            self.save()
+        return obj
+
+    def remove_faction(self, obj):
+        self.factions = [e for e in self.factions if e.pk != obj.pk]
+        self.save()
+
     def add_actor(self, obj):
         if obj not in self.actors:
             self.actors += [obj]
@@ -105,8 +116,9 @@ class SceneNote(AutoModel, AudioMixin):
         prompt = f"Generate a single comic panel for the following {self.genre} TableTop RPG session scene."
 
         prompt += f"\nSCENE DESCRIPTION\n\n{BeautifulSoup(self.description, 'html.parser').get_text()}\n"
+        prompt += "\n\nSETTINGS\n"
         for setting in self.setting:
-            prompt += f"\nSETTING: {setting.description_summary}\n"
+            prompt += f"{setting.name}: {setting.description_summary}\n"
 
         prompt += "\nDESCRIPTION OF CHARACTERS IN SCENE\n"
         for actor in self.actors:

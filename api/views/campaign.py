@@ -174,8 +174,12 @@ def episodemanage(pk, episodepk=None):
     if episode := Episode.get(episodepk):
         episode.name = request.json.get("name", episode.name)
         episode.episode_num = request.json.get("episode_num", episode.episode_num)
-        episode.start_date = request.json.get("start_date", episode.start_date)
-        episode.end_date = request.json.get("end_date", episode.end_date)
+        start_date = request.json.get("start_date", episode.start_date)
+        if start_date["day"] and start_date["month"] and start_date["year"]:
+            episode.start_date = start_date
+        end_date = request.json.get("end_date", episode.end_date)
+        if end_date["day"] and end_date["month"] and end_date["year"]:
+            episode.end_date = end_date
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
         )
@@ -579,25 +583,35 @@ def episodegenerate(pk):
     return result
 
 
-@campaign_endpoint.route("/episode/<string:pk>/update", methods=("POST",))
+@campaign_endpoint.route("/episode/<string:pk>/outline/update", methods=("POST",))
 def generatedepisodeupdate(pk):
     user, obj, *_ = _loader()
     episode = Episode.get(pk)
-    scenes = request.json.get("scenes")
-    log(scenes)
-    episode.campaign.autogm.scenes = scenes
-    episode.campaign.autogm.save()
+    outline = request.json.get("outline")
+    log(outline)
+    episode.outline = outline
+    episode.save()
     return get_template_attribute("manage/_campaign.html", "episode_generator")(
         user, obj, episode
     )
 
 
 @campaign_endpoint.route("/episode/<string:pk>/generate/expand", methods=("POST",))
-def generatescene(pk, scenenum):
+def generatescene(pk):
     user, obj, *_ = _loader()
     episode = Episode.get(pk)
-    log(episode.campaign.autogm.scenes[scenenum])
     result = requests.post(
         f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.pk}/autogm/episode/expand",
     ).text
     return result
+
+
+@campaign_endpoint.route("/episode/<string:pk>/outline/refresh", methods=("POST",))
+def episodeoutlinerefresh(pk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(pk)
+    episode.outline = " ".join([e.notes for e in episode.scenenotes])
+    episode.save()
+    return get_template_attribute("manage/_campaign.html", "episode_generator")(
+        user, obj, episode
+    )

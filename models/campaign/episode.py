@@ -135,7 +135,7 @@ class Episode(AutoModel):
         if self.end_date_obj:
             self.end_date_obj.obj = self
             self.end_date_obj.calendar = self.world.calendar
-            self.save()
+            self.end_date_obj.save()
         return self.end_date_obj
 
     @end_date.setter
@@ -277,9 +277,9 @@ class Episode(AutoModel):
         self.scenenotes.sort(key=lambda x: x.num)
 
     def pre_save_dates(self):
-        pass
-        # log(self.start_date_obj)
-        # log(self.end_date_obj)
+        if self.end_date_obj and self.end_date_obj > self.world.current_date:
+            self.world.current_date = self.end_date_obj
+            self.world.save()
 
     def pre_save_outline(self):
         # if not isinstance(self.outline, str):
