@@ -175,10 +175,15 @@ def episodemanage(pk, episodepk=None):
         episode.name = request.json.get("name", episode.name)
         episode.episode_num = request.json.get("episode_num", episode.episode_num)
         start_date = request.json.get("start_date", episode.start_date)
-        if start_date["day"] and start_date["month"] and start_date["year"]:
+        if (
+            start_date
+            and start_date["day"]
+            and start_date["month"]
+            and start_date["year"]
+        ):
             episode.start_date = start_date
         end_date = request.json.get("end_date", episode.end_date)
-        if end_date["day"] and end_date["month"] and end_date["year"]:
+        if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
             episode.end_date = end_date
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
