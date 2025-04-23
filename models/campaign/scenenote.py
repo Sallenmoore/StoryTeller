@@ -14,7 +14,7 @@ from models.mixins.audio import AudioMixin
 
 
 class SceneNote(AutoModel, AudioMixin):
-    name = StringAttr(default="")
+    name = StringAttr(default="New Scene")
     num = IntAttr(default=0)
     act = IntAttr()
     scene = IntAttr()
@@ -29,14 +29,21 @@ class SceneNote(AutoModel, AudioMixin):
             "puzzle",
         ]
     )
+    next_scenes = ListAttr(ReferenceAttr(choices=["SceneNote"]))
+    parent_scene = ReferenceAttr(choices=["SceneNote"])
+
     notes = StringAttr(default="")
     description = StringAttr(default="")
+    scenario = StringAttr(default="")
+
     setting = ListAttr(ReferenceAttr(choices=["Place"]))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
     factions = ListAttr(ReferenceAttr(choices=["Faction"]))
     actors = ListAttr(ReferenceAttr(choices=["Actor"]))
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
+
     initiative = ListAttr(StringAttr(default=""))
+
     image = ReferenceAttr(choices=["Image"])
     music = StringAttr(default="")
     audio = FileAttr()
@@ -58,6 +65,11 @@ class SceneNote(AutoModel, AudioMixin):
         elif self.encounters:
             return self.encounters[0].genre
         return "Fictional"
+
+    ##################### INSTANCE METHODS ####################
+    def delete(self):
+        all(e.delete() for e in self.next_scenes)
+        return super().delete()
 
     def add_setting(self, obj):
         if obj not in self.setting:

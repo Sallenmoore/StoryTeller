@@ -4,15 +4,16 @@ from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     IntAttr,
-    ListAttr,
-    ReferenceAttr,
+    StringAttr,
 )
 from models.base.place import Place
 
 
 class City(Place):
     population = IntAttr(default=100)
-    districts = ListAttr(ReferenceAttr(choices=["District"]))
+    culture = StringAttr(default="")
+    religion = StringAttr(default="")
+    government = StringAttr(default="")
 
     parent_list = ["Region"]
     _traits_list = [
@@ -48,6 +49,18 @@ class City(Place):
                 "desc": {
                     "type": "string",
                     "description": "A short physical description that will be used to generate an image of the city.",
+                },
+                "culture": {
+                    "type": "string",
+                    "description": "A brief description of the culture of the region and its people. Only include publicly known information.",
+                },
+                "government": {
+                    "type": "string",
+                    "description": "A brief description of the government of the region. Only include publicly known information.",
+                },
+                "religion": {
+                    "type": "string",
+                    "description": "A brief description of the religions of the region and its people. Only include publicly known information.",
                 },
             },
         },

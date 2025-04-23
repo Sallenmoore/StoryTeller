@@ -309,7 +309,9 @@ def episodenoteupdate(campaignpk, episodepk, scenenotepk):
         sn_obj.name = request.json.get("name")
         sn_obj.num = request.json.get("num")
         sn_obj.description = request.json.get("description")
+        sn_obj.scenario = request.json.get("scenario")
         sn_obj.notes = request.json.get("notes")
+        sn_obj.type = request.json.get("type")
         sn_obj.save()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
@@ -330,6 +332,54 @@ def episodenotedelete(campaignpk, episodepk, scenenotepk):
         sn_obj.delete()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene/add",
+    methods=("POST",),
+)
+def episodenotenextadd(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        next_scene = SceneNote()
+        next_scene.parent_scene = sn_obj
+        next_scene.save()
+        sn_obj.next_scenes += [next_scene]
+        sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
+        user, obj, episode, sn_obj
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene",
+    methods=("POST",),
+)
+def episodenotenext(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    sn_obj = SceneNote.get(scenenotepk)
+    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
+        user, obj, episode, sn_obj
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene/<string:nextpk>/remove",
+    methods=("POST",),
+)
+def episodenotenextremove(campaignpk, episodepk, scenenotepk, nextpk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        next_scene = SceneNote.get(nextpk)
+        sn_obj.next_scenes = [o for o in sn_obj.next_scenes if o.pk != next_scene.pk]
+        sn_obj.save()
+        next_scene.delete()
+    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
+        user, obj, episode, sn_obj
     )
 
 
@@ -428,6 +478,38 @@ def episodenoteitemremove(campaignpk, episodepk, scenenotepk):
         pk = request.json.get("itempk")
         if scene_obj := Item.get(pk):
             sn_obj.remove_loot(scene_obj)
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/faction/add",
+    methods=("POST",),
+)
+def episodenotefactionadd(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        if scene_obj := Faction.get(request.json.get("faction")):
+            sn_obj.add_faction(scene_obj)
+            sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/faction/remove",
+    methods=("POST",),
+)
+def episodenotefactionremove(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        pk = request.json.get("itempk")
+        if scene_obj := Faction.get(pk):
+            sn_obj.remove_faction(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )

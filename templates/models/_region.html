@@ -1,3 +1,5 @@
+{% import "shared/_form.html" as form_components %}
+
 {% macro info(user, obj) -%}
 <div class="row">
     {% if obj.ruling_faction %}
@@ -5,7 +7,7 @@
         <div class="panel is-small has-bg-dark-grey generated-text-darkbg">
             <h4 class='has-text-center has-text-muted'>Ruling Faction</h4>
             <h5>{{obj.ruling_faction.name}}</h5>
-            {{obj.ruling_faction.backstory | safe}}
+            {{obj.ruling_faction.backstory_summary | safe}}
         </div>
     </div>
     {% elif obj.factions %}
@@ -14,11 +16,41 @@
         {% for faction in obj.factions %}
         <div class="panel is-small has-bg-dark-grey">
             <h5>{{faction.name}}</h5>
-            {{faction.backstory | safe}}
+            {{faction.backstory_summary | safe}}
         </div>
         {% endfor %}
     </div>
     {% endif %}
+    <div class="column is-full">
+        <div class="card has-bg-light">
+            <div class="card__header is-vertically-centered has-bg-secondary">
+                <h3 class="has-text-muted">Culture</h3>
+            </div>
+            <div class="card__content has-bg-light">
+                <p class="has-text-dark">{{obj.culture | safe}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <div class="card has-bg-light">
+            <div class="card__header is-vertically-centered has-bg-secondary">
+                <h3 class="has-text-muted">Government</h3>
+            </div>
+            <div class="card__content has-bg-light">
+                <p class="has-text-dark">{{obj.government | safe}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <div class="card has-bg-light">
+            <div class="card__header is-vertically-centered has-bg-secondary">
+                <h3 class="has-text-muted">Religion</h3>
+            </div>
+            <div class="card__content has-bg-light">
+                <p class="has-text-dark">{{obj.religion | safe}}</p>
+            </div>
+        </div>
+    </div>
 </div>
 {%- endmacro %}
 
@@ -43,13 +75,25 @@
         </div>
         {% for faction in obj.factions %}
         <div class="column is-full">
-            <div
-                 class="panel is-small {% if faction == obj.ruling_faction %} has-bg-primary has-text-primary {%else%} has-bg-secondary has-text-secondary {% endif %}">
-                <h5>{{faction.name}}</h5>
-                {{faction.backstory_summary}}
+            <div class="panel is-small has-bg-primary has-text-white">
+                {{faction.backstory_summary | safe}}
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div class="row">
+        <div class="column is-full">
+            <h3 class="has-text-screen">Culture</h3>
+            {{form_components.texteditor(user, obj, "culture")}}
+        </div>
+        <div class="column is-full">
+            <h3 class="has-text-screen">Government</h3>
+            {{form_components.texteditor(user, obj, "government")}}
+        </div>
+        <div class="column is-full">
+            <h3 class="has-text-screen">Religion</h3>
+            {{form_components.texteditor(user, obj, "religion")}}
+        </div>
     </div>
 </form>
 {%- endmacro %}

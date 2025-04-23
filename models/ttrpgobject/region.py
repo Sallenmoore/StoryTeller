@@ -1,12 +1,16 @@
 from autonomous import log
 from autonomous.model.autoattr import (
-    ReferenceAttr,
+    StringAttr,
 )
 from models.base.place import Place
 from models.ttrpgobject.faction import Faction
 
 
 class Region(Place):
+    culture = StringAttr(default="")
+    religion = StringAttr(default="")
+    government = StringAttr(default="")
+
     parent_list = ["World"]
     _traits_list = [
         "coastal",
@@ -36,6 +40,18 @@ class Region(Place):
                 "backstory": {
                     "type": "string",
                     "description": "A brief history of the region and its people. Only include publicly known information.",
+                },
+                "culture": {
+                    "type": "string",
+                    "description": "A brief description of the culture of the region and its people. Only include publicly known information.",
+                },
+                "government": {
+                    "type": "string",
+                    "description": "A brief description of the government of the region. Only include publicly known information.",
+                },
+                "religion": {
+                    "type": "string",
+                    "description": "A brief description of the religions of the region and its people. Only include publicly known information.",
                 },
             },
         },

@@ -147,7 +147,7 @@ class TTRPGObject(TTRPGBase):
 
         return self.world
 
-    def episodes(self, campaign):
+    def get_episodes(self, campaign):
         return [c for c in campaign.episodes if self in c.associations]
 
     ## MARK: - Verification Methods

@@ -6,29 +6,9 @@ from models.systems.scifi import SciFiSystem
 class StarsWithoutNumber(SciFiSystem):
     # meta = {"collection": "SciFiSystem"}
 
-    _genre = "Stars Without Number"
+    _system_name = "Stars Without Number"
 
-    _skills = {
-        "Administer": random.randint(-1, 2),
-        "Connect": random.randint(-1, 2),
-        "Exert": random.randint(-1, 2),
-        "Fix": random.randint(-1, 2),
-        "Heal": random.randint(-1, 2),
-        "Know": random.randint(-1, 2),
-        "Lead": random.randint(-1, 2),
-        "Notice": random.randint(-1, 2),
-        "Perform": random.randint(-1, 2),
-        "Pilot": random.randint(-1, 2),
-        "Program": random.randint(-1, 2),
-        "Punch": random.randint(-1, 2),
-        "Shoot": random.randint(-1, 2),
-        "Sneak": random.randint(-1, 2),
-        "Stab": random.randint(-1, 2),
-        "Survive": random.randint(-1, 2),
-        "Talk": random.randint(-1, 2),
-        "Trade": random.randint(-1, 2),
-        "Work": random.randint(-1, 2),
-    }
+    _genre = "Sci-Fi"
 
     _classes = {
         "Warrior": ["Soldier", "Mercenary", "Gladiator", "Bodyguard", "Martial Artist"],
@@ -160,26 +140,25 @@ class StarsWithoutNumber(SciFiSystem):
         ],
     }
 
-
-def get_skills(self, actor=None):
-    return {
-        "Administer": random.randint(-1, 2),
-        "Connect": random.randint(-1, 2),
-        "Exert": random.randint(-1, 2),
-        "Fix": random.randint(-1, 2),
-        "Heal": random.randint(-1, 2),
-        "Know": random.randint(-1, 2),
-        "Lead": random.randint(-1, 2),
-        "Notice": random.randint(-1, 2),
-        "Perform": random.randint(-1, 2),
-        "Pilot": random.randint(-1, 2),
-        "Program": random.randint(-1, 2),
-        "Punch": random.randint(-1, 2),
-        "Shoot": random.randint(-1, 2),
-        "Sneak": random.randint(-1, 2),
-        "Stab": random.randint(-1, 2),
-        "Survive": random.randint(-1, 2),
-        "Talk": random.randint(-1, 2),
-        "Trade": random.randint(-1, 2),
-        "Work": random.randint(-1, 2),
-    }
+    def get_skills(self, actor=None):
+        return {
+            "Administer": random.randint(-1, 2),
+            "Connect": random.randint(-1, 2),
+            "Exert": random.randint(-1, 2),
+            "Fix": random.randint(-1, 2),
+            "Heal": random.randint(-1, 2),
+            "Know": random.randint(-1, 2),
+            "Lead": random.randint(-1, 2),
+            "Notice": random.randint(-1, 2),
+            "Perform": random.randint(-1, 2),
+            "Pilot": random.randint(-1, 2),
+            "Program": random.randint(-1, 2),
+            "Punch": random.randint(-1, 2),
+            "Shoot": random.randint(-1, 2),
+            "Sneak": random.randint(-1, 2),
+            "Stab": random.randint(-1, 2),
+            "Survive": random.randint(-1, 2),
+            "Talk": random.randint(-1, 2),
+            "Trade": random.randint(-1, 2),
+            "Work": random.randint(-1, 2),
+        }

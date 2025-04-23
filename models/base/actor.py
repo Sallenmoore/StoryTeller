@@ -280,13 +280,13 @@ class Actor(TTRPGObject):
     def auto_post_init(cls, sender, document, **kwargs):
         super().auto_post_init(sender, document, **kwargs)
         document.pre_save_ac()
-        document.pre_save_skills()
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_ac()
         document.pre_save_ability()
+        document.pre_save_skills()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -298,7 +298,7 @@ class Actor(TTRPGObject):
     ############### Verification Methods ##############
 
     def pre_save_skills(self):
-        if not self.skills or all(v == 0 for k, v in self.skills.items()):
+        if not self.skills or all(int(v) == 0 for k, v in self.skills.items()):
             self.skills = self.system.get_skills(self)
             # log(f"pre_save_skills: {self.skills}")
 

@@ -227,6 +227,10 @@ class TTRPGBase(AutoModel):
         self.desc_summary = val
 
     @property
+    def episodes(self):
+        return [e for c in self.campaigns for e in c.episodes if self in e.associations]
+
+    @property
     def funcobj(self):
         self._funcobj["parameters"]["required"] = list(
             self._funcobj["parameters"]["properties"].keys()
@@ -248,14 +252,15 @@ class TTRPGBase(AutoModel):
 
     @property
     def history_prompt(self):
-        if self.backstory_summary:
+        if self.backstory:
             return f"""
 HISTORY
 ---
-{self.backstory_summary}
+{self.backstory}
 
 EVENTS
 ---
+- {"\n- ".join([e.summary for e in self.episodes])}
 """
 
     @property
@@ -454,10 +459,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()
         # generate backstory summary
-        if len(self.backstory.split()) < 50:
+        if len(self.backstory.split()) < 80:
             self.backstory_summary = self.backstory
         else:
-            primer = "Generate a summary of less than 50 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
+            primer = "Generate a summary of less than 80 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
             self.backstory_summary = self.system.generate_summary(
                 self.backstory, primer
             )
@@ -477,15 +482,13 @@ Use and expand on the existing object data listed below for the {self.title} obj
         self.save()
 
         # generate history
-        if self.history_prompt:
-            history = self.system.generate_summary(
-                self.history_prompt, self.history_primer
-            )
-            history = history.replace("```markdown", "").replace("```", "")
-            self.history = (
-                markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
-            )
-            self.save()
+        log(f"Generating history...\n{self.history_prompt}", _print=True)
+        history = self.system.generate_summary(self.history_prompt, self.history_primer)
+        history = history.replace("```markdown", "").replace("```", "")
+        self.history = (
+            markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
+        )
+        self.save()
         self.get_world().update_system_references(self.pk)
 
     def get_title(self, model):
