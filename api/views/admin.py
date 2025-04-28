@@ -38,7 +38,7 @@ admin_endpoint = Blueprint("admin", __name__)
 
 tags = {
     "type": [
-        "session",
+        "episode",
         "battlemaps",
         "map",
         "world",
@@ -46,15 +46,21 @@ tags = {
         "city",
         "location",
         "encounter",
-        "poi",
+        "district",
         "faction",
         "creature",
+        "shop",
         "item",
         "character",
     ],
     "genre": ["fantasy", "horror", "sci-fi", "western", "historical"],
 }
 tag_list = sorted([*tags["type"], *tags["genre"]])
+
+
+@admin_endpoint.route("/manage", methods=("POST",))
+def index():
+    return get_template_attribute("admin/_index.html", "manage")()
 
 
 @admin_endpoint.route("/manage/images", methods=("POST",))
@@ -148,6 +154,19 @@ def delete_world():
     return "World not found"
 
 
+@admin_endpoint.route("/manage/agents", methods=("POST",))
+def agents():
+    return get_template_attribute("admin/_agents.html", "manage")(worlds=World.all())
+
+
+@admin_endpoint.route("/manage/agents/delete", methods=("POST",))
+def delete_agents():
+    from autonomous.ai.baseagent import clear_agents
+
+    result = clear_agents()
+    return "Success"
+
+
 @admin_endpoint.route("/migration/data", methods=("GET", "POST"))
 def migration():
     for obj in Campaign.all():
@@ -177,24 +196,20 @@ def dbdump():
     #     type(dev),
     #     not dev,
     # )
-    if not dev:
-        log("starting dump...")
-        host = os.getenv("DB_HOST", "db")
-        port = os.getenv("DB_PORT", 27017)
-        password = os.getenv("DB_PASSWORD")
-        username = os.getenv("DB_USERNAME")
-        connect_str = f"mongodb://{username}:{password}@{host}:{port}"
-        datetime_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        command_str = f'mongodump --uri="{connect_str}" --archive="dbbackups/dbbackup-{datetime_string}.archive"'
-        result = subprocess.Popen(command_str, shell=True).wait()
-        log(result)
-        return "<p>Success</p>"
-    else:
-        return "<p>!!! Cannot Dump Dev DB !!!</p>"
+    log("starting dump...")
+    host = os.getenv("DB_HOST", "db")
+    port = os.getenv("DB_PORT", 27017)
+    password = os.getenv("DB_PASSWORD")
+    username = os.getenv("DB_USERNAME")
+    connect_str = f"mongodb://{username}:{password}@{host}:{port}"
+    datetime_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    command_str = f'mongodump --uri="{connect_str}" --archive="dbbackups/dbbackup-{datetime_string}.archive"'
+    result = subprocess.Popen(command_str, shell=True).wait()
+    log(result)
+    return "<p>Success</p>"
 
 
 @admin_endpoint.route("/dbload", methods=("POST",))
-# @auth_required()  # admin=True)
 def dbload():
     log("starting load...")
     files = glob.glob(

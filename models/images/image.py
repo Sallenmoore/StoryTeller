@@ -24,7 +24,6 @@ class Image(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGBase"]))
 
     ################### Class Variables #####################
-    _client = ImageAgent()
 
     _sizes = {"thumbnail": 100, "small": 300, "medium": 600, "large": 1000}
 
@@ -49,11 +48,11 @@ IMPORTANT: The image MUST NOT contain any TEXT.
             else prompt
         )
         try:
-            image = cls._client.generate(
+            image = ImageAgent().generate(
                 prompt=temp_prompt,
             )
         except Exception as e:
-            log(f"==== Error: Unable to create image ====\n\n{e}")
+            log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
         else:
             image_obj = Image(

@@ -9,11 +9,14 @@ admin_page = Blueprint("admin", __name__)
 
 
 @admin_page.route("/", methods=("GET",))
-@auth_required(admin=True)
+# @auth_required(admin=True)
 def index():
+    log("admin index")
+    pc = requests.post("http://api:5000/admin/manage").text
     return render_template(
-        "admin/index.html",
+        "index.html",
         user=AutoAuth.current_user().pk,
+        page_content=pc,
     )
 
 
@@ -32,11 +35,42 @@ def images():
     )
 
 
-@admin_page.route("/pullfromworld", methods=("GET", "POST"))
+@admin_page.route("/worlds", methods=("GET", "POST"))
 @auth_required(admin=True)
-def pull():
-    world_data = requests.get("http://dev.world.stevenamoore.dev/raw/worlds").text
-    worlds = []
-    for world in world_data:
-        pass
-    return render_template("admin/index.html")
+def worlds():
+    args = request.args.copy()
+    if request.method == "POST":
+        args.update(request.json)
+    # log(args)
+    pc = requests.post("http://api:5000/admin/manage/worlds", json=args).text
+    return render_template(
+        "admin/index.html",
+        user=AutoAuth.current_user().pk,
+        page_content=pc,
+    )
+
+
+@admin_page.route("/users", methods=("GET", "POST"))
+@auth_required(admin=True)
+def users():
+    args = request.args.copy()
+    if request.method == "POST":
+        args.update(request.json)
+    # log(args)
+    pc = requests.post("http://api:5000/admin/manage/users", json=args).text
+    return render_template(
+        "admin/index.html",
+        user=AutoAuth.current_user().pk,
+        page_content=pc,
+    )
+
+
+@admin_page.route("/agents", methods=("GET", "POST"))
+# @auth_required(admin=True)
+def agents():
+    args = request.args.copy()
+    if request.method == "POST":
+        args.update(request.json)
+    # log(args)
+    pc = requests.post("http://api:5000/admin/manage/agents", json=args).text
+    return pc

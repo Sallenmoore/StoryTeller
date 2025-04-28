@@ -1,0 +1,49 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+
+{% macro manage(user) -%}
+<title>Manage</title>
+<hr>
+<div class="row has-space-around">
+    <div class="column is-2">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/images">
+            <span>Images</span>
+        </button>
+    </div>
+    <div class="column is-2">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/worlds">
+            <span>Worlds</span>
+        </button>
+    </div>
+    <div class="column is-2">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/users">
+            <span>Users</span>
+        </button>
+    </div>
+    <div class="column is-2">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/agents"
+                hx-target="#manager">
+            <span>Agents</span>
+        </button>
+    </div>
+</div>
+<hr>
+<div class="row has-space-around">
+    <div class="column is-3">
+        <button class="button is-primary is-full" hx-post="/api/admin/dbdump">
+            <span>DB Backup</span>
+        </button>
+    </div>
+    <div class="column is-3">
+        <button class="button is-primary is-full" hx-post="/api/admin/dbload">
+            <span>DB Load</span>
+        </button>
+    </div>
+</div>
+<hr>
+<div id="manager" class="panel">
+    {% if page_content %}
+    {{ page_content | safe }}
+    {% endif %}
+</div>
+{%- endmacro %}

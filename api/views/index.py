@@ -339,16 +339,19 @@ def timeline(model, pk):
                 start = "Started"
             else:
                 start = "Founded"
-            event = {
-                "date": a.start_date,
-                "name": a.name,
-                "event": start,
-                "description": a.backstory_summary,
-                "icon": a.get_icon(),
-                "image": a.image.url() if a.image else None,
-                "obj": a,
-            }
-            events += [event]
+            if a.model_name() not in ["Character", "Creature"] or getattr(
+                a, "is_player", None
+            ):
+                event = {
+                    "date": a.start_date,
+                    "name": a.name,
+                    "event": start,
+                    "description": a.backstory_summary,
+                    "icon": a.get_icon(),
+                    "image": a.image.url() if a.image else None,
+                    "obj": a,
+                }
+                events += [event]
         if a.end_date and a.end_date.year > 0:
             if a.model_name() in ["Character", "Creature"]:
                 end = "Died"
@@ -362,16 +365,19 @@ def timeline(model, pk):
                 end = "Disbanded"
             else:
                 end = "Abandoned"
-            event = {
-                "date": a.end_date,
-                "name": a.name,
-                "event": end,
-                "description": a.backstory_summary,
-                "icon": a.get_icon(),
-                "image": a.image.url() if a.image else None,
-                "obj": a,
-            }
-            events += [event]
+            if a.model_name() not in ["Character", "Creature"] or getattr(
+                a, "is_player", None
+            ):
+                event = {
+                    "date": a.end_date,
+                    "name": a.name,
+                    "event": end,
+                    "description": a.backstory_summary,
+                    "icon": a.get_icon(),
+                    "image": a.image.url() if a.image else None,
+                    "obj": a,
+                }
+                events += [event]
     log(events)
     events.sort(key=lambda x: x["date"], reverse=True)
     return get_template_attribute("shared/_timeline.html", "timeline")(

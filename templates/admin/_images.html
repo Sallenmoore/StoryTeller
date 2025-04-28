@@ -1,0 +1,16 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+
+{% macro manage(worlds) -%}
+<title>{{obj.name or obj.title}} - Agents</title>
+<div class="row">
+    <div class="column is-full is-vertically-centered">
+        <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
+    </div>
+    {% for world in worlds %}
+    <div class="column is-3">
+        {{display_components.object_display(world)}}
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

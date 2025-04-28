@@ -1,0 +1,19 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+
+{% macro manage(worlds) -%}
+<title>Agents</title>
+<div class="row has-space-around">
+    <div class="column is-full is-vertically-centered">
+        <button class="button is-primary" hx-post="/api/admin/manage/agents/delete"
+                hx-target="#manager">
+            <span>Clear All Agents</span>
+        </button>
+    </div>
+    {% for world in worlds %}
+    <div class="column is-2">
+        {{display_components.object_display(world)}}
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

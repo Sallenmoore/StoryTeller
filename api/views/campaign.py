@@ -306,12 +306,12 @@ def episodenoteupdate(campaignpk, episodepk, scenenotepk):
     user, obj, *_ = _loader()
     episode = Episode.get(episodepk)
     if sn_obj := SceneNote.get(scenenotepk):
-        sn_obj.name = request.json.get("name")
-        sn_obj.num = request.json.get("num")
-        sn_obj.description = request.json.get("description")
-        sn_obj.scenario = request.json.get("scenario")
-        sn_obj.notes = request.json.get("notes")
-        sn_obj.type = request.json.get("type")
+        sn_obj.name = request.json.get("name", sn_obj.name)
+        sn_obj.num = request.json.get("num", sn_obj.num)
+        sn_obj.description = request.json.get("description", sn_obj.description)
+        sn_obj.notes = request.json.get("notes", sn_obj.notes)
+        sn_obj.scenario = request.json.get("scenario", sn_obj.scenario)
+        sn_obj.type = request.json.get("type", sn_obj.type)
         sn_obj.save()
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode

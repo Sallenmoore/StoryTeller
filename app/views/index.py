@@ -172,8 +172,8 @@ def listobjs(pk, model):
     world = World.get(pk)
     objs = World.get_model(model).search(world=world)
     result = []
-    for objs in objs:
-        objs_dict = json.loads(objs.to_json())
+    for obj in objs:
+        objs_dict = json.loads(obj.to_json())
         result += [objs_dict]
         log(objs_dict)
     return result

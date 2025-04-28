@@ -454,6 +454,37 @@ def removeability(pk):
     return "success"
 
 
+# MARK: Owner routes
+###########################################################
+##                Owner Routes                    ##
+###########################################################
+@manage_endpoint.route("/owner/add/search", methods=("POST",))
+def owner_search():
+    user, obj, world, *_ = _loader()
+    query = request.json.get("query")
+    associations = world.search_autocomplete(query) if query and len(query) > 2 else []
+    associations = [a for a in associations if a.model_name() == "Character"]
+    return get_template_attribute("models/_shop.html", "owner_dropdown")(
+        user, obj, associations
+    )
+
+
+@manage_endpoint.route(
+    "<string:pmodel>/<string:ppk>/owner/add/<string:amodel>/<string:apk>",
+    methods=("POST",),
+)
+def owner_add(pmodel, ppk, amodel, apk):
+    user, *_ = _loader()
+    obj = World.get_model(pmodel, ppk)
+    owner = World.get_model(amodel, apk)
+    obj.owner = owner
+    obj.save()
+    log(obj.owner)
+    if owner not in obj.associations:
+        obj.add_association(owner)
+    return get_template_attribute("manage/_details.html", "details")(user, obj)
+
+
 # MARK: Character routes
 ###########################################################
 ##                Character Routes                    ##

@@ -692,7 +692,7 @@
         </div>
         <div class="column is-full is-hidden lower-it">
             <div class="row has-space-between">
-                <div class="column is-10">
+                <div class="column is-full">
                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/update"
                           hx-swap='none'
                           hx-trigger='input delay:1s, change, end'>
@@ -708,7 +708,8 @@
                                         <label>Scene Num: </label>
                                     </div>
                                     <div class="column">
-                                        <input class="has-bg-muted has-text-center" type="number"
+                                        <input class="has-bg-muted has-text-center"
+                                               type="number"
                                                name="num"
                                                value="{{scenenote.num}}">
                                     </div>
@@ -746,11 +747,15 @@
                                 <h5 class='has-text-center'>Scene Description</h5>
                                 {{form_components.texteditor(user, scenenote, 'description', content=scenenote.description)}}
                             </div>
-                            <div class="column is-full">
-                                <h5 class='has-text-center'>General Notes</h5>
-                                {{form_components.texteditor(user, scenenote, 'notes', content=scenenote.notes)}}
-                            </div>
                         </div>
+                    </form>
+                </div>
+                <div class="column is-10">
+                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/update"
+                          hx-swap='none'
+                          hx-trigger='input delay:1s, change, end'>
+                        <h5 class='has-text-center'>General Notes</h5>
+                        {{form_components.texteditor(user, scenenote, 'notes', content=scenenote.notes)}}
                     </form>
                 </div>
                 <div class="column">
