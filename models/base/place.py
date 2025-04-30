@@ -44,11 +44,13 @@ class Place(TTRPGObject):
     @property
     def jobs(self):
         jobs = []
-        for c in self.characters:
-            jobs += c.quests
-        for a in self.associations:
-            for c in a.characters:
-                jobs += c.quests
+        associations = self.associations[:]
+        for a in associations:
+            if a.model_name() == "Character":
+                jobs += a.quests
+            for c in a.associations:
+                if c not in associations and c.parent == a.parent:
+                    associations += [c]
         jobs = list(set(jobs))
         return jobs
 
