@@ -152,6 +152,18 @@ def gmscreentable(screenpk, areapk):
 
 
 @gmscreen_endpoint.route(
+    "/<string:screenpk>/area/<string:areapk>/table/preset",
+    methods=("POST",),
+)
+def gmscreentablepreset(screenpk, areapk):
+    gm_screen_area = GMScreenTable.get(areapk)
+    gm_screen_area.entries = []
+    gm_screen_area.datafile = request.json.get("preset")
+    gm_screen_area.save()
+    return gm_screen_area.area()
+
+
+@gmscreen_endpoint.route(
     "/<string:screenpk>/area/<string:areapk>/table/additem",
     methods=("POST",),
 )

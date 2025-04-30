@@ -49,7 +49,7 @@
             <div class="column is-half">
                 <div class="panel has-bg-primary">
                     <h4 class="has-text-secondary">Owner</h4>
-                    <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
+                    <a href="/{{obj.owner.path}}">
                         <div class="image is-large is-thumbnail is-margin-center">
                             {% if obj.owner.image %}
                             <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />

@@ -1,0 +1,602 @@
+[
+  {
+    "name": "Survey Drone",
+    "type": "Weapon",
+    "description": "An autonomous drone for scouting and data gathering; often used to survey dangerous areas remotely.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Grav Chisel",
+    "type": "Tool",
+    "description": "A gravity-manipulating tool used for demolition or mining; breaks objects apart by altering local gravity fields.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Stun Baton",
+    "type": "Armor",
+    "description": "A baton delivering non-lethal electric shocks, used by security personnel to subdue targets without killing.",
+    "rarity": "common"
+  },
+  {
+    "name": "Advanced Toolkit",
+    "type": "Armor",
+    "description": "A comprehensive set of tools for engineering and repair tasks, critical for shipboard maintenance.",
+    "rarity": "common"
+  },
+  {
+    "name": "Hardsuit",
+    "type": "Armor",
+    "description": "Fully enclosed, vacuum-rated armor used for space operations and hostile environments.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Survey Drone",
+    "type": "Weapon",
+    "description": "An autonomous drone for scouting and data gathering; often used to survey dangerous areas remotely.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Security Override Module",
+    "type": "Gear",
+    "description": "A hacking tool used to bypass or disable electronic locks, alarms, and basic security systems.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Cargo Bay Concealment Kit",
+    "type": "Armor",
+    "description": "Materials and designs used to create hidden compartments within a ship's cargo hold.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Cyberware",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Compad",
+    "type": "Armor",
+    "description": "A handheld computer used for communications, record-keeping, hacking, and tactical coordination.",
+    "rarity": "common"
+  },
+  {
+    "name": "Combat Field Uniform",
+    "type": "Cyberware",
+    "description": "Basic protective clothing providing light armor; commonly worn by mercenaries and security forces.",
+    "rarity": "common"
+  },
+  {
+    "name": "Grav Chisel",
+    "type": "Gear",
+    "description": "A gravity-manipulating tool used for demolition or mining; breaks objects apart by altering local gravity fields.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Compad",
+    "type": "Armor",
+    "description": "A handheld computer used for communications, record-keeping, hacking, and tactical coordination.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Fabricator",
+    "type": "Cyberware",
+    "description": "A rare device capable of producing complex items and components from raw materials on demand.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Hardsuit",
+    "type": "Tool",
+    "description": "Fully enclosed, vacuum-rated armor used for space operations and hostile environments.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Mag Rifle",
+    "type": "Armor",
+    "description": "A powerful rifle that uses electromagnetic coils to launch projectiles at devastating speeds.",
+    "rarity": "common"
+  },
+  {
+    "name": "Hardsuit",
+    "type": "Gear",
+    "description": "Fully enclosed, vacuum-rated armor used for space operations and hostile environments.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Teleport Beacon",
+    "type": "Weapon",
+    "description": "A rare piece of pretech allowing instant teleportation to a fixed location; highly illegal and unstable.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Cargo Bay Concealment Kit",
+    "type": "Weapon",
+    "description": "Materials and designs used to create hidden compartments within a ship's cargo hold.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Spike Thrower",
+    "type": "Cyberware",
+    "description": "A brutal short-range weapon that hurls sharp metal spikes; favored in close-quarters shipboard combat.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Laser Rifle",
+    "type": "Cyberware",
+    "description": "A precision energy rifle favored by mercenaries for medium-range engagements; efficient and reliable.",
+    "rarity": "common"
+  },
+  {
+    "name": "Mag Rifle",
+    "type": "Gear",
+    "description": "A powerful rifle that uses electromagnetic coils to launch projectiles at devastating speeds.",
+    "rarity": "common"
+  },
+  {
+    "name": "Teleport Beacon",
+    "type": "Cyberware",
+    "description": "A rare piece of pretech allowing instant teleportation to a fixed location; highly illegal and unstable.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthsuit",
+    "type": "Armor",
+    "description": "A flexible synthetic armor offering moderate protection while allowing full range of motion.",
+    "rarity": "common"
+  },
+  {
+    "name": "Compad",
+    "type": "Weapon",
+    "description": "A handheld computer used for communications, record-keeping, hacking, and tactical coordination.",
+    "rarity": "common"
+  },
+  {
+    "name": "Assault Armor",
+    "type": "Gear",
+    "description": "Heavier combat armor designed for frontline troops; offers significant protection at the cost of mobility.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Spike Thrower",
+    "type": "Cyberware",
+    "description": "A brutal short-range weapon that hurls sharp metal spikes; favored in close-quarters shipboard combat.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Survey Drone",
+    "type": "Tool",
+    "description": "An autonomous drone for scouting and data gathering; often used to survey dangerous areas remotely.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Field Excavator",
+    "type": "Tool",
+    "description": "Heavy-duty portable digging equipment used for mining, archaeology, or battlefield fortifications.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Spike Drive Tuning Tools",
+    "type": "Armor",
+    "description": "Specialized instruments necessary for maintaining and enhancing a ship's spike drive performance.",
+    "rarity": "common"
+  },
+  {
+    "name": "Grav Chisel",
+    "type": "Tool",
+    "description": "A gravity-manipulating tool used for demolition or mining; breaks objects apart by altering local gravity fields.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Adaptive Defense Field",
+    "type": "Gear",
+    "description": "A personal energy field that adapts to incoming attacks, offering excellent protection against ballistic and energy weapons.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthsuit",
+    "type": "Armor",
+    "description": "A flexible synthetic armor offering moderate protection while allowing full range of motion.",
+    "rarity": "common"
+  },
+  {
+    "name": "Compad",
+    "type": "Armor",
+    "description": "A handheld computer used for communications, record-keeping, hacking, and tactical coordination.",
+    "rarity": "common"
+  },
+  {
+    "name": "Spike Drive Tuning Tools",
+    "type": "Armor",
+    "description": "Specialized instruments necessary for maintaining and enhancing a ship's spike drive performance.",
+    "rarity": "common"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Cyberware",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Stealth Blanket",
+    "type": "Weapon",
+    "description": "A sheet of advanced material that masks small items or persons from standard sensor scans.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Subdermal Armor",
+    "type": "Tool",
+    "description": "Implanted plates beneath the skin providing significant damage resistance without heavy armor.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Nano-Healing Nodes",
+    "type": "Gear",
+    "description": "Nanotech implants that continuously monitor and repair injuries within the body at a cellular level.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Mag Pistol",
+    "type": "Tool",
+    "description": "A magnetic acceleration handgun that fires dense slugs at high velocity; excellent for penetrating light armor.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Medkit",
+    "type": "Gear",
+    "description": "Advanced medical kit from lost technology eras, allowing rapid healing and even battlefield surgery.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Adaptive Defense Field",
+    "type": "Armor",
+    "description": "A personal energy field that adapts to incoming attacks, offering excellent protection against ballistic and energy weapons.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Assault Armor",
+    "type": "Tool",
+    "description": "Heavier combat armor designed for frontline troops; offers significant protection at the cost of mobility.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Synthsuit",
+    "type": "Armor",
+    "description": "A flexible synthetic armor offering moderate protection while allowing full range of motion.",
+    "rarity": "common"
+  },
+  {
+    "name": "Stealth Blanket",
+    "type": "Tool",
+    "description": "A sheet of advanced material that masks small items or persons from standard sensor scans.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Combat Field Uniform",
+    "type": "Armor",
+    "description": "Basic protective clothing providing light armor; commonly worn by mercenaries and security forces.",
+    "rarity": "common"
+  },
+  {
+    "name": "Combat Field Uniform",
+    "type": "Armor",
+    "description": "Basic protective clothing providing light armor; commonly worn by mercenaries and security forces.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Holo-Projector",
+    "type": "Gear",
+    "description": "A device capable of projecting realistic holographic illusions; used for deception and distraction.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Assault Armor",
+    "type": "Armor",
+    "description": "Heavier combat armor designed for frontline troops; offers significant protection at the cost of mobility.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Survey Scanner",
+    "type": "Armor",
+    "description": "A portable sensor suite for detecting environmental hazards, hidden structures, or energy sources.",
+    "rarity": "common"
+  },
+  {
+    "name": "Nano-Healing Nodes",
+    "type": "Armor",
+    "description": "Nanotech implants that continuously monitor and repair injuries within the body at a cellular level.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Stealth Blanket",
+    "type": "Tool",
+    "description": "A sheet of advanced material that masks small items or persons from standard sensor scans.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Security Override Module",
+    "type": "Weapon",
+    "description": "A hacking tool used to bypass or disable electronic locks, alarms, and basic security systems.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Plasma Projector",
+    "type": "Gear",
+    "description": "An advanced weapon firing streams of superheated plasma, highly effective against heavy armor but prone to overheating.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Pretech Fabricator",
+    "type": "Armor",
+    "description": "A rare device capable of producing complex items and components from raw materials on demand.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Field Excavator",
+    "type": "Gear",
+    "description": "Heavy-duty portable digging equipment used for mining, archaeology, or battlefield fortifications.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Laser Rifle",
+    "type": "Armor",
+    "description": "A precision energy rifle favored by mercenaries for medium-range engagements; efficient and reliable.",
+    "rarity": "common"
+  },
+  {
+    "name": "Laser Rifle",
+    "type": "Cyberware",
+    "description": "A precision energy rifle favored by mercenaries for medium-range engagements; efficient and reliable.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Fabricator",
+    "type": "Tool",
+    "description": "A rare device capable of producing complex items and components from raw materials on demand.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthetic Nerveweb",
+    "type": "Cyberware",
+    "description": "Advanced pretech cyberware boosting a user's agility and fine motor control to superhuman levels.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Spike Thrower",
+    "type": "Gear",
+    "description": "A brutal short-range weapon that hurls sharp metal spikes; favored in close-quarters shipboard combat.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Spike Thrower",
+    "type": "Weapon",
+    "description": "A brutal short-range weapon that hurls sharp metal spikes; favored in close-quarters shipboard combat.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Armor",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Spike Thrower",
+    "type": "Cyberware",
+    "description": "A brutal short-range weapon that hurls sharp metal spikes; favored in close-quarters shipboard combat.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Survey Scanner",
+    "type": "Tool",
+    "description": "A portable sensor suite for detecting environmental hazards, hidden structures, or energy sources.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Medkit",
+    "type": "Armor",
+    "description": "Advanced medical kit from lost technology eras, allowing rapid healing and even battlefield surgery.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Field Excavator",
+    "type": "Tool",
+    "description": "Heavy-duty portable digging equipment used for mining, archaeology, or battlefield fortifications.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Cargo Bay Concealment Kit",
+    "type": "Gear",
+    "description": "Materials and designs used to create hidden compartments within a ship's cargo hold.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Grav Chisel",
+    "type": "Cyberware",
+    "description": "A gravity-manipulating tool used for demolition or mining; breaks objects apart by altering local gravity fields.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Hardened Data Slab",
+    "type": "Tool",
+    "description": "A ruggedized computer designed to resist hacking and survive environmental extremes.",
+    "rarity": "common"
+  },
+  {
+    "name": "Teleport Beacon",
+    "type": "Weapon",
+    "description": "A rare piece of pretech allowing instant teleportation to a fixed location; highly illegal and unstable.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Advanced Toolkit",
+    "type": "Weapon",
+    "description": "A comprehensive set of tools for engineering and repair tasks, critical for shipboard maintenance.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Medkit",
+    "type": "Gear",
+    "description": "Advanced medical kit from lost technology eras, allowing rapid healing and even battlefield surgery.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Pretech Holo-Projector",
+    "type": "Cyberware",
+    "description": "A device capable of projecting realistic holographic illusions; used for deception and distraction.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Teleport Beacon",
+    "type": "Gear",
+    "description": "A rare piece of pretech allowing instant teleportation to a fixed location; highly illegal and unstable.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthetic Nerveweb",
+    "type": "Gear",
+    "description": "Advanced pretech cyberware boosting a user's agility and fine motor control to superhuman levels.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Plasma Projector",
+    "type": "Cyberware",
+    "description": "An advanced weapon firing streams of superheated plasma, highly effective against heavy armor but prone to overheating.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Field Excavator",
+    "type": "Armor",
+    "description": "Heavy-duty portable digging equipment used for mining, archaeology, or battlefield fortifications.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Hardened Data Slab",
+    "type": "Armor",
+    "description": "A ruggedized computer designed to resist hacking and survive environmental extremes.",
+    "rarity": "common"
+  },
+  {
+    "name": "Pretech Medkit",
+    "type": "Weapon",
+    "description": "Advanced medical kit from lost technology eras, allowing rapid healing and even battlefield surgery.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Weapon",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthetic Nerveweb",
+    "type": "Armor",
+    "description": "Advanced pretech cyberware boosting a user's agility and fine motor control to superhuman levels.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Adaptive Defense Field",
+    "type": "Armor",
+    "description": "A personal energy field that adapts to incoming attacks, offering excellent protection against ballistic and energy weapons.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Security Override Module",
+    "type": "Weapon",
+    "description": "A hacking tool used to bypass or disable electronic locks, alarms, and basic security systems.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Mag Pistol",
+    "type": "Tool",
+    "description": "A magnetic acceleration handgun that fires dense slugs at high velocity; excellent for penetrating light armor.",
+    "rarity": "common"
+  },
+  {
+    "name": "Stealth Blanket",
+    "type": "Cyberware",
+    "description": "A sheet of advanced material that masks small items or persons from standard sensor scans.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Weapon",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Synthetic Nerveweb",
+    "type": "Tool",
+    "description": "Advanced pretech cyberware boosting a user's agility and fine motor control to superhuman levels.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Subdermal Armor",
+    "type": "Gear",
+    "description": "Implanted plates beneath the skin providing significant damage resistance without heavy armor.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Monoblade",
+    "type": "Armor",
+    "description": "A melee weapon with an edge only one molecule thick; capable of slicing through most materials with ease.",
+    "rarity": "common"
+  },
+  {
+    "name": "Thermal Rifle",
+    "type": "Armor",
+    "description": "A heavy weapon that emits intense thermal beams; melts through obstacles and armored targets alike.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Monoblade",
+    "type": "Armor",
+    "description": "A melee weapon with an edge only one molecule thick; capable of slicing through most materials with ease.",
+    "rarity": "common"
+  },
+  {
+    "name": "Assault Armor",
+    "type": "Gear",
+    "description": "Heavier combat armor designed for frontline troops; offers significant protection at the cost of mobility.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Survey Drone",
+    "type": "Armor",
+    "description": "An autonomous drone for scouting and data gathering; often used to survey dangerous areas remotely.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Adaptive Defense Field",
+    "type": "Weapon",
+    "description": "A personal energy field that adapts to incoming attacks, offering excellent protection against ballistic and energy weapons.",
+    "rarity": "rare"
+  },
+  {
+    "name": "Plasma Projector",
+    "type": "Gear",
+    "description": "An advanced weapon firing streams of superheated plasma, highly effective against heavy armor but prone to overheating.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Pretech Medkit",
+    "type": "Weapon",
+    "description": "Advanced medical kit from lost technology eras, allowing rapid healing and even battlefield surgery.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Hardsuit",
+    "type": "Cyberware",
+    "description": "Fully enclosed, vacuum-rated armor used for space operations and hostile environments.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Cargo Bay Concealment Kit",
+    "type": "Cyberware",
+    "description": "Materials and designs used to create hidden compartments within a ship's cargo hold.",
+    "rarity": "uncommon"
+  },
+  {
+    "name": "Reflex Booster",
+    "type": "Armor",
+    "description": "Cyberware that enhances the user's reflex speed dramatically; vital for pilots and duelists.",
+    "rarity": "uncommon"
+  }
+]

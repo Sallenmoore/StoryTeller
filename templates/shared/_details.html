@@ -14,7 +14,7 @@
     {% endif %}
 </div>
 <hr>
-{%if obj.model_name() != "World" %}
+{%if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group) %}
 <div class="row has-centered">
     {% if obj.start_date and obj.start_date.year > 0 %}
     <div class="column is-shrink is-vertically-centered">

@@ -74,7 +74,7 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
-    {% if obj.model_name() != "World" %}
+    {% if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group)%}
     <div class="row has-centered" style='position:relative;'>
         <div class="column is-shrink is-vertically-centered">
             <h5 class='has-text-center has-text-dark'>Start</h5>

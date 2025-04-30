@@ -13,6 +13,10 @@ class GMScreenTable(GMScreenArea):
     datafile = StringAttr(default="")
     name = StringAttr(default="Roll Table")
 
+    gm_screen_table_presets = [
+        "swn_items_100_detailed.json",
+    ]
+
     _funcobj = {
         "name": "generate_items",
         "description": "creates a list of items for a RPG roll table",
@@ -74,7 +78,10 @@ class GMScreenTable(GMScreenArea):
                 else f"static/gmscreendata/{self.datafile}"
             )
             with open(datafile) as fptr:
-                self.entries = json.load(fptr)
+                self.entries = [
+                    f"{o['name']}:{o['description']}" for o in json.load(fptr)
+                ]
+                log(self.entries, _print=True)
                 self.save()
         return self.entries
 
