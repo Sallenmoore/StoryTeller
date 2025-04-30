@@ -108,11 +108,11 @@ BACKSTORY
     ################### CRUD Methods #####################
     def generate(self):
         group = (
-            "non-unique category and type of antagonist who"
+            "non-unique type of antagonists who have"
             if self.group
-            else "adversary who"
+            else "adversary who has"
         )
-        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} {group} has a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
+        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} {group} a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
         """
         return super().generate(prompt=prompt)
 
