@@ -274,7 +274,6 @@ class Episode(AutoModel):
 
     def pre_save_scene_note(self):
         self.scenenotes = [s for s in self.scenenotes if s]
-        self.scenenotes.sort(key=lambda x: x.num)
 
     def pre_save_dates(self):
         if self.end_date_obj and self.end_date_obj > self.world.current_date:

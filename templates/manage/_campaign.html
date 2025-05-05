@@ -657,9 +657,32 @@
 {%- endmacro %}
 
 {% macro episode_scenenotes(user, obj, episode) %}
-{% for scenenote in episode.scenenotes %}
-{{ episode_scenenote(user, obj, episode, scenenote) }}
-{% endfor %}
+<ul id="scenenotes" class='has-no-list-style'>
+    {% for scenenote in episode.scenenotes %}
+    <li data-scenenum="{{scenenote.num}}">
+        {{ episode_scenenote(user, obj, episode, scenenote) }}
+    </li>
+    {% endfor %}
+</ul>
+<script>
+    var el = document.getElementById('scenenotes');
+    var sortable = Sortable.create(el);
+    sortable.option("onEnd", function (evt) {
+        var scenenotes = [];
+        for (x of el.children) {
+            scenenotes.push(x.dataset.scenenum);
+        }
+        fetch(`/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenotes/reorder`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                scenenotes: scenenotes
+            })
+        });
+    });
+</script>
 {%- endmacro %}
 
 {% macro episode_scenenote(user, obj, episode, scenenote) %}

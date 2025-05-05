@@ -299,6 +299,29 @@ def episodegmnoteaddfiveroom(campaignpk, episodepk):
 
 
 @campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenotes/reorder",
+    methods=("POST",),
+)
+def episodenotereorder(campaignpk, episodepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    sceneorder = request.json.get("scenenotes")
+    order = {int(val): idx for idx, val in enumerate(sceneorder)}
+    log("reordering", order)
+
+    def orderfunc(x):
+        log("orderfunc", x.num, order)
+        return order[x.num] - 1
+
+    episode.scenenotes = sorted(episode.scenenotes, key=orderfunc)
+    log("reordered", [s.num for s in episode.scenenotes])
+    episode.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
     "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/update",
     methods=("POST",),
 )

@@ -27,7 +27,7 @@ rundb: initprod clean
 
 initprod:
 	cp -rf envs/prod/.env ./
-	cp -rf envs/prod/docker-compose.yml ./
+	cp -rf envs/prod/compose.yml ./
 	cp -rf envs/prod/gunicorn.conf.py ./vendor
 
 ###### DEV #######
@@ -40,7 +40,7 @@ dev: initdev
 
 initdev:
 	cp -rf envs/dev/.env ./
-	cp -rf envs/dev/docker-compose.yml ./
+	cp -rf envs/dev/compose.yml ./
 	cp -rf envs/dev/gunicorn.conf.py ./vendor
 
 ###### TESTING #######
