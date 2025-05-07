@@ -39,6 +39,7 @@ class SceneNote(AutoModel, AudioMixin):
     setting = ListAttr(ReferenceAttr(choices=["Place"]))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
     factions = ListAttr(ReferenceAttr(choices=["Faction"]))
+    vehicles = ListAttr(ReferenceAttr(choices=["Vehicle"]))
     actors = ListAttr(ReferenceAttr(choices=["Actor"]))
     loot = ListAttr(ReferenceAttr(choices=["Item"]))
 
@@ -119,6 +120,16 @@ class SceneNote(AutoModel, AudioMixin):
 
     def remove_actor(self, obj):
         self.actors = [e for e in self.actors if e.pk != obj.pk]
+        self.save()
+
+    def add_vehicle(self, obj):
+        if obj not in self.vehicles:
+            self.vehicles += [obj]
+            self.save()
+        return obj
+
+    def remove_vehicle(self, obj):
+        self.vehicles = [e for e in self.vehicles if e.pk != obj.pk]
         self.save()
 
     def generate_image(self):

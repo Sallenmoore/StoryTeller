@@ -10,6 +10,7 @@ class Quest(AutoModel):
     name = StringAttr(default="")
     description = StringAttr(default="")
     summary = StringAttr(default="")
+    secrets = ListAttr(StringAttr(default=""))
     rewards = StringAttr(default="")
     contact = ReferenceAttr(choices=["Character"])
     location = StringAttr(default="")

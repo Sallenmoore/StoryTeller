@@ -19,6 +19,7 @@ from models.ttrpgobject.character import Character
 from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
+from models.ttrpgobject.vehicle import Vehicle
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -566,6 +567,37 @@ def episodenoteactorremove(campaignpk, episodepk, scenenotepk):
         enc = request.json.get("actor")
         if scene_obj := World.get_model(*enc.split("/")):
             sn_obj.remove_actor(scene_obj)
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/vehicle/add",
+    methods=("POST",),
+)
+def episodenotevehicleadd(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        scene_obj = Vehicle.get(request.json.get("vehicle"))
+        sn_obj.add_vehicle(scene_obj)
+        sn_obj.save()
+    return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
+        user, obj, episode
+    )
+
+
+@campaign_endpoint.route(
+    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/vehicle/remove",
+    methods=("POST",),
+)
+def episodenotevehicleremove(campaignpk, episodepk, scenenotepk):
+    user, obj, *_ = _loader()
+    episode = Episode.get(episodepk)
+    if sn_obj := SceneNote.get(scenenotepk):
+        if scene_obj := Vehicle.get(request.json.get("vehiclepk")):
+            sn_obj.remove_vehicle(scene_obj)
     return get_template_attribute("manage/_campaign.html", "episode_gmplanner")(
         user, obj, episode
     )

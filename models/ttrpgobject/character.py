@@ -184,7 +184,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         return result
 
-    def generate_quest(self):
+    def generate_quest(self, extra_prompt=""):
         from models.ttrpgobject.quest import Quest
 
         funcobj = {
@@ -199,31 +199,48 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                     },
                     "rewards": {
                         "type": "string",
-                        "description": "The specific rewards for solving the mystery depending on the outcome, including financial compensation",
+                        "description": "The specific rewards for solving the mystery depending on the outcome, including financial compensation and any items or information that the player characters will receive",
                     },
                     "description": {
                         "type": "string",
                         "description": "A detailed description of the mystery in MARKDOWN, including what is required to solve the mystery and any ethical complications involved in solving the mystery",
                     },
+                    "secrets": {
+                        "type": "array",
+                        "description": "A large list of secrets and clues that the player characters can discover during the mystery, in the order they should be discovered",
+                        "items": {"type": "string"},
+                    },
                     "summary": {
                         "type": "string",
-                        "description": "A one sentence summary of the mystery, including rewards",
+                        "description": "A one sentence summary of the mystery, including the specific reward for solving the mystery",
                     },
                     "location": {
                         "type": "string",
-                        "description": "A detailed description of the primary starting location of the mystery",
+                        "description": "A detailed description of the primary starting location of the mystery in MARKDOWN, including any important details about the location and its inhabitants",
                     },
                 },
             },
         }
 
-        prompt = f"Generate a multipart mystery for a {self.genre} Table Top RPG. The mysteries should be revealed as each part is discovered, and should tell a complete story that is morally complicated, interesting, and challenging for the player characters to complete. Include specific ethical complications involved in various possible outcomes of completing the mystery. The mystery should be suitable for a party of 4-6 players. The mystery should be more than just item retrieval, involving aspects of political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.description}."
+        prompt = f"""Generate a multipart mystery for a {self.genre} Table Top RPG. The mystery should be suitable for a party of 4-6 players. The mystery should be revealed through a series of clues and interactions with npcs, and should tell a complete story that is morally complicated, interesting, and challenging for the player characters to complete. The mystery should involve multiple complications, such as political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.backstory_summary}.
+"""
+
+        if self.parent:
+            prompt += f"""
+The mystery should be set in the {self.parent.name} and should include details about the location and its inhabitants. {self.parent.backstory_summary}.
+"""
+        if extra_prompt:
+            prompt += (
+                f"Create the quest according to the following prompt:\n\n{extra_prompt}"
+            )
 
         primer = "You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate a mystery that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete. The mystery should be suitable for a party of 4-6 players. Include specific ethical complications involved in solving the mystery using various methods with different outcomes."
+        log(prompt, _print=True)
         results = self.system.generate_json(prompt, primer, funcobj)
+        # log(results, _print=True)
         self.add_quest(**results)
 
-    def add_quest(self, name, description, summary, rewards, location):
+    def add_quest(self, name, description, secrets, summary, rewards, location):
         from models.ttrpgobject.quest import Quest
 
         description = (
@@ -236,6 +253,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             name=name,
             rewards=rewards,
             description=description,
+            secrets=secrets,
             summary=summary,
             contact=self,
             location=location,

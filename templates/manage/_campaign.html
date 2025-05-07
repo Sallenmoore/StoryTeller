@@ -925,8 +925,8 @@
                             <div class="row has-space-around">
                                 <div class="column is-full">
                                     <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/faction/add"
-                                          hx-target="#screenote-items-{{scenenote.pk}}"
-                                          hx-select="#screenote-items-{{scenenote.pk}}"
+                                          hx-target="#screenote-factions-{{scenenote.pk}}"
+                                          hx-select="#screenote-factions-{{scenenote.pk}}"
                                           hx-swap='outerHTML'
                                           hx-trigger='input delay:1s, change'>
                                         <div class="is-select has-bg-light">
@@ -935,7 +935,7 @@
                                                     --Select Faction--
                                                 </option>
                                                 {% for enc in episode.factions %}
-                                                {% if enc not in scenenote.loot %}
+                                                {% if enc not in scenenote.factions %}
                                                 <option value='{{enc.pk}}'>
                                                     {{enc.name}}
                                                 </option>
@@ -945,7 +945,7 @@
                                         </div>
                                     </form>
                                 </div>
-                                {% for a in scenenote.loot %}
+                                {% for a in scenenote.factions %}
                                 <div class="screenote-encounter column is-6"
                                      style='position:relative'>
                                     {{display_components.object_display(a, type=False)}}
@@ -956,6 +956,51 @@
                                              hx-target="closest .screenote-encounter"
                                              hx-swap="delete"
                                              hx-vals='{"itempk":"{{a.pk}}"}'>
+                                            <iconify-icon icon="mdi:remove" width="1rem">
+                                            </iconify-icon>
+                                        </div>
+                                    </div>
+                                </div>
+                                {%endfor%}
+                            </div>
+                        </div>
+                        <div id="screenote-vehicle-{{scenenote.pk}}" class="column is-full">
+                            <hr class='has-bg-light'>
+                            <h5 class=' has-text-center'>Vehicle</h5>
+                            <div class="row has-space-around">
+                                <div class="column is-full">
+                                    <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/vehicle/add"
+                                          hx-target="#screenote-vehicle-{{scenenote.pk}}"
+                                          hx-select="#screenote-vehicle-{{scenenote.pk}}"
+                                          hx-swap='outerHTML'
+                                          hx-trigger='input delay:1s, change'>
+                                        <div class="is-select has-bg-light">
+                                            <select name='vehicle'>
+                                                <option value=''>
+                                                    --Select Vehicle--
+                                                </option>
+                                                {% for enc in episode.vehicles %}
+                                                {% if enc not in scenenote.vehicles %}
+                                                <option value='{{enc.pk}}'>
+                                                    {{enc.name}}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                {% for a in scenenote.vehicles %}
+                                <div class="screenote-encounter column is-6"
+                                     style='position:relative'>
+                                    {{display_components.object_display(a, type=False)}}
+                                    <div class="row has-centered">
+                                        <div class="column is-3"
+                                             style='position:absolute; top:0px; right:0.5rem;'
+                                             hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/scenenote/{{scenenote.pk}}/vehicle/remove"
+                                             hx-target="closest .screenote-encounter"
+                                             hx-swap="delete"
+                                             hx-vals='{"vehiclepk":"{{a.pk}}"}'>
                                             <iconify-icon icon="mdi:remove" width="1rem">
                                             </iconify-icon>
                                         </div>

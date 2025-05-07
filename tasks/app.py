@@ -206,6 +206,7 @@ def create_app():
             .task(
                 tasks._generate_quest_task,
                 pk=pk,
+                prompt=request.json.get("prompt"),
             )
             .result
         )

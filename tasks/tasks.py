@@ -98,9 +98,9 @@ def _generate_dungeon_task(model, pk):
     return {"url": f"/api/{obj.path}/map"}
 
 
-def _generate_quest_task(pk):
+def _generate_quest_task(pk, prompt=""):
     obj = Character.get(pk)
-    obj.generate_quest()
+    obj.generate_quest(prompt)
     return {"url": f"/api/{obj.path}/quests"}
 
 
