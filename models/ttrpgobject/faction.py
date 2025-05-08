@@ -19,25 +19,6 @@ class Faction(TTRPGObject):
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]
-    _traits_list = [
-        "colonists",
-        "deep rooted",
-        "cult",
-        "suspicious",
-        "violent",
-        "sinister",
-        "fanatical",
-        "racist",
-        "egalitarian",
-        "ambitious",
-        "corrupt",
-        "charitable",
-        "greedy",
-        "generous",
-        "imperialist",
-        "isolationist",
-        "mercenary",
-    ]
 
     _funcobj = {
         "name": "generate_faction",

@@ -18,46 +18,7 @@ class Character(Actor):
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
 
     parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
-    _traits_list = [
-        "secretly evil",
-        "shy and gentle",
-        "outgoing and imaginative",
-        "unfriendly, but not unkind",
-        "cruel and sadistic",
-        "power-hungry and ambitious",
-        "kind and helpful",
-        "proud and self-absorbed",
-        "silly, a prankster",
-        "overly serious",
-        "incredibly greedy",
-        "extremely generous",
-        "hardworking",
-        "cowardly and insecure",
-        "practical to a fault",
-        "dangerously curious",
-        "cautious and occasionally paranoid",
-        "reckless, but heroic",
-        "Ambition",
-        "Avarice",
-        "Bitterness",
-        "Courage",
-        "Cowardice",
-        "Curiosity",
-        "Deceitfulness",
-        "Determination",
-        "Devotion to a cause",
-        "Filiality",
-        "Hatred",
-        "Honesty",
-        "Hopefulness",
-        "Love of a person",
-        "Nihilism",
-        "Paternalism",
-        "Pessimism",
-        "Protectiveness",
-        "Resentment",
-        "Shame",
-    ]
+
     _template = [
         [
             "Criminal, thug, thief, swindler",

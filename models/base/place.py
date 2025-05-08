@@ -19,23 +19,6 @@ class Place(TTRPGObject):
     map_prompt = StringAttr(default="")
     dungeon = StringAttr(default="")
 
-    _traits_list = [
-        "long hidden",
-        "mysterious",
-        "sinister",
-        "underground",
-        "frozen",
-        "jungle",
-        "dangerous",
-        "boring",
-        "mundane",
-        "opulent",
-        "decaying",
-        "haunted",
-        "enchanted",
-        "cursed",
-    ]
-
     ################### Property Methods #####################
     @property
     def actors(self):

@@ -360,54 +360,6 @@ def episodenotedelete(campaignpk, episodepk, scenenotepk):
 
 
 @campaign_endpoint.route(
-    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene/add",
-    methods=("POST",),
-)
-def episodenotenextadd(campaignpk, episodepk, scenenotepk):
-    user, obj, *_ = _loader()
-    episode = Episode.get(episodepk)
-    if sn_obj := SceneNote.get(scenenotepk):
-        next_scene = SceneNote()
-        next_scene.parent_scene = sn_obj
-        next_scene.save()
-        sn_obj.next_scenes += [next_scene]
-        sn_obj.save()
-    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
-        user, obj, episode, sn_obj
-    )
-
-
-@campaign_endpoint.route(
-    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene",
-    methods=("POST",),
-)
-def episodenotenext(campaignpk, episodepk, scenenotepk):
-    user, obj, *_ = _loader()
-    episode = Episode.get(episodepk)
-    sn_obj = SceneNote.get(scenenotepk)
-    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
-        user, obj, episode, sn_obj
-    )
-
-
-@campaign_endpoint.route(
-    "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/nextscene/<string:nextpk>/remove",
-    methods=("POST",),
-)
-def episodenotenextremove(campaignpk, episodepk, scenenotepk, nextpk):
-    user, obj, *_ = _loader()
-    episode = Episode.get(episodepk)
-    if sn_obj := SceneNote.get(scenenotepk):
-        next_scene = SceneNote.get(nextpk)
-        sn_obj.next_scenes = [o for o in sn_obj.next_scenes if o.pk != next_scene.pk]
-        sn_obj.save()
-        next_scene.delete()
-    return get_template_attribute("manage/_campaign.html", "episode_scenenote")(
-        user, obj, episode, sn_obj
-    )
-
-
-@campaign_endpoint.route(
     "/<string:campaignpk>/episode/<string:episodepk>/scenenote/<string:scenenotepk>/setting/add",
     methods=("POST",),
 )

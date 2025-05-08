@@ -12,17 +12,7 @@ class Region(Place):
     government = StringAttr(default="")
 
     parent_list = ["World"]
-    _traits_list = [
-        "coastal",
-        "mountainous",
-        "desert",
-        "forest",
-        "jungle",
-        "plains",
-        "swamp",
-        "frozen",
-        "underground",
-    ]
+
     _funcobj = {
         "name": "generate_region",
         "description": "creates Region data object",

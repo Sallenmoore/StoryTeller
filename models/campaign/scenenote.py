@@ -29,8 +29,6 @@ class SceneNote(AutoModel, AudioMixin):
             "puzzle",
         ]
     )
-    next_scenes = ListAttr(ReferenceAttr(choices=["SceneNote"]))
-    parent_scene = ReferenceAttr(choices=["SceneNote"])
 
     notes = StringAttr(default="")
     description = StringAttr(default="")

@@ -57,16 +57,7 @@ class TTRPGBase(AutoModel):
         "journal": None,
         "history": "",
     }
-    _traits_list = [
-        "secretly evil",
-        "openly evil",
-        "openly neutral",
-        "secretly neutral",
-        "openly good",
-        "secretly good",
-        "dangerous",
-        "mysterious",
-    ]
+
     _funcobj = {}
 
     ########### Dunder Methods ###########
@@ -298,6 +289,22 @@ EVENTS
     @property
     def titles(self):
         return self.system._titles
+
+    @property
+    def traits_list(self):
+        return self.system._traits_list.get(
+            self.model_name().lower(),
+            [
+                "secretly evil",
+                "openly evil",
+                "openly neutral",
+                "secretly neutral",
+                "openly good",
+                "secretly good",
+                "dangerous",
+                "mysterious",
+            ],
+        )
 
     ########### CRUD Methods ###########
     def delete(self):
@@ -644,7 +651,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     def pre_save_traits(self):
         if not self.traits:
-            self.traits = random.choice(self._traits_list)
+            self.traits = random.choice(self.traits_list)
 
     def post_save_journal(self):
         if not self.journal:

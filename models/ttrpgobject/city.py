@@ -16,18 +16,7 @@ class City(Place):
     government = StringAttr(default="")
 
     parent_list = ["Region"]
-    _traits_list = [
-        "bohemian",
-        "rude",
-        "aggressive",
-        "proud",
-        "distrustful",
-        "anarchic",
-        "aristocratic",
-        "bureaucratic",
-        "theocratic",
-        "tribalist",
-    ]
+
     _funcobj = {
         "name": "generate_city",
         "description": "completes City data object",
@@ -36,31 +25,31 @@ class City(Place):
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "A unique and evocative name for the city",
+                    "description": "A unique and evocative name",
                 },
                 "population": {
                     "type": "integer",
-                    "description": "The city's population between 50 and 50000, with more weight on smaller populations",
+                    "description": "The population between 50 and 500000, with more weight on smaller populations",
                 },
                 "backstory": {
                     "type": "string",
-                    "description": "A short history of the city in 750 words or less. Only include publicly known information about the city.",
+                    "description": "A short history in 750 words or less. Only include publicly known information about the city.",
                 },
                 "desc": {
                     "type": "string",
-                    "description": "A short physical description that will be used to generate an image of the city.",
+                    "description": "A short physical description that will be used to generate an image.",
                 },
                 "culture": {
                     "type": "string",
-                    "description": "A brief description of the culture of the region and its people. Only include publicly known information.",
+                    "description": "A brief description of the culture and its people. Only include publicly known information.",
                 },
                 "government": {
                     "type": "string",
-                    "description": "A brief description of the government of the region. Only include publicly known information.",
+                    "description": "A brief description of the government. Only include publicly known information.",
                 },
                 "religion": {
                     "type": "string",
-                    "description": "A brief description of the religions of the region and its people. Only include publicly known information.",
+                    "description": "A brief description of the religions and its people. Only include publicly known information.",
                 },
             },
         },
@@ -69,6 +58,8 @@ class City(Place):
     ################### Class Methods #####################
 
     def generate(self):
+        self._funcobj["name"] = f"generate_{self.title.lower()}"
+        self._funcobj["description"] = f"completes {self.title} data object"
         prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}."
         obj_data = super().generate(prompt=prompt)
         self.save()
