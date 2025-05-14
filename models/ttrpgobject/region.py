@@ -58,6 +58,14 @@ class Region(Place):
         return prompt
 
     @property
+    def map_pois(self):
+        return [
+            a
+            for a in self.associations
+            if a.model_name() in ["Encounter", "Location", "City", "District"]
+        ]
+
+    @property
     def ruling_faction(self):
         return self.owner
 
@@ -96,7 +104,6 @@ class Region(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_map()
         document.pre_save_owner()
 
     @classmethod
@@ -108,12 +115,6 @@ class Region(Place):
     #     super().clean()
 
     ################### verify associations ##################
-    def pre_save_map(self):
-        if "With the following" not in self.map_prompt:
-            self.map_prompt += f"""
-With the following {self.get_title("City")}s:
-- {", ".join([c.name for c in self.cities])}
-"""
 
     def pre_save_owner(self):
         if isinstance(self.owner, str):

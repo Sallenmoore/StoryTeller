@@ -34,6 +34,7 @@ class Date(AutoModel):
         return False
 
     def __lt__(self, other):
+        log("Comparing Dates: {} < {}".format(self, other))
         if isinstance(other, Date):
             return (int(self.year), self.month, self.day) < (
                 int(other.year),

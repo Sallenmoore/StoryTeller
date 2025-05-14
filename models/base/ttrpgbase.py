@@ -12,6 +12,7 @@ from autonomous.db import ValidationError
 from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 from models.images.image import Image
+from models.images.map import Map
 from models.journal import Journal
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
@@ -410,14 +411,12 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_map
     def generate_map(self):
-        log("Generating map...", _print=True)
-        self.map = Image.generate(
+        self.map = Map.generate(
             prompt=self.map_prompt or self.system.map_prompt(self),
             tags=["map", self.model_name().lower(), self.genre],
             img_quality="hd",
             img_size="1792x1024",
         )
-        log("Map Generated.", _print=True)
         self.map.save()
         self.save()
         return self.map
@@ -585,7 +584,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_image()
-        document.pre_save_map()
         document.pre_save_backstory()
         document.pre_save_traits()
 
@@ -597,25 +595,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
-
-    def pre_save_map(self):
-        if isinstance(self.map, str):
-            if validators.url(self.map):
-                self.map = Image.from_url(
-                    self.map,
-                    prompt=self.map_prompt,
-                    tags=["map", *self.image_tags],
-                )
-                self.map.save()
-            elif image := Image.get(self.map):
-                self.map = image
-            else:
-                raise ValidationError(
-                    f"Image must be an Image object, url, or Image pk, not {self.map}"
-                )
-        elif self.map and not self.map.tags:
-            self.map.tags = self.map_tags
-            self.map.save()
 
     def pre_save_image(self):
         if isinstance(self.image, str):

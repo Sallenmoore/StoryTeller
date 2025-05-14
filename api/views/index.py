@@ -232,6 +232,8 @@ def worlddelete(pk):
 )
 def model(model, pk, page):
     user, obj, *_ = _loader(model=model, pk=pk)
+    if obj.map:
+        obj.save()
     return get_template(obj, page)(user, obj)
 
 

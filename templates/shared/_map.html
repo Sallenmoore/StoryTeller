@@ -1,13 +1,12 @@
 {% import "shared/_form.html" as form_components %}
-
+{% import "shared/_display.html" as display_components %}
 {% macro map(user, obj) -%}
 <title>{{obj.name}} - Map</title>
 <h2>Map</h2>
 <hr>
 <div class="row fade-it-in" id='object-map-view'>
     {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle', 'Shop']
-    and
-    user.world_user(obj) %}
+    and user.world_user(obj) %}
     <div class="column is-full">
         <div class="row">
             <div class="column">
@@ -17,6 +16,16 @@
                         {{form_components.texteditor(user, obj, 'map_prompt')}}
                     </form>
                 </div>
+            </div>
+            <div class="column is-shrink">
+                <button class="button is-small is-primary"
+                        hx-post="/api/manage/{{obj.path}}/map/prompt/reset"
+                        hx-target="#object-map-view"
+                        hx-select="#object-map-view"
+                        hx-swap="outerHTML"
+                        hx-confirm="Are you sure you want to reset the map prompt?"'>
+                                <iconify-icon icon="tabler:refresh"></iconify-icon>
+                                Reset Prompt
             </div>
         </div>
         <div class="row">
@@ -34,80 +43,158 @@
                     </div>
                     {% else %}
                     <div class="column is-shrink is-vertically-centered">
-                        <button class='button' class="button is-primary"
-                                hx-post="/task/generate/history/{{obj.path}}"
-                                hx-target='closest .column'>
-                            Update History
-                        </button>
-                        <small style='color:darkred'>The {{obj.title}} must have a history to
-                            generate a map</small>
-                    </div>
-                    {% endif %}
-                    <div class="column">
-                        <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
-                                hx-target="#map-image-container"
-                                hx-swap="innerHTML show:#map-image-container:bottom"
-                                hx-indicator='#request-indicator'>
-                            <iconify-icon icon="game-icons:card-random"></iconify-icon>
-                            Select From Gallery
-                        </button>
-                    </div>
-                </div>
-                <hr class="has-bg-primary">
-                <div class="row">
-                    <div class="column">
-                        <form hx-post="/api/manage/update" hx-select='#map-image-container'
-                              hx-target="#map-image-container"
-                              hx-confirm="Are you sure you want to upload and overwrite the current map?">
-                            <div class="row">
-                                <div class="column is-shrink">
-                                    <button class="button is-primary is-small" type="submit">
-                                        <iconify-icon icon="lucide:link"></iconify-icon>
-                                        Upload
-                                        from
-                                        URL
-                                    </button>
-                                </div>
-                                <div class="column">
-                                    <div class="inputlabel">
-                                        <input class="has-bg-muted has-text-secondary"
-                                               type="url" name="map"
-                                               placeholder="enter url....">
-                                    </div>
-                                </div>
+                        <button class=' button' class="button is-primary"
+                        hx-post="/task/generate/history/{{obj.path}}"
+                        hx-target='closest .column'>
+                    Update History
+                </button>
+                <small style='color:darkred'>The {{obj.title}} must have a history to
+                    generate a map</small>
+            </div>
+            {% endif %}
+            <div class="column">
+                <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
+                        hx-target="#map-image-container"
+                        hx-swap="innerHTML show:#map-image-container:bottom"
+                        hx-indicator='#request-indicator'>
+                    <iconify-icon icon="game-icons:card-random"></iconify-icon>
+                    Select From Gallery
+                </button>
+            </div>
+        </div>
+        <hr class="has-bg-primary">
+        <div class="row">
+            <div class="column">
+                <form hx-post="/api/manage/update" hx-select='#map-image-container'
+                      hx-target="#map-image-container"
+                      hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                    <div class="row">
+                        <div class="column is-shrink">
+                            <button class="button is-primary is-small" type="submit">
+                                <iconify-icon icon="lucide:link"></iconify-icon>
+                                Upload
+                                from
+                                URL
+                            </button>
+                        </div>
+                        <div class="column">
+                            <div class="inputlabel">
+                                <input class="has-bg-muted has-text-secondary"
+                                       type="url" name="map"
+                                       placeholder="enter url....">
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
-    {% endif%}
-    <div class="column is-full">
-        <div id="map-image-container" width="100%" height="100%">
-            <div class="image" width="100%">
-                {% if obj.map %}
-                <img src="{{obj.map.url()}}" alt="{{obj.name}} map"
-                     style='border-radius:5px;' />
-                {% endif %}
-            </div>
+</div>
+</div>
+{% endif%}
+<div id="map-container" class="column is-full">
+    <div id="map" style="width:100%;height:1500px;">
+        {% if obj.map %}
+        <div class="image" width="100%">
+            <img src="{{obj.map.url()}}" alt="{{obj.name}} map" />
         </div>
+        {% endif %}
     </div>
-    <div class="column is-full">
-        <button class='button' class="button is-primary"
-                hx-post="/task/generate/{{obj.path}}/dungeon"
-                hx-target='closest .column'>
-            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
-            Build Dungeon
-        </button>
-        <div class="panel has-bg-muted has-text-dark">
-            {{obj.dungeon | safe }}
+</div>
+{% if obj.model_name() in ['Location'] and obj.map %}
+<div class="column is-full">
+    <button class='button' class="button is-primary"
+            hx-post="/task/generate/{{obj.path}}/dungeon"
+            hx-target='closest .column'>
+        <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+        Build Dungeon
+    </button>
+    <div class="panel has-bg-muted has-text-dark">
+        {{obj.dungeon | safe }}
+    </div>
+</div>
+{% elif obj.model_name() in ['City', 'Region', 'District'] and obj.map %}
+{{mappois(user, obj)}}
+<script>
+    document.getElementById('map').querySelector('img').style.opacity = '0';
+    const map = L.map('map', {
+        center: [896, 896],
+        zoom: 1,
+        crs: L.CRS.Simple, // Simple coordinate system
+        attributionControl: false,
+        scrollWheelZoom: false,
+        dragging: false,
+        touchZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        zoomControl: false
+    });
+    const imageBounds = [[0, 0], [1792, 1792]];
+    L.imageOverlay('{{obj.map.url()}}', imageBounds).addTo(map);
+    map.fitBounds(imageBounds);
+    map.whenReady(function () {
+        console.log("Map Center:", map.getCenter());
+    });
+
+    function createMarker(lat, lng, id) {
+        if (lat == '-1' || lng == '-1') {
+            lat = map.getCenter().lat;
+            lng = map.getCenter().lng;
+        }
+        let marker = L.marker([parseFloat(lat), parseFloat(lng)], {
+            draggable: true
+        }).addTo(map);
+
+        marker.on('dragend', function (e) {
+            var lat = e.target.getLatLng().lat;
+            var lng = e.target.getLatLng().lng;
+            fetch('/api/manage/{{obj.path}}/map/poi/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    lat: lat,
+                    lng: lng,
+                    id: id,
+                }),
+            });
+        });
+        return marker;
+    }
+
+    const coordinates = {{ obj.map.coordinates | tojson }};
+    console.log("Coordinates:", coordinates.length);
+    if (coordinates.length > 0) {
+        for (var i = 0; i < coordinates.length; i++) {
+            var lat = coordinates[i].x;
+            var lng = coordinates[i].y;
+            var id = coordinates[i].obj;
+            var marker = createMarker(lat, lng, id);
+            marker.bindPopup(`<b>${coordinates[i].name}</b>`);
+        }
+    }
+</script>
+{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro mappois(user, obj) -%}
+<div class="panel has-bg-muted has-text-dark">
+    <h5 class='has-text-centered'>Map POIs</h5>
+    <div class="row">
+        {% for poi in obj.map_pois %}
+        <div class="column is-2" hx-post="/api/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
+             hx-target="#map-container" hx-select="#map-container"
+             hx-swap="outerHTML show:#map-container:bottom">
+            {{display_components.object_display(poi)}}
         </div>
+        {% endfor %}
     </div>
 </div>
 {%- endmacro %}
 
-{%macro mapgallery(user, obj, maps) -%}
+{% macro mapgallery(user, obj, maps) -%}
 <div class="panel has-bg-primary">
     <div class="row has-space-around">
         {% for image in maps%}
@@ -123,5 +210,5 @@
         </div>
         {% endfor %}
     </div>
-</div>
+</div>;
 {%- endmacro %}

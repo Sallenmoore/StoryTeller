@@ -70,11 +70,19 @@ class City(Place):
     @property
     def image_prompt(self):
         msg = f"""
-        Create a full color, high resolution illustrated view of a {self.title} called {self.name} of with the following details:
+        Create a full color, high resolution illustrated view of a {self.title} called {self.name} with the following details:
         - POPULATION: {self.population}
         - DESCRIPTION: {self.desc}
         """
         return msg
+
+    @property
+    def map_pois(self):
+        return [
+            a
+            for a in self.associations
+            if a.model_name() in ["Encounter", "Location", "District"]
+        ]
 
     @property
     def ruler(self):

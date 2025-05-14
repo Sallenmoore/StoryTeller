@@ -60,7 +60,6 @@ BACKSTORY
         {("- TYPE: " if self.group else "- NAME: ") + self.name}
         {"- DESCRIPTION: " + self.description if self.description else ""}
         {"- SIZE: " + self.size if self.size else ""}
-        {"- GOAL: " + self.goal if self.goal else ""}
         """
 
     @property

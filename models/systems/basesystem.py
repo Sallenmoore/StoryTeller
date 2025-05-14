@@ -238,36 +238,43 @@ class BaseSystem(AutoModel):
     _map_prompts = {
         "city": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be detailed and include the following elements:
 - MAP TYPE: A detailed layout of the {obj.title}, including key locations, points of interest, and districts
+- STYLE: Czepeku
 - SCALE: 1 inch == 500 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 {"- POINTS OF INTEREST: " + ",".join([poi.name for poi in [*obj.districts, *obj.locations] if poi.name]) if [poi.name for poi in obj.districts if poi.name] else ""}
 """,
-        "region": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be detailed and include the following elements:
+        "region": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG  in a location with the following description: {obj.description_summary}. The map should be detailed and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: top-down navigation map with key cities, locations, and pois marked
 - SCALE: 1 inch == 50 miles
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "world": lambda obj: f"""Generate a top-down navigable map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be detailed and include the following elements:
+        "world": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG in a {obj.title} with the following description: {obj.description_summary}. The map should be detailed and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: Directly overhead, top-down atlas style map of the {obj.title}
 - SCALE: 1 inch == 500 miles
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG  map of an establishment suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG  map of an establishment suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "vehicle": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of the floor plan of a {obj.type}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+        "vehicle": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of the floor plan of a {obj.type} with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
+- STYLE: Czepeku
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}

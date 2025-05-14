@@ -121,7 +121,7 @@ def image_gallery():
     )
 
 
-# MARK: image route
+# MARK: map routes
 ###########################################################
 ##                      Map Routes                       ##
 ###########################################################
@@ -137,6 +137,35 @@ def maps_gallery():
     return get_template_attribute("shared/_map.html", "mapgallery")(
         user, obj, maps=obj.get_map_list()
     )
+
+
+@manage_endpoint.route(
+    "<string:pmodel>/<string:ppk>/map/prompt/reset",
+    methods=("POST",),
+)
+def map_prompt_reset(pmodel, ppk):
+    user, obj, *_ = _loader()
+    obj = World.get_model(pmodel, ppk)
+    obj.map_prompt = obj.system.map_prompt(obj)
+    obj.save()
+    return get_template_attribute("shared/_map.html", "map")(user, obj)
+
+
+@manage_endpoint.route(
+    "<string:pmodel>/<string:ppk>/map/poi/add/<string:amodel>/<string:apk>",
+    methods=("POST",),
+)
+def map_poi_add(pmodel, ppk, amodel, apk):
+    user, obj, *_ = _loader()
+    obj = World.get_model(pmodel, ppk)
+    poi = World.get_model(amodel, apk)
+    if poi not in obj.associations:
+        raise ValueError(
+            f"POI {poi} is not an association of {obj}. Please add it first."
+        )
+    obj.map.add_poi(poi)
+    obj.map.save()
+    return get_template_attribute("shared/_map.html", "map")(user, obj)
 
 
 # MARK: History route

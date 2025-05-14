@@ -8,6 +8,7 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.images.image import Image
+from models.images.map import Map
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
@@ -15,7 +16,6 @@ class Place(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     owner = ReferenceAttr(choices=["Character", "Creature", "Faction"])
     map = ReferenceAttr(choices=["Image"])
-    maps = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     dungeon = StringAttr(default="")
 
@@ -49,7 +49,7 @@ class Place(TTRPGObject):
         if self.backstory and self.backstory_summary:
             map_prompt = self.map_prompt or self.system.map_prompt(self)
             # log(map_prompt)
-            self.map = Image.generate(
+            self.map = Map.generate(
                 prompt=map_prompt,
                 tags=["map", *self.image_tags],
                 img_quality="hd",
@@ -143,26 +143,31 @@ DUNGEON BACKSTORY
         # log(self.map)
         if not self.map_prompt:
             self.map_prompt = self.system.map_prompt(self)
+
         if isinstance(self.map, str):
-            if not self.map:
-                self.map = None
-            elif validators.url(self.map):
-                self.map = Image.from_url(
-                    self.map, prompt=self.map_prompt, tags=["map", *self.image_tags]
+            if validators.url(self.map):
+                self.map = Map.from_url(
+                    self.map,
+                    prompt=self.map_prompt,
+                    tags=["map", *self.image_tags],
                 )
                 self.map.save()
-            elif map := Image.get(self.map):
-                self.map = map
+            elif image := Image.get(self.map):
+                self.map = Map.from_image(image)
+                self.map.save()
+            elif image := Map.get(self.map):
+                self.map = image
             else:
-                # log(self.map, type(self.map))
                 raise ValidationError(
-                    f"Map must be an Image object, url, or Image pk, not {self.map}"
+                    f"Image must be an Image object, url, or Image pk, not {self.map}"
                 )
-        elif not self.map:
-            for a in self.geneology:
-                if a.map:
-                    self.map = a.map
-        elif not self.map.tags:
-            self.map.tags = ["map", *self.image_tags]
+        elif type(self.map) is Image:
+            log("converting to map...", self.map, _print=True)
+            self.map = Map.from_image(self.map)
             self.map.save()
+            log("converted to map", self.map, _print=True)
+        elif self.map and not self.map.tags:
+            self.map.tags = self.map_tags
+            self.map.save()
+
         # log(self.map)

@@ -129,6 +129,9 @@ class Episode(AutoModel):
                 raise ValueError(
                     "date must be a Date object or a string in the format: <day> <month> <year>"
                 )
+        if not self.end_date_obj and self.start_date_obj.year:
+            self.world.current_date = self.start_date_obj
+            self.world.save()
 
     @property
     def end_date(self):
@@ -155,6 +158,8 @@ class Episode(AutoModel):
                 raise ValueError(
                     "date must be a Date object or a string in the format: <day> <month> <year>"
                 )
+        self.world.current_date = self.end_date_obj
+        self.world.save()
 
     @property
     def world(self):
@@ -173,7 +178,7 @@ class Episode(AutoModel):
         self.summary = (
             self.world.system.generate_summary(
                 self.episode_report,
-                primer="Generate a summary of less than 100 words of the episode events in MARKDOWN format with a paragraph breaks where appropriate, but after no more than 4 sentences.",
+                primer="Generate a summary of less than 250 words of the episode events in MARKDOWN format with a paragraph breaks where appropriate, but after no more than 4 sentences.",
             )
             if len(self.episode_report) > 256
             else self.episode_report

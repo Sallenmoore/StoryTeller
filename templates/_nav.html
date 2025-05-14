@@ -223,7 +223,8 @@
                 </a>
             </li>
             {% endif %}
-            {% if user.world_user(obj) %}
+            {% if obj.model_name() in ["World", "Region", "City", "Location", "District", "Vehicle",
+            "Shop"] %}
             <li>
                 <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
                    hx-target="#page-content" hx-indicator="#request-indicator"

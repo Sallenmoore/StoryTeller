@@ -1,6 +1,6 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro object_display(obj, dim="250", name=True, type=True, pk=False, modal=False) -%}
+{% macro object_display(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}
 {% if not modal %}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>
     {% endif %}
@@ -16,6 +16,11 @@
     <h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
         {{obj.name}} <sup>({% if obj.canon %}c{%else%}nc{% endif %})</sup>
     </h6>
+    {% endif %}
+    {% if date %}
+    <small class='has-text-center'>
+        {{obj.start_date}}-{{obj.end_date if obj.end_date else ''}}
+    </small>
     {% endif %}
     <div class="row has-space-around">
         {% if type %}
