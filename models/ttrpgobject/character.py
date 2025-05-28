@@ -132,7 +132,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
     ################# Instance Methods #################
 
     def generate(self):
-        age = self.age if self.age else random.randint(15, 45)
+        age = self.age if self.age else random.randint(21, 55)
         gender = (
             self.gender or random.choices(self._genders, weights=[10, 10, 1], k=1)[0]
         )

@@ -83,7 +83,8 @@ class TTRPGObject(TTRPGBase):
         if self.parent:
             ancestry.append(self.parent)
             ancestor = self.parent
-            while ancestor.parent:
+            while ancestor.parent and ancestor.parent not in ancestry:
+                log(f"Adding ancestor {ancestor} to ancestry of {self}")
                 ancestry.append(ancestor.parent)
                 ancestor = ancestor.parent
         if self.world not in ancestry:
@@ -154,16 +155,9 @@ class TTRPGObject(TTRPGBase):
     ###############################################################
     ##                    VERIFICATION HOOKS                   ##
     ###############################################################
-    @classmethod
-    def auto_post_init(cls, sender, document, **kwargs):
-        super().auto_post_init(sender, document, **kwargs)
-
-        ##### MIGRATION ######
-        if not document.start_date or not isinstance(document.start_date, Date):
-            document.start_date = None
-
-        if not document.end_date or not isinstance(document.end_date, Date):
-            document.end_date = None
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     super().auto_post_init(sender, document, **kwargs)
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -183,15 +177,15 @@ class TTRPGObject(TTRPGBase):
         if self in self.associations:
             self.associations.remove(self)
 
-        if not self.parent:
-            if self.associations and self.parent_list:
-                for parent_model in self.parent_list:
-                    for a in self.associations:
-                        if a.model_name() == parent_model:
-                            self.parent = a
-                            break
-                    if self.parent:
-                        break
+        # if not self.parent:
+        #     if self.associations and self.parent_list:
+        #         for parent_model in self.parent_list:
+        #             for a in self.associations:
+        #                 if a.model_name() == parent_model:
+        #                     self.parent = a
+        #                     break
+        #             if self.parent:
+        #                 break
 
     def pre_save_canon(self):
         for campaign in self.world.campaigns:

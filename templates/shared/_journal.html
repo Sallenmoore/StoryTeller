@@ -1,3 +1,5 @@
+{% import "shared/_display.html" as element %}
+
 {% macro journal(user, obj) -%}
 <title>{{obj.name or obj.title}} - Journal</title>
 <div class="row">
@@ -88,23 +90,7 @@
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
                         <div class="column has-text-center is-shrink">
-                            <a hx-get="/api/page/{{ass.path}}"
-                               hx-target="#page" hx-indicator="#request-indicator">
-                                <div
-                                     class="image is-medium is-tile is-margin-center">
-                                    <img src="{{ass.image.url(size='100')}}"
-                                         loading="lazy"
-                                         alt="{{ass.name}}"
-                                         style="width:100%;" />
-                                </div>
-                                <h4 class='has-text-dark'>
-                                    {% if ass.name %}
-                                    {{ass.name}}
-                                    {% else %}
-                                    {{ass.title}}
-                                    {% endif %}
-                                </h4>
-                            </a>
+                            {{element.object_display(ass)}}
                         </div>
                         {% endfor %}
                         {% endif %}

@@ -17,6 +17,7 @@ from models.base.ttrpgbase import TTRPGBase
 from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
 from models.images.image import Image
+from models.images.map import Map
 from models.journal import Journal
 from models.systems import (
     FantasySystem,
@@ -261,6 +262,10 @@ class World(TTRPGBase):
         )
 
     @property
+    def map_thumbnail(self):
+        return self.map.image.url(100)
+
+    @property
     def parent(self):
         return None
 
@@ -364,7 +369,31 @@ class World(TTRPGBase):
         return self.system
 
     ###################### Data Methods ########################
+
     ################### Instance Methods #####################
+
+    # MARK: generate_map
+    def generate_map(self):
+        self.map = Map.generate(
+            prompt=self.map_prompt or self.system.map_prompt(self),
+            tags=["map", self.model_name().lower(), self.genre],
+            img_quality="hd",
+            img_size="1792x1024",
+        )
+        self.map.save()
+        self.save()
+        return self.map
+
+    def get_map_list(self):
+        images = []
+        for img in Image.all():
+            # log(img.asset_id)
+            if all(
+                t in img.tags for t in ["map", self.model_name().lower(), self.genre]
+            ):
+                images.append(img)
+        return images
+
     def page_data(self):
         response = {
             "worldname": self.name,
@@ -412,7 +441,7 @@ class World(TTRPGBase):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_users()
         document.pre_save_system()
-        document.pre_save_map_prompt()
+        document.pre_save_map()
         document.pre_save_current_date()
 
     @classmethod
@@ -432,10 +461,35 @@ class World(TTRPGBase):
                 users.append(u)
         self.users = users
 
-    def pre_save_map_prompt(self):
+    def pre_save_map(self):
         if not self.map_prompt:
             self.map_prompt = self.description_summary or self.description
-        # log(f"Verifying map for {self.name}: self.map={self.map}")
+
+        if isinstance(self.map, str):
+            if validators.url(self.map):
+                self.map = Map.from_url(
+                    self.map,
+                    prompt=self.map_prompt,
+                    tags=["map", *self.image_tags],
+                )
+                self.map.save()
+            elif image := Image.get(self.map):
+                self.map = Map.from_image(image)
+                self.map.save()
+            elif image := Map.get(self.map):
+                self.map = image
+            else:
+                raise ValidationError(
+                    f"Image must be an Map object, url, or Image, not {self.map}"
+                )
+        elif type(self.map) is Image:
+            log("converting to map...", self.map, _print=True)
+            self.map = Map.from_image(self.map)
+            self.map.save()
+            log("converted to map", self.map, _print=True)
+        elif self.map and not self.map.tags:
+            self.map.tags = self.map_tags
+            self.map.save()
 
     def pre_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")

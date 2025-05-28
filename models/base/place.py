@@ -63,6 +63,16 @@ class Place(TTRPGObject):
             )
         return self.map
 
+    def get_map_list(self):
+        images = []
+        for img in Image.all():
+            # log(img.asset_id)
+            if all(
+                t in img.tags for t in ["map", self.model_name().lower(), self.genre]
+            ):
+                images.append(img)
+        return images
+
     def generate_dungeon(self):
         primer = f"""As an expert AI tabletop rpg GM assistant, you will assist in creating a encounters, traps, and puzzles in a dungeon for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the dungeon, as well as a backstory. You will then generate a list of at least 10 possible enemy encounters, traps, and puzzles that player characters will encounter in the dungeon. Each item should have an explanantion of the encounter, trap, or puzzle, how it can be solved, as well as the outcome if the players fail or succeed.
 """

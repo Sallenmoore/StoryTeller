@@ -1,4 +1,5 @@
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as element %}
 
 {% macro journal_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Journal Editor</title>
@@ -69,20 +70,7 @@
             <div class="row has-space-around" id="journal-entry-associations">
                 {% for a in entry.associations %}
                 <div class="column is-shrink ">
-                    <a href="/{{a.path}}">
-                        <div class="image is-medium is-tile is-margin-center">
-                            <img src="{{a.image.url(size='100')}}" loading="lazy"
-                                 alt="{{a.name}}"
-                                 style="width:100%;" />
-                        </div>
-                        <h4 class='has-text-center has-text-dark'>
-                            {% if a.name %}
-                            {{a.name}}
-                            {% else %}
-                            {{a.title}}
-                            {% endif %}
-                        </h4>
-                    </a>
+                    {{element.object_display(a)}}
                 </div>
                 {% endfor %}
             </div>

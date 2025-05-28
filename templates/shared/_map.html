@@ -5,14 +5,12 @@
 <h2>Map</h2>
 <hr>
 <div class="row fade-it-in" id='object-map-view'>
-    {% if obj.model_name() in ['World', 'Region', 'City', 'Location', 'District', 'Vehicle', 'Shop']
-    and user.world_user(obj) %}
     <div class="column is-full">
         <div class="row">
             <div class="column">
                 <div class="panel">
                     <h5 class='has-text-center'>Map Prompt</h5>
-                    <form hx-post='/api/manage/update' hx-trigger="input delay:1s" hx-swap='none'>
+                    <form hx-post="/api/manage/update" hx-trigger="input delay:1s" hx-swap='none'>
                         {{form_components.texteditor(user, obj, 'map_prompt')}}
                     </form>
                 </div>
@@ -26,36 +24,35 @@
                         hx-confirm="Are you sure you want to reset the map prompt?"'>
                                 <iconify-icon icon="tabler:refresh"></iconify-icon>
                                 Reset Prompt
+                </button>
             </div>
         </div>
         <div class="row">
+            {% if obj.backstory_summary %}
             <div class="column">
-                <div class="row">
-                    {% if obj.backstory_summary %}
-                    <div class="column">
-                        <button class="button is-full is-primary"
-                                hx-post="/task/generate/map/{{obj.path}}"
-                                hx-target="closest .column"
-                                hx-confirm="Are you sure you want to generate and overwrite the current map?">
-                            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
-                            AI Generated Image
-                        </button>
-                    </div>
-                    {% else %}
-                    <div class="column is-shrink is-vertically-centered">
-                        <button class=' button' class="button is-primary"
-                        hx-post="/task/generate/history/{{obj.path}}"
-                        hx-target='closest .column'>
+                <button class="button is-full is-primary"
+                        hx-post="/task/generate/map/{{obj.path}}"
+                        hx-target="closest .column"
+                        hx-confirm="Are you sure you want to generate and overwrite the current map?">
+                    <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+                    AI Generated Image
+                </button>
+            </div>
+            {% else %}
+            <div class="column is-shrink is-vertically-centered">
+                <button class="button" class="button is-primary"
+                hx-post="/task/generate/history/{{obj.path}}"
+                hx-target="closest .column">
                     Update History
                 </button>
-                <small style='color:darkred'>The {{obj.title}} must have a history to
-                    generate a map</small>
+                <small style=' color:darkred'>The {{obj.title}} must have a history to generate a
+                    map</small>
             </div>
             {% endif %}
             <div class="column">
                 <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
-                        hx-target="#map-image-container"
-                        hx-swap="innerHTML show:#map-image-container:bottom"
+                        hx-target="#map-container"
+                        hx-swap="innerHTML show:#map-container:bottom"
                         hx-indicator='#request-indicator'>
                     <iconify-icon icon="game-icons:card-random"></iconify-icon>
                     Select From Gallery
@@ -65,8 +62,8 @@
         <hr class="has-bg-primary">
         <div class="row">
             <div class="column">
-                <form hx-post="/api/manage/update" hx-select='#map-image-container'
-                      hx-target="#map-image-container"
+                <form hx-post="/api/manage/update" hx-select='#map-container'
+                      hx-target="#map-container"
                       hx-confirm="Are you sure you want to upload and overwrite the current map?">
                     <div class="row">
                         <div class="column is-shrink">
@@ -89,93 +86,109 @@
             </div>
         </div>
     </div>
-</div>
-</div>
-{% endif%}
-<div id="map-container" class="column is-full">
-    <div id="map" style="width:100%;height:1500px;">
-        {% if obj.map %}
-        <div class="image" width="100%">
-            <img src="{{obj.map.url()}}" alt="{{obj.name}} map" />
+    <div id="map-container" class="column is-full">
+        <div id="map" style="width:100%;height:100%;">
+            {% if obj.map %}
+            <div class="image" width="100%">
+                <img src="{{obj.map.url()}}" alt="{{obj.name}} map" />
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
-</div>
-{% if obj.model_name() in ['Location'] and obj.map %}
-<div class="column is-full">
-    <button class='button' class="button is-primary"
-            hx-post="/task/generate/{{obj.path}}/dungeon"
-            hx-target='closest .column'>
-        <iconify-icon icon="tabler:photo-ai"></iconify-icon>
-        Build Dungeon
-    </button>
-    <div class="panel has-bg-muted has-text-dark">
-        {{obj.dungeon | safe }}
+    {% if obj.model_name() in ['Location'] and obj.map %}
+    <div class="column is-full">
+        <button class='button' class="button is-primary"
+                hx-post="/task/generate/{{obj.path}}/dungeon"
+                hx-target='closest .column'>
+            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+            Build Dungeon
+        </button>
+        <div class="panel has-bg-muted has-text-dark">
+            {{obj.dungeon | safe }}
+        </div>
     </div>
-</div>
-{% elif obj.model_name() in ['City', 'Region', 'District'] and obj.map %}
-{{mappois(user, obj)}}
-<script>
-    document.getElementById('map').querySelector('img').style.opacity = '0';
-    const map = L.map('map', {
-        center: [896, 896],
-        zoom: 1,
-        crs: L.CRS.Simple, // Simple coordinate system
-        attributionControl: false,
-        scrollWheelZoom: false,
-        dragging: false,
-        touchZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        zoomControl: false
-    });
-    const imageBounds = [[0, 0], [1792, 1792]];
-    L.imageOverlay('{{obj.map.url()}}', imageBounds).addTo(map);
-    map.fitBounds(imageBounds);
-    map.whenReady(function () {
-        console.log("Map Center:", map.getCenter());
-    });
+    {% elif obj.model_name() in ['City', 'Region', 'District'] and obj.map %}
+    <div class="column">
+        {{mappois(user, obj)}}
+        <script>
 
-    function createMarker(lat, lng, id) {
-        if (lat == '-1' || lng == '-1') {
-            lat = map.getCenter().lat;
-            lng = map.getCenter().lng;
-        }
-        let marker = L.marker([parseFloat(lat), parseFloat(lng)], {
-            draggable: true
-        }).addTo(map);
+            var mapelement = document.getElementById('map');
+            var mapimage = mapelement.querySelector('img');
+            mapimage.onload = function () {
+                mapimage.style.opacity = '0';
+                var mapheight = mapelement.getBoundingClientRect().height;
+                var mapwidth = mapelement.getBoundingClientRect().width;
+                console.log("Map Height:", mapheight);
+                console.log("Map Width:", mapwidth);
+                const imageBounds = [[0, 0], [mapheight, mapwidth]];
+                const map = L.map('map', {
+                    center: [mapheight / 2, mapwidth / 2],
+                    zoom: 1,
+                    crs: L.CRS.Simple, // Simple coordinate system
+                    attributionControl: false,
+                    scrollWheelZoom: false,
+                    dragging: false,
+                    touchZoom: false,
+                    doubleClickZoom: false,
+                    boxZoom: false,
+                    zoomControl: false
+                });
+                L.imageOverlay('{{obj.map.url()}}', imageBounds).addTo(map);
+                map.fitBounds(imageBounds);
 
-        marker.on('dragend', function (e) {
-            var lat = e.target.getLatLng().lat;
-            var lng = e.target.getLatLng().lng;
-            fetch('/api/manage/{{obj.path}}/map/poi/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    lat: lat,
-                    lng: lng,
-                    id: id,
-                }),
-            });
-        });
-        return marker;
-    }
+                function createMarker(lat, lng, id) {
+                    if (lat == '-1' || lng == '-1') {
+                        lat = mapheight / 2;
+                        lng = mapwidth / 2;
+                    }
+                    let marker = L.marker([parseFloat(lat), parseFloat(lng)], {
+                        draggable: true
+                    }).addTo(map);
 
-    const coordinates = {{ obj.map.coordinates | tojson }};
-    console.log("Coordinates:", coordinates.length);
-    if (coordinates.length > 0) {
-        for (var i = 0; i < coordinates.length; i++) {
-            var lat = coordinates[i].x;
-            var lng = coordinates[i].y;
-            var id = coordinates[i].obj;
-            var marker = createMarker(lat, lng, id);
-            marker.bindPopup(`<b>${coordinates[i].name}</b>`);
-        }
-    }
-</script>
-{% endif %}
+                    marker.on('dragend', function (e) {
+                        var lat = e.target.getLatLng().lat;
+                        var lng = e.target.getLatLng().lng;
+                        fetch(`/api/manage/{{obj.path}}/map/poi/update/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                lat: lat,
+                                lng: lng,
+                            }),
+                        });
+                    });
+                    return marker;
+                }
+                fetch('/api/manage/{{obj.path}}/map/pois', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: '{{obj.pk}}',
+                    }),
+                }).catch(function (error) {
+                    console.error('Error:', error);
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (data) {
+                    console.log(data);
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            var lat = data[i].lat;
+                            var lng = data[i].lng;
+                            var id = data[i].id;
+                            var marker = createMarker(lat, lng, id);
+                            marker.bindPopup(`<div>${data[i].description}</div>`);
+                        }
+                    }
+                });
+            };
+        </script>
+    </div>
+    {% endif %}
 </div>
 {%- endmacro %}
 
@@ -184,10 +197,16 @@
     <h5 class='has-text-centered'>Map POIs</h5>
     <div class="row">
         {% for poi in obj.map_pois %}
-        <div class="column is-2" hx-post="/api/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
-             hx-target="#map-container" hx-select="#map-container"
-             hx-swap="outerHTML show:#map-container:bottom">
-            {{display_components.object_display(poi)}}
+        <div class="column is-2">
+            {{display_components.object_display(poi, type=False)}}
+            {% if not obj.map.in_coordinates(poi) %}
+            <button class="button is-small"
+                    hx-post="/api/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
+                    hx-target="#object-map-view" hx-select="#object-map-view"
+                    hx-swap="outerHTML show:#map-container:bottom">
+                <iconify-icon icon="mdi:plus"></iconify-icon>
+            </button>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

@@ -276,10 +276,6 @@ EVENTS
         return self.traits
 
     @property
-    def map_thumbnail(self):
-        return self.map.image.url(100)
-
-    @property
     def slug(self):
         return slugify(self.name)
 
@@ -399,28 +395,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
             log(prompt, "Image generation failed.", _print=True)
         return self.image
 
-    def get_map_list(self):
-        images = []
-        for img in Image.all():
-            # log(img.asset_id)
-            if all(
-                t in img.tags for t in ["map", self.model_name().lower(), self.genre]
-            ):
-                images.append(img)
-        return images
-
-    # MARK: generate_map
-    def generate_map(self):
-        self.map = Map.generate(
-            prompt=self.map_prompt or self.system.map_prompt(self),
-            tags=["map", self.model_name().lower(), self.genre],
-            img_quality="hd",
-            img_size="1792x1024",
-        )
-        self.map.save()
-        self.save()
-        return self.map
-
     ############# Association Methods #############
     # MARK: Associations
     def add_association(self, obj):
@@ -508,10 +482,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
     def get_icon(self, model=None, size="1rem"):
         if not model:
             model = self.__class__.__name__
-        elif not isinstance(model, str):
-            model = model.__class__.__name__
         elif inspect.isclass(model):
             model = model.__name__
+        elif not isinstance(model, str):
+            model = model.__class__.__name__
         else:
             model = str(model).lower()
         icon = self.get_title(model).lower().replace("-", "_")
@@ -598,14 +572,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     def pre_save_image(self):
         if isinstance(self.image, str):
-            if self.image.startswith("/static"):
-                ##### MIGRATION #####
-                self.image = Image.from_url(
-                    f"https://world.stevenamoore.dev{self.image}",
-                    prompt=self.image_prompt,
-                    tags=[*self.image_tags],
-                )
-            elif validators.url(self.image):
+            if validators.url(self.image):
                 self.image = Image.from_url(
                     self.image,
                     prompt=self.image_prompt,

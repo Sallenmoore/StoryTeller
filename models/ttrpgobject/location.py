@@ -65,13 +65,14 @@ class Location(Place):
         "District",
         "City",
         "Region",
+        "Vehicle",
     ]
 
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = (
             prompt
-            or f"Generate a {self.genre} TTRPG {self.location_type} {f"with the following description: {self.backstory}" if self.backstory else ""}. Add a backstory containing a {self.traits} history for players to discover."
+            or f"Generate a {self.genre} TTRPG {self.location_type} {f'with the following description: {self.backstory}' if self.backstory else ''}. Add a backstory containing a {self.traits} history for players to discover."
         )
         if self.owner:
             prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"

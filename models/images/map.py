@@ -48,11 +48,32 @@ class Map(Image):
         """
         Adds a point of interest to the map.
         """
-        coord = Coordinates(
-            x=-1,
-            y=-1,
-            obj=poi,
-        )
-        coord.save()
-        self.coordinates += [coord]
-        self.save()
+        if not any(c for c in self.coordinates if c.obj == poi):
+            coord = Coordinates(
+                x="-1",
+                y="-1",
+                obj=poi,
+            )
+            coord.save()
+            self.coordinates += [coord]
+            self.save()
+
+    def update_poi(self, poi, lat, lng):
+        """
+        Adds a point of interest to the map.
+        """
+        for coord in self.coordinates:
+            if coord.obj == poi:
+                coord.x = str(lat)
+                coord.y = str(lng)
+                coord.save()
+                break
+
+    def in_coordinates(self, poi):
+        """
+        Returns the coordinates of a point of interest.
+        """
+        for coord in self.coordinates:
+            if coord.obj == poi:
+                return True
+        return False

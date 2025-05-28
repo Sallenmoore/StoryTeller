@@ -152,6 +152,26 @@ def map_prompt_reset(pmodel, ppk):
 
 
 @manage_endpoint.route(
+    "<string:pmodel>/<string:ppk>/map/pois",
+    methods=("POST",),
+)
+def map_pois(pmodel, ppk):
+    user, obj, *_ = _loader()
+    obj = World.get_model(pmodel, ppk)
+    response = []
+    for coord in obj.map.coordinates:
+        response += [
+            {
+                "lat": coord.x,
+                "lng": coord.y,
+                "id": coord.obj.path,
+                "description": coord.obj.name,
+            }
+        ]
+    return response
+
+
+@manage_endpoint.route(
     "<string:pmodel>/<string:ppk>/map/poi/add/<string:amodel>/<string:apk>",
     methods=("POST",),
 )
@@ -165,6 +185,22 @@ def map_poi_add(pmodel, ppk, amodel, apk):
         )
     obj.map.add_poi(poi)
     obj.map.save()
+    return get_template_attribute("shared/_map.html", "map")(user, obj)
+
+
+@manage_endpoint.route(
+    "<string:pmodel>/<string:ppk>/map/poi/update/<string:amodel>/<string:apk>",
+    methods=("POST",),
+)
+def map_poi_update(pmodel, ppk, amodel, apk):
+    user, obj, *_ = _loader()
+    obj = World.get_model(pmodel, ppk)
+    poi = World.get_model(amodel, apk)
+    if poi not in obj.associations:
+        raise ValueError(
+            f"POI {poi} is not an association of {obj}. Please add it first."
+        )
+    obj.map.update_poi(poi, request.json.get("lat"), request.json.get("lng"))
     return get_template_attribute("shared/_map.html", "map")(user, obj)
 
 
@@ -263,7 +299,7 @@ def journal_add_association(entrypk=None):
     )
 
 
-# MARK: journal route
+# MARK: quest route
 ###########################################################
 ##                    Quest Routes                     ##
 ###########################################################
@@ -423,6 +459,10 @@ def parent(childmodel, childpk):
     user, obj, *_ = _loader()
     child = World.get_model(childmodel).get(childpk)
     child.parent = obj
+    log(obj.parent == child)
+    if obj.parent == child:
+        obj.parent = None
+        obj.save()
     child.save()
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations=obj.associations
@@ -434,6 +474,12 @@ def child(childmodel, childpk):
     user, child, *_ = _loader()
     parent = World.get_model(childmodel).get(childpk)
     child.parent = parent
+    log(parent.parent == child)
+    if parent.parent == child:
+        parent.parent = None
+        log(parent.parent)
+        parent.save()
+    log(parent.parent)
     child.save()
     return get_template_attribute("shared/_associations.html", "associations")(
         user, child, associations=child.associations
