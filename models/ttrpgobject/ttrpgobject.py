@@ -155,9 +155,14 @@ class TTRPGObject(TTRPGBase):
     ###############################################################
     ##                    VERIFICATION HOOKS                   ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     super().auto_post_init(sender, document, **kwargs)
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        super().auto_post_init(sender, document, **kwargs)
+        # MIGRATION: old Date to new Date
+        if document.start_date and not isinstance(document.start_date, Date):
+            document.start_date = None
+        if document.end_date and not isinstance(document.end_date, Date):
+            document.end_date = None
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -173,19 +178,10 @@ class TTRPGObject(TTRPGBase):
 
     # def clean(self):
     #     super().clean()
+
     def pre_save_associations(self):
         if self in self.associations:
             self.associations.remove(self)
-
-        # if not self.parent:
-        #     if self.associations and self.parent_list:
-        #         for parent_model in self.parent_list:
-        #             for a in self.associations:
-        #                 if a.model_name() == parent_model:
-        #                     self.parent = a
-        #                     break
-        #             if self.parent:
-        #                 break
 
     def pre_save_canon(self):
         for campaign in self.world.campaigns:

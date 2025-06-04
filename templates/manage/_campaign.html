@@ -361,13 +361,6 @@
                             <h5 class='has-text-center has-text-dark'>Associations</h5>
                         </a>
                     </li>
-                    <li class="has-text-dark">
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/episodegenerator'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Episode Outline</h5>
-                        </a>
-                    </li>
                     <li class="has-text-dark is-active">
                         <a hx-post='/api/campaign/episode/{{episode.pk}}/gmplanner'
                            hx-target='#episode-manage-container'
@@ -1097,70 +1090,6 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_generator(user, world, episode) -%}
-<div class="row has-space-around">
-    <div class="column is-2">
-        <h3>{{episode.campaign.party.name}}</h3>
-    </div>
-    <div class="column is-5">
-        <div class="row">
-            {% for player in episode.campaign.party.players %}
-            <div class="column">
-                {{display_components.object_display(player, type=False)}}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="column is-full">
-        <div class="panel has-bg-white generated-text-lightbg inset">
-            <form hx-post='/api/campaign/episode/{{episode.pk}}/generate'
-                  hx-target="#autogm_session_panel">
-                <div class="row">
-                    <div class="column is-shrink">
-                        <button class="button is-primary">Generate Episode</button>
-                    </div>
-                    <div class="column">
-                        <textarea class="has-bg-light" name="prompt"
-                                  placeholder='Enter a prompt to guide the session'
-                                  style="width:100%; height: 5rem;"></textarea>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id='autogm_session_panel' class="column is-full">
-        <div class="panel has-bg-white generated-text-lightbg inset">
-            <div id="scenes-container" class="row has-centered">
-                <div class="column is-shrink">
-                    <h4 class='has-text-center'>Outline</h4>
-                </div>
-                <div class="column is-shrink is-end">
-                    <button class="button is-primary is-small"
-                            hx-post='/api/campaign/episode/{{episode.pk}}/outline/refresh'
-                            hx-target="#scenes-container"
-                            hx-swap="outerHTML"
-                            hx-trigger='click consume'>Refresh from Scenes</button>
-                </div>
-                <div class="column is-full">
-                    <form hx-post="/api/campaign/episode/{{episode.pk}}/outline/update"
-                          hx-swap="none"
-                          hx-trigger="input delay:1s, change">
-                        {{form_components.texteditor(user, episode, 'outline')}}
-                    </form>
-                </div>
-                <div class="column is-shrink is-end">
-                    <button class="button is-primary"
-                            hx-post='/api/campaign/episode/{{episode.pk}}/generate/expand'
-                            hx-target="#scenes-container"
-                            hx-swap="outerHTML"
-                            hx-trigger='click consume'>Expand Scene</button>
-                </div>
             </div>
         </div>
     </div>

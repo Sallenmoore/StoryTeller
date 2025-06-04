@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from autonomous import log
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
-from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
 
 from .episode import Episode
@@ -20,7 +19,6 @@ class Campaign(AutoModel):
     description = StringAttr(default="")
     world = ReferenceAttr(choices=["World"], required=True)
     episodes = ListAttr(ReferenceAttr(choices=[Episode]))
-    autogm_ = ReferenceAttr(choices=["AutoGM"])
     party = ReferenceAttr(choices=["Faction"])
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
@@ -29,18 +27,6 @@ class Campaign(AutoModel):
     def delete(self):
         all(e.delete() for e in self.episodes)
         super().delete()
-
-    ## MARK: Properties
-    ##################### PROPERTY METHODS ####################
-    @property
-    def autogm(self):
-        if not self.autogm_:
-            self.autogm_ = AutoGM(campaign=self)
-            self.autogm_.save()
-            self.save()
-        else:
-            self.autogm_.campaign = self
-        return self.autogm_
 
     @property
     def characters(self):

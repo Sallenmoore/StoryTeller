@@ -80,12 +80,6 @@ def _generate_gn_task(pk):
     return {"url": f"/api/campaign/{ep.campaign.pk}/episode/{ep.pk}"}
 
 
-def _generate_audio_task(model, pk, pre_text="", post_text=""):
-    ags = World.get_model(model, pk)
-    ags.generate_audio(pre_text=pre_text, post_text=post_text)
-    return {"url": f"/api/autogm/{ags.party.pk}"}
-
-
 def _generate_table_items_task(pk, worldpk, prompt):
     table = GMScreenTable.get(pk)
     table.generate_table(prompt)
@@ -102,17 +96,3 @@ def _generate_quest_task(pk, prompt=""):
     obj = Character.get(pk)
     obj.generate_quest(prompt)
     return {"url": f"/api/{obj.path}/quests"}
-
-
-def _generate_autogm_episode(pk, prompt):
-    ep = Episode.get(pk)
-    ep.outline = ep.campaign.autogm.generate_episode(prompt, ep.associations)
-    ep.save()
-    return {"url": f"/api/campaign/{pk}"}
-
-
-def _generate_autogm_episode_scene(pk):
-    ep = Episode.get(pk)
-    ep.outline = ep.campaign.autogm.generate_scene(ep.outline)
-    ep.save()
-    return {"url": f"/api/campaign/{pk}"}

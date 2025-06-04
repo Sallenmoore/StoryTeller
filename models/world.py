@@ -12,7 +12,6 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
-from models.autogm.autogm import AutoGM
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
@@ -50,7 +49,6 @@ class World(TTRPGBase):
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
-    autogm_ = ReferenceAttr(choices=["AutoGM"])
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -188,14 +186,6 @@ class World(TTRPGBase):
         if obj.world != self:
             obj.world = self
             obj.save()
-
-    @property
-    def autogm(self):
-        if not self.autogm_:
-            self.autogm_ = AutoGM(world=self)
-            self.autogm_.save()
-            self.save()
-        return self.autogm_
 
     @property
     def characters(self):
