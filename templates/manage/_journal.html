@@ -59,7 +59,7 @@
             <input class="has-bg-muted" autocomplete="off" type="search" name="query"
                    hx-post="/api/manage/journal/search"
                    hx-target="#journal-entry-association-search"
-                   hx-trigger="input delay:750ms, change, search"
+                   hx-trigger="input delay:750ms consume, change consume, search"
                    hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <ul class="dropdown has-bg-light" id="journal-entry-association-search"
                 hx-vals='{"entrypk":"{{entry.pk}}"}'>

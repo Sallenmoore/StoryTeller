@@ -15,6 +15,7 @@ class GMScreenTable(GMScreenArea):
 
     gm_screen_table_presets = [
         "swn_items_100_detailed.json",
+        "swn_consumables_100_detailed.json",
     ]
 
     _funcobj = {
@@ -33,34 +34,29 @@ class GMScreenTable(GMScreenArea):
                             "name",
                             "description",
                             "effects",
-                            "rarity",
                             "duration",
                             "dice_roll",
                         ],
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "A name for the item.",
+                                "description": "A name.",
                             },
                             "description": {
                                 "type": "string",
-                                "description": "A summary description of the item and how it is activated in MARKDOWN.",
-                            },
-                            "rarity": {
-                                "type": "string",
-                                "description": "The rarity of the item ranging, such as common, uncommon, rare, very rare, legendary, etc.",
+                                "description": "A summary description and how it is activated in MARKDOWN.",
                             },
                             "effects": {
                                 "type": "string",
-                                "description": "Description of the item's effects.",
+                                "description": "Description of the effects.",
                             },
                             "duration": {
                                 "type": "string",
-                                "description": "The duration of the item's effects.",
+                                "description": "The duration of the effects.",
                             },
                             "dice_roll": {
                                 "type": "string",
-                                "description": "The dice roll mechanics for determining the success or failure of the item, if and only if required, else empty string.",
+                                "description": "The dice roll mechanics for determining the success or failure, if and only if required, else empty string.",
                             },
                         },
                     },
@@ -95,12 +91,13 @@ class GMScreenTable(GMScreenArea):
         log(prompt, _print=True)
         response = JSONAgent(
             name=f"{self.screen.world.genre} TableTop RPG List Generator",
-            instructions=f"As an expert AI in canon as well as homebrew elements of an {self.screen.world.genre.title()} Table Top RPG, Generate a list of various types of items fitting the following description:{prompt} ",
-            description=f"Generate a list of at least 20 various types of items for a {self.screen.world.genre} RPG roll table",
+            instructions=f"As an expert AI in canon as well as homebrew elements of an {self.screen.world.genre.title()} Table Top RPG, Generate a roll table fitting the following description:{prompt} ",
+            description=f"Generate a roll table for a {self.screen.world.genre} TTRPG",
         ).generate(prompt, function=self._funcobj)
         log(response, _print=True)
+        self.itemlist = []
         for v in response["items"]:
-            item = f"{v.get('name')} [{v.get('rarity')}]: {v.get('description')}"
+            item = f"{v.get('name')}: {v.get('description')}. {v.get('effects')}. {v.get('duration')}. {v.get('dice_roll')}"
             self.itemlist.append(item)
         self.save()
         return self.itemlist

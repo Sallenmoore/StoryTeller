@@ -74,15 +74,15 @@ class Place(TTRPGObject):
         return images
 
     def generate_dungeon(self):
-        primer = f"""As an expert AI tabletop rpg GM assistant, you will assist in creating a encounters, traps, and puzzles in a dungeon for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the dungeon, as well as a backstory. You will then generate a list of at least 10 possible enemy encounters, traps, and puzzles that player characters will encounter in the dungeon. Each item should have an explanantion of the encounter, trap, or puzzle, how it can be solved, as well as the outcome if the players fail or succeed.
+        primer = f"""As an expert AI tabletop RPG GM assistant, you will assist in creating a encounters, traps, and puzzles in a location for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the location, as well as a backstory. You will then generate a list of at least 10 possible enemy encounters, traps, or puzzles that player characters will encounter in the location. Each item should have an explanation of the encounter, trap, or puzzle, any associated mechanics, as well as the outcome if the players fail or succeed.
 """
-        prompt = f"""Generate a list of 10 possible enemy encounters, traps, and puzzles in MARKDOWN that player characters will encounter in the dungeon described below and is appropriate to a {self.genre.title()} setting. Each item should have an explanantion of the encounter, trap, or puzzle, how it can be solved, as well as the outcome if the players fail or succeed. The list should be in a bullet list format with the following structure:
+        prompt = f"""Generate a list of 10 possible enemy encounters, traps, or puzzles in MARKDOWN that player characters will encounter in the location described below and is appropriate to a {self.genre.title()} setting. Each item should have a detailed explanation of the scenario, specific game mechanics for how to interact with the scenario, as well as the specific details of the outcome if the players fail or succeed. The list should use the following structure:
 ---
-- Encounter/Trap/Puzzle Name
-  - Explanation:
-  - Solution:
-  - Outcome on Failure:
-  - Rewards on Success:
+### Encounter/Trap/Puzzle Name
+- Explanation:
+- Mechanics:
+- on Failure:
+- on Success:
 ---
 
 DUNGEON DESCRIPTION

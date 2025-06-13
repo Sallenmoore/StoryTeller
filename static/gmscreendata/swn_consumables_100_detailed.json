@@ -1,0 +1,532 @@
+[
+    {
+        "name": "Standard Medkit (1 Use)",
+        "description": "One use provides 1d4 healing to a target if Heal skill is used. Grants +1 bonus to Heal checks.",
+        "value": 100
+    },
+    {
+        "name": "Emergency Medkit (1 Use)",
+        "description": "One use provides 1d2 healing to a target if Heal skill is used. Grants +1 bonus to Heal checks, but takes 2 rounds to use.",
+        "value": 50
+    },
+    {
+        "name": "Stim-Dose",
+        "description": "Grants +2 bonus to one physical attribute (Str, Dex, Con) for 10 minutes. Can also provide +1 Hit Die of healing. After effect, user takes 1d4 non-lethal damage from fatigue.",
+        "value": 50
+    },
+    {
+        "name": "Pain Suppressor",
+        "description": "Suppresses pain from non-fatal injuries. For 1 hour, ignores penalties from being Wounded (half HP). After effect, gain 1 Stress point.",
+        "value": 25
+    },
+    {
+        "name": "Antitox",
+        "description": "Neutralizes common biological and chemical toxins. Grants +4 bonus to saving throws versus poison or disease for 1 hour.",
+        "value": 75
+    },
+    {
+        "name": "Synth-Rations (1 Day)",
+        "description": "Provides basic nutritional needs for one person for one day. Unappetizing.",
+        "value": 5
+    },
+    {
+        "name": "Survival Rations (3 Days)",
+        "description": "Compact, vacuum-sealed nutrient paste. Provides 3 days of sustenance.",
+        "value": 10
+    },
+    {
+        "name": "Water Purifier Tablet",
+        "description": "Purifies 1 liter of non-toxic water. Makes water potable.",
+        "value": 1
+    },
+    {
+        "name": "Flare",
+        "description": "Emits bright light for 1d4 hours. Can be thrown 10 meters.",
+        "value": 5
+    },
+    {
+        "name": "Chemical Lightstick",
+        "description": "Provides dim light in a 5-meter radius for 8 hours. Single use.",
+        "value": 2
+    },
+    {
+        "name": "Thermal Grenade",
+        "description": "Deals 4d4 damage in a 5-meter radius. Area becomes difficult terrain for 1 round.",
+        "value": 50
+    },
+    {
+        "name": "Flashbang Grenade",
+        "description": "Suppresses foes in a 10-meter radius for 1 round (Con save vs. blinding/deafening).",
+        "value": 25
+    },
+    {
+        "name": "Smoke Grenade",
+        "description": "Creates a 10-meter radius cloud of thick smoke for 1d4 rounds, imposing -4 to ranged attacks passing through it.",
+        "value": 20
+    },
+    {
+        "name": "Frag Grenade",
+        "description": "Deals 3d6 damage in a 5-meter radius. Shrapnel can bypass light cover.",
+        "value": 40
+    },
+    {
+        "name": "Concussion Grenade",
+        "description": "Deals 2d6 damage in 5-meter radius. Foes must make Con save or be knocked prone and lose next action.",
+        "value": 60
+    },
+    {
+        "name": "Energy Cell (Pistol/Rifle)",
+        "description": "Provides 15 shots for a laser pistol or 30 for a laser rifle.",
+        "value": 10
+    },
+    {
+        "name": "Energy Cell (Heavy)",
+        "description": "Provides 10 shots for a plasma rifle or 20 for a heavy laser.",
+        "value": 25
+    },
+    {
+        "name": "Magazine (Assault Rifle)",
+        "description": "30 rounds for a projectile assault rifle.",
+        "value": 5
+    },
+    {
+        "name": "Magazine (Heavy Pistol)",
+        "description": "12 rounds for a heavy pistol.",
+        "value": 3
+    },
+    {
+        "name": "Power Pack (Standard)",
+        "description": "Powers standard utility tools or small devices for 8 hours.",
+        "value": 20
+    },
+    {
+        "name": "Power Pack (High-Cap)",
+        "description": "Powers high-drain tools or devices for 8 hours, or standard devices for 24 hours.",
+        "value": 50
+    },
+    {
+        "name": "Universal Repair Paste",
+        "description": "Can patch minor hull breaches or system damage. Provides 1d4 temporary HP to a vehicle/device for 1 hour. Requires Fix (Int) check.",
+        "value": 40
+    },
+    {
+        "name": "Comms Scrambler (1 Use)",
+        "description": "For 1d4 rounds, scrambles local comms traffic in a 100m radius. Disposable.",
+        "value": 30
+    },
+    {
+        "name": "Disguise Kit (1 Use)",
+        "description": "Contains basic makeup, wigs, and clothing alterations for one significant disguise. Grants +1 bonus to Disguise checks.",
+        "value": 25
+    },
+    {
+        "name": "Climbing Gear (1 Use)",
+        "description": "Contains ropes, pitons, and grappling hooks for one difficult ascent/descent. Grants +1 bonus to Exert (Str) climbing checks.",
+        "value": 35
+    },
+    {
+        "name": "Breaching Charge (Small)",
+        "description": "Single use. Can blast through a reinforced door (AC 12, 15 HP) or light wall (AC 10, 10 HP). Loud.",
+        "value": 75
+    },
+    {
+        "name": "Datapad (Blank)",
+        "description": "A blank datapad for storing information.",
+        "value": 50
+    },
+    {
+        "name": "Encryption Key (1 Use)",
+        "description": "A single-use key that can grant temporary access to a specific, commonly encountered encryption level. Chance of failure (GM discretion).",
+        "value": 100
+    },
+    {
+        "name": "Psion Suppressor Pellet",
+        "description": "When ingested, grants +2 bonus to saving throws against psionic powers for 1d4 hours. Induces 1 Stress point after effect.",
+        "value": 150
+    },
+    {
+        "name": "Mood Regulator",
+        "description": "Subtly alters mood for 1d4 hours. Grants +1 bonus to Talk (Cha) for persuasion or Lie (Cha) for deception. After effect, -1 penalty to mental attribute for 1 hour.",
+        "value": 20
+    },
+    {
+        "name": "Synth-Alcohol (Bottle)",
+        "description": "Low-grade recreational beverage. Can reduce Stress by 1, but causes -1 penalty to physical attributes for 1d4 hours.",
+        "value": 10
+    },
+    {
+        "name": "Joy-Dose",
+        "description": "Euphoric stimulant. Grants +1 bonus to one mental attribute (Int, Wis, Cha) for 1 hour. Causes 1d2 Stress after effect, and user becomes addicted on repeated use.",
+        "value": 25
+    },
+    {
+        "name": "Black Market Medkit (1 Use)",
+        "description": "Crude but effective. Provides 1d6 healing, but causes 1d2 damage from scarring/infection unless Heal (Wis) check (DC 8) is passed.",
+        "value": 70
+    },
+    {
+        "name": "Data Spike (1 Use)",
+        "description": "Single use. Provides a temporary +2 bonus to one Program (Int) check to bypass a digital lock or firewall. Self-destructs after use.",
+        "value": 120
+    },
+    {
+        "name": "Neural Inhibitor Dart",
+        "description": "Deals 1d4 non-lethal damage. Target must make Con save or be Suppressed (lose next action) for 1 round.",
+        "value": 15
+    },
+    {
+        "name": "Portable Field Generator (1 Use)",
+        "description": "Deploys a small, temporary energy barrier (AC 15, 5 HP) for 1d4 rounds. Single use.",
+        "value": 200
+    },
+    {
+        "name": "Sonic Emitter (Small)",
+        "description": "Can be used to create a distracting noise in a small area for 1d4 rounds, imposing -2 to Notice (Wis) checks in the area.",
+        "value": 25
+    },
+    {
+        "name": "EMP Grenade",
+        "description": "Disables unshielded electronic devices (drones, comms, automated turrets) in a 10m radius for 1d4 rounds. Deals no damage to organic targets.",
+        "value": 100
+    },
+    {
+        "name": "Grapple Gun (1 Use)",
+        "description": "Fires a grappling hook up to 50m. Automatically reels user in. Single use battery.",
+        "value": 70
+    },
+    {
+        "name": "Ablative Patch",
+        "description": "Can temporarily increase AC by +1 for 1d4 rounds when applied to armor. Single use.",
+        "value": 30
+    },
+    {
+        "name": "Water Rebreather (1 Hr)",
+        "description": "Allows breathing underwater for 1 hour. Small, mouthpiece device.",
+        "value": 45
+    },
+    {
+        "name": "Lockpick Kit (1 Use)",
+        "description": "Contains disposable picks and shims. Grants +1 to Fix (Int) checks to bypass mechanical locks. Breaks on a failed check.",
+        "value": 20
+    },
+    {
+        "name": "Holo-Projector (Small)",
+        "description": "Can project a static 3D image or short animation for 1d4 rounds. Useful for diversions. Single use battery.",
+        "value": 50
+    },
+    {
+        "name": "Bio-Tracker Dart",
+        "description": "Fired from a launcher. Embeds a silent, short-range tracking beacon (1km radius) into target for 1d6 hours.",
+        "value": 60
+    },
+    {
+        "name": "Neural Stun Pellet (Projectile)",
+        "description": "Target must make Con save or be knocked unconscious for 1d4 rounds. Deals 1d4 non-lethal damage.",
+        "value": 25
+    },
+    {
+        "name": "Field Rations (7 Days)",
+        "description": "Advanced, self-heating survival meals for one person for 7 days.",
+        "value": 25
+    },
+    {
+        "name": "Fuel Canister (Small)",
+        "description": "Provides 1 unit of fuel for small vehicles or generators.",
+        "value": 15
+    },
+    {
+        "name": "Adhesive Grenade",
+        "description": "Explodes with a burst of super-strong adhesive, trapping foes in a 5m radius (Str save vs. being Stuck for 1d4 rounds).",
+        "value": 40
+    },
+    {
+        "name": "Sonic Distractor (1 Use)",
+        "description": "Emits a high-pitched, irritating tone for 1d6 rounds, imposing -2 to all mental attribute checks in a 10m radius.",
+        "value": 20
+    },
+    {
+        "name": "Repair Kit (Basic)",
+        "description": "Contains common tools and patch materials. Grants +1 to Fix (Int) checks for minor repairs.",
+        "value": 30
+    },
+    {
+        "name": "Signal Jammer (Local)",
+        "description": "Disrupts non-encrypted comms in a 50m radius for 1d6 rounds. Single use battery.",
+        "value": 75
+    },
+    {
+        "name": "Medical Autoinjector (1 Use)",
+        "description": "Automatically injects a standard stim-dose or pain suppressor. Faster use in combat (GM discretion).",
+        "value": 10
+    },
+    {
+        "name": "Respirator Mask",
+        "description": "Protects against airborne toxins and particulates for 1d6 hours. Single use filter.",
+        "value": 15
+    },
+    {
+        "name": "Explosive Detonator (Remote)",
+        "description": "Allows remote detonation of up to 3 compatible explosive charges within 500m.",
+        "value": 50
+    },
+    {
+        "name": "Cybernetic Field Kit",
+        "description": "Contains specialized tools for minor cybernetic maintenance or removal. Grants +1 to Heal (Int) or Fix (Int) for cybernetics.",
+        "value": 100
+    },
+    {
+        "name": "Recreational Chip (1 Use)",
+        "description": "A data chip containing low-grade entertainment, music, or passive mind-games. Can reduce 1 Stress from boredom.",
+        "value": 5
+    },
+    {
+        "name": "Glow-Paint (Can)",
+        "description": "Provides enough luminescent paint to mark a 2x2 meter area. Lasts 2d6 hours.",
+        "value": 5
+    },
+    {
+        "name": "Personal Energy Shield Generator (1 Use)",
+        "description": "Deploys a small, personal energy shield (AC 15, 3 HP) around user for 1d4 rounds. Single use.",
+        "value": 180
+    },
+    {
+        "name": "Acoustic Dampener (Small)",
+        "description": "Temporarily reduces ambient noise in a 5m radius, imposing -1 to Notice (Wis) checks for sound. Lasts 1d6 rounds. Single use.",
+        "value": 30
+    },
+    {
+        "name": "Pressure Patch",
+        "description": "Seals minor pressure leaks in environmental suits or small vehicles. Single use.",
+        "value": 10
+    },
+    {
+        "name": "Emergency Flares (Pack of 3)",
+        "description": "Fires a bright, signal flare up to 200m into the sky. Lasts 1d4 minutes.",
+        "value": 15
+    },
+    {
+        "name": "Bio-Scrubber Kit",
+        "description": "Cleanses minor biological contaminants from surfaces. Grants +1 to Fix (Int) for bio-hazard cleanup.",
+        "value": 20
+    },
+    {
+        "name": "Trace Detector (1 Use)",
+        "description": "Single use device that can detect traces of specific substances (e.g., specific explosives, narcotics) in a small area. Provides +2 to Notice (Wis) for that substance.",
+        "value": 70
+    },
+    {
+        "name": "Neural Shunt",
+        "description": "Temporarily disconnects damaged cybernetics to prevent system shock. Grants +2 to Con saves vs. cybernetic overload. Lasts 1d4 hours. Single use.",
+        "value": 100
+    },
+    {
+        "name": "Sonic Stunner (1 Use)",
+        "description": "Emits a focused burst of non-lethal sound. Target must make Con save or be Suppressed for 1d4 rounds. Short range (10m).",
+        "value": 50
+    },
+    {
+        "name": "Self-Sealing Bandages (3 uses)",
+        "description": "Applies instantly to small cuts and lacerations, preventing blood loss and infection. Provides 1 point of healing per use.",
+        "value": 15
+    },
+    {
+        "name": "Cryo-Spray (1 Use)",
+        "description": "Can briefly freeze a small area or disable simple electronic locks for 1d4 rounds. Short range (5m).",
+        "value": 25
+    },
+    {
+        "name": "Data Crystal (Blank)",
+        "description": "A small, robust crystal for storing sensitive or encrypted data. Capacity for 100GB.",
+        "value": 80
+    },
+    {
+        "name": "Psi-Dampener Injector (1 Use)",
+        "description": "When injected, suppresses active psionic abilities for 1d4 rounds. Target makes Con save to resist.",
+        "value": 250
+    },
+    {
+        "name": "Chemical Incapacitant Spray",
+        "description": "Target must make Con save or be incapacitated (helpless) for 1d4 rounds. Short range (5m cone). Single use.",
+        "value": 40
+    },
+    {
+        "name": "Mini-Torch",
+        "description": "A small, handheld cutting torch. Can cut through thin metal sheets or basic locks in 1d4 rounds. Limited fuel (5 uses).",
+        "value": 30
+    },
+    {
+        "name": "Emergency Locator Beacon",
+        "description": "Activates a distress signal detectable up to 1000km for 24 hours. Single use.",
+        "value": 70
+    },
+    {
+        "name": "Nutrient Bar",
+        "description": "A compact, high-energy bar. Provides one meal.",
+        "value": 3
+    },
+    {
+        "name": "Stim-Patch (Adrenaline)",
+        "description": "Applies a fast-acting adrenaline boost. Grants +1 bonus to Initiative rolls for 1 combat, or +1 Str for 1 minute. Single use.",
+        "value": 40
+    },
+    {
+        "name": "Universal Solvent (Ampule)",
+        "description": "Can dissolve most organic or synthetic materials in a small area (e.g., bypass a locked door's mechanism, destroy evidence). Single use.",
+        "value": 60
+    },
+    {
+        "name": "Voice Modulator (Disposable)",
+        "description": "Can mimic one pre-recorded voice or apply a basic voice filter for 1d4 minutes. Single use battery.",
+        "value": 35
+    },
+    {
+        "name": "Anti-Gravity Repulsor (Small)",
+        "description": "Can push or lift light objects (up to 50kg) for 1d4 rounds. Short range (5m). Single use battery.",
+        "value": 80
+    },
+    {
+        "name": "Remote Viewer (Disposable)",
+        "description": "A small camera drone that can be launched up to 100m away, transmitting video for 1d4 minutes. Breaks on impact.",
+        "value": 45
+    },
+    {
+        "name": "Lockdown Override Keycard (Generic)",
+        "description": "A single-use, generic keycard that can bypass low-level security lockdowns (DC 8 Program check to use). Has a 25% chance to trigger an alert.",
+        "value": 120
+    },
+    {
+        "name": "Stasis Field Emitter (Personal)",
+        "description": "Creates a small, temporary stasis field (AC 18, 5 HP) around a single target for 1 round, trapping them. Single use.",
+        "value": 300
+    },
+    {
+        "name": "Emergency Chronometer",
+        "description": "A small, rugged device that provides precise timekeeping for 1 month.",
+        "value": 10
+    },
+    {
+        "name": "Geological Survey Marker (3 Pack)",
+        "description": "Small, deployable markers that transmit basic geological data to a paired receiver (range 1km) for 24 hours. Used for mapping.",
+        "value": 25
+    },
+    {
+        "name": "Hacking Rig (Disposable)",
+        "description": "A small, pre-loaded hacking rig. Provides a +1 bonus to one Program (Int) check to bypass a digital security system. Destroys itself after use.",
+        "value": 90
+    },
+    {
+        "name": "Environmental Purifier Tablet",
+        "description": "When deployed, purifies a 10m radius of common airborne toxins for 1d4 hours. Single use.",
+        "value": 40
+    },
+    {
+        "name": "Synth-Caffeine Patch (3 Pack)",
+        "description": "Provides a burst of mental alertness. Grants +1 bonus to Wisdom checks for 1d4 hours. Can cause jitters (-1 Dex) after effect.",
+        "value": 15
+    },
+    {
+        "name": "Optic Camo Spray (1 Use)",
+        "description": "Provides a temporary +1 bonus to Sneak (Dex) checks for 1d4 rounds by subtly distorting light around the user. Single use.",
+        "value": 50
+    },
+    {
+        "name": "Magnetic Lock Release",
+        "description": "Can open standard magnetic locks in 1 round. Single use battery.",
+        "value": 40
+    },
+    {
+        "name": "Sonic Cleaner",
+        "description": "A small device that uses high-frequency vibrations to clean small objects or surfaces. Useful for removing trace evidence (requires Fix (Int) check).",
+        "value": 20
+    },
+    {
+        "name": "Neural Disruptor (1 Use)",
+        "description": "Deals 1d6 non-lethal damage. Target must make Con save or be Suppressed for 1d4 rounds. Short range (10m). Requires Program (Int) to target.",
+        "value": 70
+    },
+    {
+        "name": "Personal Medkit (3 Uses)",
+        "description": "Contains basic bandages and antiseptic for self-treatment. Each use provides 1d2 healing, but takes 1 action.",
+        "value": 25
+    },
+    {
+        "name": "Emergency Food Paste (Tube)",
+        "description": "A single tube of highly concentrated nutrient paste. Provides one full meal.",
+        "value": 5
+    },
+    {
+        "name": "IR Goggles (Battery)",
+        "description": "Provides low-light and infrared vision for 4 hours on a single standard battery.",
+        "value": 60
+    },
+    {
+        "name": "Portable Data Extractor",
+        "description": "Can attempt to retrieve data from a physically damaged data storage device (DC 9 Program check). Single use battery.",
+        "value": 150
+    },
+    {
+        "name": "Gravity Clamp (Small)",
+        "description": "Can temporarily secure an object (up to 100kg) to a surface for 1d6 rounds. Single use battery.",
+        "value": 30
+    },
+    {
+        "name": "Disguise Components (Improvised)",
+        "description": "A collection of generic clothing, hair dye, and basic prosthetics for a quick, rough disguise. Grants +1 to Disguise (Cha) check. One use.",
+        "value": 15
+    },
+    {
+        "name": "Miniaturized Scavenger Drone",
+        "description": "Small, disposable drone capable of picking up small items (up to 5kg) and returning them to user (range 50m). Single use.",
+        "value": 70
+    },
+    {
+        "name": "Sonic Resonator (Small)",
+        "description": "Can be used to detect hidden compartments or structural weaknesses through resonance feedback. Grants +1 to Notice (Wis) checks for hidden areas. Single use battery.",
+        "value": 40
+    },
+    {
+        "name": "Emergency Stasis Pouch",
+        "description": "A small pouch that can preserve a single, small organic item (e.g., tissue sample, small animal) in stasis for 1d6 days. Single use.",
+        "value": 100
+    },
+    {
+        "name": "Water Reclamation Filter",
+        "description": "Can reclaim water from non-potable sources (e.g., urine, stagnant water) for 3 uses. Requires Fix (Int) check.",
+        "value": 20
+    },
+    {
+        "name": "Psionic Suppressor Collar (Disposable)",
+        "description": "Temporarily suppresses psionic abilities (Con save to resist) for 1d6 rounds when applied. Single use.",
+        "value": 180
+    },
+    {
+        "name": "Recreational VR Chip",
+        "description": "A chip loaded with pre-Scream VR experiences. Can reduce 1 Stress from boredom or fear. Addictive potential.",
+        "value": 15
+    },
+    {
+        "name": "Bio-scanner (Portable)",
+        "description": "A handheld scanner for detecting life signs and basic biological anomalies within a 10m range. Single use battery (4 hours).",
+        "value": 100
+    },
+    {
+        "name": "Detonator Cord (10m)",
+        "description": "Used to connect and remotely detonate multiple explosive charges.",
+        "value": 10
+    },
+    {
+        "name": "Pressure Syringe (Empty)",
+        "description": "An empty, sterile syringe for taking fluid samples or administering custom compounds.",
+        "value": 5
+    },
+    {
+        "name": "Neural Interface Tap (Disposable)",
+        "description": "Allows temporary, limited access to a standard neural interface port for 1d4 minutes. Grants +1 to Program (Int) for accessing simple data.",
+        "value": 50
+    },
+    {
+        "name": "Environmental Suit Repair Kit",
+        "description": "Contains patches and seals for repairing minor damage to environmental suits. Grants +1 to Fix (Int) for suit repairs.",
+        "value": 25
+    }
+]

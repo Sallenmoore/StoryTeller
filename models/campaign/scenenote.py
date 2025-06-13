@@ -49,7 +49,14 @@ class SceneNote(AutoModel, AudioMixin):
 
     @property
     def associations(self):
-        return [*self.setting, *self.encounters, *self.actors]
+        return [
+            *self.setting,
+            *self.encounters,
+            *self.actors,
+            *self.factions,
+            *self.vehicles,
+            *self.loot,
+        ]
 
     @property
     def audio_text(self):
@@ -66,9 +73,6 @@ class SceneNote(AutoModel, AudioMixin):
         return "Fictional"
 
     ##################### INSTANCE METHODS ####################
-    def delete(self):
-        all(e.delete() for e in self.next_scenes)
-        return super().delete()
 
     def add_setting(self, obj):
         if obj not in self.setting:

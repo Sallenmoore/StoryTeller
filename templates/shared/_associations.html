@@ -97,31 +97,27 @@
     {% for a in associations %}
     <div
          class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent %} has-bg-screen {% elif obj == a.parent %} has-bg-muted {% endif %}">
-        <div class="panel has-bg-screen" style='height:100%;'>
+                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
+        <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
+             style='height:100%;'>
             {{element.object_display(a)}}
             {% if 'World' not in [obj.model_name(), a.model_name()] %}
-            <div class="row has-space-around is-vertical">
-                {% if obj==a.parent %}
-                <h4>Child</h4>
-                {% elif obj.model_name() in a.parent_list %}
+            <div class="row has-space-around">
+                {% if obj.model_name() in a.parent_list and obj != a.parent %}
                 <div class="column is-3 is-mobile-shrink has-text-center">
                     <button class="button is-small is-primary"
-
                             hx-post="/api/manage/parent/{{a.path}}"
                             hx-target="#associated-objects"
                             hx-select="#associated-objects"
                             hx-vals='{"module":"_pages.html", "macro":"associations"}'
                             hx-indicator='#request-indicator'>
-                        <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                        <iconify-icon icon="material-symbols:move-down" width="1rem"
                                       height="1rem"></iconify-icon>
                         <span style="font-size:0.5rem">is child</span>
                     </button>
                 </div>
                 {% endif %}
-                {% if a==obj.parent %}
-                <h4 class='has-text-center'>Parent</h4>
-                {% elif a.model_name() in obj.parent_list %}
+                {% if a.model_name() in obj.parent_list and a != obj.parent%}
                 <div class="column is-3 is-mobile-shrink has-text-center">
                     <button class="button is-small is-primary"
                             hx-post="/api/manage/child/{{a.path}}"
@@ -129,7 +125,7 @@
                             hx-select="#associated-objects"
                             hx-vals='{"module":"_pages.html", "macro":"associations"}'
                             hx-indicator='#request-indicator'>
-                        <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                        <iconify-icon icon="codicon:type-hierarchy-sub" width="1rem"
                                       height="1rem"></iconify-icon>
                         <span style="font-size:0.5rem">is parent</span>
                     </button>

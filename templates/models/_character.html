@@ -373,33 +373,113 @@
             <div class="accordion__content">
                 <hr class='has-bg-primary'>
                 <div class="panel has-bg-light-grey">
+                    <div class="row">
+                        <div class="column">
+                            <div class="panel has-bg-light">
+                                <h4 class='has-text-center'>Summary</h4>
+                                {{entry.summary | safe}}
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="column">
+                            <div class="panel has-bg-light">
+                                <h4 class='has-text-dark has-text-center'>Hook</h4>
+                                {{entry.hook | safe}}
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="column">
+                            <div class="panel has-bg-light">
+                                <h4 class='has-text-dark has-text-center'>Dramatic Crisis</h4>
+                                {{entry.dramatic_crisis | safe}}
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column">
+                            <div class="panel has-bg-light">
+                                <h4 class='has-text-center'>Locations</h4>
+                                <ul>
+                                    {% for location in entry.locations %}
+                                    <li>{{location}}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="column">
+                            <div class="panel has-bg-light">
+                                <h4 class='has-text-center'>Antagonist</h4>
+                                {{entry.antagonist | safe}}
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+
                     <div class="panel has-bg-light">
                         <h4 class='has-text-dark has-text-center'>Description</h4>
                         {{entry.description | safe}}
                     </div>
                     <hr>
                     <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Rewards</h4>
-                        {{entry.rewards | safe}}
-                    </div>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Summary</h4>
-                        {{entry.summary | safe}}
-                    </div>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Location</h4>
-                        {{entry.location | safe}}
-                    </div>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Secrets</h4>
+                        <h4 class='has-text-dark has-text-center'>Scenes</h4>
                         <ul>
-                            {% for secret in entry.secrets %}
-                            <li>{{secret}}</li>
+                            {% for scene in entry.scenes %}
+                            <li>
+                                <b>SETUP:</b> {{scene.setup}}
+                                <ul>
+                                    <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
+                                    <li>
+                                        <b>CHALLENGES:</b>
+                                        <ul>
+                                            {% for challenge in scene.challenges%}
+                                            <li> {{challenge}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li> <b>TASK:</b> {{scene.task}}</li>
+                                    <li>
+                                        <b>NPCs:</b>
+                                        <ul>
+                                            {% for npc in scene.npcs%}
+                                            <li>{{npc}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <b>Information:</b>
+                                        <ul>
+                                            {% for info in scene.information%}
+                                            <li>{{info}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li><b>RESOLUTION:</b> {{scene.resolution}}</li>
+                                </ul>
+                                <hr>
+                            </li>
                             {% endfor %}
                         </ul>
+                    </div>
+                    <hr>
+                    <div class="panel has-bg-light">
+                        <h4 class='has-text-center'>Plot Twists</h4>
+                        <ul>
+                            {% for twist in entry.plot_twists %}
+                            <li>{{twist}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
+                    <div class="panel has-bg-light">
+                        <h4 class='has-text-center'>Climax</h4>
+                        {{entry.climax | safe}}
+                    </div>
+                    <hr>
+                    <div class="panel has-bg-light">
+                        <h4 class='has-text-center'>Rewards</h4>
+                        {{entry.rewards | safe}}
                     </div>
                     <hr>
                     <h4 class='has-text-dark has-text-center'>Associations</h4>

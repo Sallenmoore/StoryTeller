@@ -145,67 +145,169 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         return result
 
-    def generate_quest(self, extra_prompt=""):
+    def generate_quest(self, extra_prompt="", associations=None):
         from models.ttrpgobject.quest import Quest
 
         funcobj = {
             "name": "generate_quest",
-            "description": "creates a morally complicated, interesting, and multi-part mystery that player characters can discover for or with the described character",
+            "description": "creates a morally complicated, urgent, multi-part adventure that player characters can explore for or with the described character",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "The name of the mystery",
+                        "description": "The name of the adventure",
                     },
                     "rewards": {
                         "type": "string",
-                        "description": "The specific rewards for solving the mystery depending on the outcome, including financial compensation and any items or information that the player characters will receive",
+                        "description": "The specific rewards for solving the adventure depending on the outcome, including financial compensation and any items or information that the player characters will receive",
                     },
                     "description": {
                         "type": "string",
-                        "description": "A detailed description of the mystery in MARKDOWN, including what is required to solve the mystery and any ethical complications involved in solving the mystery",
+                        "description": "A detailed description of the adventure plot in MARKDOWN, including the major challenges the players will face, the main antagonist, and specific, concrete details about the adventure",
                     },
-                    "secrets": {
+                    "scenes": {
                         "type": "array",
-                        "description": "A large list of secrets and clues that the player characters can discover during the mystery, in the order they should be discovered",
-                        "items": {"type": "string"},
+                        "description": "A detailed description of the adventure in 5 main scenes in MARKDOWN. For each scene include the setup for the scene, npcs, challenges the players will face in the scene, a detailed description of the scene, and its resolution",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": [
+                                "setup",
+                                "description",
+                                "npcs",
+                                "challenges",
+                                "information",
+                                "task",
+                                "resolution",
+                            ],
+                            "properties": {
+                                "setup": {
+                                    "type": "string",
+                                    "description": "The initial setup for the scene, including what draws players in and any actionable details about the setup",
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "An in depth, detailed description of the initial scene and setting, including any actionable details about the scene",
+                                },
+                                "npcs": {
+                                    "type": "array",
+                                    "description": "A list of npcs that will be involved in the scene, including their names, descriptions, and any important details about them",
+                                    "items": {"type": "string"},
+                                },
+                                "challenges": {
+                                    "type": "array",
+                                    "description": "A list of challenges that the players will face in the scene, including any gameplay mechanics associated with each challenge",
+                                    "items": {"type": "string"},
+                                },
+                                "information": {
+                                    "type": "array",
+                                    "description": "A list of relevant and actionable information or secrets that could be revealed to the players in the scene",
+                                    "items": {"type": "string"},
+                                },
+                                "task": {
+                                    "type": "string",
+                                    "description": "The next specific and concrete task given to or discovered by the players in the scene, including any important details or game mechanics associated with the task",
+                                },
+                                "resolution": {
+                                    "type": "string",
+                                    "description": "The resolution of the scene, including any important details about how the players can progress to the next scene or how they can fail",
+                                },
+                            },
+                        },
                     },
                     "summary": {
                         "type": "string",
-                        "description": "A one sentence summary of the mystery, including the specific reward for solving the mystery",
+                        "description": "A one sentence summary of the adventure, including a specific and concrete reward for solving the mystery",
                     },
-                    "location": {
+                    "locations": {
+                        "type": "array",
+                        "description": "A list of the locations involved in the adventure, including any important details about each location and its inhabitants",
+                        "items": {"type": "string"},
+                    },
+                    "antagonist": {
                         "type": "string",
-                        "description": "A detailed description of the primary starting location of the mystery in MARKDOWN, including any important details about the location and its inhabitants",
+                        "description": "Who is the main antagonist? What do they want, why? What is their evil plan? Name, appearance, personality, occupation, and motivations. ",
+                    },
+                    "hook": {
+                        "type": "string",
+                        "description": "How do the players encounter the problem? How to make them care? Develop a complete scene that draws the heroes into action, and gives them the initial set of tasks to accomplish.",
+                    },
+                    "dramatic_crisis": {
+                        "type": "string",
+                        "description": "What is the dramatic question? What are the stakes? How does it affect the player characters?",
+                    },
+                    "climax": {
+                        "type": "string",
+                        "description": "Describe the climax of the adventure? How does it resolve the main conflict?",
+                    },
+                    "plot_twists": {
+                        "type": "array",
+                        "description": "A list of potential plot twists that may occur during the adventure, in the order they should be revealed. An unexpected complication, twist, or reveal that changes the direction of the story, raises stakes and threat level, or redefines the goal.",
+                        "items": {"type": "string"},
                     },
                 },
             },
         }
 
-        prompt = f"""Generate a multipart mystery for a {self.genre} Table Top RPG. The mystery should be suitable for a party of 4-6 players. The mystery should be revealed through a series of clues and interactions with npcs, and should tell a complete story that is morally complicated, interesting, and challenging for the player characters to complete. The mystery should involve multiple complications, such as political intrigue, illegal smuggling, or safe escort. The mystery should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.backstory_summary}.
+        prompt = f"""Generate a multipart adventure for a {self.genre} Table Top RPG. The adventure should be revealed through a series of clues and interactions with npcs, and should tell a complete story that is morally complicated, impactful, and challenging for the player characters to complete. The adventure should involve a mix of encounter types, such as Combat, Social, Exploration, Mystery, and Stealth. The adventure should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.backstory}.
+
+        The initiating npc has the following goals and secrets: {self.goal}.
 """
 
-        if self.parent:
+        parent = self.parent
+        if parent:
             prompt += f"""
-The mystery should be set in the {self.parent.name} and should include details about the location and its inhabitants. {self.parent.backstory_summary}.
+The adventure should start in {parent.name} and should include details about the location and its inhabitants: {parent.backstory}.
+"""
+            while parent.parent:
+                parent = parent.parent
+                prompt += f"""Located in:
+    {parent.name}: {parent.backstory}.
 """
         if extra_prompt:
             prompt += (
-                f"Create the quest according to the following prompt:\n\n{extra_prompt}"
+                f"Use the following prompt to design the adventure:\n\n{extra_prompt}"
             )
 
-        primer = "You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate a mystery that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete. The mystery should be suitable for a party of 4-6 players. Include specific ethical complications involved in solving the mystery using various methods with different outcomes."
+        if associations:
+            prompt += f"""
+The adventure should also involve the following elements:
+- {"\n- ".join([f"{a.name}: {a.backstory}" for a in associations])}.
+"""
+        else:
+            associations = []
+
+        primer = "You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate an adventure that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete."
         log(prompt, _print=True)
         results = self.system.generate_json(prompt, primer, funcobj)
         # log(results, _print=True)
-        self.add_quest(**results)
+        self.add_quest(associations, **results)
 
-    def add_quest(self, name, description, secrets, summary, rewards, location):
+    def add_quest(
+        self,
+        associations,
+        name,
+        description,
+        summary,
+        rewards,
+        locations,
+        antagonist,
+        hook,
+        dramatic_crisis,
+        climax,
+        plot_twists,
+        scenes,
+    ):
         from models.ttrpgobject.quest import Quest
 
         description = (
             markdown.markdown(description.replace("```markdown", "").replace("```", ""))
+            .replace("h1>", "h3>")
+            .replace("h2>", "h3>")
+        )
+        antagonist = (
+            markdown.markdown(antagonist.replace("```markdown", "").replace("```", ""))
             .replace("h1>", "h3>")
             .replace("h2>", "h3>")
         )
@@ -214,10 +316,15 @@ The mystery should be set in the {self.parent.name} and should include details a
             name=name,
             rewards=rewards,
             description=description,
-            secrets=secrets,
             summary=summary,
             contact=self,
-            location=location,
+            locations=locations,
+            antagonist=antagonist,
+            hook=hook,
+            dramatic_crisis=dramatic_crisis,
+            climax=climax,
+            plot_twists=plot_twists,
+            scenes=scenes,
         )
         q.save()
         self.quests += [q]
