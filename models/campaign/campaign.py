@@ -117,7 +117,7 @@ class Campaign(AutoModel):
         if text:
             self.summary = self.world.system.generate_summary(
                 text,
-                primer="Generate a summary of the campaign events in MARKDOWN format with a paragraph breaks where appropriate, but after no more than 4 sentences.",
+                primer="Generate a complete and comprehensive summary of the described events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences.",
             )
             self.summary = self.summary.replace("```markdown", "").replace("```", "")
             self.summary = (

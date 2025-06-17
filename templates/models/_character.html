@@ -373,6 +373,11 @@
             <div class="accordion__content">
                 <hr class='has-bg-primary'>
                 <div class="panel has-bg-light-grey">
+                    <div class="panel has-bg-light">
+                        <h4 class='has-text-dark has-text-center'>Description</h4>
+                        {{entry.description | safe}}
+                    </div>
+                    <hr>
                     <div class="row">
                         <div class="column">
                             <div class="panel has-bg-light">
@@ -416,12 +421,6 @@
                             <hr>
                         </div>
                     </div>
-
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark has-text-center'>Description</h4>
-                        {{entry.description | safe}}
-                    </div>
-                    <hr>
                     <div class="panel has-bg-light">
                         <h4 class='has-text-dark has-text-center'>Scenes</h4>
                         <ul>
@@ -430,15 +429,9 @@
                                 <b>SETUP:</b> {{scene.setup}}
                                 <ul>
                                     <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
-                                    <li>
-                                        <b>CHALLENGES:</b>
-                                        <ul>
-                                            {% for challenge in scene.challenges%}
-                                            <li> {{challenge}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
+                                    <li> <b>HIGHLIGHTS:</b> {{scene.highlights}}</li>
                                     <li> <b>TASK:</b> {{scene.task}}</li>
+                                    <li> <b>STAKES:</b> {{scene.stakes}}</li>
                                     <li>
                                         <b>NPCs:</b>
                                         <ul>
@@ -448,10 +441,18 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <b>Information:</b>
+                                        <b>INFORMATION:</b>
                                         <ul>
                                             {% for info in scene.information%}
                                             <li>{{info}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <b>CHALLENGES:</b>
+                                        <ul>
+                                            {% for challenge in scene.challenges%}
+                                            <li> {{challenge}}</li>
                                             {% endfor %}
                                         </ul>
                                     </li>

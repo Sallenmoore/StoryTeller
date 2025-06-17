@@ -87,7 +87,7 @@ class Actor(TTRPGObject):
         },
         "goal": {
             "type": "string",
-            "description": "goals and closely guarded secrets",
+            "description": "The character's public and private goals. The public goal is what the character tells others, while the private goal is what the character truly desires.",
         },
         "abilities": {
             "type": "array",

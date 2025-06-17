@@ -106,7 +106,7 @@ AGE
 
 BACKSTORY
 ---
-{self.backstory_summary}
+{self.backstory}
 
 LIFE EVENTS
 ---
@@ -145,12 +145,12 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         return result
 
-    def generate_quest(self, extra_prompt="", associations=None):
+    def generate_quest(self, extra_prompt=""):
         from models.ttrpgobject.quest import Quest
 
         funcobj = {
             "name": "generate_quest",
-            "description": "creates a morally complicated, urgent, multi-part adventure that player characters can explore for or with the described character",
+            "description": "creates a morally complicated, urgent, multi-part adventure that player characters can explore for or with the described character. The adventure should not have global consequences, but localized consequences for the NPC associated with it.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -160,35 +160,42 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                     },
                     "rewards": {
                         "type": "string",
-                        "description": "The specific rewards for solving the adventure depending on the outcome, including financial compensation and any items or information that the player characters will receive",
+                        "description": "The reward for completing the adventure depending on the outcome, including the specific financial compensation, items, or detailed information that the player characters will receive",
                     },
                     "description": {
                         "type": "string",
-                        "description": "A detailed description of the adventure plot in MARKDOWN, including the major challenges the players will face, the main antagonist, and specific, concrete details about the adventure",
+                        "description": "A detailed description of the entire adventure plot in MARKDOWN, including a specific, concrete outline of the adventure plot arc.",
                     },
                     "scenes": {
                         "type": "array",
-                        "description": "A detailed description of the adventure in 5 main scenes in MARKDOWN. For each scene include the setup for the scene, npcs, challenges the players will face in the scene, a detailed description of the scene, and its resolution",
+                        "description": "A detailed description of the adventure in 5 main scenes in MARKDOWN. The scenes should follow the classic adventure strucure: The Hook, The Problem, Complications, Climax, Revelation. For each scene include the setup for the scene, npcs, challenges the players will face in the scene, a detailed description of the scene, and its resolution.",
                         "items": {
                             "type": "object",
                             "additionalProperties": False,
                             "required": [
                                 "setup",
+                                "highlights",
                                 "description",
                                 "npcs",
                                 "challenges",
                                 "information",
                                 "task",
+                                "summary",
+                                "stakes",
                                 "resolution",
                             ],
                             "properties": {
                                 "setup": {
                                     "type": "string",
-                                    "description": "The initial setup for the scene, including what draws players in and any actionable details about the setup",
+                                    "description": "The initial setup for the scene, including what draws players in",
+                                },
+                                "highlights": {
+                                    "type": "string",
+                                    "description": "The physical details in the scene that players can interact with or that are important to observe",
                                 },
                                 "description": {
                                     "type": "string",
-                                    "description": "An in depth, detailed description of the initial scene and setting, including any actionable details about the scene",
+                                    "description": "An in depth, detailed summary of the scene, including any important details about the environment, the characters involved, and any other relevant information",
                                 },
                                 "npcs": {
                                     "type": "array",
@@ -197,17 +204,25 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                                 },
                                 "challenges": {
                                     "type": "array",
-                                    "description": "A list of challenges that the players will face in the scene, including any gameplay mechanics associated with each challenge",
+                                    "description": "A list of challenges that the players will face in the scene, including the gameplay mechanics (skill check, saving throw, etc.) associated with each challenge",
                                     "items": {"type": "string"},
                                 },
                                 "information": {
                                     "type": "array",
-                                    "description": "A list of relevant and actionable information or secrets that could be revealed to the players in the scene",
+                                    "description": "A list of relevant and actionable information players need to progress to the next scene",
                                     "items": {"type": "string"},
                                 },
                                 "task": {
                                     "type": "string",
                                     "description": "The next specific and concrete task given to or discovered by the players in the scene, including any important details or game mechanics associated with the task",
+                                },
+                                "summary": {
+                                    "type": "string",
+                                    "description": "A detailed summary of the adventure up to this point, including any important details about the adventure that are not included in the scenes",
+                                },
+                                "stakes": {
+                                    "type": "string",
+                                    "description": "What's at risk immediately if the adventurers don't act? What are the consequences of failure in this scene?",
                                 },
                                 "resolution": {
                                     "type": "string",
@@ -218,7 +233,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                     },
                     "summary": {
                         "type": "string",
-                        "description": "A one sentence summary of the adventure, including a specific and concrete reward for solving the mystery",
+                        "description": "A one sentence summary of the adventure, worded like a job posting to entice players to take on the adventure",
                     },
                     "locations": {
                         "type": "array",
@@ -250,43 +265,45 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             },
         }
 
-        prompt = f"""Generate a multipart adventure for a {self.genre} Table Top RPG. The adventure should be revealed through a series of clues and interactions with npcs, and should tell a complete story that is morally complicated, impactful, and challenging for the player characters to complete. The adventure should involve a mix of encounter types, such as Combat, Social, Exploration, Mystery, and Stealth. The adventure should have specific details and should be initiated by or with the character named {self.name} who is a {self.occupation} described as: {self.backstory}.
+        prompt = f"""Generate an adventure for a {self.genre} Table Top RPG. The adventure takes place through a series of encounters with npcs or other complications. The adventure tells a complete story that is not what it first appears to be and is challenging for the player characters to complete. The adventure involves a mix of encounter types, such as Combat, Social, Exploration, and Stealth. The adventure is initiated by or with the character named {self.name} who is described as: {self.backstory}.
 
-        The initiating npc has the following goals and secrets: {self.goal}.
+        The initiating npc also has the following goals, which may or may not play into the adventure: {self.goal}.
 """
 
         parent = self.parent
         if parent:
             prompt += f"""
-The adventure should start in {parent.name} and should include details about the location and its inhabitants: {parent.backstory}.
+The adventure should start in {parent.name} and should include the following elements:
+LOCATION: {parent.backstory}.
 """
             while parent.parent:
                 parent = parent.parent
-                prompt += f"""Located in:
-    {parent.name}: {parent.backstory}.
+                prompt += f"""Which is located in:
+        {parent.name} [{parent.title}]: {parent.backstory_summary}.
+"""
+        prompt += "\nADDITIONAL ELEMENTS:\n"
+        for ass in self.associations:
+            if ass not in self.geneology:
+                prompt += f"""
+        {ass.name} [{ass.title}]: {ass.backstory_summary}
 """
         if extra_prompt:
-            prompt += (
-                f"Use the following prompt to design the adventure:\n\n{extra_prompt}"
-            )
-
-        if associations:
-            prompt += f"""
-The adventure should also involve the following elements:
-- {"\n- ".join([f"{a.name}: {a.backstory}" for a in associations])}.
-"""
+            prompt += f"\n\nUse the following prompt to design the adventure:\n\n{extra_prompt}"
         else:
-            associations = []
+            adventure_type = random.choice(list(Quest.adventure_types.keys()))
+            prompt += f"""\n\nUse the following prompt to design the adventure:
+Adventure Type: {adventure_type}
+{Quest.adventure_types[adventure_type]}
+"""
 
-        primer = "You are an expert AI Table Top RPG Mystery Generator. You will be provided with a character and a description of the character's traits. Generate an adventure that is connected to the character's backstory, morally complicated, and challenging for the player characters to complete."
+        primer = "You are an expert AI Table Top RPG Adventure Generator. You will be provided with a character and a description of the character's goals. Generate an adventure that is connected to the character's backstory, morally complicated, and has a clealry defined story arc."
         log(prompt, _print=True)
         results = self.system.generate_json(prompt, primer, funcobj)
         # log(results, _print=True)
-        self.add_quest(associations, **results)
+        self.add_quest(**results)
 
     def add_quest(
         self,
-        associations,
         name,
         description,
         summary,
