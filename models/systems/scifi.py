@@ -203,18 +203,12 @@ class SciFiSystem(BaseSystem):
             "unique",
         ],
         "encounter": [
-            "easy",
-            "difficult",
-            "deadly",
             "ambush",
             "puzzle",
             "trap",
             "combat",
             "social",
-            "exploration",
-            "investigation",
             "stealth",
-            "mystery",
         ],
         "character": [
             "secretly evil",

@@ -74,12 +74,6 @@ def _generate_character_chat_task(pk, chat):
     return {"url": f"/api/{obj.path}/chat"}
 
 
-def _generate_gn_task(pk):
-    ep = Episode.get(pk)
-    ep.generate_gn()
-    return {"url": f"/api/campaign/{ep.campaign.pk}/episode/{ep.pk}"}
-
-
 def _generate_table_items_task(pk, worldpk, prompt):
     table = GMScreenTable.get(pk)
     table.generate_table(prompt)

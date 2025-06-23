@@ -324,7 +324,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
-        """
+"""
         if associations := list(set([*self.geneology, *self.associations])):
             prompt += """
 ===

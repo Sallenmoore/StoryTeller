@@ -29,15 +29,14 @@ class Episode(AutoModel):
     name = StringAttr(default="")
     episode_num = IntAttr(default=0)
     description = StringAttr(default="")
-    scenenotes = ListAttr(ReferenceAttr(choices=[SceneNote]))
     start_date_obj = ReferenceAttr(choices=["Date"])
     end_date_obj = ReferenceAttr(choices=["Date"])
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     episode_report = StringAttr(default="")
+    loot = StringAttr(default="")
+    hooks = StringAttr(default="")
     summary = StringAttr(default="")
-    outline = StringAttr(default="")
-    images = ListAttr(ReferenceAttr(choices=["Image"]))
 
     ##################### PROPERTY METHODS ####################
 
@@ -129,7 +128,7 @@ class Episode(AutoModel):
                 raise ValueError(
                     "date must be a Date object or a string in the format: <day> <month> <year>"
                 )
-        if not self.end_date_obj and self.start_date_obj.year:
+        if not self.end_date_obj and self.start_date_obj and self.start_date_obj.year:
             self.world.current_date = self.start_date_obj
             self.world.save()
 
@@ -170,9 +169,6 @@ class Episode(AutoModel):
         return self.campaign.world
 
     ##################### INSTANCE METHODS ####################
-    def delete(self):
-        all(e.delete() for e in self.scenenotes)
-        return super().delete()
 
     def resummarize(self):
         self.summary = (
@@ -207,21 +203,6 @@ class Episode(AutoModel):
             obj.save()
         return obj
 
-    def add_scene_note(self, name=None):
-        num = len(self.scenenotes) + 1
-        if not name:
-            name = f"Episode {len(self.scenenotes)}:"
-        scenenote = SceneNote(name=name, num=num)
-        scenenote.actors += self.players
-        scenenote.save()
-        self.scenenotes += [scenenote]
-        self.save()
-        return scenenote
-
-    def generate_gn(self):
-        for scene in self.scenenotes:
-            scene.generate_image()
-
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
         self.save()
@@ -241,9 +222,7 @@ class Episode(AutoModel):
         document.pre_save_campaign()
         document.pre_save_associations()
         document.pre_save_episode_num()
-        document.pre_save_scene_note()
         document.pre_save_dates()
-        document.pre_save_outline()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -277,16 +256,10 @@ class Episode(AutoModel):
             if num.isdigit():
                 self.episode_num = int(num)
 
-    def pre_save_scene_note(self):
-        self.scenenotes = [s for s in self.scenenotes if s]
-
     def pre_save_dates(self):
-        if self.end_date_obj and self.end_date_obj > self.world.current_date:
-            self.world.current_date = self.end_date_obj
-            self.world.save()
-
-    def pre_save_outline(self):
-        # if not isinstance(self.outline, str):
-        #     self.outline = ""
-        #     log("Outline is not a string. FIXED.")
-        pass
+        if self.end_date_obj:
+            if not self.world.current_date or (
+                self.end_date_obj > self.world.current_date
+            ):
+                self.world.current_date = self.end_date_obj
+                self.world.save()

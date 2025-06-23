@@ -160,18 +160,6 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/campaign/episode/<string:pk>/gn", methods=("POST",))
-    def create_gn(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_gn_task,
-                pk=pk,
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
     @app.route("/generate/gmscreen/table/<string:pk>", methods=("POST",))
     def create_table(pk):
         task = (
