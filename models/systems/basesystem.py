@@ -36,6 +36,9 @@ class BaseSystem(AutoModel):
         "Sailor": "You sailed on a seagoing vessel for years. In that time, you faced down mighty storms, monsters of the deep, and those who wanted to sink your craft to the bottomless depths.",
         "Soldier": "War has been your life for as long as you care to remember. You trained as a youth, studied the use of weapons and armor, learned survival strategies, and perhaps took part in a war.",
         "Urchin": "You grew up on the streets alone, orphaned, and poor. You had no one to watch over you or to provide for you, so you learned to provide for yourself. You fought fiercely over food and kept a constant watch out for other desperate souls who might take it from you.",
+        "Merchant": "An experienced trader or businessperson, knowledgeable about commerce, negotiation, and finance.",
+        "Politician": "Holds power and influence within a political system, skilled in manipulation and strategy.",
+        "Peasant": "A background rooted in farming or rural labor, with practical survival and work skills.",
     }
 
     _classes = {
@@ -164,6 +167,17 @@ class BaseSystem(AutoModel):
             "School of Transmutation",
             "Bladesinging",
             "Order of Scribes",
+        ],
+        "Merchant": [
+            "Shopkeeper",
+            "Innkeeper",
+            "Travelling",
+            "Black Market",
+        ],
+        "General": [
+            "Peasant",
+            "Aristocrat",
+            "Adventurer",
         ],
     }
 

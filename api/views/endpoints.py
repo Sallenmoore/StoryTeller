@@ -10,7 +10,7 @@ from autonomous import log
 from autonomous.auth.autoauth import AutoAuth
 from autonomous.tasks.autotask import AutoTasks
 from models.campaign.campaign import Campaign
-from models.campaign.episode import Episode, SceneNote
+from models.campaign.episode import Episode
 from models.images.image import Image
 from models.systems.fantasy import FantasySystem
 from models.systems.hardboiled import HardboiledSystem

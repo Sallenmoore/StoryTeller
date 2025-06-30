@@ -135,15 +135,7 @@
                 <h4 class='has-text-screen'>Status</h4>
                 <p class="has-text-dark">{{obj.status}}</p>
             </div>
-            <div class="column is-shrink">
-                <h4 class='has-text-screen'>Look-A-Like</h4>
-                <p class="has-text-dark">{{obj.lookalike}}</p>
-            </div>
         </div>
-    </div>
-    <div class="column is-8 is-mobile-6">
-        <h4 class='has-text-screen'>Voice</h4>
-        <p class="has-text-dark">{{obj.voice_description}}</p>
     </div>
 </div>
 <hr>
@@ -373,32 +365,24 @@
             <div class="accordion__content">
                 <hr class='has-bg-primary'>
                 <div class="panel has-bg-light-grey">
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark has-text-center'>Description</h4>
-                        {{entry.description | safe}}
-                    </div>
-                    <hr>
                     <div class="row">
-                        <div class="column">
+                        <div class="column is-full">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-center'>Summary</h4>
                                 {{entry.summary | safe}}
                             </div>
-                            <hr>
                         </div>
                         <div class="column">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-dark has-text-center'>Hook</h4>
                                 {{entry.hook | safe}}
                             </div>
-                            <hr>
                         </div>
                         <div class="column">
                             <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Dramatic Crisis</h4>
-                                {{entry.dramatic_crisis | safe}}
+                                <h4 class='has-text-dark has-text-center'>Description</h4>
+                                {{entry.description | safe}}
                             </div>
-                            <hr>
                         </div>
                     </div>
                     <div class="row">
@@ -411,25 +395,23 @@
                                     {% endfor %}
                                 </ul>
                             </div>
-                            <hr>
                         </div>
                         <div class="column">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-center'>Antagonist</h4>
                                 {{entry.antagonist | safe}}
                             </div>
-                            <hr>
                         </div>
                     </div>
                     <div class="panel has-bg-light">
                         <h4 class='has-text-dark has-text-center'>Scenes</h4>
-                        <ul>
+                        <ul class='has-no-list-style'>
                             {% for scene in entry.scenes %}
                             <li>
+                                <h5 class='has-text-dark has-text-center'>{{scene.type}}</h5>
                                 <b>SETUP:</b> {{scene.setup}}
                                 <ul>
                                     <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
-                                    <li> <b>HIGHLIGHTS:</b> {{scene.highlights}}</li>
                                     <li> <b>TASK:</b> {{scene.task}}</li>
                                     <li> <b>STAKES:</b> {{scene.stakes}}</li>
                                     <li>
@@ -448,6 +430,7 @@
                                             {% endfor %}
                                         </ul>
                                     </li>
+                                    <li><b>RED HERRING:</b> {{scene.red_herring}}</li>
                                     <li>
                                         <b>CHALLENGES:</b>
                                         <ul>
@@ -457,6 +440,7 @@
                                         </ul>
                                     </li>
                                     <li><b>RESOLUTION:</b> {{scene.resolution}}</li>
+                                    <li><b>REWARDS:</b> {{scene.rewards}}</li>
                                 </ul>
                                 <hr>
                             </li>
@@ -473,10 +457,6 @@
                         </ul>
                     </div>
                     <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Climax</h4>
-                        {{entry.climax | safe}}
-                    </div>
                     <hr>
                     <div class="panel has-bg-light">
                         <h4 class='has-text-center'>Rewards</h4>

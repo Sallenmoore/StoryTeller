@@ -51,12 +51,8 @@ def add(model):
     new_obj.save()
     # log(new_obj.pk)
     obj.add_association(new_obj)
-    associations = [
-        a for a in obj.associations if a.model_name().lower() == model.lower()
-    ]
-    log(associations)
     return get_template_attribute("shared/_associations.html", "associations")(
-        user, obj, associations
+        user, obj, obj.associations
     )
 
 

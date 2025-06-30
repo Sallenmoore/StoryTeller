@@ -4,6 +4,7 @@ import validators
 from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
+    ListAttr,
     ReferenceAttr,
     StringAttr,
 )
@@ -18,6 +19,10 @@ class Place(TTRPGObject):
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     dungeon = StringAttr(default="")
+    sensory_details = ListAttr(StringAttr(default=""))
+    general_atmosphere = StringAttr(default="")
+    situations = ListAttr(StringAttr(default=""))
+    recent_events = ListAttr(StringAttr(default=""))
 
     ################### Property Methods #####################
     @property

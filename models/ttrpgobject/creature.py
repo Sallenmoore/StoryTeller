@@ -48,9 +48,8 @@ class Creature(Actor):
         return f"""
 BACKSTORY
 ---
-{self.backstory_summary}
+{self.backstory}
 
-{"EVENTS INVOLVING THIS CREATURE TYPE" if not self.group else "LIFE EVENTS"}
 ---
 """
 
@@ -68,12 +67,7 @@ BACKSTORY
 
     ################### CRUD Methods #####################
     def generate(self):
-        group = (
-            "non-unique type of antagonists who have"
-            if self.group
-            else "adversary who has"
-        )
-        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} {group} a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
+        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} antagonist type with a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
         """
         return super().generate(prompt=prompt)
 

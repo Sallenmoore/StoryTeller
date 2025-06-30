@@ -92,10 +92,6 @@ class TTRPGObject(TTRPGBase):
         return ancestry
 
     @property
-    def gm(self):
-        return self.get_world().gm
-
-    @property
     def items(self):
         return [a for a in self.associations if a.model_name() == "Item"]
 
@@ -274,22 +270,6 @@ class TTRPGObject(TTRPGBase):
                     year=0,
                 )
                 self.end_date.save()
-
-        if self.start_date and (
-            not self.world.current_date
-            or isinstance(self.world.current_date, (str))
-            or self.start_date > self.world.current_date
-        ):
-            self.world.current_date = self.start_date
-            self.world.save()
-
-        if self.end_date and (
-            not self.world.current_date
-            or isinstance(self.world.current_date, (str))
-            or self.end_date > self.world.current_date
-        ):
-            self.world.current_date = self.end_date
-            self.world.save()
 
         if self.start_date and self.start_date.day <= 0:
             self.start_date.day = random.randint(1, 28)

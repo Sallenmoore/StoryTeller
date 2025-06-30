@@ -496,6 +496,9 @@
             {% if episode.locations %}
             {{ episode_association_display(user, obj, episode, episode.locations, obj.get_title("Location")) }}
             {% endif %}
+            {% if episode.shops %}
+            {{ episode_association_display(user, obj, episode, episode.shops, obj.get_title("Shop")) }}
+            {% endif %}
             {% if episode.districts %}
             {{ episode_association_display(user, obj, episode, episode.districts, obj.get_title("District")) }}
             {% endif %}

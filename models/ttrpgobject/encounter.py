@@ -42,7 +42,7 @@ class Encounter(TTRPGObject):
 
     _funcobj = {
         "name": "generate_encounter",
-        "description": "Generate an Encounter object",
+        "description": "Generate an Encounter that will challenge players in a TTRPG session",
         "parameters": {
             "type": "object",
             "properties": {
@@ -56,7 +56,7 @@ class Encounter(TTRPGObject):
                 },
                 "desc": {
                     "type": "string",
-                    "description": "A short physical description that will be used to generate an image of the scene the characters come upon to begin the encounter ",
+                    "description": "A short physical description that will be used to generate an image of the scene as the characters come upon the encounter ",
                 },
                 "enemy_type": {
                     "type": "string",
@@ -73,11 +73,6 @@ class Encounter(TTRPGObject):
                 "noncombat_scenario": {
                     "type": "string",
                     "description": "The event or events that will allow players to avoid combat",
-                },
-                "notes": {
-                    "type": "array",
-                    "description": "3 short descriptions of potential side quests involving the outcome of this encounter",
-                    "items": {"type": "string"},
                 },
             },
         },

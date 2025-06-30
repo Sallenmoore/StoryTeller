@@ -325,19 +325,40 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
 """
-        if associations := list(set([*self.geneology, *self.associations])):
+        prompt += f"""
+===
+- Setting:
+  - Genre: {self.genre}
+  - World Details: {self.get_world().backstory}
+  - Relevant World Events:
+    - {"\n    - ".join(self.get_world().stories) if self.get_world().stories else "N/A"}
+  - Geographic Details:
+"""
+
+        if self.geneology and len(self.geneology) > 1:
+            for relative in self.geneology:
+                if (
+                    relative not in [self, self.world]
+                    and relative.name
+                    and relative.backstory
+                ):
+                    prompt += f"""
+    - Type: {relative.title}
+      - Name: {relative.name}
+      - Backstory: {relative.backstory}
+      - Controlled By: {relative.owner.name if relative.owner else "Unknown"}
+"""
+        if associations := self.associations:
             prompt += """
 ===
-- Associated Objects:
+- Additional Associated Objects:
 """
             for ass in associations:
-                if ass.name and ass.backstory:
+                if ass not in self.geneology and ass.name and ass.backstory:
                     prompt += f"""
-    - pk: {ass.pk}
-        - Model: {ass.model_name()}
-        - Type: {ass.title}
-        - Name: {ass.name}
-        - Backstory: {ass.backstory}
+  - Type: {ass.title}
+  - Name: {ass.name}
+  - Backstory: {ass.backstory}
 """
         name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):

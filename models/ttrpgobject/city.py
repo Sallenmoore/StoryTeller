@@ -51,6 +51,28 @@ class City(Place):
                     "type": "string",
                     "description": "A brief description of the religions and its people. Only include publicly known information.",
                 },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the location to life",
+                },
+                "general_atmosphere": {
+                    "type": "string",
+                    "description": "A short, one sentence description of the general atmosphere and mood of the location",
+                },
+                "situations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "description": "A brief summary of the situation, including its current state and potential immediate impact",
+                    },
+                    "description": "A list of interesting situations that could be happening in the location that a GM could use to bring the location to life",
+                },
+                "recent_events": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A concise list of significant events that have recently occurred in this location, even if they aren't ongoing situations. Only include publicly known information.",
+                },
             },
         },
     }

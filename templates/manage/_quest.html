@@ -14,7 +14,7 @@
         </a>
     </div>
 </div>
-<form id="journal-entry-form" hx-post="/api/manage/quest/{{entry.pk}}/update"
+<form id="quest-entry-form" hx-post="/api/manage/quest/{{entry.pk}}/update"
       hx-target="#page-content"
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
@@ -40,12 +40,12 @@
             {{form_components.texteditor(user, entry, 'summary')}}
         </div>
         <div class="column is-half">
-            <h5 class='has-text-center'>Dramatic Crises</h5>
-            {{form_components.texteditor(user, entry, 'dramatic_crisis')}}
-        </div>
-        <div class="column is-half">
             <h5 class='has-text-center'>Hook</h5>
             {{form_components.texteditor(user, entry, 'hook')}}
+        </div>
+        <div class="column is-half">
+            <h5 class='has-text-center'>Dramatic Crises</h5>
+            {{form_components.texteditor(user, entry, 'dramatic_crisis')}}
         </div>
         <div class="column is-half">
             <h5 class='has-text-center'>Antagonist</h5>
@@ -67,20 +67,28 @@
             <h5 class='has-text-center'>Scenes</h5>
             {% for scene in entry.scenes %}
             <div class="panel">
+                <h6 class='has-text-center'>Type</h6>
+                {{form_components.texteditor(user, scene, 'type')}}
                 <h6 class='has-text-center'>Setup</h6>
                 {{form_components.texteditor(user, scene, 'setup')}}
                 <h6 class='has-text-center'>Description</h6>
                 {{form_components.texteditor(user, scene, 'description')}}
                 <h6 class='has-text-center'>Tasks</h6>
                 {{form_components.texteditor(user, scene, 'task')}}
-                <h6 class='has-text-center'>Resolution</h6>
-                {{form_components.texteditor(user, scene, 'resolution')}}
                 <h6 class='has-text-center'>Challenges</h6>
                 {{form_components.listeditor(user, scene, 'challenges')}}
                 <h6 class='has-text-center'>Npcs</h6>
                 {{form_components.listeditor(user, scene, 'npcs')}}
                 <h6 class='has-text-center'>Information</h6>
                 {{form_components.listeditor(user, scene, 'information')}}
+                <h6 class='has-text-center'>Encounters</h6>
+                {{form_components.listeditor(user, scene, 'encounters')}}
+                <h6 class='has-text-center'>Red Herring</h6>
+                {{form_components.texteditor(user, scene, 'red_herring')}}
+                <h6 class='has-text-center'>Resolution</h6>
+                {{form_components.texteditor(user, scene, 'resolution')}}
+                <h6 class='has-text-center'>Rewards</h6>
+                {{form_components.texteditor(user, scene, 'rewards')}}
             </div>
             <hr>
             {% endfor %}
@@ -120,7 +128,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 {%- endmacro %}
 

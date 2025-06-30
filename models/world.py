@@ -49,6 +49,7 @@ class World(TTRPGBase):
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
+    stories = ListAttr(StringAttr(default=""))
 
     SYSTEMS = {
         "fantasy": FantasySystem,

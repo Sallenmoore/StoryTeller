@@ -62,7 +62,18 @@
     </div>
 </div>
 {% endif %}
-<h2 class='has-text-center' id='manage-users'>Faction Control</h2>
+<h2 class='has-text-center' id='manage-sroies'>Stories</h2>
+<div class="row">
+    {% for story in obj.stories %}
+    <div class="column is-full">
+        <div class="panel has-bg-screen">
+            {{story | safe}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<hr>
+<h2 class='has-text-center' id='manage-factions'>Faction Control</h2>
 <div class="row">
     {% for region in obj.regions %}
     <div class="column is-2">
@@ -201,6 +212,17 @@
 
 {% macro manage_details(user, obj) -%}
 <div class="row">
+    <div class="column is-full">
+        <div class="panel">
+            <h2 class='has-text-dark'>Manage Stories</h2>
+            <form hx-post="/api/manage/update"
+                  hx-swap="none"
+                  hx-indicator='#request-indicator'
+                  hx-trigger="input delay:1s, change">
+                {{form_components.listeditor(user, obj, 'stories') | safe}}
+            </form>
+        </div>
+    </div>
     <div class="column is-full">
         <form hx-post="/api/{{obj.path}}/calendar/update"
               hx-swap="none"

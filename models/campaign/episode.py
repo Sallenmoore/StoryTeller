@@ -19,7 +19,6 @@ from autonomous.model.autoattr import (
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
-from models.campaign.scenenote import SceneNote
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
@@ -91,6 +90,10 @@ class Episode(AutoModel):
     @property
     def regions(self):
         return [a for a in self.associations if a.model_name() == "Region"]
+
+    @property
+    def shops(self):
+        return [a for a in self.associations if a.model_name() == "Shop"]
 
     @property
     def vehicles(self):
@@ -258,8 +261,5 @@ class Episode(AutoModel):
 
     def pre_save_dates(self):
         if self.end_date_obj:
-            if not self.world.current_date or (
-                self.end_date_obj > self.world.current_date
-            ):
-                self.world.current_date = self.end_date_obj
-                self.world.save()
+            self.world.current_date = self.end_date_obj
+            self.world.save()

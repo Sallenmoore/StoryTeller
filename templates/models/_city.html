@@ -12,24 +12,6 @@
             </div>
         </div>
     </div>
-    <div class="column is-4">
-        <div class="card has-bg-light">
-            <div class="card__header is-vertically-centered has-bg-secondary">
-                <h3 class="has-text-muted">{{obj.get_title('District') | title}}s</h3>
-            </div>
-            <div class="card__content ">
-                <div class="row is-vertical">
-                    {%for district in obj.districts %}
-                    <div class="column is-full has-text-dark">
-                        {{district | safe}}
-                        {% if 0 < loop.index0 < obj.abilities | length %} <hr>
-                            {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="column is-full">
         <div class="card has-bg-light">
             <div class="card__header is-vertically-centered has-bg-secondary">

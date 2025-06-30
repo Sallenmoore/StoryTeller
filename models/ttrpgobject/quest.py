@@ -6,23 +6,160 @@ from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 
 
+class Scene(AutoModel):
+    type = StringAttr(
+        choices=[
+            "social",
+            "encounter",
+            "combat",
+            "investigation",
+            "exploration",
+            "stealth",
+            "puzzle",
+        ]
+    )
+    setup = StringAttr(default="")
+    description = StringAttr(default="")
+    task = StringAttr(default="")
+    challenges = ListAttr(StringAttr(default=""))
+    npcs = ListAttr(StringAttr(default=""))
+    information = ListAttr(StringAttr(default=""))
+    red_herring = StringAttr(default="")
+    stakes = StringAttr(default="")
+    resolution = StringAttr(default="")
+    rewards = StringAttr(default="")
+    associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+
+
 class Quest(AutoModel):
     name = StringAttr(default="")
     description = StringAttr(default="")
-    scenes = ListAttr(DictAttr(default=""))
+    scenes = ListAttr(ReferenceAttr(choices=[Scene]))
     summary = StringAttr(default="")
     rewards = StringAttr(default="")
     contact = ReferenceAttr(choices=["Character"])
     locations = ListAttr(StringAttr(default=""))
     antagonist = StringAttr(default="")
     hook = StringAttr(default="")
-    dramatic_crisis = StringAttr(default="")
-    climax = StringAttr(default="")
     plot_twists = ListAttr(StringAttr(default=""))
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     status = StringAttr(
         default="available", choices=["available", "active", "completed", "failed"]
     )
+
+    funcobj = {
+        "name": "generate_quest",
+        "description": "creates a morally complicated, urgent, situation that player characters can explore for or with the described character. The situation should not have immediate global consequences, but localized consequences for the NPC associated with it.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the situation, which should be intriguing and suggestive",
+                },
+                "rewards": {
+                    "type": "string",
+                    "description": "The reward for completing the situation depending on the outcome, including the specific financial compensation, items, or detailed information that the player characters will receive",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A detailed description of the situation.",
+                },
+                "scenes": {
+                    "type": "array",
+                    "description": "A detailed description of scenes the players may encounter when trying to resolve the situation. For each scene include the setup for the scene, npcs, challenges the players will face in the scene, a detailed description of the scene, and its resolution.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "type",
+                            "setup",
+                            "description",
+                            "npcs",
+                            "challenges",
+                            "information",
+                            "task",
+                            "stakes",
+                            "red_herring",
+                            "resolution",
+                            "rewards",
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "The type of scene. Must be one of the following: social, encounter, combat, investigation, exploration, stealth, or puzzle",
+                            },
+                            "setup": {
+                                "type": "string",
+                                "description": "The initial setup for the scene, including what draws players in",
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "An in depth, detailed summary of the scene, including any important details about the environment, the characters involved, and any other relevant information",
+                            },
+                            "task": {
+                                "type": "string",
+                                "description": "The next specific and concrete task given to or discovered by the players in the scene, including any important details or game mechanics associated with the task",
+                            },
+                            "npcs": {
+                                "type": "array",
+                                "description": "A list of npcs that will be involved in the scene, including their names, descriptions, and any important details about them",
+                                "items": {"type": "string"},
+                            },
+                            "challenges": {
+                                "type": "array",
+                                "description": "A list of challenges that the players will face in the scene, including the gameplay mechanics (skill check, saving throw, etc.) associated with each challenge",
+                                "items": {"type": "string"},
+                            },
+                            "information": {
+                                "type": "array",
+                                "description": "A list of relevant and actionable information players may gain from the scene",
+                                "items": {"type": "string"},
+                            },
+                            "red_herring": {
+                                "type": "string",
+                                "description": "A possible, but relevant, red herring that could come up in the scene to throw the players characters off the trail.",
+                            },
+                            "stakes": {
+                                "type": "string",
+                                "description": "What's at risk immediately if the players characters don't act? What are the consequences of failure in this scene?",
+                            },
+                            "resolution": {
+                                "type": "string",
+                                "description": "The resolution of the scene, including any important details about how the player characters can progress to the next scene or how they can fail",
+                            },
+                            "rewards": {
+                                "type": "string",
+                                "description": "Any specific rewards, items, or information that the players will receive for completing the scene. This should be a specific, concrete reward that the players will receive for completing the scene.",
+                            },
+                        },
+                    },
+                },
+                "summary": {
+                    "type": "string",
+                    "description": "A one sentence summary of the adventure, worded like a job posting to entice player characters to take on the adventure",
+                },
+                "locations": {
+                    "type": "array",
+                    "description": "A list of the locations involved in the adventure, including any important details about each location and its inhabitants",
+                    "items": {"type": "string"},
+                },
+                "antagonist": {
+                    "type": "string",
+                    "description": "Who or what is the main antagonist? What do they want, why? What is their evil plan? Name, appearance, and motivations. ",
+                },
+                "hook": {
+                    "type": "string",
+                    "description": "Describe the complete scene that hooks the player characters into action and gives them the initial task to accomplish.",
+                },
+                "plot_twists": {
+                    "type": "array",
+                    "description": "A list of potential plot twists that may occur during the situation, in the order they should be revealed. An unexpected complication, twist, or reveal that changes the direction of the story, raises stakes and threat level, or redefines the goal.",
+                    "items": {"type": "string"},
+                },
+            },
+        },
+    }
 
     adventure_types = {
         "Exploration/Discovery Adventure": "Generate a TTRPG adventure focused on the players venturing into uncharted or forgotten territory. The core should involve navigating environmental hazards, encountering the unknown (new species, ancient ruins, unique phenomena), and culminating in a significant discovery. Include elements of wonder, mystery, and potential danger from the unfamiliar, requiring the players to overcome obstacles to reach and understand their find. **Vary the scale of the adventure, from a small-scale personal discovery impacting a few individuals or a local community, to a larger-scale find with regional or factional implications, but avoid making it a galactic or world-altering event.**",

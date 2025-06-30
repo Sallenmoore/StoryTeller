@@ -21,6 +21,17 @@ class StarsWithoutNumber(SciFiSystem):
             "Smuggler",
             "Duelist",
         ],
+        "Merchant": [
+            "Shopkeeper",
+            "Innkeeper",
+            "Travelling",
+            "Black Market",
+        ],
+        "General": [
+            "Peasant",
+            "Aristocrat",
+            "Adventurer",
+        ],
     }
 
     _backgrounds = {
