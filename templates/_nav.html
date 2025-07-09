@@ -190,6 +190,25 @@
             {% if user.world_user(obj) %}
             <li>
                 <a href="" class="menu-anchor"
+                   hx-get="/api/{{obj.path}}/stories"
+                   hx-target="#page-content"
+                   hx-indicator="#request-indicator"
+                   hx-swap="innerHTML show:#page-content:top"
+                   hx-push-url="/{{obj.path}}/stories">
+                    <div class="row">
+                        <div class="column is-3 is-mobile-shrink">
+                            <iconify-icon icon="material-symbols:history-edu"
+                                          width="1rem"></iconify-icon>
+                        </div>
+                        <div
+                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                            <span>Stories</span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="" class="menu-anchor"
                    hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/journal">

@@ -104,7 +104,7 @@ def manage(model, pk):
 @auth_required(guest=True)
 def page(model, pk, page=""):
     user = AutoAuth.current_user()
-    session["page"] = f"/{model}/{pk}/{page or 'details'}"
+    session["page"] = f"/{model}/{pk}/{page or 'history'}"
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk
@@ -123,7 +123,6 @@ def page(model, pk, page=""):
 def api(rest_path):
     url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
     response = "<p>You do not have permission to alter this object<p>"
-    # log(request.method)
     user = AutoAuth.current_user()
     if request.method == "GET":
         rest_path = request.path.replace("/api/", "")

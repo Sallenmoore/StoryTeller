@@ -19,7 +19,7 @@ class Encounter(TTRPGObject):
     noncombat_scenario = StringAttr(default="")
 
     LOOT_MULTIPLIER = 3
-    parent_list = ["Location"]
+    parent_list = ["Location", "City", "District", "Region", "Shop"]
     _difficulty_list = [
         "trivial",
         "easy",
@@ -143,27 +143,21 @@ class Encounter(TTRPGObject):
     @property
     def history_prompt(self):
         return f"""
-BEGAN
----
-{self.start_date if self.start_date else "Unknown"}
+{f"BEGAN\n---\n{self.start_date}" if self.start_date else ""}
 
 HISTORY
 ---
-{self.backstory_summary}
-
-EVENTS
----
+{self.backstory}
 """
 
     @property
     def image_prompt(self):
         enemies = [f"- {e.name} ({e.title}) : {e.desc}" for e in self.enemies]
-        enemies_str = {"\n".join(enemies)}
+        enemies_str = "\n".join(enemies)
         return f"""
         A full color illustrated image of the following encounter:
         {self.desc}
-        with the following group preparing for battle:
-        {enemies_str}
+        {f"with the following preparing for battle: \n{enemies_str}" if self.enemies else ""}
         """
 
     @property
@@ -181,31 +175,25 @@ EVENTS
 
     def generate(self):
         enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
-        if self.backstory_summary:
-            backstory_summary = self.backstory_summary
-        elif self.parent and self.parent.backstory_summary:
-            backstory_summary = self.backstory_summary
-        else:
-            backstory_summary = "An unexpected, but highly relevant encounter related to one or more of the party members' backstory"
 
-        players = "".join(
-            [
-                f"\n  -{p.name}: {p.backstory_summary}"
-                for p in self.characters
-                if p.is_player
-            ]
+        backstory = (
+            self.backstory
+            or f"An unexpected, but relevant encounter to the following world storyline: {random.choice(self.world.stories).situation if self.world.stories else 'Trouble is brewing.'}"
         )
+
         desc = ""
-        if self.desc:
-            desc = self.desc
-        elif self.parent and self.parent.desc:
+        if self.parent and self.parent.desc:
             desc = self.parent.desc
+        if self.desc:
+            desc += f"""
+{self.desc}
+"""
+
         prompt = f"""Generate a {self.genre} TTRPG encounter scenario using the following guidelines:
 {f"- LOCATION: {desc}" if desc else ""}
-- SCENARIO: {backstory_summary}
+- SCENARIO: {backstory}
 - DIFFICULTY: {self.difficulty}
 - ENEMY TYPE: {enemy_type}
-- PARTY MEMBERS: {players}
 """
         # log(prompt, _print=True)
         results = super().generate(prompt=prompt)

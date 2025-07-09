@@ -319,7 +319,6 @@ EVENTS
         prompt += f"""
 Use and expand on the existing object data listed below for the {self.title} object:
 {"- Name: " + self.name if self.name.strip() else ""}
-{"- Theme: " + self.traits if self.traits else ""}
 {"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
@@ -331,7 +330,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
   - Genre: {self.genre}
   - World Details: {self.get_world().backstory}
   - Relevant World Events:
-    - {"\n    - ".join(self.get_world().stories) if self.get_world().stories else "N/A"}
+    - {"\n    - ".join([s.situation for s in self.get_world().stories]) if self.get_world().stories else "N/A"}
   - Geographic Details:
 """
 
@@ -373,7 +372,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
         else:
             log(results, _print=True)
         self.resummarize()
-        self.update_system_references(self.pk)
         return results
 
     ############# Boolean Methods #############
@@ -403,17 +401,12 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_image
     def generate_image(self):
-        prompt = f"""Set in the year {self.get_world().current_date}.
-
-{self.image_prompt}
-"""
-
-        if image := Image.generate(prompt=prompt, tags=self.image_tags):
+        if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
             self.image = image
             self.image.save()
             self.save()
         else:
-            log(prompt, "Image generation failed.", _print=True)
+            log(self.image_prompt, "Image generation failed.", _print=True)
         return self.image
 
     ############# Association Methods #############
@@ -430,6 +423,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
             self.associations += [obj]
             self.save()
         # log(len(self.associations), obj in self.associations)
+        if not obj.parent and obj.in_parent_list(self):
+            obj.parent = self
+            obj.save()
         return obj
 
     def add_associations(self, objs):
@@ -438,7 +434,16 @@ Use and expand on the existing object data listed below for the {self.title} obj
         return self.associations
 
     def remove_association(self, obj):
-        if obj in self.associations:
+        # log(f"Removing association: {obj in self.associations}", _print=True)
+        # log(f"Associations: {obj} {self.associations}", _print=True)
+        if obj.parent == self:
+            # log(f"Removing parent association: {obj} from {self}", _print=True)
+            obj.parent = None
+            obj.save()
+        elif self.parent == obj:
+            self.parent = None
+            self.save()
+        elif obj in self.associations:
             self.associations.remove(obj)
             self.save()
             obj.remove_association(self)
@@ -455,7 +460,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
     ########## Object Data ######################
     # MARK: History
     def resummarize(self, upload=False):
-        from models.ttrpgobject.quest import Quest
+        from models.stories.quest import Quest
 
         self.history = "Generating... please refresh the page in a few seconds."
         self.save()
@@ -490,7 +495,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
             markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
         )
         self.save()
-        self.get_world().update_system_references(self.pk)
 
     def get_title(self, model):
         if inspect.isclass(model):

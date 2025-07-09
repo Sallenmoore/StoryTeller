@@ -18,6 +18,7 @@ from models.campaign.campaign import Campaign
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
+from models.stories.story import Story
 from models.systems import (
     FantasySystem,
     HardboiledSystem,
@@ -49,7 +50,7 @@ class World(TTRPGBase):
     map = ReferenceAttr(choices=["Image"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
-    stories = ListAttr(StringAttr(default=""))
+    stories = ListAttr(ReferenceAttr(choices=["Story"]))
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -139,24 +140,23 @@ class World(TTRPGBase):
         )
         requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{f.path}")
         requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{c.path}")
-        cls.update_system_references(world.pk)
         return world
 
-    @classmethod
-    def update_system_references(cls, pk):
-        if obj := cls.get(pk):
-            world_data = obj.page_data()
-            obj.system.text_agent.get_client().clear_files()
-            ref_db = json.dumps(world_data).encode("utf-8")
-            obj.system.text_agent.attach_file(
-                ref_db, filename=f"{obj.slug}-dbdata.json"
-            )
+    # @classmethod
+    # def update_system_references(cls, pk):
+    #     if obj := cls.get(pk):
+    #         world_data = obj.page_data()
+    #         obj.system.text_agent.get_client().clear_files()
+    #         ref_db = json.dumps(world_data).encode("utf-8")
+    #         obj.system.text_agent.attach_file(
+    #             ref_db, filename=f"{obj.slug}-dbdata.json"
+    #         )
 
-            obj.system.json_agent.get_client().clear_files()
-            ref_db = json.dumps(world_data).encode("utf-8")
-            obj.system.json_agent.attach_file(
-                ref_db, filename=f"{obj.slug}-dbdata.json"
-            )
+    #         obj.system.json_agent.get_client().clear_files()
+    #         ref_db = json.dumps(world_data).encode("utf-8")
+    #         obj.system.json_agent.attach_file(
+    #             ref_db, filename=f"{obj.slug}-dbdata.json"
+    #         )
 
     ############################ PROPERTIES ############################
     @property
@@ -434,6 +434,14 @@ class World(TTRPGBase):
         document.pre_save_system()
         document.pre_save_map()
         document.pre_save_current_date()
+
+        ##### MIGRATION #####
+        stories = []
+        for story in document.stories:
+            if isinstance(story, Story):
+                stories.append(story)
+
+        document.stories = stories
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):

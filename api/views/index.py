@@ -14,8 +14,9 @@ from jinja2 import TemplateNotFound
 
 from autonomous import log
 from models.campaign.campaign import Campaign
+from models.stories.quest import Quest  # for the importer
+from models.stories.story import Story
 from models.ttrpgobject.encounter import Encounter
-from models.ttrpgobject.quest import Quest  # for the importer
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -169,6 +170,26 @@ def worldcalendar(pk):
 
 
 @index_endpoint.route(
+    "/world/<string:pk>/stories/manage",
+    methods=("GET", "POST"),
+)
+@index_endpoint.route(
+    "/world/<string:pk>/stories/<string:storypk>",
+    methods=("GET", "POST"),
+)
+def storymanage(pk, storypk=None):
+    user, obj, world, *_ = _loader()
+    if user.world_user(world):
+        results = requests.post(
+            f"http://api:{os.environ.get('COMM_PORT')}/stories/{storypk if storypk else ''}",
+            json={"user": str(user.pk), "model": obj.model_name(), "pk": str(obj.pk)},
+        )
+        # log(results.text)
+        return results.text
+    return "Unauthorized"
+
+
+@index_endpoint.route(
     "/world/<string:pk>/campaigns/manage",
     methods=("GET", "POST"),
 )
@@ -259,6 +280,34 @@ def campaigns(
     )
 
 
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/stories/<string:storypk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/stories",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def stories(
+    model,
+    pk,
+    storypk=None,
+):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    story = None
+    if storypk:
+        story = Story.get(storypk)
+    elif request.method == "POST":
+        story = Story.get(request.json.get("storypk"))
+    return get_template_attribute("shared/_stories.html", "stories")(user, obj, story)
+
+
 # MARK: Association routes
 ###########################################################
 ##                    Association Routes                 ##
@@ -272,11 +321,13 @@ def campaigns(
 )
 def associations(model, pk, modelstr=None):
     user, obj, *_ = _loader(model=model, pk=pk)
+    log(modelstr)
     associations = [
         o
         for o in obj.associations
         if not modelstr or modelstr.lower() == o.model_name().lower()
     ]
+    log(associations)
     args = dict(request.args) if request.method == "GET" else request.json
     if filter_str := args.get("filter"):
         associations = [o for o in associations if filter_str.lower() in o.name.lower()]
@@ -290,17 +341,6 @@ def associations(model, pk, modelstr=None):
         elif sort_str.lower() == "parent":
             associations = [o for o in associations if not o.parent]
 
-    # cleaned_associations = []
-    # for a in associations:
-    #     try:
-    #         a.save()
-    #     except Exception as e:
-    #         log(e)
-    #     else:
-    #         cleaned_associations += [a]
-    # associations = cleaned_associations
-    # obj.associations = associations
-    # obj.save()
     return get_template_attribute("shared/_associations.html", "associations")(
         user, obj, associations
     )

@@ -9,13 +9,14 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.base.actor import Actor
-from models.ttrpgobject.quest import Scene
+from models.stories.quest import Scene
 
 
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
+    rumors = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
 
     parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
@@ -83,6 +84,11 @@ class Character(Actor):
                     "type": "string",
                     "description": "The NPC's profession or daily occupation",
                 },
+                "rumors": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of 3 rumors the NPC knows about an existing storyline or world event",
+                },
             },
         },
     }
@@ -140,98 +146,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
         result = super().generate(prompt=prompt)
 
-        self.generate_quest()
-
         return result
-
-    def generate_quest(self, extra_prompt=""):
-        from models.ttrpgobject.quest import Quest
-
-        prompt = f"""Generate a situation for a sandbox style {self.genre} Table Top RPG.  The situation tells a complete story that is not what it first appears to be and is challenging for the player characters to overcome. The situation can involve a mix of encounter types, such as Combat, Social, Exploration, and Stealth. The situation is brought to the players' attention by or with the character named {self.name} who is described as: {self.backstory}.
-
-        The initiating npc also has the following goals, which may or may not play into the adventure: {self.goal}.
-"""
-
-        parent = self.parent
-        if parent:
-            prompt += f"""
-The situation should start in {parent.name} and should include the following world elements:
-LOCATION: {parent.backstory}.
-"""
-            while parent.parent:
-                parent = parent.parent
-                prompt += f"""Which is located in:
-        {parent.name} [{parent.title}]: {parent.backstory_summary}.
-"""
-        prompt += "\nADDITIONAL ELEMENTS:\n"
-        for ass in self.associations:
-            if ass not in self.geneology:
-                prompt += f"""
-        {ass.name} [{ass.title}]: {ass.backstory_summary}
-"""
-        if extra_prompt:
-            prompt += f"\n\nUse the following prompt to design the situation:\n\n{extra_prompt}"
-        else:
-            adventure_type = random.choice(list(Quest.adventure_types.keys()))
-            prompt += f"""\n\nUse the following prompt to design the situation:
-Situation Type: {adventure_type}
-{Quest.adventure_types[adventure_type]}
-"""
-
-        primer = "You are an expert AI Table Top RPG Situation Generator. You will be provided with a character and a location. Generate a situation that is connected to the character's backstory, world events, and has a clearly defined story arc."
-        log(prompt, _print=True)
-        results = self.system.generate_json(prompt, primer, Quest.funcobj)
-        # log(results, _print=True)
-        self.add_quest(**results)
-
-    def add_quest(
-        self,
-        name,
-        description,
-        summary,
-        rewards,
-        locations,
-        antagonist,
-        hook,
-        plot_twists,
-        scenes,
-    ):
-        from models.ttrpgobject.quest import Quest
-
-        description = (
-            markdown.markdown(description.replace("```markdown", "").replace("```", ""))
-            .replace("h1>", "h3>")
-            .replace("h2>", "h3>")
-        )
-        antagonist = (
-            markdown.markdown(antagonist.replace("```markdown", "").replace("```", ""))
-            .replace("h1>", "h3>")
-            .replace("h2>", "h3>")
-        )
-
-        q = Quest(
-            name=name,
-            rewards=rewards,
-            description=description,
-            summary=summary,
-            contact=self,
-            locations=locations,
-            antagonist=antagonist,
-            hook=hook,
-            plot_twists=plot_twists,
-        )
-        for scene in scenes:
-            new_scene = Scene(**scene)
-            new_scene.save()
-            q.scenes += [new_scene]
-        q.save()
-        self.quests += [q]
-        self.save()
-
-    def remove_quest(self, quest):
-        self.quests = [q for q in self.quests if q != quest]
-        self.save()
-        quest.delete()
 
     ############################# Object Data #############################
     ## MARK: Object Data

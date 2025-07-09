@@ -14,6 +14,16 @@
         </a>
     </div>
 </div>
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <button class="button is-primary"
+                hx-post="/task/generate/{{entry.pk}}/quest/create"
+                hx-target="#page-content"
+                hx-indicator='#request-indicator'>
+            Generate Quest
+        </button>
+    </div>
+</div>
 <form id="quest-entry-form" hx-post="/api/manage/quest/{{entry.pk}}/update"
       hx-target="#page-content"
       hx-indicator='#request-indicator' hx-swap='none'
@@ -35,75 +45,112 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Summary</h5>
-            {{form_components.texteditor(user, entry, 'summary')}}
-        </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Hook</h5>
-            {{form_components.texteditor(user, entry, 'hook')}}
-        </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Dramatic Crises</h5>
-            {{form_components.texteditor(user, entry, 'dramatic_crisis')}}
-        </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Antagonist</h5>
-            {{form_components.texteditor(user, entry, 'antagonist')}}
-        </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Locations</h5>
-            {{form_components.listeditor(user, entry, 'locations')}}
-        </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Plot Twists</h5>
-            {{form_components.listeditor(user, entry, 'plot_twists')}}
+        <div class="column is-full">
+            <h5 class='has-text-center'>Storyline</h5>
+            <div class="panel">
+                {{entry.storyline.name}}:{{entry.storyline.situation | safe}}
+            </div>
         </div>
         <div class="column is-full">
             <h5 class='has-text-center'>Description</h5>
             {{form_components.texteditor(user, entry, 'description')}}
-        </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Scenes</h5>
-            {% for scene in entry.scenes %}
-            <div class="panel">
-                <h6 class='has-text-center'>Type</h6>
-                {{form_components.texteditor(user, scene, 'type')}}
-                <h6 class='has-text-center'>Setup</h6>
-                {{form_components.texteditor(user, scene, 'setup')}}
-                <h6 class='has-text-center'>Description</h6>
-                {{form_components.texteditor(user, scene, 'description')}}
-                <h6 class='has-text-center'>Tasks</h6>
-                {{form_components.texteditor(user, scene, 'task')}}
-                <h6 class='has-text-center'>Challenges</h6>
-                {{form_components.listeditor(user, scene, 'challenges')}}
-                <h6 class='has-text-center'>Npcs</h6>
-                {{form_components.listeditor(user, scene, 'npcs')}}
-                <h6 class='has-text-center'>Information</h6>
-                {{form_components.listeditor(user, scene, 'information')}}
-                <h6 class='has-text-center'>Encounters</h6>
-                {{form_components.listeditor(user, scene, 'encounters')}}
-                <h6 class='has-text-center'>Red Herring</h6>
-                {{form_components.texteditor(user, scene, 'red_herring')}}
-                <h6 class='has-text-center'>Resolution</h6>
-                {{form_components.texteditor(user, scene, 'resolution')}}
-                <h6 class='has-text-center'>Rewards</h6>
-                {{form_components.texteditor(user, scene, 'rewards')}}
-            </div>
             <hr>
-            {% endfor %}
+        </div>
+        <div class="column is-half">
+            <h5 class='has-text-center'>Summary</h5>
+            <textarea class="has-bg-muted" name="summary" rows="3">{{entry.summary}}</textarea>
+        </div>
+        <div class="column is-half">
+            <h5 class='has-text-center'>Hook</h5>
+            <textarea class="has-bg-muted" name="hook" rows="3">{{entry.hook}}</textarea>
         </div>
         <div class="column is-full">
-            <h5 class='has-text-center'>Climax</h5>
-            {{form_components.texteditor(user, entry, 'climax')}}
+            <h5 class='has-text-center'>Antagonist</h5>
+            <textarea class="has-bg-muted" name="antagonist"
+                      rows="3">{{entry.antagonist}}</textarea>
+        </div>
+        <div class="column is-full">
+            <h5 class='has-text-center'>Plot Twists</h5>
+            <div class="row">
+                {% for plot_twist in entry.plot_twists %}
+                <div class="column">
+                    <textarea class="has-bg-muted" name="plot_twists[]"
+                              rows="3">{{plot_twist}}</textarea>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         <div class="column is-full">
             <h5 class='has-text-center'>Rewards</h5>
-            {{form_components.texteditor(user, entry, 'rewards')}}
+            <textarea class="has-bg-muted" name="rewards"
+                      rows="3">{{entry.rewards}}</textarea>
         </div>
     </div>
-    <hr>
 </form>
+<hr>
+<div class="row has-centered">
+    <div class="column is-full">
+        <h5 class='has-text-center'>Scenes</h5>
+        {% for scene in entry.scenes %}
+        <div class="panel">
+            <form hx-post="/api/manage/quest/scene/{{scene.pk}}/update"
+                  hx-indicator='#request-indicator' hx-swap='none'
+                  hx-trigger='input delay:750ms, change'>
+                <h6 class='has-text-center'>Type</h6>
+                <input type="text" name="type" value="{{scene.type}}">
+                <div class="row">
+                    <div class="column">
+                        <h6 class='has-text-center'>Setup</h6>
+                        <textarea class="has-bg-muted" name="setup"
+                                  rows="3">{{scene.setup}}</textarea>
+                    </div>
+                    <div class="column">
+                        <h6 class='has-text-center'>Task</h6>
+                        <textarea class="has-bg-muted" name="task"
+                                  rows="3">{{scene.task}}</textarea>
+                    </div>
+                </div>
+                <h6 class='has-text-center'>Information</h6>
+                <div class="row">
+                    {% for info in scene.information %}
+                    <div class="column">
+                        <textarea class="has-bg-muted" name="information[]"
+                                  rows="3">{{info}}</textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+                <h6 class='has-text-center'>Description</h6>
+                <textarea class="has-bg-muted" name="description"
+                          rows="3">{{scene.description}}</textarea>
+
+                <h6 class='has-text-center'>Challenges</h6>
+                <div class="row">
+                    {% for challenge in scene.challenges %}
+                    <div class="column">
+                        <textarea class="has-bg-muted" name="challenges[]"
+                                  rows="3">{{challenge}}</textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+                <h6 class='has-text-center'>Npcs</h6>
+                <div class="row">
+                    {% for npc in scene.npcs %}
+                    <div class="column">
+                        <textarea class="has-bg-muted" name="npcs[]"
+                                  rows="3">{{npc}}</textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+                <h6 class='has-text-center'>Resolution</h6>
+                <textarea class="has-bg-muted" name="resolution"
+                          rows="3">{{scene.resolution}}</textarea>
+            </form>
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</div>
+<hr>
 <div class="row">
     <div class="column is-full">
         <h3 class="has-text-center">Add Associations</h3>
@@ -121,8 +168,16 @@
         <div class="panel has-bg-light-grey is-small">
             <div class="row has-space-around" id="quest-entry-associations">
                 {% for a in entry.associations %}
-                <div class="column is-1">
+                <div class="column is-1" style="position: relative;">
                     {{display_components.object_display(a)}}
+                    <a style='position: absolute; top: 0; right: 5px;'
+                       hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
+                       hx-target="closest .column"
+                       hx-swap="delete"
+                       hx-indicator='#request-indicator'>
+                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                      width="1rem"></iconify-icon>
+                    </a>
                 </div>
                 {% endfor %}
             </div>

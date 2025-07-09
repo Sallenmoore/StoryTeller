@@ -93,61 +93,113 @@
     </div>
 </div>
 <hr>
-<div id="associated-objects" class="row has-space-around">
-    {% for a in associations %}
-    <div
-         class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
-        <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
-             style='height:100%;'>
-            {{element.object_display(a)}}
-            {% if 'World' not in [obj.model_name(), a.model_name()] %}
-            <div class="row has-space-around">
-                {% if obj.model_name() in a.parent_list and obj != a.parent %}
-                <div class="column is-3 is-mobile-shrink has-text-center">
-                    <button class="button is-small is-primary"
-                            hx-post="/api/manage/parent/{{a.path}}"
-                            hx-target="#associated-objects"
-                            hx-select="#associated-objects"
-                            hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                            hx-indicator='#request-indicator'>
-                        <iconify-icon icon="material-symbols:move-down" width="1rem"
-                                      height="1rem"></iconify-icon>
-                        <span style="font-size:0.5rem">is child</span>
-                    </button>
-                </div>
-                {% endif %}
-                {% if a.model_name() in obj.parent_list and a != obj.parent%}
-                <div class="column is-3 is-mobile-shrink has-text-center">
-                    <button class="button is-small is-primary"
-                            hx-post="/api/manage/child/{{a.path}}"
-                            hx-target="#associated-objects"
-                            hx-select="#associated-objects"
-                            hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                            hx-indicator='#request-indicator'>
-                        <iconify-icon icon="codicon:type-hierarchy-sub" width="1rem"
-                                      height="1rem"></iconify-icon>
-                        <span style="font-size:0.5rem">is parent</span>
-                    </button>
-                </div>
-                {% endif %}
-                <div class="column is-3 is-mobile-shrink has-text-center">
-                    <button class="button is-small is-primary"
-                            hx-post="/api/manage/unassociate/{{a.path}}"
-                            hx-target="#associated-objects"
-                            hx-select="#associated-objects"
-                            hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                            hx-indicator='#request-indicator'>
-                        <iconify-icon icon="pixelarticons:unlink" width="1rem"
-                                      height="1rem"></iconify-icon>
-                        <span style="font-size:0.5rem">Unlink</span>
-                    </button>
+<div id='associations-container'>
+    {% if obj.model_name() != "World"%}
+    <div id="related-objects" class="row has-space-around">
+        <div class="column is-3 is-mobile-6 is-desktop-2 card-container has-bg-black">
+            <div class="panel has-bg-black" style='height:100%;'>
+                {{element.object_display(obj.parent)}}
+                <div class="row has-space-around">
+                    <div class="column is-3 is-mobile-shrink has-text-center">
+                        <button class="button is-small is-primary"
+                                hx-post="/api/manage/unassociate/{{obj.parent.path}}"
+                                hx-target="#associations-container"
+                                hx-select="#associations-container"
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                                          height="1rem"></iconify-icon>
+                            <span style="font-size:0.5rem">Unlink</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
+        {% for a in obj.children %}
+        <div
+             class="column is-3 is-mobile-6 is-desktop-2 card-container
+                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
+            <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
+                 style='height:100%;'>
+                {{element.object_display(a)}}
+                {% if 'World' not in [obj.model_name(), a.model_name()] %}
+                <div class="row has-space-around">
+                    <div class="column is-3 is-mobile-shrink has-text-center">
+                        <button class="button is-small is-primary"
+                                hx-post="/api/manage/unassociate/{{a.path}}"
+                                hx-target="#associations-container"
+                                hx-select="#associations-container"
+                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                                          height="1rem"></iconify-icon>
+                            <span style="font-size:0.5rem">Unlink</span>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% endif%}
+    <div id="associated-objects" class="row has-space-around">
+        {% for a in associations %}
+        {% if a.parent != obj and obj.parent != a %}
+        <div
+             class="column is-3 is-mobile-6 is-desktop-2 card-container
+                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
+            <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
+                 style='height:100%;'>
+                {{element.object_display(a)}}
+                {% if 'World' not in [obj.model_name(), a.model_name()] %}
+                <div class="row has-space-around">
+                    {% if obj.model_name() in a.parent_list and obj != a.parent %}
+                    <div class="column is-3 is-mobile-shrink has-text-center">
+                        <button class="button is-small is-primary"
+                                hx-post="/api/manage/parent/{{a.path}}"
+                                hx-target="#associations-container"
+                                hx-select="#associations-container"
+                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="material-symbols:move-down" width="1rem"
+                                          height="1rem"></iconify-icon>
+                            <span style="font-size:0.5rem">is child</span>
+                        </button>
+                    </div>
+                    {% endif %}
+                    {% if a.model_name() in obj.parent_list and a != obj.parent%}
+                    <div class="column is-3 is-mobile-shrink has-text-center">
+                        <button class="button is-small is-primary"
+                                hx-post="/api/manage/child/{{a.path}}"
+                                hx-target="#associations-container"
+                                hx-select="#associations-container"
+                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="codicon:type-hierarchy-sub" width="1rem"
+                                          height="1rem"></iconify-icon>
+                            <span style="font-size:0.5rem">is parent</span>
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="column is-3 is-mobile-shrink has-text-center">
+                        <button class="button is-small is-primary"
+                                hx-post="/api/manage/unassociate/{{a.path}}"
+                                hx-target="#associations-container"
+                                hx-select="#associations-container"
+                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                hx-indicator='#request-indicator'>
+                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
+                                          height="1rem"></iconify-icon>
+                            <span style="font-size:0.5rem">Unlink</span>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
 </div>
 {%- endmacro %}
 

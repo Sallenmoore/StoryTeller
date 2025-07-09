@@ -250,45 +250,34 @@ class BaseSystem(AutoModel):
     }
 
     _map_prompts = {
-        "city": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be detailed and include the following elements:
-- MAP TYPE: A detailed layout of the {obj.title}, including key locations, points of interest, and districts
-- STYLE: Czepeku
+        "city": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image:
+- MAP TYPE: A top-down atlas of the {obj.title}
 - SCALE: 1 inch == 500 feet
-{"- DESCRIPTION: " + obj.description if obj.description else ""}
-{"- POINTS OF INTEREST: " + ",".join([poi.name for poi in [*obj.districts, *obj.locations] if poi.name]) if [poi.name for poi in obj.districts if poi.name] else ""}
 """,
-        "region": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG  in a location with the following description: {obj.description_summary}. The map should be detailed and include the following elements:
-- STYLE: Czepeku
-- MAP TYPE: top-down navigation map with key cities, locations, and pois marked
+        "region": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title}  that fills the entire image:
+- MAP TYPE: A top-down atlas of the {obj.title}
 - SCALE: 1 inch == 50 miles
-{"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "world": lambda obj: f"""Generate a top-down map of a {obj.title} suitable for a {obj.genre} tabletop RPG in a {obj.title} with the following description: {obj.description_summary}. The map should be detailed and include the following elements:
-- STYLE: Czepeku
-- MAP TYPE: Directly overhead, top-down atlas style map of the {obj.title}
+        "world": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image:
+- MAP TYPE: A top-down atlas of the {obj.title}
 - SCALE: 1 inch == 500 miles
-{"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
-- STYLE: Czepeku
+        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG  map of an establishment suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
-- STYLE: Czepeku
+        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG battlemap of an establishment suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
-- STYLE: Czepeku
+        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "vehicle": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of the floor plan of a {obj.type} with the following description: {obj.description_summary}. The map should be detailed enough for players to clearly understand how to navigate the environment and include the following elements:
-- STYLE: Czepeku
+        "vehicle": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of the floor plan of a {obj.type} with the following description: {obj.description_summary}. The map should  fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
 - MAP TYPE: directly overhead, top-down
 - SCALE: 1 inch == 5 feet
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
@@ -525,11 +514,11 @@ class BaseSystem(AutoModel):
     def instructions(self):
         return f"""You are highly skilled and creative AI trained to assist completing the object data for a {self._genre} Table Top RPG. The existing data is provided as structured JSON data describing the schema for characters, creatures, items, locations, encounters, and storylines. You should rephrase and expand on the object's existing data where appropriate, but not ignore it.
 
-        Use the uploaded file to reference existing world objects and their existing connections while generating creative new data to expand the world. While the new enitity should be unique, there should also be appropriate connections to one or more existing elements in the world as described by the uploaded file."""
+        While the new enitity should be unique, there should also be appropriate connections to one or more existing elements in the world as described."""
 
     @property
     def description(self):
-        return f"A helpful AI assistant trained to return structured JSON data for help in world-building a consistent, mysterious, and dangerous universe as the setting for a series of {self._genre} TTRPG campaigns."
+        return f"A helpful AI assistant trained to return structured JSON data for help in world-building a consistent, mysterious, and dangerous universe as the setting for a series of {self._genre} TTRPG Sandbox campaigns."
 
     @property
     def classes(self):
@@ -601,7 +590,7 @@ class BaseSystem(AutoModel):
     ############# Generation Methods #############
 
     def generate(self, obj, prompt, funcobj):
-        additional = f"\n\nIMPORTANT: The generated data must be new, unique, consistent with, and connected to the world data described by the uploaded reference file. If existing data is present in the object, expand on the {obj.title} data by adding greater specificity where possible, while ensuring the original concept remains unchanged. The result must be in VALID JSON format."
+        additional = f"\n\nIMPORTANT: The generated data must be new, unique, consistent with, and connected to the world data described. If existing data is present in the object, expand on the {obj.title} data by adding greater specificity where possible, while ensuring the original concept remains unchanged. The result must be in VALID JSON format."
         prompt = self.sanitize(prompt)
         log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         log(f"=== generation function ===\n\n{funcobj}", _print=True)

@@ -67,7 +67,7 @@ BACKSTORY
 
     ################### CRUD Methods #####################
     def generate(self):
-        prompt = f"""Create a {random.choice(["dangerous", "evil", "misunderstood", "manipulative", "mindless"])} {self.genre} {self.type} antagonist type with a {random.choice(("unexpected", "mysterious", "sinister", "selfish"))} goal they are working toward.
+        prompt = f"""Generate detailed data for a common antagonistic {self.type} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual.
         """
         return super().generate(prompt=prompt)
 

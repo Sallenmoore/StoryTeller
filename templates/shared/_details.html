@@ -54,20 +54,20 @@
 <div class="panel has-bg-dark generated-text-darkbg">
     <h3 class='has-text-center'>GM Notes</h3>
     <div class="row">
-        <div class="column is-4">
+        <div class="column is-full">
             <h5>Summary</h5>
             <div class="panel">
                 {{obj.description_summary | safe}}
             </div>
         </div>
         {% if obj.model_name() in ['Region', 'City', 'District', 'Location'] %}
-        <div class="column is-4">
+        <div class="column is-full">
             <h5>Atmosphere</h5>
             <div class="panel">
                 {{obj.general_atmosphere | safe}}
             </div>
         </div>
-        <div class="column is-4">
+        <div class="column is-full">
             <h5>Sensory Details</h5>
             <div class="panel">
                 <ul>
@@ -110,6 +110,7 @@
                 {{obj.voice_description | safe}}
             </div>
         </div>
+        {% if obj.quests %}
         <div class="column is-full">
             <h5>Hooks</h5>
             <div class="panel">
@@ -119,6 +120,19 @@
                         {{ q.summary | safe }}
                         <hr class='has-bg-primary'>
                         {{ q.hook | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        <div class="column is-full">
+            <h5>Rumors</h5>
+            <div class="panel">
+                <ul>
+                    {% for r in obj.rumors %}
+                    <li>
+                        {{ r | safe }}
                     </li>
                     {% endfor %}
                 </ul>

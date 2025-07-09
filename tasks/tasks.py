@@ -8,6 +8,7 @@ from autonomous.tasks import AutoTasks
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
+from models.stories.quest import Quest
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -15,7 +16,6 @@ from models.ttrpgobject.district import District
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
-from models.ttrpgobject.quest import Quest
 from models.ttrpgobject.region import Region
 from models.ttrpgobject.vehicle import Vehicle
 from models.user import User
@@ -51,7 +51,6 @@ def _generate_history_task(model, pk):
 
 def _generate_image_task(model, pk):
     if obj := World.get_model(model, pk):
-        obj.resummarize()
         obj.generate_image()
     return {"url": f"/api/{obj.path}/details"}
 
@@ -86,7 +85,7 @@ def _generate_dungeon_task(model, pk):
     return {"url": f"/api/{obj.path}/map"}
 
 
-def _generate_quest_task(pk, prompt=""):
-    obj = Character.get(pk)
-    obj.generate_quest(prompt)
-    return {"url": f"/api/{obj.path}/quests"}
+def _generate_quest_task(pk):
+    obj = Quest.get(pk)
+    obj.generate_quest()
+    return {"url": f"/api/{obj.contact.path}/quests"}

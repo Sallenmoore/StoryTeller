@@ -7,6 +7,7 @@
 import random
 
 import dmtoolkit
+import markdown
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
@@ -132,9 +133,10 @@ def gmscreenarearemove(screenpk, areapk):
 )
 def gmscreennote(screenpk, areapk):
     gm_screen_area = GMScreenNote.get(areapk)
-    gm_screen_area.note = request.json.get("note")
+    gm_screen_area.text_type = request.json.get("text_type") or gm_screen_area.text_type
+    gm_screen_area.note = request.json.get("note", "").strip() or gm_screen_area.note
+    gm_screen_area.text_type = request.json.get("text_type") or gm_screen_area.text_type
     gm_screen_area.save()
-    log(gm_screen_area.note)
     return gm_screen_area.area()
 
 

@@ -26,17 +26,6 @@ class TTRPGObject(TTRPGBase):
         "events": [],
     }
 
-    @classmethod
-    def update_system_references(cls, pk):
-        # log(f"Updating AI reference data for ({cls}:{pk})...")
-        try:
-            from models.world import World
-
-            return cls().get(pk).world.update_system_references(pk)
-        except Exception as e:
-            log(e, cls, "Object has no world")
-            return False
-
     @property
     def calendar(self):
         return self.world.calendar
@@ -108,6 +97,11 @@ class TTRPGObject(TTRPGBase):
         return [a for a in self.associations if a.model_name() == "Shop"]
 
     @property
+    def stories(self):
+        stories = [s for s in self.get_world().stories if self in s.associations]
+        return stories
+
+    @property
     def system(self):
         return self.get_world().system
 
@@ -135,6 +129,9 @@ class TTRPGObject(TTRPGBase):
         except Exception as e:
             log(e, self, "Object has no world")
             raise e
+
+    def in_parent_list(self, obj):
+        return obj.model_name() in self.parent_list
 
     ########## Object Data ######################
     def get_world(self):

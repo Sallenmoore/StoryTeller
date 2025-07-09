@@ -189,15 +189,7 @@ def create_app():
 
     @app.route("/generate/<string:pk>/quest/create", methods=("POST",))
     def create_quest(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_quest_task,
-                pk=pk,
-                prompt=request.json.get("prompt"),
-            )
-            .result
-        )
+        task = AutoTasks().task(tasks._generate_quest_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     return app

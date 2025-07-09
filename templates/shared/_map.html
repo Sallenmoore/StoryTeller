@@ -25,38 +25,31 @@
                                 <iconify-icon icon="tabler:refresh"></iconify-icon>
                                 Reset Prompt
                 </button>
-            </div>
-        </div>
-        <div class="row">
-            {% if obj.backstory_summary %}
-            <div class="column">
-                <button class="button is-full is-primary"
-                        hx-post="/task/generate/map/{{obj.path}}"
-                        hx-target="closest .column"
-                        hx-confirm="Are you sure you want to generate and overwrite the current map?">
-                    <iconify-icon icon="tabler:photo-ai"></iconify-icon>
-                    AI Generated Image
-                </button>
-            </div>
-            {% else %}
-            <div class="column is-shrink is-vertically-centered">
-                <button class="button" class="button is-primary"
-                hx-post="/task/generate/history/{{obj.path}}"
-                hx-target="closest .column">
-                    Update History
-                </button>
-                <small style=' color:darkred'>The {{obj.title}} must have a history to generate a
-                    map</small>
-            </div>
-            {% endif %}
-            <div class="column">
-                <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
-                        hx-target="#map-container"
-                        hx-swap="innerHTML show:#map-container:bottom"
-                        hx-indicator='#request-indicator'>
-                    <iconify-icon icon="game-icons:card-random"></iconify-icon>
-                    Select From Gallery
-                </button>
+                {% if obj.backstory_summary %}
+                    <button class="button is-full is-primary"
+                            hx-post="/task/generate/map/{{obj.path}}"
+                            hx-target="closest .column"
+                            hx-confirm="Are you sure you want to generate and overwrite the current map?">
+                        <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+                        AI Generated Image
+                    </button>
+                {% else %}
+                    <button class="button" class="button is-primary"
+                            hx-post="/task/generate/history/{{obj.path}}"
+                            hx-target="closest .column">
+                        Update History
+                    </button>
+                    <small style=' color:darkred'>The {{obj.title}} must have a history to generate
+                    a map </small>
+                    {% endif %}
+                    <hr>
+                    <button class="button is-full is-primary" hx-post="/api/manage/map/gallery"
+                            hx-target="#map-container"
+                            hx-swap="innerHTML show:#map-container:bottom"
+                            hx-indicator='#request-indicator'>
+                        <iconify-icon icon="game-icons:card-random"></iconify-icon>
+                        Select From Gallery
+                    </button>
             </div>
         </div>
         <hr class="has-bg-primary">
@@ -69,9 +62,7 @@
                         <div class="column is-shrink">
                             <button class="button is-primary is-small" type="submit">
                                 <iconify-icon icon="lucide:link"></iconify-icon>
-                                Upload
-                                from
-                                URL
+                                Upload from URL
                             </button>
                         </div>
                         <div class="column">
@@ -80,6 +71,27 @@
                                        type="url" name="map"
                                        placeholder="enter url....">
                             </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="column">
+                <form hx-post="/api/manage/map/file/upload" enctype="multipart/form-data"
+                      hx-encoding='multipart/form-data'
+                      hx-select='#map-container'
+                      hx-target="#map-container"
+                      hx-swap="outerHTML show:#map-container:bottom"
+                      hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                    <div class="row">
+                        <div class="column is-shrink">
+                            <button class="button is-primary is-small" type="submit">
+                                <iconify-icon icon="lucide:file"></iconify-icon>
+                                Upload from File
+                            </button>
+                        </div>
+                        <div class="column">
+                            <input class="has-bg-muted has-text-secondary" type="file"
+                                   name="map" required>
                         </div>
                     </div>
                 </form>
@@ -136,13 +148,22 @@
                 L.imageOverlay('{{obj.map.url()}}', imageBounds).addTo(map);
                 map.fitBounds(imageBounds);
 
-                function createMarker(lat, lng, id) {
+                function createMarker(lat, lng, id, name, image) {
                     if (lat == '-1' || lng == '-1') {
                         lat = mapheight / 2;
                         lng = mapwidth / 2;
                     }
+                    let icon = L.divIcon({
+                        html: `<div style='position:relative'>
+                        <img src="${image}">
+                        <h6 style="color: white; font-size: 10px; margin: 0; white-space: nowrap;
+               font-weight: bold;
+               text-align: center;">${name}</h6></div>`, iconSize: [50, 50]
+                    });
                     let marker = L.marker([parseFloat(lat), parseFloat(lng)], {
-                        draggable: true
+                        draggable: true,
+                        riseOnHover: true,
+                        icon: icon
                     }).addTo(map);
 
                     marker.on('dragend', function (e) {
@@ -180,8 +201,11 @@
                             var lat = data[i].lat;
                             var lng = data[i].lng;
                             var id = data[i].id;
-                            var marker = createMarker(lat, lng, id);
-                            marker.bindPopup(`<div>${data[i].description}</div>`);
+                            var name = data[i].name;
+                            var description = data[i].description;
+                            var image = data[i].image;
+                            var marker = createMarker(lat, lng, id, name, image);
+                            marker.bindPopup(`<div><p>${description}</p><a href="/${id}">Details</a></div>`);
                         }
                     }
                 });

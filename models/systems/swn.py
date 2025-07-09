@@ -43,6 +43,7 @@ class StarsWithoutNumber(SciFiSystem):
         "Noble": "A character from a wealthy or influential family, skilled in leadership and navigating social hierarchies.",
         "Peasant": "A background rooted in farming or rural labor, with practical survival and work skills.",
         "Pilot": "An expert in operating and navigating vehicles, particularly starships and other advanced machinery.",
+        "Politician": "A background rooted in political maneuvering and influence, skilled in negotiation, leadership, and subterfuge.",
         "Professional": "A trained individual in a specific field, such as law, medicine, or engineering.",
         "Soldier": "A veteran of military service, skilled in combat and tactics.",
         "Spacer": "Someone experienced in life aboard starships, adept at maintenance, zero-gravity operations, and space travel.",

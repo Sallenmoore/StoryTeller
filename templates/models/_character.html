@@ -312,20 +312,26 @@
 
 {% macro quests(user, obj) -%}
 <div class="panel has-bg-screen">
-    <form hx-post="/task/generate/{{obj.id}}/quest/create">
+    <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="row has-space-around">
             <div class="column">
                 <h3 class='has-text-muted'>Quest Board</h3>
             </div>
             <div class="column is-shrink">
-                <h5 class='has-text-muted'>Prompt (optional)</h5>
+                <h5 class='has-text-muted'>Storyline</h5>
             </div>
             <div class="column is-4">
-                <textarea name="prompt" class="has-text-dark has-bg-white"></textarea>
+                <div class="is-select">
+                    <select class="has-bg-muted select" name="storyline">
+                        {% for story in obj.world.stories %}
+                        <option value="{{story.pk}}">{{story.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             <div class="column is-shrink is-vertically-centered">
                 <button class="button">
-                    Generate Quest
+                    Create New Quest
                 </button>
             </div>
         </div>
@@ -366,19 +372,19 @@
                 <hr class='has-bg-primary'>
                 <div class="panel has-bg-light-grey">
                     <div class="row">
-                        <div class="column is-full">
+                        <div class="column is-half">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-center'>Summary</h4>
                                 {{entry.summary | safe}}
                             </div>
                         </div>
-                        <div class="column">
+                        <div class="column is-half">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-dark has-text-center'>Hook</h4>
                                 {{entry.hook | safe}}
                             </div>
                         </div>
-                        <div class="column">
+                        <div class="column is-full">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-dark has-text-center'>Description</h4>
                                 {{entry.description | safe}}
@@ -386,16 +392,6 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="column">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Locations</h4>
-                                <ul>
-                                    {% for location in entry.locations %}
-                                    <li>{{location}}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
                         <div class="column">
                             <div class="panel has-bg-light">
                                 <h4 class='has-text-center'>Antagonist</h4>
@@ -430,7 +426,6 @@
                                             {% endfor %}
                                         </ul>
                                     </li>
-                                    <li><b>RED HERRING:</b> {{scene.red_herring}}</li>
                                     <li>
                                         <b>CHALLENGES:</b>
                                         <ul>

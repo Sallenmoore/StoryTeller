@@ -29,11 +29,10 @@
                 </div>
                 <div class="column">
                     <div class="is-select has-text-primary">
-                        <select class="has-bg-secondary has-text-primary" name='screenpk'
+                        <select class="has-bg-secondary has-text-white" name='screenpk'
                                 hx-post='/api/gmscreen/display'
                                 hx-target='#screen-container'
                                 hx-trigger='change'>
-                            <option value=""></option>
                             {%for s in user.screens %}
                             <option value="{{s.pk}}" {% if user.current_screen and
                                     user.current_screen==s %} selected {%endif%}>
@@ -118,6 +117,10 @@
                           hx-target='#screen-area-container'
                           hx-select='#screen-area-container' hx-swap="outerHTML">
                         <div class="row">
+                            <div class="column is-4">
+                                <input class="button is-full is-small" type='submit'
+                                       value="Add New Area">
+                            </div>
                             <div class="column is-shrink is-vertically-centered">
                                 <h5>Type</h5>
                             </div>
@@ -143,10 +146,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="column is-4">
-                                <input class="button is-full is-small" type='submit'
-                                       value="Add New Area">
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -155,7 +154,7 @@
         <hr>
         <div id="screen-area-container" class="row ">
             {% for area in user.current_screen.areas %}
-            <div class="column is-4 screen-area">
+            <div class="column screen-area">
                 <div class="row">
                     <div class="column">
                         <input class="has-bg-light" type="text" name="name"
@@ -166,7 +165,7 @@
                     </div>
                 </div>
                 <hr>
-                {{ area.area() }}
+                {{ area.area(editable=True) }}
                 <hr>
                 <div class="row">
                     <div class="column is-shrink is-end">
@@ -197,17 +196,48 @@
 </div>
 {%- endmacro %}
 
-{% macro screen_note_area(screenarea) -%}
+{% macro screen_note_area(screenarea, editable) -%}
+{% if editable %}
 <form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/note' hx-swap='none'
       hx-trigger='change'>
-    {{form_components.texteditor(screenarea.screen.user, screenarea, 'note', content=screenarea.note)}}
+    <div class="row has-space-around">
+        <div class="column is-shrink">
+            <div class="is-radio">
+                <span>
+                    <input type="radio" name="text_type" value='rich' {% if
+                           screenarea.text_type=='rich' %} checked {% endif %}>
+                    <label class='has-text-dark'>Rich Text</label>
+                </span>
+                <span>
+                    <input type="radio" name="text_type" value='markdown'
+                           {% if screenarea.text_type=='markdown' %} checked {% endif %}>
+                    <label class='has-text-dark'>Markdown</label>
+                </span>
+            </div>
+        </div>
+        {% if screenarea.text_type == 'rich' %}
+        <div class="column is-full">
+            {{form_components.texteditor(screenarea.screen.user, screenarea, 'note', content=screenarea.note)}}
+        </div>
+        {% elif screenarea.text_type == 'markdown' %}
+        <div class="column is-full">
+            {{form_components.textarea(screenarea.screen.user, screenarea, name='note', content=screenarea.note)}}
+        </div>
+        {% endif %}
+    </div>
 </form>
+{% else %}
+<div class="panel has-bg-muted has-text-dark">
+    {{screenarea.display_note() | safe}}
+</div>
+{% endif %}
 {%- endmacro %}
 
-{% macro screen_table_area(screenarea) -%}
+{% macro screen_table_area(screenarea, editable) -%}
 <div id="table-{{screenarea.pk}}-item-list" class='panel has-bg-screen'>
     <hr>
     <div class="row">
+        {% if editable%}
         <div class="column is-half">
             <form hx-post='/task/generate/gmscreen/table/{{screenarea.pk}}'
                   hx-target='#table-{{screenarea.pk}}-item-list'>
@@ -256,6 +286,7 @@
                hx-select="#table-{{screenarea.pk}}-item-list"
                hx-swap='outerHTML'>Add Item</a>
         </div>
+        {% endif %}
         <div class="column has-text-center">
             <a class="button is-small has-text-center"
                hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/random'
@@ -279,11 +310,12 @@
     </div>
     <div class="row">
         <div class="column is-full">
+            {% if editable %}
             <form hx-post=' /api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table'
                   hx-target="#table-{{screenarea.pk}}-item-list"
                   hx-select="#table-{{screenarea.pk}}-item-list" hx-swap="outerHTML"
                   hx-trigger='input delay:500ms'>
-                <ul class='has-bg-muted has-no-list-style' style='max-height:12rem;overflow:auto;'>
+                <ul class='has-bg-muted' style='max-height:12rem;overflow:auto;'>
                     {% for item in screenarea.itemlist %}
                     <li style='padding: 0.1rem 0.5rem;'>
                         <input name="itemlist[]" value="{{item}}" style='width:100%;'>
@@ -291,13 +323,24 @@
                     {% endfor %}
                 </ul>
             </form>
+            {% else %}
+            <ul class='has-bg-muted has-no-list-style' style='max-height:12rem;overflow:auto;'>
+                {% for item in screenarea.itemlist %}
+                <li class="has-text-dark" style='padding: 0.1rem 0.5rem;'>
+                    {{item}}
+                    <hr>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </div>
     </div>
 </div>
 {%- endmacro %}
 
-{% macro screen_link_area(screenarea) -%}
+{% macro screen_link_area(screenarea, editable) -%}
 <div class="row screen-link-area">
+    {% if editable %}
     <div class="column is-full">
         <div class="has-dropdown" style="width:100%;">
             <input autocomplete="off" class="has-bg-light has-text-dark"
@@ -311,6 +354,7 @@
             </ul>
         </div>
     </div>
+    {% endif %}
     {% for obj in screenarea.objs %}
     <div class="column is-3 screen-link-item">
         <div class="row">
@@ -358,7 +402,7 @@
 {% endfor %}
 {%- endmacro%}
 
-{% macro dnd5e_area(screenarea, selected=None) -%}
+{% macro dnd5e_area(screenarea, editable, selected=None) -%}
 <div class="row dnd5e-area">
     <div class="column is-full">
         <div class="is-input-group has-bg-secondary">
@@ -410,7 +454,7 @@
 {%- endmacro %}
 
 
-{% macro screen_noncanon_area(screenarea) -%}
+{% macro screen_noncanon_area(screenarea, editable) -%}
 <div>
     <div class="row">
         <div class="column is-full">

@@ -76,6 +76,10 @@ class Faction(TTRPGObject):
     def players(self):
         return [c for c in self.characters if c.is_player]
 
+    @property
+    def owner(self):
+        return self.leader
+
     ################### Crud Methods #####################
 
     def generate(self):
