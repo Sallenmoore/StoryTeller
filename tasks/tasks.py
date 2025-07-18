@@ -55,6 +55,21 @@ def _generate_image_task(model, pk):
     return {"url": f"/api/{obj.path}/details"}
 
 
+def _generate_audio_transcription_task(pk):
+    world = World.get(pk)
+    if not world.gm:
+        log("No Game Master found for the world.", _print=True)
+        return {"error": "No Game Master found for the world."}
+    if not world.gm.audio:
+        log("No audio file to transcribe.", _print=True)
+        return {"error": "No audio file to transcribe."}
+    log("Transcribing audio file...", _print=True)
+    world.gm.transcribe()
+    if not world.gm.audio_transcription:
+        log("Transcription failed.", _print=True)
+    return {"url": "/api/gm/"}
+
+
 def _generate_campaign_summary_task(pk):
     if obj := Campaign.get(pk):
         obj.resummarize()

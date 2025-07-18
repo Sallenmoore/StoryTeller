@@ -76,10 +76,12 @@
     <div class="row">
         <div class="column is-shrink ">
             <h4 class='has-text-center has-text-primary'>Adventuring Party?</h4>
-            <div class="is-switch">
-                <input name="is_player_faction" type="checkbox" id="is_player_faction" {%if
-                       obj.is_player_faction%} checked {%endif%}>
-                <label for="is_player_faction"></label>
+            <div class="is-select">
+                <select class="has-no-border" name="is_player_faction">
+                    <option value="False">---</option>
+                    <option value="True" {%if obj.is_player_faction %} selected {%endif%}>
+                        Adventuring Party</option>
+                </select>
             </div>
         </div>
         <div id="model-goal" class="column">

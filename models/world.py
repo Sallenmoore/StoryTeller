@@ -15,6 +15,7 @@ from autonomous.model.autoattr import (
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
+from models.gm.gm import GameMaster
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
@@ -51,6 +52,7 @@ class World(TTRPGBase):
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
+    gm = ReferenceAttr(choices=["GameMaster"])
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -267,9 +269,8 @@ class World(TTRPGBase):
     @property
     def parties(self):
         ps = []
-        for f in Faction.search(world=self):
-            if f.is_player_faction:
-                ps += [f]
+        for f in Faction.search(world=self, is_player_faction=True):
+            ps += [f]
         return ps
 
     @property
@@ -430,10 +431,6 @@ class World(TTRPGBase):
         from models.gmscreen.gmscreen import GMScreen
 
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_users()
-        document.pre_save_system()
-        document.pre_save_map()
-        document.pre_save_current_date()
 
         ##### MIGRATION #####
         stories = []
@@ -442,6 +439,11 @@ class World(TTRPGBase):
                 stories.append(story)
 
         document.stories = stories
+
+        document.pre_save_users()
+        document.pre_save_system()
+        document.pre_save_map()
+        document.pre_save_current_date()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):

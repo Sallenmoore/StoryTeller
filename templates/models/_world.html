@@ -1,4 +1,3 @@
-{% import "manage/_models.html" as children_macros %}
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
 
@@ -9,9 +8,18 @@
            hx-indicator="#request-indicator" hx-swap="innerHTML"
            hx-push-url=" /{{obj.path}}/players">
             <div class="row">
-                <div class="column is-3 is-mobile-shrink">
+                <div id="menu-players-anchor" class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="game-icons:tabletop-players" width="1rem"></iconify-icon>
                 </div>
+                <script>
+                    tippy('#menu-players-anchor', {
+                        content: 'Players',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+                    });
+                </script>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>Players</span>
                 </div>
@@ -20,12 +28,45 @@
     </li>
     {% if user.world_user(obj) %}
     <li>
+        <a href="" class="menu-anchor" hx-post="/api/gm/" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/gm">
+            <div class="row">
+                <div id='menu-game-master-anchor' class="column is-3 is-mobile-shrink">
+                    <iconify-icon icon="arcticons:dicey-dungeons" width="1rem"></iconify-icon>
+                </div>
+                <script>
+                    tippy('#menu-game-master-anchor', {
+                        content: 'Game Master',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Game Master</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
         <a href="" class="menu-anchor" hx-post="/api/stories/" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/stories/manage">
             <div class="row">
-                <div class="column is-3 is-mobile-shrink">
+                <div id='menu-manage-stories-anchor' class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="material-symbols:history-edu" width="1rem"></iconify-icon>
                 </div>
+                <script>
+                    tippy('#menu-manage-stories-anchor', {
+                        content: 'Manage Stories',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>Manage Stories</span>
                 </div>
@@ -36,9 +77,19 @@
         <a href="" class="menu-anchor" hx-post="/api/campaign/" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/campaigns/manage">
             <div class="row">
-                <div class="column is-3 is-mobile-shrink">
+                <div id='menu-manage-campaigns-anchor' class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="mdi:planner-multiple" width="1rem"></iconify-icon>
                 </div>
+                <script>
+                    tippy('#menu-manage-campaigns-anchor', {
+                        content: 'Manage Campaigns',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>Manage Campaigns</span>
                 </div>
@@ -50,9 +101,19 @@
            hx-indicator="#request-indicator" hx-swap="innerHTML"
            hx-push-url="/{{obj.path}}/manage_screens">
             <div class="row">
-                <div class="column is-3 is-mobile-shrink">
+                <div id='menu-manage-screens-anchor' class="column is-3 is-mobile-shrink">
                     <iconify-icon icon="carbon:gui-management" width="1rem"></iconify-icon>
                 </div>
+                <script>
+                    tippy('#menu-manage-screens-anchor', {
+                        content: 'Manage Screens',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
                 <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
                     <span>GM Screen Manager</span>
                 </div>
@@ -133,94 +194,6 @@
 </a>
 <hr>
 {% endfor %}
-{%- endmacro %}
-
-{% macro associations(user, obj, filter=None) -%}
-<title>{{obj.name}} - Associations</title>
-<h2 class='has-text-dark'>Manage Associations</h2>
-<div class="row has-space-around">
-    <div class="column is-shrink">
-        <h4 class='has-text-secondary'>Filter by</h4>
-    </div>
-    <div class="column is-half">
-        <div class="select">
-            <select class='has-bg-secondary' name="filter" hx-get="/api/manage/associations"
-                    hx-trigger="change"
-                    hx-target="#associated-objects" hx-select="#associated-objects">
-                <option value="">All</option>
-                {% for model in obj._models %}
-                <option value="{{model}}" {% if filter==model %} selected {% endif %}>
-                    {{obj.get_title(model)}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-</div>
-<hr>
-<div class="panel is-small has-bg-light">
-    <div id="associated-objects">
-        <div class="row has-space-around">
-            {% for a in obj.associations %}
-            <div class="column is-3 is-mobile-4 card-container">
-                <div class="row">
-                    <div class="column is-half">
-                        <a href="/{{a.model_name()|lower}}/{{a.pk}}">
-                            <div class="image is-medium is-thumbnail">
-                                <img src="{{a.image.url(size='100')}}" loading="lazy"
-                                     alt="{{a.name}}"
-                                     style="width:100%; height:100%;" />
-                            </div>
-                        </a>
-                    </div>
-                    <div class="column is-half">
-                        <div class="row is-vertical">
-                            <div class="column">
-                                <button class="button is-small"
-                                        hx-post="/api/manage/copy/{{a.model_name() | lower}}/{{a.pk}}"
-                                        hx-target="#page-content"
-                                        hx-vals='{"module":"_manage.html", "macro":"childmanage"}'
-                                        hx-indicator='#request-indicator'>
-                                    <iconify-icon
-                                                  icon="game-icons:double-dragon"></iconify-icon>
-                                    <span style="font-size:0.5rem">Copy</span>
-                                </button>
-                            </div>
-                            <div
-                                 class="column manage-card-container">
-                                <button class="button is-small"
-                                        hx-post="/api/manage/delete/{{a.model_name() | lower}}/{{a.pk}}"
-                                        hx-target="closest .card-container"
-                                        hx-swap="delete">
-                                    <iconify-icon
-                                                  icon="material-symbols-light:delete-outline"></iconify-icon>
-                                    <span style="font-size:0.5rem">Delete</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column is-full">
-                        <a href="/{{a.path}}">
-                            <h6 class='is-subtitle has-text-light-grey has-no-padding'>
-                                {% if a.start_date %}
-                                {{a.start_date}}
-                                {% endif %}
-                                -
-                                {% if a.end_date %}
-                                {{a.end_date}}
-                                {% endif %}
-                            </h6>
-                            <h5 class='has-text-secondary'>
-                                {{a.name}}
-                            </h5>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}
@@ -360,8 +333,4 @@
         </div>
     </div>
 </div>
-{%- endmacro %}
-
-{% macro manage_world(user, obj) -%}
-{{children_macros.manage(user, obj)}}
 {%- endmacro %}

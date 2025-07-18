@@ -147,6 +147,7 @@ class Faction(TTRPGObject):
                 raise ValidationError(f"Character {self.leader} not found")
 
     def pre_save_player_faction(self):
-        if self.is_player_faction == "on":
-            self.is_player_faction = True
-        # log(self.is_player_faction)
+        if self.is_player_faction == "False":
+            self.is_player_faction = False
+        else:
+            self.is_player_faction = bool(self.is_player_faction)

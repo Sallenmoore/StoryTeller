@@ -104,9 +104,19 @@
             <li>
                 <a href="/{{obj.get_world().path}}" class="menu-anchor">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id="menu-world-anchor" class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="mdi:world" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-world-anchor', {
+                                content: '{{obj.get_world().name}}',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <h4>{{obj.get_world().name}}</h4>
@@ -123,9 +133,19 @@
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/details">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="ooui:view-details-ltr" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-details-anchor', {
+                                content: 'Details',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Details</span>
@@ -140,10 +160,20 @@
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/history">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="material-symbols:history-edu-outline-rounded"
                                           width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-history-anchor', {
+                                content: 'History',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>History</span>
@@ -158,10 +188,20 @@
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/timeline">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="mingcute:timeline-line"
                                           width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-timeline-anchor', {
+                                content: 'Timeline',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Timeline</span>
@@ -177,9 +217,19 @@
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/campaigns">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="gis:bus-map" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-campaigns-anchor', {
+                                content: 'Campaigns',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Campaigns</span>
@@ -196,10 +246,20 @@
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/stories">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="material-symbols:history-edu"
                                           width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-stories-anchor', {
+                                content: 'Stories',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Stories</span>
@@ -213,9 +273,19 @@
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/journal">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="ooui:journal-ltr" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-journal-anchor', {
+                                content: 'Journal',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Journal</span>
@@ -231,9 +301,17 @@
                    hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/jobs">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-jobs-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="hugeicons:job-share" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-jobs-anchor', {
+                                content: 'Jobs',
+                                placement: 'right',
+                                arrow: false,
+                                animation: 'perspective-extreme',
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Job Board</span>
@@ -249,9 +327,19 @@
                    hx-target="#page-content" hx-indicator="#request-indicator"
                    hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-map-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="gis:hex-map" width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-map-anchor', {
+                                content: 'Map',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Map</span>
@@ -277,10 +365,20 @@
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/associations">
                     <div class="row">
-                        <div class="column is-3 is-mobile-shrink">
+                        <div id='menu-associations-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="hugeicons:chart-relationship"
                                           width="1rem"></iconify-icon>
                         </div>
+                        <script>
+                            tippy('#menu-associations-anchor', {
+                                content: 'Associations',
+                                placement: 'right',
+                                allowHTML: true,
+                                arrow: false,
+                                animation: 'perspective-extreme',
+
+                            });
+                        </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>Associations</span>
@@ -303,9 +401,20 @@
                            hx-swap="innerHTML show:#content:top"
                            hx-push-url="/{{obj.path}}/associations/{{model | lower}}">
                             <div class="row">
-                                <div class="column is-3 is-mobile-shrink">
+                                <div id='menu-{{model | lower}}-anchor'
+                                     class="column is-3 is-mobile-shrink">
                                     {{obj.get_icon(model)}}
                                 </div>
+                                <script>
+                                    tippy('#menu-{{model | lower}}-anchor', {
+                                        content: '{{obj.get_title(model)}}',
+                                        placement: 'right',
+                                        allowHTML: true,
+                                        arrow: false,
+                                        animation: 'perspective-extreme',
+
+                                    });
+                                </script>
                                 <div
                                      class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                                     <span>{{obj.get_title(model)}}</span>
@@ -317,38 +426,6 @@
             </li>
             {% endif %}
             {% endfor %}
-        </ul>
-        <p class="menu__divider is-hidden slide-it-in menu-anchor-text"></p>
-        <p class="menu__title has-text-center is-hidden slide-it-in menu-anchor-text">Geneology</p>
-        <ul class="menu__list is-hidden slide-it-in menu-anchor-text">
-            {% if obj.parent %}
-            {% for ancestor in obj.geneology %}
-            <li>
-                <a href="/{{ancestor.path}}">
-                    <div class="image is-medium is-thumbnail is-margin-center">
-                        {% if ancestor.image %}
-                        <img src="{{ancestor.image.url(size='100')}}" loading="lazy"
-                             alt="{{ancestor.name}}" style="width:100%; height:100%;" />
-                        {% endif %}
-
-                    </div>
-                    <h5 class="has-text-center">{{ancestor.name}}</h5>
-                </a>
-            </li>
-            {% endfor %}
-            {% else %}
-            <li>
-                <a href="/{{obj.get_world().path}}">
-                    <div class="image is-medium is-thumbnail is-margin-center">
-                        {% if obj.get_world().image %}
-                        <img src="{{obj.get_world().image.url(size='100')}}" loading="lazy"
-                             alt="{{obj.get_world().name}}" style="width:100%; height:100%;" />
-                        {% endif %}
-                    </div>
-                    <h5 class="has-text-center">{{obj.get_world().name}}</h5>
-                </a>
-            </li>
-            {% endif %}
         </ul>
     </nav>
     <script>
@@ -371,7 +448,8 @@
                 sidenav.classList.add("is-tablet-up");
                 htmx.find("#mobile-menu-burger").classList.remove("is-hidden");
             });
-        } else {
+        }
+        /*else {
             sideMenu.addEventListener("pointerenter", (event) => {
                 timeout = setTimeout(() => {
                     Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
@@ -397,7 +475,7 @@
                 isOpen = !isOpen;
                 clearTimeout(timeout);
             });
-        }
+        }*/
     </script>
 </div>
 {%- endmacro %}

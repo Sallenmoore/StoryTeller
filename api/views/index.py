@@ -104,6 +104,19 @@ def buildform():
 
 
 @index_endpoint.route(
+    "/world/<string:pk>/gm",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def world_gm(pk):
+    user, world, *_ = _loader()
+    world.save()
+    return get_template_attribute("manage/_gm.html", "gm")(user, world)
+
+
+@index_endpoint.route(
     "/world/<string:pk>/manage_screens",
     methods=(
         "GET",

@@ -148,14 +148,41 @@ def api(rest_path):
 @index_page.route("/task/<path:rest_path>", endpoint="tasks", methods=("POST",))
 @auth_required()
 def tasks(rest_path):
-    user = AutoAuth.current_user()
-    obj = World.get_model(request.json.get("model")).get(request.json.get("pk"))
-    if _authenticate(user, obj):
-        log(request.json)
-        response = requests.post(
-            f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}", json=request.json
-        )
-        # log(response.text)
+    log("TASK REQUEST", request.files, request.form, _print=True)
+    if request.files:
+        files = {}
+        for key, file in request.files.items():
+            audio_content = file.read()
+            files |= {
+                key: (
+                    file.filename,
+                    audio_content,
+                    file.mimetype,
+                )
+            }
+        metadata_str = request.form.get("metadata")
+        metadata = json.loads(metadata_str)
+        user = AutoAuth.current_user(metadata.get("user"))
+        obj = World.get_model(metadata.get("model")).get(metadata.get("pk"))
+        if _authenticate(user, obj):
+            log("Sending files:", files, metadata, _print=True)
+            response = requests.post(
+                f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}",
+                files=files,
+                data={
+                    "model": metadata.get("model"),
+                    "pk": metadata.get("pk"),
+                    "user": str(user.pk),
+                },
+            )
+    else:
+        user = AutoAuth.current_user()
+        obj = World.get_model(request.json.get("model")).get(request.json.get("pk"))
+        if _authenticate(user, obj):
+            response = requests.post(
+                f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}",
+                json=request.json,
+            )
     return response.text
 
 

@@ -10,6 +10,7 @@ from autonomous.tasks import AutoTasks
 from filters.utils import bonus, roll_dice
 from models.ttrpgobject.faction import Faction
 from models.user import User
+from models.world import World
 
 models = {
     "player": "Character",
@@ -140,6 +141,23 @@ def create_app():
                 tasks._generate_character_chat_task,
                 pk=pk,
                 chat=request.json.get("chat"),
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/audio/transcribe", methods=("POST",))
+    def create_audio_transcription():
+        log("Transcribing audio file", request.files.get("audio_file"), _print=True)
+
+        world = World.get(request.form.get("pk"))
+        world.gm.audio = request.files.get("audio_file").read()
+
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_audio_transcription_task,
+                pk=request.form.get("pk"),
             )
             .result
         )
