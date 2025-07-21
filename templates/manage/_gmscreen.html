@@ -227,7 +227,7 @@
     </div>
 </form>
 {% else %}
-<div class="panel has-bg-muted has-text-dark">
+<div class="panel has-bg-muted has-text-dark" style='font-size: 0.75rem !important;'>
     {{screenarea.display_note() | safe}}
 </div>
 {% endif %}
@@ -328,7 +328,7 @@
                 {% for item in screenarea.itemlist %}
                 <li class="has-text-dark" style='padding: 0.1rem 0.5rem;'>
                     {{item}}
-                    <hr>
+                    <hr class='has-bg-dark'>
                 </li>
                 {% endfor %}
             </ul>

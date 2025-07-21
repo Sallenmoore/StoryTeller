@@ -210,4 +210,16 @@ def create_app():
         task = AutoTasks().task(tasks._generate_quest_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/gm/present/<string:pk>", methods=("POST",))
+    def gm_present(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_gm_present,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

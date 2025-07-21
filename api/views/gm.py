@@ -64,7 +64,7 @@ def create():
     "associations/add/<string:amodel>/<string:apk>",
     methods=("POST",),
 )
-def associationentry(pk, amodel, apk=None):
+def associationentry(amodel, apk=None):
     user, obj, world, *_ = _loader()
     obj = world.get_model(amodel, apk)
     world.gm.add_association(obj)
@@ -85,7 +85,7 @@ def associationsearch():
 
 
 @gm_endpoint.route(
-    "association/<string:amodel>/<string:apk>/delete",
+    "association/remove/<string:amodel>/<string:apk>",
     methods=("POST",),
 )
 def episodeassociationentrydelete(amodel, apk):
@@ -93,3 +93,31 @@ def episodeassociationentrydelete(amodel, apk):
     obj = world.get_model(amodel, apk)
     world.gm.remove_association(obj)
     return "<p>success</p>"
+
+
+@gm_endpoint.route("/prompt/update", methods=("POST",))
+def prompt_update():
+    user, world, *_ = _loader()
+    world.gm.audio_transcription = request.json.get("audio_transcription", "")
+    world.gm.save()
+    return index()
+
+
+@gm_endpoint.route("/objective/update", methods=("POST",))
+def objective_update():
+    user, world, *_ = _loader()
+    world.gm.current_party_objective = request.json.get("current_party_objective", "")
+    world.gm.save()
+    return index()
+
+
+@gm_endpoint.route("/dice/roll", methods=("POST",))
+def dice_roll():
+    user, world, *_ = _loader()
+    if not world.gm:
+        index()
+        user, world, *_ = _loader()
+    roll = request.json.get("dice")
+    world.gm.roll_dice(roll)
+    world.gm.save()
+    return index()

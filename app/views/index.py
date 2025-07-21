@@ -148,7 +148,7 @@ def api(rest_path):
 @index_page.route("/task/<path:rest_path>", endpoint="tasks", methods=("POST",))
 @auth_required()
 def tasks(rest_path):
-    log("TASK REQUEST", request.files, request.form, _print=True)
+    # log("TASK REQUEST", request.files, request.form, _print=True)
     if request.files:
         files = {}
         for key, file in request.files.items():

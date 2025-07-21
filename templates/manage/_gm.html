@@ -35,30 +35,7 @@
         </div>
     </div>
     {% else %}
-    <div class="row">
-        <div class="column is-1">
-            {{display_components.object_display(world.gm.party, type=False)}}
-        </div>
-        <div class='column'>
-            <div class="row">
-                <div class="column is-full">
-                    {{gamemaster_panel(user, world)}}
-                </div>
-            </div>
-        </div>
-        <div class="column is-full">
-            <div class="panel">
-                <h3 class='has-text-center'> Players </h3>
-                <div class="row has-space-around">
-                    {% for p in world.gm.party.players %}
-                    <div class="column">
-                        {{display_components.object_display(p, type=False)}}
-                    </div>
-                    {% endfor%}
-                </div>
-            </div>
-        </div>
-    </div>
+    {{gamemaster_panel(user, world)}}
     {%endif%}
 </div>
 <script>
@@ -164,59 +141,168 @@
 {%- endmacro %}
 
 {% macro gamemaster_panel(user, world) -%}
-<div class="panel">
-    <h3 class='has-text-center'>Game Master</h3>
-    <div class="row has-space-between">
-        <div class="column is-2">
-            <div class="row has-space-between">
-                <div class="column is-full has-text-center">
-                    <button id="recordButton" class="button is-small has-bg-muted">
-                        <iconify-icon icon="lucide:mic"></iconify-icon>
-                        Start Recording
-                    </button>
-                </div>
-                <div class="column is-full has-text-center">
-                    <button id="stopButton"
-                            class="button has-bg-black has-text-white is-small" disabled>
-                        <iconify-icon icon="lucide:square"></iconify-icon>
-                        Stop Recording
-                    </button>
+<h2 class='has-text-center'>Game Master</h2>
+<div class="row">
+    <div class="column">
+        <div class="row has-space-around">
+            <div class="column is-3">
+                <p id="status" class="has-text-dark">Ready to record.</p>
+            </div>
+            <div class="column is-9">
+                <button id="recordButton" class="button is-small has-bg-muted">
+                    <iconify-icon icon="lucide:mic"></iconify-icon>
+                    Start Recording
+                </button>
+                <button id="stopButton"
+                        class="button has-bg-black has-text-white is-small" disabled>
+                    <iconify-icon icon="lucide:square"></iconify-icon>
+                    Stop Recording
+                </button>
+            </div>
+            <div class="column is-full">
+                <h6>Your audio will be transcribed here.</h6>
+                <div class="panel has-bg-muted">
+                    <h4 class='has-text-centered'>Prompt</h4>
+                    <form id="gm-textarea" hx-post="/api/gm/prompt/update"
+                          hx-trigger="input delay:500ms, change" hx-swap="none">
+                        {{form_components.textarea(user, world.gm, name='audio_transcription', content=world.gm.audio_transcription)}}
+                    </form>
                 </div>
             </div>
-            <p id="status" class='has-text-center'>Ready to record.</p>
-        </div>
-        <div class="column">
-            <h6>Your audio will be transcribed here.</h6>
-            <div class="panel has-bg-muted">
-                <h4 class='has-text-centered'>Prompt</h4>
-                <div id="gm-textarea" class="content">
-                    {{form_components.textarea(user, world.gm, name='audio_transcription', content=world.gm.audio_transcription)}}
-                </div>
-            </div>
-        </div>
-        <div class="column is-full">
-            <div class="panel has-bg-muted">
-                <h4 class='has-text-centered'>Add Associations</h4>
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/gm/associations/add/search"
-                           hx-target="#gm-new-associations-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="gm-new-associations-list">
-                    </ul>
-                </div>
-                <h5 class='has-text-primary'>Current Associations</h5>
-                <div class="row has-space-around">
-                    {% for association in world.gm.associations %}
-                    <div class="column is-2">
-                        {{display_components.object_display(association, type=False)}}
+            <div id="dice-container" class="column">
+                <div class="row">
+                    <div class="column is-shrink">
+                        <form hx-post="/api/gm/dice/roll"
+                              hx-target="#dice-container" hx-select="#dice-container"
+                              hx-swap="outerHTML" hx-indicator='#request-indicator'>
+                            <div class="row">
+                                <div class="column">
+                                    <input type="text" name="dice" placeholder="e.g. 1d20+5"
+                                           value="{{world.gm.last_roll}}"
+                                           class="input has-bg-light"
+                                           style="width: 100%; border-bottom: solid #000;">
+                                </div>
+                                <div class="column">
+                                    <button class="button is-small has-bg-muted"
+                                            type="submit">Roll</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    {% endfor %}
+                    <div class="column is-shrink">
+                        {% if world.gm.last_roll_result %}
+                        <div class="panel has-bg-light">
+                            <p class='has-text-dark has-text-center'>
+                                Result: {{world.gm.last_roll_result}}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="column is-shrink">
+                <button class="button has-bg-muted"
+                        hx-post="/task/generate/gm/present/{{world.pk}}"
+                        hx-target="#pc-container" hx-indicator='#request-indicator'>
+                    Present
+                </button>
+            </div>
+            <div class="column is-full">
+                <h5>Current Objective</h5>
+                <div class='panel has-bg-muted has-text-dark'>
+                    <form hx-post="/api/gm/objective/update"
+                          hx-trigger="input delay:500ms, change" hx-swap="none">
+                        {{form_components.textarea(user, world.gm, name='current_party_objective', content=world.gm.current_party_objective)}}
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="column is-4">
+        <div class="panel has-bg-muted">
+            <h4 class='has-text-centered'>Add Associations</h4>
+            <div class="has-dropdown" style="width: 100%;">
+                <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                       style="border-bottom: solid #000;"
+                       hx-post="/api/gm/associations/add/search"
+                       hx-target="#gm-new-associations-list"
+                       hx-trigger="input changed delay:500ms consume"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                <ul class="dropdown has-bg-light" id="gm-new-associations-list">
+                </ul>
+            </div>
+            <h5 class='has-text-primary'>Current Associations</h5>
+            <div class="row has-space-around">
+                {% for association in world.gm.associations %}
+                <div class="column is-2 association-entry" style='position: relative;'>
+                    {{display_components.object_display(association, type=False)}}
+                    <a style='position:absolute; top:0px; right:5px;'
+                       hx-post="/api/gm/association/remove/{{association.path}}"
+                       hx-target="closest .association-entry" hx-swap="delete"
+                       hx-confirm="Are you sure you want to remove this association from the scene?">
+                        <iconify-icon class="has-bg-white" icon="mdi:remove"
+                                      width="1rem"></iconify-icon>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <h3 class='has-text-center'> Players </h3>
+        <div id="pc-container">
+            {% for p in world.gm.party.players %}
+            <div class="panel has-bg-light">
+                <div class="row has-space-around">
+                    <div class="column is-1">
+                        {{display_components.object_display(p, type=False)}}
+                    </div>
+                    <div class="column">
+                        <div class="panel has-bg-muted has-text-dark">
+                            <h5 class='has-text-center has-text-dark'>Response</h5>
+                            {{world.gm.get_response(p).response}}
+                            <hr class="has-bg-dark">
+                            <h5 class='has-text-center has-text-dark'>Reaction to Party</h5>
+                            <p>{{world.gm.get_response(p).reaction_to_party}}</p>
+                        </div>
+                    </div>
+                    {% if world.gm.get_response(p).action %}
+                    <div class="column is-4">
+                        <div class="panel has-bg-screen has-text-light">
+                            <h5 class='has-text-light'>Target</h5>
+                            {{world.gm.get_response(p).action.target}}
+                            <hr>
+                            <h5 class='has-text-light'>Method</h5>
+                            {{world.gm.get_response(p).action.method}}
+                            <hr>
+                            {% if world.gm.get_response(p).action.focus_on_coordination %}
+                            <h5 class='has-text-light'>Coordinated Action</h5>
+                            {% else %}
+                            <h5 class='has-text-light'>Action</h5>
+                            {% endif %}
+                            {{world.gm.get_response(p).action.description}}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="column is-shrink is-vertically-centered">
+                        <h5 class='has-text-dark has-text-center'>Observations:</h5>
+                    </div>
+                    <div class="column is-shrink is-vertically-centered">
+                        <p class='has-text-dark has-text-center'>
+                            {{world.gm.get_response(p).observed_details | join(', ')}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            {% endfor%}
+        </div>
+    </div>
+    <div class="column is-full">
+        <h3 class='has-text-center'> Game Master History </h3>
+        <div class="panel">{{world.gm.history}}</div>
     </div>
 </div>
 {%- endmacro%}
@@ -225,7 +311,7 @@
 {% macro gm_dropdown(user, obj, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link">
-    <form hx-post='/api/gm/association/add/{{o.path}}'
+    <form hx-post='/api/gm/associations/add/{{o.path}}'
           hx-target='#page-content'
           hx-trigger='click'
           hx-indicator='#request-indicator'>

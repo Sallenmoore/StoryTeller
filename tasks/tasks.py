@@ -104,3 +104,9 @@ def _generate_quest_task(pk):
     obj = Quest.get(pk)
     obj.generate_quest()
     return {"url": f"/api/{obj.contact.path}/quests"}
+
+
+def _generate_gm_present(pk):
+    obj = World.get(pk)
+    obj.gm.generate_scene()
+    return {"url": "/api/gm/"}

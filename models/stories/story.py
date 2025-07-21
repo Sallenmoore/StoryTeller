@@ -8,6 +8,7 @@ from models.base.ttrpgbase import TTRPGBase
 
 class Story(AutoModel):
     name = StringAttr(default="")
+    type = StringAttr(default="Local", choices=["Local", "Global", "Epic"])
     situation = StringAttr(default="")
     current_status = StringAttr(default="")
     backstory = StringAttr(default="")
