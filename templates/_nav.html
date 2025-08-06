@@ -449,11 +449,8 @@
             });
         }
         else {
-            sideMenu.addEventListener("pointerenter", (event) => {
+            /*sideMenu.addEventListener("pointerenter", (event) => {
                 Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-                /*timeout = setTimeout(() => {
-                    Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-                }, 400);*/
             });
             sideMenu.addEventListener("pointerleave", (event) => {
                 Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
@@ -474,8 +471,8 @@
                 });
                 isOpen = !isOpen;
                 clearTimeout(timeout);
-            });
-        }/**/
+            });*/
+        }
     </script>
 </div>
 {%- endmacro %}
