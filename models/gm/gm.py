@@ -63,6 +63,24 @@ class GameMaster(AutoModel):
 
     ################### General Methods #####################
 
+    def reset(self):
+        log("Resetting GameMaster state.", _print=True)
+        self.party = None
+        self.history = ""
+        self.audio_transcription = ""
+        self.associations = []
+        self.current_party_objective = ""
+        self.last_roll = ""
+        self.last_roll_result = ""
+        if self.audio_:
+            self.audio_.delete()
+            self.audio_ = None
+        if self.party_responses:
+            for response in self.party_responses:
+                response.delete()
+            self.party_responses = []
+        self.save()
+
     def transcribe(self):
         if not self.audio:
             log("No audio file to transcribe.", _print=True)

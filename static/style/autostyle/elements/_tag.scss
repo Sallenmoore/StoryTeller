@@ -3,6 +3,7 @@ $tag-border-color: transparent !default;
 $tag-border-width: 1px !default;
 $tag-color: var(--color-black) !default;
 $tag-font-size: calculateRem(28) !default;
+$tag-font-family: $sans-font-family;
 $tag-line-height: 1.6 !default;
 $tag-height: calculateRem(25.6) !default;
 $tag-radius: 0 !default;

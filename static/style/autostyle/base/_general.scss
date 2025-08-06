@@ -8,10 +8,12 @@ $background-image: null !default;
 $body-background-color: $primary !default;
 $body-font-color: $primarytext !default;
 
-$body-font-family: "Rosarivo", cursive !default;
+$body-font-family: "Rosarivo", serif !default;
 $body-font-size: 1.05rem !default;
 $body-font-weight: 500 !default;
 $body-line-height: 1.9 !default;
+
+$sans-font-family: "Open Sans", sans-serif !default;
 
 $hr-color: var(--color-light-grey-lighter) !default;
 $hr-height: calculateRem(2) !default;

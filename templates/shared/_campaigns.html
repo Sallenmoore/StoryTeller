@@ -12,7 +12,7 @@
     </div>
     <div class="column">
         <select class="has-bg-light" name="campaignpk" hx-get="/api/{{obj.path}}/campaigns"
-                hx-target="#page-content" hx-trigger='change' hx-indicator='#request-indicator'>
+                hx-target="#page-content" hx-trigger='change' hx-indicator='#request-indicator' hx-push-url="/{{obj.path}}/campaigns">
             <option value="">
                 === Select Campaign ===
             </option>
@@ -66,10 +66,10 @@
                 {% if obj.model_name() == 'World' or obj in entry.associations %}
                 <li class="accordion__item" style='margin-bottom: 1rem;'>
                     <div class="panel has-bg-muted">
-                        <div class="row" class='has-text-secondary'
-                             onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                        <div class="row" class='has-text-secondary'>
                             <div class="column is-vertically-centered">
-                                <h5 class=' has-text-dark'>{{entry.name}}</h5>
+                                <h4 class=' has-text-dark'>{{entry.name}}</h4>
+                                <!-- {{entry.pk}} -->
                             </div>
                             <div class="column is-shrink">
                                 {% if entry.start_date %}
@@ -87,22 +87,30 @@
                                 </span>
                                 {% endif %}
                             </div>
-                            {% if entry.summary %}
-                            <div class="column is-full generated-text-lightbg has-text-dark">
+                            <!--<div class="column is-full generated-text-lightbg has-text-dark">
                                 {{entry.summary | safe}}
-                            </div>
+                            </div>-->
+                        </div>
+                        <div class="row">
+                            {% if entry.summary %}
+                            <div class="button"
+                            onclick='this.closest(".accordion__item").classList.toggle("is-active");'>Summary</div>
                             {% endif %}
+                            {% if entry.episode_report %}
+                            <div class="button">Report</div>
+                            {% endif %}
+
                         </div>
                     </div>
                     <div class="accordion__content has-bg-white">
                         <div class="has-text-dark" style="text-wrap: wrap;">
-                            <h4 class='has-text-dark has-text-center'>
-                                {{entry.name}}
-                            </h4>
-                            <hr class='has-bg-dark-grey'>
-                            {{entry.episode_report | safe}}
+                            {{entry.summary | safe}}
+                    <!--<hr class='has-bg-dark-grey'>
+                            {{entry.episode_report | safe}}-->
+                            <a href="summary#{{entry.pk}}">Session Report</a>
                         </div>
                     </div>
+                    
                 </li>
                 {% endif %}
                 {% endfor %}

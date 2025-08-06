@@ -303,6 +303,15 @@
     <div class="column is-full">
         <h3 class='has-text-center'> Game Master History </h3>
         <div class="panel">{{world.gm.history}}</div>
+        <hr>
+    </div>
+    <div class="column is-shrink is-center">
+        <button class="button has-bg-muted"
+                hx-post="/api/gm/reset"
+                hx-target="#gamemaster-container" hx-indicator='#request-indicator'
+                hx-confirm="Are you sure you want to reset the Game Master? This will clear all current associations and history.">
+            Reset Game Master
+        </button>
     </div>
 </div>
 {%- endmacro%}

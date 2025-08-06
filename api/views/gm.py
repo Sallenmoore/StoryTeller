@@ -121,3 +121,13 @@ def dice_roll():
     world.gm.roll_dice(roll)
     world.gm.save()
     return index()
+
+
+@gm_endpoint.route("/reset", methods=("POST",))
+def reset():
+    user, world, *_ = _loader()
+    if not world.gm:
+        index()
+        user, world, *_ = _loader()
+    world.gm.reset()
+    return index()

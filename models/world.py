@@ -440,6 +440,11 @@ class World(TTRPGBase):
 
         document.stories = stories
 
+        try:
+            document.gm
+        except Exception:
+            document.gm = None
+
         document.pre_save_users()
         document.pre_save_system()
         document.pre_save_map()

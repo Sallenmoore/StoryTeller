@@ -214,8 +214,7 @@
                    hx-get="/api/{{obj.path}}/campaigns"
                    hx-target="#page-content"
                    hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/campaigns">
+                   hx-swap="innerHTML show:#page-content:top">
                     <div class="row">
                         <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
                             <iconify-icon icon="gis:bus-map" width="1rem"></iconify-icon>
@@ -449,11 +448,12 @@
                 htmx.find("#mobile-menu-burger").classList.remove("is-hidden");
             });
         }
-        /*else {
+        else {
             sideMenu.addEventListener("pointerenter", (event) => {
-                timeout = setTimeout(() => {
+                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
+                /*timeout = setTimeout(() => {
                     Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-                }, 400);
+                }, 400);*/
             });
             sideMenu.addEventListener("pointerleave", (event) => {
                 Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
@@ -475,7 +475,7 @@
                 isOpen = !isOpen;
                 clearTimeout(timeout);
             });
-        }*/
+        }/**/
     </script>
 </div>
 {%- endmacro %}

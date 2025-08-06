@@ -107,69 +107,41 @@ class Episode(AutoModel):
 
     @property
     def start_date(self):
-        if self.start_date_obj:
-            self.save()
-            self.start_date_obj.obj = self
-            self.start_date_obj.calendar = self.world.calendar
-            self.start_date_obj.save()
         return self.start_date_obj
 
     @start_date.setter
-    def start_date(self, date):
-        if isinstance(date, Date):
-            self.start_date_obj = date
-        elif isinstance(date, dict):
-            self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **date)
-            self.start_date_obj.save()
-        elif isinstance(date, str):
-            verify_date_format = date.split()
-            if verify_date_format[0].isdigit() and verify_date_format[2].isdigit():
-                date = Date.from_string(self, self.world.calendar, date)
-                self.start_date_obj = date
-                self.start_date_obj.save()
-            else:
-                raise ValueError(
-                    "date must be a Date object or a string in the format: <day> <month> <year>"
-                )
-        if not self.end_date_obj and self.start_date_obj and self.start_date_obj.year:
-            self.world.current_date = self.start_date_obj
-            self.world.save()
+    def start_date(self, value):
+        if self.start_date_obj:
+            self.start_date_obj.delete()
+        if isinstance(value, dict):
+            self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
+        elif isinstance(value, Date):
+            self.start_date_obj = value
+        else:
+            log(f"Invalid start_date value: {value}")
+            raise ValueError("start_date must be a Date instance or dict")
+        self.start_date_obj.save()
 
     @property
     def end_date(self):
-        if self.end_date_obj:
-            self.end_date_obj.obj = self
-            self.end_date_obj.calendar = self.world.calendar
-            self.end_date_obj.save()
         return self.end_date_obj
 
     @end_date.setter
-    def end_date(self, date):
-        if isinstance(date, Date):
-            self.end_date_obj = date
-        elif isinstance(date, dict):
-            self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **date)
-            self.end_date_obj.save()
-        elif isinstance(date, str):
-            verify_date_format = date.split()
-            if verify_date_format[0].isdigit() and verify_date_format[2].isdigit():
-                date = Date.from_string(self, self.world.calendar, date)
-                self.end_date_obj = date
-                self.end_date_obj.save()
-            else:
-                raise ValueError(
-                    "date must be a Date object or a string in the format: <day> <month> <year>"
-                )
-        self.world.current_date = self.end_date_obj
-        self.world.save()
+    def end_date(self, value):
+        if self.end_date_obj:
+            self.end_date_obj.delete()
+        if isinstance(value, dict):
+            self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
+        elif isinstance(value, Date):
+            self.end_date_obj = value
+        else:
+            log(f"Invalid end_date value: {value}")
+            raise ValueError("end_date must be a Date instance or dict")
+        self.end_date_obj.save()
 
     @property
     def world(self):
-        # IMPORTANT: this is here to register the model
-        # without it, the model may not have been registered yet and it will fail
-        from models.world import World
-
-        return self.campaign.world
+        return self.campaign.world if self.campaign else None
 
     ##################### INSTANCE METHODS ####################
 

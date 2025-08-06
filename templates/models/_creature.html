@@ -162,9 +162,9 @@
                 function toggleVisibility() {
                     let selectGroupElement = document.querySelector('select[name="group"]');
                     let objDatesElement = document.getElementById('manage-obj-dates');
-                    selectGroupElement.value === '0' ?
-                        objDatesElement.classList.remove('is-hidden') :
-                        objDatesElement.classList.add('is-hidden');
+                    selectGroupElement.value !== '0' ?
+                        objDatesElement.classList.add('is-hidden') :
+                        objDatesElement.classList.remove('is-hidden');
                     //console.log("================  selectGroupElement.value  =================", selectGroupElement.value);
                 }
 
