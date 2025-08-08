@@ -397,7 +397,7 @@ h6,
 p {
   overflow-wrap: break-word;
   word-break: break-word;
-  font-size: clamp(0.75rem, 1rem, 1.5rem);
+  font-size: clamp(0.8rem, 2.5vw, 1.2rem);
   margin-bottom: 1rem;
 }
 

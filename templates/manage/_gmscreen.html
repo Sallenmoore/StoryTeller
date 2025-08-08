@@ -1,5 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro screen(user, obj) -%}
 <div id="scene-dropdown-container" class='has-bg-primary'>
@@ -172,8 +173,7 @@
                         <a hx-post='/api/gmscreen/{{user.current_screen.pk}}/area/{{area.pk}}/remove'
                            hx-swap='delete' hx-target='closest .screen-area'
                            hx-confirm='Are you sure you want to remove this GM Screen Area?'>
-                            <iconify-icon icon="mdi:trash-outline"
-                                          width="1rem"></iconify-icon>
+                            {{icon_components.trash(size="1rem")}}
                         </a>
                     </div>
                 </div>
@@ -371,7 +371,7 @@
                 <a
                    hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/remove/{{obj.path}}'
                    hx-swap='delete' hx-target='closest .screen-link-item'>
-                    <iconify-icon icon="streamline:delete-1-solid" height='0.5rem'></iconify-icon>
+                    {{icon_components.delete(size="1.5rem")}}
                 </a>
             </div>
         </div>

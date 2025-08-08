@@ -8,14 +8,14 @@
 <title>{{obj.name | title}} - Manage Campaign</title>
 <h2 id='manage-campaigns'>
     Manage Campaigns
-</h2>
+</h2>{{episode}}
 <div id="world-campaign-details" class="raise-it">
     {% if campaign %}
     <a class="{% if episode %} is-active {% endif %} has-text-dark"
-    hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}/details'
-    hx-target='#details-container'>
+       hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
+       hx-target='#details-container'>
         Episode Details
-    </a>    
+    </a>
     <div class="row">
         <div id='details-container' class="column is-full">
             {% if episode %}
@@ -58,8 +58,7 @@
                     hx-target="#world-campaign-details"
                     hx-select="#world-campaign-details"
                     hx-swap="outerHTML">
-                <iconify-icon icon="mdi:plus" width="1rem"
-                              height="1rem"></iconify-icon>
+                {{icon_components.plus(size="1rem")}}
                 New
                 Episode
             </button>
@@ -129,7 +128,7 @@
                                value="{{episode.start_date.year}}">
                     </div>
                     <div class="column is-shrink  is-vertically-centered">
-                        <iconify-icon icon="octicon:dash-16" width="2rem"></iconify-icon>
+                        {{icon_components.dash()}}
                     </div>
                     <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
                         <input class="has-text-center" type="number"

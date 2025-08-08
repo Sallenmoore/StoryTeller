@@ -1,5 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro gm(user, world) -%}
 <title>Game Master</title>
@@ -150,12 +151,12 @@
             </div>
             <div class="column is-9">
                 <button id="recordButton" class="button is-small has-bg-muted">
-                    <iconify-icon icon="lucide:mic"></iconify-icon>
+                    {{icon_components.mic(size="1.5rem")}}
                     Start Recording
                 </button>
                 <button id="stopButton"
                         class="button has-bg-black has-text-white is-small" disabled>
-                    <iconify-icon icon="lucide:square"></iconify-icon>
+                    {{icon_components.stop(size="1.5rem")}}
                     Stop Recording
                 </button>
             </div>

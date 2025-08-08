@@ -113,6 +113,10 @@ class Episode(AutoModel):
     def start_date(self, value):
         if self.start_date_obj:
             self.start_date_obj.delete()
+            self.start_date_obj = None
+        if not value:
+            self.start_date_obj = None
+            return
         if isinstance(value, dict):
             self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
         elif isinstance(value, Date):
@@ -130,6 +134,10 @@ class Episode(AutoModel):
     def end_date(self, value):
         if self.end_date_obj:
             self.end_date_obj.delete()
+            self.end_date_obj = None
+        if not value:
+            self.end_date_obj = None
+            return
         if isinstance(value, dict):
             self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
         elif isinstance(value, Date):

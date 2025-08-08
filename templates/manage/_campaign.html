@@ -29,7 +29,7 @@
             <button class="button is-primary is-small" hx-post="/api/campaign/new"
                     hx-target="#world-campaign-details" hx-select="#world-campaign-details"
                     hx-swap="outerHTML">
-                <iconify-icon icon="mdi:plus" width="1rem" height="1rem"></iconify-icon>
+                {{icon_components.plus(size="1rem")}}
                 New Campaign
             </button>
         </div>
@@ -176,7 +176,7 @@
                            hx-target="#campaign-players" hx-select="#campaign-players"
                            hx-swap="outerHTML" hx-indicator=' #request-indicator'
                            hx-confirm="Are you sure you want to remove this player from the campaign?">
-                            <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
+                            {{icon_components.remove(size="1.5rem")}}
                         </a>
                     </div>
                     {% endfor%}
@@ -213,7 +213,7 @@
             <a hx-post="/api/campaign/{{campaign.pk}}/delete"
                hx-target="#page-content"
                hx-confirm='Are you sure you want to delete this campaign?'>
-                <iconify-icon icon="mdi:trash-outline" width="1.5rem"></iconify-icon>
+                {{icon_components.trash(size="1.5rem")}}
             </a>
         </div>
     </div>
@@ -248,8 +248,7 @@
                     hx-target="#world-campaign-details"
                     hx-select="#world-campaign-details"
                     hx-swap="outerHTML">
-                <iconify-icon icon="mdi:plus" width="1rem"
-                              height="1rem"></iconify-icon>
+                {{icon_components.plus(size="1rem")}}
                 New
                 Episode
             </button>
@@ -319,7 +318,7 @@
                                value="{{episode.start_date.year}}">
                     </div>
                     <div class="column is-shrink  is-vertically-centered">
-                        <iconify-icon icon="octicon:dash-16" width="2rem"></iconify-icon>
+                        {{icon_components.dash()}}
                     </div>
                     <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
                         <input class="has-text-center" type="number"
@@ -383,7 +382,7 @@
                             hx-select="#details-container"
                             hx-swap="outerHTML"
                             hx-confirm='Are you sure you want to delete this Episode?'>
-                        <iconify-icon icon="mdi:trash-outline" width="1rem"></iconify-icon>
+                        {{icon_components.trash(size="1rem")}}
                     </button>
                 </div>
             </div>

@@ -1,3 +1,5 @@
+{% import "shared/_icons.html" as icon_components %}
+
 {% macro object_title(user, obj) -%}
 <div class="row has-bg-muted has-no-padding has-no-margin has-centered" style='position:relative; margin: 0 3rem; border-radius: 5px 5px 0 0; {% if obj.get_world().image %} background-image: linear-gradient(
     to bottom,
@@ -17,7 +19,7 @@
         <a class=" has-text-secondary" hx-post="/api/manage/{{obj.path}}"
            hx-target="#page-content" hx-indicator='#request-indicator'
            hx-push-url='/manage/{{obj.path}}'>
-            <iconify-icon icon="mdi:gear" width="1.5rem" height="1.5rem"></iconify-icon>
+            {{icon_components.gear(size="1.5rem")}}
         </a>
     </div>
     {% endif %}

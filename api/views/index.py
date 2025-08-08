@@ -14,6 +14,7 @@ from jinja2 import TemplateNotFound
 
 from autonomous import log
 from models.campaign.campaign import Campaign
+from models.campaign.episode import Episode
 from models.stories.quest import Quest  # for the importer
 from models.stories.story import Story
 from models.ttrpgobject.encounter import Encounter
@@ -288,6 +289,37 @@ def campaigns(
     campaign = Campaign.get(request.args.get("campaignpk"))
     return get_template_attribute("shared/_campaigns.html", "campaigns")(
         user, obj, campaign
+    )
+
+
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/campaigns/<string:campaignpk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def getcampaign(model, pk, campaignpk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    campaign = Campaign.get(campaignpk)
+    return get_template_attribute("shared/_campaigns.html", "campaigns")(
+        user, obj, campaign
+    )
+
+
+@index_endpoint.route(
+    "/<string:model>/<string:pk>/episodes/<string:episodepk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def getepisode(model, pk, episodepk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    episode = Episode.get(episodepk)
+    log(episode)
+    return get_template_attribute("shared/_episode.html", "episode")(
+        user, obj, obj.campaigns, episode.campaign, episode
     )
 
 

@@ -26,7 +26,7 @@
         <button class="button is-primary is-small" hx-post="/api/stories/new"
                 hx-target="#world-stories" hx-select="#world-stories"
                 hx-swap="outerHTML">
-            <iconify-icon icon="mdi:plus" width="1rem" height="1rem"></iconify-icon>
+            {{icon_components.plus(size="1rem")}}
             New Story
         </button>
     </div>
@@ -80,7 +80,7 @@
                                 hx-target='#hooks-item-list'
                                 hx-select='#hooks-item-list'
                                 hx-swap='outerHTML' hx-trigger="click consume">
-                            <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+                            {{icon_components.plus(size="1rem")}}
                             New Hook
                         </button>
                     </div>
@@ -96,7 +96,7 @@
                                 hx-target='#questions-item-list'
                                 hx-select='#questions-item-list'
                                 hx-swap='outerHTML' hx-trigger="click consume">
-                            <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+                            {{icon_components.plus(size="1rem")}}
                             New Question
                         </button>
                     </div>
@@ -112,7 +112,7 @@
                                 hx-target='#rumors-item-list'
                                 hx-select='#rumors-item-list'
                                 hx-swap='outerHTML' hx-trigger="click consume">
-                            <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+                            {{icon_components.plus(size="1rem")}}
                             New Rumor
                         </button>
                     </div>
@@ -128,7 +128,7 @@
                                 hx-target='#information-item-list'
                                 hx-select='#information-item-list'
                                 hx-swap='outerHTML' hx-trigger="click consume">
-                            <iconify-icon icon="simple-line-icons:plus"></iconify-icon>
+                            {{icon_components.plus(size="1rem")}}
                             New information
                         </button>
                     </div>
@@ -218,7 +218,7 @@
             <a hx-post="/api/stories/{{story.pk}}/delete"
                hx-target="#page-content"
                hx-confirm='Are you sure you want to delete this story?'>
-                <iconify-icon icon="mdi:trash-outline" width="1.5rem"></iconify-icon>
+                {{icon_components.trash(size="1.5rem")}}
             </a>
         </div>
     </div>

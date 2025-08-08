@@ -186,9 +186,9 @@ def tasks(rest_path):
     return response.text
 
 
-# MARK: List routes
+# MARK: Data routes
 ###########################################################
-##                    List        Routes                 ##
+##                    Data        Routes                 ##
 ###########################################################
 @index_page.route(
     "/<pk>/list/<string:model>",

@@ -1,4 +1,5 @@
 {% import "shared/_display.html" as element %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro journal(user, obj) -%}
 <title>{{obj.name or obj.title}} - Journal</title>
@@ -10,7 +11,7 @@
         <div class="column is-mobile-shrink is-shrink is-end is-vertically-centered">
             <button class="button is-primary is-small" hx-post="/api/manage/journal/entry/edit"
                     hx-target="#page-content">
-                <iconify-icon icon="game-icons:quill-ink" width="2rem"></iconify-icon>
+                {{icon_components.journal()}}
                 New Entry
             </button>
         </div>
@@ -72,8 +73,7 @@
                                 hx-target='closest li'
                                 hx-swap="delete"
                                 hx-confirm='Are you sure you want to delete this entry?'>
-                            <iconify-icon icon="mdi:trash" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.trash(size="1rem")}}
                         </button>
                     </div>
                 </div>

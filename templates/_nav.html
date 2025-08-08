@@ -1,10 +1,11 @@
+{% import "shared/_icons.html" as icons_element %}
+
 {% macro topnav(user) -%}
 <nav class="row">
     <div class="column is-shrink is-vertically-centered has-text-center">
         <a href="/">
             <h2>
-                <iconify-icon icon="game-icons:dungeon-light" width="2.5rem"
-                              height="2.5rem"></iconify-icon>
+                {{icons_element.dungeon(size="2.5rem")}}
                 Storyteller
             </h2>
         </a>
@@ -15,8 +16,7 @@
     <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
         <div class="is-input-group has-bg-secondary">
             <span>
-                <iconify-icon class="has-text-muted" icon="gala:search" width="1.25rem"
-                              height="1.25rem"></iconify-icon>
+                {{icons_element.search(size="1.25rem")}}
             </span>
             <div class="has-dropdown" style="width:100%;">
                 <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
@@ -32,7 +32,7 @@
     <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
         <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
                 onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
-            <iconify-icon icon="material-symbols:keyboard-onscreen-outline-sharp"></iconify-icon>
+            {{icons_element.keyboard(size="1.5rem")}}
             GM Screen
         </button>
     </div>
@@ -93,8 +93,7 @@
             <div class="row slide-it-in">
                 <div id="collapse-sidemenu"
                      class="column is-mobile-only is-mobile-3 is-end menu-anchor-text is-hidden">
-                    <iconify-icon icon="material-symbols:close" width="2rem"
-                                  height="2rem"></iconify-icon>
+                    {{icons_element.close()}}
                 </div>
             </div>
         </div>
@@ -105,7 +104,7 @@
                 <a href="/{{obj.get_world().path}}" class="menu-anchor">
                     <div class="row">
                         <div id="menu-world-anchor" class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="mdi:world" width="1rem"></iconify-icon>
+                            {{icons_element.world(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-world-anchor', {
@@ -134,7 +133,7 @@
                    hx-push-url="/{{obj.path}}/details">
                     <div class="row">
                         <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="ooui:view-details-ltr" width="1rem"></iconify-icon>
+                            {{icons_element.details(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-details-anchor', {
@@ -161,8 +160,7 @@
                    hx-push-url="/{{obj.path}}/history">
                     <div class="row">
                         <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="material-symbols:history-edu-outline-rounded"
-                                          width="1rem"></iconify-icon>
+                            {{icons_element.history(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-history-anchor', {
@@ -174,8 +172,7 @@
 
                             });
                         </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                        <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                             <span>History</span>
                         </div>
                     </div>
@@ -189,8 +186,7 @@
                    hx-push-url="/{{obj.path}}/timeline">
                     <div class="row">
                         <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="mingcute:timeline-line"
-                                          width="1rem"></iconify-icon>
+                            {{icons_element.timeline(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-timeline-anchor', {
@@ -214,10 +210,11 @@
                    hx-get="/api/{{obj.path}}/campaigns"
                    hx-target="#page-content"
                    hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top">
+                   hx-swap="innerHTML show:#page-content:top"
+                   hx-push-url="/{{obj.path}}/campaigns">
                     <div class="row">
                         <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="gis:bus-map" width="1rem"></iconify-icon>
+                            {{icons_element.campaigns(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-campaigns-anchor', {
@@ -246,8 +243,7 @@
                    hx-push-url="/{{obj.path}}/stories">
                     <div class="row">
                         <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="material-symbols:history-edu"
-                                          width="1rem"></iconify-icon>
+                            {{icons_element.story(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-stories-anchor', {
@@ -273,7 +269,7 @@
                    hx-push-url="/{{obj.path}}/journal">
                     <div class="row">
                         <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="ooui:journal-ltr" width="1rem"></iconify-icon>
+                            {{icons_element.journal(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-journal-anchor', {
@@ -301,7 +297,7 @@
                    hx-push-url="/{{obj.path}}/jobs">
                     <div class="row">
                         <div id='menu-jobs-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="hugeicons:job-share" width="1rem"></iconify-icon>
+                            {{icons_element.jobs(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-jobs-anchor', {
@@ -327,7 +323,7 @@
                    hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
                     <div class="row">
                         <div id='menu-map-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="gis:hex-map" width="1rem"></iconify-icon>
+                            {{icons_element.map(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-map-anchor', {
@@ -365,8 +361,7 @@
                    hx-push-url="/{{obj.path}}/associations">
                     <div class="row">
                         <div id='menu-associations-anchor' class="column is-3 is-mobile-shrink">
-                            <iconify-icon icon="hugeicons:chart-relationship"
-                                          width="1rem"></iconify-icon>
+                            {{icons_element.associations(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-associations-anchor', {
@@ -449,7 +444,7 @@
             });
         }
         else {
-            /*sideMenu.addEventListener("pointerenter", (event) => {
+            sideMenu.addEventListener("pointerenter", (event) => {
                 Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
             });
             sideMenu.addEventListener("pointerleave", (event) => {
@@ -471,7 +466,7 @@
                 });
                 isOpen = !isOpen;
                 clearTimeout(timeout);
-            });*/
+            });/**/
         }
     </script>
 </div>

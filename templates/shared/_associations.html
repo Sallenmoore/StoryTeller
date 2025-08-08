@@ -1,4 +1,5 @@
 {% import "shared/_display.html" as element %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro associations(user, obj, associations) -%}
 <title>{{obj.name}} - Associations</title>
@@ -55,12 +56,14 @@
                     </div>
                     <div class="column is-shrink is-mobile-shrink">
                         <button type="submit" class="button is-small" name="order" value="asc">
-                            <iconify-icon icon="mdi:sort-ascending" width="1rem"></iconify-icon>
+                            {{icon_components.sortascending(size="1rem")}}
+                            Ascending
                         </button>
                     </div>
                     <div class="column is-shrink is-mobile-shrink">
                         <button type="submit" class="button is-small" name="order" value="desc">
-                            <iconify-icon icon="mdi:sort-descending" width="1rem"></iconify-icon>
+                            {{icon_components.sortdescending(size="1rem")}}
+                            Descending
                         </button>
                     </div>
                 </div>
@@ -108,8 +111,7 @@
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
-                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.unlink(size="1rem")}}
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>
@@ -134,8 +136,7 @@
                                 hx-select="#associations-container"
                                 hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
-                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.unlink(size="1rem")}}
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>
@@ -163,8 +164,7 @@
                                 hx-select="#associations-container"
                                 hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
-                            <iconify-icon icon="material-symbols:move-down" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.down(size="1rem")}}
                             <span style="font-size:0.5rem">is child</span>
                         </button>
                     </div>
@@ -177,8 +177,7 @@
                                 hx-select="#associations-container"
                                 hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
-                            <iconify-icon icon="codicon:type-hierarchy-sub" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.heirarchy(size="1rem")}}
                             <span style="font-size:0.5rem">is parent</span>
                         </button>
                     </div>
@@ -190,8 +189,7 @@
                                 hx-select="#associations-container"
                                 hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
-                            <iconify-icon icon="pixelarticons:unlink" width="1rem"
-                                          height="1rem"></iconify-icon>
+                            {{icon_components.unlink(size="1rem")}}
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>

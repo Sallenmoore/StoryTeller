@@ -1,5 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
@@ -9,7 +10,7 @@
            hx-push-url=" /{{obj.path}}/players">
             <div class="row">
                 <div id="menu-players-anchor" class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="game-icons:tabletop-players" width="1rem"></iconify-icon>
+                    {{icon_components.players(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-players-anchor', {
@@ -32,7 +33,7 @@
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/gm">
             <div class="row">
                 <div id='menu-game-master-anchor' class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="arcticons:dicey-dungeons" width="1rem"></iconify-icon>
+                    {{icon_components.gamemaster(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-game-master-anchor', {
@@ -55,7 +56,7 @@
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/stories/manage">
             <div class="row">
                 <div id='menu-manage-stories-anchor' class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="material-symbols:history-edu" width="1rem"></iconify-icon>
+                    {{icon_components.history(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-manage-stories-anchor', {
@@ -78,7 +79,7 @@
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/campaigns/manage">
             <div class="row">
                 <div id='menu-manage-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="mdi:planner-multiple" width="1rem"></iconify-icon>
+                    {{icon_components.campaignmanage(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-manage-campaigns-anchor', {
@@ -102,7 +103,7 @@
            hx-push-url="/{{obj.path}}/manage_screens">
             <div class="row">
                 <div id='menu-manage-screens-anchor' class="column is-3 is-mobile-shrink">
-                    <iconify-icon icon="carbon:gui-management" width="1rem"></iconify-icon>
+                    {{icon_components.gmscreenmanage(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-manage-screens-anchor', {

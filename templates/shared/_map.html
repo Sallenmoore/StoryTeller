@@ -22,7 +22,7 @@
                         hx-select="#object-map-view"
                         hx-swap="outerHTML"
                         hx-confirm="Are you sure you want to reset the map prompt?"'>
-                                <iconify-icon icon="tabler:refresh"></iconify-icon>
+                                {{icon_components.refresh()}}
                                 Reset Prompt
                 </button>
                 {% if obj.backstory_summary %}
@@ -30,7 +30,7 @@
                             hx-post="/task/generate/map/{{obj.path}}"
                             hx-target="closest .column"
                             hx-confirm="Are you sure you want to generate and overwrite the current map?">
-                        <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+                        {{icon_components.ai()}}
                         AI Generated Image
                     </button>
                 {% else %}
@@ -47,7 +47,7 @@
                             hx-target="#map-container"
                             hx-swap="innerHTML show:#map-container:bottom"
                             hx-indicator='#request-indicator'>
-                        <iconify-icon icon="game-icons:card-random"></iconify-icon>
+                        {{icon_components.random()}}
                         Select From Gallery
                     </button>
             </div>
@@ -61,7 +61,7 @@
                     <div class="row">
                         <div class="column is-shrink">
                             <button class="button is-primary is-small" type="submit">
-                                <iconify-icon icon="lucide:link"></iconify-icon>
+                                {{icon_components.link(size="1rem")}}
                                 Upload from URL
                             </button>
                         </div>
@@ -85,7 +85,7 @@
                     <div class="row">
                         <div class="column is-shrink">
                             <button class="button is-primary is-small" type="submit">
-                                <iconify-icon icon="lucide:file"></iconify-icon>
+                                {{icon_components.file(size="1rem")}}
                                 Upload from File
                             </button>
                         </div>
@@ -112,7 +112,7 @@
         <button class='button' class="button is-primary"
                 hx-post="/task/generate/{{obj.path}}/dungeon"
                 hx-target='closest .column'>
-            <iconify-icon icon="tabler:photo-ai"></iconify-icon>
+            {{icon_components.ai()}}
             Build Dungeon
         </button>
         <div class="panel has-bg-muted has-text-dark">
@@ -228,7 +228,7 @@
                     hx-post="/api/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
                     hx-target="#object-map-view" hx-select="#object-map-view"
                     hx-swap="outerHTML show:#map-container:bottom">
-                <iconify-icon icon="mdi:plus"></iconify-icon>
+                {{icon_components.plus()}}
             </button>
             {% endif %}
         </div>
