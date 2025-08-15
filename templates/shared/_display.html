@@ -1,5 +1,53 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
+
+{% macro dsp_associations(user, obj, items, title) -%}
+<h3>{{title}}</h3>
+<div class="grid-x  grid-padding-x">
+    {% for item in items %}
+        {{dsp_object_thumbnail(item, type=False, dim=250)}}
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro dsp_all_associations(user, obj) -%}
+    {% set related = { 
+        "characters": "Characters",
+        "encounters": "Encounters",
+        "items": "Items",
+        "locations": "Locations",
+        "districts": "Districts",
+        "cities": "Cities",
+        "regions": "Regions",
+        "shops": "Shops",
+        "creatures": "Creatures",
+        "vehicles": "Vehicles",
+        "factions": "Factions",
+    } %}
+
+    {% for attr, title in related.items() %}
+        {% if obj[attr] %}
+            {{ dsp_associations(user, obj, obj[attr], title) }}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}
+
+{% macro dsp_object_thumbnail(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}
+    
+    <div class="cell small-4 large-3">
+        <a href="/{{obj.path}}" target="_blank">
+            {% if obj.image %}
+            <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+            {% endif %}
+            {% if name %}
+            <div class="object-name">
+                {{obj.name}} {% if obj.canon %}<sup>(c)</sup>{% endif %}
+            </div>
+            {% endif %}
+        </a>
+    </div>
+{%- endmacro %}
+
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}
 {% if not modal %}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>

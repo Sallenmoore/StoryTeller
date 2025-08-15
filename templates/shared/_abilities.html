@@ -1,8 +1,29 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_icons.html" as icon_components %}
 
-{% macro abilities(user, obj, abilities=None) -%}
-<h3 class="has-text-muted has-bg-screen has-text-center" style='padding: 0.25rem;'>Abilities</h3>
+
+{% macro dsp_abilities(user, obj, abilities=None) -%}
+    {% set ability_list = abilities or obj.abilities %}
+
+    <ul class="accordion abilities" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+    {%for ability in ability_list%}
+        <li class="accordion-item" data-accordion-item>
+            <a href="#" class="accordion-title">{{ability.name}}</a>
+            <div class="accordion-content" data-tab-content>
+            <table class="ability">
+                <tr><th>Description</th><td>{{ability.description | safe}}</td></tr>
+                <tr><th>Roll Mechanics</th><td>{{ability.dice_roll or "N/A"}}</td></tr>
+                <tr><th>Effects</th><td>{{ability.effects or "N/A"}}</td></tr>
+                <tr><th>Duration</th><td>{{ability.duration or "N/A"}}</td></tr>
+            </table>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{%- endmacro %}
+
+{% macro abilitiesold(user, obj, abilities=None) -%}
+<h3>Abilities</h3>
 
 <div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="row">

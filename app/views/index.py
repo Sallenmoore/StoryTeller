@@ -43,6 +43,14 @@ def index():
     return render_template("index.html", user=user, page_url="/home")
 
 
+@index_page.route("/test", endpoint="test", methods=("GET", "POST"))
+@auth_required()
+def indextest():
+    user = AutoAuth.current_user()
+    session["page"] = "/test"
+    return render_template("index-test.html", user=user, page_url="/test")
+
+
 @index_page.route(
     "/image/<string:pk>/<string:size>",
     methods=("GET",),
@@ -104,7 +112,7 @@ def manage(model, pk):
 @auth_required(guest=True)
 def page(model, pk, page=""):
     user = AutoAuth.current_user()
-    session["page"] = f"/{model}/{pk}/{page or 'history'}"
+    session["page"] = f"/{model}/{pk}/{page or 'details'}"
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk

@@ -24,6 +24,15 @@
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
               crossorigin="" />
 
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap"
+              rel="stylesheet">
+
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Coming+Soon&family=Jaro:opsz@6..72&family=Josefin+Slab:ital,wght@0,100..700;1,100..700&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Rosarivo:ital@0;1&family=Wellfleet&display=swap');
+        </style>
         <!--------------------------- Custom CSS ---------------------------->
         <!-- Compiled and minified CSS-->
         <link rel="stylesheet" type="text/css"
@@ -45,34 +54,57 @@
                 crossorigin=""></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
-        <!------------------------------ Tailwind Libs ---------------------------->
-        {#
-        <script src="https://cdn.tailwindcss.com"></script>
 
-        <!-- configuration example -->
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            primary: '#45576b',
-                        }
-                    }
-                }
+        <!-- Compressed CSS -->
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
+              crossorigin="anonymous">
+
+        <!-- Compressed JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
+                crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.css" />
+        <style>
+            body {
+                font-family: 'Rosarivo', serif;
             }
-        </script>
-        <!-- customcss example -->
-        <style type="text/tailwindcss">
-            @layer utilities {
-              .content-auto {
-                content-visibility: auto;
-              }
+
+            .h1,
+            .h2,
+            .h3,
+            .h4,
+            .h5,
+            .h6,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: 'Rosarivo';
             }
-          </style>
-        <!--plugin example -->
-        <script
-                src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
-        #}
+
+            .container {
+                max-width: 75rem;
+                margin-right: auto;
+                margin-left: auto;
+                background-color: #eee;
+            }
+
+            .story {
+                font-size: 1.2rem;
+            }
+
+            .related-panel {
+                background-color: #ddd;
+            }
+
+            .related-panel h2 {
+                font-size: 1.4rem;
+                border-bottom: 1px solid;
+            }
+        </style>
 
         <!-- JavaScript Libs -->
         <script type="importmap">
@@ -160,5 +192,509 @@
             </div>
         </footer>
     </body>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.umd.js"></script>
+    <script>
+        const {
+            ClassicEditor,
+            Essentials,
+            Bold,
+            Italic,
+            Font,
+            Paragraph,
+            Mention,
+            Autosave
+        } = CKEDITOR;
+        /*
+        ClassicEditor
+            .create( document.querySelector( '#editor' ), {
+                licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODYyMzM1OTksImp0aSI6IjZmNGQyMWFjLWM0OGYtNDcwMi1iM2JiLTVlYjVlZTZiN2MxMiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkUyUCIsIkUyVyJdLCJ2YyI6ImMwNzQzZjhmIn0.r8JxebXnjUerSrIGjFJlHwJ5c3HHLxSwqYE8AZNGXPhcWlvRadM1SHnymMysWebK3DI6b6gIUEHQLpYTzZjS3g',
+                plugins: [ Essentials, Bold, Italic, Font, Paragraph, Mention ],
+                toolbar: [
+                    'undo', 'redo', '|', 'bold', 'italic', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+                ],
+                editorText: '',
+                mention: {
+                    feeds: [
+                        {
+                            marker: '@',
+                            feed: makeCall,
+                            minimumCharacters: 3
+                        }
+                    ]
+                }
+            } )
+            .then(  )
+            .catch( );
+        */
+
+        function getMentions(queryText) {
+            const url = '/api/nav/mentions';
+            const data = {
+                query: queryText,
+                user: '67886696f166a76d0ce3ba82',
+                model: 'world',
+                pk: '6764552d82587e6d53d86794'
+            };
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Success:', result);
+                    return result;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function createCK(el, str = '') {
+            ClassicEditor
+                .create(document.querySelector('#' + el), {
+                    licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODYyMzM1OTksImp0aSI6IjZmNGQyMWFjLWM0OGYtNDcwMi1iM2JiLTVlYjVlZTZiN2MxMiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkUyUCIsIkUyVyJdLCJ2YyI6ImMwNzQzZjhmIn0.r8JxebXnjUerSrIGjFJlHwJ5c3HHLxSwqYE8AZNGXPhcWlvRadM1SHnymMysWebK3DI6b6gIUEHQLpYTzZjS3g',
+                    plugins: [Autosave, Essentials, Bold, Italic, Font, Paragraph, Mention, ElementMentionRenderer],
+                    toolbar: [
+                        'undo', 'redo', '|', 'bold', 'italic', '|',
+                        'fontSize', 'fontFamily', 'fontColor'
+                    ],
+                    mention: {
+                        feeds: [
+                            {
+                                marker: '@',
+                                feed: getMentions,
+                                minimumCharacters: 3
+                            }
+                        ],
+                        // Intercept item insertions to use our element instead of the default
+                        insert: (item) => (editor, data) => {
+                            editor.model.change(writer => {
+                                const mentionElement = writer.createElement('mentionElement', {
+                                    mention: {
+                                        id: item.id,
+                                        link: item.link
+                                    }
+                                });
+                                editor.model.insertContent(mentionElement, editor.model.document.selection);
+                            });
+                            data.preventDefault();
+                        }
+                    }, autosave: {
+                        waitingTime: 5000, // in ms
+                        save(editor) {
+                            console.log('savvvving');
+                            //const textarea = document.getElementById(el);
+                            //textarea.value = editor.getData();
+                            //htmx.process(textarea);
+                            return saveData(editor.getData(), el);
+                        }
+                    },
+                })
+                .then(
+            )
+                .catch( /* ... */);
+        }
+        function saveData(data, el) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    //console.log(el);
+                    const textarea = document.getElementById(el);
+                    textarea.value = data;
+                    myform = textarea.closest('form');
+                    htmx.trigger(myform, 'change');
+
+                    console.log('Saved', data);
+                    //console.log( textarea.closest('form') );
+                    //htmx.process(textarea.closest('form'));
+                    /*
+                    */
+
+                    resolve();
+                }, 5);
+            });
+        }
+
+        function Metest(editor) {
+            // Add our custom converters
+            editor.conversion.for('dataDowncast').elementToElement({
+                model: 'mention',
+                view: (modelItem, { writer: viewWriter }) => {
+                    console.log(modelItem);
+                    const mentionAttribute = modelItem.getAttribute('mention');
+                    return viewWriter.createContainerElement('span', {}, [
+                        viewWriter.createContainerElement('a', {
+                            href: mentionAttribute.link,
+                            'data-mention': mentionAttribute.id
+                        }, { isAllowedInsideAttributeElement: true })
+                    ]);
+                }
+            });
+
+            editor.conversion.for('editingDowncast').attributeToElement({
+                model: 'mention',
+                view: (modelAttributeValue, { writer: viewWriter }) => {
+
+                    //const mentionAttribute = modelItem.getAttribute('mention');
+                    const mentionAttribute = modelAttributeValue;
+                    console.log(mentionAttribute);
+                    const span = viewWriter.createContainerElement('span', {}, [
+                        viewWriter.createContainerElement('a', {
+                            href: mentionAttribute.link,
+                            'data-mention': mentionAttribute.id
+                        }, { isAllowedInsideAttributeElement: true })
+                    ]);
+
+                    return span;
+                }
+            });
+        }
+        function MentionCustomization(editor) {
+            // The upcast converter will convert view <a class="mention" href="" data-user-id="">
+            // elements to the model 'mention' text attribute.
+            editor.conversion.for('upcast').elementToAttribute({
+                view: {
+                    name: 'a',
+                    key: 'data-mention',
+                    classes: 'mention',
+                    attributes: {
+                        href: true,
+                        'data-obj-id': true
+                    }
+                },
+                model: {
+                    key: 'mention',
+                    value: viewItem => {
+                        // The mention feature expects that the mention attribute value
+                        // in the model is a plain object with a set of additional attributes.
+                        // In order to create a proper object use the toMentionAttribute() helper method:
+                        const mentionAttribute = editor.plugins.get('Mention').toMentionAttribute(viewItem, {
+                            // Add any other properties that you need.
+                            link: viewItem.getAttribute('href'),
+                            pk: viewItem.getAttribute('data-obj-id')
+                        });
+
+                        return mentionAttribute;
+                    }
+                },
+                converterPriority: 'high'
+            });
+            /*
+                // Downcast the model 'mention' text attribute to a view <a> element.
+                editor.conversion.for( 'downcast' ).attributeToElement( {
+                    model: 'mention',
+                    view: ( modelAttributeValue, { writer } ) => {
+                        // Do not convert empty attributes (lack of value means no mention).
+                        if ( !modelAttributeValue ) {
+                            return;
+                        }
+                        console.log(modelAttributeValue);
+            
+                        return writer.createAttributeElement( 'a', {
+                            class: 'mention',
+                            'data-mention': modelAttributeValue.id,
+                            'data-obj-id': modelAttributeValue.pk,
+                            'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+                        }, {
+                            // Make mention attribute to be wrapped by other attribute elements.
+                            priority: 20,
+                            // Prevent merging mentions together.
+                            id: modelAttributeValue.uid
+                        } );
+                    },
+                    converterPriority: 'high'
+                } );
+            */
+
+            // Data downcast (HTML output when saving)
+            editor.conversion.for('dataDowncast').attributeToElement({
+                model: 'mention',
+                view: (modelAttributeValue, { writer }) => {
+                    if (!modelAttributeValue) return null;
+
+                    return writer.createAttributeElement(
+                        'span',
+                        {},
+                        { priority: 20 }
+                    )._appendChild(
+                        writer.createAttributeElement(
+                            'a',
+                            {
+                                href: modelAttributeValue.link,
+                                'data-mention': modelAttributeValue.id
+                            },
+                            { priority: 20 }
+                        )
+                    );
+                }
+            });
+
+            // Editing downcast (what’s shown in the editor UI)
+            editor.conversion.for('editingDowncast').attributeToElement({
+                model: 'mention',
+                view: (modelAttributeValue, { writer }) => {
+                    if (!modelAttributeValue) return null;
+
+                    // Create <span> container
+                    const span = writer.createAttributeElement('span', {}, { priority: 20 });
+
+                    // Create <a> inside the span
+                    const link = writer.createAttributeElement(
+                        'a',
+                        {
+                            href: modelAttributeValue.link,
+                            'data-mention': modelAttributeValue.id
+                        },
+                        { priority: 20 }
+                    );
+
+                    // Attach link to span
+                    writer.insert(writer.createPositionAt(span, 0), link);
+
+                    return span;
+                }
+            });
+            /*
+                editor.conversion.for('dataDowncast').attributeToElement( {
+                    model: 'mention',
+                    view: ( modelAttributeValue, { writer} ) => {
+                        // Do not convert empty attributes (lack of value means no mention).
+                        if ( !modelAttributeValue ) {
+                            return;
+                        }
+                        console.log(modelAttributeValue);
+            
+                        const linky = writer.createAttributeElement( 'a', {
+                            class: 'mention',
+                            'data-mention': modelAttributeValue.id,
+                            'data-obj-id': modelAttributeValue.pk,
+                            'data-name': modelAttributeValue.name,
+                            'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+                        }, {
+                            // Make mention attribute to be wrapped by other attribute elements.
+                            priority: 20,
+                            // Prevent merging mentions together.
+                            id: modelAttributeValue.uid
+                        } );
+            
+            
+                        const span = writer.createContainerElement('span', {}, [
+                                linky
+                            ]);
+                        console.log(span);
+                        return span;
+            
+                       //return linky;
+            
+                        return writer.createAttributeElement( 'a', {
+                            class: 'mention',
+                            'data-mention': modelAttributeValue.id,
+                            'data-obj-id': modelAttributeValue.pk,
+                            'data-name': modelAttributeValue.name,
+                            'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+                        }, {
+                            // Make mention attribute to be wrapped by other attribute elements.
+                            priority: 20,
+                            // Prevent merging mentions together.
+                            id: modelAttributeValue.uid
+                        } );
+            
+                    },
+                    converterPriority: 'high'
+                });*/
+            /*
+*/
+            /*
+                editor.conversion.for('downcast').attributeToElement( {
+                    model: 'mention',
+                    view: ( modelAttributeValue, { writer } ) => {
+                        // Do not convert empty attributes (lack of value means no mention).
+                        if ( !modelAttributeValue ) {
+                            return;
+                        }
+                        console.log(modelAttributeValue);
+                        //debugger;
+            
+                        return writer.createAttributeElement( 'a', {
+                            class: 'mention inline',
+                            'data-mention': modelAttributeValue.id,
+                            'data-obj-id': modelAttributeValue.pk,
+                            'data-name': modelAttributeValue.name,
+                            'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+                        }, {
+                            // Make mention attribute to be wrapped by other attribute elements.
+                            priority: 20,
+                            // Prevent merging mentions together.
+                            id: modelAttributeValue.uid
+                        } );
+                    },
+                    converterPriority: 'high'
+                });
+                */
+        }
+
+        class ElementMentionRenderer {
+            constructor(editor) {
+                this.editor = editor;
+            }
+
+            init() {
+                const editor = this.editor;
+
+                // Register new element type
+                editor.model.schema.register('mentionElement', {
+                    allowWhere: '$text',
+                    isInline: true,
+                    isObject: true,
+                    allowAttributes: ['mention']
+                });
+
+                // Remove the default attribute-based converters for 'mention'
+                editor.conversion.attributeToElement({ model: 'mention', view: null });
+
+                // Downcast: model -> view (data)
+                editor.conversion.for('dataDowncast').elementToElement({
+                    model: 'mentionElement',
+                    view: (modelItem, { writer }) => {
+                        const mention = modelItem.getAttribute('mention');
+                        const span = writer.createContainerElement('span');
+                        const link = writer.createContainerElement('a', {
+                            href: mention.link,
+                            'data-mention': mention.id
+                        });
+                        writer.insert(writer.createPositionAt(span, 0), link);
+                        return span;
+                    }
+                });
+
+                // Downcast: model -> view (editing)
+                editor.conversion.for('editingDowncast').elementToElement({
+                    model: 'mentionElement',
+                    view: (modelItem, { writer }) => {
+                        const mention = modelItem.getAttribute('mention');
+                        const span = writer.createContainerElement('span');
+                        const link = writer.createContainerElement('a', {
+                            href: mention.link,
+                            'data-mention': mention.id
+                        });
+                        writer.insert(writer.createPositionAt(span, 0), link);
+                        return span;
+                    }
+                });
+
+                // Upcast: view -> model
+                editor.conversion.for('upcast').elementToElement({
+                    view: {
+                        name: 'a',
+                        attributes: { 'data-mention': true }
+                    },
+                    model: (viewElement, { writer }) => {
+                        const mention = {
+                            id: viewElement.getAttribute('data-mention'),
+                            link: viewElement.getAttribute('href')
+                        };
+                        return writer.createElement('mentionElement', { mention });
+                    }
+                });
+
+                // Hook into mention plugin's insertion so it uses our element
+                const mentionPlugin = editor.plugins.get(Mention);
+                const originalOnCommit = mentionPlugin._onCommit;
+
+                mentionPlugin._onCommit = (feed, item) => {
+                    editor.model.change(writer => {
+                        const mentionElement = writer.createElement('mentionElement', {
+                            mention: {
+                                id: item.id,
+                                link: item.link || `/profile/${item.id.replace('@', '')}`
+                            }
+                        });
+                        editor.model.insertContent(mentionElement, editor.model.document.selection);
+                    });
+                };
+            }
+        }
+
+        class ElementBasedMentionPlugin {
+            constructor(editor) {
+                this.editor = editor;
+            }
+
+            init() {
+                const editor = this.editor;
+
+                // Extend the schema so 'mentionElement' can be used inline
+                editor.model.schema.register('mentionElement', {
+                    allowWhere: '$text',
+                    isInline: true,
+                    isObject: true,
+                    allowAttributes: ['mention']
+                });
+
+                // Prevent default mention attribute conversion from interfering
+                editor.conversion.attributeToElement({ model: 'mention', view: null });
+
+                // Downcast: Model -> View (editing and data)
+                editor.conversion.for('dataDowncast').elementToElement({
+                    model: 'mentionElement',
+                    view: (modelItem, { writer }) => {
+                        const mention = modelItem.getAttribute('mention');
+                        const span = writer.createContainerElement('span');
+                        const link = writer.createContainerElement('a', {
+                            href: mention.link,
+                            'data-mention': mention.id
+                        });
+                        writer.insert(writer.createPositionAt(span, 0), link);
+                        return span;
+                    }
+                });
+
+                editor.conversion.for('editingDowncast').elementToElement({
+                    model: 'mentionElement',
+                    view: (modelItem, { writer }) => {
+                        const mention = modelItem.getAttribute('mention');
+                        const span = writer.createContainerElement('span');
+                        const link = writer.createContainerElement('a', {
+                            href: mention.link,
+                            'data-mention': mention.id
+                        });
+                        writer.insert(writer.createPositionAt(span, 0), link);
+                        return span;
+                    }
+                });
+                /*
+                        // Upcast: View -> Model
+                        editor.conversion.for('upcast').elementToElement({
+                            view: {
+                                name: 'a',
+                                attributes: { 'data-mention': true }
+                            },
+                            model: (viewElement, { writer }) => {
+                                const mention = {
+                                    id: viewElement.getAttribute('data-mention'),
+                                    link: viewElement.getAttribute('href')
+                                };
+                                return writer.createElement('mentionElement', { mention });
+                            }
+                        });
+                        */
+            }
+        }
+    </script>
+    <style>
+        textarea {
+            display: block !important;
+        }
+    </style>
 
 </html>

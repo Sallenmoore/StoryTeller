@@ -112,9 +112,6 @@
                                 Summary
                             </div>
                             {% endif %}
-                            {% if entry.episode_report %}
-                            <div class="button">Report</div>
-                            {% endif %}
                         </div>
                     </div>
                     <div class="accordion__content has-bg-white">
@@ -122,7 +119,7 @@
                             {{entry.summary | safe}}
                             <!--<hr class='has-bg-dark-grey'>
                             {{entry.episode_report | safe}}-->
-                            <a href="summary#{{entry.pk}}">Episode Report</a>
+                            <a href="/{{obj.path}}/episodes/{{entry.pk}}">Episode Report</a>
                         </div>
                     </div>
 

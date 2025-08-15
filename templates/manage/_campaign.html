@@ -400,7 +400,14 @@
               hx-swap='none'
               hx-trigger='input delay:1s, change'>
             <div id="episode-report-container" class="fade-it-in">
-                {{form_components.texteditor(user, episode, 'episode_report')}}
+                <script>
+                    createCK('edit-{{episode.pk}}-episode_report');
+                </script>
+                <textarea name="episode_report" id="edit-{{episode.pk}}-episode_report">{{episode.episode_report}}</textarea>
+                <!--
+                <textarea name="episode_report" hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
+hx-trigger='textarea delay:1s, change' id="edit-{{episode.pk}}-episode_report">{{episode[attr] | string | safe}}</textarea>
+                {{form_components.richtexteditor(user, episode, 'episode_report')}}-->
             </div>
             <div id="episode-loot-container" class="fade-it-in">
                 <hr class='has-bg-muted'>

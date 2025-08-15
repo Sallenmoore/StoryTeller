@@ -1,0 +1,153 @@
+{% import "shared/_icons.html" as icons_element %}
+
+{% macro topnav(user) -%}
+<nav class="row">
+    <div class="column is-shrink is-vertically-centered has-text-center">
+        <a href="/">
+            <h2>
+                {{icons_element.dungeon(size="2.5rem")}}
+                Storyteller
+            </h2>
+        </a>
+    </div>
+    <div class="column is-shrink is-vertically-centered">
+        <small>ver. 0.2.1</small>
+    </div>
+    <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
+        <div class="is-input-group has-bg-secondary">
+            <span>
+                {{icons_element.search(size="1.25rem")}}
+            </span>
+            <div class="has-dropdown" style="width:100%;">
+                <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
+                       type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
+                       hx-trigger="input changed delay:500ms, search"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                <ul class="dropdown has-bg-light" id="nav-search">
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% if user and user.state != "guest"%}
+    <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
+        <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+                onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
+            {{icons_element.keyboard(size="1.5rem")}}
+            GM Screen
+        </button>
+    </div>
+    {% endif %}
+    <div class="column is-shrink is-tablet-up is-vertically-centered">
+        <a href="/">
+            <h4>
+                {% if user and user.state != "guest"%}
+                {{user.name | title}}
+                {% endif %}
+            </h4>
+        </a>
+    </div>
+    <div class="column is-shrink is-vertically-centered">
+        {% if not user or user.state == "guest" %}
+        <a href="/auth/login" class="button is-rounded is-small">Login</a>
+        {% else %}
+        <a href="/auth/logout" class="button is-rounded is-small">Logout</a>
+        {% endif %}
+    </div>
+    {% if user and user.admin %}
+    <div class="column is-shrink is-tablet-up is-vertically-centered">
+        <a class="button is-small is-rounded" href="/admin/">
+            ADMIN
+        </a>
+    </div>
+    {% endif %}
+</nav>
+{%- endmacro %}
+
+{% macro nav_dropdown(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link">
+    <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
+        <div class=" row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src=" {{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro sidemenu(user, obj) -%}
+<div id="sidenav">
+    <nav id="model-menu-container">
+        <h4><a href="/{{obj.get_world().path}}">{{icons_element.world(size="1rem")}} {{obj.get_world().name}}</a></h4>
+
+        <hr>
+        <span>
+            {{icons_element.search(size="1.25rem")}}
+        </span>
+        <div class="has-dropdown" style="width:100%;">
+            <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
+                   type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
+                   hx-trigger="input changed delay:500ms, search"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <ul class="dropdown has-bg-light" id="nav-search">
+            </ul>
+        </div>
+
+        <ul class="vertical menu">
+            <li><a href="/{{obj.path}}/details">{{icons_element.details(size="1rem")}} Details</a></li>
+            <li><a href="/{{obj.path}}/history">{{icons_element.history(size="1rem")}} History</a></li>
+            <li><a href="/{{obj.path}}/timeline">{{icons_element.timeline(size="1rem")}} Timeline</a></li>
+            <li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>
+            
+            <h6>User Specific Stuff?</h6>
+            {% if user.world_user(obj) %}
+            <li><a href="/{{obj.path}}/stories">{{icons_element.story(size="1rem")}} Stories</a></li>
+            <li><a href="/{{obj.path}}/journal">{{icons_element.journal(size="1rem")}} Journal</a></li>
+            {% endif %}
+
+            <h6>Object Dep Options</h6>
+            {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
+            <li><a href="/{{obj.path}}/jobs">{{icons_element.jobs(size="1rem")}} Job Board</a></li>
+            {% endif %}
+            {% if obj.model_name() in ["World", "Region", "City", "Location", "District", "Vehicle", "Shop"] %}
+            <li><a href="/{{obj.path}}/map">{{icons_element.map(size="1rem")}} Map</a></li>
+            {% endif %}
+        </ul>
+        
+        <hr>
+
+        <span hx-get="/api/nav/sidemenu/{{obj.path}}"
+              hx-trigger="load"
+              hx-swap="outerHTML">
+        </span>
+
+        <hr>
+
+        {% if user.world_user(obj) %}
+        <ul class="vertical menu">
+            <li><a href="/{{obj.path}}/associations">{{icons_element.associations(size="1rem")}} Associations</a></li>
+        </ul>
+        {% endif %}
+
+
+        <hr>
+
+        <ul class="vertical menu" id='child-object-submenu'>
+            {% for model in obj.all_models_str() %}
+                {% if obj.model_name() == 'World' or obj.has_associations(model) %}
+                <li><a href="/{{obj.path}}/associations/{{model | lower}}">{{obj.get_icon(model)}} {{obj.get_title(model)}}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+{%- endmacro %}

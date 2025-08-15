@@ -5,7 +5,7 @@
 
 """
 
-from flask import Blueprint, get_template_attribute, request
+from flask import Blueprint, get_template_attribute, request, json, jsonify
 from jinja2 import TemplateNotFound
 
 from autonomous import log
@@ -41,12 +41,60 @@ def sidemenudetail(model, pk):
 
 @nav_endpoint.route(
     "/search",
-    methods=("POST",),
+    methods=("POST","GET"),
 )
 def navsearch():
     user, obj, world, *_ = _loader()
     query = request.json.get("query")
     results = world.search_autocomplete(query=query) if len(query) > 2 else []
-    results = [r for r in results if r != obj]
-    # log(macro, query, [r.name for r in results])
+    log(results)
+    resultobs = [r for r in results if r != obj]
+    log(resultobs)
+    log(query, [r.name for r in resultobs])
+    log(type(results))
+    my_dict = {}
+    my_list=[]
+    for item in results:
+        entry = {"id": id(item), "name": item.name, "type": item.model_name()}
+        my_dict.update(entry)
+        my_list.append(entry)
+        #log(item.model_name())
+        #my_dict[id(item)] = item.name
+    log(my_dict)
+    log(json.dumps(my_list))
+    log(my_list)
+    #json_str = json.dumps([r.__dict__ for r in results])
+    #log(json_str)
+    
     return get_template_attribute("_nav.html", "nav_dropdown")(user, obj, results)
+    #return my_list
+
+@nav_endpoint.route(
+    "/mentions",
+    methods=("POST",),
+)
+def mentionlookupsearch():
+    user, obj, world, *_ = _loader()
+    query = request.json.get("query")
+    results = world.search_autocomplete(query=query) if len(query) > 2 else []
+
+    response=[]
+    for item in results:
+        mention = "@" + item.name
+        model_name = item.model_name().lower()
+        guid = str(item.pk)
+        #entry = {"id": mention, "pk": item.id, "name": item.name, "type": item.model_name()}
+        entry = {"id": mention, "pk": str(item.pk), "name": item.name, "type": item.model_name().lower(), "guid": guid}
+        response.append(entry)
+        log(item)
+        log(guid)
+
+#        {% macro nav_dropdown(user, obj, objs=[]) -%}
+#{% for o in objs %}
+#    <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
+
+    log(json.dumps(response))
+    #test = "[{'id': 140486713499488, 'name': 'Bukhara Spire Gate - Cocker Mountains', 'type': 'Location'}, {'id': 140486713503296, 'name': 'The Iron Mountain', 'type': 'Location'}, {'id'"
+    #responses = Response(jsonify(response), mimetype='application/json')
+
+    return response

@@ -142,7 +142,7 @@
                 toolbar: 'undo redo searchreplace | styles | bold italic blockquote link | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist | removeformat | fullscreen',
                 toolbar_sticky: true,
                 plugins: 'wordcount autoresize fullscreen lists link searchreplace',
-                resize: 'true',
+                //resize: 'true',
                 min_height: 50,
                 content_style: "body {font - family:Open-Sans,sans-serif;font-size:1.25rem;line-height: 1.5;}",
                 menubar: false,
@@ -168,4 +168,11 @@
     </div>
     {%endfor%}
 </div>
+{%- endmacro %}
+
+{% macro richtexteditor(user, obj, attr, content=None, limit=0, name="") -%}
+
+<script>
+    createCK('edit-{{obj.pk}}-{{attr}}');
+</script>
 {%- endmacro %}

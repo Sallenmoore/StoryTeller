@@ -1,0 +1,20 @@
+{% macro mentions(user, obj, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link">
+    <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
+        <div class=" row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src=" {{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
