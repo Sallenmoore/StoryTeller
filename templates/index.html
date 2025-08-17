@@ -152,6 +152,7 @@ table.ability {font-size: 90%;}
             </div>
             <div class="off-canvas-content" data-off-canvas-content>
                 {% if page_url %}
+                {{ page_url }}
                 <div  class="container" id="page-content"
                         hx-get='/api{{page_url}}'
                         hx-trigger='load'

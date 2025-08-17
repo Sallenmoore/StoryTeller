@@ -4,53 +4,95 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro menu(user, obj) -%}
-<ul class="menu__list">
-    {% if user.world_user(obj) %}
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML"
-           hx-push-url=" /{{obj.path}}/quests">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    {{icon_components.quest(size="1rem")}}
-                </div>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Quests</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    {% endif %}
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML"
-           hx-push-url=" /{{obj.path}}/chat">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    {{icon_components.chat(size="1rem")}}
-                </div>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Chat</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
+    <p>Character Menu</p>
 {%- endmacro %}
+
+{% macro info(user, obj) -%}
+    <p>Character Info</p>
+
+<title>{{obj.name or obj.title}} - Details</title>
+
+<div id="character-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>
+    <div class="cell small-12"><h2>Character Overview</h2></div>
+    <div class="story cell small-12 medium-7">
+        <p>{{obj.backstory | safe}}</p>
+
+        <h3>History</h3>
+        {{obj.history | safe}}
+
+        {% if obj.description %}
+            <h3>Description</h3>
+            <p>{{obj.description | safe}}</p>
+        {% endif %}
+
+        {% if obj.traits %}
+            <h3>Traits</h3>
+            <p>{{obj.traits}}</p>
+        {% endif %}
+        
+        {% if obj.goal %}
+            <h3>Goals and Secrets</h3>
+            {{obj.goal | safe}}
+        {% endif %}
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {% if obj.image %}
+            <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+        {% endif %}
+
+        {{demographics(user, obj)}}
+
+        <h2>Associations</h2>
+        {{ display_components.dsp_all_associations(user, obj) }}
+    </div>
+</div>
+
+
+<div id="character-game" class="grid-x grid-padding-x">
+    <div class="cell small-12">
+        <h2>Game Info</h2>
+        {{gm_notes(user, obj)}}
+    </div>
+    <div class="main-panel cell small-12 medium-8">
+        {% if obj.abilities %}
+            <h3>Abilities</h3>
+            {{abilities_components.dsp_abilities(user, obj)}}
+        {% endif %}
+    </div>
+    <div class="side-panel cell small-12 medium-4">
+        {{stats(user, obj)}}
+        {{skills(user, obj)}}
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro manage_details(user, obj) -%}
+    <p>Character Manage Details</p>
+{%- endmacro %}
+
+<!--
+    ATTRITUBES UNIQUE TO MODEL
+-->
 
 <!-- display character demographics -->
 {% macro demographics(user, obj) -%}
     <table id="demographics">
+        <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
         <tr><th>Start Date</th><td>{{obj.start_date}}</td></tr>
         <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
-        <tr><th>Age</th><td>{{ obj.age if obj.age else "Unknown" }}</td></tr>
-        <tr><th>Species</th><td>{{obj.species}}</td></tr>
-        <tr><th>Gender</th><td>{{obj.gender}}</td></tr>
+        <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
+        <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
+        <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
+        <tr><th>Gender</th><td>{{obj.gender or "Unknown"}}</td></tr>
+        <tr><th>Occupation</th><td>{{obj.occupation or "Unknown"}}</td></tr>
     </table>
 {%- endmacro %}
 
 <!-- display ability stats -->
 {% macro stats(user, obj) -%}
+    <h3>Stats</h3>
     <table>
         <tr>
             <th>STR</th>
@@ -69,452 +111,42 @@
             <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
         </tr>
     </table>
+
+    <table id="ac-hp">
+        <tr><th>AC</th><td>{{obj.ac}}</td></tr>
+        <tr><th>HP</th><td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td></tr>
+    </table>
 {%- endmacro %}
 
 <!-- display special skills -->
 {% macro skills(user, obj) -%}
-    {% for skill, val in obj.skills.items() %}
-        <h3>{{skill}}</h3>
-        <p>{{val}}</p>
-    {% endfor %}
+    {% if obj.skills %}
+        <h3>Skills</h3>
+        <div class="grid-x grid-margin-x">
+        {% for skill, val in obj.skills.items() %}
+            <table class="cell auto"><tr><th>{{skill}}</th><td>{{val}}</td></tr></table>
+        {% endfor %}
+        </div>
+    {%endif%}
 {%- endmacro %}
 
-
-{% macro info(user, obj) -%}
-<div class="panel has-bg-screen">
-    <div class="row has-space-around">
-        <div class="column is-shrink is-mobile-4">
-            <h4>STR</h4>
-            <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>DEX</h4>
-            <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>INT</h4>
-            <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>WIS</h4>
-            <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>CHA</h4>
-            <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>CON</h4>
-            <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
-        </div>
-    </div>
-    <div class="row has-space-around">
-        {% for skill, val in obj.skills.items() %}
-
-        <div class="column is-shrink is-mobile-3">
-            <div class="panel has-bg-screen is-full">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <p class='has-text-center'>{{val}}</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-<div class="row has-space-around">
-    <div class="column is-3 is-mobile-4">
-        <div id="current-hitpoints" class="panel has-bg-muted">
-            <h4 class="has-text-dark">Current HP</h4>
-            <input hx-get="/api/manage/character/hitpoints"
-                   hx-swap="none" hx-trigger="input delay:1s, change" type="number"
-                   value="{{obj.current_hitpoints}}" name="current_hitpoints">
-            <div class="row">
-                <div class="column is-shrink is-end">
-                    <button class="button is-small" hx-get="/api/manage/character/hitpoints"
-                            hx-target="#current-hitpoints" hx-select="#current-hitpoints"
-                            hx-swap="outerHTML">
-                        reset
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>MAX HP</h4>
-        <p class="has-text-dark">{{obj.hitpoints}}</p>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Occupation</h4>
-        <p class="has-text-dark">{{obj.occupation}}</p>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>Archetype (i.e. Class)</h4>
-        <p class="has-text-dark">{{obj.archetype}}</p>
-    </div>
-    <div class="column is-shrink is-mobile-4">
-        <h4 class='has-text-screen'>AC</h4>
-        <p class="has-text-dark">{{obj.ac}}</p>
-    </div>
-</div>
-<div class='row has-space-around'>
-    <div class="column is-full is-mobile-full">
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <h4 class='has-text-screen'>Age</h4>
-                {% if obj.age %}
-                <p class="has-text-dark">{{obj.age}}</p>
-                {% else%}
-                <p class="has-text-dark">Unknown</p>
-                {% endif %}
-            </div>
-            <div class="column is-shrink">
-                <h4 class='has-text-screen'>Species</h4>
-                <p class="has-text-dark">{{obj.species}}</p>
-            </div>
-            <div class="column is-shrink">
-                <h4 class='has-text-screen'>Gender</h4>
-                <p class="has-text-dark">{{obj.gender}}</p>
-            </div>
-            <div class="column is-shrink">
-                <h4 class='has-text-screen'>Status</h4>
-                <p class="has-text-dark">{{obj.status}}</p>
-            </div>
-        </div>
-    </div>
-</div>
-<hr>
-{% if user.world_user(obj)%}
-<div class="row">
-    <div class="column is-full">
-        <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
-        <div class="panel has-bg-screen">
-            <p class='has-text-light'>{{obj.goal | safe}}</p>
-        </div>
-    </div>
-    {% if obj.abilities %}
-    <div id="model-abilities" class="column is-full">
-        {{abilities_components.abilities(user, obj)}}
-    </div>
-    {% endif %}
-    {% if obj.wealth or obj.items %}
-    <div id="model-wealth" class="column is-full">
-        <h4>Wealth</h4>
-        <div class="panel">
-            <div class="row">
-                {% for item in obj.items %}
-                <div class="column is-2">
-                    {{display_components.object_display(item, type=False)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="panel has-bg-primary">
-            {% for w in obj.wealth %}
-            <p>{{w | safe}}</p>
-            <hr>
+<!-- display GM notes-->
+{% macro gm_notes(user, obj) -%}
+    <h3>GM Notes</h3>
+    <table id="gm-notes">
+        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
+        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
+        <tr><th>Hooks</th><td>
+            {% for q in obj.quests %}
+                {{ q.summary | safe }}
+                <hr>
+                {{ q.hook | safe }}
             {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
-{%- endmacro %}
-
-{% macro manage_details(user, obj) -%}
-<form hx-post="/api/manage/update"
-      hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
-            <div class="is-select">
-                <select class="has-no-border" name="is_player">
-                    <option value="False">NPC</option>
-                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
-                </select>
-            </div>
-        </div>
-        {% if obj.is_player %}
-        <div class="column is-shrink " id="dnd-beyond-id-input-container">
-            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
-            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
-        </div>
-        {% endif %}
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Status</h4>
-            <input type="text" value="{{obj.status}}" name="status">
-        </div>
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Look-A-Like</h4>
-            <input type="text" value="{{obj.lookalike}}" name="lookalike">
-        </div>
-    </div>
-    <hr>
-    <div class="row has-space-between">
-        <div class="column">
-            <h4 class="has-text-center has-text-primary">STR</h4>
-            <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">DEX</h4>
-            <input class="has-text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">INT</h4>
-            <input class="has-text-center" type="text" value="{{obj.intelligence}}"
-                   name="intelligence">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">WIS</h4>
-            <input class="has-text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CHA</h4>
-            <input class="has-text-center" type="text" value="{{obj.charisma}}" name="charisma">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CON</h4>
-            <input class="has-text-center" type="text" value="{{obj.constitution}}"
-                   name="constitution">
-        </div>
-    </div>
-    <div class="row has-space-around">
-        {% for skill, val in obj.skills.items() %}
-        <div class="column is-1 is-mobile-3">
-            <div class="panel has-bg-screen">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <input class="has-text-center" type="number" value="{{val}}"
-                       name="skills.{{skill}}">
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    <hr>
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
-            <input class="has-text-center" id="model-hitpoints" type="number"
-                   value="{{obj.hitpoints}}" name="hitpoints">
-        </div>
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-ac">AC</h4>
-            <input class="has-text-center" id="model-ac" type="number"
-                   value="{{obj.ac}}" name="ac">
-        </div>
-    </div>
-    <div class="row has-space-between">
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Species</h4>
-            <input type="text" value="{{obj.species}}" name="species">
-        </div>
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Gender</h4>
-            <input type="text" value="{{obj.gender}}" name="gender">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-center has-text-primary'>Age</h4>
-            <input class="has-text-center" type="number" value="{{obj.age}}" name="age">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Archetype</h4>
-            <select name="archetype">
-                {%for a in obj.system.classes.keys() %}
-                <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Occupation</h4>
-            <select name="occupation">
-                {%for k, v in obj.system.backgrounds.items() %}
-                <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-    </div>
-    <hr>
-    <div class="row">
-        <div class="column">
-            <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
-            {{form_components.texteditor(user, obj, "goal")}}
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div id="model-wealth" class="column is-full">
-            <h3 class='has-text-center has-text-primary'>Wealth</h3>
-            {{form_components.listeditor(user, obj, "wealth")}}
-            <hr>
-        </div>
-        <div class="column is-full">
-            {{abilities_components.edit_abilities(user, obj)}}
-        </div>
-    </div>
-</form>
-{%- endmacro %}
-
-{% macro quests(user, obj) -%}
-<div class="panel has-bg-screen">
-    <form hx-post="/api/manage/{{obj.pk}}/quest/create">
-        <div class="row has-space-around">
-            <div class="column">
-                <h3 class='has-text-muted'>Quest Board</h3>
-            </div>
-            <div class="column is-shrink">
-                <h5 class='has-text-muted'>Storyline</h5>
-            </div>
-            <div class="column is-4">
-                <div class="is-select">
-                    <select class="has-bg-muted select" name="storyline">
-                        {% for story in obj.world.stories %}
-                        <option value="{{story.pk}}">{{story.name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="column is-shrink is-vertically-centered">
-                <button class="button">
-                    Create New Quest
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
-<hr>
-<div class="accordian">
-    <ul class="accordion__list">
-        {% for entry in obj.quests %}
-        <li class="accordion__item ">
-            <a class="accordion__title" href="#quest-entry-{{obj.pk}}">
-                <div class="row has-space-between">
-                    <div class="column is-vertically-centered journal-entry-title"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class='has-text-dark'>{{entry.name}}</h3>
-                        <h5 class='has-text-dark'>{{entry.status}}</h5>
-                    </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/edit"
-                                hx-target="#page-content">
-                            Edit
-                        </button>
-                    </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/delete"
-                                hx-target='closest li'
-                                hx-swap="delete"
-                                hx-confirm='Are you sure you want to delete this entry?'>
-                            {{icon_components.trash(size="1rem")}}
-                        </button>
-                    </div>
-                </div>
-            </a>
-            <div class="accordion__content">
-                <hr class='has-bg-primary'>
-                <div class="panel has-bg-light-grey">
-                    <div class="row">
-                        <div class="column is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Summary</h4>
-                                {{entry.summary | safe}}
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Hook</h4>
-                                {{entry.hook | safe}}
-                            </div>
-                        </div>
-                        <div class="column is-full">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Description</h4>
-                                {{entry.description | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="column">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Antagonist</h4>
-                                {{entry.antagonist | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark has-text-center'>Scenes</h4>
-                        <ul class='has-no-list-style'>
-                            {% for scene in entry.scenes %}
-                            <li>
-                                <h5 class='has-text-dark has-text-center'>{{scene.type}}</h5>
-                                <b>SETUP:</b> {{scene.setup}}
-                                <ul>
-                                    <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
-                                    <li> <b>TASK:</b> {{scene.task}}</li>
-                                    <li> <b>STAKES:</b> {{scene.stakes}}</li>
-                                    <li>
-                                        <b>NPCs:</b>
-                                        <ul>
-                                            {% for npc in scene.npcs%}
-                                            <li>{{npc}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>INFORMATION:</b>
-                                        <ul>
-                                            {% for info in scene.information%}
-                                            <li>{{info}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>CHALLENGES:</b>
-                                        <ul>
-                                            {% for challenge in scene.challenges%}
-                                            <li> {{challenge}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li><b>RESOLUTION:</b> {{scene.resolution}}</li>
-                                    <li><b>REWARDS:</b> {{scene.rewards}}</li>
-                                </ul>
-                                <hr>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Plot Twists</h4>
-                        <ul>
-                            {% for twist in entry.plot_twists %}
-                            <li>{{twist}}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <hr>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Rewards</h4>
-                        {{entry.rewards | safe}}
-                    </div>
-                    <hr>
-                    <h4 class='has-text-dark has-text-center'>Associations</h4>
-                    <div class="row has-space-around">
-                        {% if entry.associations %}
-                        {% for ass in entry.associations %}
-                        <div class="column is-1">
-                            {{display_components.object_display(ass)}}
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-                <hr class='has-bg-primary'>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+        </td></tr>
+        <tr><th>Rumors</th><td>
+            {% for r in obj.rumors %}
+                {{ r | safe }}
+            {% endfor %}
+        </td></tr>
+    </table>
 {%- endmacro %}

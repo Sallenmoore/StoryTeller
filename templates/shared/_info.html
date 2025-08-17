@@ -4,6 +4,8 @@
 
 {% macro info(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
+<p>Info: {{obj.info}}</p>
+{{obj.snippet(user, 'info') | safe}}
 
 <div id="{{obj.type}}" class="grid-x grid-padding-x">
     <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>

@@ -112,7 +112,7 @@ def manage(model, pk):
 @auth_required(guest=True)
 def page(model, pk, page=""):
     user = AutoAuth.current_user()
-    session["page"] = f"/{model}/{pk}/{page or 'details'}"
+    session["page"] = f"/{model}/{pk}/{page or 'info'}"
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk
