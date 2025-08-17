@@ -36,7 +36,6 @@
             <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
         {% endif %}
 
-
         {{ character_components.dsp_demographics(user, obj) }}
         
         <h2>Associations</h2>
@@ -52,7 +51,7 @@
     <div class="main-panel cell small-12 medium-8">
         {% if obj.abilities %}
             <h3>Abilities</h3>
-            {{abilities_components.dsp_abilities(user, obj)}}
+            {{ability_components.dsp_abilities(user, obj)}}
         {% endif %}
     </div>
     <div class="side-panel cell small-12 medium-4">
@@ -196,21 +195,5 @@
         {% endif %}
     </div>
 </div>
-<hr>
-<div class="panel has-bg-light has-text-dark generated-text-lightbg">
-    <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-</div>
-<hr>
-<div class="panel has-bg-light generated-text-lightbg">
-    <h3 class='has-text-center'>Description</h3>
-    {{obj.description | safe}}
-</div>
-<hr>
-<div class="panel has-bg-light generated-text-lightbg">
-    <h3 class='has-text-center'>Backstory</h3>
-    {{obj.backstory | safe}}
-</div>
-{{obj.path}}
-
 
 {%- endmacro %}

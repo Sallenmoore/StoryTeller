@@ -106,10 +106,10 @@
             <li><a href="/{{obj.path}}/details">{{icons_element.details(size="1rem")}} Details</a></li>
             <li><a href="/{{obj.path}}/history">{{icons_element.history(size="1rem")}} History</a></li>
             <li><a href="/{{obj.path}}/timeline">{{icons_element.timeline(size="1rem")}} Timeline</a></li>
-            <li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>
             
-            <h6>User Specific Stuff?</h6>
+            <h6>User Specific Stuff? basically associations</h6>
             {% if user.world_user(obj) %}
+            <li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>
             <li><a href="/{{obj.path}}/stories">{{icons_element.story(size="1rem")}} Stories</a></li>
             <li><a href="/{{obj.path}}/journal">{{icons_element.journal(size="1rem")}} Journal</a></li>
             {% endif %}
@@ -124,30 +124,11 @@
         </ul>
         
         <hr>
-
+        <p>HTMX?</p>
         <span hx-get="/api/nav/sidemenu/{{obj.path}}"
               hx-trigger="load"
               hx-swap="outerHTML">
         </span>
-
-        <hr>
-
-        {% if user.world_user(obj) %}
-        <ul class="vertical menu">
-            <li><a href="/{{obj.path}}/associations">{{icons_element.associations(size="1rem")}} Associations</a></li>
-        </ul>
-        {% endif %}
-
-
-        <hr>
-
-        <ul class="vertical menu" id='child-object-submenu'>
-            {% for model in obj.all_models_str() %}
-                {% if obj.model_name() == 'World' or obj.has_associations(model) %}
-                <li><a href="/{{obj.path}}/associations/{{model | lower}}">{{obj.get_icon(model)}} {{obj.get_title(model)}}</a></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
     </nav>
 </div>
 {%- endmacro %}

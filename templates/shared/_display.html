@@ -1,4 +1,5 @@
 {% import "shared/_abilities.html" as abilities_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 
 {% macro dsp_associations(user, obj, items, title) -%}
@@ -31,6 +32,21 @@
         {% endif %}
     {% endfor %}
 {%- endmacro %}
+
+{% macro dsp_object_title(user, obj) -%}
+<div class="grid-x grid-padding-x">
+    <div class="cell small-12 medium-10 medium-offset-1 text-center">
+        <a href=' /{{obj.path}}'>
+            <h1 id="object-title">{{obj.name or obj.title}}</h1>
+        </a>
+    </div>
+    {% if user.world_user(obj) %}
+    <div class="cell small-12 medium-1 float-right">
+        <a href="/manage/{{obj.path}}">{{icon_components.gear()}}</a>
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}
 
 {% macro dsp_object_thumbnail(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}
     
