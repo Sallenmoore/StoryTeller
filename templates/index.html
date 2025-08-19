@@ -1,4 +1,4 @@
-{% import "_menu.html" as nav %}
+{% import "_nav.html" as nav %}
 {% import "shared/_title.html" as title %}
 {% import "manage/_gmscreen.html" as gmscreen %}
 {% import "shared/_icons.html" as icons_element %}
@@ -35,9 +35,9 @@
             @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Coming+Soon&family=Jaro:opsz@6..72&family=Josefin+Slab:ital,wght@0,100..700;1,100..700&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Rosarivo:ital@0;1&family=Wellfleet&display=swap');
         </style>
         <!--------------------------- Custom CSS ---------------------------->
-        <!-- Compiled and minified CSS-->
+        <!-- Compiled and minified CSS
         <link rel="stylesheet" type="text/css"
-              href="{{ url_for('static', filename='style/main.css') }}">
+              href="{{ url_for('static', filename='style/main.css') }}">-->
 
         <!--------------------------- Vendor JavaScript Libs ---------------------------->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -100,6 +100,25 @@ table.ability {font-size: 90%;}
     font-weight: 600;
     text-align: center;
 }
+input[type="number"] {
+    width: 3em; text-align: center;
+}
+input.year {
+    width: 5em;
+}
+#top-nav {background-color: #c3ddef;}
+#object-title { background-color: #304350;}
+#object-menu { background-color: #dee2e5;}
+h1 { margin: .3em 0; color: white; }
+#logo {
+    font-size: 2rem;
+    display: flex;
+}
+#nav-search {
+    position: absolute;
+    background: white;
+}
+li.menu a { width: 100%; }
 #sidenav { background-color: #efe;}
         </style>
 
@@ -124,21 +143,23 @@ table.ability {font-size: 90%;}
                 "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
                 "pk": "{%if obj%}{{obj.pk}}{%endif%}"
             }'>
-        <div class="is-full" id="nav" style='box-shadow: 0px 1px 5px; margin-bottom:2px;'>
+
+        <div id="nav">
             {% block topnav %}
             {{nav.topnav(user)}}
             {% endblock %}
         </div>
 
-
         {% if obj %}
-        <div class="row has-no-padding has-no-margin has-centered">
-            <div class="column is-11 is-mobile-full has-no-padding has-no-margin">
-                {{display.dsp_object_title(user, obj)}}
-            </div>
-        </div>
-        {% endif %}
+        <section id="object-title">
+            {{display.dsp_object_title(user, obj)}}
+        </section>
 
+        <section id="object-menu">
+            {{nav.object_menu(user, obj)}}
+        </section>
+        {% endif %}
+<!--
         <div class="title-bar">
             <div class="title-bar-left">
                 <button class="menu-icon" type="button" data-open="userMenu" aria-expanded="false" aria-controls="userMenu"></button>
@@ -150,22 +171,22 @@ table.ability {font-size: 90%;}
             <div class="off-canvas-absolute position-left" id="userMenu" data-off-canvas>
                 {{nav.sidemenu(user, obj)}}
             </div>
-            <div class="off-canvas-content" data-off-canvas-content>
+            <div class="off-canvas-content" data-off-canvas-content>-->
                 {% if page_url %}
-                {{ page_url }}
-                <div  class="container" id="page-content"
+                <div  class="container pu" id="page-content"
                         hx-get='/api{{page_url}}'
                         hx-trigger='load'
                         hx-indicator='#request-indicator'
                         hx-push-url='{{page_url}}'>
                 </div>
                 {% elif page_content %}
-                <div class="container" id="page-content">
+                <div class="container pc" id="page-content">
                     {{page_content | safe}}
                 </div>
                 {% endif %}
+                <!--
             </div>
-        </div>
+        </div>-->
 
         <div class="image htmx-indicator has-text-muted has-bg-screen" id="request-indicator">
             <img src="/static/images/grid.svg" alt="loading">
@@ -188,10 +209,13 @@ table.ability {font-size: 90%;}
     <script>
         $(function() {
             $(document).foundation();
+            //chopMentions();
         });
         // also re-run foundation after htmx loads
         document.addEventListener('htmx:afterSettle', function(evt) {
             $(document).foundation();
+            chopMentions();
+            //createCK('rich-text');
         });
     </script>
 
@@ -243,7 +267,7 @@ table.ability {font-size: 90%;}
             ClassicEditor
                 .create(document.querySelector('#' + el), {
                     licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODYyMzM1OTksImp0aSI6IjZmNGQyMWFjLWM0OGYtNDcwMi1iM2JiLTVlYjVlZTZiN2MxMiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkUyUCIsIkUyVyJdLCJ2YyI6ImMwNzQzZjhmIn0.r8JxebXnjUerSrIGjFJlHwJ5c3HHLxSwqYE8AZNGXPhcWlvRadM1SHnymMysWebK3DI6b6gIUEHQLpYTzZjS3g',
-                    plugins: [Autosave, Essentials, Bold, Italic, Font, Paragraph, Mention],
+                    plugins: [Autosave, Essentials, Bold, Italic, Font, Paragraph, Mention, MentionCustomization],
                     toolbar: [
                         'undo', 'redo', '|', 'bold', 'italic', '|',
                         'fontSize', 'fontFamily', 'fontColor'
@@ -256,19 +280,6 @@ table.ability {font-size: 90%;}
                                 minimumCharacters: 3
                             }
                         ],
-                        // Intercept item insertions to use our element instead of the default
-                        insert: (item) => (editor, data) => {
-                            editor.model.change(writer => {
-                                const mentionElement = writer.createElement('mentionElement', {
-                                    mention: {
-                                        id: item.id,
-                                        link: item.link
-                                    }
-                                });
-                                editor.model.insertContent(mentionElement, editor.model.document.selection);
-                            });
-                            data.preventDefault();
-                        }
                     }, autosave: {
                         waitingTime: 5000, // in ms
                         save(editor) {
@@ -280,9 +291,8 @@ table.ability {font-size: 90%;}
                         }
                     },
                 })
-                .then(
-            )
-                .catch( /* ... */);
+                .then()
+                .catch();
         }
         function saveData(data, el) {
             return new Promise(resolve => {
@@ -304,11 +314,79 @@ table.ability {font-size: 90%;}
             });
         }
 
+        function MentionCustomization( editor ) {
+	// The upcast converter will convert view <a class="mention" href="" data-user-id="">
+	// elements to the model 'mention' text attribute.
+	editor.conversion.for( 'upcast' ).elementToAttribute( {
+		view: {
+			name: 'a',
+			key: 'data-mention',
+			classes: 'mention',
+			attributes: {
+				href: true,
+				'data-obj-id': true
+			}
+		},
+		model: {
+			key: 'mention',
+			value: viewItem => {
+				// The mention feature expects that the mention attribute value
+				// in the model is a plain object with a set of additional attributes.
+				// In order to create a proper object use the toMentionAttribute() helper method:
+				const mentionAttribute = editor.plugins.get( 'Mention' ).toMentionAttribute( viewItem, {
+					// Add any other properties that you need.
+					link: viewItem.getAttribute( 'href' ),
+					pk: viewItem.getAttribute( 'data-obj-id' )
+				} );
+
+				return mentionAttribute;
+			}
+		},
+		converterPriority: 'high'
+	} );
+
+	// Downcast the model 'mention' text attribute to a view <a> element.
+	editor.conversion.for( 'downcast' ).attributeToElement( {
+		model: 'mention',
+		view: ( modelAttributeValue, { writer } ) => {
+			// Do not convert empty attributes (lack of value means no mention).
+			if ( !modelAttributeValue ) {
+				return;
+			}
+
+			return writer.createAttributeElement( 'a', {
+				class: 'mention',
+				'data-mention': modelAttributeValue.id,
+				'data-obj-id': modelAttributeValue.pk,
+				'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+			}, {
+				// Make mention attribute to be wrapped by other attribute elements.
+				priority: 20,
+				// Prevent merging mentions together.
+				id: modelAttributeValue.uid
+			} );
+		},
+		converterPriority: 'high'
+	} );
+}
+
     </script>
     <style>
         textarea {
             display: block !important;
         }
     </style>
+    <script>
+        function chopMentions() {
+            // chops the "@" from the mentions link
+            $('.mention').each(function() {
+                let originalText = $(this).text().trim();
+                if (originalText.length > 0) {
+                    let newText = originalText.replace("@", "");
+                    $(this).text(newText);
+                }
+            });
+        }
+    </script>
 
 </html>

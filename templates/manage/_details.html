@@ -12,6 +12,85 @@
         </a>
     </div>
 </div>
+
+<div id="object-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>
+
+    <div class="cell small-12">
+        <button class="button" hx-post="/task/generate/{{obj.path}}"
+                hx-target="closest .column"
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
+            {{icon_components.ai(size="1em")}} AI - Generate Details
+        </button>
+        <button class="button" hx-post="/task/generate/history/{{obj.path}}"
+                hx-target="closest .column">
+            {{icon_components.update(size="1em")}} AI - Generate History
+        </button>
+    </div>
+
+    <div class="story cell small-12 medium-7">
+        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        <label>Name
+            <input id='model-name' type="text" name="name"
+            value="{{obj.name}}"
+            onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+            oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+        </label>
+
+        <label>Theme / Traits
+            <input type="text" name="traits" value="{{obj.traits}}" maxlength="64">
+        </label>
+
+        <div class="grid-x">
+            <div class="cell medium-5">
+                <label>Start Date</label>
+                <div class="input-group">
+                    <input name="start_date.day" type="number" placeholder='day' value="{{obj.start_date.day}}">
+                    <select name="start_date.month">
+                        {% for m in obj.get_world().calendar.months %}
+                        <option class="has-text-center" value='{{m}}' 
+                        {% if loop.index0==obj.start_date.month %} selected {% endif %}>
+                            {{m}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                 <input name="start_date.year" class="year" type="number" placeholder='year' value="{{obj.start_date.year}}">
+                </div>
+            </div>
+            <div class="cell medium-5 medium-offset-2">
+                <label>End Date</label>
+                <div class="input-group">
+                    <input name="end_date.day" type="number" placeholder='day' value="{{obj.end_date.day}}">
+                    <select name="end_date.month">
+                        {% for m in obj.get_world().calendar.months %}
+                        <option class="has-text-center" value='{{m}}' 
+                        {% if loop.index0==obj.end_date.month %} selected {% endif %}>
+                            {{m}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                 <input name="end_date.year" class="year" type="number" placeholder='year' value="{{obj.end_date.year}}">
+                </div>
+            </div>
+        </form>
+        </div>
+
+        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+            <h3>Backstory</h3>
+            {{form_components.richtexteditor(user, obj, 'backstory')}}
+        </form>
+
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {% if obj.image %}
+            <a href="#manage-image"><img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" /></a>
+        {% endif %}
+        {{obj.snippet(user, 'manage_details') | safe}}
+    </div>
+
+</div>
+
+
 <div class="row has-space-around">
     {% if obj.model_name() in ['Character'] and obj.is_player %}
     <div class="column is-shrink is-vertically-centered">
@@ -31,206 +110,74 @@
         </div>
     </div>
     {% endif %}
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button has-bg-dark-grey has-text-white"
-                hx-post="/task/generate/{{obj.path}}"
-                hx-target="closest .column"
-                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
-            {{icon_components.ai(size="1rem")}}
-            Generate Details
-        </button>
-    </div>
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button is-primary" hx-post="/task/generate/history/{{obj.path}}"
-                hx-target="closest .column">
-            {{icon_components.update(size="1rem")}}
-            Update History
-        </button>
-    </div>
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button has-bg-dark has-text-primary"
-                hx-post="/api/manage/delete/{{obj.path}}"
-                hx-target="#page-content"
-                hx-confirm='Are you sure? This cannot be undone'>
-            {{icon_components.delete(size="1rem")}}
-            Delete
-        </button>
-    </div>
 </div>
 <hr>
-<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row">
-        <div class="column">
-            <h5 class='has-text-center has-text-dark'>Name</h5>
-            <input id='model-name' class="has-bg-light has-text-center" type="text" name="name"
-                   value="{{obj.name}}"
-                   onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
-                   oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
-        </div>
-        <div class="column">
-            <h5 class='has-text-center has-text-dark'>Theme</h5>
-            <input class="has-bg-light has-text-center" type="text" name="traits"
-                   value="{{obj.traits}}" maxlength="64">
-        </div>
-    </div>
-    {% if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group)%}
-    <div id="manage-obj-dates" class="row has-centered" style='position:relative;'>
-        <div class="column is-shrink is-vertically-centered">
-            <h5 class='has-text-center has-text-dark'>Start</h5>
-        </div>
-        <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-text-center" type="number"
-                   name="start_date.day"
-                   placeholder='day'
-                   value="{{obj.start_date.day}}">
-        </div>
-        <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-            <div class="is-select" style='position:relative;top: -2px;'>
-                <select name="start_date.month">
-                    {% for m in obj.get_world().calendar.months %}
-                    <option class="has-text-center" value='{{m}}' {% if
-                            loop.index0==obj.start_date.month %}
-                            selected {% endif %}>
-                        {{m}}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-text-center" type="number"
-                   name="start_date.year"
-                   placeholder='year'
-                   value="{{obj.start_date.year}}">
-        </div>
-        <div class="column is-shrink  is-vertically-centered">
-            {{icon_components.dash()}}
-        </div>
-        <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-text-center" type="number"
-                   name="end_date.day"
-                   placeholder='day'
-                   value="{{obj.end_date.day}}">
-        </div>
-        <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-            <div class="is-select" style='position:relative;top: -2px;'>
-                <select name="end_date.month">
-                    {% for m in obj.get_world().calendar.months %}
-                    <option class="has-text-center" value='{{m}}' {% if
-                            loop.index0==obj.end_date.month %}
-                            selected {% endif %}>
-                        {{m}}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-            <input class="has-text-center" type="number"
-                   name="end_date.year"
-                   placeholder='year'
-                   value="{{obj.end_date.year}}">
-        </div>
-        <div class="column is-shrink  is-vertically-centered">
-            <h5 class='has-text-center has-text-dark'>End</h5>
-        </div>
-    </div>
-    {% endif %}
-</form>
-<form hx-post="/api/manage/update"
-      hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="panel is-small has-bg-muted">
-        <h4 class='has-text-center has-text-dark'>Backstory</h4>
-        {{form_components.texteditor(user, obj, 'backstory')}}
-    </div>
-</form>
+
+<!-- edit object extended details -->
+{{obj.snippet(user, 'manage_extended_details') | safe}}
 <hr>
-{{obj.snippet(user, 'manage_details') | safe}}
+
+<!-- edit image -->
 {{image(user, obj)}}
-<hr class="has-bg-primary">
-<div class="row">
-    <div class="column is-shrink is-end">
-        <button class="button"
-                hx-post="/api/manage/delete/{{obj.path}}"
-                hx-confirm="Are you sure you want to delete this {{obj.title}}?"
-                onclick="location.href = '/world/{{obj.get_world().pk}}'">
-            {{icon_components.trash(size="1.5rem")}}
-        </button>
-    </div>
-</div>
+<hr>
+
+<!-- delete object-->
+<button class="button"
+        hx-post="/api/manage/delete/{{obj.path}}"
+        hx-confirm="Are you sure you want to delete this {{obj.title}}?"
+        onclick="location.href = '/world/{{obj.get_world().pk}}'">
+    {{icon_components.trash(size="1.5rem")}} Delete {{obj.name}}
+</button>
+
 {%- endmacro %}
 
 {% macro image(user, obj) -%}
-<h3 class='has-text-center has-text-dark' id='manage-image'>Image Editor</h3>
-<div class="panel has-bg-light-grey is-small">
-    <div class="row" id="image-manage-container">
-        <div class="column is-8" id="model-owner-image">
-            {% if obj.image %}
-            <div class="image is-margin-center">
-                <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
-            </div>
-            {% else %}
-            <div class="is-vertically-centered has-text-center" hx-post="/api/manage/{{obj.path}}"
-                 hx-trigger='load delay:5s' hx-target="#model-owner-image"
-                 hx-select="#model-owner-image" hx-swap="outerHTML">
-                <h5 class='has-text-dark'>No Image</h5>
-            </div>
-            {% endif %}
+<h2 id="image-editor">Image Editor</h2>
+<div id="object-info" class="grid-x grid-padding-x">
+    <div class="cell medium-8" id="model-owner-image">
+        {% if obj.image %}
+        <div class="image">
+            <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
         </div>
-        <div class="column is-4">
-            <div class="row">
-                <div class="column">
-                    <h5 class='has-text-center has-text-dark'>Image Description (editable)
-                    </h5>
-                    <div class="panel has-bg-light">
-                        <p id="model-desc" class="has-text-dark" contentEditable="true"
-                           hx-post="/api/manage/update" hx-trigger="input delay:1s"
-                           hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
-                           hx-swap="none">
-                            {{obj.desc | striptags}}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="column is-vertically-centered">
-                    <button class="button is-full is-small"
-                            hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .column"
-                            hx-indicator="#request-indicator"
-                            hx-confirm="Are you sure you want to generate and overwrite the current image?">
-                        {{icon_components.ai(size="1rem")}}
-                        AI Generated Image
-                    </button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="column">
-                    <button class="button is-full is-small" hx-post="/api/manage/image/gallery"
-                            hx-target="#model-owner-image" hx-swap="innerHTML">
-                        {{icon_components.random(size="1rem")}}
-                        Select From Gallery
-                    </button>
-                </div>
-            </div>
-            <form hx-post="/api/manage/update" hx-select='#image-manage-container'
-                  hx-target="#image-manage-container" hx-swap="outerHTML"
-                  hx-confirm="Are you sure you want to upload and overwrite the current map?">
-                <div class="row">
-                    <div class="column is-shrink">
-                        <button class="button is-primary is-small" type="submit">
-                            {{icon_components.link(size="1rem")}}
-                            Upload from URL
-                        </button>
-                    </div>
-                    <div class="column">
-                        <div class="inputlabel">
-                            <input class="has-bg-muted has-text-secondary" type="url" name="image"
-                                   placeholder="enter url...">
-                        </div>
-                    </div>
-                </div>
-            </form>
+        {% else %}
+        <div hx-post="/api/manage/{{obj.path}}"
+             hx-trigger='load delay:5s' hx-target="#model-owner-image"
+             hx-select="#model-owner-image" hx-swap="outerHTML">
+            No Image
         </div>
+        {% endif %}
+    </div>
+    <div class="cell medium-4">
+        <h3>Image Description <sup>(editable)</sup></h3>
+
+        <p id="model-desc" class="has-text-dark" contentEditable="true"
+            hx-post="/api/manage/update" hx-trigger="input delay:1s"
+            hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
+            hx-swap="none">
+            {{obj.desc | striptags}}
+        </p>
+
+        <button class="button"
+            hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .column"
+            hx-indicator="#request-indicator"
+            hx-confirm="Are you sure you want to generate and overwrite the current image?">
+            {{icon_components.ai(size="1rem")}} Generate New AI Image
+        </button>
+
+        <button class="button" 
+            hx-post="/api/manage/image/gallery"
+            hx-target="#model-owner-image" 
+            hx-swap="innerHTML">
+            {{icon_components.random(size="1rem")}} Select From Gallery
+        </button>
+
+        <form hx-post="/api/manage/update" hx-select='#image-manage-container'
+            hx-target="#image-manage-container" hx-swap="outerHTML"
+            hx-confirm="Are you sure you want to upload and overwrite the current image?">
+
+            <button class="button" type="submit">{{icon_components.link(size="1rem")}} Upload from URL</button>
+            <input type="url" name="image" placeholder="enter url..." />
+        </form>
     </div>
 </div>
 {%- endmacro%}

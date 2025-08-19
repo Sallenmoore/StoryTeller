@@ -1,4 +1,37 @@
+{% import "shared/_display.html" as display %}
+
+<!-- location display -->
 {% macro info(user, obj) -%}
+    <title>{{obj.name or obj.title}} - Details</title>
+    <div id="character-info" class="grid-x grid-padding-x">
+        <div class="cell small-12"><h2>Overview</h2></div>
+        <div class="story cell small-12 medium-7">
+            <p>{{obj.backstory | safe}}</p>
+
+            <h3>History</h3>
+            {{obj.history | safe}}
+        </div>
+        <div class="related-panel cell small-12 medium-4 large-offset-1">
+            {% if obj.image %}
+                <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+            {% endif %}
+
+            <table id="demographics">
+                <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
+                <tr><th>{{display.dsp_object_lifetime(obj,'start')}}</th><td>{{obj.start_date}}</td></tr>
+                <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{{obj.end_date}}</td></tr>
+                <tr><th>Type</th><td>{{ obj.location_type or "Unknown" }}</td></tr>
+                <tr><th>Owner</th><td>{{ obj.owner.name or "Unknown"}}</td></tr>
+            </table>
+
+            <h2>Associations</h2>
+            {{ display.dsp_all_associations(user, obj) }}
+        </div>
+    </div>
+{%- endmacro %}
+
+
+{% macro infoold(user, obj) -%}
 <div class="row">
     <div class="column is-shrink is-vertically-centered">
         <h3 class='has-text-dark'>{{obj.title}} Type:</h3>

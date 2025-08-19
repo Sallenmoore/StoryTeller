@@ -171,8 +171,16 @@
 {%- endmacro %}
 
 {% macro richtexteditor(user, obj, attr, content=None, limit=0, name="") -%}
-
+<textarea id="edit-{{obj.pk}}-{{attr}}" name="{{name or attr}}">
+    {% if not (content is none) %}
+        {{content | string |  safe}}
+    {% elif obj %}
+        {{obj[attr] | string | safe}}
+    {% endif %}
+</textarea>
 <script>
-    createCK('edit-{{obj.pk}}-{{attr}}');
+    $(function() {
+        createCK('edit-{{obj.pk}}-{{attr}}');
+    });
 </script>
 {%- endmacro %}

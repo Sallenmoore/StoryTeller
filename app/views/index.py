@@ -13,6 +13,7 @@ from flask import (
 
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
+from filters.utils import dsp_lifetime
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
 from models.ttrpgobject.faction import Faction  # required import for model loading

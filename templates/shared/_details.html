@@ -7,24 +7,15 @@
 <title>{{obj.name or obj.title}} - Details</title>
 
 <div id="{{obj.model_name()}}-overview" class="grid-x grid-padding-x">
-    <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>
     <div class="cell small-12"><h2>{{obj.model_name()}} Overview</h2></div>
     <div class="story cell small-12 medium-7">
+
+{{display_components.dsp_object_lifetime(obj,"start")}}
         {{obj.backstory | safe}}
 
         <h2>History</h2>
         {{obj.history | safe}}
-
-        {% if obj.description %}
-            <h3>Description</h3>
-            <p>{{obj.description | safe}}</p>
-        {% endif %}
-
-        {% if obj.traits %}
-            <h3>Traits</h3>
-            <p>{{obj.traits}}</p>
-        {% endif %}
-        
+  
         {% if obj.goal %}
             <h3>Goals and Secrets</h3>
             {{obj.goal | safe}}
@@ -43,23 +34,7 @@
     </div>
 </div>
 
-<div id="character-game" class="grid-x grid-padding-x">
-    <div class="cell small-12">
-        <h2>Game Info</h2>
-        {{character_components.dsp_gm_notes(user, obj)}}
-    </div>
-    <div class="main-panel cell small-12 medium-8">
-        {% if obj.abilities %}
-            <h3>Abilities</h3>
-            {{ability_components.dsp_abilities(user, obj)}}
-        {% endif %}
-    </div>
-    <div class="side-panel cell small-12 medium-4">
-        <br>
-        {{character_components.dsp_stats(user, obj)}}
-        {{character_components.dsp_skills(user, obj)}}
-    </div>
-</div>
+
 
 <h1>{{obj.name or obj.title}}</h1>
 <div class="row has-space-between">

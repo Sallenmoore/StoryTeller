@@ -7,7 +7,7 @@
 <p>Info: {{obj.info}}</p>
 {{obj.snippet(user, 'info') | safe}}
 
-<div id="{{obj.type}}" class="grid-x grid-padding-x">
+<div id="ccc{{obj.type}}" class="grid-x grid-padding-x">
     <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>
     <div class="story cell small-12 medium-7">
         <h2>Backstory</h2>
@@ -26,16 +26,6 @@
             <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
             
         </table>
-
-        {% if obj.description %}
-            <h3>Description</h3>
-            <p>{{obj.description | safe}}</p>
-        {% endif %}
-
-        {% if obj.traits %}
-            <h3>Traits</h3>
-            <p>{{obj.traits}}</p>
-        {% endif %}
     </div>
 </div>
 
