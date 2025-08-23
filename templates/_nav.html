@@ -62,25 +62,24 @@
             <!--<li><a href="/{{obj.path}}/history">{{icons_element.history(size="1rem")}} History</a></li>-->
             <li><a href="/{{obj.path}}/timeline">{{icons_element.timeline(size="1rem")}} Timeline</a></li>
         
-            <!--User Specific Stuff? basically associations -->
+            <!--User Specific Stuff? basically associations - let's leave off for now -->
             {% if user.world_user(obj) %}
-            <!--<li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>-->
+            <!--<li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>
             <li><a href="/{{obj.path}}/stories">{{icons_element.story(size="1rem")}} Stories</a></li>
-            <li><a href="/{{obj.path}}/journal">{{icons_element.journal(size="1rem")}} Journal</a></li>
+            <li><a href="/{{obj.path}}/journal">{{icons_element.journal(size="1rem")}} Journal</a></li>-->
             {% endif %}
         
             <!-- Object Dep Options -->
-            {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
+            {% if obj.model_name() in ["Region", "City", "District"] %}
             <li><a href="/{{obj.path}}/jobs">{{icons_element.jobs(size="1rem")}} Job Board</a></li>
             {% endif %}
             {% if obj.model_name() in ["World", "Region", "City", "Location", "District", "Vehicle", "Shop"] %}
             <li><a href="/{{obj.path}}/map">{{icons_element.map(size="1rem")}} Map</a></li>
             {% endif %}
         
-            {# 
             <!-- Object Menus -->
             {{obj.snippet(user, 'menu') | safe}}
-            #}
+
         </ul>
     </div>
 </div>

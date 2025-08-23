@@ -57,25 +57,33 @@
 </div>
 {%- endmacro %}
 
+<!-- characters have gameplay and other details -->
 {% macro manage_extended_details(user, obj) -%}
-{% if obj.goal %}
-<h3>Goals and Secrets</h3>
-{{obj.goal | safe}}
-{% endif %}
-<div id="character-game" class="grid-x grid-padding-x">
-    <div class="cell small-12">
-        <h2>Game Info</h2>
-        {{gm_notes(user, obj)}}
-    </div>
+    <div id="character-game" class="grid-x grid-padding-x">
+        <div class="cell small-12">
+            <h2>Game Info</h2>
+            <!-- DND Beyond Info -->
+            <button class="button"
+                    hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
+                    hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif%}
+                    hx-indicator="#request-indicator">
+                Updates from D&DBeyond
+            </button>
+            {% if not obj.dnd_beyond_id %}
+                <small>Must be a 'player' and have DnDBeyond ID set</small>
+            {% endif %}
 
-    <div class="side-panel cell small-12 medium-3">
-        {{update_skills(user, obj)}}
+            {{update_gm_notes(user, obj)}}
+        </div>
+
+        <div class="side-panel cell small-12 medium-3">
+            {{update_skills(user, obj)}}
+        </div>
+        <div class="side-panel cell small-12 medium-9">
+            {{update_stats(user, obj)}}
+            {{abilities.edit_abilities(user, obj)}}
+        </div>
     </div>
-    <div class="side-panel cell small-12 medium-9">
-        {{update_stats(user, obj)}}
-        {{abilities.edit_abilities(user, obj)}}
-    </div>
-</div>
 {%- endmacro %}
 
 {% macro manage_details(user, obj) -%}
@@ -91,7 +99,7 @@
     <table id="demographics">
         <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
         <tr><th>{{display.dsp_object_lifetime(obj,'start')}}</th><td>{{obj.start_date}}</td></tr>
-        <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{{obj.end_date}}</td></tr>
+        <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{%if obj.end_date.year > 0 %}{{obj.end_date}}{% endif %}</td></tr>
         <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
         <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
         <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
@@ -221,5 +229,33 @@
                 {{ r | safe }}
             {% endfor %}
         </td></tr>
+        <tr><th>Goals and Secrets</th><td>{{obj.goal | safe}}</td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- display GM notes-->
+{% macro update_gm_notes(user, obj) -%}
+    <h3>GM Notes</h3>
+    <table id="gm-notes">
+        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
+        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
+        <tr><th>Hooks</th><td>
+            {% for q in obj.quests %}
+                {{ q.summary | safe }}
+                <hr>
+                {{ q.hook | safe }}
+            {% endfor %}
+        </td></tr>
+        <tr><th>Rumors</th><td>
+            {% for r in obj.rumors %}
+                {{ r | safe }}
+            {% endfor %}
+        </td></tr>
+        <tr><th>Goals and Secrets</th><td>{{obj.goal | safe}}</td></tr>
+
+
+        <label>Goals and Secrets
+            <input type="text" name="goal" value="{{obj.goal}}">
+        </label> 
     </table>
 {%- endmacro %}

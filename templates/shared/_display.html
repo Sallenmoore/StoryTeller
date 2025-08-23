@@ -1,6 +1,15 @@
 {% import "shared/_abilities.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 
+<!-- wrapped this in a macro to keep URLs cleaner -->
+{% macro load_page_content(page, pk, user, obj=None) -%}
+    {% if obj %}
+        <span hx-get="/api/{{obj.__class__.__name__.lower()}}/{{pk}}/{{page}}"
+                hx-trigger="load"
+                hx-swap="outerHTML">
+        </span>
+    {% endif %}
+{%- endmacro %}
 
 {% macro dsp_associations(user, obj, items, title) -%}
 <h3>{{title}}</h3>
@@ -49,6 +58,12 @@
     {% endif %}
 </div>
 </div>
+{% endmacro %}
+
+{% macro dsp_object_image(obj, dim="400") -%}
+    {% if obj.image %}
+    <img src="{{obj.image.url(size=dim)}}" alt="{{obj.name}}" loading="lazy" />
+    {% endif %}
 {% endmacro %}
 
 {% macro dsp_object_thumbnail(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}

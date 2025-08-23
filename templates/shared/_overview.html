@@ -1,0 +1,25 @@
+<!-- overview.html -->
+{% extends '_base.html' %}
+
+<!-- title block -->
+{% block title %}
+    {{obj.name or obj.title}} - Overview
+{% endblock %}
+
+<!-- content block -->
+{% block sidebar %}
+    {% if obj.image %}
+        <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+    {% endif %}
+
+    <table id="demographics">
+    <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
+    <tr><th>{{display.dsp_object_lifetime(obj,'start')}}</th><td>{{obj.start_date}}</td></tr>
+    <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{{obj.end_date}}</td></tr>
+    <tr><th>Type</th><td>{{ obj.location_type or "Unknown" }}</td></tr>
+    <tr><th>Owner</th><td>{{ obj.owner.name or "Unknown"}}</td></tr>
+    </table>
+
+    <h2>Associations</h2>
+    {{ display.dsp_all_associations(user, obj) }}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "shared/_base.html" %}
+
+{% block maincontent %}
+Page: {{page}}
+Object: {{obj}}
+    <p>{{obj.backstory | safe}}</p>
+
+    <h3>History</h3>
+    {{obj.history | safe}}
+{% endblock %}
+
+{% block sidebar %}
+{% if obj.image %}
+                <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+            {% endif %}
+{% endblock %}

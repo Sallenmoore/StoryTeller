@@ -7,6 +7,7 @@ from flask import (
     Blueprint,
     Response,
     render_template,
+    get_template_attribute,
     request,
     session,
 )
@@ -114,6 +115,8 @@ def manage(model, pk):
 def page(model, pk, page=""):
     user = AutoAuth.current_user()
     session["page"] = f"/{model}/{pk}/{page or 'info'}"
+
+    log(f"Route model: {model}, Macro: {page}")
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk
@@ -221,3 +224,22 @@ def listobjs(pk, model):
 def getobjs(pk, model):
     obj = World.get_model(model, pk)
     return obj.page_data()
+
+
+
+@index_page.route("/pc/<string:model>/<string:pk>", methods=("GET", "POST"))
+@index_page.route("/pc/<string:model>/<string:pk>/<path:page>", methods=("GET", "POST"))
+@auth_required(guest=True)
+def pcpage(model, pk, page=""):
+    user = AutoAuth.current_user()
+    session["page"] = f"/{model}/{pk}/{page or 'info'}"
+    #module = page or f"models/_{obj.__class__.__name__.lower()}.html"
+    #tmpl = f"models/_{model}_pc.html"
+    tmpl = f"models/_{model}.html"
+    #template = get_template_attribute(tmpl, page)
+    log(f"PC model: {model}, Macro: {page}, Temaplte: {tmpl}")
+    if obj := World.get_model(model, pk):
+        session["model"] = model
+        session["pk"] = pk
+    #return render_template(tmpl, user=user, obj=obj, page=page)
+    return render_template("index_pc.html", user=user, obj=obj, page=page)

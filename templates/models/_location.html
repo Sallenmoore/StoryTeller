@@ -12,9 +12,7 @@
             {{obj.history | safe}}
         </div>
         <div class="related-panel cell small-12 medium-4 large-offset-1">
-            {% if obj.image %}
-                <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
-            {% endif %}
+            {{display.dsp_object_image(obj,'400')}}
 
             <table id="demographics">
                 <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
@@ -30,35 +28,7 @@
     </div>
 {%- endmacro %}
 
-
-{% macro infoold(user, obj) -%}
-<div class="row">
-    <div class="column is-shrink is-vertically-centered">
-        <h3 class='has-text-dark'>{{obj.title}} Type:</h3>
-    </div>
-    <div class="column is-shrink is-vertically-centered ">
-        <h4 class="has-text-dark">{{obj.location_type}}</h4>
-    </div>
-    {% if obj.owner %}
-    <div class="column">
-        <div class="panel has-bg-primary">
-            <h4 class="has-text-secondary">Owner</h4>
-            <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
-                <div class="image is-large is-thumbnail is-margin-center">
-                    {% if obj.owner.image %}
-                    <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
-                    {% endif %}
-                </div>
-                <h4 class="has-text-light">
-                    {{obj.owner.name}}
-                </h4>
-            </a>
-        </div>
-    </div>
-    {% endif %}
-</div>
-{%- endmacro %}
-
+<!-- admin screen -->
 {% macro manage_details(user, obj) -%}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">

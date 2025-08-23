@@ -27,7 +27,7 @@ index_endpoint = Blueprint("page", __name__)
 
 def get_template(obj, macro, module=None):
     module = module or f"models/_{obj.__class__.__name__.lower()}.html"
-    # log(f"Module: {module}, Macro: {macro}")
+    log(f"Module: {module}, Macro: {macro}")
     try:
         template = get_template_attribute(module, macro)
     except (TemplateNotFound, AttributeError) as e:

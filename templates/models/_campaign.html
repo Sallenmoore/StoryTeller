@@ -1,0 +1,40 @@
+{% import "shared/_display.html" as display %}
+{% import "shared/_icons.html" as icons %}
+
+<!-- unique menu items for campaigns -->
+{% macro menu(user, obj) -%}
+    <!--<li><a href="/{{obj.path}}/gameplay">{{icons.campaigns(size="1rem")}} Game Play</a></li>-->
+{%- endmacro %}
+
+<!-- character display -->
+{% macro info(user, obj) -%}
+<title>{{obj.name or obj.title}} - Details</title>
+<div id="character-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h2>Campaign Overview</h2></div>
+    <div class="story cell small-12 medium-7">
+        <p>{{campaign.summary | safe}}</p>
+
+        List Episodes HERE
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {% if obj.image %}
+            <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+        {% endif %}
+
+        {% if campaign.start_date %}
+        <h5>Began: {{campaign.start_date}}</h5>
+        {% endif %}
+        
+        {% if campaign.end_date %}
+        <h5>Ended: {{campaign.end_date}}</h5>
+        {% endif %}
+        
+
+        <h2>Associations</h2>
+        {{ display.dsp_all_associations(user, obj) }}
+    </div>
+</div>
+
+
+
+{%- endmacro %}

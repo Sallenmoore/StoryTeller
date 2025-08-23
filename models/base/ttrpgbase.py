@@ -568,11 +568,11 @@ Use and expand on the existing object data listed below for the {self.title} obj
     def snippet(self, user, macro, kwargs=None):
         module = f"models/_{self.model_name().lower()}.html"
         kwargs = kwargs or {}
-        # try:
-        return get_template_attribute(module, macro)(user, self, **kwargs)
-        # except Exception as e:
-        #     log(e)
-        #     return ""
+        try:
+            return get_template_attribute(module, macro)(user, self, **kwargs)
+        except Exception as e:
+            log(e)
+            return ""
 
     ## MARK: - Verification Methods
     ###############################################################

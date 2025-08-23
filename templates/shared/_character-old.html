@@ -1,0 +1,337 @@
+<!--
+    {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_tasks.html" as task_components %}
+{% import "shared/_abilities.html" as abilities_components %}
+
+
+{% macro character(user, obj) -%}
+<title>{{obj.name or obj.title}} - Details</title>
+
+
+
+
+<div id="character-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h1>{{obj.name or obj.title}}</h1></div>
+    <div class="cell small-12"><h2>Character Overview</h2></div>
+    <div class="story cell small-12 medium-7">
+        <p>{{obj.backstory | safe}}</p>
+
+        <h3>History</h3>
+        {{obj.history | safe}}
+
+        {% if obj.description %}
+            <h3>Description</h3>
+            <p>{{obj.description | safe}}</p>
+        {% endif %}
+
+        {% if obj.traits %}
+            <h3>Traits</h3>
+            <p>{{obj.traits}}</p>
+        {% endif %}
+        
+        {% if obj.goal %}
+            <h3>Goals and Secrets</h3>
+            {{obj.goal | safe}}
+        {% endif %}
+
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        <br>
+        {% if obj.image %}
+            <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+        {% endif %}
+
+        {{dsp_demographics(user, obj)}}
+
+        <h2>Associations</h2>
+        {{ display_components.dsp_all_associations(user, obj) }}
+    </div>
+</div>
+
+
+<div id="character-game" class="grid-x grid-padding-x">
+    <div class="cell small-12">
+        <h2>Game Info</h2>
+        {{dsp_gm_notes(user, obj)}}
+    </div>
+    <div class="main-panel cell small-12 medium-8">
+        {% if obj.abilities %}
+            <h3>Abilities</h3>
+            {{abilities_components.dsp_abilities(user, obj)}}
+        {% endif %}
+    </div>
+    <div class="side-panel cell small-12 medium-4">
+        <br>
+        {{dsp_stats(user, obj)}}
+        {{dsp_skills(user, obj)}}
+    </div>
+</div>
+{%- endmacro %}
+-->
+
+<!-- display character demographics -->
+{% macro dsp_demographics(user, obj) -%}
+    <table id="demographics">
+        <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
+        <tr><th>Start Date</th><td>{{obj.start_date}}</td></tr>
+        <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
+        <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
+        <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
+        <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
+        <tr><th>Gender</th><td>{{obj.gender or "Unknown"}}</td></tr>
+        <tr><th>Occupation</th><td>{{obj.occupation or "Unknown"}}</td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- display ability stats -->
+{% macro dsp_stats(user, obj) -%}
+    <h3>Stats</h3>
+    <table>
+        <tr>
+            <th>STR</th>
+            <th>DEX</th>
+            <th>INT</th>
+            <th>WIS</th>
+            <th>CHA</th>
+            <th>CON</th>
+        </tr>
+        <tr>
+            <td>{{obj.strength}} ({{(obj.strength|int-10)//2}})</td>
+            <td>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</td>
+            <td>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</td>
+            <td>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</td>
+            <td>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</td>
+            <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
+        </tr>
+    </table>
+
+    <table id="ac-hp">
+        <tr><th>AC</th><td>{{obj.ac}}</td></tr>
+        <tr><th>HP</th><td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- display special skills -->
+{% macro dsp_skills(user, obj) -%}
+    {% if obj.skills %}
+        <h3>Skills</h3>
+        <div class="grid-x grid-margin-x">
+        {% for skill, val in obj.skills.items() %}
+            
+        <table class="cell auto"><tr><th>{{skill}}</th><td>{{val}}</td></tr></table>
+        {% endfor %}
+        </div>
+    {%endif%}
+{%- endmacro %}
+
+
+<!-- display special skills (SWN)-->
+{% macro dsp_skillsa(user, obj) -%}
+    {% if obj.skills %}
+        <h3>Skills</h3>
+        <table>
+        {% for skill, val in obj.skills.items() %}
+            <tr><th>{{skill}}</th><td>{{val}}</td></tr>
+        {% endfor %}
+        </table>
+    {%endif%}
+{%- endmacro %}
+
+<!-- display GM notes-->
+{% macro dsp_gm_notes(user, obj) -%}
+    <h3>GM Notes</h3>
+    <table id="gm-notes">
+        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
+        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
+        <tr><th>Hooks</th><td>
+            <ul>
+                {% for q in obj.quests %}
+                <li>
+                    {{ q.summary | safe }}
+                    <hr class='has-bg-primary'>
+                    {{ q.hook | safe }}
+                </li>
+                {% endfor %}
+            </ul>
+
+        </td></tr>
+        <tr><th>Rumors</th><td>
+            <ul>
+                {% for r in obj.rumors %}
+                <li>
+                    {{ r | safe }}
+                </li>
+                {% endfor %}
+            </ul></td></tr>
+    </table>
+{%- endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% macro episode_details(user, obj, campaign, episode=None) -%}
+    <div class="grid-x grid-padding-x">
+        <div class="cell small-12"><h1>{{episode.name}}</h1></div>
+        <div class="story cell small-12 medium-7">
+            <div id="episode-report-container">
+                {{episode.episode_report | safe}}
+            </div>
+            {% if episode.loot %}
+            <div id="episode-loot-container">
+                <h2>Loot</h2>
+                {{episode.loot | safe}}
+            </div>
+            {% endif %}
+            {% if episode.hooks %}
+            <div id="episode-hooks-container">
+                <h2>Hooks</h2>
+                {{episode.hooks | safe}}
+            </div>
+            {% endif %}
+        </div>
+        <div class="related-panel cell small-12 medium-4 large-offset-1">
+            <br>
+            <table>
+                <tr><th>Campaign</th><td>{{campaign.name}}</td></tr>
+                <tr><th>Episode #</th><td>{{episode.episode_num}}</td></tr>
+                <tr><th>Start Date</th><td>{{episode.start_date}}</td></tr>
+                <tr><th>End Date</th><td>{{episode.end_date}}</td></tr>
+            </table>
+            {{episode_selector(user, obj, campaign, episode)}}
+            {{episode_associations(user, obj, episode)}}
+        </div>
+    </div>
+{%- endmacro %}
+
+
+{% macro episode_associations(user, obj, episode, afilter=None) -%}
+<div id="episode-associations">
+        {% if episode.characters %}
+        {{ episode_association_display(user, obj, episode, episode.characters, obj.get_title("Characters")) }}
+        {% endif %}
+        {% if episode.encounters %}
+        {{ episode_association_display(user, obj, episode, episode.encounters, obj.get_title("Encounters")) }}
+        {% endif %}
+        {% if episode.items %}
+        {{ episode_association_display(user, obj, episode, episode.items, obj.get_title("Items")) }}
+        {% endif %}
+        {% if episode.locations %}
+        {{ episode_association_display(user, obj, episode, episode.locations, obj.get_title("Locations")) }}
+        {% endif %}
+        {% if episode.districts %}
+        {{ episode_association_display(user, obj, episode, episode.districts, obj.get_title("Districts")) }}
+        {% endif %}
+        {% if episode.cities %}
+        {{ episode_association_display(user, obj, episode, episode.cities, obj.get_title("Cities")) }}
+        {% endif %}
+        {% if episode.regions %}
+        {{ episode_association_display(user, obj, episode, episode.regions, obj.get_title("Regions")) }}
+        {% endif %}
+        {% if episode.shops %}
+        {{ episode_association_display(user, obj, episode, episode.shops, obj.get_title("Shops")) }}
+        {% endif %}
+        {% if episode.creatures %}
+        {{ episode_association_display(user, obj, episode, episode.creatures, obj.get_title("Creatures")) }}
+        {% endif %}
+        {% if episode.vehicles %}
+        {{ episode_association_display(user, obj, episode, episode.vehicles, obj.get_title("Vehicles")) }}
+        {% endif %}
+        {% if episode.factions %}
+        {{ episode_association_display(user, obj, episode, episode.factions, obj.get_title("Factions")) }}
+        {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro episode_association_display(user, obj, episode, children, title) -%}
+<h2>{{title}}</h2>
+<div class="grid-x  grid-padding-x">
+    {% for a in children %}
+    <div class="cell small-4 large-3">
+        {{display_components.object_display(a, type=False, dim=250)}}
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+
+{% macro episode_selector(user, obj, campaign, episode=None) -%}
+<script>
+    function goToEpisode(el) {
+        var episode_id = el.options[el.selectedIndex].value;
+        window.location.href = '/{{obj.path}}/episodes/' + episode_id;
+    }
+</script>
+<select id="episode-select" name="episodepk" onchange="goToEpisode(this);">
+    <option value="">==Select Episode==</option>
+    {% for ep in campaign.episodes %}
+    <option value="{{ep.pk}}" {%if episode and
+            ep==episode %} selected {% endif %}>
+        {{ep.name}}
+    </option>
+    {% endfor %}
+</select>
+{%- endmacro %}
+
+{% macro episode_details_old(user, obj, campaign, episode=None) -%}
+<script>
+    function goToEpisode(el) {
+        var episode_id = el.options[el.selectedIndex].value;
+        window.location.href = '/{{obj.path}}/episodes/' + episode_id;
+    }
+    function updateAction() {
+        var select = document.getElementById('campaignpk');
+        if (!select) return;
+        select.setAttribute('hx-push-url', '/{{obj.path}}/campaigns/' + encodeURIComponent(select.value));
+        select.setAttribute('hx-get', '/{{obj.path}}/campaigns/' + encodeURIComponent(select.value));
+    }
+</script>
+<div class="section is-small">
+    <h3 class='has-text-primary'>Episode Select</h3>
+    <div class="row">
+        <div class="column">
+            <select id="episode-select" class="has-bg-muted" name="episodepk" onchange="goToEpisode(this);">
+                <option value="">==Select Episode==</option>
+                {% for ep in campaign.episodes %}
+                <option value="{{ep.pk}}" {%if episode and
+                        ep==episode %} selected {% endif %}>
+                    {{ep.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row fade-it-in" id='campaign-episode-container'>
+        <div id='episode-details' class="column">
+            {% if episode %}
+            <div class="row has-space-around">
+                <div class="column">
+                    <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
+                         style='position:relative;'>
+                        {{episode.summary | safe}}
+                    </div>
+                </div>
+            </div>
+            <hr>
+                <div class="row">
+                    {{episode.name}} {{episode.episode_num}}
+                </div>
+                <div class="row has-centered">
+                    {{episode.start_date.day}} {{episode.start_date.month}} {{episode.start_date.year}}
+                    {{episode.end_date.day}} {{episode.end_date.month}} {{episode.end_date.year}}
+                </div>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
