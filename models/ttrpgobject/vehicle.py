@@ -58,6 +58,16 @@ class Vehicle(Place):
                     "type": "integer",
                     "description": "The maximum number of crew that can be aboard the vehicle.",
                 },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the location to life",
+                },
+                "recent_events": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A concise list of significant events that have recently occurred in this location, even if they aren't ongoing situations. Only include publicly known information.",
+                },
                 "abilities": {
                     "type": "array",
                     "description": "Generate at least 2 offensive combat, 2 defensive combat AND 2 roleplay special ability objects for the array. Each object in the array should have attributes for the ability name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",

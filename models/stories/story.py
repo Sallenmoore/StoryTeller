@@ -12,13 +12,13 @@ class Story(AutoModel):
     situation = StringAttr(default="")
     current_status = StringAttr(default="")
     backstory = StringAttr(default="")
-    hooks = ListAttr(StringAttr(default=""))
     questions = ListAttr(StringAttr(default=""))
     rumors = ListAttr(StringAttr(default=""))
     information = ListAttr(StringAttr(default=""))
     bbeg = ReferenceAttr(choices=["Character"])
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+    episodes = ListAttr(ReferenceAttr(choices=["Episode"]))
 
     def __str__(self):
         return f"{self.situation}"
@@ -45,11 +45,6 @@ class Story(AutoModel):
                     "type": "string",
                     "description": "A detailed description of the backstory leading up to the current situation.",
                 },
-                "hooks": {
-                    "type": "array",
-                    "description": "A list of possible hooks or situations that the player characters might encounter to entice them to engage with the storyline.",
-                    "items": {"type": "string"},
-                },
                 "questions": {
                     "type": "array",
                     "description": "A list of open questions that the player characters must answer. These questions should be relevant to the situation and provide a framework for the player characters to explore and engage with the story.",
@@ -57,7 +52,7 @@ class Story(AutoModel):
                 },
                 "rumors": {
                     "type": "array",
-                    "description": "A list of rumors that will help the player characters understand the situation, in the order they should be revealed. Rumors are not always true, but they should be relevant to the situation and provide useful information to the player characters.",
+                    "description": "A list of rumors that will draw the players in and help the player characters learn about the situation, in the order they should be revealed. Rumors are not always true, but they should be relevant to the situation and provide useful information to the player characters.",
                     "items": {"type": "string"},
                 },
                 "information": {

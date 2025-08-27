@@ -3,6 +3,65 @@
 {% import "shared/_abilities.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+    <h3 class='has-text-center'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-half">
+            <h5> Details</h5>
+            <div class="panel">
+                <ul>
+                    <li>{{obj.description_summary | safe}}</li>
+                    {% for sd in obj.sensory_details %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="column">
+            <h5>Look-A-Like</h5>
+            <div class="panel">
+                {{obj.lookalike | safe}}
+            </div>
+        </div>
+        <div class="column">
+            <h5>Voice</h5>
+            <div class="panel">
+                {{obj.voice_description | safe}}
+            </div>
+        </div>
+        {% if obj.quests %}
+        <div class="column is-full">
+            <h5>Hooks</h5>
+            <div class="panel">
+                <ul>
+                    {% for q in obj.quests %}
+                    <li>
+                        {{ q.summary | safe }}
+                        <hr class='has-bg-primary'>
+                        {{ q.hook | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        <div class="column is-full">
+            <h5>Rumors</h5>
+            <div class="panel">
+                <ul>
+                    {% for r in obj.rumors %}
+                    <li>
+                        {{ r | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
     {% if user.world_user(obj) %}

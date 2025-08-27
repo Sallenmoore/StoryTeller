@@ -1,3 +1,44 @@
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+    <h3 class='has-text-center'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-full">
+            <h5> Details</h5>
+            <div class="panel has-text-light">
+                <ul>
+                    <li>{{obj.description_summary | safe}}</li>
+                    {% for sd in obj.sensory_details %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="column is-full">
+            <h5>Recent Events</h5>
+            <div class="panel has-text-light">
+                <ul>
+                    {% for sd in obj.recent_events %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="column is-full">
+            <h5>Rumors</h5>
+            <div class="panel has-text-light">
+                <ul>
+                    {% for r in obj.rumors %}
+                    <li>
+                        {{ r | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
 {% macro info(user, obj) -%}
 <div class="row">
     {% if obj.owner %}

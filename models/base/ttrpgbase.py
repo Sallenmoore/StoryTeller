@@ -268,12 +268,26 @@ EVENTS
         return f"{self.model_name().lower()}/{self.pk}"
 
     @property
-    def possible_events(self):
-        return self._possible_events
+    def rumors(self):
+        rumors = []
+        for npc in self.characters:
+            for quest in npc.quests:
+                rumors += quest.rumors
+        return rumors
 
     @property
-    def motif(self):
-        return self.traits
+    def recent_events(self):
+        recent_events = []
+        for poi in [
+            *self.regions,
+            *self.cities,
+            *self.districts,
+            *self.locations,
+            *self.shops,
+            *self.vehicles,
+        ]:
+            recent_events += poi.recent_events
+        return recent_events
 
     @property
     def slug(self):

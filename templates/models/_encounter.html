@@ -1,5 +1,31 @@
 {% import "shared/_form.html" as form_components %}
 
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+    <h3 class='has-text-center'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-full">
+            <h5>Summary</h5>
+            <div class="panel">
+                {{obj.backstory_summary | safe}}
+            </div>
+        </div>
+        <div class="column is-half">
+            <h5>Antagonists</h5>
+            <div class="panel">
+                <div class="row">
+                    {% for sd in obj.enemies() %}
+                    <div class="column">
+                        {{display_components.object_display(sd)}}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
 {% macro info(user, obj=None) -%}
 <div class="row has-space-around">
     <div class="column is-shrink">

@@ -275,33 +275,22 @@ def card(model, pk):
 
 
 @index_endpoint.route(
+    "/campaigns/<string:campaignpk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@index_endpoint.route(
     "/<string:model>/<string:pk>/campaigns",
     methods=(
         "GET",
         "POST",
     ),
 )
-def campaigns(
-    model,
-    pk,
-):
+def campaigns(model, pk, campaignpk=None):
     user, obj, *_ = _loader(model=model, pk=pk)
-    campaign = Campaign.get(request.args.get("campaignpk"))
-    return get_template_attribute("shared/_campaigns.html", "campaigns")(
-        user, obj, campaign
-    )
-
-
-@index_endpoint.route(
-    "/<string:model>/<string:pk>/campaigns/<string:campaignpk>",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def getcampaign(model, pk, campaignpk):
-    user, obj, *_ = _loader(model=model, pk=pk)
-    campaign = Campaign.get(campaignpk)
+    campaign = Campaign.get(campaignpk or request.args.get("campaignpk"))
     return get_template_attribute("shared/_campaigns.html", "campaigns")(
         user, obj, campaign
     )

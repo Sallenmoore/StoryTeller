@@ -15,7 +15,7 @@ from slugify import slugify
 
 from autonomous import log
 from models.journal import JournalEntry
-from models.stories.quest import Quest, Scene
+from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.character import Character
@@ -360,24 +360,6 @@ def update_quest_entry(entrypk=None):
     quest.status = request.json.get("status")
     quest.save()
     return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
-
-
-@manage_endpoint.route("/quest/scene/update", methods=("POST",))
-@manage_endpoint.route("/quest/scene/<string:scenepk>/update", methods=("POST",))
-def update_scene_entry(scenepk=None):
-    user, obj, *_ = _loader()
-    scene = Scene.get(scenepk)
-    log(request.json)
-    scene.type = request.json.get("type")
-    scene.task = request.json.get("task")
-    scene.setup = request.json.get("setup")
-    scene.information = request.json.get("information")
-    scene.description = request.json.get("description")
-    scene.challenges = request.json.get("challenges")
-    scene.npcs = request.json.get("npcs")
-    scene.resolution = request.json.get("resolution")
-    scene.save()
-    return "<success></success>"
 
 
 @manage_endpoint.route("/quest/<string:entrypk>/delete", methods=("POST",))

@@ -1,340 +1,63 @@
-{% import "shared/_form.html" as form_components %}
-{% import "shared/_display.html" as display_components %}
-{% import "shared/_icons.html" as icon_components %}
-{% import "shared/_tasks.html" as task_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "shared/_display.html" as display %}
+{% import "shared/_icons.html" as icons %}
 
-{% macro episode(user, obj, campaign_list, campaign=None, episode=None) -%}
-<title>{{obj.name | title}} - Manage Campaign</title>
-<h2 id='manage-campaigns'>
-    Manage Campaigns
-</h2>{{episode}}
-<div id="world-campaign-details" class="raise-it">
-    {% if campaign %}
-    <a class="{% if episode %} is-active {% endif %} has-text-dark"
-       hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}'
-       hx-target='#details-container'>
-        Episode Details
-    </a>
-    <div class="row">
-        <div id='details-container' class="column is-full">
-            {% if episode %}
-            {{episode_details(user, obj, campaign, episode)}}
-            {% endif %}
-        </div>
+<!-- unique menu items for campaigns -->
+{% macro menu(user, obj) -%}
+    <!--<li><a href="/{{obj.path}}/gameplay">{{icons.campaigns(size="1rem")}} Game Play</a></li>-->
+{%- endmacro %}
+
+<!-- character display -->
+{% macro info(user, obj) -%}
+<title>{{obj.campaign.name}} - {{obj.name}}</title>
+<div id="character-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h2>{{obj.name}}</h2></div>
+    <div class="story cell small-12 medium-7">
+        <p>{{obj.episode_report | safe}}</p>
+
     </div>
-    {{episode_details(user, obj, campaign, episode)}}
-    {% endif %}
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        <table>
+            <tr><th>Campaign</th><td>{{obj.campaign.name}}</td></tr>
+            <tr><th>Episode #</th><td>{{obj.episode_num}}</td></tr>
+            <tr><th>Start Date</th><td>{{obj.start_date}}</td></tr>
+            <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
+        </table>
+        {{ episode_selector(user, obj) }}
+        {{ display.dsp_all_associations(user, obj) }}
+    </div>
 </div>
 
 {%- endmacro %}
 
-
-{% macro episode_details(user, obj, campaign, episode=None) -%}
-<div class="section is-small">
-    <h3 class='has-text-primary'>Episode Select</h3>
-    <div class="row">
-        <div class="column">
-            <select id="episode-select" class="has-bg-muted" name="episodepk"
-                    hx-post="/api/campaign/{{campaign.pk}}/episode/manage"
-                    hx-target="#episode-details"
-                    hx-select="#episode-details"
-                    hx-trigger='change' hx-indicator='#request-indicator'>
-                <option value="">==Select Episode==</option>
-                {% for ep in campaign.episodes %}
-                <option value="{{ep.pk}}" {%if episode and
-                        ep==episode %} selected {% endif %}>
-                    {{ep.name}}:
-                    {{ep.start_date}}
-                    -
-                    {{ ep.end_date }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink is-end">
-            <button class="button is-primary is-small"
-                    hx-post="/api/campaign/{{campaign.pk}}/episode/new"
-                    hx-target="#world-campaign-details"
-                    hx-select="#world-campaign-details"
-                    hx-swap="outerHTML">
-                {{icon_components.plus(size="1rem")}}
-                New
-                Episode
-            </button>
-        </div>
-    </div>
-    <div class="row fade-it-in" id='campaign-episode-container'>
-        <div id='episode-details' class="column">
-            {% if episode %}
-            <div class="row has-space-around">
-                <div class="column">
-                    <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
-                         style='position:relative;'>
-                        {{episode.summary | safe}}
-                        <button class='button is-small' class="button is-primary"
-                                style='position: absolute; bottom:0px; right:0px;'
-                                hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                                hx-target='closest .column'>
-                            Update Summary
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
-                  hx-swap='none'
-                  hx-trigger='input delay:1s, change'>
-                <div class="row">
-                    <div class="column is-6">
-                        <h4 class='has-text-center has-text-dark'>Name</h4>
-                        <input class="has-bg-light has-text-center" type="text" name="name"
-                               value="{{episode.name}}">
-                    </div>
-                    <div class="column is-6">
-                        <h4 class='has-text-center has-text-dark'>Episode Number</h4>
-                        <input class="has-bg-light has-text-center" type="number" name="episode_num"
-                               value="{{episode.episode_num}}">
-                    </div>
-                </div>
-                <div class="row has-centered" style='position:relative;'>
-                    <div class="column is-shrink is-vertically-centered">
-                        <h5 class='has-text-center has-text-dark'>Start</h5>
-                    </div>
-                    <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="start_date.day"
-                               placeholder='day'
-                               value="{{episode.start_date.day}}">
-                    </div>
-                    <div
-                         class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-                        <div class="is-select" style='position:relative;top: -2px;'>
-                            <select name="start_date.month">
-                                {% for m in episode.world.calendar.months %}
-                                <option class="has-text-center" value='{{m}}' {% if
-                                        loop.index0==episode.start_date.month %}
-                                        selected {% endif %}>
-                                    {{m}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="start_date.year"
-                               placeholder='year'
-                               value="{{episode.start_date.year}}">
-                    </div>
-                    <div class="column is-shrink  is-vertically-centered">
-                        {{icon_components.dash()}}
-                    </div>
-                    <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="end_date.day"
-                               placeholder='day'
-                               value="{{episode.end_date.day}}">
-                    </div>
-                    <div
-                         class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-                        <div class="is-select" style='position:relative;top: -2px;'>
-                            <select name="end_date.month">
-                                {% for m in episode.world.calendar.months %}
-                                <option class="has-text-center" value='{{m}}' {% if
-                                        loop.index0==episode.end_date.month %}
-                                        selected {% endif %}>
-                                    {{m}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="end_date.year"
-                               placeholder='year'
-                               value="{{episode.end_date.year}}">
-                    </div>
-                    <div class="column is-shrink  is-vertically-centered">
-                        <h5 class='has-text-center has-text-dark'>End</h5>
-                    </div>
-                </div>
-            </form>
-            <div class="tabs has-border">
-                <ul class="episode_tablist tabs__list has-centered ">
-                    <li class='has-text-dark'>
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/report'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Episode Report</h5>
-                        </a>
-                    </li>
-                    <li class="has-text-dark">
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/associations'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Associations</h5>
-                        </a>
-                    </li>
-                </ul>
-                <div class="row">
-                    <div id="episode-manage-container" class="column episode_tabs fade-it-in">
-                        {{episode_report(user, obj, episode)}}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-
-{% macro episode_report(user, obj, episode, afilter=None) -%}
-<div class="row">
-    <div class="column is-8">
-        <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
-              hx-swap='none'
-              hx-trigger='input delay:1s, change'>
-            <div id="episode-report-container" class="fade-it-in">
-                {{episode.episode_report}}
-            </div>
-            <div id="episode-loot-container" class="fade-it-in">
-                <hr class='has-bg-muted'>
-                <h3 class='has-text-center'>Loot</h3>
-                {{episode.loot}}
-            </div>
-            <div id="episode-loot-container" class="fade-it-in">
-                <hr class='has-bg-muted'>
-                <h3 class='has-text-center'>Hooks</h3>
-                {{episode.hooks}}
-            </div>
-        </form>
-    </div>
-    <div class="column is-4">
-        {{episode_associations(user, obj, episode)}}
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_associations(user, obj, episode, afilter=None) -%}
-<div id="episode-associations" class="row">
-    <div class="column fade-it-in">
-        <h5 class='has-text-primary'>Add New...</h5>
-        <div class="row has-space-around">
-            {% for model in obj.all_models_str() %}
-            <div class="column is-shrink">
-                <button class='button is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/{{model | lower}}'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    {{obj.get_title(model)}}
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        <h5 class='has-text-primary'>...or Add Existing</h5>
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/campaignassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    All Campaign Associations
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/episodeassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    Previous Episode Associations
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/players'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    players
-                </button>
-            </div>
-            <div class="column is-half">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/campaign/episode/{{episode.pk}}/associations/add/search"
-                           hx-target="#episode-new-associations-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="episode-new-associations-list">
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="panel has-bg-screen">
-            {% if episode.encounters %}
-            {{ episode_association_display(user, obj, episode, episode.encounters, obj.get_title("Encounter")) }}
-            {% endif %}
-            {% if episode.locations %}
-            {{ episode_association_display(user, obj, episode, episode.locations, obj.get_title("Location")) }}
-            {% endif %}
-            {% if episode.shops %}
-            {{ episode_association_display(user, obj, episode, episode.shops, obj.get_title("Shop")) }}
-            {% endif %}
-            {% if episode.districts %}
-            {{ episode_association_display(user, obj, episode, episode.districts, obj.get_title("District")) }}
-            {% endif %}
-            {% if episode.characters %}
-            {{ episode_association_display(user, obj, episode, episode.characters, obj.get_title("Character")) }}
-            {% endif %}
-            {% if episode.creatures %}
-            {{ episode_association_display(user, obj, episode, episode.creatures, obj.get_title("Creature")) }}
-            {% endif %}
-            {% if episode.items %}
-            {{ episode_association_display(user, obj, episode, episode.items, obj.get_title("Item")) }}
-            {% endif %}
-            {% if episode.vehicles %}
-            {{ episode_association_display(user, obj, episode, episode.vehicles, obj.get_title("Vehicle")) }}
-            {% endif %}
-            {% if episode.factions %}
-            {{ episode_association_display(user, obj, episode, episode.factions, obj.get_title("Faction")) }}
-            {% endif %}
-            {% if episode.cities %}
-            {{ episode_association_display(user, obj, episode, episode.cities, obj.get_title("City")) }}
-            {% endif %}
-            {% if episode.regions %}
-            {{ episode_association_display(user, obj, episode, episode.regions, obj.get_title("Region")) }}
-            {% endif %}
-
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_association_display(user, obj, episode, children, title) -%}
-<h3 class='has-text-center'> {{title}} </h3>
-<hr class='has-bg-muted'>
-<div class="row">
-    {% for a in children %}
-    <div class="column is-2 is-mobile-6 episode-association-entry fade-it-in"
-         style='position:relative;'>
-        {{display_components.object_display(a, type=False, dim=250)}}
-    </div>
+{% macro episode_selector(user, obj) -%}
+<script>
+    function goToEpisode(el) {
+        var episode_id = el.options[el.selectedIndex].value;
+        window.location.href = '/episode/' + episode_id;
+    }
+</script>
+<select id="episode-select" name="episodepk" onchange="goToEpisode(this);">
+    <option value="">==Select Episode==</option>
+    {% for ep in obj.campaign.episodes %}
+    <option value="{{ep.pk}}" {%if obj and
+            ep==obj %} selected {% endif %}>
+        {{ep.name}}
+    </option>
     {% endfor %}
-</div>
+</select>
+{%- endmacro %}
+
+
+<!-- characters have gameplay and other details -->
+{% macro manage_extended_details(user, obj) -%}
+    <div id="character-game" class="grid-x grid-padding-x">
+
+        <div class="side-panel cell small-12 medium-3">
+            {{update_skills(user, obj)}}
+        </div>
+        <div class="side-panel cell small-12 medium-9">
+            {{update_stats(user, obj)}}
+            {{abilities.edit_abilities(user, obj)}}
+        </div>
+    </div>
 {%- endmacro %}

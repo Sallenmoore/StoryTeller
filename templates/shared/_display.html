@@ -1,13 +1,8 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro object_display(obj, dim="250", name=True, date=False, type=True, pk=False, modal=False) -%}
-{% if not modal %}
+{% macro object_display(obj, dim="250", name=True, date=False, type=True, pk=False) -%}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>
-    {% endif %}
-    <div class="image is-tile is-margin-center" style="width:100%;"
-         {% if modal %}
-         onclick=' document.querySelector("#modal-{{obj.pk}}").classList.add("is-active");'
-         {% endif %}>
+    <div class="image is-tile is-margin-center" style="width:100%;">
         {% if obj.image %}
         <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
         {% endif %}
@@ -38,9 +33,22 @@
         </div>
         {% endif %}
     </div>
-    {% if not modal %}
 </a>
-{% else %}
+
+{% endmacro %}
+
+{% macro object_modal(obj, dim="250", name=True) -%}
+<div class="image is-tile is-margin-center" style="width:100%;"
+     onclick=' document.querySelector("#modal-{{obj.pk}}").classList.add("is-active");'>
+    {% if obj.image %}
+    <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+    {% endif %}
+</div>
+{% if name %}
+<h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
+    {{obj.name}} <sup>({% if obj.canon %}c{%else%}nc{% endif %})</sup>
+</h6>
+{% endif %}
 <div id="modal-{{obj.pk}}" class='modal' {% if modal %} {% endif %}>
     <div class="modal__background"
          onclick='document.querySelector("#modal-{{obj.pk}}").classList.remove("is-active");'></div>
@@ -144,7 +152,6 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% endmacro %}
 
 

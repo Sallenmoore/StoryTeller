@@ -2,7 +2,7 @@ import os
 
 from config import Config
 from flask import Flask, url_for
-from views import admin, campaign, endpoints, gmscreen, index, manage, nav, stories, gm
+from views import admin, campaign, endpoints, gmscreen, index, manage, nav, stories
 
 from autonomous import log
 from autonomous.auth import AutoAuth
@@ -39,7 +39,6 @@ def create_app():
     app.register_blueprint(nav.nav_endpoint, url_prefix="/nav")
     app.register_blueprint(manage.manage_endpoint, url_prefix="/manage")
     app.register_blueprint(index.index_endpoint, url_prefix="/")
-    app.register_blueprint(gm.gm_endpoint, url_prefix="/gm")
     app.register_blueprint(campaign.campaign_endpoint, url_prefix="/campaign")
     app.register_blueprint(stories.stories_endpoint, url_prefix="/stories")
     app.register_blueprint(gmscreen.gmscreen_endpoint, url_prefix="/gmscreen")

@@ -9,7 +9,6 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.base.actor import Actor
-from models.stories.quest import Scene
 
 
 class Character(Actor):

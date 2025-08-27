@@ -443,31 +443,6 @@
                 htmx.find("#mobile-menu-burger").classList.remove("is-hidden");
             });
         }
-        else {
-            sideMenu.addEventListener("pointerenter", (event) => {
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-            });
-            sideMenu.addEventListener("pointerleave", (event) => {
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
-                    el.classList.add('is-hidden');
-                });
-                isOpen = !isOpen;
-                clearTimeout(timeout);
-            });
-            sideMenu.addEventListener("click", (event) => {
-                event.stopImmediatePropagation();
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
-                    if (isOpen) {
-                        el.classList.add('is-hidden');
-                    } else {
-                        //sideMenu.style.position = "absolute";
-                        el.classList.remove('is-hidden');
-                    }
-                });
-                isOpen = !isOpen;
-                clearTimeout(timeout);
-            });/**/
-        }
     </script>
 </div>
 {%- endmacro %}

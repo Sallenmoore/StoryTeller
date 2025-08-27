@@ -119,7 +119,6 @@ def page(model, pk, page=""):
         "POST",
     ),
 )
-# @auth_required(guest=True)
 def api(rest_path):
     url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
     response = "<p>You do not have permission to alter this object<p>"
@@ -139,8 +138,6 @@ def api(rest_path):
             obj = World.get_model(request.json.get("model"), request.json.get("pk"))
             if _authenticate(user, obj):
                 response = requests.post(url, json=request.json).text
-        else:
-            response = requests.post(url, json=request.json).text
     # log(response)
     return response
 

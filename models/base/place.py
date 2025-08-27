@@ -20,8 +20,6 @@ class Place(TTRPGObject):
     map_prompt = StringAttr(default="")
     dungeon = StringAttr(default="")
     sensory_details = ListAttr(StringAttr(default=""))
-    general_atmosphere = StringAttr(default="")
-    situations = ListAttr(StringAttr(default=""))
     recent_events = ListAttr(StringAttr(default=""))
 
     ################### Property Methods #####################

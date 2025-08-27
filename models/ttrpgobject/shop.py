@@ -37,6 +37,16 @@ class Shop(Place):
                     "type": "string",
                     "description": "A short physical description that will be used to generate an evocative image of the shop",
                 },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the location to life",
+                },
+                "recent_events": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A concise list of significant events that have recently occurred in this location, even if they aren't ongoing situations. Only include publicly known information.",
+                },
             },
         },
     }

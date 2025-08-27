@@ -29,29 +29,6 @@
     </li>
     {% if user.world_user(obj) %}
     <li>
-        <a href="" class="menu-anchor" hx-post="/api/gm/" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/gm">
-            <div class="row">
-                <div id='menu-game-master-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.gamemaster(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-game-master-anchor', {
-                        content: 'Game Master',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Game Master</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
         <a href="" class="menu-anchor" hx-post="/api/stories/" hx-target="#page-content"
            hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/stories/manage">
             <div class="row">
@@ -126,6 +103,44 @@
 </ul>
 {%- endmacro %}
 
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+    <h3 class='has-text-center'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-full">
+            <div class="panel has-text-light">
+                {{obj.description_summary | safe}}
+            </div>
+        </div>
+        <div class="column is-full">
+            <h5>Rumors</h5>
+            <div class="panel has-text-light">
+                <ul>
+                    {% for sd in obj.rumors %}
+                    <li>{{ sd | safe }}
+                        <hr>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <h2 class='has-text-center' id='manage-sroies'>Stories</h2>
+    <div class="row has-space-around">
+        {% for story in obj.stories %}
+        <div class="column is-full">
+            <div class="panel has-bg-screen">
+                <h5 class='has-text-center'>{{story.name}}</h5>
+                <div class="panel has-bg-muted">
+                    {{story | safe}}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro %}
+
 {% macro info(user, obj) -%}
 {% if obj.current_date %}
 <div class="row">
@@ -137,16 +152,6 @@
     </div>
 </div>
 {% endif %}
-<h2 class='has-text-center' id='manage-sroies'>Stories</h2>
-<div class="row">
-    {% for story in obj.stories %}
-    <div class="column is-full">
-        <div class="panel has-bg-screen">
-            {{story | safe}}
-        </div>
-    </div>
-    {% endfor %}
-</div>
 <hr>
 <h2 class='has-text-center' id='manage-factions'>Faction Control</h2>
 <div class="row">
