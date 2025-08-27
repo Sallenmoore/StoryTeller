@@ -215,6 +215,16 @@ class Campaign(AutoModel):
         data["end_date"] = str(self.end_date) if self.end_date else "Ongoing"
         return data
 
+        # /////////// HTML SNIPPET Methods ///////////
+    def snippet(self, user, macro, kwargs=None):
+        module = f"models/_{self.model_name().lower()}.html"
+        kwargs = kwargs or {}
+        try:
+            return get_template_attribute(module, macro)(user, self, **kwargs)
+        except Exception as e:
+            log(e)
+            return ""
+
     # MARK: Verification
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##

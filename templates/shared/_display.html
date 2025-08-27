@@ -42,7 +42,7 @@
     {% endfor %}
 {%- endmacro %}
 
-{% macro dsp_object_title(user, obj) -%}
+{% macro dsp_object_title(user, obj, world) -%}
 <div id="object-title" class="grid-container">
     <div class="grid-x grid-padding-x align-middle">
     <div class="cell small-12 medium-10 medium-offset-1 text-center">
@@ -51,7 +51,7 @@
             <h1>{{obj.name or obj.title}}</h1>
         </a>-->
     </div>
-    {% if user.world_user(obj) %}
+    {% if user.world_user(world) %}
     <div class="cell small-12 medium-1 float-right">
         <a href="/manage/{{obj.path}}">{{icon_components.gear('2rem')}}</a>
     </div>
@@ -379,7 +379,7 @@
                             <div class="column is-full">
                                 <div class="panel has-bg-muted has-text-primary">
                                     <h5 class='has-text-primary'
-                                        style='text-decoration: underline; has-text-center'>
+                                        style='text-decoration: underline;'>
                                         Description</h5>
                                     {{ability.description | safe}}
                                 </div>

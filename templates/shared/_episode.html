@@ -4,7 +4,7 @@
 {% import "shared/_tasks.html" as task_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro episode(user, obj, campaign_list, campaign=None, episode=None) -%}
+{% macro info(user, obj, campaign_list, campaign=None, episode=None) -%}
 <title>{{obj.name | title}} - {{campaign.name}}: {{episode.name}}</title>
 
 <div class="container" id="world-campaign-details">

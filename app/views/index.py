@@ -15,6 +15,8 @@ from flask import (
 from autonomous import log
 from autonomous.auth import AutoAuth, auth_required
 from filters.utils import dsp_lifetime
+from models.campaign import Campaign
+from models.campaign.episode import Episode
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
 from models.ttrpgobject.faction import Faction  # required import for model loading
@@ -99,6 +101,17 @@ def audio(model, pk):
 def manage(model, pk):
     user = AutoAuth.current_user()
     obj = World.get_model(model, pk)
+    world = obj.get_world()
+    
+    if model == 'campaign':
+        campaign = Campaign.get(pk)
+        obj = campaign
+        world = obj.world
+    elif model == 'episode':
+        episode = Episode.get(pk)
+        obj = episode
+        world = obj.world
+
     content = "<p>You do not have permission to alter this object<p>"
     if _authenticate(user, obj):
         args = request.json if request.method == "POST" else dict(request.args)
@@ -106,7 +119,7 @@ def manage(model, pk):
         content = requests.post(
             f"http://api:{os.environ.get('COMM_PORT')}/manage/{model}/{pk}", json=args
         ).text
-    return render_template("index.html", user=user, obj=obj, page_content=content)
+    return render_template("index.html", user=user, obj=obj, world=world, page_content=content)
 
 
 @index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
@@ -120,7 +133,19 @@ def page(model, pk, page=""):
     if obj := World.get_model(model, pk):
         session["model"] = model
         session["pk"] = pk
-    return render_template("index.html", user=user, obj=obj, page_url=session["page"])
+        world = obj.get_world()
+    
+    if model == 'campaign':
+        campaign = Campaign.get(pk)
+        obj = campaign
+        world = obj.world
+    elif model == 'episode':
+        episode = Episode.get(pk)
+        obj = episode
+        world = obj.world
+
+
+    return render_template("index.html", user=user, obj=obj, world=world, page_url=session["page"])
 
 
 @index_page.route(

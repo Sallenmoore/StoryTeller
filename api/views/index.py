@@ -254,6 +254,7 @@ def worlddelete(pk):
 )
 def model(model, pk, page):
     user, obj, *_ = _loader(model=model, pk=pk)
+    log(user, obj, page)
     return get_template(obj, page)(user, obj)
 
 
@@ -274,23 +275,32 @@ def card(model, pk):
 ###########################################################
 
 
-@index_endpoint.route(
-    "/<string:model>/<string:pk>/campaigns",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def campaigns(
-    model,
-    pk,
-):
+@index_endpoint.route("/<string:model>/<string:pk>/campaigns",methods=("GET","POST"))
+def campaigns(model,pk):
     user, obj, *_ = _loader(model=model, pk=pk)
     campaign = Campaign.get(request.args.get("campaignpk"))
     return get_template_attribute("shared/_campaigns.html", "campaigns")(
         user, obj, campaign
     )
 
+@index_endpoint.route("/campaign/<string:pk>/<string:model>",methods=("GET","POST"))
+def campaign(model,pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    campaign = Campaign.get(pk)
+    log(campaign)
+    return get_template_attribute("models/_campaign.html", model)(
+        user, campaign
+    )
+
+
+@index_endpoint.route("/episode/<string:pk>/<string:model>",methods=("GET","POST"))
+def episode(model, pk):
+    user, obj, *_ = _loader(model=model, pk=pk)
+    episode = Episode.get(pk)
+    log(episode)
+    return get_template_attribute("models/_episode.html", model)(
+        user, episode
+    )
 
 @index_endpoint.route(
     "/<string:model>/<string:pk>/campaigns/<string:campaignpk>",

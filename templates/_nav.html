@@ -53,7 +53,7 @@
 
 {%- endmacro %}
 
-{% macro object_menu(user, obj) -%}
+{% macro object_menu(user, obj, world) -%}
 <div class="grid-container">
     <div class="grid-x grid-padding-x">
     <div class="cell small-12">
@@ -63,7 +63,7 @@
             <li><a href="/{{obj.path}}/timeline">{{icons_element.timeline(size="1rem")}} Timeline</a></li>
         
             <!--User Specific Stuff? basically associations - let's leave off for now -->
-            {% if user.world_user(obj) %}
+            {% if user.world_user(world) %}
             <!--<li><a href="/{{obj.path}}/campaigns">{{icons_element.campaigns(size="1rem")}} Campaigns</a></li>
             <li><a href="/{{obj.path}}/stories">{{icons_element.story(size="1rem")}} Stories</a></li>
             <li><a href="/{{obj.path}}/journal">{{icons_element.journal(size="1rem")}} Journal</a></li>-->
@@ -85,11 +85,11 @@
 </div>
 {%- endmacro %}
 
-{% macro sidemenu(user, obj=None) -%}
+{% macro sidemenu(user, world, obj=None) -%}
 <div id="sidenav">
     {% if obj %}
     <nav id="model-menu-container">
-        <h4><a href="/{{obj.get_world().path}}">{{icons_element.world(size="1rem")}} {{obj.get_world().name}}</a></h4>
+        <h4><a href="/{{world.get_world().path}}">{{icons_element.world(size="1rem")}} {{world.get_world().name}}</a></h4>
 
 
         <hr>
