@@ -12,7 +12,7 @@ class Story(AutoModel):
     situation = StringAttr(default="")
     current_status = StringAttr(default="")
     backstory = StringAttr(default="")
-    questions = ListAttr(StringAttr(default=""))
+    tasks = ListAttr(StringAttr(default=""))
     rumors = ListAttr(StringAttr(default=""))
     information = ListAttr(StringAttr(default=""))
     bbeg = ReferenceAttr(choices=["Character"])
@@ -45,9 +45,9 @@ class Story(AutoModel):
                     "type": "string",
                     "description": "A detailed description of the backstory leading up to the current situation.",
                 },
-                "questions": {
+                "tasks": {
                     "type": "array",
-                    "description": "A list of open questions that the player characters must answer. These questions should be relevant to the situation and provide a framework for the player characters to explore and engage with the story.",
+                    "description": "A list of tasks that the player characters must complete to advance the story. These tasks should be relevant to the situation and provide a scenario for the player characters to engage with the story.",
                     "items": {"type": "string"},
                 },
                 "rumors": {

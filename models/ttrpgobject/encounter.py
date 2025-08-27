@@ -2,10 +2,7 @@ import json
 import random
 
 from autonomous import log
-from autonomous.model.autoattr import (
-    IntAttr,
-    StringAttr,
-)
+from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 LOOT_MULTIPLIER = 3
@@ -17,6 +14,7 @@ class Encounter(TTRPGObject):
     complications = StringAttr(default="")
     combat_scenario = StringAttr(default="")
     noncombat_scenario = StringAttr(default="")
+    story = ReferenceAttr(choices=["Story"])
 
     LOOT_MULTIPLIER = 3
     parent_list = ["Location", "City", "District", "Region", "Shop"]
@@ -175,23 +173,23 @@ HISTORY
 
     def generate(self):
         enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
-
-        backstory = (
-            self.backstory
-            or f"An unexpected, but relevant encounter to the following world storyline: {random.choice(self.world.stories).situation if self.world.stories else 'Trouble is brewing.'}"
-        )
+        if story := self.story or random.choice(self.world.stories):
+            context = f"An unexpected, but relevant encounter related to the following storyline: {story.situation}"
+        else:
+            context = "Trouble is brewing."
 
         desc = ""
         if self.parent and self.parent.desc:
             desc = self.parent.desc
-        if self.desc:
+        elif self.desc:
             desc += f"""
 {self.desc}
 """
 
         prompt = f"""Generate a {self.genre} TTRPG encounter scenario using the following guidelines:
 {f"- LOCATION: {desc}" if desc else ""}
-- SCENARIO: {backstory}
+- CONTEXT: {context}
+- SCENARIO: {self.backstory}
 - DIFFICULTY: {self.difficulty}
 - ENEMY TYPE: {enemy_type}
 """
