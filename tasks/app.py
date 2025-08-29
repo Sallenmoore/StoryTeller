@@ -209,4 +209,9 @@ def create_app():
         task = AutoTasks().task(tasks._generate_quest_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/story/<string:pk>", methods=("POST",))
+    def create_story(pk):
+        task = AutoTasks().task(tasks._generate_story_task, pk=pk).result
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

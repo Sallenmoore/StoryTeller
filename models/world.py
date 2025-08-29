@@ -419,7 +419,8 @@ class World(TTRPGBase):
         for story in document.stories:
             if isinstance(story, Story):
                 stories.append(story)
-
+                story.world = document
+                story.save()
         document.stories = stories
 
         document.pre_save_users()

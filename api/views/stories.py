@@ -35,6 +35,7 @@ stories_endpoint = Blueprint("stories", __name__)
 @stories_endpoint.route("/<string:pk>", methods=("POST",))
 def index(pk=None):
     user, world, *_ = _loader()
+    world.save()
     story = Story.get(pk or request.json.get("storypk"))
     return get_template_attribute("manage/_stories.html", "stories")(
         user,
@@ -66,24 +67,13 @@ def edit_story(pk=None):
     log(request.json)
     story = Story.get(pk)
     story.name = request.json.get("name", story.name)
+    story.scope = request.json.get("scope", story.scope)
     story.situation = request.json.get("situation", story.situation)
     story.current_status = request.json.get("current_status", story.current_status)
     story.backstory = request.json.get("backstory", story.backstory)
-    story.hooks = request.json.get("hooks", story.hooks)
-    story.questions = request.json.get("questions", story.questions)
     story.rumors = request.json.get("rumors", story.rumors)
     story.information = request.json.get("information", story.information)
-    # story.bbeg = (
-    #     Character.get(request.json.get("bbeg")) if request.json.get("bbeg") else None
-    # )
-    # story.encounters = [
-    #     Encounter.get(encounter_pk)
-    #     for encounter_pk in request.json.get("encounters", [])
-    # ]
-    # story.associations = [
-    #     AutoModel.get(association_pk)
-    #     for association_pk in request.json.get("associations", [])
-    # ]
+    story.tasks = request.json.get("information", story.tasks)
     story.save()
     if story not in world.stories:
         world.stories += [story]
@@ -212,4 +202,5 @@ def storybbegadd(pk, cpk):
     story = Story.get(pk)
     obj = Character.get(cpk)
     story.bbeg = obj
+    story.save()
     return get_template_attribute("manage/_stories.html", "stories")(user, world, story)

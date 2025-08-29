@@ -9,6 +9,7 @@ from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
 from models.stories.quest import Quest
+from models.stories.story import Story
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -104,3 +105,9 @@ def _generate_quest_task(pk):
     obj = Quest.get(pk)
     obj.generate_quest()
     return {"url": f"/api/{obj.contact.path}/quests"}
+
+
+def _generate_story_task(pk):
+    story = Story.get(pk)
+    story.generate()
+    return {"url": f"/api/stories/{story.pk}"}

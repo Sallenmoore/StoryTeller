@@ -175,6 +175,10 @@ class TTRPGObject(TTRPGBase):
     def pre_save_associations(self):
         if self in self.associations:
             self.associations.remove(self)
+
+        for children in self.children:
+            for grand in children.children:
+                self.associations += [grand]
         # Remove duplicates and sort associations by model_name, then by name
         self.associations = sorted(
             set(self.associations),

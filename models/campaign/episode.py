@@ -36,6 +36,7 @@ class Episode(AutoModel):
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
     summary = StringAttr(default="")
+    story = ReferenceAttr(choices=["Story"])
 
     ##################### PROPERTY METHODS ####################
 

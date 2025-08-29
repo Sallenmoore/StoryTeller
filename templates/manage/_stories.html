@@ -78,6 +78,14 @@
                     <input class="has-bg-light" type="text" name="name"
                            value="{{story.name}}">
                 </div>
+                <div class="column is-shrink is-vertically-centered">
+                    <button class="button"
+                            hx-post='/task/generate/story/{{story.pk}}'
+                            hx-target='#page-content'
+                            hx-trigger="click consume">
+                        Generate
+                    </button>
+                </div>
             </div>
         </div>
     </div>
