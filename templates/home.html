@@ -1,4 +1,4 @@
-{% import "shared/_icons.html" as icons_element %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro home(user) %}
 <div class="hero" id="world-model">
@@ -44,7 +44,7 @@
                             hx-swap="delete"
                             hx-confirm="Are you sure you want to delete this world and all associated objects? THIS CANNOT BE UNDONE."
                             hx-indicator="#request-indicator">
-                        {{icons_element.trash(size="1rem")}}
+                        {{icon_components.trash(size="1rem")}}
                     </button>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 <h2 class="has-text-center">Give your world some details</h2>
                 <a style="position:absolute; top:10px; right:10px;"
                    hx-get="/api/home" hx-target="#page-content" hx-indicator="#request-indicator">
-                    {{icons_element.close(size="3rem")}}
+                    {{icon_components.close(size="3rem")}}
                 </a>
                 <hr class='has-bg-secondary'>
                 <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"

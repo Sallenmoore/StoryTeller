@@ -1,15 +1,16 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro object_display(obj, dim="250", name=True, date=False, type=True, pk=False) -%}
+{% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
 <a href="/{{obj.path}}" target='_blank' style='position: relative;'>
+    {% if obj.image %}
     <div class="image is-tile is-margin-center" style="width:100%;">
-        {% if obj.image %}
         <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
-        {% endif %}
     </div>
+    {% endif %}
     {% if name %}
     <h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
-        {{obj.name}} <sup>({% if obj.canon %}c{%else%}nc{% endif %})</sup>
+        {{obj.name}}
+        {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
     </h6>
     {% endif %}
     {% if date %}

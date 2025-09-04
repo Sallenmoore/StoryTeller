@@ -17,6 +17,9 @@ class Encounter(TTRPGObject):
     potential_outcomes = ListAttr(StringAttr(default=""))
     story = ReferenceAttr(choices=["Story"])
 
+    start_date_label = "Began"
+    end_date_label = "Ended"
+
     LOOT_MULTIPLIER = 3
     parent_list = ["Location", "City", "District", "Region", "Shop"]
     _difficulty_list = [

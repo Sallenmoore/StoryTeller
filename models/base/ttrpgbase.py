@@ -223,6 +223,10 @@ class TTRPGBase(AutoModel):
         return [e for c in self.campaigns for e in c.episodes if self in e.associations]
 
     @property
+    def events(self):
+        return [e for e in self.world.events if self in e.associations]
+
+    @property
     def funcobj(self):
         self._funcobj["parameters"]["required"] = list(
             self._funcobj["parameters"]["properties"].keys()
@@ -342,9 +346,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
 ===
 - Setting:
   - Genre: {self.genre}
-  - World Details: {self.get_world().backstory}
+  - World Details: {self.world.backstory}
   - Relevant World Events:
-    - {"\n    - ".join([s.situation for s in self.get_world().stories]) if self.get_world().stories else "N/A"}
+    - {"\n    - ".join([s.situation for s in self.world.stories]) if self.world.stories else "N/A"}
   - Geographic Details:
 """
 
@@ -464,6 +468,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         return self.associations
 
     def has_associations(self, model):
+        log(model)
         if not isinstance(model, str):
             model = model.__name__
         for assoc in self.associations:
@@ -573,7 +578,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
             Model = self.load_model(model)
             # log(model, query)
             results += [
-                r for r in Model.search(name=query, world=self.get_world()) if r != self
+                r for r in Model.search(name=query, world=self.world) if r != self
             ]
             # log(results)
         return results
@@ -640,6 +645,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     def post_save_journal(self):
         if not self.journal:
-            self.journal = Journal(world=self.get_world(), parent=self)
+            self.journal = Journal(world=self.world, parent=self)
             self.journal.save()
             self.save()

@@ -1,7 +1,7 @@
-{% import "shared/_episode.html" as episode_components %}
+{% import "models/_episode.html" as episode_components %}
 {% import "shared/_icons.html" as icon_components %}
 }
-{% macro campaigns(user, obj, campaign=None) -%}
+{% macro campaigns(user, obj) -%}
 <title>{{obj.name | title}} - Campaigns</title>
 <h2>Campaigns</h2>
 <hr>
@@ -9,155 +9,62 @@
 <h3 class='has-text-center has-text-secondary'>Not yet associated with any campaigns
 </h3>
 {% else %}
-<script>
-    function updateAction() {
-        var select = document.getElementById('campaignpk');
-        if (!select) return;
-        select.setAttribute('hx-push-url', '/{{obj.path}}/campaigns/' + encodeURIComponent(select.value));
-        select.setAttribute('hx-get', '/{{obj.path}}/campaigns/' + encodeURIComponent(select.value));
-    }
-</script>
-<div class="row">
-    <div class="column is-shrink has-vertically-centered">
-        <h5 class='has-text-secondary'>Select Campaign</h5>
-    </div>
-    <div class="column">
-        <select class="has-bg-light" id="campaignpk" name="campaignpk" oninput="updateAction()"
-                hx-get="/api/{{obj.path}}/campaigns"
-                hx-target="#page-content" hx-trigger='change' hx-indicator='#request-indicator'
-                hx-push-url="/{{obj.path}}/campaigns">
-            <option value="">
-                === Select Campaign ===
-            </option>
-            {% for cmp in obj.campaigns %}
-            <option class="has-text-dark" value="{{cmp.pk}}" {% if campaign and
-                    campaign.pk==cmp.pk
-                    %} selected {% endif %}>
-                {{cmp.name}}
+<div id="object-campaigns" class="row has-space-around raise-it">
+    <div class="column is-full">
+        <select class="has-bg-muted" name="campaignpk" id="campaignpk"
+                hx-post="/api/campaign/"
+                hx-target="#campaign-details" hx-trigger='change'>
+            <option value="">=== Select Campaign ===</option>
+            {% for s in obj.campaigns %}
+            <option class="has-text-dark" value="{{s.pk}}" {% if campaign and campaign.pk==s.pk %}
+                    selected {% endif %}>
+                {{s.name}}
             </option>
             {% endfor %}
         </select>
     </div>
-</div>
-{% if campaign %}
-<div class="section is-small">
-    <h3 class='has-text-primary has-text-center'>{{campaign.name}}</h3>
-    <div class="row">
-        <div class="column is-half">
-            <h4 class="has-text-dark-grey has-text-center">
-                Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
-            </h4>
-        </div>
-        <div class="column is-half">
-            <h4 class="has-text-dark-grey has-text-center">
-                Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
-            </h4>
-        </div>
-        <div class="column is-full">
-            <div class="panel has-bg-screen has-text-justified">
-                {{campaign.description | safe}}
-            </div>
-        </div>
-        <div class="column is-full">
-            <div class="panel has-bg-muted">
-                <hr>
-                <div class='has-text-dark  has-text-justified generated-text-lightbg'>
-                    {{campaign.summary | safe}}
-                </div>
-                <hr>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="column is-full">
-        <h3 class='has-text-center'>Associated Episodes</h3>
-        <div class="accordion">
-            <ul class="accordion__list">
-                {% for entry in campaign.episodes %}
-                {% if obj.model_name() == 'World' or obj in entry.associations %}
-                <li class="accordion__item" style='margin-bottom: 1rem;'>
-                    <div class="panel has-bg-muted">
-                        <div class="row" class='has-text-secondary'>
-                            <div class="column is-vertically-centered">
-                                <h4 class=' has-text-dark'>{{entry.name}}</h4>
-                                <!-- {{entry.pk}} -->
-                            </div>
-                            <div class="column is-shrink">
-                                {% if entry.start_date %}
-                                <span class='tag is-primary has-text-white'>
-                                    {{entry.start_date}}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <div class="column is-shrink">
-                                {{icon_components.line()}}
-                            </div>
-                            <div class="column is-shrink">
-                                {% if entry.end_date %}
-                                <span class='tag is-primary has-text-white'>
-                                    {{entry.end_date}}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <!--<div class="column is-full generated-text-lightbg has-text-dark">
-                                {{entry.summary | safe}}
-                            </div>-->
-                        </div>
-                        <div class="row">
-                            {% if entry.summary %}
-                            <div class="button"
-                                 onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                                Summary
-                            </div>
-                            {% endif %}
-                            {% if entry.episode_report %}
-                            <div class="button">Report</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="accordion__content has-bg-white">
-                        <div class="has-text-dark" style="text-wrap: wrap;">
-                            {{entry.summary | safe}}
-                            <!--<hr class='has-bg-dark-grey'>
-                            {{entry.episode_report | safe}}-->
-                            <a href="summary#{{entry.pk}}">Episode Report</a>
-                        </div>
-                    </div>
-
-                </li>
-                {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    <div class="column is-full">
-        <h2 class=" has-text-secondary has-text-center is-subtitle">
-            Associations</h2>
-        <div class="row">
-            {% for o in campaign.associations %}
-            <div class="column has-text-center">
-                <a href="/{{o.path}}">
-                    <div class="image is-small is-thumbnail is-margin-center">
-                        {% if o.image %}
-                        <img src="{{o.image.url(size='100')}}" loading="lazy"
-                             alt="{{o.name}}"
-                             style="width:100%;" />
-                        {% endif %}
-                    </div>
-                    <h5 class='has-text-dark'>
-                        {{o.name}}
-                    </h5>
-                    <h6 class='has-text-dark'>
-                        {{o.title}}
-                    </h6>
+    <div id="campaign-details" class="column is-full">
+        <div class="row has-space-around">
+            {% for campaign in obj.campaigns %}
+            <div class="column is-4">
+                <a href="/campaigns/{{campaign.pk}}">
+                    <h3 class='has-text-primary has-text-center'>{{campaign.name}}</h3>
                 </a>
+                <div class="row">
+                    <div class="column is-half">
+                        <h6 class="has-text-dark-grey has-text-center">
+                            Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
+                        </h6>
+                    </div>
+                    <div class="column is-half">
+                        <h6 class="has-text-dark-grey has-text-center">
+                            Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
+                        </h6>
+                    </div>
+                    <div class="column is-full">
+                        <div class="panel has-bg-screen has-text-justified">
+                            {{campaign.description | safe}}
+                        </div>
+                    </div>
+                </div>
+                <h5 class='has-text-center'
+                    onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
+                    View Episodes</h5>
+                <div class="row is-hidden slide-it-down">
+                    <div class="column is-full">
+                        {% for entry in campaign.episodes %}
+                        {% if obj.model_name() == 'World' or obj in entry.associations %}
+                        <a href='/episode/{{entry.pk}}'>
+                            <span class="tag">{{entry.name}}</span>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </div>
-{% endif %}
 {% endif %}
 {%- endmacro %}

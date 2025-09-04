@@ -32,31 +32,42 @@ macro = "campaigns"
 ###########################################################
 ##                    Campaign Routes                    ##
 ###########################################################
-@campaign_endpoint.route("/", methods=("POST",))
-@campaign_endpoint.route("/<string:pk>", methods=("POST",))
-@campaign_endpoint.route("/<string:pk>/episode/<string:episodepk>", methods=("POST",))
-def index(pk=None, episodepk=None):
-    user, obj, world, *_ = _loader()
-    campaign = None
-    episode = None
-    if episode := Episode.get(episodepk or request.json.get("episodepk")):
-        campaign = episode.campaign
-        campaign.current_episode = episode
-        campaign.save()
-    elif campaign := Campaign.get(pk or request.json.get("campaignpk")):
-        episode = campaign.current_episode
-    return get_template_attribute("manage/_campaign.html", "campaigns")(
+@campaign_endpoint.route(
+    "/",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@campaign_endpoint.route(
+    "/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def index(pk=None):
+    user, obj, request_data = _loader()
+    campaign = Campaign.get(pk or request_data.get("campaignpk"))
+    return get_template_attribute("models/_campaign.html", "index")(
         user,
-        obj,
-        campaign_list=world.campaigns,
-        campaign=campaign,
-        episode=episode,
+        campaign,
     )
+
+
+@campaign_endpoint.route("/manage", methods=("POST",))
+@campaign_endpoint.route("/<string:pk>/manage", methods=("POST",))
+def manage(pk=None):
+    user, obj, request_data = _loader()
+    pk = pk or request_data.get("campaignpk")
+    campaign = Campaign.get(pk or request.json.get("campaignpk"))
+
+    return get_template_attribute("manage/_campaign.html", "manage")(user, campaign)
 
 
 @campaign_endpoint.route("/<string:pk>/details", methods=("POST",))
 def campaigndetails(pk):
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     campaign.save()
     return get_template_attribute("manage/_campaign.html", "campaign_details")(
@@ -66,43 +77,48 @@ def campaigndetails(pk):
 
 @campaign_endpoint.route("/new", methods=("POST",))
 def campaignnew():
-    user, obj, world, *_ = _loader()
-    campaign = Campaign(world=world, name="New Campaign")
+    user, obj, request_data = _loader()
+    campaign = Campaign(world=obj.world, name="New Campaign")
     campaign.save()
-    world.campaigns.append(campaign)
-    world.save()
+    obj.world.campaigns.append(campaign)
+    obj.world.save()
     return get_template_attribute(module, macro)(
-        user, obj, campaign_list=world.campaigns, campaign=campaign
+        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
     )
 
 
 @campaign_endpoint.route("/<string:pk>/delete", methods=("POST",))
 def campaigndelete(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     if campaign := Campaign.get(pk):
-        world.campaigns.remove(campaign) if campaign in world.campaigns else None
-        world.save()
+        obj.world.campaigns.remove(
+            campaign
+        ) if campaign in obj.world.campaigns else None
+        obj.world.save()
         campaign.delete()
     return get_template_attribute(module, macro)(
-        user, obj, campaign_list=world.campaigns, campaign=world.current_campaign
+        user,
+        obj,
+        campaign_list=obj.world.campaigns,
+        campaign=obj.world.current_campaign,
     )
 
 
 @campaign_endpoint.route("/<string:pk>/update", methods=("POST",))
 def campaignupdate(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     if campaign := Campaign.get(pk):
         campaign.name = request.json.get("name") or campaign.name
         campaign.description = request.json.get("description") or campaign.description
         campaign.save()
     return get_template_attribute(module, macro)(
-        user, obj, campaign_list=world.campaigns, campaign=campaign
+        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
     )
 
 
 @campaign_endpoint.route("/<string:pk>/add/party", methods=("POST",))
 def addparty(pk):
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     campaign.party = Faction.get(request.json.get("party"))
     campaign.save()
@@ -113,87 +129,30 @@ def addparty(pk):
 
 @campaign_endpoint.route("/<string:pk>/removeplayer", methods=("POST",))
 def removeparty(pk, partypk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     campaign.party = None
     campaign.save()
     return get_template_attribute(module, macro)(
-        user, obj, campaign_list=world.campaigns, campaign=campaign
+        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
     )
 
 
 ###########################################################
 ##                    Episode Routes                    ##
 ###########################################################
-@campaign_endpoint.route("/<string:pk>/episode/details", methods=("POST",))
-@campaign_endpoint.route(
-    "/<string:pk>/episode/<string:episodepk>/details", methods=("POST",)
-)
-def episode(pk, episodepk=None):
-    user, obj, *_ = _loader()
-    campaign = Campaign.get(pk)
-    episode = Episode.get(episodepk)
-    # log(
-    #     "episode details",
-    #     episode.name,
-    #     episode.episode_num,
-    #     episode.start_date,
-    #     episode.end_date,
-    # )
-    return get_template_attribute("manage/_campaign.html", "episode_details")(
-        user, obj, campaign=campaign, episode=episode
-    )
-
-
-@campaign_endpoint.route(
-    "/<string:pk>/episode/<string:episodepk>/manage", methods=("POST",)
-)
-@campaign_endpoint.route("/<string:pk>/episode/manage", methods=("POST",))
-@campaign_endpoint.route(
-    "/<string:pk>/episode/<string:episodepk>/manage", methods=("POST",)
-)
-@campaign_endpoint.route("/<string:pk>/episode/manage", methods=("POST",))
-def episodemanage(pk, episodepk=None):
-    user, obj, *_ = _loader()
-    campaign = Campaign.get(pk)
-    episodepk = episodepk or request.json.get("episodepk")
-    if episode := Episode.get(episodepk):
-        episode.name = request.json.get("name", episode.name)
-        episode.episode_num = request.json.get("episode_num", episode.episode_num)
-        start_date = request.json.get("start_date", episode.start_date)
-        if (
-            start_date
-            and start_date["day"]
-            and start_date["month"]
-            and start_date["year"]
-        ):
-            episode.start_date = start_date
-        end_date = request.json.get("end_date", episode.end_date)
-        if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
-            episode.end_date = end_date
-        episode.episode_report = request.json.get(
-            "episode_report", episode.episode_report
-        )
-        episode.loot = request.json.get("loot", episode.loot)
-        episode.hooks = request.json.get("hooks", episode.hooks)
-        episode.save()
-        campaign.current_episode = episode
-        campaign.save()
-    return get_template_attribute("manage/_campaign.html", "episode_details")(
-        user, obj, campaign=campaign, episode=episode
-    )
 
 
 @campaign_endpoint.route("/<string:pk>/episode/new", methods=("POST",))
 def episodenew(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     episode = campaign.add_episode()
     campaign.current_episode = episode
-    return get_template_attribute(module, macro)(
+    return get_template_attribute("manage/_campaign.html", "manage")(
         user,
         obj,
-        campaign_list=world.campaigns,
+        campaign_list=obj.world.campaigns,
         campaign=campaign,
         episode=campaign.current_episode,
     )
@@ -201,7 +160,7 @@ def episodenew(pk):
 
 @campaign_endpoint.route("/episode/<string:episodepk>/delete", methods=("POST",))
 def episodedelete(episodepk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(episodepk)
     campaign = episode.campaign
     campaign.delete_episode(episodepk)
@@ -209,7 +168,7 @@ def episodedelete(episodepk):
     return get_template_attribute(module, macro)(
         user,
         obj,
-        campaign_list=world.campaigns,
+        campaign_list=obj.world.campaigns,
         campaign=campaign,
         episode=campaign.episodes[-1] if campaign.episodes else None,
     )
@@ -217,7 +176,7 @@ def episodedelete(episodepk):
 
 @campaign_endpoint.route("/episode/<string:pk>/report", methods=("POST",))
 def episodereportpanel(pk):
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(pk)
     return get_template_attribute("manage/_campaign.html", "episode_report")(
         user, obj, episode
@@ -226,7 +185,7 @@ def episodereportpanel(pk):
 
 @campaign_endpoint.route("/episode/<string:pk>/associations", methods=("POST",))
 def episodeassociationslist(pk):
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(pk)
     return get_template_attribute("manage/_campaign.html", "episode_associations")(
         user, obj, episode
@@ -242,7 +201,7 @@ def episodeassociationslist(pk):
     methods=("POST",),
 )
 def epsiodeassociationentry(pk, amodel, apk=None):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(pk)
     if amodel == "campaignassociations":
         for a in episode.campaign.associations:
@@ -259,17 +218,17 @@ def epsiodeassociationentry(pk, amodel, apk=None):
         for p in episode.campaign.players:
             episode.add_association(p)
     elif apk:
-        obj = world.get_model(amodel, apk)
+        obj = obj.world.get_model(amodel, apk)
         # log(obj)
         episode.add_association(obj)
         if request.json.get("subobjects"):
             for sub in obj.children:
                 episode.add_association(sub)
     else:
-        new_ass = world.get_model(amodel)(parent=obj, world=world)
+        new_ass = obj.world.get_model(amodel)(parent=obj, world=obj.world)
         new_ass.save()
         episode.add_association(new_ass)
-    return get_template_attribute("manage/_campaign.html", "episode_associations")(
+    return get_template_attribute("manage/_campaign.html", "associations")(
         user, obj, episode
     )
 
@@ -279,10 +238,10 @@ def epsiodeassociationentry(pk, amodel, apk=None):
     methods=("POST",),
 )
 def episodeassociationsearch(pk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(pk)
     query = request.json.get("query")
-    results = world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [r for r in results if r not in episode.associations]
     # log(macro, query, [r.name for r in results])
     return get_template_attribute("manage/_campaign.html", "association_dropdown")(
@@ -295,9 +254,9 @@ def episodeassociationsearch(pk):
     methods=("POST",),
 )
 def episodeassociationentrydelete(pk, amodel, apk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     episode = Episode.get(pk)
-    if a := world.get_model(amodel, apk):
+    if a := obj.world.get_model(amodel, apk):
         episode = episode.remove_association(a)
         a.save()
     return "<p>success</p>"

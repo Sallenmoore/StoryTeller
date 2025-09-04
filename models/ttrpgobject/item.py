@@ -20,6 +20,9 @@ class Item(TTRPGObject):
     type = StringAttr(default="mundane")
     features = ListAttr(ReferenceAttr(choices=["Ability"]))
 
+    start_date_label = "Created"
+    end_date_label = "Destroyed"
+
     _rarity_list = ["common", "uncommon", "rare", "very rare", "legendary", "artifact"]
     parent_list = [
         "Creature",

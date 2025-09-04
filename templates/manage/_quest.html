@@ -2,14 +2,14 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
 
-{% macro quest_entry(user, obj, entry) -%}
-<title>{{obj.name or obj.title}} - Quest Editor</title>
+{% macro manage(user, entry) -%}
+<title>{{entry.name}} - Quest Editor</title>
 <div class="row">
     <div class="column is-vertically-centered">
         <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
     </div>
     <div class="column is-shrink is-mobile-shrink is-end is-vertically-centered">
-        <a href="/{{obj.path}}/quests">
+        <a href="/{{entry.contact.path}}/quests">
             {{icon_components.close()}}
         </a>
     </div>
@@ -87,69 +87,6 @@
         </div>
     </div>
 </form>
-<hr>
-<div class="row has-centered">
-    <div class="column is-full">
-        <h5 class='has-text-center'>Scenes</h5>
-        {% for scene in entry.scenes %}
-        <div class="panel">
-            <form hx-post="/api/manage/quest/scene/{{scene.pk}}/update"
-                  hx-indicator='#request-indicator' hx-swap='none'
-                  hx-trigger='input delay:750ms, change'>
-                <h6 class='has-text-center'>Type</h6>
-                <input type="text" name="type" value="{{scene.type}}">
-                <div class="row">
-                    <div class="column">
-                        <h6 class='has-text-center'>Setup</h6>
-                        <textarea class="has-bg-muted" name="setup"
-                                  rows="3">{{scene.setup}}</textarea>
-                    </div>
-                    <div class="column">
-                        <h6 class='has-text-center'>Task</h6>
-                        <textarea class="has-bg-muted" name="task"
-                                  rows="3">{{scene.task}}</textarea>
-                    </div>
-                </div>
-                <h6 class='has-text-center'>Information</h6>
-                <div class="row">
-                    {% for info in scene.information %}
-                    <div class="column">
-                        <textarea class="has-bg-muted" name="information[]"
-                                  rows="3">{{info}}</textarea>
-                    </div>
-                    {% endfor %}
-                </div>
-                <h6 class='has-text-center'>Description</h6>
-                <textarea class="has-bg-muted" name="description"
-                          rows="3">{{scene.description}}</textarea>
-
-                <h6 class='has-text-center'>Challenges</h6>
-                <div class="row">
-                    {% for challenge in scene.challenges %}
-                    <div class="column">
-                        <textarea class="has-bg-muted" name="challenges[]"
-                                  rows="3">{{challenge}}</textarea>
-                    </div>
-                    {% endfor %}
-                </div>
-                <h6 class='has-text-center'>Npcs</h6>
-                <div class="row">
-                    {% for npc in scene.npcs %}
-                    <div class="column">
-                        <textarea class="has-bg-muted" name="npcs[]"
-                                  rows="3">{{npc}}</textarea>
-                    </div>
-                    {% endfor %}
-                </div>
-                <h6 class='has-text-center'>Resolution</h6>
-                <textarea class="has-bg-muted" name="resolution"
-                          rows="3">{{scene.resolution}}</textarea>
-            </form>
-        </div>
-        <hr>
-        {% endfor %}
-    </div>
-</div>
 <hr>
 <div class="row">
     <div class="column is-full">

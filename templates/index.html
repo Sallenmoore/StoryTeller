@@ -1,7 +1,7 @@
 {% import "_nav.html" as nav %}
 {% import "shared/_title.html" as title %}
 {% import "manage/_gmscreen.html" as gmscreen %}
-{% import "shared/_icons.html" as icons_element %}
+{% import "shared/_icons.html" as icon_components %}
 
 <!doctype html>
 <html lang="en">
@@ -106,20 +106,13 @@
             <div id='page-container'
                  class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
                  style='position:relative;'>
-                {% if obj %}
-                <div class="row has-no-padding has-no-margin has-centered">
-                    <div class="column is-11 is-mobile-full has-no-padding has-no-margin">
-                        {{title.object_title(user, obj)}}
-                    </div>
-                </div>
-                {% endif %}
                 <div class="row has-no-padding-left slide-it-in has-centered">
                     {% if obj %}
                     <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
                          style='position:absolute;top:0;left:0;'>
                         <button id="mobile-menu-burger" class='button is-mobile-only'
                                 style='position:fixed; z-index:1002; border-radius:0 10px 10px 0;'>
-                            {{icons_element.menuburger(size="1.5rem")}}
+                            {{icon_components.menuburger(size="1.5rem")}}
                         </button>
                         {{nav.sidemenu_active(user, obj)}}
                     </div>
@@ -132,11 +125,7 @@
                              hx-trigger='load'
                              hx-indicator='#request-indicator'
                              hx-push-url='{{page_url}}'>
-                        </div>
-                        {% elif page_content %}
-                        <div class='has-bg-muted raise-it'
-                             style='border-radius: 0 0 5px 5px;' id="page-content">
-                            {{page_content | safe}}
+
                         </div>
                         {% endif %}
                     </div>
@@ -154,7 +143,7 @@
                 <div class="column is-shrink is-end">
                     <button class="button is-large is-circle" id="back-to-top"
                             onclick="window.scrollTo({top: 0,behavior: 'smooth'});">
-                        {{icons_element.top(size="1.5rem")}}
+                        {{icon_components.top(size="1.5rem")}}
                     </button>
                 </div>
             </div>

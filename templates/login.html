@@ -1,4 +1,4 @@
-{% import "shared/_icons.html" as icons_element %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro login(worlds) -%}
 <div class="container">
@@ -10,7 +10,7 @@
             <form action="/auth/login" method="post">
                 <input type="hidden" name="authprovider" value="google">
                 <button class="button is-primary" type="submit">
-                    with &ensp;{{icons_element.google(size="1.5rem")}}
+                    with &ensp;{{icon_components.google(size="1.5rem")}}
                 </button>
             </form>
         </div>

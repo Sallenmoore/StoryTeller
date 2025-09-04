@@ -18,6 +18,7 @@ from models.campaign.campaign import Campaign
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
+from models.stories.event import Event
 from models.stories.story import Story
 from models.systems import (
     FantasySystem,
@@ -62,6 +63,9 @@ class World(TTRPGBase):
         "postapocalyptic": PostApocalypticSystem,
         "western": WesternSystem,
     }
+
+    start_date_label = "Founding"
+    end_date_label = "Current"
 
     _funcobj = {
         "name": "generate_world",
@@ -205,6 +209,12 @@ class World(TTRPGBase):
         )
 
     @property
+    def events(self):
+        return sorted(
+            Event.search(world=self) if self.pk else [], key=lambda x: x.start_date
+        )
+
+    @property
     def factions(self):
         return sorted(
             Faction.search(world=self) if self.pk else [], key=lambda x: x.name
@@ -282,6 +292,10 @@ class World(TTRPGBase):
         return sorted(
             Vehicle.search(world=self) if self.pk else [], key=lambda x: x.name
         )
+
+    @property
+    def world(self):
+        return self
 
     ########################## Override Methods #############################
 

@@ -21,10 +21,10 @@ class TTRPGObject(TTRPGBase):
     end_date = ReferenceAttr(choices=["Date"])
     parent_list = []
 
-    _no_copy = TTRPGBase._no_copy | {
-        "associations": [],
-        "events": [],
-    }
+    start_date_label = "Founded"
+    end_date_label = "Abandoned"
+
+    is_ttrpgobject = True
 
     @property
     def calendar(self):
@@ -64,7 +64,7 @@ class TTRPGObject(TTRPGBase):
 
     @property
     def genre(self):
-        return self.get_world().genre.lower()
+        return self.world.genre.lower()
 
     @property
     def geneology(self):
@@ -93,17 +93,25 @@ class TTRPGObject(TTRPGBase):
         return [a for a in self.associations if a.model_name() == "Region"]
 
     @property
+    def rumors(self):
+        rumors = []
+        for story in self.world.stories:
+            if self in story.associations:
+                rumors += story.rumors
+        return rumors
+
+    @property
     def shops(self):
         return [a for a in self.associations if a.model_name() == "Shop"]
 
     @property
     def stories(self):
-        stories = [s for s in self.get_world().stories if self in s.associations]
+        stories = [s for s in self.world.stories if self in s.associations]
         return stories
 
     @property
     def system(self):
-        return self.get_world().system
+        return self.world.system
 
     @property
     def title(self):
@@ -111,11 +119,11 @@ class TTRPGObject(TTRPGBase):
 
     @property
     def titles(self):
-        return self.get_world().system._titles
+        return self.world.system._titles
 
     @property
     def user(self):
-        return self.get_world().user
+        return self.world.user
 
     @property
     def vehicles(self):
@@ -125,7 +133,7 @@ class TTRPGObject(TTRPGBase):
 
     def is_owner(self, user):
         try:
-            return self.get_world().is_owner(user)
+            return self.world.is_owner(user)
         except Exception as e:
             log(e, self, "Object has no world")
             raise e
@@ -194,7 +202,7 @@ class TTRPGObject(TTRPGBase):
         self.canon = False
 
     def pre_save_world(self):
-        if not self.get_world():
+        if not self.world:
             raise ValidationError("Must be associated with a World object")
 
     def pre_save_dates(self):

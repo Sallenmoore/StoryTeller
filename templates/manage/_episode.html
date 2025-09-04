@@ -1,148 +1,307 @@
 {% import "shared/_form.html" as form_components %}
-{% import "shared/_icons.html" as icons %}
-{% import "shared/_display.html" as display %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_display.html" as display_components %}
 
-{% macro details(user, obj) -%}
-<!-- header and close button -->
-<div class="grid-x grid-padding-x align-middle">
-    <div class="cell small-12 medium-10 medium-offset-1 text-center">
-        <h2>Editing: {{obj.name or obj.title}}</h2>
-    </div>
-    <div class="cell small-12 medium-1 float-right">
-        <a href="/{{obj.path}}/info">{{icons.close(size="2rem")}}</a>
-    </div>
-</div>
-
-<!-- edit object details -->
-<div id="object-info" class="grid-x grid-padding-x">
-
-    <!-- general object details -->
-    <div class="story cell small-12 medium-7">
-        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-        <label>Name
-            <input id='model-name' type="text" name="name"
-            value="{{obj.name}}"
-            onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
-            oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
-        </label>
-
-        <label>Theme / Traits
-            <input type="text" name="traits" value="{{obj.traits}}" maxlength="64">
-        </label>
-
-        <div class="grid-x">
-            <div class="cell medium-5">
-                <label>Start Date</label>
-                <div class="input-group">
-                    <input name="start_date.day" type="number" placeholder='day' value="{{obj.start_date.day}}">
-                    <select name="start_date.month">
-                        {% for m in obj.get_world().calendar.months %}
-                        <option class="has-text-center" value='{{m}}' 
-                        {% if loop.index0==obj.start_date.month %} selected {% endif %}>
-                            {{m}}
-                        </option>
-                        {% endfor %}
-                    </select>
-                 <input name="start_date.year" class="year" type="number" placeholder='year' value="{{obj.start_date.year}}">
-                </div>
-            </div>
-            <div class="cell medium-5 medium-offset-2">
-                <label>End Date</label>
-                <div class="input-group">
-                    <input name="end_date.day" type="number" placeholder='day' value="{{obj.end_date.day}}">
-                    <select name="end_date.month">
-                        {% for m in obj.get_world().calendar.months %}
-                        <option class="has-text-center" value='{{m}}' 
-                        {% if loop.index0==obj.end_date.month %} selected {% endif %}>
-                            {{m}}
-                        </option>
-                        {% endfor %}
-                    </select>
-                 <input name="end_date.year" class="year" type="number" placeholder='year' value="{{obj.end_date.year}}">
+{% macro manage(user, episode) -%}
+<div class="row fade-it-in" id='campaign-episode-container'>
+    <div id='episode-details' class="column">
+        {% if episode %}
+        <div class="row has-space-around">
+            <div class="column">
+                <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
+                     style='position:relative;'>
+                    {{episode.summary | safe}}
+                    <button class='button is-small' class="button is-primary"
+                            style='position: absolute; bottom:0px; right:0px;'
+                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                            hx-target='closest .column'>
+                        Update Summary
+                    </button>
                 </div>
             </div>
         </div>
-
-        <h3>Backstory</h3>
-        {{form_components.richtexteditor(user, obj, 'backstory')}}
-
+        <hr>
+        <form hx-post="/api/episode/{{episode.pk}}/update"
+              hx-swap='none'
+              hx-trigger='input delay:1s, change'>
+            <div class="row">
+                <div class="column is-6">
+                    <h4 class='has-text-center has-text-dark'>Name</h4>
+                    <input class="has-bg-light has-text-center" type="text" name="name"
+                           value="{{episode.name}}">
+                </div>
+                <div class="column is-6">
+                    <h4 class='has-text-center has-text-dark'>Episode Number</h4>
+                    <input class="has-bg-light has-text-center" type="number"
+                           name="episode_num"
+                           value="{{episode.episode_num}}">
+                </div>
+            </div>
+            <div class="row has-centered" style='position:relative;'>
+                <div class="column is-shrink is-vertically-centered">
+                    <h5 class='has-text-center has-text-dark'>Start</h5>
+                </div>
+                <div
+                     class="column is-1 has-no-padding has-no-margin is-vertically-centered">
+                    <input class="has-text-center" type="number"
+                           name="start_date.day"
+                           placeholder='day'
+                           value="{{episode.start_date.day}}">
+                </div>
+                <div
+                     class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
+                    <div class="is-select" style='position:relative;top: -2px;'>
+                        <select name="start_date.month">
+                            {% for m in episode.world.calendar.months %}
+                            <option class="has-text-center" value='{{m}}' {% if
+                                    loop.index0==episode.start_date.month %}
+                                    selected {% endif %}>
+                                {{m}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div
+                     class="column is-2 has-no-padding has-no-margin is-vertically-centered">
+                    <input class="has-text-center" type="number"
+                           name="start_date.year"
+                           placeholder='year'
+                           value="{{episode.start_date.year}}">
+                </div>
+                <div class="column is-shrink  is-vertically-centered">
+                    {{icon_components.dash()}}
+                </div>
+                <div
+                     class="column is-1 has-no-padding has-no-margin is-vertically-centered">
+                    <input class="has-text-center" type="number"
+                           name="end_date.day"
+                           placeholder='day'
+                           value="{{episode.end_date.day}}">
+                </div>
+                <div
+                     class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
+                    <div class="is-select" style='position:relative;top: -2px;'>
+                        <select name="end_date.month">
+                            {% for m in episode.world.calendar.months %}
+                            <option class="has-text-center" value='{{m}}' {% if
+                                    loop.index0==episode.end_date.month %}
+                                    selected {% endif %}>
+                                {{m}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div
+                     class="column is-2 has-no-padding has-no-margin is-vertically-centered">
+                    <input class="has-text-center" type="number"
+                           name="end_date.year"
+                           placeholder='year'
+                           value="{{episode.end_date.year}}">
+                </div>
+                <div class="column is-shrink  is-vertically-centered">
+                    <h5 class='has-text-center has-text-dark'>End</h5>
+                </div>
+            </div>
         </form>
-    </div>
-    
-    <!-- specific object details (loaded via the models "manage_details macro")-->
-    <div class="related-panel cell small-12 medium-4 large-offset-1">
-        <a href="#image-editor">{{display.dsp_object_image(obj)}}</a>
-
-        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-            {{obj.snippet(user, 'manage_details') | safe}}
-        </form>
-    </div>
-
-</div>
-
-<!-- edit object extended details (things like gameplay, etc... ) -->
-{{obj.snippet(user, 'manage_extended_details') | safe}}
-
-<!-- edit object image -->
-{{manage_image(user, obj)}}
-
-<!-- delete object-->
-<button class="button"
-        hx-post="/api/manage/delete/{{obj.path}}"
-        hx-confirm="Are you sure you want to delete this {{obj.title}}?"
-        onclick="location.href = '/world/{{obj.get_world().pk}}'">
-    {{icons.trash(size="1.5rem")}} Delete {{obj.name}}
-</button>
-
-{%- endmacro %}
-
-{% macro manage_image(user, obj) -%}
-<h2 id="image-editor">Image Editor</h2>
-<div id="object-info" class="grid-x grid-padding-x">
-    <div class="cell medium-8" id="model-owner-image">
-        {% if obj.image %}
-        <div class="image">
-            <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
+        <div class="row">
+            <div id="episode-manage-container" class="column is-full fade-it-in">
+                {{episode_report(user, episode)}}
+            </div>
         </div>
-        {% else %}
-        <div hx-post="/api/manage/{{obj.path}}"
-             hx-trigger='load delay:5s' hx-target="#model-owner-image"
-             hx-select="#model-owner-image" hx-swap="outerHTML">
-            No Image
+        <div class="row ">
+            <div class="column is-end is-shrink">
+                <button class="button is-light has-text-dark"
+                        hx-post="/api/campaign/episode/{{episode.pk}}/delete"
+                        hx-target="#details-container"
+                        hx-select="#details-container"
+                        hx-swap="outerHTML"
+                        hx-confirm='Are you sure you want to delete this Episode?'>
+                    {{icon_components.trash(size="1rem")}}
+                </button>
+            </div>
         </div>
         {% endif %}
     </div>
-    <div class="cell medium-4">
-        <h3>Image Description <sup>(editable)</sup></h3>
+</div>
+{%- endmacro %}
 
-        <p id="model-desc" class="has-text-dark" contentEditable="true"
-            hx-post="/api/manage/update" hx-trigger="input delay:1s"
-            hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
-            hx-swap="none">
-            {{obj.desc | striptags}}
-        </p>
-
-        <button class="button"
-            hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .column"
-            hx-indicator="#request-indicator"
-            hx-confirm="Are you sure you want to generate and overwrite the current image?">
-            {{icons.ai(size="1rem")}} Generate New AI Image
-        </button>
-
-        <button class="button" 
-            hx-post="/api/manage/image/gallery"
-            hx-target="#model-owner-image" 
-            hx-swap="innerHTML">
-            {{icons.random(size="1rem")}} Select From Gallery
-        </button>
-
-        <form hx-post="/api/manage/update" hx-select='#image-manage-container'
-            hx-target="#image-manage-container" hx-swap="outerHTML"
-            hx-confirm="Are you sure you want to upload and overwrite the current image?">
-
-            <button class="button" type="submit">{{icons.link(size="1rem")}} Upload from URL</button>
-            <input type="url" name="image" placeholder="enter url..." />
+{% macro episode_report(user, episode, afilter=None) -%}
+<div class="row">
+    <div class="column is-8">
+        <form hx-post="/api/episode/{{episode.pk}}/update"
+              hx-swap='none'
+              hx-trigger='input delay:1s, change'>
+            <div id="episode-report-container" class="fade-it-in">
+                {{form_components.texteditor(user, episode, 'episode_report')}}
+            </div>
+            <div id="episode-loot-container" class="fade-it-in">
+                <hr class='has-bg-muted'>
+                <h3 class='has-text-center'>Loot</h3>
+                {{form_components.texteditor(user, episode, 'loot')}}
+            </div>
+            <div id="episode-loot-container" class="fade-it-in">
+                <hr class='has-bg-muted'>
+                <h3 class='has-text-center'>Hooks</h3>
+                {{form_components.texteditor(user, episode, 'hooks')}}
+            </div>
         </form>
     </div>
+    <div class="column is-4">
+        {{associations(user, episode)}}
+    </div>
 </div>
+{%- endmacro %}
+
+
+{% macro associations(user, episode, afilter=None) -%}
+<div id="episode-associations" class="row">
+    <div class="column fade-it-in">
+        <h5 class='has-text-primary'>Add New...</h5>
+        <div class="row has-space-around">
+            {% for model in episode.world.all_models_str() %}
+            <div class="column is-shrink">
+                <button class='button is-small'
+                        hx-post='/api/episode/{{episode.pk}}/associations/add/{{model | lower}}'
+                        hx-target="#episode-associations"
+                        hx-select="#episode-associations"
+                        hx-trigger='click consume'
+                        hx-vals='{"episodepk":"{{episode.pk}}"}'
+                        hx-swap='outerHTML'>
+                    {{episode.world.get_title(model)}}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        <h5 class='has-text-primary'>...or Add Existing</h5>
+        <div class="row has-space-around">
+            <div class="column is-shrink">
+                <button class='button is-primary is-small'
+                        hx-post='/api/episode/{{episode.pk}}/associations/add/campaignassociations'
+                        hx-target="#episode-associations"
+                        hx-select="#episode-associations"
+                        hx-trigger='click consume'
+                        hx-vals='{"episodepk":"{{episode.pk}}"}'
+                        hx-swap='outerHTML'>
+                    All Campaign Associations
+                </button>
+            </div>
+            <div class="column is-shrink">
+                <button class='button is-primary is-small'
+                        hx-post='/api/episode/{{episode.pk}}/associations/add/episodeassociations'
+                        hx-target="#episode-associations"
+                        hx-select="#episode-associations"
+                        hx-trigger='click consume'
+                        hx-vals='{"episodepk":"{{episode.pk}}"}'
+                        hx-swap='outerHTML'>
+                    Previous Episode Associations
+                </button>
+            </div>
+            <div class="column is-shrink">
+                <button class='button is-primary is-small'
+                        hx-post='/api/episode/{{episode.pk}}/associations/add/players'
+                        hx-target="#episode-associations"
+                        hx-select="#episode-associations"
+                        hx-trigger='click consume'
+                        hx-vals='{"episodepk":"{{episode.pk}}"}'
+                        hx-swap='outerHTML'>
+                    players
+                </button>
+            </div>
+            <div class="column is-half">
+                <div class="has-dropdown" style="width: 100%;">
+                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                           style="border-bottom: solid #000;"
+                           hx-post="/api/episode/{{episode.pk}}/associations/add/search"
+                           hx-target="#episode-new-associations-list"
+                           hx-trigger="input changed delay:500ms consume"
+                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                    <ul class="dropdown has-bg-light" id="episode-new-associations-list">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="panel has-bg-screen">
+            {% if episode.encounters %}
+            {{ association_display(user, episode, episode.encounters, episode.world.get_title("Encounter")) }}
+            {% endif %}
+            {% if episode.locations %}
+            {{ association_display(user, episode, episode.locations, episode.world.get_title("Location")) }}
+            {% endif %}
+            {% if episode.shops %}
+            {{ association_display(user, episode, episode.shops, episode.world.get_title("Shop")) }}
+            {% endif %}
+            {% if episode.districts %}
+            {{ association_display(user, episode, episode.districts, episode.world.get_title("District")) }}
+            {% endif %}
+            {% if episode.characters %}
+            {{ association_display(user, episode, episode.characters, episode.world.get_title("Character")) }}
+            {% endif %}
+            {% if episode.creatures %}
+            {{ association_display(user, episode, episode.creatures, episode.world.get_title("Creature")) }}
+            {% endif %}
+            {% if episode.items %}
+            {{ association_display(user, episode, episode.items, episode.world.get_title("Item")) }}
+            {% endif %}
+            {% if episode.vehicles %}
+            {{ association_display(user, episode, episode.vehicles, episode.world.get_title("Vehicle")) }}
+            {% endif %}
+            {% if episode.factions %}
+            {{ association_display(user, episode, episode.factions, episode.world.get_title("Faction")) }}
+            {% endif %}
+            {% if episode.cities %}
+            {{ association_display(user, episode, episode.cities, episode.world.get_title("City")) }}
+            {% endif %}
+            {% if episode.regions %}
+            {{ association_display(user, episode, episode.regions, episode.world.get_title("Region")) }}
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro association_display(user, episode, children, title) -%}
+<h3 class='has-text-center'> {{title}} </h3>
+<hr class='has-bg-muted'>
+<div class="row">
+    {% for a in children %}
+    <div class="column is-2 is-mobile-6 episode-association-entry fade-it-in"
+         style='position:relative;'>
+        {{display_components.object_display(a, type=False, dim=250)}}
+        <a style='position:absolute; top:0px; right:5px;'
+           hx-post="/api/episode/{{episode.pk}}/association/{{a.path}}/delete"
+           hx-target="closest .episode-association-entry" hx-swap="delete"
+           hx-confirm="Are you sure you want to remove this association from the episode?">
+            <iconify-icon class="has-bg-muted" icon="mdi:remove" width="1rem"></iconify-icon>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro association_dropdown(user, episode, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post="/api/episode/{{episode.pk}}/associations/add/{{o.path}}"
+       hx-target='#episode-associations'
+       hx-select='#episode-associations' hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
 {%- endmacro%}

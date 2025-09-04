@@ -1,0 +1,51 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <h3 class='has-text-center has-text-light'>Ruling Faction</h3>
+    <div class="row">
+        <div class="column is-full">
+            <div class="panel is-small has-bg-light">
+                <div class="is-select">
+                    <select name='ruling_faction'>
+                        <option value=''>=== Select a Faction ===</option>
+                        {%for f in obj.world.factions %}
+                        <option value='{{f.pk}}' {% if f==obj.owner %} selected {% endif %}>
+                            {{f.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% for faction in obj.factions %}
+        <div class="column is-full">
+            <div class="panel is-small has-bg-primary has-text-white">
+                {{faction.backstory_summary | safe}}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="row">
+        <div class="column is-full">
+            <h3 class="has-text-screen">Culture</h3>
+            {{form_components.texteditor(user, obj, "culture")}}
+        </div>
+        <div class="column is-full">
+            <h3 class="has-text-screen">Government</h3>
+            {{form_components.texteditor(user, obj, "government")}}
+        </div>
+        <div class="column is-full">
+            <h3 class="has-text-screen">Religion</h3>
+            {{form_components.texteditor(user, obj, "religion")}}
+        </div>
+    </div>
+</form>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

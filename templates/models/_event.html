@@ -1,0 +1,130 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "manage/_event.html" as manage_event_components %}
+{% import "shared/_title.html" as title_components %}
+{% import "shared/_display.html" as display_components %}
+
+{% macro index(user, event) -%}
+{{title_components.object_title(user, obj)}}
+<h3 class="has-text-muted has-bg-screen has-text-center" style='padding: 0.25rem;'>Event</h3>
+<div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
+    <div class="row">
+        <div class="column has-text-dark">
+            <h4 class='has-text-dark has-text-center'>{{event.name}}</h4>
+        </div>
+        <div class="column is-shrink">
+            <div class="column is-shrink is-mobile-shrink"
+                 style="position:absolute;right:0.5rem;">
+                <a class=" has-text-secondary" hx-post="/manage/{{event.path}}"
+                   hx-target="#page-content" hx-indicator='#request-indicator'
+                   hx-push-url='/manage/{{obj.path}}'>
+                    {{icon_components.gear(size="1.5rem")}}
+                </a>
+            </div>
+        </div>
+        <div class="column is-full">
+            <hr>
+            <div class="row">
+                {% if event.start_date %}
+                <div class="column">
+                    <div class="panel has-bg-transparent">
+                        <span class='has-text-dark'>{{event.start_date}} - {{event.end_date}}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% if event.backstory %}
+                <div class="column is-full">
+                    <div class="panel has-bg-muted has-text-dark ">
+                        <h5 class='has-text-primary'
+                            style='text-decoration: underline; has-text-center'>
+                            Description</h5>
+                        {{event.backstory | safe}}
+                    </div>
+                </div>
+                {% endif %}
+                {% if event.impact %}
+                <div class="column">
+                    <div class="panel has-bg-transparent">
+                        <h5 class='has-text-primary'
+                            style='text-decoration: underline;'>Impact</h5>
+                        <span class='has-text-dark'>{{event.impact}}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% if event.outcome %}
+                <div class="column">
+                    <div class="panel has-bg-transparent">
+                        <h5 class='has-text-primary'
+                            style='text-decoration: underline;'>Outcome</h5>
+                        <span class='has-text-dark'>{{event.outcome}}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% if event.image %}
+                <div class="column">
+                    <div class="panel has-bg-transparent">
+                        <div class="image is-tile is-margin-center" style="width:100%;">
+                            <img src="{{event.image.url()}}" loading="lazy" alt="{{event.name}}" />
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="column is-full">
+            <div class="panel has-bg-muted has-text-dark">
+                <h5 class='has-text-center'>Story: {{ event.story.name }}</h5>
+                <div>{{ event.story.situation | safe }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-full">
+        <div class="panel has-bg-muted has-text-dark ">
+            <h5 class='has-text-center'>Associations</h5>
+            <div class="row has-space-around">
+                {% for association in event.associations %}
+                <div class="column is-shrink">
+                    {{ display_components.object_display(association) | safe }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}">
+            <div class="row">
+                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.details(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-details-anchor', {
+                        content: 'Details',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Details</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{ manage_event_components.manage(user, obj) }}
+{%- endmacro %}

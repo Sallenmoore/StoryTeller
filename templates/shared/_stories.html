@@ -1,8 +1,6 @@
-{% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
-{% import "shared/_icons.html" as icon_components %}
 
-{% macro stories(user, obj, story=None) -%}
+{% macro stories(user, obj)%}
 <title>{{obj.name | title}} - View Stories</title>
 <h2 id='view-stories'>
     View Stories
@@ -10,9 +8,9 @@
 <div id="object-stories" class="row raise-it">
     <div class="column">
         <select class="has-bg-muted" name="storypk" id="storypk"
-                hx-post="/api/{{obj.path}}/stories"
-                hx-target="#page-content" hx-trigger='change'
-                onchange='history.pushState({}, "", `/{{obj.path}}/stories/${this.value}`);'>
+                hx-post="/api/story/"
+                hx-target="#story-details" hx-trigger='change'
+                onchange='history.pushState({}, "", `/story/${this.value}`);'>
             <option value="">=== Select Story ===</option>
             {% for s in obj.stories %}
             <option class="has-text-dark" value="{{s.pk}}" {% if story and story.pk==s.pk %}
@@ -22,117 +20,30 @@
             {% endfor %}
         </select>
     </div>
-    <div class="column is-full">
-        {% if story %}
-        <hr>
-        {{ story_details(user, obj, story) }}
-        {% endif %}
-    </div>
-</div>
-
-{%- endmacro %}
-
-{% macro story_details(user, obj, story) -%}
-<div class="section">
-    <div class="row has-space-around">
-        <div class="column is-shrink is-vertically-centered">
-            <h3 class='has-text-secondary has-text-center'>{{story.name}}</h3>
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div class="column is-full has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Situation</h4>
-                {{story.situation | safe}}
-            </div>
-        </div>
-        <div class="column is-full has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Current Status</h4>
-                {{story.current_status | safe}}
-            </div>
-        </div>
-        <div class="column is-full has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Backstory</h4>
-                {{story.backstory | safe }}
-            </div>
-        </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Hooks</h3>
-                <ul>
-                    {%for q in story.hooks %}
-                    <li>{{q | safe}}</li>
-                    {%endfor%}
-                </ul>
-            </div>
-        </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Questions</h3>
-                <ul>
-                    {%for q in story.questions %}
-                    <li>{{q | safe}}</li>
-                    {%endfor%}
-                </ul>
-            </div>
-        </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Rumors</h3>
-                <ul>
-                    {%for q in story.rumors %}
-                    <li>{{q | safe}}</li>
-                    {%endfor%}
-                </ul>
-            </div>
-        </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Information</h3>
-                <ul>
-                    {%for q in story.information %}
-                    <li>{{q | safe}}</li>
-                    {%endfor%}
-                </ul>
-            </div>
-        </div>
-    </div>
-    <hr class='has-bg-primary'>
-    <div class="row">
-        <div id="story-bbeg" class="column is-3 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>BBEG</h3>
-                {% if story.bbeg %}
-                {{display_components.object_display(story.bbeg)}}
-                {% else %}
-                Unknown
-                {% endif %}
-            </div>
-        </div>
-        <div id="story-encounters" class="column is-9 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Encounters</h3>
-                <div class="row has-space-around">
-                    {% for encounter in story.encounters %}
-                    <div class="column is-2">{{display_components.object_display(encounter)}}</div>
-                    {% endfor %}
+    <div id="story-details" class="column is-full">
+        <div class="row has-space-around">
+            {% for story in obj.stories %}
+            <div class="column is-4">
+                <div class="panel">
+                    <a href="/story/{{story.pk}}">
+                        <h4 class='has-text-center'>{{story.name}}</h4>
+                    </a>
+                    <hr class='has-bg-white'>
+                    <div class="row has-space-around">
+                        {%for ass in story.associations %}
+                        <div class="column is-2">
+                            {{display_components.object_display(ass, type=False, name=False)}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr class='has-bg-white'>
+                    <a href="/story/{{story.pk}}">
+                        <div class='has-text-justified has-text-black'>{{story.situation | safe}}
+                        </div>
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="story-associations" class="section is-small">
-        <div class="panel">
-            <h2 class='has-text-center'> Associations </h2>
-            <div class="row has-space-around">
-                {% for a in story.associations %}
-                <div class="column is-2">
-                    {{display_components.object_display(a)}}
-                </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
