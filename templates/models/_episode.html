@@ -1,0 +1,38 @@
+{% import "shared/_display.html" as display %}
+{% import "shared/_icons.html" as icons %}
+
+<!-- unique menu items for campaigns -->
+{% macro menu(user, obj) -%}
+    <!--<li><a href="/{{obj.path}}/gameplay">{{icons.campaigns(size="1rem")}} Game Play</a></li>-->
+{%- endmacro %}
+
+<!-- character display -->
+{% macro info(user, obj) -%}
+<title>{{obj.name or obj.title}} - Details</title>
+<div id="character-info" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h2>Episode Overview</h2></div>
+    <div class="story cell small-12 medium-7">
+        <p>{{obj.summary | safe}}</p>
+
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {% if obj.image %}
+            <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+        {% endif %}
+
+        <table id="demographics">
+            <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
+            <tr><th>{{display.dsp_object_lifetime(obj,'start')}}</th><td>{{obj.start_date}}</td></tr>
+            <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{%if obj.end_date.year > 0 %}{{obj.end_date}}{% endif %}</td></tr>
+        </table>
+
+<!--
+        {{ display.dsp_all_associations(user, obj) }}
+
+-->
+    </div>
+</div>
+
+
+
+{%- endmacro %}
