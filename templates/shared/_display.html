@@ -10,7 +10,7 @@
     {% if name %}
     <h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
         {{obj.name}}
-        <sup>({% if obj.canon|default(false) %} c {% elif canon %} nc {% endif %})</sup>
+        {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
     </h6>
     {% endif %}
     {% if date %}
