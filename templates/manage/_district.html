@@ -1,0 +1,17 @@
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="column is-shrink">
+        <h4>Owner</h4>
+        <input class="has-bg-light has-text-dark" disabled id='owner' type="text" name="owner"
+               value='TBD...'>
+    </div>
+</form>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

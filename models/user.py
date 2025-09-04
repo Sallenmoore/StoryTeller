@@ -22,7 +22,7 @@ class User(AutoUser):
                 yield w
 
     def world_user(self, obj):
-        return self in obj.get_world().users
+        return self in obj.world.users
 
     ## MARK: - Verification Methods
     ###############################################################

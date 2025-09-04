@@ -2,70 +2,8 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
 
-{% macro stories(user, world, story=None) -%}
-<title>{{world.name | title}} - Manage Stories</title>
-<h2 id='manage-stories'>
-    Manage Stories
-</h2>
-<div id="world-stories" class="row raise-it">
-    <div class="column">
-        <select class="has-bg-muted" name="storypk" id="storypk"
-                hx-post="/api/stories/"
-                hx-target="#page-content" hx-trigger='change'
-                onchange='history.pushState({}, "", `/world/{{world.pk}}/stories/${this.value}`);'>
-            <option value="">=== Select Story ===</option>
-            {% for s in world.stories %}
-            <option class="has-text-dark" value="{{s.pk}}" {% if story and story.pk==s.pk %}
-                    selected {% endif %}>
-                {{s.name}}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="column is-shrink is-end">
-        <button class="button is-primary is-small" hx-post="/api/stories/new"
-                hx-target="#world-stories" hx-select="#world-stories"
-                hx-swap="outerHTML">
-            {{icon_components.plus(size="1rem")}}
-            New Story
-        </button>
-    </div>
-    <div class="column is-full">
-        {% if story %}
-        <hr>
-        {{ story_details(user, world, story) }}
-        {% else %}
-        <div class="row has-space-around">
-            {% for story in world.stories %}
-            <div class="column is-4">
-                <div class="panel">
-                    <a href="/world/{{world.pk}}/stories/{{story.pk}}">
-                        <h4 class='has-text-center'>{{story.name}}</h4>
-                    </a>
-                    <hr class='has-bg-white'>
-                    <div class="row has-space-around">
-                        {%for ass in story.associations %}
-                        <div class="column is-2 is-center">
-                            {{display_components.object_display(ass, type=False, name=False)}}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <hr class='has-bg-white'>
-                    <a href="/world/{{world.pk}}/stories/{{story.pk}}">
-                        <div class='has-text-justified has-text-white'>{{story.situation | safe}}
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-</div>
 
-{%- endmacro %}
-
-{% macro story_details(user, obj, story) -%}
+{% macro manage(user, story) -%}
 <form hx-post="/api/stories/{{story.pk}}/update" hx-swap='none'
       hx-trigger='input delay:0.5s'>
     <div class="row has-space-between">
@@ -117,7 +55,7 @@
                     </button>
                 </div>
             </div>
-            {{form_components.listeditor(user, story, 'tasks')}}
+            {{form_components.listarea(user, story, 'tasks')}}
         </div>
         <div class="column is-4 has-text-secondary">
             <h3 class='has-text-center'>Rumors</h3>
@@ -133,7 +71,7 @@
                     </button>
                 </div>
             </div>
-            {{form_components.listeditor(user, story, 'rumors')}}
+            {{form_components.listarea(user, story, 'rumors')}}
         </div>
         <div class="column is-4 has-text-secondary">
             <h3 class='has-text-center'>Information</h3>
@@ -149,13 +87,13 @@
                     </button>
                 </div>
             </div>
-            {{form_components.listeditor(user, story, 'information')}}
+            {{form_components.listarea(user, story, 'information')}}
         </div>
     </div>
 </form>
 <hr class='has-bg-primary'>
 <div class="row">
-    <div id="story-bbeg" class="column is-3 has-text-secondary">
+    <div id="story-bbeg" class="column is-2 has-text-secondary">
         <h3 class='has-text-center'>BBEG</h3>
         <div class="row">
             <div class="column is-full">
@@ -177,20 +115,6 @@
     </div>
     <div id="story-encounters" class="column is-9 has-text-secondary">
         <h3 class='has-text-center'>Encounters</h3>
-        <div class="row">
-            <div class="column is-full">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/stories/{{story.pk}}/encounters/add/search"
-                           hx-target="#story-new-encounter-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="story-new-encounter-list">
-                    </ul>
-                </div>
-            </div>
-        </div>
         <div class="row has-space-around">
             {% for encounter in story.encounters %}
             <div class="column is-2">{{display_components.object_display(encounter)}}</div>
@@ -201,6 +125,21 @@
 <div id="story-associations" class="section is-small">
     <div class="panel">
         <h2 class='has-text-center'> Associations </h2>
+        <h5>Add New...</h5>
+        <div class="row has-space-around">
+            {% for model in story.world.all_models_str() %}
+            <div class="column is-shrink">
+                <button class='button is-small'
+                        hx-post='/api/stories/{{story.pk}}/associations/add/{{model | lower}}'
+                        hx-target="#story-associations"
+                        hx-select="#story-associations"
+                        hx-swap='outerHTML'>
+                    {{story.world.get_title(model)}}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        <h5>...or Add Existing</h5>
         <div class="row">
             <div class="column is-full">
                 <div class="has-dropdown" style="width: 100%;">
@@ -229,6 +168,55 @@
     </div>
 </div>
 <hr class='has-bg-muted'>
+<div id="story-events" class="section is-small">
+    <div class="panel">
+        <h2 class='has-text-center'> Events </h2>
+        <div class="row has-space-around">
+            <div class="column is-shrink">
+                <button class='button is-small'
+                        hx-post='/api/stories/{{story.pk}}/event/add'
+                        hx-target="#story-events"
+                        hx-select="#story-events"
+                        hx-swap='outerHTML'>
+                    Add Event
+                </button>
+            </div>
+        </div>
+        <div class="row has-space-around">
+            {% for e in story.events %}
+            <div class="column is-2">
+                <a href="/{{e.path}}" target='_blank' style='position: relative;'>
+                    <div class="panel has-bg-muted">
+                        <div class="row">
+                            <div class="column is-shrink">
+                                {{e.name}}
+                                {{e.type}}
+                                {{e.start_date}}
+                                {{e.end_date}}
+                            </div>
+                            <div class="column">
+                                {{e.impact}}
+                                <hr>
+                                {{e.backstory}}
+                                <hr>
+                                {{e.outcome}}
+                            </div>
+                            <div class="column is-shrink">
+                                <div class="image is-tile is-margin-center" style="width:100%;">
+                                    {% if e.image %}
+                                    <img src="{{e.image.url()}}" loading="lazy" alt="{{e.name}}" />
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<hr class='has-bg-muted'>
 <div class="row">
     <div class="column is-shrink is-center">
         <a hx-post="/api/stories/{{story.pk}}/delete"
@@ -246,30 +234,6 @@
     <a hx-post="/api/stories/{{story.pk}}/bbeg/add/{{o.pk}}"
        hx-target='#story-bbeg'
        hx-select='#story-bbeg' hx-swap='outerHTML'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="column">
-                {{o.name}}
-            </div>
-        </div>
-    </a>
-</li>
-{% endfor %}
-{%- endmacro%}
-
-{% macro encounters_dropdown(user, obj, story, objs=[]) -%}
-{% for o in objs %}
-<li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/stories/{{story.pk}}/encounters/add/{{o.pk}}"
-       hx-target='#story-encounters'
-       hx-select='#story-encounters' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="row">
             <div class="column is-shrink">

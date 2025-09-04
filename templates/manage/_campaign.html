@@ -4,79 +4,8 @@
 {% import "shared/_tasks.html" as task_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro campaigns(user, obj, campaign_list, campaign=None, episode=None) -%}
-<title>{{obj.name | title}} - Manage Campaign</title>
-<h2 id='manage-campaigns'>
-    Manage Campaigns
-</h2>
-<div id="world-campaign-details" class="raise-it">
-    <div class="row">
-        <div class="column">
-            <select class="has-bg-muted" name="campaignpk" id="campaignpk"
-                    hx-post="/api/campaign/"
-                    hx-target="#page-content" hx-trigger='change'
-                    onchange='history.pushState({}, "", `/world/{{obj.pk}}/campaigns/manage/${this.value}`);'>
-                <option value="">=== Select Campaign ===</option>
-                {% for cmp in campaign_list %}
-                <option class="has-text-dark" value="{{cmp.pk}}" {% if campaign.pk==cmp.pk %}
-                        selected {% endif %}>
-                    {{cmp.name}} : {{ cmp.start_date }} - {{cmp.end_date}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink is-end">
-            <button class="button is-primary is-small" hx-post="/api/campaign/new"
-                    hx-target="#world-campaign-details" hx-select="#world-campaign-details"
-                    hx-swap="outerHTML">
-                {{icon_components.plus(size="1rem")}}
-                New Campaign
-            </button>
-        </div>
-    </div>
-    {% if campaign %}
-    <div class="tabs has-border">
-        <ul class="campaign_tablist tabs__list has-centered ">
-            <li class="{% if not episode %} is-active {% endif %} has-text-dark"
-                hx-post='/api/campaign/{{campaign.pk}}/details'
-                hx-target='#details-container'
-                onclick="activeTab(this)">
-                <a>
-                    Campaign Details
-                </a>
-            </li>
-            <li class="{% if episode %} is-active {% endif %} has-text-dark"
-                hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}/details'
-                hx-target='#details-container'
-                onclick="activeTab(this)">
-                <a>
-                    Episode Details
-                </a>
-            </li>
-        </ul>
-        <div class="row">
-            <div id='details-container' class="column is-full">
-                {% if episode %}
-                {{episode_details(user, obj, campaign, episode)}}
-                {% else %}
-                {{campaign_details(user, obj, campaign)}}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
-<script>
-    function activeTab(elem) {
-        for (x of elem.closest("ul").children) {
-            x.classList.remove("is-active");
-        }
-        elem.closest("li").classList.add("is-active");
-    }
-</script>
-{%- endmacro %}
-
-{% macro campaign_details(user, obj, campaign) -%}
+{% macro manage(user, campaign) -%}
+<title>{{campaign.name | title}} - Manage Campaign</title>
 <div class="section is-small">
     <div class="panel has-bg-screen">
         <div class="row has-space-around">
@@ -132,7 +61,7 @@
     <hr class='has-bg-primary'>
     <div class="row" id='campaign-players'>
         <div class="column is-4">
-            <h5>Add Faction</h5>
+            <h5>Add Party</h5>
             <div class="panel has-bg-muted">
                 <div class="is-multiple-select">
                     <select
@@ -144,7 +73,7 @@
                         <option value=''>
                             ---
                         </option>
-                        {% for faction in obj.factions%}
+                        {% for faction in campaign.world.factions%}
                         {% if faction.is_player_faction %}
                         <option value='{{faction.pk}}' {% if faction==campaign.party %} selected {%
                                 endif %}
@@ -184,10 +113,46 @@
             </div>
         </div>
     </div>
+    <div id="episode-list" class="section is-small">
+        <div class="panel">
+            <h2 class='has-text-center'> Episodes </h2>
+            <div class="row">
+                <div class="column is-shrink is-end">
+                    <button class="button is-primary is-small"
+                            hx-post="/api/campaign/{{campaign.pk}}/episode/new"
+                            hx-target="#episode-list"
+                            hx-select="#episode-list"
+                            hx-swap="outerHTML">
+                        {{icon_components.plus(size="1rem")}}
+                        New Episode
+                    </button>
+                </div>
+                {% for e in campaign.episodes %}
+                <div class="column is-full has-bg-screen episode-association-entry">
+                    <a href='/episode/{{e.pk}}/manage' target='_blank'>
+                        <div class="row">
+                            <div class="column is-2">
+                                <h5 class='has-text-center has-text-light'>{{e.name}}: {{e.num}}
+                                </h5>
+                                <h6 class='has-text-center has-text-light'>{{e.start_date}} -
+                                    {{e.end_date}}
+                                </h6>
+                            </div>
+                            <div class="column" class='has-text-dark generated-text-lightbg'>
+                                {{e.summary | safe}}
+                            </div>
+                        </div>
+                    </a>
+                    <hr class='has-bg-light'>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <div class="section is-small">
         <div class="panel">
             <h2 class='has-text-center'> Associations </h2>
-            {% for title in ['Locations', 'POIs', 'Characters', 'Creatures', 'Items', 'Factions'] %}
+            {% for title in ['Locations', 'Characters', 'Creatures', 'Items', 'Factions'] %}
             {% set obj_key = title | lower %}
             {% if campaign[obj_key] %}
             <hr class='has-bg-muted'>
@@ -219,354 +184,3 @@
     </div>
 </div>
 {%- endmacro %}
-
-{% macro episode_details(user, obj, campaign, episode=None) -%}
-<div class="section is-small">
-    <h3 class='has-text-primary'>Episode Select</h3>
-    <div class="row">
-        <div class="column">
-            <select id="episode-select" class="has-bg-muted" name="episodepk"
-                    hx-post="/api/campaign/{{campaign.pk}}/episode/manage"
-                    hx-target="#episode-details"
-                    hx-select="#episode-details"
-                    hx-trigger='change' hx-indicator='#request-indicator'>
-                <option value="">==Select Episode==</option>
-                {% for ep in campaign.episodes %}
-                <option value="{{ep.pk}}" {%if episode and
-                        ep==episode %} selected {% endif %}>
-                    {{ep.name}}:
-                    {{ep.start_date}}
-                    -
-                    {{ ep.end_date }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink is-end">
-            <button class="button is-primary is-small"
-                    hx-post="/api/campaign/{{campaign.pk}}/episode/new"
-                    hx-target="#world-campaign-details"
-                    hx-select="#world-campaign-details"
-                    hx-swap="outerHTML">
-                {{icon_components.plus(size="1rem")}}
-                New
-                Episode
-            </button>
-        </div>
-    </div>
-    <div class="row fade-it-in" id='campaign-episode-container'>
-        <div id='episode-details' class="column">
-            {% if episode %}
-            <div class="row has-space-around">
-                <div class="column">
-                    <div class="panel has-bg-muted has-text-dark generated-text-lightbg"
-                         style='position:relative;'>
-                        {{episode.summary | safe}}
-                        <button class='button is-small' class="button is-primary"
-                                style='position: absolute; bottom:0px; right:0px;'
-                                hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                                hx-target='closest .column'>
-                            Update Summary
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
-                  hx-swap='none'
-                  hx-trigger='input delay:1s, change'>
-                <div class="row">
-                    <div class="column is-6">
-                        <h4 class='has-text-center has-text-dark'>Name</h4>
-                        <input class="has-bg-light has-text-center" type="text" name="name"
-                               value="{{episode.name}}">
-                    </div>
-                    <div class="column is-6">
-                        <h4 class='has-text-center has-text-dark'>Episode Number</h4>
-                        <input class="has-bg-light has-text-center" type="number" name="episode_num"
-                               value="{{episode.episode_num}}">
-                    </div>
-                </div>
-                <div class="row has-centered" style='position:relative;'>
-                    <div class="column is-shrink is-vertically-centered">
-                        <h5 class='has-text-center has-text-dark'>Start</h5>
-                    </div>
-                    <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="start_date.day"
-                               placeholder='day'
-                               value="{{episode.start_date.day}}">
-                    </div>
-                    <div
-                         class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-                        <div class="is-select" style='position:relative;top: -2px;'>
-                            <select name="start_date.month">
-                                {% for m in episode.world.calendar.months %}
-                                <option class="has-text-center" value='{{m}}' {% if
-                                        loop.index0==episode.start_date.month %}
-                                        selected {% endif %}>
-                                    {{m}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="start_date.year"
-                               placeholder='year'
-                               value="{{episode.start_date.year}}">
-                    </div>
-                    <div class="column is-shrink  is-vertically-centered">
-                        {{icon_components.dash()}}
-                    </div>
-                    <div class="column is-1 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="end_date.day"
-                               placeholder='day'
-                               value="{{episode.end_date.day}}">
-                    </div>
-                    <div
-                         class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
-                        <div class="is-select" style='position:relative;top: -2px;'>
-                            <select name="end_date.month">
-                                {% for m in episode.world.calendar.months %}
-                                <option class="has-text-center" value='{{m}}' {% if
-                                        loop.index0==episode.end_date.month %}
-                                        selected {% endif %}>
-                                    {{m}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="column is-2 has-no-padding has-no-margin is-vertically-centered">
-                        <input class="has-text-center" type="number"
-                               name="end_date.year"
-                               placeholder='year'
-                               value="{{episode.end_date.year}}">
-                    </div>
-                    <div class="column is-shrink  is-vertically-centered">
-                        <h5 class='has-text-center has-text-dark'>End</h5>
-                    </div>
-                </div>
-            </form>
-            <div class="tabs has-border">
-                <ul class="episode_tablist tabs__list has-centered ">
-                    <li class='has-text-dark'>
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/report'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Episode Report</h5>
-                        </a>
-                    </li>
-                    <li class="has-text-dark">
-                        <a hx-post='/api/campaign/episode/{{episode.pk}}/associations'
-                           hx-target='#episode-manage-container'
-                           onclick="activeTab(this)">
-                            <h5 class='has-text-center has-text-dark'>Associations</h5>
-                        </a>
-                    </li>
-                </ul>
-                <div class="row">
-                    <div id="episode-manage-container" class="column episode_tabs fade-it-in">
-                        {{episode_report(user, obj, episode)}}
-                    </div>
-                </div>
-            </div>
-            <div class="row ">
-                <div class="column is-end is-shrink">
-                    <button class="button is-light has-text-dark"
-                            hx-post="/api/campaign/episode/{{episode.pk}}/delete"
-                            hx-target="#details-container"
-                            hx-select="#details-container"
-                            hx-swap="outerHTML"
-                            hx-confirm='Are you sure you want to delete this Episode?'>
-                        {{icon_components.trash(size="1rem")}}
-                    </button>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-
-{% macro episode_report(user, obj, episode, afilter=None) -%}
-<div class="row">
-    <div class="column is-8">
-        <form hx-post="/api/campaign/{{episode.campaign.pk}}/episode/{{episode.pk}}/manage"
-              hx-swap='none'
-              hx-trigger='input delay:1s, change'>
-            <div id="episode-report-container" class="fade-it-in">
-                {{form_components.texteditor(user, episode, 'episode_report')}}
-            </div>
-            <div id="episode-loot-container" class="fade-it-in">
-                <hr class='has-bg-muted'>
-                <h3 class='has-text-center'>Loot</h3>
-                {{form_components.texteditor(user, episode, 'loot')}}
-            </div>
-            <div id="episode-loot-container" class="fade-it-in">
-                <hr class='has-bg-muted'>
-                <h3 class='has-text-center'>Hooks</h3>
-                {{form_components.texteditor(user, episode, 'hooks')}}
-            </div>
-        </form>
-    </div>
-    <div class="column is-4">
-        {{episode_associations(user, obj, episode)}}
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_associations(user, obj, episode, afilter=None) -%}
-<div id="episode-associations" class="row">
-    <div class="column fade-it-in">
-        <h5 class='has-text-primary'>Add New...</h5>
-        <div class="row has-space-around">
-            {% for model in obj.all_models_str() %}
-            <div class="column is-shrink">
-                <button class='button is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/{{model | lower}}'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    {{obj.get_title(model)}}
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        <h5 class='has-text-primary'>...or Add Existing</h5>
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/campaignassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    All Campaign Associations
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/episodeassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    Previous Episode Associations
-                </button>
-            </div>
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/campaign/episode/{{episode.pk}}/associations/add/players'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    players
-                </button>
-            </div>
-            <div class="column is-half">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/campaign/episode/{{episode.pk}}/associations/add/search"
-                           hx-target="#episode-new-associations-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="episode-new-associations-list">
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="panel has-bg-screen">
-            {% if episode.encounters %}
-            {{ episode_association_display(user, obj, episode, episode.encounters, obj.get_title("Encounter")) }}
-            {% endif %}
-            {% if episode.locations %}
-            {{ episode_association_display(user, obj, episode, episode.locations, obj.get_title("Location")) }}
-            {% endif %}
-            {% if episode.shops %}
-            {{ episode_association_display(user, obj, episode, episode.shops, obj.get_title("Shop")) }}
-            {% endif %}
-            {% if episode.districts %}
-            {{ episode_association_display(user, obj, episode, episode.districts, obj.get_title("District")) }}
-            {% endif %}
-            {% if episode.characters %}
-            {{ episode_association_display(user, obj, episode, episode.characters, obj.get_title("Character")) }}
-            {% endif %}
-            {% if episode.creatures %}
-            {{ episode_association_display(user, obj, episode, episode.creatures, obj.get_title("Creature")) }}
-            {% endif %}
-            {% if episode.items %}
-            {{ episode_association_display(user, obj, episode, episode.items, obj.get_title("Item")) }}
-            {% endif %}
-            {% if episode.vehicles %}
-            {{ episode_association_display(user, obj, episode, episode.vehicles, obj.get_title("Vehicle")) }}
-            {% endif %}
-            {% if episode.factions %}
-            {{ episode_association_display(user, obj, episode, episode.factions, obj.get_title("Faction")) }}
-            {% endif %}
-            {% if episode.cities %}
-            {{ episode_association_display(user, obj, episode, episode.cities, obj.get_title("City")) }}
-            {% endif %}
-            {% if episode.regions %}
-            {{ episode_association_display(user, obj, episode, episode.regions, obj.get_title("Region")) }}
-            {% endif %}
-
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro episode_association_display(user, obj, episode, children, title) -%}
-<h3 class='has-text-center'> {{title}} </h3>
-<hr class='has-bg-muted'>
-<div class="row">
-    {% for a in children %}
-    <div class="column is-2 is-mobile-6 episode-association-entry fade-it-in"
-         style='position:relative;'>
-        {{display_components.object_display(a, type=False, dim=250)}}
-        <a style='position:absolute; top:0px; right:5px;'
-           hx-post="/api/campaign/episode/{{episode.pk}}/association/{{a.path}}/delete"
-           hx-target="closest .episode-association-entry" hx-swap="delete"
-           hx-confirm="Are you sure you want to remove this association from the episode?">
-            <iconify-icon class="has-bg-muted" icon="mdi:remove" width="1rem"></iconify-icon>
-        </a>
-    </div>
-    {% endfor %}
-</div>
-{%- endmacro %}
-
-{% macro association_dropdown(user, obj, episode, objs=[]) -%}
-{% for o in objs %}
-<li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/campaign/episode/{{episode.pk}}/associations/add/{{o.path}}"
-       hx-target='#episode-associations'
-       hx-select='#episode-associations' hx-swap='outerHTML'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="column">
-                {{o.name}}
-            </div>
-        </div>
-    </a>
-</li>
-{% endfor %}
-{%- endmacro%}

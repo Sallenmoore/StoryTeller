@@ -17,6 +17,9 @@ class Character(Actor):
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
 
+    start_date_label = "Born"
+    end_date_label = "Died"
+
     parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
 
     _template = [

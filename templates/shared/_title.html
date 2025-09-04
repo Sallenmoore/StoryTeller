@@ -1,13 +1,13 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro object_title(user, obj) -%}
-<div class="row has-bg-muted has-no-padding has-no-margin has-centered" style='position:relative; margin: 0 3rem; border-radius: 5px 5px 0 0; {% if obj.get_world().image %} background-image: linear-gradient(
+<div class="row has-bg-muted has-no-padding has-no-margin has-centered" style='position:relative; margin: 0 3rem; border-radius: 5px 5px 0 0; {% if obj.world.image %} background-image: linear-gradient(
     to bottom,
     rgba(247, 247, 244, 0.5),
     rgba(83, 83, 84, 0.5)
-  ), url("{{obj.get_world().image.url()}}"); background-size: cover;{%endif%}'>
+  ), url("{{obj.world.image.url()}}"); background-size: cover;{%endif%}'>
     <div class="column is-vertically-centered has-no-padding">
-        <a href=' /{{obj.path}}'>
+        <a href='/{{obj.path}}'>
             <h1 id="object-title" class="has-text-center has-bg-muted has-no-margin ">
                 {{obj.name or obj.title}}
             </h1>
@@ -16,9 +16,9 @@
     {% if user.world_user(obj) %}
     <div class="column is-shrink is-mobile-shrink"
          style="position:absolute;right:0.5rem;">
-        <a class=" has-text-secondary" hx-post="/api/manage/{{obj.path}}"
+        <a class=" has-text-secondary" hx-post="/api/{{obj.path}}/manage"
            hx-target="#page-content" hx-indicator='#request-indicator'
-           hx-push-url='/manage/{{obj.path}}'>
+           hx-push-url='/{{obj.path}}/manage'>
             {{icon_components.gear(size="1.5rem")}}
         </a>
     </div>

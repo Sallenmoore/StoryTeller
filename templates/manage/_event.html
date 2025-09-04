@@ -1,0 +1,46 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+
+{% macro manage(user, event) -%}
+<div class="panel">
+    <div class="row">
+        <div class="column is-4">
+            <label for="name">Name</label>
+            <input name='name' type="text" value="{{event.name}}">
+        </div>
+        <div class="column is-4">
+            <label for="ability-name">Scope</label>
+            <div class="select">
+                <select name='abilities[].action'
+                        value="{{ability.action}}">
+                    {%for a in ["main action", "bonus action", "reaction",
+                    "free action",
+                    "passive"] %}
+                    <option value="{{a}}" {% if ability.action==a %} selected {%
+                            endif %}>{{a}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column is-4">
+            <label for="ability-duration">Duration</label>
+            <input name='abilities[].duration' type="text"
+                   value="{{ability.duration}}">
+        </div>
+        <div class="column is-half">
+            <label for="ability-dice-roll">Dice Roll</label>
+            <textarea
+                      class="has-bg-white"
+                      name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
+        </div>
+        <div class="column is-half">
+            <label for="ability-effects">Effects</label>
+            <textarea class="has-bg-white"
+                      name='abilities[].effects'>{{ability.effects}}</textarea>
+        </div>
+        <div class="column is-full">
+            {{form_components.texteditor(user, ability, "backstory", content=ability.backstory, name="abilities[].backstory")}}
+        </div>
+    </div>
+</div>
+{% endmacro%}

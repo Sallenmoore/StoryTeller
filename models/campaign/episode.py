@@ -85,6 +85,10 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "City"]
 
     @property
+    def path(self):
+        return f"episode/{self.pk}"
+
+    @property
     def places(self):
         return [a for a in [*self.scenes, *self.cities, *self.regions]]
 

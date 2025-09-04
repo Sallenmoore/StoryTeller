@@ -1,4 +1,4 @@
-{% macro timeline(user, obj, events) -%}
+{% macro timeline(user, obj) -%}
 <style>
     .timeline {
         position: relative;
@@ -143,26 +143,25 @@
     </div>
     <div class="column is-full">
         <div class="timeline">
-            {% for a in events %}
+            {% for a in obj.events %}
             <div class='tentry {{ loop.cycle("right", "left" ) }}'>
-                <div class="date ">{{a.date}}</div>
-                <span class='icon'>{{a.icon}}</span>
+                <div class="date">{{a.start_date}}</div>
+                <div class="date">{{a.end_date}}</div>
                 <div class="content">
                     <div class="row">
                         <div class="column is-3">
-                            <a href="/{{a.obj.path}}">
+                            <a href="/{{a.path}}">
                                 <div class="image">
                                     <img src="{{a.image}}" alt="{{a.name}}">
                                 </div>
                             </a>
                         </div>
                         <div class="column">
-                            <a href="/{{a.obj.path}}">
+                            <a href="/{{a.path}}">
                                 <h4 class='has-text-center'>{{a.name}}</h4>
-                                <h6 class='has-text-center has-text-dark'>{{a.event | upper}}</h6>
                             </a>
                             <span>
-                                {{a.description | safe}}
+                                {{a.impact | safe}}
                             </span>
                         </div>
                     </div>

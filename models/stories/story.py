@@ -4,6 +4,9 @@ from autonomous import log
 from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
+from models.images.image import Image
+from models.stories.event import Event
+from models.ttrpgobject.encounter import Encounter
 
 
 class Story(AutoModel):
@@ -13,13 +16,12 @@ class Story(AutoModel):
     current_status = StringAttr(default="")
     backstory = StringAttr(default="")
     tasks = ListAttr(StringAttr(default=""))
+    image = ReferenceAttr(choices=[Image])
     rumors = ListAttr(StringAttr(default=""))
     information = ListAttr(StringAttr(default=""))
     bbeg = ReferenceAttr(choices=["Character"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-    encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
-    events = ListAttr(ReferenceAttr(choices=["Event"]))
-    world = ReferenceAttr(choices=["World"])
+    world = ReferenceAttr(choices=["World"], required=True)
 
     def __str__(self):
         return f"{self.situation}"
@@ -68,6 +70,24 @@ class Story(AutoModel):
             },
         },
     }
+
+    @property
+    def encounters(self):
+        return Encounter.search(story=self)
+
+    @property
+    def events(self):
+        return Event.search(story=self)
+
+    @property
+    def history(self):
+        return (
+            f"{self.situation}<br><br> {self.backstory}<br><br> {self.current_status}"
+        )
+
+    @property
+    def path(self):
+        return f"story/{self.pk}"
 
     def generate(self):
         prompt = f"Your task is to create a new storyline for the following {self.world.genre} TTRPG world. The story should incorporate existing world elements and relationships. The storyline can range from a local event to a global paradigm shift; however, the plot must include elements that can benefit from outside assistance or interference. Here is some context about the world: {self.world.name}, {self.world.description}. "
@@ -133,3 +153,12 @@ class Story(AutoModel):
             log(f"Generated Story: {self.name}", __print=True)
         else:
             log("Failed to generate Story", __print=True)
+
+    ############# Association Methods #############
+    # MARK: Associations
+    def add_association(self, obj):
+        # log(len(self.associations), obj in self.associations)
+        if obj not in self.associations:
+            self.associations += [obj]
+            self.save()
+        return obj

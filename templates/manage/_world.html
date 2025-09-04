@@ -1,0 +1,156 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_history.html" as history_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_timeline.html" as timeline_components %}
+{% import "shared/_journal.html" as journal_components %}
+{% import "shared/_stories.html" as stories_components %}
+{% import "shared/_campaigns.html" as campaigns_components %}
+{% import "shared/_associations.html" as associations_components %}
+{% import "shared/_map.html" as map_components %}
+{% import "shared/_jobs.html" as jobs_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<div class="row">
+    <div class="column is-full">
+        <form hx-post="/api/{{obj.path}}/calendar/update"
+              hx-swap="none"
+              hx-trigger="input delay:1s, change, submit" 7>
+            <div class="row">
+                <div class="column is-4">
+                    <div class="panel has-bg-primary is-small">
+                        <label>Epoch Name</label>
+                        <input class="has-bg-muted" type="text" name="age"
+                               value="{{obj.calendar.age}}">
+                        <label>Number of Days / Year</label>
+                        <input class="has-bg-muted has-text-dark" type="number"
+                               name="num_days_per_year"
+                               value="{{obj.calendar.days_per_year}}">
+                        <hr>
+
+                        <h4>Current Date</h4>
+                        <p>{{obj.current_date}}</p>
+                    </div>
+                </div>
+                <div class="column">
+                    <div id="calendar-label-lists-container" class="row has-space-between">
+                        <div class="column is-5" id="month-names">
+                            <label>Number of Months / Year</label>
+                            <input class="has-bg-muted" type="number"
+                                   id="month-names" name="month_names"
+                                   value="{{obj.calendar.months | length}}"
+                                   oninput='updateEntries(this);'>
+                            <h4>Month Names</h4>
+                            <div id="month-names-container">
+                                {% for month in obj.calendar.months %}
+                                <input class="has-bg-muted month-name-entry" type="text"
+                                       name="month_names_list[]"
+                                       value="{{month}}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="column is-5">
+                            <label>Number of Days / Week</label>
+                            <input class="has-bg-muted has-text-dark" type="number"
+                                   id="day-names" name="day_names"
+                                   oninput='updateEntries(this);'
+                                   value="{{obj.calendar.days | length}}">
+                            <h4>Day Names</h4>
+                            <div id="day-names-container">
+                                {% for day in obj.calendar.days %}
+                                <input class="has-bg-muted day-name-entry" type="text"
+                                       name="day_names_list[]"
+                                       value="{{day}}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function updateEntries(input) {
+                            let num = input.value;
+                            let container = document.getElementById(input.id + "-container");
+                            let children = container.children;
+                            if (children.length < num) {
+                                for (let i = children.length; i < num; i++) {
+                                    let newEntry = document.createElement("input");
+                                    newEntry.classList.add("has-bg-muted");
+                                    newEntry.classList.add(input.id.replace("_", "-") + "-entry");
+                                    newEntry.setAttribute("type", "text");
+                                    newEntry.setAttribute("name", `${input.name}_list[]`);
+                                    container.appendChild(newEntry);
+                                }
+                            } else if (children.length > num) {
+                                for (let i = children.length; i > num; i--) {
+                                    container.removeChild(children[i - 1]);
+                                }
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+        </form>
+        <hr>
+    </div>
+    <div class="column is-4">
+        <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"
+              hx-target="#change_system_form"
+              hx-select="#change_system_form"
+              hx-swap="outerHTML"
+              hx-confirm="By changing the system, all previous system data (skills, classes, and backgrounds) will be lost. Are you sure?">
+            <div class="row ">
+                <div class="column">
+                    <h4>Change System</h4>
+                    <div class="select">
+                        <select class='has-bg-light' name="system">
+                            {% for k, v in obj.SYSTEMS.items() %}
+                            <option value="{{k}}" {% if v==obj.system.__class__ %} selected {% endif
+                                    %}>
+                                {{k | title}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-full">
+                    <input class="button is-primary" type="submit" value="change">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="column">
+        <h4>Add Users</h4>
+        <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
+              hx-target="closest .row"
+              hx-swap="outerHTML"
+              hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
+            <div class="row is-vertical">
+                <div class="column">
+                    <input class="has-bg-light" type="email" name="new_user" id="new_user"
+                           placeholder="enter user email">
+                </div>
+                <div class="column">
+                    <input class="button is-primary" type="submit" value="add">
+                </div>
+            </div>
+        </form>
+        <div class="panel has-bg-primary is-small">
+            <div class="row">
+                <div class="column">
+                    <h4>Users</h4>
+                    <ul class="has-no-list-style" id="userlist">
+                        {% for u in obj.users %}
+                        <li>{{u.name}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

@@ -2,6 +2,230 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
+{% import "shared/_history.html" as history_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_timeline.html" as timeline_components %}
+{% import "shared/_journal.html" as journal_components %}
+{% import "shared/_stories.html" as story_components %}
+{% import "shared/_campaigns.html" as campaigns_components %}
+{% import "shared/_associations.html" as associations_components %}
+{% import "manage/_character.html" as manage_character_components %}
+{% import "shared/_title.html" as title_components %}
+
+
+{% macro index(user, obj) -%}
+{{history(user, obj)}}
+{%- endmacro %}
+
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/details">
+            <div class="row">
+                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.details(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-details-anchor', {
+                        content: 'Details',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Details</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/history"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/history">
+            <div class="row">
+                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.history(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-history-anchor', {
+                        content: 'History',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>History</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/timeline"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/timeline">
+            <div class="row">
+                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.timeline(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-timeline-anchor', {
+                        content: 'Timeline',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Timeline</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/campaigns"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/campaigns">
+            <div class="row">
+                <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.campaigns(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-campaigns-anchor', {
+                        content: 'Campaigns',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Campaigns</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% if user.world_user(obj) %}
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/stories"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/stories">
+            <div class="row">
+                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.story(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-stories-anchor', {
+                        content: 'Stories',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Stories</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/journal">
+            <div class="row">
+                <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.journal(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-journal-anchor', {
+                        content: 'Journal',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Journal</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+<ul class="menu__list">
+    {% if user.world_user(obj) %}
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url=" /{{obj.path}}/quests">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    {{icon_components.quest(size="1rem")}}
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Quests</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML"
+           hx-push-url=" /{{obj.path}}/chat">
+            <div class="row">
+                <div class="column is-3 is-mobile-shrink">
+                    {{icon_components.chat(size="1rem")}}
+                </div>
+                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
+                    <span>Chat</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{%- endmacro %}
+
+{% macro history(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{history_components.history(user, obj)}}
+{%- endmacro %}
+
+{% macro details(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{details_components.details(user, obj)}}
+{%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
@@ -60,41 +284,6 @@
         </div>
     </div>
 </div>
-{%- endmacro %}
-
-{% macro menu(user, obj) -%}
-<ul class="menu__list">
-    {% if user.world_user(obj) %}
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML"
-           hx-push-url=" /{{obj.path}}/quests">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    {{icon_components.quest(size="1rem")}}
-                </div>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Quests</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    {% endif %}
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML"
-           hx-push-url=" /{{obj.path}}/chat">
-            <div class="row">
-                <div class="column is-3 is-mobile-shrink">
-                    {{icon_components.chat(size="1rem")}}
-                </div>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Chat</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
@@ -236,141 +425,33 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro manage_details(user, obj) -%}
-<form hx-post="/api/manage/update"
-      hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
-            <div class="is-select">
-                <select class="has-no-border" name="is_player">
-                    <option value="False">NPC</option>
-                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
-                </select>
-            </div>
-        </div>
-        {% if obj.is_player %}
-        <div class="column is-shrink " id="dnd-beyond-id-input-container">
-            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
-            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
-        </div>
-        {% endif %}
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Status</h4>
-            <input type="text" value="{{obj.status}}" name="status">
-        </div>
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Look-A-Like</h4>
-            <input type="text" value="{{obj.lookalike}}" name="lookalike">
-        </div>
-    </div>
-    <hr>
-    <div class="row has-space-between">
-        <div class="column">
-            <h4 class="has-text-center has-text-primary">STR</h4>
-            <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">DEX</h4>
-            <input class="has-text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">INT</h4>
-            <input class="has-text-center" type="text" value="{{obj.intelligence}}"
-                   name="intelligence">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">WIS</h4>
-            <input class="has-text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CHA</h4>
-            <input class="has-text-center" type="text" value="{{obj.charisma}}" name="charisma">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CON</h4>
-            <input class="has-text-center" type="text" value="{{obj.constitution}}"
-                   name="constitution">
-        </div>
-    </div>
-    <div class="row has-space-around">
-        {% for skill, val in obj.skills.items() %}
-        <div class="column is-1 is-mobile-3">
-            <div class="panel has-bg-screen">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <input class="has-text-center" type="number" value="{{val}}"
-                       name="skills.{{skill}}">
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    <hr>
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
-            <input class="has-text-center" id="model-hitpoints" type="number"
-                   value="{{obj.hitpoints}}" name="hitpoints">
-        </div>
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-ac">AC</h4>
-            <input class="has-text-center" id="model-ac" type="number"
-                   value="{{obj.ac}}" name="ac">
-        </div>
-    </div>
-    <div class="row has-space-between">
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Species</h4>
-            <input type="text" value="{{obj.species}}" name="species">
-        </div>
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Gender</h4>
-            <input type="text" value="{{obj.gender}}" name="gender">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-center has-text-primary'>Age</h4>
-            <input class="has-text-center" type="number" value="{{obj.age}}" name="age">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Archetype</h4>
-            <select name="archetype">
-                {%for a in obj.system.classes.keys() %}
-                <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Occupation</h4>
-            <select name="occupation">
-                {%for k, v in obj.system.backgrounds.items() %}
-                <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
+{% macro timeline(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{timeline_components.timeline(user, obj)}}
+{%- endmacro %}
 
-    </div>
-    <hr>
-    <div class="row">
-        <div class="column">
-            <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
-            {{form_components.texteditor(user, obj, "goal")}}
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div id="model-wealth" class="column is-full">
-            <h3 class='has-text-center has-text-primary'>Wealth</h3>
-            {{form_components.listeditor(user, obj, "wealth")}}
-            <hr>
-        </div>
-        <div class="column is-full">
-            {{abilities_components.edit_abilities(user, obj)}}
-        </div>
-    </div>
-</form>
+{% macro journal(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{journal_components.journal(user, obj)}}
+{%- endmacro %}
+
+{% macro stories(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{story_components.stories(user, obj)}}
+{%- endmacro %}
+
+{% macro campaigns(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{campaigns_components.campaigns(user, obj)}}
+{%- endmacro %}
+
+{% macro associations(user, obj, associations)%}
+{{title_components.object_title(user, obj)}}
+{{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 
 {% macro quests(user, obj) -%}
+{{title_components.object_title(user, obj)}}
 <div class="panel has-bg-screen">
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="row has-space-around">
@@ -534,4 +615,9 @@
         {% endfor %}
     </ul>
 </div>
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{ manage_character_components.manage(user, obj) }}
 {%- endmacro %}

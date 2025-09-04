@@ -1,0 +1,43 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_abilities.html" as abilities_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+
+    <div class="row has-space-between">
+        <div class="column is-shrink">
+            <h4>Rarity</h4>
+            <div class="is-select">
+                <select class="has-bg-light" name="rarity">
+                    <option></option>
+                    {% for rarity in obj._rarity_list%}
+                    <option {%if obj.rarity==rarity %}selected {% endif %}>{{rarity}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+        </div>
+        <div class="column is-shrink">
+            <h4>Weight</h4>
+            <input class="has-bg-light" type="text" value="{{obj.weight}}" name="weight">
+        </div>
+        <div class="column">
+            <h4>Cost</h4>
+            <textarea class="has-bg-light" name="cost">{{obj.cost}}</textarea>
+        </div>
+        <div class="column">
+            <h4>Duration</h4>
+            <textarea class="has-bg-light" name="duration">{{obj.duration}}</textarea>
+        </div>
+        <div class="column is-full">
+            {{abilities_components.edit_abilities(user, obj, abilities=obj.features)}}
+        </div>
+    </div>
+</form>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

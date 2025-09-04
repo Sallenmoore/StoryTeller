@@ -15,7 +15,7 @@ class Quest(AutoModel):
     description = StringAttr(default="")
     summary = StringAttr(default="")
     rewards = StringAttr(default="")
-    contact = ReferenceAttr(choices=["Character"])
+    contact = ReferenceAttr(choices=["Character"], required=True)
     antagonist = StringAttr(default="")
     hook = StringAttr(default="")
     plot_twists = ListAttr(StringAttr(default=""))
@@ -66,6 +66,10 @@ class Quest(AutoModel):
     @property
     def rumors(self):
         return self.storyline.rumors
+
+    @property
+    def world(self):
+        return self.storyline.world
 
     def generate_quest(self):
         prompt = f"""Generate a scenario for a sandbox style {self.contact.genre} Table Top RPG.The situation challenging for the player characters to overcome. The scenario can involve a mix of encounter types, such as Combat, Social, Exploration, and Stealth. The situation is brought to the players' attention by or with the character named {self.contact.name} who is described as: {self.contact.backstory}.
@@ -134,3 +138,12 @@ The situation should be tangentially related in some way to the following global
         self.hook = hook
         self.plot_twists = plot_twists
         self.save()
+
+    ############# Association Methods #############
+    # MARK: Associations
+    def add_association(self, obj):
+        # log(len(self.associations), obj in self.associations)
+        if obj not in self.associations:
+            self.associations += [obj]
+            self.save()
+        return obj

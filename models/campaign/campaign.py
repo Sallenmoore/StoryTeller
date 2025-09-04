@@ -49,6 +49,10 @@ class Campaign(AutoModel):
         return self.world.genre
 
     @property
+    def history(self):
+        return self.summary
+
+    @property
     def items(self):
         return [a for a in self.associations if a.model_name() == "Item"]
 
@@ -59,6 +63,10 @@ class Campaign(AutoModel):
     @property
     def locations(self):
         return [a for a in self.associations if a.model_name() == "Location"]
+
+    @property
+    def path(self):
+        return f"campaign/{self.pk}"
 
     @property
     def places(self):
