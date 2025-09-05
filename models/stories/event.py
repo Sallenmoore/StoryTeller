@@ -49,7 +49,7 @@ class Event(AutoModel):
         event.name = episode.name
         event.scope = "Local"
         event.impact = episode.summary
-        event.backstory = episode.description
+        event.backstory = episode.campaign.summary
         event.outcome = episode.episode_report
         event.start_date = episode.start_date
         event.end_date = episode.end_date

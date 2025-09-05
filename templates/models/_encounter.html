@@ -124,7 +124,7 @@
             <h5>Antagonists</h5>
             <div class="panel">
                 <div class="row">
-                    {% for sd in obj.enemies() %}
+                    {% for sd in obj.enemies %}
                     <div class="column">
                         {{display_components.object_display(sd)}}
                     </div>
@@ -165,18 +165,11 @@
 </div>
 <div class="row">
     {% if user.world_user(obj)%}
-    <div class="column">
+    <div class="column is-full">
         <div class="panel has-bg-muted">
-            <h3 class="has-text-dark">Combat Scenario</h3>
+            <h3 class="has-text-dark">Triggers</h3>
             <span class="has-text-dark">
-                {{obj.combat_scenario | safe}}
-            </span>
-        </div>
-        <hr>
-        <div class="panel has-bg-muted">
-            <h3 class="has-text-dark">Non-Combat Scenario</h3>
-            <span class="has-text-dark">
-                {{obj.noncombat_scenario | safe}}
+                {{obj.trigger_conditions | safe}}
             </span>
         </div>
         <hr>
@@ -186,6 +179,24 @@
                 {{obj.complications | safe}}
             </span>
         </div>
+    </div>
+    <div class="column is-half">
+        <h3 class="has-text-dark">Player Contingencies</h3>
+        <ul class="has-text-dark">
+            {% for pc in obj.player_contingencies %}
+            <li>{{ pc | safe }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+    <div class="column is-half">
+        <h3 class="has-text-dark">Potential Outcomes</h3>
+        <ul class="has-text-dark">
+            {% for pc in obj.potential_outcomes %}
+            <li>{{ pc | safe }}</li>
+            {% endfor %}
+        </ul>
+
     </div>
     {% endif %}
 </div>
