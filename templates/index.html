@@ -133,18 +133,18 @@ li.menu a { width: 100%; }
         </div>
 
         <div class="title-bar align-center">
-            <div class="align-middle"><a class="align-middle" style="display: flex; font-size: 1.5rem;" href="/{{world.get_world().path}}">{{icons_element.world(size="2rem")}} &nbsp; {{world.get_world().name}}</a>
+            <div class="align-middle"><a class="align-middle" style="display: flex; font-size: 1.5rem;" href="/{{obj.get_world().path}}">{{icon_components.world(size="2rem")}} &nbsp; {{obj.get_world().name}}</a>
             </div>
         </div>
 
 
         {% if obj %}
         <section id="object-title">
-            {{display.dsp_object_title(user, obj, world)}}
+            {{display.dsp_object_title(user, obj)}}
         </section>
 
         <section id="object-menu">
-            {{nav.object_menu(user, obj, world)}}
+            {{nav.object_menu(user, obj)}}
         </section>
         {% endif %}
 <!--
