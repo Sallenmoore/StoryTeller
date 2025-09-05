@@ -9,15 +9,16 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from models.base.actor import Actor
-from models.stories.quest import Scene
 
 
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
-    rumors = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
+
+    start_date_label = "Born"
+    end_date_label = "Died"
 
     parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
 
@@ -83,12 +84,7 @@ class Character(Actor):
                 "occupation": {
                     "type": "string",
                     "description": "The NPC's profession or daily occupation",
-                },
-                "rumors": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "A list of 3 rumors the NPC knows about an existing storyline or world event",
-                },
+                }
             },
         },
     }

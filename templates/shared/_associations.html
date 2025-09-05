@@ -1,4 +1,4 @@
-{% import "shared/_display.html" as element %}
+{% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro associations(user, obj, associations) -%}
@@ -82,13 +82,15 @@
     {% endif %}
     <div class="column is-6">
         <div class="row has-centered">
-            {% for child in obj.all_models() %}
+            {% for child in obj.world.all_models() %}
             <div class="column is-shrink is-mobile-shrink">
                 <button class="button is-primary is-small"
                         hx-post="/api/manage/add/{{child.__name__ | lower}}"
-                        hx-target="#page-content"
+                        hx-target="#associations-container"
+                        hx-select="#associations-container"
+                        hx-swap='outerHTML'
                         hx-indicator='#request-indicator'>
-                    New {{obj.get_title(child)}}
+                    New {{obj.world.get_title(child)}}
                 </button>
             </div>
             {% endfor %}
@@ -99,11 +101,11 @@
 <div id='associations-container'>
     <div id="related-objects" class="row has-space-around">
         {% if obj.model_name() != "World"%}
-        {% if obj.parent %}
+        {% if obj.parent|default(false) %}
         {% for ancestor in obj.geneology | reverse %}
         <div class="column is-3 is-mobile-6 is-desktop-2 card-container has-bg-black">
             <div class="panel has-bg-black" style='height:100%;'>
-                {{element.object_display(ancestor)}}
+                {{display_components.object_display(ancestor)}}
                 <div class="row has-space-around">
                     <div class="column is-3 is-mobile-shrink has-text-center">
                         <button class="button is-small is-primary"
@@ -123,10 +125,10 @@
         {% for a in obj.children %}
         <div
              class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
-            <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
+                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
+            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
-                {{element.object_display(a)}}
+                {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
                 <div class="row has-space-around">
                     <div class="column is-3 is-mobile-shrink has-text-center">
@@ -147,16 +149,17 @@
         {% endfor %}
         {% endif%}
         {% for a in associations %}
-        {% if a.parent != obj and obj.parent != a %}
+        {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
         <div
              class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% endif %}">
-            <div class="panel {% if a == obj.parent %} has-bg-black {% elif obj == a.parent %} has-bg-white {% else %} has-bg-screen {% endif %}"
+                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
+            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
-                {{element.object_display(a)}}
+                {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
                 <div class="row has-space-around">
-                    {% if obj.model_name() in a.parent_list and obj != a.parent %}
+                    {% if obj.model_name() in a.parent_list|default([]) and obj !=
+                    a.parent|default(false) %}
                     <div class="column is-3 is-mobile-shrink has-text-center">
                         <button class="button is-small is-primary"
                                 hx-post="/api/manage/parent/{{a.path}}"
@@ -169,7 +172,8 @@
                         </button>
                     </div>
                     {% endif %}
-                    {% if a.model_name() in obj.parent_list and a != obj.parent%}
+                    {% if a.model_name() in obj.parent_list|default([]) and a !=
+                    obj.parent|default(false) %}
                     <div class="column is-3 is-mobile-shrink has-text-center">
                         <button class="button is-small is-primary"
                                 hx-post="/api/manage/child/{{a.path}}"
@@ -207,10 +211,11 @@
 {% for o in objs %}
 <li class="dropdown__link">
     <a hx-post='/api/manage/association/add/{{o.path}}'
-       hx-target='#page-container'
-       hx-select='#page-container'
+       hx-target='#associations-container'
+       hx-select='#associations-container'
        hx-swap='outerHTML'
-       hx-indicator='#request-indicator'>
+       hx-indicator='#request-indicator'
+       hx-push-url='/{{obj.path}}/associations'>
         <div class="row">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">

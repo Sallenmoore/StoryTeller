@@ -4,79 +4,8 @@
 {% import "shared/_tasks.html" as task_components %}
 {% import "shared/_abilities.html" as abilities_components %}
 
-{% macro campaigns(user, obj, campaign_list, campaign=None, episode=None) -%}
-<title>{{obj.name | title}} - Manage Campaign</title>
-<h2 id='manage-campaigns'>
-    Manage Campaigns
-</h2>
-<div id="world-campaign-details" class="raise-it">
-    <div class="row">
-        <div class="column">
-            <select class="has-bg-muted" name="campaignpk" id="campaignpk"
-                    hx-post="/api/campaign/"
-                    hx-target="#page-content" hx-trigger='change'
-                    onchange='history.pushState({}, "", `/world/{{obj.pk}}/campaigns/manage/${this.value}`);'>
-                <option value="">=== Select Campaign ===</option>
-                {% for cmp in campaign_list %}
-                <option class="has-text-dark" value="{{cmp.pk}}" {% if campaign.pk==cmp.pk %}
-                        selected {% endif %}>
-                    {{cmp.name}} : {{ cmp.start_date }} - {{cmp.end_date}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink is-end">
-            <button class="button is-primary is-small" hx-post="/api/campaign/new"
-                    hx-target="#world-campaign-details" hx-select="#world-campaign-details"
-                    hx-swap="outerHTML">
-                {{icon_components.plus(size="1rem")}}
-                New Campaign
-            </button>
-        </div>
-    </div>
-    {% if campaign %}
-    <div class="tabs has-border">
-        <ul class="campaign_tablist tabs__list has-centered ">
-            <li class="{% if not episode %} is-active {% endif %} has-text-dark"
-                hx-post='/api/campaign/{{campaign.pk}}/details'
-                hx-target='#details-container'
-                onclick="activeTab(this)">
-                <a>
-                    Campaign Details
-                </a>
-            </li>
-            <li class="{% if episode %} is-active {% endif %} has-text-dark"
-                hx-post='/api/campaign/{{campaign.pk}}/episode/{{episode.pk}}/details'
-                hx-target='#details-container'
-                onclick="activeTab(this)">
-                <a>
-                    Episode Details
-                </a>
-            </li>
-        </ul>
-        <div class="row">
-            <div id='details-container' class="column is-full">
-                {% if episode %}
-                {{episode_details(user, obj, campaign, episode)}}
-                {% else %}
-                {{campaign_details(user, obj, campaign)}}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
-<script>
-    function activeTab(elem) {
-        for (x of elem.closest("ul").children) {
-            x.classList.remove("is-active");
-        }
-        elem.closest("li").classList.add("is-active");
-    }
-</script>
-{%- endmacro %}
-
-{% macro campaign_details(user, obj, campaign) -%}
+{% macro manage(user, campaign) -%}
+<title>{{campaign.name | title}} - Manage Campaign</title>
 <div class="section is-small">
     <div class="panel has-bg-screen">
         <div class="row has-space-around">
@@ -132,7 +61,7 @@
     <hr class='has-bg-primary'>
     <div class="row" id='campaign-players'>
         <div class="column is-4">
-            <h5>Add Faction</h5>
+            <h5>Add Party</h5>
             <div class="panel has-bg-muted">
                 <div class="is-multiple-select">
                     <select
@@ -144,7 +73,7 @@
                         <option value=''>
                             ---
                         </option>
-                        {% for faction in obj.factions%}
+                        {% for faction in campaign.world.factions%}
                         {% if faction.is_player_faction %}
                         <option value='{{faction.pk}}' {% if faction==campaign.party %} selected {%
                                 endif %}
@@ -184,10 +113,46 @@
             </div>
         </div>
     </div>
+    <div id="episode-list" class="section is-small">
+        <div class="panel">
+            <h2 class='has-text-center'> Episodes </h2>
+            <div class="row">
+                <div class="column is-shrink is-end">
+                    <button class="button is-primary is-small"
+                            hx-post="/api/campaign/{{campaign.pk}}/episode/new"
+                            hx-target="#episode-list"
+                            hx-select="#episode-list"
+                            hx-swap="outerHTML">
+                        {{icon_components.plus(size="1rem")}}
+                        New Episode
+                    </button>
+                </div>
+                {% for e in campaign.episodes %}
+                <div class="column is-full has-bg-screen episode-association-entry">
+                    <a href='/episode/{{e.pk}}/manage' target='_blank'>
+                        <div class="row">
+                            <div class="column is-2">
+                                <h5 class='has-text-center has-text-light'>{{e.name}}: {{e.num}}
+                                </h5>
+                                <h6 class='has-text-center has-text-light'>{{e.start_date}} -
+                                    {{e.end_date}}
+                                </h6>
+                            </div>
+                            <div class="column" class='has-text-dark generated-text-lightbg'>
+                                {{e.summary | safe}}
+                            </div>
+                        </div>
+                    </a>
+                    <hr class='has-bg-light'>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <div class="section is-small">
         <div class="panel">
             <h2 class='has-text-center'> Associations </h2>
-            {% for title in ['Locations', 'POIs', 'Characters', 'Creatures', 'Items', 'Factions'] %}
+            {% for title in ['Locations', 'Characters', 'Creatures', 'Items', 'Factions'] %}
             {% set obj_key = title | lower %}
             {% if campaign[obj_key] %}
             <hr class='has-bg-muted'>

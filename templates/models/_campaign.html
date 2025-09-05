@@ -1,4 +1,225 @@
-{% import "shared/_display.html" as display %}
+{% import "models/_episode.html" as episode_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_title.html" as title_components %}
+{% import "shared/_history.html" as history_components %}
+{% import "shared/_stories.html" as story_components %}
+
+{% macro index(user, campaign) -%}
+{{title_components.object_title(user, campaign)}}
+<div class="row">
+    <div class="column is-half">
+        <h4 class="has-text-dark-grey has-text-center">
+            Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
+        </h4>
+    </div>
+    <div class="column is-half">
+        <h4 class="has-text-dark-grey has-text-center">
+            Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
+        </h4>
+    </div>
+    <div class="column is-full">
+        <div class="panel has-bg-screen has-text-justified">
+            {{campaign.description | safe}}
+        </div>
+    </div>
+    <div class="column is-full">
+        <div class="panel has-bg-muted">
+            <hr>
+            <div class='has-text-dark  has-text-justified generated-text-lightbg'>
+                {{campaign.summary | safe}}
+            </div>
+            <hr>
+        </div>
+    </div>
+</div>
+
+<h3 class='has-text-center'>Episodes</h3>
+<div class="row">
+    {% for entry in campaign.episodes %}
+    <div class="column is-full">
+        <a href='/episode/{{entry.pk}}'>
+            <div class="panel has-bg-muted">
+                <div class="row" class='has-text-secondary'>
+                    <div class="column is-vertically-centered">
+                        <h4 class=' has-text-dark'>{{entry.name}}</h4>
+                        <!-- {{entry.pk}} -->
+                    </div>
+                    <div class="column is-shrink">
+                        {% if entry.start_date %}
+                        <span class='tag is-primary has-text-white'>
+                            {{entry.start_date}}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="column is-shrink">
+                        {{icon_components.line()}}
+                    </div>
+                    <div class="column is-shrink">
+                        {% if entry.end_date %}
+                        <span class='tag is-primary has-text-white'>
+                            {{entry.end_date}}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+    <div class="column is-full">
+        <h2 class=" has-text-secondary has-text-center is-subtitle">
+            Associations</h2>
+        <div class="row">
+            {% for o in campaign.associations %}
+            <div class="column has-text-center">
+                <a href="/{{o.path}}">
+                    <div class="image is-small is-thumbnail is-margin-center">
+                        {% if o.image %}
+                        <img src="{{o.image.url(size='100')}}" loading="lazy"
+                             alt="{{o.name}}"
+                             style="width:100%;" />
+                        {% endif %}
+                    </div>
+                    <h5 class='has-text-dark'>
+                        {{o.name}}
+                    </h5>
+                    <h6 class='has-text-dark'>
+                        {{o.title}}
+                    </h6>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}">
+            <div class="row">
+                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.details(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-details-anchor', {
+                        content: 'Details',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Details</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/history"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/history">
+            <div class="row">
+                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.history(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-history-anchor', {
+                        content: 'History',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>History</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/timeline"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/timeline">
+            <div class="row">
+                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.timeline(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-timeline-anchor', {
+                        content: 'Timeline',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Timeline</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/stories"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/stories">
+            <div class="row">
+                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.story(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-stories-anchor', {
+                        content: 'Stories',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Stories</span>
+                </div>
+            </div>
+        </a>
+    </li>
+</ul>
+{% endmacro %}
+
+{% macro history(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{history_components.history(user, obj)}}
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{ manage_character_components.manage(user, obj) }}
+{%- endmacro %}
+
+{% macro stories(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{story_components.stories(user, obj)}}
+{%- endmacro %}{% import "shared/_display.html" as display %}
 {% import "shared/_icons.html" as icons %}
 
 <!-- unique menu items for campaigns -->

@@ -1,4 +1,4 @@
-{% import "shared/_icons.html" as icons_element %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro dsp_auth(user) -%}
     {% if user and user.state != "guest"%}
@@ -143,7 +143,7 @@
     <div class="column is-shrink is-vertically-centered has-text-center">
         <a href="/">
             <h2>
-                {{icons_element.dungeon(size="2.5rem")}}
+                {{icon_components.dungeon(size="2.5rem")}}
                 Storyteller
             </h2>
         </a>
@@ -154,7 +154,7 @@
     <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
         <div class="is-input-group has-bg-secondary">
             <span>
-                {{icons_element.search(size="1.25rem")}}
+                {{icon_components.search(size="1.25rem")}}
             </span>
             <div class="has-dropdown" style="width:100%;">
                 <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
@@ -170,7 +170,7 @@
     <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
         <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
                 onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
-            {{icons_element.keyboard(size="1.5rem")}}
+            {{icon_components.keyboard(size="1.5rem")}}
             GM Screen
         </button>
     </div>
@@ -229,7 +229,7 @@
             <div class="row slide-it-in">
                 <div id="collapse-sidemenu"
                      class="column is-mobile-only is-mobile-3 is-end menu-anchor-text is-hidden">
-                    {{icons_element.close()}}
+                    {{icon_components.close()}}
                 </div>
             </div>
         </div>
@@ -237,14 +237,14 @@
     <nav class="menu is-active" id="model-menu-container">
         <ul class="menu__list">
             <li>
-                <a href="/{{obj.get_world().path}}" class="menu-anchor">
+                <a href="/{{obj.world.path}}" class="menu-anchor">
                     <div class="row">
                         <div id="menu-world-anchor" class="column is-3 is-mobile-shrink">
-                            {{icons_element.world(size="1rem")}}
+                            {{icon_components.world(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-world-anchor', {
-                                content: '{{obj.get_world().name}}',
+                                content: '{{obj.world.name}}',
                                 placement: 'right',
                                 allowHTML: true,
                                 arrow: false,
@@ -254,231 +254,11 @@
                         </script>
                         <div
                              class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <h4>{{obj.get_world().name}}</h4>
+                            <h4>{{obj.world.name}}</h4>
                         </div>
                     </div>
                 </a>
             </li>
-        </ul>
-        <p class="menu__divider"></p>
-        <ul class="menu__list">
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/details">
-                    <div class="row">
-                        <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.details(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-details-anchor', {
-                                content: 'Details',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Details</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/history"
-                   hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/history">
-                    <div class="row">
-                        <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.history(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-history-anchor', {
-                                content: 'History',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>History</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/timeline"
-                   hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/timeline">
-                    <div class="row">
-                        <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.timeline(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-timeline-anchor', {
-                                content: 'Timeline',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Timeline</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/campaigns"
-                   hx-target="#page-content"
-                   hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/campaigns">
-                    <div class="row">
-                        <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.campaigns(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-campaigns-anchor', {
-                                content: 'Campaigns',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Campaigns</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% if user.world_user(obj) %}
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/stories"
-                   hx-target="#page-content"
-                   hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/stories">
-                    <div class="row">
-                        <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.story(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-stories-anchor', {
-                                content: 'Stories',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Stories</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/journal">
-                    <div class="row">
-                        <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.journal(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-journal-anchor', {
-                                content: 'Journal',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Journal</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% endif %}
-            {% if obj.model_name() not in ['Character', 'Creature', 'Item', 'Encounter'] %}
-            <li>
-                <a href="" class="menu-anchor"
-                   hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
-                   hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/jobs">
-                    <div class="row">
-                        <div id='menu-jobs-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.jobs(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-jobs-anchor', {
-                                content: 'Jobs',
-                                placement: 'right',
-                                arrow: false,
-                                animation: 'perspective-extreme',
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Job Board</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% endif %}
-            {% if obj.model_name() in ["World", "Region", "City", "Location", "District", "Vehicle",
-            "Shop"] %}
-            <li>
-                <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
-                   hx-target="#page-content" hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
-                    <div class="row">
-                        <div id='menu-map-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.map(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-map-anchor', {
-                                content: 'Map',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <span>Map</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% endif %}
         </ul>
         <p class="menu__divider"></p>
         <span hx-get="/api/nav/sidemenu/{{obj.path}}"
@@ -486,7 +266,6 @@
               hx-swap="outerHTML">
         </span>
         <p class="menu__divider"></p>
-        {% if user.world_user(obj) %}
         <ul class="menu__list">
             <li>
                 <a href="" class="menu-anchor"
@@ -497,7 +276,7 @@
                    hx-push-url="/{{obj.path}}/associations">
                     <div class="row">
                         <div id='menu-associations-anchor' class="column is-3 is-mobile-shrink">
-                            {{icons_element.associations(size="1rem")}}
+                            {{icon_components.associations(size="1rem")}}
                         </div>
                         <script>
                             tippy('#menu-associations-anchor', {
@@ -517,10 +296,8 @@
                 </a>
             </li>
         </ul>
-        {% endif %}
         <ul class="menu__list" id='child-object-submenu'>
-            {% for model in obj.all_models_str() %}
-            {% if obj.model_name() == 'World' or obj.has_associations(model) %}
+            {% for model in obj.world.all_models_str() %}
             <li>
                 <div class="row" style='position:relative;'>
                     <div class="column has-no-padding">
@@ -533,11 +310,11 @@
                             <div class="row">
                                 <div id='menu-{{model | lower}}-anchor'
                                      class="column is-3 is-mobile-shrink">
-                                    {{obj.get_icon(model)}}
+                                    {{obj.world.get_icon(model)}}
                                 </div>
                                 <script>
                                     tippy('#menu-{{model | lower}}-anchor', {
-                                        content: '{{obj.get_title(model)}}',
+                                        content: '{{obj.world.get_title(model)}}',
                                         placement: 'right',
                                         allowHTML: true,
                                         arrow: false,
@@ -547,14 +324,13 @@
                                 </script>
                                 <div
                                      class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                                    <span>{{obj.get_title(model)}}</span>
+                                    <span>{{obj.world.get_title(model)}}</span>
                                 </div>
                             </div>
                         </a>
                     </div>
                 </div>
             </li>
-            {% endif %}
             {% endfor %}
         </ul>
     </nav>
@@ -578,31 +354,6 @@
                 sidenav.classList.add("is-tablet-up");
                 htmx.find("#mobile-menu-burger").classList.remove("is-hidden");
             });
-        }
-        else {
-            sideMenu.addEventListener("pointerenter", (event) => {
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-            });
-            sideMenu.addEventListener("pointerleave", (event) => {
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
-                    el.classList.add('is-hidden');
-                });
-                isOpen = !isOpen;
-                clearTimeout(timeout);
-            });
-            sideMenu.addEventListener("click", (event) => {
-                event.stopImmediatePropagation();
-                Array.from(sideMenu.querySelectorAll('.menu-anchor-text')).forEach(el => {
-                    if (isOpen) {
-                        el.classList.add('is-hidden');
-                    } else {
-                        //sideMenu.style.position = "absolute";
-                        el.classList.remove('is-hidden');
-                    }
-                });
-                isOpen = !isOpen;
-                clearTimeout(timeout);
-            });/**/
         }
     </script>
 </div>

@@ -36,6 +36,7 @@ class Episode(AutoModel):
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
     summary = StringAttr(default="")
+    story = ReferenceAttr(choices=["Story"])
 
     ##################### PROPERTY METHODS ####################
 
@@ -82,6 +83,10 @@ class Episode(AutoModel):
     @property
     def cities(self):
         return [a for a in self.associations if a.model_name() == "City"]
+
+    @property
+    def path(self):
+        return f"episode/{self.pk}"
 
     @property
     def places(self):

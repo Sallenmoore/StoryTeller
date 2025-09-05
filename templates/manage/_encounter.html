@@ -1,0 +1,51 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row">
+        <div class="column">
+            <div class="row">
+                <div class="column">
+                    <h5 class='has-text-center has-text-dark'>Difficulty</h5>
+                    <div class="is-select">
+                        <select class="has-bg-muted has-text-center"
+                                name="difficulty">
+                            {% for diff in obj.difficulty_list %}
+                            <option value='{{diff}}' {% if diff==obj.difficulty %} selected {% endif
+                                    %}>{{diff | title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column">
+                    <h5 class='has-text-center  has-text-dark'>Enemy Type</h5>
+                    <input type="text" class="has-bg-muted"
+                           value="{{obj.enemy_type}}" name="enemy_type" style='width:100%;'>
+                </div>
+            </div>
+        </div>
+        {% if user.world_user(obj)%}
+        <div class="column is-full" id="model-combat">
+            <h4 class="has-text-center">Combat Scenario</h4>
+            {{form_components.texteditor(user, obj, "combat_scenario")}}
+        </div>
+        <div class="column is-full" id="model-noncombat">
+            <h4 class="has-text-center">Non-Combat Scenario</h4>
+            {{form_components.texteditor(user, obj, "noncombat_scenario")}}
+        </div>
+        <div class="column is-full" id="model-complications">
+            <h4 class="has-text-center">Complications</h4>
+            {{form_components.texteditor(user, obj, "complications")}}
+        </div>
+        {% endif %}"
+    </div>
+</form>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

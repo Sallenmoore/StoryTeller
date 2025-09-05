@@ -28,7 +28,7 @@ gmscreen_endpoint = Blueprint("gmscreen", __name__)
 
 @gmscreen_endpoint.route("/display", methods=("POST",))
 def gmscreendisplay():
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     user.current_screen = (
         GMScreen.get(request.json.get("screenpk")) or user.current_screen
     )
@@ -42,7 +42,7 @@ def gmscreendisplay():
 ###########################################################
 @gmscreen_endpoint.route("/", methods=("POST",))
 def gmscreenmanage():
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     user.current_screen = (
         GMScreen.get(request.json.get("screenpk")) or user.current_screen
     )
@@ -55,8 +55,8 @@ def gmscreenmanage():
 
 @gmscreen_endpoint.route("/add", methods=("POST",))
 def gmscreenadd():
-    user, obj, world, *_ = _loader()
-    gm_screen = GMScreen(user=user, world=world)
+    user, obj, request_data = _loader()
+    gm_screen = GMScreen(user=user, world=obj.world)
     gm_screen.save()
     user.screens += [gm_screen]
     if not user.current_screen:
@@ -69,7 +69,7 @@ def gmscreenadd():
 
 @gmscreen_endpoint.route("/<string:screenpk>/update", methods=("POST",))
 def gmscreenupdate(screenpk):
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     gm_screen = GMScreen.get(screenpk)
     if new_area := request.json.get("addarea"):
         gm_screen.add_area(new_area)
@@ -105,7 +105,7 @@ def gmscreenareaupdate(screenpk, areapk):
     "/<string:screenpk>/area/<string:areapk>/remove", methods=("POST",)
 )
 def gmscreenarearemove(screenpk, areapk):
-    user, obj, world, _, _ = _loader()
+    user, obj, request_data = _loader()
     gm_screen = GMScreen.get(screenpk)
     areas = []
     for area in gm_screen.areas:
@@ -146,7 +146,7 @@ def gmscreennote(screenpk, areapk):
     "/<string:screenpk>/area/<string:areapk>/table", methods=("POST",)
 )
 def gmscreentable(screenpk, areapk):
-    user, obj, world, _, _ = _loader()
+    user, obj, request_data = _loader()
     gm_screen_area = GMScreenTable.get(areapk)
     gm_screen_area.itemlist = [i for i in request.json.get("itemlist", []) if i.strip()]
     gm_screen_area.save()
@@ -217,10 +217,10 @@ def gmscreenlink(screenpk, areapk):
     "/<string:screenpk>/area/<string:areapk>/link/search", methods=("POST",)
 )
 def gmscreensearch(screenpk, areapk):
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     gm_screen_area = GMScreenLink.get(areapk)
     query = request.json.get("query", "")
-    results = world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [r for r in results if r not in gm_screen_area.objs]
     return get_template_attribute("manage/_gmscreen.html", "screen_link_area_dropdown")(
         user, obj, gm_screen_area, results
@@ -232,9 +232,9 @@ def gmscreensearch(screenpk, areapk):
     methods=("POST",),
 )
 def gmscreenlinkadd(screenpk, areapk, childmodel, childpk):
-    user, obj, world, _, _ = _loader()
+    user, obj, request_data = _loader()
     gm_screen_area = GMScreenLink.get(areapk)
-    obj = world.get_model(childmodel, childpk)
+    obj = obj.world.get_model(childmodel, childpk)
     gm_screen_area.objs.append(obj)
     gm_screen_area.save()
     return gm_screen_area.area()
@@ -245,9 +245,9 @@ def gmscreenlinkadd(screenpk, areapk, childmodel, childpk):
     methods=("POST",),
 )
 def gmscreenlinkremoveitem(screenpk, areapk, itemmodel, itempk):
-    user, obj, world, _, _ = _loader()
+    user, obj, request_data = _loader()
     gm_screen_area = GMScreenLink.get(areapk)
-    obj = world.get_model(itemmodel, itempk)
+    obj = obj.world.get_model(itemmodel, itempk)
     gm_screen_area.objs = [o for o in gm_screen_area.objs if o != obj]
     gm_screen_area.save()
     return gm_screen_area.area()

@@ -15,10 +15,10 @@ from autonomous.model.autoattr import (
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
-from models.gm.gm import GameMaster
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
+from models.stories.event import Event
 from models.stories.story import Story
 from models.systems import (
     FantasySystem,
@@ -52,7 +52,6 @@ class World(TTRPGBase):
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
-    gm = ReferenceAttr(choices=["GameMaster"])
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -64,6 +63,9 @@ class World(TTRPGBase):
         "postapocalyptic": PostApocalypticSystem,
         "western": WesternSystem,
     }
+
+    start_date_label = "Founding"
+    end_date_label = "Current"
 
     _funcobj = {
         "name": "generate_world",
@@ -144,22 +146,6 @@ class World(TTRPGBase):
         requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{c.path}")
         return world
 
-    # @classmethod
-    # def update_system_references(cls, pk):
-    #     if obj := cls.get(pk):
-    #         world_data = obj.page_data()
-    #         obj.system.text_agent.get_client().clear_files()
-    #         ref_db = json.dumps(world_data).encode("utf-8")
-    #         obj.system.text_agent.attach_file(
-    #             ref_db, filename=f"{obj.slug}-dbdata.json"
-    #         )
-
-    #         obj.system.json_agent.get_client().clear_files()
-    #         ref_db = json.dumps(world_data).encode("utf-8")
-    #         obj.system.json_agent.attach_file(
-    #             ref_db, filename=f"{obj.slug}-dbdata.json"
-    #         )
-
     ############################ PROPERTIES ############################
     @property
     def associations(self):
@@ -220,6 +206,12 @@ class World(TTRPGBase):
     def encounters(self):
         return sorted(
             Encounter.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
+
+    @property
+    def events(self):
+        return sorted(
+            Event.search(world=self) if self.pk else [], key=lambda x: x.start_date
         )
 
     @property
@@ -300,6 +292,10 @@ class World(TTRPGBase):
         return sorted(
             Vehicle.search(world=self) if self.pk else [], key=lambda x: x.name
         )
+
+    @property
+    def world(self):
+        return self
 
     ########################## Override Methods #############################
 
@@ -437,13 +433,9 @@ class World(TTRPGBase):
         for story in document.stories:
             if isinstance(story, Story):
                 stories.append(story)
-
+                story.world = document
+                story.save()
         document.stories = stories
-
-        try:
-            document.gm
-        except Exception:
-            document.gm = None
 
         document.pre_save_users()
         document.pre_save_system()

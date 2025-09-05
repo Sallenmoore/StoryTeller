@@ -20,6 +20,8 @@ class Faction(TTRPGObject):
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]
 
+    end_date_label = "Disbanded"
+
     _funcobj = {
         "name": "generate_faction",
         "description": "completes Faction data object",

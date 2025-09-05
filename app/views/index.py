@@ -13,20 +13,23 @@ from flask import (
 )
 
 from autonomous import log
+
 from autonomous.auth import AutoAuth, auth_required
 from filters.utils import dsp_lifetime
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
+from models.stories.event import Event
 from models.ttrpgobject.faction import Faction  # required import for model loading
 from models.world import World
+from autonomous.model.automodel import AutoModel
 
 index_page = Blueprint("index", __name__)
 
 
 def _authenticate(user, obj):
-    if user in obj.get_world().users:
+    if user in obj.world.users:
         return True
     return False
 
@@ -47,19 +50,29 @@ def index():
     return render_template("index.html", user=user, page_url="/home")
 
 
-@index_page.route("/test", endpoint="test", methods=("GET", "POST"))
-@auth_required()
-def indextest():
+@index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
+@index_page.route("/<string:model>/<string:pk>/<path:page>", methods=("GET", "POST"))
+@auth_required(guest=True)
+def page(model, pk, page=""):
     user = AutoAuth.current_user()
-    session["page"] = "/test"
-    return render_template("index-test.html", user=user, page_url="/test")
+    session["page"] = f"/{model}/{pk}{'/' + page if page else ''}"
+    if obj := AutoModel.get_model(model, pk):
+        session["model"] = model
+        session["pk"] = pk
+    if "manage" in page and not _authenticate(user, obj):
+        return "<p>You do not have permission to manage this object<p>"
+    return render_template("index.html", user=user, obj=obj, page_url=session["page"])
 
 
 @index_page.route(
     "/image/<string:pk>/<string:size>",
     methods=("GET",),
 )
-def image(pk, size):
+@index_page.route(
+    "/image/<string:pk>",
+    methods=("GET",),
+)
+def image(pk, size="orig"):
     img = Image.get(pk)
     if img and img.data:
         img_data = img.resize(size) if size != "orig" else img.read()
@@ -77,75 +90,22 @@ def image(pk, size):
     "/audio/<string:model>/<string:pk>",
     methods=("GET",),
 )
-def audio(model, pk):
-    obj = World.get_model(model, pk)
-    log(hasattr(obj, "audio"), obj.audio)
-    if hasattr(obj, "audio") and obj.audio:
+@index_page.route(
+    "/audio/<string:model>/<string:pk>/<string:attrib>",
+    methods=("GET",),
+)
+def audio(model, pk, attrib=None):
+    attrib = attrib or "audio"
+    obj = AutoModel.get_model(model, pk)
+    log(hasattr(obj, attrib), getattr(obj, attrib))
+    if hasattr(obj, attrib) and getattr(obj, attrib):
         return Response(
-            obj.audio.read(),
+            getattr(obj, attrib).read(),
             mimetype="audio/mpeg",
             headers={"Content-Disposition": f"inline; filename={pk}.mp3"},
         )
     else:
         return Response("No audio available", status=404)
-
-
-@index_page.route(
-    "/manage/<string:model>/<string:pk>",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-@auth_required()
-def manage(model, pk):
-    user = AutoAuth.current_user()
-    obj = World.get_model(model, pk)
-    world = obj.get_world()
-    
-    if model == 'campaign':
-        campaign = Campaign.get(pk)
-        obj = campaign
-        world = obj.world
-    elif model == 'episode':
-        episode = Episode.get(pk)
-        obj = episode
-        world = obj.world
-
-    content = "<p>You do not have permission to alter this object<p>"
-    if _authenticate(user, obj):
-        args = request.json if request.method == "POST" else dict(request.args)
-        args["user"] = str(user.pk)
-        content = requests.post(
-            f"http://api:{os.environ.get('COMM_PORT')}/manage/{model}/{pk}", json=args
-        ).text
-    return render_template("index.html", user=user, obj=obj, world=world, page_content=content)
-
-
-@index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
-@index_page.route("/<string:model>/<string:pk>/<path:page>", methods=("GET", "POST"))
-@auth_required(guest=True)
-def page(model, pk, page=""):
-    user = AutoAuth.current_user()
-    session["page"] = f"/{model}/{pk}/{page or 'info'}"
-
-    log(f"Route model: {model}, Macro: {page}")
-    if obj := World.get_model(model, pk):
-        session["model"] = model
-        session["pk"] = pk
-        world = obj.get_world()
-    
-    if model == 'campaign':
-        campaign = Campaign.get(pk)
-        obj = campaign
-        world = obj.world
-    elif model == 'episode':
-        episode = Episode.get(pk)
-        obj = episode
-        world = obj.world
-
-
-    return render_template("index.html", user=user, obj=obj, world=world, page_url=session["page"])
 
 
 @index_page.route(
@@ -156,7 +116,6 @@ def page(model, pk, page=""):
         "POST",
     ),
 )
-# @auth_required(guest=True)
 def api(rest_path):
     url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
     response = "<p>You do not have permission to alter this object<p>"
@@ -173,11 +132,9 @@ def api(rest_path):
         if "admin/" in url and user.is_admin:
             response = requests.post(url, json=request.json).text
         elif request.json.get("model") and request.json.get("pk"):
-            obj = World.get_model(request.json.get("model"), request.json.get("pk"))
-            if _authenticate(user, obj):
+            obj = AutoModel.get_model(request.json.get("model"), request.json.get("pk"))
+            if _authenticate(user, obj.world):
                 response = requests.post(url, json=request.json).text
-        else:
-            response = requests.post(url, json=request.json).text
     # log(response)
     return response
 
@@ -200,7 +157,7 @@ def tasks(rest_path):
         metadata_str = request.form.get("metadata")
         metadata = json.loads(metadata_str)
         user = AutoAuth.current_user(metadata.get("user"))
-        obj = World.get_model(metadata.get("model")).get(metadata.get("pk"))
+        obj = AutoModel.get_model(metadata.get("model")).get(metadata.get("pk"))
         if _authenticate(user, obj):
             log("Sending files:", files, metadata, _print=True)
             response = requests.post(
@@ -214,7 +171,7 @@ def tasks(rest_path):
             )
     else:
         user = AutoAuth.current_user()
-        obj = World.get_model(request.json.get("model")).get(request.json.get("pk"))
+        obj = AutoModel.get_model(request.json.get("model")).get(request.json.get("pk"))
         if _authenticate(user, obj):
             response = requests.post(
                 f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}",

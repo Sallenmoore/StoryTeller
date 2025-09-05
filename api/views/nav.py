@@ -17,7 +17,7 @@ nav_endpoint = Blueprint("nav", __name__)
 
 @nav_endpoint.route("/menu", methods=("POST",))
 def menu():
-    user, obj, *_ = _loader()
+    user, obj, request_data = _loader()
     return get_template_attribute("shared/_nav.html", "topnav")(user, obj)
 
 
@@ -29,11 +29,11 @@ def menu():
     ),
 )
 def sidemenudetail(model, pk):
-    user, obj, *_ = _loader(model=model, pk=pk)
+    user, obj, request_data = _loader()
     try:
         template = get_template_attribute(f"models/_{model}.html", "menu")
     except (TemplateNotFound, AttributeError) as e:
-        # log(e, f"no detail menu for {model}")
+        log(e, f"no detail menu for {model}")
         return ""
     else:
         return template(user, obj)
@@ -44,28 +44,11 @@ def sidemenudetail(model, pk):
     methods=("POST","GET"),
 )
 def navsearch():
-    user, obj, world, *_ = _loader()
+    user, obj, request_data = _loader()
     query = request.json.get("query")
-    results = world.search_autocomplete(query=query) if len(query) > 2 else []
-    log(results)
-    resultobs = [r for r in results if r != obj]
-    log(resultobs)
-    log(query, [r.name for r in resultobs])
-    log(type(results))
-    my_dict = {}
-    my_list=[]
-    for item in results:
-        entry = {"id": id(item), "name": item.name, "type": item.model_name()}
-        my_dict.update(entry)
-        my_list.append(entry)
-        #log(item.model_name())
-        #my_dict[id(item)] = item.name
-    log(my_dict)
-    log(json.dumps(my_list))
-    log(my_list)
-    #json_str = json.dumps([r.__dict__ for r in results])
-    #log(json_str)
-    
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = [r for r in results if r != obj]
+    # log(macro, query, [r.name for r in results])
     return get_template_attribute("_nav.html", "nav_dropdown")(user, obj, results)
     #return my_list
 

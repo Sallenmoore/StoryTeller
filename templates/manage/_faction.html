@@ -1,0 +1,34 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
+
+{% macro manage(user, obj) -%}
+{{manage_components.manage(user, obj)}}
+{{manage_components.dates(user, obj)}}
+<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="row">
+        <div class="column is-shrink ">
+            <h4 class='has-text-center has-text-primary'>Adventuring Party?</h4>
+            <div class="is-select">
+                <select class="has-no-border" name="is_player_faction">
+                    <option value="False">---</option>
+                    <option value="True" {%if obj.is_player_faction %} selected {%endif%}>
+                        Adventuring Party</option>
+                </select>
+            </div>
+        </div>
+        <div id="model-goal" class="column">
+            <h4 class='has-text-light has-text-center'>Goals and Secrets</h4>
+            {{form_components.texteditor(user, obj, "goal")}}
+        </div>
+    </div>
+    <div class="row">
+        <div id="model-goal" class="column">
+            <h4 class='has-text-light has-text-center'>Status</h4>
+            {{form_components.texteditor(user, obj, "status")}}
+        </div>
+    </div>
+</form>
+{{manage_components.backstory(user, obj)}}
+{{manage_components.image(user, obj)}}
+{%- endmacro %}

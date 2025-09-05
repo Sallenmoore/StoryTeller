@@ -2,10 +2,258 @@
 {% import "shared/_display.html" as display %}
 {% import "shared/_abilities.html" as abilities %}
 {% import "shared/_icons.html" as icons %}
+{% import "shared/_history.html" as history_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_timeline.html" as timeline_components %}
+{% import "shared/_journal.html" as journal_components %}
+{% import "shared/_stories.html" as story_components %}
+{% import "shared/_campaigns.html" as campaigns_components %}
+{% import "shared/_associations.html" as associations_components %}
+{% import "manage/_character.html" as manage_character_components %}
+{% import "shared/_title.html" as title_components %}
+
+
+{% macro index(user, obj) -%}
+{{history(user, obj)}}
+{%- endmacro %}
 
 <!-- unique menu items for character -->
 {% macro menu(user, obj) -%}
+<ul class="menu__list">
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/details">
+            <div class="row">
+                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.details(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-details-anchor', {
+                        content: 'Details',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Details</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/history"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/history">
+            <div class="row">
+                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.history(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-history-anchor', {
+                        content: 'History',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>History</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/timeline"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/timeline">
+            <div class="row">
+                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.timeline(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-timeline-anchor', {
+                        content: 'Timeline',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Timeline</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/campaigns"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/campaigns">
+            <div class="row">
+                <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.campaigns(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-campaigns-anchor', {
+                        content: 'Campaigns',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Campaigns</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% if user.world_user(obj) %}
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/stories"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/stories">
+            <div class="row">
+                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.story(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-stories-anchor', {
+                        content: 'Stories',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Stories</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/journal">
+            <div class="row">
+                <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.journal(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-journal-anchor', {
+                        content: 'Journal',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Journal</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {% endif %}
+</ul>
     <li><a href="/{{obj.path}}/gameplay">{{icons.campaigns(size="1rem")}} Game Play</a></li>
+{%- endmacro %}
+
+{% macro history(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{history_components.history(user, obj)}}
+{%- endmacro %}
+
+{% macro details(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{details_components.details(user, obj)}}
+{%- endmacro %}
+
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+    <h3 class='has-text-center'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-half">
+            <h5> Details</h5>
+            <div class="panel">
+                <ul>
+                    <li>{{obj.description_summary | safe}}</li>
+                    {% for sd in obj.sensory_details %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="column">
+            <h5>Look-A-Like</h5>
+            <div class="panel">
+                {{obj.lookalike | safe}}
+            </div>
+        </div>
+        <div class="column">
+            <h5>Voice</h5>
+            <div class="panel">
+                {{obj.voice_description | safe}}
+            </div>
+        </div>
+        {% if obj.quests %}
+        <div class="column is-full">
+            <h5>Hooks</h5>
+            <div class="panel">
+                <ul>
+                    {% for q in obj.quests %}
+                    <li>
+                        {{ q.summary | safe }}
+                        <hr class='has-bg-primary'>
+                        {{ q.hook | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        <div class="column is-full">
+            <h5>Rumors</h5>
+            <div class="panel">
+                <ul>
+                    {% for r in obj.rumors %}
+                    <li>
+                        {{ r | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {%- endmacro %}
 
 <!-- character display -->
@@ -86,105 +334,29 @@
     </div>
 {%- endmacro %}
 
-{% macro manage_details(user, obj) -%}
-    {{update_demographics(user, obj)}}
+{% macro timeline(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
-<!--
-    ATTRITUBES UNIQUE TO MODEL
--->
-
-<!-- display character demographics -->
-{% macro demographics(obj) -%}
-    <table id="demographics">
-        <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
-        <tr><th>{{display.dsp_object_lifetime(obj,'start')}}</th><td>{{obj.start_date}}</td></tr>
-        <tr><th>{{display.dsp_object_lifetime(obj,'end')}}</th><td>{%if obj.end_date.year > 0 %}{{obj.end_date}}{% endif %}</td></tr>
-        <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
-        <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
-        <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
-        <tr><th>Gender</th><td>{{obj.gender or "Unknown"}}</td></tr>
-        <tr><th>Occupation</th><td>{{obj.occupation or "Unknown"}}</td></tr>
-    </table>
+{% macro journal(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{journal_components.journal(user, obj)}}
 {%- endmacro %}
 
-<!-- update character demographics -->
-{% macro update_demographics(user, obj) -%}
-    <table id="demographics">
-        <tr><th>Age</th><td><input type="number" value="{{obj.age}}" name="age"></td></tr>
-        <tr><th>Species</th><td><input type="text" value="{{obj.species}}" name="species"></td></tr>
-        <tr><th>Class</th><td>
-            <select name="archetype">
-                {%for a in obj.system.classes.keys() %}
-                    <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
-                {% endfor %}
-            </select>
-        </td></tr>
-        <tr><th>Gender</th><td><input type="text" value="{{obj.gender}}" name="gender"></td></tr>
-        <tr><th>Occupation</th><td>
-            <select name="occupation">
-                {%for k, v in obj.system.backgrounds.items() %}
-                    <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}</option>
-                {% endfor %}
-            </select>
-        </td></tr>
-    </table>   
+{% macro stories(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{story_components.stories(user, obj)}}
 {%- endmacro %}
 
-<!-- display ability stats -->
-{% macro stats(obj) -%}
-    <h3>Stats</h3>
-    <table>
-        <tr>
-            <th>STR</th>
-            <th>DEX</th>
-            <th>INT</th>
-            <th>WIS</th>
-            <th>CHA</th>
-            <th>CON</th>
-        </tr>
-        <tr>
-            <td>{{obj.strength}} ({{(obj.strength|int-10)//2}})</td>
-            <td>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</td>
-            <td>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</td>
-            <td>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</td>
-            <td>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</td>
-            <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
-        </tr>
-    </table>
-
-    <table id="ac-hp">
-        <tr><th>AC</th><td>{{obj.ac}}</td></tr>
-        <tr><th>HP</th><td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td></tr>
-    </table>
+{% macro campaigns(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{campaigns_components.campaigns(user, obj)}}
 {%- endmacro %}
 
-<!-- display ability stats -->
-{% macro update_stats(user, obj) -%}
-    <h3>Stats</h3>
-    <table>
-        <tr>
-            <th>STR</th>
-            <th>DEX</th>
-            <th>INT</th>
-            <th>WIS</th>
-            <th>CHA</th>
-            <th>CON</th>
-        </tr>
-        <tr>
-            <td><input type="number" value="{{obj.strength}}" name="strength"></td>
-            <td><input type="number" value="{{obj.dexterity}}" name="dexterity"></td>
-            <td><input type="number" value="{{obj.intelligence}}" name="intelligence"></td>
-            <td><input type="number" value="{{obj.wisdom}}" name="wisdom"></td>
-            <td><input type="number" value="{{obj.charisma}}" name="charisma"></td>
-            <td><input type="number" value="{{obj.constitution}}" name="constitution"></td>
-        </tr>
-    </table>
-
-    <table id="ac-hp">
-        <tr><th>AC</th><td><input type="number" value="{{obj.ac}}" name="ac"></td></tr>
-        <tr><th>HP</th><td><input type="number" value="{{obj.hitpoints}}" name="hitpoints"></td></tr>
-    </table>
+{% macro associations(user, obj, associations)%}
+{{title_components.object_title(user, obj)}}
+{{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 
 <!-- display special skills -->
@@ -258,4 +430,9 @@
             <input type="text" name="goal" value="{{obj.goal}}">
         </label> 
     </table>
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{ manage_character_components.manage(user, obj) }}
 {%- endmacro %}
