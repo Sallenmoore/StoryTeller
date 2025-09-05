@@ -145,15 +145,16 @@
         <div class="timeline">
             {% for a in obj.events %}
             <div class='tentry {{ loop.cycle("right", "left" ) }}'>
-                <div class="date">{{a.start_date}}</div>
                 <div class="date">{{a.end_date}}</div>
                 <div class="content">
                     <div class="row">
                         <div class="column is-3">
                             <a href="/{{a.path}}">
+                                {% if a.image %}
                                 <div class="image">
-                                    <img src="{{a.image}}" alt="{{a.name}}">
+                                    <img src="{{a.image.url()}}" alt="{{a.name}}">
                                 </div>
+                                {% endif %}
                             </a>
                         </div>
                         <div class="column">
@@ -161,7 +162,7 @@
                                 <h4 class='has-text-center'>{{a.name}}</h4>
                             </a>
                             <span>
-                                {{a.impact | safe}}
+                                {{a.outcome | safe}}
                             </span>
                         </div>
                     </div>

@@ -55,9 +55,6 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
-    {% if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group)%}
-
-    {% endif %}
 </form>
 {%- endmacro %}
 
@@ -88,7 +85,7 @@
         <div class="column is-shrink  has-no-padding has-no-margin is-vertically-centered">
             <div class="is-select" style='position:relative;top: -2px;'>
                 <select name="start_date.month">
-                    {% for m in obj.get_world().calendar.months %}
+                    {% for m in obj.world.calendar.months %}
                     <option class="has-text-center" value='{{m}}' {% if
                             loop.index0==obj.start_date.month %}
                             selected {% endif %}>
@@ -149,11 +146,7 @@
                 <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
             </div>
             {% else %}
-            <div class="is-vertically-centered has-text-center" hx-post="/api/manage/{{obj.path}}"
-                 hx-trigger='load delay:5s' hx-target="#model-owner-image"
-                 hx-select="#model-owner-image" hx-swap="outerHTML">
-                <h5 class='has-text-dark'>No Image</h5>
-            </div>
+            <h5 class='has-text-dark'>No Image</h5>
             {% endif %}
         </div>
         <div class="column is-4">

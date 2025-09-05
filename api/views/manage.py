@@ -15,6 +15,7 @@ from slugify import slugify
 
 from autonomous import log
 from models.journal import JournalEntry
+from models.stories.event import Event
 from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.ability import Ability
@@ -66,6 +67,19 @@ def update():
         else:
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
     obj.save()
+    return get_template_attribute(f"manage/_{obj.model_name().lower()}.html", "manage")(
+        user, obj
+    )
+
+
+@manage_endpoint.route("/add/listitem/<string:attr>", methods=("POST",))
+def addlistitem(attr):
+    user, obj, request_data = _loader()
+    if isinstance(getattr(obj, attr, None), list):
+        item = getattr(obj, attr)
+        if item is not None:
+            item += [""]
+        log(getattr(obj, attr))
     return get_template_attribute(f"manage/_{obj.model_name().lower()}.html", "manage")(
         user, obj
     )
@@ -199,16 +213,6 @@ def map_poi_update(pmodel, ppk, amodel, apk):
         )
     obj.map.update_poi(poi, request.json.get("lat"), request.json.get("lng"))
     return get_template_attribute("shared/_map.html", "map")(user, obj)
-
-
-# MARK: History route
-###########################################################
-##                    History Routes                      ##
-###########################################################
-@manage_endpoint.route("/history", methods=("POST",))
-def history():
-    user, obj, request_data = _loader()
-    return get_template_attribute("manage/_history.html", "history")(user, obj)
 
 
 # MARK: journal route
@@ -517,32 +521,11 @@ def child(childmodel, childpk):
 
 # MARK: details route
 ###########################################################
-##                    Details Routes                     ##
+##                    Abilities Routes                   ##
 ###########################################################
-@manage_endpoint.route("/details", methods=("POST",))
-def details():
-    user, obj, request_data = _loader()
-    info = get_template_attribute(
-        f"models/_{obj.model_name().lower()}.html", "manage_details"
-    )
-    response = get_template_attribute("manage/_details.html", "details")(
-        user, obj, info
-    )
-    return response
 
 
-@manage_endpoint.route("/details/add/listitem/<string:attr>", methods=("POST",))
-def addlistitem(attr):
-    user, obj, request_data = _loader()
-    if isinstance(getattr(obj, attr, None), list):
-        item = getattr(obj, attr)
-        if item is not None:
-            item += [""]
-        log(getattr(obj, attr))
-    return get_template_attribute("manage/_details.html", "details")(user, obj)
-
-
-@manage_endpoint.route("/details/add/listitem/ability", methods=("POST",))
+@manage_endpoint.route("/add/listitem/ability", methods=("POST",))
 def addability():
     user, obj, request_data = _loader()
     ab = Ability(name="New Ability")
@@ -709,3 +692,18 @@ def factionleader(leader_pk):
         obj.leader = character
         obj.save()
     return get_template_attribute("models/_faction.html", "info")(user, obj)
+
+
+# MARK: Encounter routes
+###########################################################
+##                Encounter Routes                    ##
+###########################################################
+@manage_endpoint.route("/encounter/toevent", methods=("POST",))
+def encountertoevent():
+    user, obj, request_data = _loader()
+    event = Event.create_event_from_encounter(obj)
+    obj.delete()
+    return f"""<script>
+        window.location.replace('/event/{event.pk}/manage');
+    </script>
+"""

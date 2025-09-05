@@ -211,7 +211,9 @@ class World(TTRPGBase):
     @property
     def events(self):
         return sorted(
-            Event.search(world=self) if self.pk else [], key=lambda x: x.start_date
+            Event.search(world=self) if self.pk else [],
+            key=lambda x: x.end_date,
+            reverse=True,
         )
 
     @property

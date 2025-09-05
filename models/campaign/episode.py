@@ -97,6 +97,14 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "Region"]
 
     @property
+    def report(self):
+        return self.episode_report
+
+    @report.setter
+    def report(self, value):
+        self.episode_report = value
+
+    @property
     def shops(self):
         return [a for a in self.associations if a.model_name() == "Shop"]
 

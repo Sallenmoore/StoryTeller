@@ -25,43 +25,30 @@ from ._utilities import loader as _loader
 world_endpoint = Blueprint("world", __name__)
 
 
-@world_endpoint.route(
-    "/<string:pk>/manage_screens",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def manage_screens(pk):
+@world_endpoint.route("/new", methods=("POST",))
+def campaignnew():
     user, obj, request_data = _loader()
-    world = World.get(pk)
-    return get_template_attribute("manage/_gmscreen.html", "gmscreens")(user, world)
+    campaign = Campaign(world=obj.world, name="New Campaign")
+    campaign.save()
+    obj.world.campaigns.append(campaign)
+    obj.world.save()
+    return get_template_attribute("models/_world.html", "campaigns")(
+        user,
+        obj,
+    )
 
 
-@world_endpoint.route(
-    "/<string:pk>/manage_campaigns",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def manage_campaigns(pk):
+@world_endpoint.route("/story/new", methods=("POST",))
+def add_story():
     user, obj, request_data = _loader()
-    world = World.get(pk)
-    return get_template_attribute("manage/_campaigns.html", "campaigns")(user, world)
-
-
-@world_endpoint.route(
-    "/<string:pk>/manage_stories",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def manage_stories(pk):
-    user, obj, request_data = _loader()
-    world = World.get(pk)
-    return get_template_attribute("manage/_stories.html", "stories")(user, world)
+    story = Story()
+    story.save()
+    obj.world.stories += [story]
+    obj.world.save()
+    return get_template_attribute("models/_world.html", "stories")(
+        user,
+        obj,
+    )
 
 
 @world_endpoint.route(

@@ -140,38 +140,27 @@
             <div class="column is-shrink">
                 <button class='button is-small'
                         hx-post='/api/story/{{story.pk}}/event/add'
-                        hx-target="#story-events"
-                        hx-select="#story-events"
+                        hx-target="#story-events-list"
+                        hx-select="#story-events-list"
                         hx-swap='outerHTML'>
                     Add Event
                 </button>
             </div>
         </div>
-        <div class="row has-space-around">
+        <div id="story-events-list" class="row has-space-around">
             {% for e in story.events %}
-            <div class="column is-2">
+            <div class="column is-3">
                 <a href="/{{e.path}}" target='_blank' style='position: relative;'>
                     <div class="panel has-bg-muted">
                         <div class="row">
-                            <div class="column is-shrink">
-                                {{e.name}}
-                                {{e.type}}
-                                {{e.start_date}}
-                                {{e.end_date}}
+                            <div class="column is-full">
+                                <h5 class="has-text-center">{{e.name}}</h5>
+                            </div>
+                            <div class="column is-full">
+                                <h6 class="has-text-center">{{e.start_date}} - {{e.end_date}}</h6>
                             </div>
                             <div class="column">
-                                {{e.impact}}
-                                <hr>
-                                {{e.backstory}}
-                                <hr>
-                                {{e.outcome}}
-                            </div>
-                            <div class="column is-shrink">
-                                <div class="image is-tile is-margin-center" style="width:100%;">
-                                    {% if e.image %}
-                                    <img src="{{e.image.url()}}" loading="lazy" alt="{{e.name}}" />
-                                    {% endif %}
-                                </div>
+                                {{e.backstory | safe}}
                             </div>
                         </div>
                     </div>

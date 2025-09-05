@@ -1,46 +1,43 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_icons.html" as icon_components %}
+{% import "shared/_manage.html" as manage_components %}
 
 {% macro manage(user, event) -%}
 <div class="panel">
-    <div class="row">
-        <div class="column is-4">
-            <label for="name">Name</label>
-            <input name='name' type="text" value="{{event.name}}">
-        </div>
-        <div class="column is-4">
-            <label for="ability-name">Scope</label>
-            <div class="select">
-                <select name='abilities[].action'
-                        value="{{ability.action}}">
-                    {%for a in ["main action", "bonus action", "reaction",
-                    "free action",
-                    "passive"] %}
-                    <option value="{{a}}" {% if ability.action==a %} selected {%
-                            endif %}>{{a}}</option>
-                    {% endfor %}
-                </select>
+    <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        <div class="row">
+            <div class="column">
+                <h5 class='has-text-center has-text-dark'>Name</h5>
+                <input id='model-name' class="has-bg-light has-text-center" type="text" name="name"
+                       value="{{event.name}}">
             </div>
         </div>
-        <div class="column is-4">
-            <label for="ability-duration">Duration</label>
-            <input name='abilities[].duration' type="text"
-                   value="{{ability.duration}}">
+    </form>
+    {{manage_components.dates(user, event)}}
+    <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        <div class="row">
+            <div class="column is-full">
+                <label>Backstory</label>
+                {{form_components.texteditor(user, event, "backstory")}}
+            </div>
+            <div class="column is-full">
+                <label>Outcome</label>
+                {{form_components.texteditor(user, event, "outcome")}}
+            </div>
+            <div class="column is-full">
+                <label>Impact</label>
+                {{form_components.texteditor(user, event, "impact")}}
+            </div>
         </div>
-        <div class="column is-half">
-            <label for="ability-dice-roll">Dice Roll</label>
-            <textarea
-                      class="has-bg-white"
-                      name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
-        </div>
-        <div class="column is-half">
-            <label for="ability-effects">Effects</label>
-            <textarea class="has-bg-white"
-                      name='abilities[].effects'>{{ability.effects}}</textarea>
-        </div>
-        <div class="column is-full">
-            {{form_components.texteditor(user, ability, "backstory", content=ability.backstory, name="abilities[].backstory")}}
-        </div>
+    </form>
+</div>
+{{manage_components.image(user, event)}}
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <button class="button is-danger" hx-post="/api/event/{{ event.pk }}/delete"
+                hx-target="#page-content">
+            {{icon_components.delete()}}
+        </button>
     </div>
 </div>
 {% endmacro%}

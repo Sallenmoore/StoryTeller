@@ -51,9 +51,9 @@ def _generate_history_task(model, pk):
 
 
 def _generate_image_task(model, pk):
-    if obj := World.get_model(model, pk):
+    if obj := AutoModel.get_model(model, pk):
         obj.generate_image()
-    return {"url": f"/api/{obj.path}/details"}
+    return {"url": f"/api/{obj.path}/manage"}
 
 
 def _generate_campaign_summary_task(pk):

@@ -6,6 +6,18 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
+<div class="row has-space-around">
+    <div class="column is-shrink">
+        <button type="button" class="button is-small"
+                hx-post='/api/manage/encounter/toevent'
+                hx-target='#page-content'
+                hx-confirm='Are you sure you want to convert this encounter to an event?'
+                hx-trigger="click consume">
+            {{icon_components.plus(size="1rem")}}
+            Convert to Event
+        </button>
+    </div>
+</div>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row">
@@ -31,17 +43,45 @@
             </div>
         </div>
         {% if user.world_user(obj)%}
-        <div class="column is-full" id="model-combat">
-            <h4 class="has-text-center">Combat Scenario</h4>
-            {{form_components.texteditor(user, obj, "combat_scenario")}}
-        </div>
-        <div class="column is-full" id="model-noncombat">
-            <h4 class="has-text-center">Non-Combat Scenario</h4>
-            {{form_components.texteditor(user, obj, "noncombat_scenario")}}
+        <div class="column is-full" id="model-trigger">
+            <h4 class="has-text-center">Trigger Conditions</h4>
+            {{form_components.texteditor(user, obj, "trigger_conditions")}}
         </div>
         <div class="column is-full" id="model-complications">
             <h4 class="has-text-center">Complications</h4>
             {{form_components.texteditor(user, obj, "complications")}}
+        </div>
+        <div class="column is-full" id="model-contingencies">
+            <h4 class="has-text-center">Player Contingencies</h4>
+            <div class="row is-vertical">
+                <div class="column is-shrink">
+                    <button type="button" class="button is-small"
+                            hx-post='/api/manage/add/listitem/player_contingencies'
+                            hx-target='#player_contingencies-item-list'
+                            hx-select='#player_contingencies-item-list'
+                            hx-swap='outerHTML' hx-trigger="click consume">
+                        {{icon_components.plus(size="1rem")}}
+                        New Contingency
+                    </button>
+                </div>
+            </div>
+            {{form_components.listeditor(user, obj, "player_contingencies")}}
+        </div>
+        <div class="column is-full" id="model-outcomes">
+            <h4 class="has-text-center">Potential Outcomes</h4>
+            <div class="row is-vertical">
+                <div class="column is-shrink">
+                    <button type="button" class="button is-small"
+                            hx-post='/api/manage/add/listitem/potential_outcomes'
+                            hx-target='#potential_outcomes-item-list'
+                            hx-select='#potential_outcomes-item-list'
+                            hx-swap='outerHTML' hx-trigger="click consume">
+                        {{icon_components.plus(size="1rem")}}
+                        New Outcome
+                    </button>
+                </div>
+            </div>
+            {{form_components.listeditor(user, obj, "potential_outcomes")}}
         </div>
         {% endif %}"
     </div>

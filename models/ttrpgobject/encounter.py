@@ -1,4 +1,3 @@
-import json
 import random
 
 from autonomous import log
@@ -105,10 +104,6 @@ class Encounter(TTRPGObject):
     def actors(self):
         return [*self.characters, *self.creatures]
 
-    # @property
-    # def rewards(self):
-    #     return GMScreenLootGenerator.generate()
-
     @property
     def difficulty(self):
         if not self.difficulty_rating:
@@ -191,7 +186,7 @@ HISTORY
     def generate(self):
         enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
         if story := self.story or random.choice(self.world.stories):
-            context = f"An unexpected, but relevant encounter related to the following storyline: {story.situation}"
+            context = f"An unexpected, but relevant encounter related to the following storyline: {story.situation} {story.current_status}"
         else:
             context = "Trouble is brewing."
 
@@ -216,16 +211,6 @@ HISTORY
         return results
 
     ################## Instance Methods ##################
-    def check_current(self, episode):
-        if (
-            episode.start_date
-            and self.start_date
-            and episode.start_date >= self.start_date
-        ):
-            return False
-        if episode.end_date and self.end_date and episode.end_date <= self.end_date:
-            return False
-        return True
 
     def label(self, model):
         if not isinstance(model, str):

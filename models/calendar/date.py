@@ -6,7 +6,7 @@ from autonomous.model.automodel import AutoModel
 
 
 class Date(AutoModel):
-    obj = ReferenceAttr(choices=["TTRPGObject", "Episode"], required=True)
+    obj = ReferenceAttr(choices=["TTRPGObject", "Episode", "Event"], required=True)
     year = IntAttr(default=0)
     day = IntAttr(default=0)
     month = IntAttr(default=-1)

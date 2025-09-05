@@ -75,18 +75,6 @@ def campaigndetails(pk):
     )
 
 
-@campaign_endpoint.route("/new", methods=("POST",))
-def campaignnew():
-    user, obj, request_data = _loader()
-    campaign = Campaign(world=obj.world, name="New Campaign")
-    campaign.save()
-    obj.world.campaigns.append(campaign)
-    obj.world.save()
-    return get_template_attribute(module, macro)(
-        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
-    )
-
-
 @campaign_endpoint.route("/<string:pk>/delete", methods=("POST",))
 def campaigndelete(pk):
     user, obj, request_data = _loader()
