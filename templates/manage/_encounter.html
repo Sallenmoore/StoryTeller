@@ -8,24 +8,32 @@
 {{manage_components.dates(user, obj)}}
 <div class="row has-space-around">
     <div class="column is-shrink">
-        <div class="panel">
+        <div class="panel has-bg-muted">
             <div class="row">
                 <div class="column is-shrink is-vertically-centered">
                     <h4>Story</h4>
                 </div>
                 <div class="column is-vertically-centered">
                     <div class="select">
-                        <select>
-                            <option value="easy">Easy</option>
-                            <option value="medium">Medium</option>
-                            <option value="hard">Hard</option>
+                        <select class="has-bg-white" name='storypk'
+                                hx-post='/api/manage/encounter/story'
+                                hx-swap='none'
+                                hx-trigger="change">
+                            <option value="" {% if not obj.story %} selected {% endif
+                                    %}>-- No Story --</option>
+                            {%for story in obj.world.stories %}
+                            <option value="{{story.pk}}" {% if obj.story and story.pk==obj.story.pk
+                                    %} selected {% endif %}>
+                                {{story.name}}
+                            </option>
+                            {%endfor %}
                         </select>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="column is-shrink">
+    <div class="column is-shrink is-vertically-centered">
         <button type="button" class="button is-small"
                 hx-post='/api/manage/encounter/toevent'
                 hx-target='#page-content'
@@ -36,6 +44,7 @@
         </button>
     </div>
 </div>
+<hr>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row">

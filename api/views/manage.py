@@ -707,3 +707,12 @@ def encountertoevent():
         window.location.replace('/event/{event.pk}/manage');
     </script>
 """
+
+
+@manage_endpoint.route("/encounter/story", methods=("POST",))
+def encounterstory():
+    user, obj, request_data = _loader()
+    if story := Story.get(request.json.get("storypk")):
+        obj.story = story
+        obj.save()
+    return get_template_attribute("manage/_encounter.html", "manage")(user, obj)

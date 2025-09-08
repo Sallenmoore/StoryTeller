@@ -56,7 +56,7 @@ test: inittests
 
 inittests:
 	cp -rf envs/testing/.env ./
-	cp -rf envs/testing/docker-compose.yml ./
+	cp -rf envs/testing/compose.yml ./
 	cp -rf envs/testing/gunicorn.conf.py ./vendor
 	$(UP_CMD)
 
