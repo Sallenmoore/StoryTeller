@@ -218,24 +218,7 @@
         <div class="column is-half">
             <h5> Details</h5>
             <div class="panel">
-                <ul>
-                    <li>{{obj.description_summary | safe}}</li>
-                    {% for sd in obj.sensory_details %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="column is-full">
-            <h5>Rumors</h5>
-            <div class="panel">
-                <ul>
-                    {% for r in obj.rumors %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
+                {{obj.description_summary | safe}}
             </div>
         </div>
     </div>

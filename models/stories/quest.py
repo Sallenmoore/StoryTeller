@@ -11,7 +11,7 @@ from models.base.ttrpgbase import TTRPGBase
 
 class Quest(AutoModel):
     name = StringAttr(default="")
-    storyline = ReferenceAttr(choices=["Story"])
+    storyline = ReferenceAttr(choices=["Story"], required=True)
     description = StringAttr(default="")
     summary = StringAttr(default="")
     rewards = StringAttr(default="")

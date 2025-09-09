@@ -50,7 +50,7 @@ def manage(pk=None):
     user, obj, request_data = _loader()
     obj.world.save()
     story = Story.get(pk or request.json.get("storypk"))
-    return get_template_attribute("manage/_story.html", "manage")(
+    return get_template_attribute("models/_story.html", "manage")(
         user,
         story,
     )

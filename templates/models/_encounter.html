@@ -111,16 +111,29 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
     <h3 class='has-text-center'>GM Notes</h3>
     <div class="row">
-        <div class="column is-full">
+        <div class="column is-half">
             <h5>Summary</h5>
             <div class="panel">
                 {{obj.backstory_summary | safe}}
             </div>
         </div>
         <div class="column is-half">
+            <h5>Notes</h5>
+            <div class="panel">
+                {{obj.notes | safe}}
+            </div>
+        </div>
+        <div class="column is-full">
+            <h5>Mechanics</h5>
+            <div class="panel">
+                {{obj.mechanics | safe}}
+            </div>
+        </div>
+        {% if obj.enemies %}
+        <div class="column is-full">
             <h5>Antagonists</h5>
             <div class="panel">
                 <div class="row">
@@ -132,6 +145,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {%- endmacro %}
@@ -173,12 +187,6 @@
             </span>
         </div>
         <hr>
-        <div class="panel has-bg-muted">
-            <h3 class="has-text-dark">Complications</h3>
-            <span class="has-text-dark">
-                {{obj.complications | safe}}
-            </span>
-        </div>
     </div>
     <div class="column is-half">
         <h3 class="has-text-dark">Player Contingencies</h3>
@@ -187,7 +195,6 @@
             <li>{{ pc | safe }}</li>
             {% endfor %}
         </ul>
-
     </div>
     <div class="column is-half">
         <h3 class="has-text-dark">Potential Outcomes</h3>
@@ -196,7 +203,14 @@
             <li>{{ pc | safe }}</li>
             {% endfor %}
         </ul>
-
+    </div>
+    <div class="column is-full">
+        <div class="panel has-bg-muted">
+            <h3 class="has-text-dark">Complications</h3>
+            <span class="has-text-dark">
+                {{obj.complications | safe}}
+            </span>
+        </div>
     </div>
     {% endif %}
 </div>

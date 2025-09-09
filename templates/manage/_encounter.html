@@ -69,14 +69,17 @@
                 </div>
             </div>
         </div>
-        {% if user.world_user(obj)%}
         <div class="column is-full" id="model-trigger">
             <h4 class="has-text-center">Trigger Conditions</h4>
             {{form_components.texteditor(user, obj, "trigger_conditions")}}
         </div>
-        <div class="column is-full" id="model-complications">
-            <h4 class="has-text-center">Complications</h4>
-            {{form_components.texteditor(user, obj, "complications")}}
+        <div class="column is-full" id="model-mechanics">
+            <h4 class="has-text-center">Mechanics</h4>
+            {{form_components.texteditor(user, obj, "mechanics")}}
+        </div>
+        <div class="column is-full" id="model-notes">
+            <h4 class="has-text-center">Notes</h4>
+            {{form_components.texteditor(user, obj, "notes")}}
         </div>
         <div class="column is-full" id="model-contingencies">
             <h4 class="has-text-center">Player Contingencies</h4>
@@ -110,7 +113,10 @@
             </div>
             {{form_components.listeditor(user, obj, "potential_outcomes")}}
         </div>
-        {% endif %}"
+        <div class="column is-full" id="model-complications">
+            <h4 class="has-text-center">Complications</h4>
+            {{form_components.texteditor(user, obj, "complications")}}
+        </div>
     </div>
 </form>
 {{manage_components.backstory(user, obj)}}

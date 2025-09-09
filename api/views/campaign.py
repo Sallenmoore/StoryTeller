@@ -62,17 +62,7 @@ def manage(pk=None):
     pk = pk or request_data.get("campaignpk")
     campaign = Campaign.get(pk or request.json.get("campaignpk"))
 
-    return get_template_attribute("manage/_campaign.html", "manage")(user, campaign)
-
-
-@campaign_endpoint.route("/<string:pk>/details", methods=("POST",))
-def campaigndetails(pk):
-    user, obj, request_data = _loader()
-    campaign = Campaign.get(pk)
-    campaign.save()
-    return get_template_attribute("manage/_campaign.html", "campaign_details")(
-        user, obj, campaign=campaign
-    )
+    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
 @campaign_endpoint.route("/<string:pk>/delete", methods=("POST",))

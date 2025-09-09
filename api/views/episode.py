@@ -52,6 +52,9 @@ def edit_episode(pk=None):
         end_date = request.json.get("end_date", episode.end_date)
         if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
             episode.end_date = end_date
+        if storypk := request.json.get("storypk"):
+            episode.story = Story.get(storypk)
+        episode.description = request.json.get("description", episode.description)
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
         )
@@ -129,9 +132,7 @@ def episodeassociationentry(pk, amodel, apk=None):
         new_ass = obj.world.get_model(amodel)(world=obj.world)
         new_ass.save()
         episode.add_association(new_ass)
-    return get_template_attribute("manage/_episode.html", "associations")(
-        user, obj, episode
-    )
+    return get_template_attribute("manage/_episode.html", "associations")(user, episode)
 
 
 @episode_endpoint.route(

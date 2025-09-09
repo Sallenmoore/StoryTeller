@@ -4,8 +4,6 @@ from autonomous import log
 from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
-LOOT_MULTIPLIER = 3
-
 
 class Encounter(TTRPGObject):
     difficulty_rating = IntAttr(default=0)
@@ -15,11 +13,11 @@ class Encounter(TTRPGObject):
     player_contingencies = ListAttr(StringAttr(default=""))
     potential_outcomes = ListAttr(StringAttr(default=""))
     story = ReferenceAttr(choices=["Story"])
-
+    mechanics = StringAttr(default="")
+    notes = StringAttr(default="")
     start_date_label = "Began"
     end_date_label = "Ended"
 
-    LOOT_MULTIPLIER = 3
     parent_list = ["Location", "City", "District", "Region", "Shop"]
     _difficulty_list = [
         "trivial",
@@ -85,19 +83,19 @@ class Encounter(TTRPGObject):
                     "type": "string",
                     "description": "What are the conditions that will trigger the encounter?",
                 },
+                "mechanics": {
+                    "type": "string",
+                    "description": "What are the specific mechanics or rules that govern the encounter? Are there any associated skill checks or saving throws?",
+                },
+                "notes": {
+                    "type": "string",
+                    "description": "Any additional notes or information about running the encounter.",
+                },
             },
         },
     }
 
     ################## Class Methods ##################
-
-    @classmethod
-    def _icon(cls, type="basic"):
-        return {
-            "basic": "game-icons:battle-gear",
-            "start": "game-icons:battle-gear",
-            "end": "mdi:shop-complete",
-        }.get(type, "game-icons:battle-gear")
 
     ################## Instance Properties ##################
     @property
