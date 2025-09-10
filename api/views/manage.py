@@ -302,100 +302,6 @@ def journal_add_association(entrypk=None):
     )
 
 
-# MARK: quest route
-###########################################################
-##                    Quest Routes                     ##
-###########################################################
-@manage_endpoint.route("/<string:characterpk>/quest/create", methods=("POST",))
-def create_quest_entry(characterpk):
-    user, obj, request_data = _loader()
-    character = Character.get(characterpk)
-    storyline = Story.get(request.json.get("storyline"))
-    entry = Quest(
-        name=f"Quest #{len(obj.quests) + 1}",
-        storyline=storyline,
-        contact=character,
-        associations=storyline.associations,
-    )
-    entry.save()
-    obj.quests += [entry]
-    obj.save()
-    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, entry)
-
-
-@manage_endpoint.route("/quest/edit", methods=("POST",))
-@manage_endpoint.route("/quest/<string:entrypk>/edit", methods=("POST",))
-def edit_quest_entry(entrypk=None):
-    user, obj, request_data = _loader()
-    entry = Quest.get(entrypk)
-    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, entry)
-
-
-@manage_endpoint.route("/quest/update", methods=("POST",))
-@manage_endpoint.route("/quest/<string:entrypk>/update", methods=("POST",))
-def update_quest_entry(entrypk=None):
-    user, obj, request_data = _loader()
-    log(request.json)
-    quest = Quest.get(entrypk)
-    quest.name = request.json.get("name")
-    quest.description = request.json.get("description")
-    quest.rewards = request.json.get("rewards")
-    quest.summary = request.json.get("summary")
-    quest.location = request.json.get("location")
-    quest.status = request.json.get("status")
-    quest.save()
-    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
-
-
-@manage_endpoint.route("/quest/<string:entrypk>/delete", methods=("POST",))
-def delete_quest_entry(entrypk):
-    user, obj, request_data = _loader()
-    if quest := Quest.get(entrypk):
-        quest.delete()
-        return "<p>success</p>"
-    return "Not found"
-
-
-@manage_endpoint.route("/quest/search", methods=("POST",))
-def quest_search():
-    user, obj, request_data = _loader()
-    query = request.json.get("query")
-    associations = (
-        obj.world.search_autocomplete(query) if query and len(query) > 2 else []
-    )
-    return get_template_attribute("manage/_quest.html", "quest_dropdown")(
-        user, obj, associations
-    )
-
-
-@manage_endpoint.route("/quest/entry/association/add", methods=("POST",))
-def quest_add_association(entrypk=None):
-    user, obj, request_data = _loader()
-    entrypk = request.json.get("entrypk")
-    if quest := Quest.get(entrypk):
-        if association := World.get_model(
-            request.json.get("ass_model"), request.json.get("ass_pk")
-        ):
-            quest.associations += [association]
-            quest.save()
-        log(association)
-    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
-
-
-@manage_endpoint.route(
-    "/quest/<string:questpk>/association/<string:assmodel>/<string:asspk>/remove",
-    methods=("POST",),
-)
-def quest_remove_association(questpk, assmodel, asspk):
-    user, obj, request_data = _loader()
-    if quest := Quest.get(questpk):
-        if association := World.get_model(assmodel, asspk):
-            if association in quest.associations:
-                quest.associations.remove(association)
-                quest.save()
-    return get_template_attribute("manage/_quest.html", "quest_entry")(user, obj, quest)
-
-
 # MARK: Association route
 ###########################################################
 ##                 Associations Routes                   ##
@@ -591,7 +497,7 @@ def characterhitpoints():
     log(request.args.get("current_hitpoints", obj.hitpoints))
     obj.current_hitpoints = int(request.args.get("current_hitpoints", obj.hitpoints))
     obj.save()
-    return get_template_attribute("models/_character.html", "info")(user, obj)
+    return get_template_attribute("models/_character.html", "details")(user, obj)
 
 
 @manage_endpoint.route("/character/<string:pk>/dndbeyond", methods=("POST",))
@@ -679,6 +585,100 @@ def dndbeyondapi(pk):
         #         obj.abilities.append(spell_entry)
         obj.save()
     return get_template_attribute("manage/_details.html", "details")(user, obj)
+
+
+# MARK: quest route
+###########################################################
+##                    Quest Routes                     ##
+###########################################################
+@manage_endpoint.route("/<string:characterpk>/quest/create", methods=("POST",))
+def create_quest_entry(characterpk):
+    user, obj, request_data = _loader()
+    character = Character.get(characterpk)
+    storyline = Story.get(request.json.get("storyline"))
+    entry = Quest(
+        name=f"Quest #{len(obj.quests) + 1}",
+        storyline=storyline,
+        contact=character,
+        associations=storyline.associations,
+    )
+    entry.save()
+    obj.quests += [entry]
+    obj.save()
+    return get_template_attribute("manage/_quest.html", "manage")(user, entry)
+
+
+@manage_endpoint.route("/quest/edit", methods=("POST",))
+@manage_endpoint.route("/quest/<string:entrypk>/edit", methods=("POST",))
+def edit_quest_entry(entrypk=None):
+    user, obj, request_data = _loader()
+    entry = Quest.get(entrypk)
+    return get_template_attribute("manage/_quest.html", "manage")(user, entry)
+
+
+@manage_endpoint.route("/quest/update", methods=("POST",))
+@manage_endpoint.route("/quest/<string:entrypk>/update", methods=("POST",))
+def update_quest_entry(entrypk=None):
+    user, obj, request_data = _loader()
+    log(request.json)
+    quest = Quest.get(entrypk)
+    quest.name = request.json.get("name")
+    quest.description = request.json.get("description")
+    quest.rewards = request.json.get("rewards")
+    quest.summary = request.json.get("summary")
+    quest.location = request.json.get("location")
+    quest.status = request.json.get("status")
+    quest.save()
+    return get_template_attribute("manage/_quest.html", "manage")(user, quest)
+
+
+@manage_endpoint.route("/quest/<string:entrypk>/delete", methods=("POST",))
+def delete_quest_entry(entrypk):
+    user, obj, request_data = _loader()
+    if quest := Quest.get(entrypk):
+        quest.delete()
+        return "<p>success</p>"
+    return "Not found"
+
+
+@manage_endpoint.route("/quest/search", methods=("POST",))
+def quest_search():
+    user, obj, request_data = _loader()
+    query = request.json.get("query")
+    associations = (
+        obj.world.search_autocomplete(query) if query and len(query) > 2 else []
+    )
+    return get_template_attribute("manage/_quest.html", "quest_dropdown")(
+        user, obj, associations
+    )
+
+
+@manage_endpoint.route("/quest/entry/association/add", methods=("POST",))
+def quest_add_association(entrypk=None):
+    user, obj, request_data = _loader()
+    entrypk = request.json.get("entrypk")
+    if quest := Quest.get(entrypk):
+        if association := World.get_model(
+            request.json.get("ass_model"), request.json.get("ass_pk")
+        ):
+            quest.associations += [association]
+            quest.save()
+        log(association)
+    return get_template_attribute("manage/_quest.html", "manage")(user, quest)
+
+
+@manage_endpoint.route(
+    "/quest/<string:questpk>/association/<string:assmodel>/<string:asspk>/remove",
+    methods=("POST",),
+)
+def quest_remove_association(questpk, assmodel, asspk):
+    user, obj, request_data = _loader()
+    if quest := Quest.get(questpk):
+        if association := World.get_model(assmodel, asspk):
+            if association in quest.associations:
+                quest.associations.remove(association)
+                quest.save()
+    return get_template_attribute("manage/_quest.html", "manage")(user, quest)
 
 
 # MARK: Faction routes

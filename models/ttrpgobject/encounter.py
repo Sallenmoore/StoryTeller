@@ -156,16 +156,6 @@ class Encounter(TTRPGObject):
         return "Began" if self.start_date.get("year") else "Unknown"
 
     @property
-    def history_prompt(self):
-        return f"""
-{f"BEGAN\n---\n{self.start_date}" if self.start_date else ""}
-
-HISTORY
----
-{self.backstory}
-"""
-
-    @property
     def image_prompt(self):
         enemies = [f"- {e.name} ({e.title}) : {e.desc}" for e in self.enemies]
         enemies_str = "\n".join(enemies)

@@ -96,24 +96,6 @@ class Character(Actor):
         return "players" if self.is_player else "characters"
 
     @property
-    def history_primer(self):
-        return "Incorporate the below LIFE EVENTS into the BACKSTORY to generate a chronological summary of the character's history in MARKDOWN format with paragraph breaks after no more than 4 sentences."
-
-    @property
-    def history_prompt(self):
-        if self.age and self.backstory_summary:
-            return f"""
-AGE
----
-{self.age}
-
-BACKSTORY
----
-{self.backstory}
-
-"""
-
-    @property
     def image_tags(self):
         age_tag = f"{self.age // 10}0s"
         return super().image_tags + [self.gender, age_tag, self.species]

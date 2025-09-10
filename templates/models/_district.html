@@ -246,12 +246,12 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
-    <h3 class='has-text-center'>GM Notes</h3>
+<div id="gmnotes" class="panel has-bg-dark">
+    <h3 class='has-text-center has-text-light'>GM Notes</h3>
     <div class="row">
-        <div class="column is-full">
-            <h5> Details</h5>
-            <div class="panel has-text-light">
+        <div class="column is-half">
+            <div class="panel has-bg-muted">
+                <h5> Details</h5>
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -260,21 +260,17 @@
                 </ul>
             </div>
         </div>
-        <div class="column is-full">
-            <h5>Recent Events</h5>
-            <div class="panel has-text-light">
-                <ul>
-                    {% for sd in obj.recent_events %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
+        <div class="column">
+            <div class="panel has-bg-muted">
+                <h5>Current Status</h5>
+                {{obj.status | safe}}
             </div>
         </div>
         <div class="column is-full">
-            <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="panel has-bg-muted">
+                <h5>Rumors</h5>
                 <ul>
-                    {% for r in obj.rumors %}
+                    {% for r in obj.rumors + obj.recent_events %}
                     <li>
                         {{ r | safe }}
                     </li>
@@ -287,26 +283,22 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-<div class="row">
-    {% if obj.owner %}
-    <div class="column">
-        <div class="panel has-bg-primary">
-            <h4 class="has-text-secondary">Owner</h4>
-            <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
-                <div class="image is-large is-thumbnail is-margin-center">
-                    {% if obj.owner.image %}
-                    <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
-                    {% endif %}
-                </div>
-                <h4 class="has-text-light">
-                    {{obj.owner.name}}
-                </h4>
-                {{obj.owner.backstory_summary | safe}}
-            </a>
+{% if obj.owner %}
+<div class="panel has-bg-primary">
+    <h4 class="has-text-secondary">Owner</h4>
+    <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
+        <div class="image is-large is-thumbnail is-margin-center">
+            {% if obj.owner.image %}
+            <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
+            {% endif %}
         </div>
-    </div>
-    {% endif %}
+        <h4 class="has-text-light">
+            {{obj.owner.name}}
+        </h4>
+        {{obj.owner.backstory_summary | safe}}
+    </a>
 </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}

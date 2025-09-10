@@ -133,17 +133,6 @@ class Vehicle(Place):
         return super().image_tags + [self.type, self.size]
 
     @property
-    def history_prompt(self):
-        return f"""
-BACKSTORY
----
-{self.backstory_summary}
-
-{"TIMELINE OF EVENTS"}
----
-"""
-
-    @property
     def image_prompt(self):
         return f"""A full color image of a {self.genre} {self.type or "vehicle"} with the following description:
 "- NAME: {self.name}

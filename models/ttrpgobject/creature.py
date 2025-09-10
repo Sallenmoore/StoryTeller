@@ -47,16 +47,6 @@ class Creature(Actor):
         return super().image_tags + [self.type, self.size]
 
     @property
-    def history_prompt(self):
-        return f"""
-BACKSTORY
----
-{self.backstory}
-
----
-"""
-
-    @property
     def image_prompt(self):
         return f"""A full-length color portrait of a {self.genre} {self.type or "creature"} with the following description:
         {("- TYPE: " if self.group else "- NAME: ") + self.name}

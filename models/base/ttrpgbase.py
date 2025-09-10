@@ -224,9 +224,7 @@ class TTRPGBase(AutoModel):
 
     @property
     def events(self):
-        self.world.events = sorted(
-            self.world.events, key=lambda e: e.end_date, reverse=True
-        )
+        self.world.events.sort(key=lambda e: e.end_date, reverse=True)
         return [e for e in self.world.events if self in e.associations]
 
     @property
@@ -246,23 +244,6 @@ class TTRPGBase(AutoModel):
         return list(self._systems.keys())
 
     @property
-    def history_primer(self):
-        return f"Incorporate the below EVENTS into the given {self.title}'s HISTORY to generate a narrative summary of the {self.title}'s story. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
-
-    @property
-    def history_prompt(self):
-        if self.backstory:
-            return f"""
-HISTORY
----
-{self.backstory}
-
-EVENTS
----
-- {"\n- ".join([e.summary for e in self.episodes])}
-"""
-
-    @property
     def image_tags(self):
         return [self.genre, self.model_name().lower()]
 
@@ -277,9 +258,8 @@ EVENTS
     @property
     def rumors(self):
         rumors = []
-        for npc in self.characters:
-            for quest in npc.quests:
-                rumors += quest.rumors
+        for story in self.stories:
+            rumors += story.rumors
         return rumors
 
     @property
@@ -366,7 +346,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
     - Type: {relative.title}
       - Name: {relative.name}
       - Backstory: {relative.backstory}
-      - Controlled By: {relative.owner.name if relative.owner else "Unknown"}
+     {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
         if associations := self.associations:
             prompt += """
@@ -490,7 +470,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if len(self.backstory.split()) < 80:
             self.backstory_summary = self.backstory
         else:
-            primer = "Generate a summary of less than 80 words of the following events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences."
+            primer = "Generate a summary of less than 80 words of the following events in MARKDOWN format."
             self.backstory_summary = self.system.generate_summary(
                 self.backstory, primer
             )
@@ -503,15 +483,39 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if len(self.description.split()) < 25:
             self.description_summary = self.description
         else:
-            primer = f"Generate a plain text summary of the provided {self.title}'s description in 15 words or fewer."
+            primer = f"Generate a plain text summary of the provided {self.title}'s description in 20 words or fewer."
             self.description_summary = self.system.generate_summary(
                 self.description, primer
             )
         self.save()
 
         # generate history
-        log(f"Generating history...\n{self.history_prompt}", _print=True)
-        history = self.system.generate_summary(self.history_prompt, self.history_primer)
+
+        prompt = f"""
+HISTORY
+---
+{self.backstory}
+
+"""
+        if self.events:
+            prompt += """
+## Associated Events
+"""
+            prompt += "\n".join(
+                f"- {e.name}: {e.backstory} {e.outcome}"
+                for e in self.events
+                if e.backstory and e.outcome
+            )
+
+        if self.status:
+            prompt += f"""
+## Current Status
+
+{self.status}
+"""
+        log(f"Generating history...\n{prompt}", _print=True)
+        history_primer = f"Incorporate the given information into the given {self.title}'s HISTORY to generate a narrative summary of the {self.title}'s story. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
+        history = self.system.generate_summary(prompt, history_primer)
         history = history.replace("```markdown", "").replace("```", "")
         self.history = (
             markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")

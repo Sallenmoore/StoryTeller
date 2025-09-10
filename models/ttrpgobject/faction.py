@@ -15,7 +15,6 @@ from .character import Character
 
 class Faction(TTRPGObject):
     goal = StringAttr(default="")
-    status = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]

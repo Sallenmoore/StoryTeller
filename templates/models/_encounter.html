@@ -136,9 +136,9 @@
         <div class="column is-full">
             <h5>Antagonists</h5>
             <div class="panel">
-                <div class="row">
+                <div class="row has-space-around">
                     {% for sd in obj.enemies %}
-                    <div class="column">
+                    <div class="column is-2">
                         {{display_components.object_display(sd)}}
                     </div>
                     {% endfor %}

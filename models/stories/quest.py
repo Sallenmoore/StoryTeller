@@ -18,7 +18,7 @@ class Quest(AutoModel):
     contact = ReferenceAttr(choices=["Character"], required=True)
     antagonist = StringAttr(default="")
     hook = StringAttr(default="")
-    plot_twists = ListAttr(StringAttr(default=""))
+    plot_twist = StringAttr(default="")
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     status = StringAttr(
         default="available", choices=["available", "active", "completed", "failed"]
@@ -54,10 +54,9 @@ class Quest(AutoModel):
                     "type": "string",
                     "description": "Describe the complete scene that hooks the player characters into action and gives them the initial task to accomplish.",
                 },
-                "plot_twists": {
-                    "type": "array",
-                    "description": "A list of potential plot twists that may occur during the situation, in the order they should be revealed. An unexpected complication, twist, or reveal that changes the direction of the story, raises stakes and threat level, or redefines the goal.",
-                    "items": {"type": "string"},
+                "plot_twist": {
+                    "type": "string",
+                    "description": "A potential plot twists that may occur during the situation. An unexpected complication, twist, or reveal that changes the direction of the story, raises stakes and threat level, or redefines the goal.",
                 },
             },
         },
@@ -120,8 +119,7 @@ The situation should be tangentially related in some way to the following global
         rewards,
         antagonist,
         hook,
-        rumors,
-        plot_twists,
+        plot_twist,
     ):
         description = (
             markdown.markdown(description.replace("```markdown", "").replace("```", ""))
@@ -134,9 +132,8 @@ The situation should be tangentially related in some way to the following global
         self.description = description
         self.summary = summary
         self.antagonist = antagonist
-        self.rumors = rumors
         self.hook = hook
-        self.plot_twists = plot_twists
+        self.plot_twist = plot_twist
         self.save()
 
     ############# Association Methods #############

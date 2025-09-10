@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from autonomous import log
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr
+from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringAttr
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 
@@ -19,6 +19,7 @@ class TTRPGObject(TTRPGBase):
     parent = ReferenceAttr(choices=[TTRPGBase])
     start_date = ReferenceAttr(choices=["Date"])
     end_date = ReferenceAttr(choices=["Date"])
+    status = StringAttr(default="")
     parent_list = []
 
     start_date_label = "Founded"
@@ -91,14 +92,6 @@ class TTRPGObject(TTRPGBase):
     @property
     def regions(self):
         return [a for a in self.associations if a.model_name() == "Region"]
-
-    @property
-    def rumors(self):
-        rumors = []
-        for story in self.world.stories:
-            if self in story.associations:
-                rumors += story.rumors
-        return rumors
 
     @property
     def shops(self):

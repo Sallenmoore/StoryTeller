@@ -55,6 +55,12 @@
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
+    <div class="row">
+        <div id="model-goal" class="column">
+            <h4 class='has-text-light has-text-center'>Status</h4>
+            {{form_components.texteditor(user, obj, "status")}}
+        </div>
+    </div>
 </form>
 {%- endmacro %}
 
