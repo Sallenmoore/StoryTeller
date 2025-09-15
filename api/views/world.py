@@ -38,19 +38,6 @@ def campaignnew():
     )
 
 
-@world_endpoint.route("/story/new", methods=("POST",))
-def add_story():
-    user, obj, request_data = _loader()
-    story = Story()
-    story.save()
-    obj.world.stories += [story]
-    obj.world.save()
-    return get_template_attribute("models/_world.html", "stories")(
-        user,
-        obj,
-    )
-
-
 @world_endpoint.route(
     "/<string:pk>/calendar/update",
     methods=(

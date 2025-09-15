@@ -380,19 +380,6 @@
 
 {% macro stories(user, obj)%}
 {{title_components.object_title(user, obj)}}
-{% if user.world_user(obj)%}
-<div class="row">
-    <div class="column is-shrink is-end">
-        <button class="button is-primary is-small" hx-post="/api/world/story/new"
-                hx-target="#stories-list"
-                hx-selector="#stories-list"
-                hx-swap="outerHTML">
-            {{icon_components.plus(size="1rem")}}
-            New Story
-        </button>
-    </div>
-</div>
-{% endif %}
 <div id='stories-list'>
     {{stories_components.stories(user, obj)}}
 </div>

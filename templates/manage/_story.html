@@ -19,16 +19,19 @@
                 <div class="column is-vertically-centered is-shrink">
                     <div class="is-select">
                         <select class="has-bg-light" name='scope'>
-                            <option value="local">Local</option>
-                            <option value='regional'>Regional</option>
-                            <option value='global'>Global</option>
+                            <option value="local" {%if story.scope=="local" %}selected{%endif%}>
+                                Local</option>
+                            <option value='regional' {%if story.scope=="regional"
+                                    %}selected{%endif%}>Regional</option>
+                            <option value='global' {%if story.scope=="global" %}selected{%endif%}>
+                                Global</option>
                         </select>
                     </div>
                 </div>
                 <div class="column is-shrink is-vertically-centered">
                     <button class="button"
                             hx-post='/task/generate/story/{{story.pk}}'
-                            hx-target='#page-content'
+                            hx-swap='outerHTML'
                             hx-trigger="click consume"
                             hx-confirm="Are you sure you want to re-generate the story? This will overwrite existing content.">
                         Generate

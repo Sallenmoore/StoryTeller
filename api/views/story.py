@@ -9,10 +9,10 @@ import os
 import random
 
 import requests
+from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.stories.event import Event
@@ -59,6 +59,19 @@ def manage(pk=None):
 ###########################################################
 ##                    Story CRUD Routes                  ##
 ###########################################################
+@story_endpoint.route("/new", methods=("POST",))
+def add_story():
+    user, obj, request_data = _loader()
+    story = Story(world=obj.world)
+    if obj.model_name() != "World":
+        story.associations += [obj]
+    story.save()
+    obj.world.stories += [story]
+    obj.world.save()
+    return f"""<script>
+        window.location.replace('/story/{story.pk}/manage');
+    </script>
+"""
 
 
 @story_endpoint.route("/<string:pk>/update", methods=("POST",))

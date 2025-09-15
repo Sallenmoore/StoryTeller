@@ -1,8 +1,9 @@
 import random
 
-from autonomous import log
 from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
+
+from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.images.image import Image
 from models.stories.event import Event
@@ -54,7 +55,7 @@ class Story(AutoModel):
                 },
                 "tasks": {
                     "type": "array",
-                    "description": "A list of tasks that the player characters must complete to advance the story. These tasks should be relevant to the situation and provide a scenario for the player characters to engage with the story.",
+                    "description": "A list of tasks that the player characters must complete to advance the story. These tasks should be relevant to the situation and motivate players to enage with the larger story, plot, or related elements.",
                     "items": {"type": "string"},
                 },
                 "rumors": {
@@ -64,7 +65,7 @@ class Story(AutoModel):
                 },
                 "information": {
                     "type": "array",
-                    "description": " A list of information that the player characters can discover about the situation, in the order they should be revealed. This information should be relevant to the situation and provide useful context for the player characters.",
+                    "description": " A list of reliable information that the player characters can discover about the situation, in the order they should be revealed. This information should be relevant to the situation and provide useful context or additional flavor for the player characters.",
                     "items": {"type": "string"},
                 },
             },
@@ -90,7 +91,7 @@ class Story(AutoModel):
         return f"story/{self.pk}"
 
     def generate(self):
-        prompt = f"Your task is to create a new storyline for the following {self.world.genre} TTRPG world. The story should incorporate existing world elements and relationships. The storyline can range from a local event to a global paradigm shift; however, the plot must include elements that can benefit from outside assistance or interference. Here is some context about the world: {self.world.name}, {self.world.description}. "
+        prompt = f"Your task is to create a new storyline with a {self.scope} scope for the following {self.world.genre} TTRPG world. The story should incorporate existing world elements and relationships. however, the plot must include elements that can benefit from outside assistance or interference. Here is some context about the world: {self.world.name}, {self.world.description}. "
 
         if self.world.stories:
             prompt += "\n\nHere are some existing storylines in the world: "
@@ -98,34 +99,14 @@ class Story(AutoModel):
                 self.world.stories, min(len(self.world.stories), 3)
             ):
                 prompt += f"\n\n{story.name}: {story.situation}. "
-        if self.world.cities:
-            city = random.choice(self.world.cities)
-            prompt += f"\n\nHere is some context about a random city in the world: {city.name}, {city.description}. "
-            if city.government:
-                prompt += f"\n\nThe city is governed by {city.government}. "
-            if city.ruler:
-                prompt += f"\n\nThe ruler of the city is {city.ruler.name}, {city.ruler.description}. "
-            if city.factions:
-                faction = random.choice(city.factions)
-                prompt += f"\n\nOne of the factions in the city is {faction.name}, {faction.description}. "
-            if city.districts:
-                district = random.choice(city.districts)
-                prompt += f"\n\nOne of the districts in the city is {district.name}, {district.description}. "
-            if city.locations:
-                location = random.choice(city.locations)
-                prompt += f"\n\nOne of the locations in the city is {location.name}, {location.description}. "
-            if city.characters:
-                character = random.choice(city.characters)
-                prompt += f"\n\nOne of the notable characters in the city is {character.name}, {character.description}. "
-            if city.creatures:
-                creature = random.choice(city.creatures)
-                prompt += f"\n\nOne of the notable creatures in the city is {creature.name}, {creature.description}. "
-            if city.items:
-                item = random.choice(city.items)
-                prompt += f"\n\nOne of the notable items in the city is {item.name}, {item.description}. "
-            if city.vehicles:
-                vehicle = random.choice(city.vehicles)
-                prompt += f"\n\nOne of the notable vehicles in the city is {vehicle.name}, {vehicle.description}. "
+
+        if self.associations:
+            prompt += "\n\nHere are some existing elements related to this storyline: "
+            for assoc in self.associations:
+                prompt += f"\n\n{assoc.name}: {assoc.backstory}. "
+
+        if self.situation:
+            prompt += f"\n\nUse the following prompt to guide the storyline: {self.situation}. "
 
         result = self.world.system.generate_json(
             prompt=prompt,
