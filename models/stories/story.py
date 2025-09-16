@@ -78,7 +78,11 @@ class Story(AutoModel):
 
     @property
     def events(self):
-        return [e for e in Event.search(world=self.world) if self in e.stories]
+        if events := [e for e in Event.search(world=self.world) if self in e.stories]:
+            events.sort(
+                key=lambda x: x.end_date if x.end_date else x.world.current_date
+            )
+        return events
 
     @property
     def history(self):

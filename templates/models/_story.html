@@ -108,7 +108,7 @@
             <div class="row has-space-around">
                 {% for event in story.events %}
                 <div class="column is-2">
-                    {{display_components.object_display(event)}}
+                    {{display_components.object_display(event, date=True)}}
                 </div>
                 {% endfor %}
             </div>

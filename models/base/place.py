@@ -165,11 +165,11 @@ DUNGEON BACKSTORY
                     tags=["map", *self.image_tags],
                 )
                 self.map.save()
+            elif image := Map.get(self.map):
+                self.map = image
             elif image := Image.get(self.map):
                 self.map = Map.from_image(image)
                 self.map.save()
-            elif image := Map.get(self.map):
-                self.map = image
             else:
                 raise ValidationError(
                     f"Image must be an Image object, url, or Image pk, not {self.map}"

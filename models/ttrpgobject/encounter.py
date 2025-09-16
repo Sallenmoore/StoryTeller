@@ -174,7 +174,7 @@ class Encounter(TTRPGObject):
     def generate(self):
         enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
         if story := self.story or random.choice(self.world.stories):
-            context = f"An unexpected, but relevant encounter related to the following storyline: {story.situation} {story.current_status}"
+            context = f"An encounter related to the following storyline: {story.situation} {story.current_status}"
         else:
             context = "Trouble is brewing."
 

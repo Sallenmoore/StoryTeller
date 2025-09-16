@@ -16,9 +16,10 @@
     </h6>
     {% endif %}
     {% if date %}
-    <small class='has-text-center'>
-        {{obj.start_date}}-{{obj.end_date if obj.end_date else ''}}
-    </small>
+    <p class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1rem);'>
+        {{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
+        {{obj.end_date}}{%endif%}
+    </p>
     {% endif %}
     <div class="row has-space-around">
         {% if type %}

@@ -1,8 +1,9 @@
 import random
 
-from autonomous import log
 from autonomous.model.autoattr import IntAttr, ReferenceAttr
 from autonomous.model.automodel import AutoModel
+
+from autonomous import log
 
 
 class Date(AutoModel):
@@ -41,7 +42,7 @@ class Date(AutoModel):
                 other.month,
                 other.day,
             )
-        return NotImplemented
+        return False
 
     def __le__(self, other):
         if isinstance(other, Date):
@@ -50,7 +51,7 @@ class Date(AutoModel):
                 other.month,
                 other.day,
             )
-        return NotImplemented
+        return False
 
     def __gt__(self, other):
         if isinstance(other, Date):
@@ -59,7 +60,7 @@ class Date(AutoModel):
                 other.month,
                 other.day,
             )
-        return NotImplemented
+        return False
 
     def __ge__(self, other):
         if isinstance(other, Date):
@@ -68,7 +69,7 @@ class Date(AutoModel):
                 other.month,
                 other.day,
             )
-        return NotImplemented
+        return False
 
     def from_string(cls, obj, calendar, date_string):
         parts = date_string.split(" ")
