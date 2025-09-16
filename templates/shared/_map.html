@@ -247,7 +247,7 @@
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
                 <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
                      hx-post="/api/manage/update"
-                     hx-target="#map-image-container" hx-select="#map-image-container"
+                     hx-target="#map-container" hx-select="#map-container"
                      hx-swap="outerHTML"
                      hx-vals='{"map":"{{image.pk}}"}'
                      hx-indicator="#request-indicator" />

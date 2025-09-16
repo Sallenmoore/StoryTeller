@@ -1,8 +1,11 @@
 import io
 import json
 import os
+from urllib.parse import urlparse
 
 import requests
+from autonomous.auth import AutoAuth, auth_required
+from autonomous.model.automodel import AutoModel
 from flask import (
     Blueprint,
     Response,
@@ -12,14 +15,11 @@ from flask import (
 )
 
 from autonomous import log
-
-from autonomous.auth import AutoAuth, auth_required
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
 from models.stories.event import Event
 from models.ttrpgobject.faction import Faction  # required import for model loading
 from models.world import World
-from autonomous.model.automodel import AutoModel
 
 index_page = Blueprint("index", __name__)
 
@@ -28,13 +28,6 @@ def _authenticate(user, obj):
     if user in obj.world.users:
         return True
     return False
-
-
-# def update_with_session(requestdata):
-#     # log(requestdata)
-#     args = requestdata.copy()
-#     args["scenepk"] = requestdata.get("scenepk") or session.get("scenepk")
-#     return args
 
 
 @index_page.route("/", endpoint="index", methods=("GET", "POST"))
@@ -116,21 +109,26 @@ def api(rest_path):
     url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
     response = "<p>You do not have permission to alter this object<p>"
     user = AutoAuth.current_user()
+    response_url = urlparse(request.referrer).path
+    log("API REQUEST", request.method, url, response_url)
     if request.method == "GET":
         rest_path = request.path.replace("/api/", "")
         params = dict(request.args)
         params["user"] = user.pk
+        params["response_path"] = response_url
         url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}?{requests.compat.urlencode(params)}"
         log("API GET REQUEST", url)
         response = requests.get(url).text
     elif not user.is_guest:
-        log("API POST REQUEST", rest_path, request.json)
+        params = dict(request.json)
+        params["response_path"] = response_url
+        log("API POST REQUEST", rest_path, params)
         if "admin/" in url and user.is_admin:
-            response = requests.post(url, json=request.json).text
-        elif request.json.get("model") and request.json.get("pk"):
-            obj = AutoModel.get_model(request.json.get("model"), request.json.get("pk"))
+            response = requests.post(url, json=params).text
+        elif params.get("model") and params.get("pk"):
+            obj = AutoModel.get_model(params.get("model"), params.get("pk"))
             if _authenticate(user, obj.world):
-                response = requests.post(url, json=request.json).text
+                response = requests.post(url, json=params).text
     # log(response)
     return response
 

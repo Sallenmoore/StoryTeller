@@ -4,13 +4,13 @@ import traceback
 
 import markdown
 import validators
+from autonomous.db import ValidationError
+from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
+from autonomous.model.automodel import AutoModel
 from flask import get_template_attribute
 from slugify import slugify
 
 from autonomous import log
-from autonomous.db import ValidationError
-from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
-from autonomous.model.automodel import AutoModel
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
@@ -402,8 +402,11 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_image
     def generate_image(self):
+        if self.image and len(self.image.associations) <= 1:
+            self.image.delete()
         if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
             self.image = image
+            self.image.associations += [self]
             self.image.save()
             self.save()
         else:
@@ -579,15 +582,21 @@ HISTORY
                 associations=associations,
             )
 
-    def search_autocomplete(self, query):
+    def search_autocomplete(self, query, model=None):
         results = []
-        for model in self.all_models():
+        if not model:
+            for model in self.all_models():
+                Model = self.load_model(model)
+                # log(model, query)
+                results += [
+                    r for r in Model.search(name=query, world=self.world) if r != self
+                ]
+                # log(results)
+        else:
             Model = self.load_model(model)
-            # log(model, query)
-            results += [
+            results = [
                 r for r in Model.search(name=query, world=self.world) if r != self
             ]
-            # log(results)
         return results
 
     # /////////// HTML SNIPPET Methods ///////////
@@ -638,6 +647,10 @@ HISTORY
                 )
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
+            self.image.save()
+
+        if self.image and self not in self.image.associations:
+            self.image.associations += [self]
             self.image.save()
 
     def pre_save_backstory(self):

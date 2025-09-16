@@ -34,7 +34,7 @@
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Impact</h5>
-                        <span class='has-text-dark'>{{event.impact}}</span>
+                        <span class='has-text-dark'>{{event.impact | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -43,7 +43,7 @@
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Outcome</h5>
-                        <span class='has-text-dark'>{{event.outcome}}</span>
+                        <span class='has-text-dark'>{{event.outcome | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -59,11 +59,20 @@
             </div>
         </div>
         <div class="column is-full">
-            <div class="panel has-bg-muted has-text-dark">
-                <h5 class='has-text-center'>Story: {{ event.story.name }}</h5>
-                <div>{{ event.story.situation | safe }}</div>
+            <div class="row">
+                {% for story in event.stories %}
+                <div class="column">
+                    <div class="panel has-bg-muted has-text-dark">
+                        <a href='/{{ story.path }}' class='has-text-dark'>
+                            <h5 class='has-text-center'>Story: {{ story.name }}</h5>
+                            <div>{{ story.situation | safe }}</div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
+        {% if event.episode %}
         <div class="column is-full">
             <div class="row has-space-around">
                 <div class="column is-half">
@@ -72,7 +81,7 @@
                 </div>
             </div>
         </div>
-
+        {% endif %}
     </div>
 </div>
 {%- endmacro %}

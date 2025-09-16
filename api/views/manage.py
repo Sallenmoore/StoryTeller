@@ -52,9 +52,10 @@ def add(model):
 @manage_endpoint.route("/update", methods=("POST",))
 def update():
     user, obj, request_data = _loader()
-    request.json.pop("user", None)
-    request.json.pop("model", None)
-    for attr, value in request.json.items():
+    request_data.pop("user", None)
+    request_data.pop("model", None)
+    response_url = request_data.pop("response_path", None)
+    for attr, value in request_data.items():
         ########## SECURITY: remove any javascript tags for security reasons ############
         if isinstance(value, str) and "<" in value:
             parser = BeautifulSoup(value, "html.parser")
@@ -67,7 +68,12 @@ def update():
         else:
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
     obj.save()
-    return get_template_attribute(f"manage/_{obj.model_name().lower()}.html", "manage")(
+    log(response_url.split("/"))
+    path = (
+        response_url.split("/")[-1] if len(response_url.split("/")) == 4 else "manage"
+    )
+    # log(path)
+    return get_template_attribute(f"models/_{obj.model_name().lower()}.html", path)(
         user, obj
     )
 

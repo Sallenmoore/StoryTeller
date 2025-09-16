@@ -1,8 +1,9 @@
 import random
 
-from autonomous import log
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
+
+from autonomous import log
 from models.calendar.date import Date
 from models.images.image import Image
 
@@ -20,6 +21,7 @@ class Event(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     episode = ReferenceAttr(choices=["Episode"])
     story = ReferenceAttr(choices=["Story"])
+    stories = ListAttr(ReferenceAttr(choices=["Story"]))
     world = ReferenceAttr(choices=["World"], required=True)
 
     @classmethod
@@ -86,7 +88,7 @@ class Event(AutoModel):
             self.image.save()
             self.save()
         else:
-            log(self.image_prompt, "Image generation failed.", _print=True)
+            log(self.desc, "Image generation failed.", _print=True)
         return self.image
 
     ############# Association Methods #############
@@ -116,6 +118,11 @@ class Event(AutoModel):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_associations()
         document.pre_save_dates()
+
+        ### MIGRATION: story to stories
+        if document.story and document.story not in document.stories:
+            document.stories += [document.story]
+            document.story = None
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):

@@ -62,12 +62,6 @@
             {{obj[attr] | string | safe}}
         {% endif %}
     </textarea>
-    <!-- Mention Popup -->
-    <div id="mention-popup" class="mention-popup is-hidden">
-        <ul id="mention-list">
-            <!-- Names will be dynamically inserted here -->
-        </ul>
-    </div>
     <script>
         tinyMCE.remove('#edit-{{obj.pk}}-{{attr}}');
         tinyMCE.init({
@@ -94,51 +88,6 @@
                         htmx.trigger("#edit-{{obj.pk}}-{{attr}}", 'change');
                     }
                 });
-                /*editor.on('input', function (e) {
-                    // Adjust the height of the textarea based on content
-                    var content = editor.getContent();
-                    var mentionPopup = document.getElementById('mention-popup');
-                    var mentionList = document.getElementById('mention-list');
-
-                    var fetchNames = async (searchTerm) => {
-                        // Simulate network delay
-                        fetch('/api/manage/details/mention/names?search=' + searchTerm)
-                            .then(response => response.json())
-                            .then(data => {
-                                showPopup(data.names);
-                            });
-                    };
-                    var hidePopup = () => {
-                        mentionPopup.classList.add('is-hidden');
-                        mentionList.innerHTML = '';
-                    };
-                    var showPopup = (names, caretPos) => {
-                        mentionList.innerHTML = ''; // Clear previous list
-                        if (names.length === 0) {
-                            hidePopup();
-                            return;
-                        }
-
-                        names.forEach((name, index) => {
-                            var listItem = document.createElement('li');
-                            listItem.textContent = name;
-                            listItem.dataset.name = name; // Store the name for easy access
-                            listItem.addEventListener('click', () => selectName(name));
-                            mentionList.appendChild(listItem);
-                        });
-
-                        // Position the popup
-                        const textareaRect = textarea.getBoundingClientRect();
-                        // This is a simplified way to position. For precise positioning at caret,
-                        // you'd need a library or more complex calculation based on font metrics.
-                        // For now, we'll position it relative to the textarea.
-                        mentionPopup.style.left = `${textarea.offsetLeft}px`;
-                        mentionPopup.style.top = `${textarea.offsetTop + textarea.offsetHeight}px`;
-                        mentionPopup.style.width = `${textarea.offsetWidth}px`; // Match textarea width
-
-                        mentionPopup.classList.remove('is-hidden');
-                    };
-                });*/
             }
         });
     </script>

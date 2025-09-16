@@ -16,4 +16,3 @@ htmx.onLoad(function (e) {
     });
 });
 
-///////// Configure editors ///////////

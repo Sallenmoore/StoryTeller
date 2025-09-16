@@ -78,7 +78,7 @@ class Story(AutoModel):
 
     @property
     def events(self):
-        return Event.search(story=self)
+        return [e for e in Event.search(world=self.world) if self in e.stories]
 
     @property
     def history(self):

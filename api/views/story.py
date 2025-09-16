@@ -137,22 +137,7 @@ def storyassociationsearch(pk):
     results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [r for r in results if r not in story.associations]
     return get_template_attribute("manage/_story.html", "associations_dropdown")(
-        user, obj.world, story, results
-    )
-
-
-@story_endpoint.route(
-    "<string:pk>/bbeg/add/search",
-    methods=("POST",),
-)
-def storybbegsearch(pk):
-    user, obj, request_data = _loader()
-    story = Story.get(pk)
-    query = request.json.get("query")
-    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
-    results = [r for r in results if isinstance(r, Character) and r != story.bbeg]
-    return get_template_attribute("manage/_story.html", "bbeg_dropdown")(
-        user, obj.world, story, results
+        user, story, results
     )
 
 
@@ -179,16 +164,65 @@ def storyassociationadd(pk, amodel, apk=None):
     return get_template_attribute("manage/_story.html", "manage")(user, story)
 
 
+###########################################################
+##             Story Event Routes                        ##
+###########################################################
 @story_endpoint.route(
     "<string:pk>/event/add",
     methods=("POST",),
 )
-def storyeventadd(pk):
+@story_endpoint.route(
+    "<string:pk>/event/add/<string:eventpk>",
+    methods=("POST",),
+)
+def storyeventadd(pk, eventpk=None):
     user, obj, request_data = _loader()
     story = Story.get(pk)
-    event = Event(world=story.world, story=story)
+    if eventpk:
+        event = Event.get(eventpk)
+    else:
+        event = Event(world=story.world)
+    if story not in event.stories:
+        event.stories += [story]
     event.save()
+    log(event.stories)
     return get_template_attribute("manage/_story.html", "manage")(user, story)
+
+
+@story_endpoint.route(
+    "<string:pk>/event/add/search",
+    methods=("POST",),
+)
+def storyeventaddsearch(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    query = request.json.get("query")
+    results = (
+        obj.world.search_autocomplete(query=query, model=Event)
+        if len(query) > 2
+        else []
+    )
+    return get_template_attribute("manage/_story.html", "events_dropdown")(
+        user, story, results
+    )
+
+
+###########################################################
+##             Story BBEG Routes                         ##
+###########################################################
+@story_endpoint.route(
+    "<string:pk>/bbeg/add/search",
+    methods=("POST",),
+)
+def storybbegsearch(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    query = request.json.get("query")
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = [r for r in results if isinstance(r, Character) and r != story.bbeg]
+    return get_template_attribute("manage/_story.html", "bbeg_dropdown")(
+        user, obj.world, story, results
+    )
 
 
 @story_endpoint.route(

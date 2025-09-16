@@ -1,12 +1,13 @@
 import random
 
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
     ReferenceAttr,
     StringAttr,
 )
+
+from autonomous import log
 from models.campaign.campaign import Campaign
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
@@ -16,6 +17,7 @@ from .character import Character
 class Faction(TTRPGObject):
     goal = StringAttr(default="")
     leader = ReferenceAttr(choices=["Character"])
+    slogan = StringAttr(default="")
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]
 
@@ -38,6 +40,10 @@ class Faction(TTRPGObject):
                 "backstory": {
                     "type": "string",
                     "description": "The faction's backstory",
+                },
+                "slogan": {
+                    "type": "string",
+                    "description": "The faction's slogan",
                 },
                 "goal": {
                     "type": "string",

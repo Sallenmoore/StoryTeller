@@ -144,6 +144,7 @@
     <div class="column is-full">
         <div class="timeline">
             {% for a in obj.events %}
+            {% if a.end_date and a.end_date.year and a.name and a.outcome %}
             <div class='tentry {{ loop.cycle("right", "left" ) }}'>
                 <div class="date">{{a.end_date}}</div>
                 <div class="content">
@@ -168,6 +169,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
