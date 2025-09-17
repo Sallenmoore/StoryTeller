@@ -57,7 +57,7 @@ IMPORTANT: The image MUST NOT contain any TEXT.
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
         else:
-            image_obj = Image(
+            image_obj = cls(
                 prompt=prompt,
                 tags=tags,
             )
@@ -87,7 +87,27 @@ IMPORTANT: The image MUST NOT contain any TEXT.
                 img = img.copy()
                 img_byte_arr = io.BytesIO()
                 img.save(img_byte_arr, format="WEBP")
-                image_obj = Image(
+                image_obj = cls(
+                    prompt=prompt,
+                    tags=tags,
+                )
+                image_obj.data.put(img_byte_arr.getvalue(), content_type="image/webp")
+                image_obj.save()
+                return image_obj
+        except (requests.exceptions.RequestException, ValueError, IOError) as e:
+            log(f"==== Error: {e} ====")
+        return None
+
+    @classmethod
+    def from_file(cls, file, prompt="", tags=None):
+        tags = tags if tags else []
+        log(file)
+        try:
+            with ImageTools.open(io.BytesIO(file)) as img:
+                img = img.copy()
+                img_byte_arr = io.BytesIO()
+                img.save(img_byte_arr, format="WEBP")
+                image_obj = cls(
                     prompt=prompt,
                     tags=tags,
                 )

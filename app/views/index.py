@@ -1,3 +1,4 @@
+import base64
 import io
 import json
 import os
@@ -110,7 +111,6 @@ def api(rest_path):
     response = "<p>You do not have permission to alter this object<p>"
     user = AutoAuth.current_user()
     response_url = urlparse(request.referrer).path
-    log("API REQUEST", request.method, url, response_url)
     if request.method == "GET":
         rest_path = request.path.replace("/api/", "")
         params = dict(request.args)
@@ -120,7 +120,13 @@ def api(rest_path):
         log("API GET REQUEST", url)
         response = requests.get(url).text
     elif not user.is_guest:
-        params = dict(request.json)
+        params = {}
+        if request.files:
+            params = dict(request.form)
+            for key, file in request.files.items():
+                params[key] = base64.b64encode(file.read()).decode("utf-8")
+        else:
+            params = dict(request.json)
         params["response_path"] = response_url
         log("API POST REQUEST", rest_path, params)
         if "admin/" in url and user.is_admin:

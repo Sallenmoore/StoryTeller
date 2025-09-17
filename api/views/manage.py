@@ -2,6 +2,7 @@ r"""
 # Management API Documentation
 """
 
+import base64
 import json
 import os
 import random
@@ -14,6 +15,7 @@ from flask import Blueprint, get_template_attribute, request
 from slugify import slugify
 
 from autonomous import log
+from models.images.map import Map
 from models.journal import JournalEntry
 from models.stories.event import Event
 from models.stories.quest import Quest
@@ -142,11 +144,12 @@ def maps_gallery():
 )
 def map_file_upload():
     user, obj, request_data = _loader()
-    log(request.files)
-    if "map" not in request.files:
+    if "map" not in request_data:
         return {"error": "No map file uploaded"}, 400
-    map_file = request.files["map"]
-    log(f"Received map file: {map_file}")
+    map_file_str = request_data["map"]
+    log(f"Received map file: {map_file_str}")
+    map_file = base64.b64decode(map_file_str)
+    obj.map = Map.from_file(map_file)
     obj.save()
     return get_template_attribute("shared/_map.html", "map")(user, obj)
 

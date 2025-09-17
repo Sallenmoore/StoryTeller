@@ -180,7 +180,7 @@ DUNGEON BACKSTORY
             self.map.save()
             log("converted to map", self.map, _print=True)
         elif self.map and not self.map.tags:
-            self.map.tags = self.map_tags
+            self.map.tags = [*self.image_tags, "map"]
             self.map.save()
 
         if self.map and self not in self.map.associations:
