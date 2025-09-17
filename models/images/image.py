@@ -101,7 +101,6 @@ IMPORTANT: The image MUST NOT contain any TEXT.
     @classmethod
     def from_file(cls, file, prompt="", tags=None):
         tags = tags if tags else []
-        log(file)
         try:
             with ImageTools.open(io.BytesIO(file)) as img:
                 img = img.copy()

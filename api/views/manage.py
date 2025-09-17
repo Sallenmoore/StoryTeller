@@ -147,7 +147,6 @@ def map_file_upload():
     if "map" not in request_data:
         return {"error": "No map file uploaded"}, 400
     map_file_str = request_data["map"]
-    log(f"Received map file: {map_file_str}")
     map_file = base64.b64decode(map_file_str)
     obj.map = Map.from_file(map_file)
     obj.save()
