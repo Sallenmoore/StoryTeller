@@ -1,8 +1,120 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
 
+
 {% macro associations(user, obj, associations) -%}
-<title>{{obj.name}} - Associations</title>
+    <div id="associations-container">
+        {{ add_existing_association(user, obj) }}
+        {{ create_new_association(user, obj) }}
+        {{ current_associations(user, obj) }}
+    </div>
+{%- endmacro%}
+
+
+<!-- list current associations -->
+{% macro current_associations(user, obj) -%}
+    {% for child in obj.world.all_models() %}
+        {% set group = obj[child.__name__ | lower ~ "s"] %}
+        {% if group %}
+            {{dsp_association_group(user, obj, group, obj.world.get_title(child))}}
+        {% endif %}
+    {% endfor %}
+{%- endmacro%}
+
+<!-- add a new association -->
+{% macro add_existing_association(user, obj) -%}
+<h3>Associate an Existing Object</h3>
+    <!-- search -->
+    <div class="cell small-12 medium-6 align-self-middle" hx-indicator="#request-indicator">
+        <div class="input-group">
+            <input type="text" autocomplete="off" class="input-group-field"
+                placeholder="search"
+                   type="search" name="query" hx-post="/api/manage/association/add/search" hx-target="#association-search"
+                   hx-trigger="input delay:750ms, search"
+                   hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <div class="input-group-button"><button class="button">{{icon_components.search('1.25rem')}}</button></div>
+        </div>
+        <ul id="association-search"></ul>
+    </div>
+{%- endmacro%}
+
+{% macro create_new_association(user, obj) -%}
+    <h3>Create a New Object to Associate</h3>
+        <div class="input-group">
+            <select onchange='document.getElementById("create-new-obj").setAttribute("hx-post", "/api/manage/add/" + this.value);'>
+                <option></option>
+                {% for child in obj.world.all_models() %}
+                    <option value="{{child.__name__ | lower}}">{{obj.world.get_title(child)}}</option>
+                {% endfor %}
+            </select>
+            <div class="input-group-button">
+                <button class="button" id="create-new-obj" 
+        hx-post="/api/manage/add/shop" 
+        hx-target="#associations-container" 
+        hx-select="#associations-container" 
+        hx-swap="outerHTML" 
+        hx-indicator="#request-indicator">{{icon_components.link('1rem')}}
+        </button>
+            </div>
+        </div>
+
+<h3>{{title}}</h3>
+<div class="grid-x grid-padding-x">
+    {% for item in items %}
+        {{display_components.dsp_object_thumbnail(item, type=False, dim=250)}}
+        {{ button ('Unlink Me', 'heirarchy', "/api/manage/unassociate/" + item.path) }}
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+<!-- show associations by group -->
+{% macro dsp_association_group(user, obj, items, title) -%}
+<h3>{{title}}</h3>
+<div class="grid-x grid-padding-x">
+    {% for item in items %}
+        <div class="cell small-6 large-3">
+            {{display_components.dsp_object_thumbnail(item, type=False, dim=100)}}
+            {{ button ('Unlinky', 'heirarchy', "/api/manage/unassociate/" + item.path) }}
+        </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+<!-- display all associations -->
+
+{% macro dsp_all_associations(user, obj) -%}
+    {% for child in obj.world.all_models() %}
+        {% set group = obj[child.__name__ | lower ~ "s"] %}
+        {% if group %}
+            {{dsp_association_group(user, obj, group, obj.world.get_title(child))}}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}
+
+{% macro dsp_all_associations_old(user, obj) -%}
+    {% set related = { 
+        "characters": "Characters",
+        "encounters": "Encounters",
+        "items": "Items",
+        "locations": "Locations",
+        "districts": "Districts",
+        "cities": "Cities",
+        "regions": "Regions",
+        "shops": "Shops",
+        "creatures": "Creatures",
+        "vehicles": "Vehicles",
+        "factions": "Factions",
+    } %}
+
+    {% for attr, title in related.items() %}
+        {% if obj[attr] %}
+            {{ dsp_association_group(user, obj, obj[attr], title) }}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}
+
+{% macro associations_org(user, obj, associations) -%}
 
 <h2>Associations</h2>
 {% if obj.model_name() != "World"%}
@@ -98,7 +210,8 @@
     </div>
 </div>
 <hr>
-<div id='associations-container'>
+
+<div id="associations-container">
     <div id="related-objects" class="row has-space-around">
         {% if obj.model_name() != "World"%}
         {% if obj.parent|default(false) %}
@@ -114,7 +227,7 @@
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
                             {{icon_components.unlink(size="1rem")}}
-                            <span style="font-size:0.5rem">Unlink</span>
+                            <span style="font-size:0.5rem">Unlink Me</span>
                         </button>
                     </div>
                 </div>
@@ -124,7 +237,7 @@
         {% endif %}
         {% for a in obj.children %}
         <div
-             class="column is-3 is-mobile-6 is-desktop-2 card-container
+             class="column is-3 is-mobile-6 is-desktop-2 card-container"
                 {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
             <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
@@ -155,49 +268,28 @@
                 {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
             <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
-                {{display_components.object_display(a)}}
+                {{display_components.object_display(a)}}<span>disp</span>
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
-                <div class="row has-space-around">
-                    {% if obj.model_name() in a.parent_list|default([]) and obj !=
-                    a.parent|default(false) %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
-                                hx-post="/api/manage/parent/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.down(size="1rem")}}
-                            <span style="font-size:0.5rem">is child</span>
-                        </button>
-                    </div>
+
+                    <!-- get kids? -->
+                    {% if obj.model_name() in a.parent_list|default([]) and obj != a.parent|default(false) %}
+                        {{ button ('is child', 'down', "/api/manage/parent/" + a.path, '{"module":"_pages.html", "macro":"associations"}')}}
                     {% endif %}
-                    {% if a.model_name() in obj.parent_list|default([]) and a !=
-                    obj.parent|default(false) %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
-                                hx-post="/api/manage/child/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.heirarchy(size="1rem")}}
-                            <span style="font-size:0.5rem">is parent</span>
-                        </button>
-                    </div>
+
+                    <!-- get parents? -->
+                    {% if a.model_name() in obj.parent_list|default([]) and a != obj.parent|default(false) %}
+                        {{ button ('is parent', 'heirarchy', "/api/manage/child/" + a.path, '{"module":"_pages.html", "macro":"associations"}')}}
                     {% endif %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
+
                         <button class="button is-small is-primary"
                                 hx-post="/api/manage/unassociate/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
-                            {{icon_components.unlink(size="1rem")}}
-                            <span style="font-size:0.5rem">Unlink</span>
+                            {{icon_components.unlink(size="1rem")}} Unlink
                         </button>
-                    </div>
-                </div>
+
                 {% endif %}
             </div>
         </div>
@@ -205,6 +297,17 @@
         {% endfor %}
     </div>
 </div>
+{%- endmacro %}
+
+{% macro button (name, icon, post, vals) -%}
+<button class="button small"
+        hx-post="{{post}}"
+        hx-target="#associations-container"
+        hx-select="#associations-container"
+        {% if vals %} hx-vals='{{vals}}' {% endif %}
+        hx-indicator='#request-indicator'>
+    {{icon_components[icon](size="1rem")}} {{name}}
+</button>
 {%- endmacro %}
 
 {% macro association_dropdown(user, obj, objs=[]) -%}

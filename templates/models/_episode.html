@@ -1,4 +1,4 @@
-{% import "shared/_display.html" as display_components %}
+{% import "shared/_display.html" as display %}
 {% import "manage/_episode.html" as manage_episode_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_details.html" as details_components %}
@@ -6,68 +6,21 @@
 {% import "shared/_title.html" as title_components %}
 
 {% macro index(user, obj) -%}
-{{details(user, obj)}}
+    {{overview(user, obj)}}
 {%- endmacro %}
 
 <!-- unique menu items for campaigns -->
 {% macro menu(user, obj) -%}
 <ul class="menu__list">
     <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/details">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
-            </div>
-        </a>
+        <a href="/api/{{obj.path}}/details"> {{icon_components.details(size="1rem")}} Details</a>
     </li>
     <li>
-        <a href="/{{obj.campaign.path}}">
-            <div class="row">
-                <div id='menu-campaign-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaigns(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-campaign-anchor', {
-                        content: 'Campaign',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Campaign</span>
-                </div>
-            </div>
-        </a>
+        <a href="/{{obj.campaign.path}}">{{icon_components.campaigns(size="1rem")}} Campaign</a>
     </li>
 </ul>
 {%- endmacro %}
 
-{% macro details(user, obj) -%}
-{{title_components.object_title(user, obj)}}
-{{details_components.details(user, obj)}}
-{%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
@@ -76,37 +29,55 @@
 {%- endmacro %}
 
 <!-- episode display -->
-{% macro info(user, obj) -%}
+{% macro overview(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
 <div id="episode-info" class="grid-x grid-padding-x">
-    <div class="cell small-12">
-        <h2>Episode Overview</h2>
-    </div>
     <div class="story cell small-12 medium-7">
-        <p>{{obj.summary | safe}}</p>
-
+        <p>{{obj.episode_report | safe}}</p>
     </div>
-    <div class="related-panel cell small-12 medium-4 large-offset-1">
-        {% if obj.image %}
-        <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
-        {% endif %}
 
-        <table id="demographics">
-            <tr>
-                <th>Name</th>
-                <td>{{obj.name or obj.title}}</td>
-            </tr>
-            <tr>
-                <th></th>
-                <td>{{obj.start_date}}</td>
-            </tr>
-            <tr>
-                <th></th>
-                <td>{%if obj.end_date.year > 0 %}{{obj.end_date}}{% endif %}</td>
-            </tr>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {{ display.dsp_object_image(obj,'400') }}
+
+        <table>
+            <tr><th>Campaign</th><td><a href="/{{obj.campaign.path}}">{{obj.campaign.name}}</a></td></tr>
+            <tr><th>Episode #</th><td>{{obj.episode_num}}</td></tr>
+            <tr><th>Start Date</th><td>{{obj.start_date}}</td></tr>
+            <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
         </table>
+
+        {{ episode_selector(obj) }}
+
+        <h2>Associations</h2>
+        {{ display.dsp_all_associations(user, obj) }}
+
+
     </div>
 </div>
+{%- endmacro %}
+
+{% macro episode_selector(obj) -%}
+<script>
+    function goToEpisode(el) {
+        var episode_id = el.options[el.selectedIndex].value;
+        window.location.href = '/episode/' + episode_id;
+    }
+</script>
+<select id="episode-select" name="episodepk" onchange="goToEpisode(this);">
+    <option value="">==Select Episode==</option>
+    {% for ep in obj.campaign.episodes %}
+    <option value="{{ep.pk}}" {%if obj.pk and
+            ep.pk==obj.pk %} selected {% endif %}>
+            {{ep.episode_num}}: {{ep.name}}
+    </option>
+    {% endfor %}
+</select>
+{%- endmacro %}
+
+
+{% macro details(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{details_components.details(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
@@ -115,6 +86,5 @@
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_episode_components.manage(user, obj) }}
 {%- endmacro %}

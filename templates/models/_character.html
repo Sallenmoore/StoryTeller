@@ -1,7 +1,7 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display %}
 {% import "shared/_abilities.html" as abilities %}
-{% import "shared/_icons.html" as icons %}
+{% import "shared/_icons.html" as icon_components %}
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_details.html" as details_components %}
 {% import "shared/_timeline.html" as timeline_components %}
@@ -12,285 +12,56 @@
 {% import "manage/_character.html" as manage_character_components %}
 {% import "shared/_title.html" as title_components %}
 
-
+<!-- default action -->
 {% macro index(user, obj) -%}
-{{history(user, obj)}}
+    {{overview(user, obj)}}
 {%- endmacro %}
 
 <!-- unique menu items for character -->
 {% macro menu(user, obj) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/details">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/history"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/history">
-            <div class="row">
-                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.history(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-history-anchor', {
-                        content: 'History',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>History</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/timeline"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/timeline">
-            <div class="row">
-                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.timeline(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-timeline-anchor', {
-                        content: 'Timeline',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Timeline</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/campaigns"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/campaigns">
-            <div class="row">
-                <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaigns(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-campaigns-anchor', {
-                        content: 'Campaigns',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Campaigns</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    {% if user.world_user(obj) %}
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/stories"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/stories">
-            <div class="row">
-                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.story(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-stories-anchor', {
-                        content: 'Stories',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Stories</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/journal">
-            <div class="row">
-                <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.journal(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-journal-anchor', {
-                        content: 'Journal',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Journal</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    {% endif %}
-</ul>
-    <li><a href="/{{obj.path}}/gameplay">{{icons.campaigns(size="1rem")}} Game Play</a></li>
+    <li><a href="/{{obj.path}}/gameplay">{{icon_components.campaigns(size="1rem")}} Game Play</a></li>
 {%- endmacro %}
 
-{% macro history(user, obj) -%}
-{{title_components.object_title(user, obj)}}
-{{history_components.history(user, obj)}}
+<!-- link to manage -->
+{% macro manage(user, obj) -%}
+    <!-- Character Model -->
+    {{ manage_character_components.manage(user, obj) }}
+    <p>Hello</p>
 {%- endmacro %}
 
-{% macro details(user, obj) -%}
-{{title_components.object_title(user, obj)}}
-{{details_components.details(user, obj)}}
-{%- endmacro %}
 
-{% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
-    <h3 class='has-text-center'>GM Notes</h3>
-    <div class="row">
-        <div class="column is-half">
-            <h5> Details</h5>
-            <div class="panel">
-                <ul>
-                    <li>{{obj.description_summary | safe}}</li>
-                    {% for sd in obj.sensory_details %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="column">
-            <h5>Look-A-Like</h5>
-            <div class="panel">
-                {{obj.lookalike | safe}}
-            </div>
-        </div>
-        <div class="column">
-            <h5>Voice</h5>
-            <div class="panel">
-                {{obj.voice_description | safe}}
-            </div>
-        </div>
-        {% if obj.quests %}
-        <div class="column is-full">
-            <h5>Hooks</h5>
-            <div class="panel">
-                <ul>
-                    {% for q in obj.quests %}
-                    <li>
-                        {{ q.summary | safe }}
-                        <hr class='has-bg-primary'>
-                        {{ q.hook | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
-        <div class="column is-full">
-            <h5>Rumors</h5>
-            <div class="panel">
-                <ul>
-                    {% for r in obj.rumors %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+<!-- display character overview -->
+{% macro overview(user, obj) -%}
+<title>{{obj.name or obj.title}} - Overview</title>
+<div id="{{obj.model_name()}}-overview" class="grid-x grid-padding-x">
+    <div class="cell small-12"><h2>{{obj.model_name()}} Overview</h2></div>
+    <div class="story cell small-12 medium-7">
+        {{obj.backstory | safe}}
+
+        <h2>History</h2>
+        {{obj.history | safe}}
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {{ display.dsp_object_image(obj,'400') }}
+
+        {{ demographics(user, obj) }}
+        
+        <h2>Associations</h2>
+        {{ display.dsp_all_associations(user, obj) }}
     </div>
 </div>
 {%- endmacro %}
 
-<!-- character display -->
-{% macro info(user, obj) -%}
-    <title>{{obj.name or obj.title}} - Details</title>
-    <div id="character-info" class="grid-x grid-padding-x">
-        <div class="cell small-12"><h2>Character Overview</h2></div>
-        <div class="story cell small-12 medium-7">
-            <p>{{obj.backstory | safe}}</p>
-
-            <h3>History</h3>
-            {{obj.history | safe}}
-            
-            {% if obj.goal %}
-                <h3>Goals and Secrets</h3>
-                {{obj.goal | safe}}
-            {% endif %}
-        </div>
-        <div class="related-panel cell small-12 medium-4 large-offset-1">
-            {% if obj.image %}
-                <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
-            {% endif %}
-
-            {{demographics(obj)}}
-
-            <h2>Associations</h2>
-            {{ display.dsp_all_associations(user, obj) }}
-        </div>
-    </div>
-{%- endmacro %}
-
+<!-- display character gameplay -->
 {% macro gameplay(user, obj) -%}
 <title>{{obj.name or obj.title}} - Gameplay</title>
 <div id="character-game" class="grid-x grid-padding-x">
     <div class="cell small-12">
-        <h2>Game Info</h2>
-        {{gm_notes(user, obj)}}
+        <h2>GM Notes</h2>
+        {{ gm_notes(user, obj) }}
+    </div>
+    <div class="cell small-12">
+        <h2>Gameplay</h2>
     </div>
     <div class="main-panel cell small-12 medium-8">
         {% if obj.abilities %}
@@ -299,39 +70,120 @@
         {% endif %}
     </div>
     <div class="side-panel cell small-12 medium-4">
-        {{stats(obj)}}
-        {{skills(obj)}}
+        {{ stats(obj) }}
+        {{ skills(obj) }}
     </div>
 </div>
 {%- endmacro %}
 
-<!-- characters have gameplay and other details -->
-{% macro manage_extended_details(user, obj) -%}
-    <div id="character-game" class="grid-x grid-padding-x">
-        <div class="cell small-12">
-            <h2>Game Info</h2>
-            <!-- DND Beyond Info -->
-            <button class="button"
-                    hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
-                    hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif%}
-                    hx-indicator="#request-indicator">
-                Updates from D&DBeyond
-            </button>
-            {% if not obj.dnd_beyond_id %}
-                <small>Must be a 'player' and have DnDBeyond ID set</small>
-            {% endif %}
+<!-- display GM notes-->
+{% macro gm_notes(user, obj) -%}
+<div class="grid-x grid-padding-x">
+    <div class="story cell small-12 medium-7">
+        <h3>Goals and Secrets</h3>
+        <p>{{obj.goal | safe}}</p>
 
-            {{update_gm_notes(user, obj)}}
+        <h3>Hooks</h3>
+        {% for q in obj.quests %}
+        <div class="card">
+            <div class="card-divider">{{ q.hook | safe }}</div>
+            <div class="card-section">{{ q.summary | safe }}</div>
         </div>
+        {% endfor %}
 
-        <div class="side-panel cell small-12 medium-3">
-            {{update_skills(user, obj)}}
+        <h3>Rumors</h3>
+        {% for r in obj.rumors %}
+        <div class="card">
+            <div class="card-divider">{{ r | safe }}</div>
         </div>
-        <div class="side-panel cell small-12 medium-9">
-            {{update_stats(user, obj)}}
-            {{abilities.edit_abilities(user, obj)}}
-        </div>
+        {% endfor %}
     </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        {{ display.dsp_object_image(obj,'400') }}
+        <table>
+            <tr><th>Details</th><td>
+            {{obj.description_summary | safe}}
+            {% for sd in obj.sensory_details %}
+            <li>{{ sd | safe }}</li>
+            {% endfor %}
+            </td></tr>
+            <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
+            <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
+        </table>
+    </div>
+</div>
+{%- endmacro %}
+
+<!-- display character demographics -->
+{% macro demographics(user, obj) -%}
+    <table id="demographics">
+        <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
+        <tr><th>{{display.dsp_object_lifetime(obj,"start")}}</th><td>{{obj.start_date}} </td></tr>
+    {% if obj.end_date and obj.end_date.year > 0 %}
+        <tr><th>{{display.dsp_object_lifetime(obj,"end")}}</th><td>{{obj.end_date}}</td></tr>
+    {% endif %}
+        <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
+        <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
+        <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
+        <tr><th>Gender</th><td>{{obj.gender or "Unknown"}}</td></tr>
+        <tr><th>Occupation</th><td>{{obj.occupation or "Unknown"}}</td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- display ability stats -->
+{% macro stats(obj) -%}
+    <h3>Stats</h3>
+    <table>
+        <tr>
+            <th>STR</th>
+            <th>DEX</th>
+            <th>INT</th>
+            <th>WIS</th>
+            <th>CHA</th>
+            <th>CON</th>
+        </tr>
+        <tr>
+            <td>{{obj.strength}} ({{(obj.strength|int-10)//2}})</td>
+            <td>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</td>
+            <td>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</td>
+            <td>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</td>
+            <td>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</td>
+            <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
+        </tr>
+    </table>
+
+    <table id="ac-hp">
+        <tr><th>AC</th><td>{{obj.ac}}</td></tr>
+        <tr><th>HP</th><td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- display special skills -->
+{% macro skills(obj) -%}
+    {% if obj.skills %}
+        <h3>Skills</h3>
+        <div class="grid-x grid-margin-x">
+        {% for skill, val in obj.skills.items() %}
+            
+        <table class="cell auto"><tr><th>{{skill}}</th><td>{{val}}</td></tr></table>
+        {% endfor %}
+        </div>
+    {%endif%}
+{%- endmacro %}
+
+
+
+
+
+<!-- are these needed ?????? -->
+
+{% macro history(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{history_components.history(user, obj)}}
+{%- endmacro %}
+
+{% macro details(user, obj) -%}
+{{details_components.details(user, obj)}}
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}
@@ -355,84 +207,5 @@
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
-{{title_components.object_title(user, obj)}}
 {{associations_components.associations(user, obj, associations)}}
-{%- endmacro %}
-
-<!-- display special skills -->
-{% macro skills(obj) -%}
-    {% if obj.skills %}
-        <h3>Skills</h3>
-        <div class="grid-x grid-margin-x">
-        {% for skill, val in obj.skills.items() %}
-            <table class="cell auto"><tr><th>{{skill}}</th><td>{{val}}</td></tr></table>
-        {% endfor %}
-        </div>
-    {%endif%}
-{%- endmacro %}
-
-{% macro update_skills(user, obj) -%}
-    <h3>Skills</h3>
-    <table class="no-pad">
-    {% for skill, val in obj.skills.items() %}
-        <tr>
-            <th>{{skill}}</th>
-            <td><input type="number" value="{{val}}" name="skills.{{skill}}"></td>
-        </tr>
-    {% endfor %}
-    </table>
-{%- endmacro %}
-
-<!-- display GM notes-->
-{% macro gm_notes(user, obj) -%}
-    <h3>GM Notes</h3>
-    <table id="gm-notes">
-        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
-        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
-        <tr><th>Hooks</th><td>
-            {% for q in obj.quests %}
-                {{ q.summary | safe }}
-                <hr>
-                {{ q.hook | safe }}
-            {% endfor %}
-        </td></tr>
-        <tr><th>Rumors</th><td>
-            {% for r in obj.rumors %}
-                {{ r | safe }}
-            {% endfor %}
-        </td></tr>
-        <tr><th>Goals and Secrets</th><td>{{obj.goal | safe}}</td></tr>
-    </table>
-{%- endmacro %}
-
-<!-- display GM notes-->
-{% macro update_gm_notes(user, obj) -%}
-    <h3>GM Notes</h3>
-    <table id="gm-notes">
-        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
-        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
-        <tr><th>Hooks</th><td>
-            {% for q in obj.quests %}
-                {{ q.summary | safe }}
-                <hr>
-                {{ q.hook | safe }}
-            {% endfor %}
-        </td></tr>
-        <tr><th>Rumors</th><td>
-            {% for r in obj.rumors %}
-                {{ r | safe }}
-            {% endfor %}
-        </td></tr>
-        <tr><th>Goals and Secrets</th><td>{{obj.goal | safe}}</td></tr>
-
-
-        <label>Goals and Secrets
-            <input type="text" name="goal" value="{{obj.goal}}">
-        </label> 
-    </table>
-{%- endmacro %}
-
-{% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
-{{ manage_character_components.manage(user, obj) }}
 {%- endmacro %}

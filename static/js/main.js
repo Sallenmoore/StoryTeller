@@ -1,10 +1,11 @@
 // 📁 main.js
 import * as utility from "./utility.js";
 window.strip_html = utility.strip_html;
-//htmx.logAll();
+htmx.logAll();
 //===My document.ready() handler...
 document.body.addEventListener('htmx:configRequest', utility.process_form_values);
 htmx.onLoad(function (e) {
+    console.log('htmx done');
     //////////////////////   Show/Hide Back to Top Button  //////////////////////
     window.addEventListener('scroll', function () {
         var backToTopButton = document.getElementById("back-to-top");
@@ -16,4 +17,7 @@ htmx.onLoad(function (e) {
     });
 });
 
+function load(){
+    console.log('htmx loaded');
+}
 ///////// Configure editors ///////////

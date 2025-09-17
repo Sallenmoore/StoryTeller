@@ -189,7 +189,12 @@
 {%- endmacro %}
 
 {% macro richtexteditor(user, obj, attr, content=None, limit=0, name="") -%}
-<textarea id="edit-{{obj.pk}}-{{attr}}" name="{{name or attr}}">
+<textarea id="edit-{{obj.pk}}-{{attr}}" 
+    name="{{name or attr}}" 
+    data-model="{{obj.__class__.__name__.lower()}}"
+    data-user="{{user.pk}}"
+    data-pk="{{obj.pk}}"
+    class="rich-text">
     {% if not (content is none) %}
         {{content | string |  safe}}
     {% elif obj %}

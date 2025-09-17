@@ -4,7 +4,6 @@
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
-{{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row has-space-around">
@@ -34,6 +33,5 @@
         {{form_components.texteditor(user, obj, "religion")}}
     </div>
 </form>
-{{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

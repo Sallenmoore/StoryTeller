@@ -61,7 +61,7 @@ def update():
                 script.decompose()
             value = parser.prettify()
         if hasattr(obj, attr):
-            # log(f"setting {attr} to {value}")
+            log(f"setting {attr} to {value}")
             setattr(obj, attr, value)
         else:
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")

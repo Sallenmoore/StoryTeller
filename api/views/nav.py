@@ -59,7 +59,7 @@ def navsearch():
 def mentionlookupsearch():
     user, obj, world, *_ = _loader()
     query = request.json.get("query")
-    results = world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
 
     response=[]
     for item in results:

@@ -51,9 +51,9 @@
             <h1>{{obj.name or obj.title}}</h1>
         </a>-->
     </div>
-    {% if user.world_user(obj.get_world()) %}
+    {% if user.world_user(obj) %}
     <div class="cell small-12 medium-1 float-right">
-        <a href="/manage/{{obj.path}}">{{icon_components.gear('2rem')}}</a>
+        <a href="/{{obj.path}}/manage">{{icon_components.gear('2rem')}}</a>
     </div>
     {% endif %}
 </div>

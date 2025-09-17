@@ -17,7 +17,7 @@
 {{history(user, obj)}}
 {%- endmacro %}
 
-{% macro menu(user, obj) -%}
+{% macro menuold(user, obj) -%}
 <ul class="menu__list">
     <li>
         <a href="" class="menu-anchor"
@@ -368,6 +368,5 @@
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_city_components.manage(user, obj) }}
 {%- endmacro %}

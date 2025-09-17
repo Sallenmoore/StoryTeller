@@ -1,309 +1,158 @@
 {% import "shared/_form.html" as form_components %}
-{% import "shared/_display.html" as display_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "shared/_associations.html" as associations %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_manage.html" as manage_components %}
+{% import "shared/_display.html" as display %}
 
+<!-- manage -->
 {% macro manage(user, obj) -%}
-{{manage_components.manage(user, obj)}}
-{{manage_components.dates(user, obj)}}
-<form hx-post="/api/manage/update"
-      hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary'>Player/NPC</h4>
-            <div class="is-select">
-                <select class="has-no-border" name="is_player">
-                    <option value="False">NPC</option>
-                    <option value="True" {%if obj.is_player%} selected {%endif%}>Player</option>
-                </select>
-            </div>
+    <!-- Character Manage -->
+    {{ basic_details(user, obj) }}
+    {{ extended_details(user, obj) }}
+{%- endmacro %}
+
+
+<!-- basics -->
+{% macro basic_details(user, obj) -%}
+<div id="{{obj.model_name()}}-manage" class="grid-x grid-padding-x">
+    <div class="story cell small-12 medium-7">
+        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        {{ manage_components.ai_buttons(obj) }}
+        
+            <label>Name
+                <input id="model-name" type="text" name="name"
+                    value="{{obj.name}}"
+                    onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+                    oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+            </label>
+
+            {{manage_components.dates(obj)}}
+
+            <label>Theme/Traits
+                <textarea name="traits" style="height: 6rem;">{{obj.traits}}</textarea>
+            </label>
+
+        {{ manage_components.backstory(user, obj)}}
+    </form>
+    </div>
+    <div class="related-panel cell small-12 medium-4 large-offset-1">
+        <!-- replace this with link -->{{ display.dsp_object_image(obj,'400') }}
+
+        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        {{ update_demographics(obj) }}
+        </form>
+        
+        <h2>Associations</h2>
+
+        associations.add_existing_association(user, obj)
+    associations.current_associations(user, obj)
+
+    </div>
+</div>
+{%- endmacro %}
+
+<!-- characters have gameplay and other details -->
+{% macro extended_details(user, obj) -%}
+    <div id="character-game" class="grid-x grid-padding-x">
+        <div class="cell small-12">
+            <h2>Game Info</h2>
+            <!-- DND Beyond Info -->
+            <button class="button"
+                    hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
+                    hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif%}
+                    hx-indicator="#request-indicator">
+                Updates from D&DBeyond
+            </button>
+            {% if not obj.dnd_beyond_id %}
+                <small>Must be a 'player' and have DnDBeyond ID set</small>
+            {% endif %}
+
+            {{update_gm_notes(user, obj)}}
         </div>
-        {% if obj.is_player %}
-        <div class="column is-shrink " id="dnd-beyond-id-input-container">
-            <h4 class='has-text-center has-text-primary'>D&DBeyond ID</h4>
-            <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
+
+        <div class="side-panel cell small-12 medium-3">
+            {{update_skills(obj)}}
         </div>
-        {% endif %}
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Status</h4>
-            <input type="text" value="{{obj.status}}" name="status">
-        </div>
-        <div class="column is-4">
-            <h4 class='has-text-primary'>Look-A-Like</h4>
-            <input type="text" value="{{obj.lookalike}}" name="lookalike">
+        <div class="side-panel cell small-12 medium-9">
+            {{update_stats(obj)}}
+            abilities.edit_abilities(user, obj)
         </div>
     </div>
-    <hr>
-    <div class="row has-space-between">
-        <div class="column">
-            <h4 class="has-text-center has-text-primary">STR</h4>
-            <input class="has-text-center" type="text" value="{{obj.strength}}" name="strength">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">DEX</h4>
-            <input class="has-text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">INT</h4>
-            <input class="has-text-center" type="text" value="{{obj.intelligence}}"
-                   name="intelligence">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">WIS</h4>
-            <input class="has-text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CHA</h4>
-            <input class="has-text-center" type="text" value="{{obj.charisma}}" name="charisma">
-        </div>
-        <div class="column ">
-            <h4 class="has-text-center has-text-primary">CON</h4>
-            <input class="has-text-center" type="text" value="{{obj.constitution}}"
-                   name="constitution">
-        </div>
-    </div>
-    <div class="row has-space-around">
-        {% for skill, val in obj.skills.items() %}
-        <div class="column is-1 is-mobile-3">
-            <div class="panel has-bg-screen">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <input class="has-text-center" type="number" value="{{val}}"
-                       name="skills.{{skill}}">
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    <hr>
-    <div class="row has-space-around">
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
-            <input class="has-text-center" id="model-hitpoints" type="number"
-                   value="{{obj.hitpoints}}" name="hitpoints">
-        </div>
-        <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary' for="model-ac">AC</h4>
-            <input class="has-text-center" id="model-ac" type="number"
-                   value="{{obj.ac}}" name="ac">
-        </div>
-    </div>
-    <div class="row has-space-between">
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Species</h4>
-            <input type="text" value="{{obj.species}}" name="species">
-        </div>
-        <div class="column is-2">
-            <h4 class='has-text-primary'>Gender</h4>
-            <input type="text" value="{{obj.gender}}" name="gender">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-center has-text-primary'>Age</h4>
-            <input class="has-text-center" type="number" value="{{obj.age}}" name="age">
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Archetype</h4>
-            <select name="archetype">
-                {%for a in obj.system.classes.keys() %}
-                <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-primary'>Occupation</h4>
-            <select name="occupation">
+{%- endmacro %}
+
+<!-- update character demographics -->
+{% macro update_demographics(obj) -%}
+    <table id="demographics">
+        <tr><th>Age</th><td><input type="number" value="{{obj.age}}" name="age"></td></tr>
+        <tr><th>Species</th><td><input type="text" value="{{obj.species}}" name="species"></td></tr>
+        <tr><th>Class</th><td><select name="archetype">
+            {%for a in obj.system.classes.keys() %}
+            <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
+            {% endfor %}
+        </select></td></tr>
+        <tr><th>Gender</th><td><input type="text" value="{{obj.gender}}" name="gender"></td></tr>
+        <tr><th>Occupation</th><select name="occupation">
                 {%for k, v in obj.system.backgrounds.items() %}
                 <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
                 </option>
                 {% endfor %}
-            </select>
-        </div>
-
-    </div>
-    <hr>
-    <div class="row">
-        <div class="column">
-            <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
-            {{form_components.texteditor(user, obj, "goal")}}
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div id="model-wealth" class="column is-full">
-            <h3 class='has-text-center has-text-primary'>Wealth</h3>
-            {{form_components.listeditor(user, obj, "wealth")}}
-            <hr>
-        </div>
-        <div class="column is-full">
-            {{abilities_components.edit_abilities(user, obj)}}
-        </div>
-    </div>
-</form>
-{{manage_components.backstory(user, obj)}}
-{{manage_components.image(user, obj)}}
+            </select></td></tr>
+        <td>
+    </table>
 {%- endmacro %}
 
-{% macro quests(user, obj) -%}
-<div class="panel has-bg-screen">
-    <form hx-post="/api/manage/{{obj.pk}}/quest/create">
-        <div class="row has-space-around">
-            <div class="column">
-                <h3 class='has-text-muted'>Quest Board</h3>
-            </div>
-            <div class="column is-shrink">
-                <h5 class='has-text-muted'>Storyline</h5>
-            </div>
-            <div class="column is-4">
-                <div class="is-select">
-                    <select class="has-bg-muted select" name="storyline">
-                        {% for story in obj.world.stories %}
-                        <option value="{{story.pk}}">{{story.name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="column is-shrink is-vertically-centered">
-                <button class="button">
-                    Create New Quest
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
-<hr>
-<div class="accordian">
-    <ul class="accordion__list">
-        {% for entry in obj.quests %}
-        <li class="accordion__item ">
-            <a class="accordion__title" href="#quest-entry-{{obj.pk}}">
-                <div class="row has-space-between">
-                    <div class="column is-vertically-centered journal-entry-title"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class='has-text-dark'>{{entry.name}}</h3>
-                        <h5 class='has-text-dark'>{{entry.status}}</h5>
-                    </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/edit"
-                                hx-target="#page-content">
-                            Edit
-                        </button>
-                    </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/delete"
-                                hx-target='closest li'
-                                hx-swap="delete"
-                                hx-confirm='Are you sure you want to delete this entry?'>
-                            {{icon_components.trash(size="1rem")}}
-                        </button>
-                    </div>
-                </div>
-            </a>
-            <div class="accordion__content">
-                <hr class='has-bg-primary'>
-                <div class="panel has-bg-light-grey">
-                    <div class="row">
-                        <div class="column is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Summary</h4>
-                                {{entry.summary | safe}}
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Hook</h4>
-                                {{entry.hook | safe}}
-                            </div>
-                        </div>
-                        <div class="column is-full">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Description</h4>
-                                {{entry.description | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="column">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Antagonist</h4>
-                                {{entry.antagonist | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark has-text-center'>Scenes</h4>
-                        <ul class='has-no-list-style'>
-                            {% for scene in entry.scenes %}
-                            <li>
-                                <h5 class='has-text-dark has-text-center'>{{scene.type}}</h5>
-                                <b>SETUP:</b> {{scene.setup}}
-                                <ul>
-                                    <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
-                                    <li> <b>TASK:</b> {{scene.task}}</li>
-                                    <li> <b>STAKES:</b> {{scene.stakes}}</li>
-                                    <li>
-                                        <b>NPCs:</b>
-                                        <ul>
-                                            {% for npc in scene.npcs%}
-                                            <li>{{npc}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>INFORMATION:</b>
-                                        <ul>
-                                            {% for info in scene.information%}
-                                            <li>{{info}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>CHALLENGES:</b>
-                                        <ul>
-                                            {% for challenge in scene.challenges%}
-                                            <li> {{challenge}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li><b>RESOLUTION:</b> {{scene.resolution}}</li>
-                                    <li><b>REWARDS:</b> {{scene.rewards}}</li>
-                                </ul>
-                                <hr>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Plot Twists</h4>
-                        <ul>
-                            {% for twist in entry.plot_twists %}
-                            <li>{{twist}}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <hr>
-                    <hr>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Rewards</h4>
-                        {{entry.rewards | safe}}
-                    </div>
-                    <hr>
-                    <h4 class='has-text-dark has-text-center'>Associations</h4>
-                    <div class="row has-space-around">
-                        {% if entry.associations %}
-                        {% for ass in entry.associations %}
-                        <div class="column is-1">
-                            {{display_components.object_display(ass)}}
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-                <hr class='has-bg-primary'>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+<!-- update skills -->
+{% macro update_skills(obj) -%}
+    <h3>Skills</h3>
+    <table class="no-pad">
+    {% for skill, val in obj.skills.items() %}
+        <tr>
+            <th>{{skill}}</th>
+            <td><input type="number" value="{{val}}" name="skills.{{skill}}"></td>
+        </tr>
+    {% endfor %}
+    </table>
+{%- endmacro %}
+
+<!-- update ability stats -->
+{% macro update_stats(obj) -%}
+    <h3>Stats</h3>
+    <table>
+        <tr>
+            <th>STR</th>
+            <th>DEX</th>
+            <th>INT</th>
+            <th>WIS</th>
+            <th>CHA</th>
+            <th>CON</th>
+        </tr>
+        <tr>
+            <td><input type="number" value="{{obj.strength}}" name="strength"></td>
+            <td><input type="number" value="{{obj.dexterity}}" name="dexterity"></td>
+            <td><input type="number" value="{{obj.intelligence}}" name="intelligence"></td>
+            <td><input type="number" value="{{obj.wisdom}}" name="wisdom"></td>
+            <td><input type="number" value="{{obj.charisma}}" name="charisma"></td>
+            <td><input type="number" value="{{obj.constitution}}" name="constitution"></td>
+        </tr>
+    </table>
+
+    <table id="ac-hp">
+        <tr><th>AC</th>
+            <td><input type="number" value="{{obj.ac}}" name="ac"></td></tr>
+        <tr><th>HP</th>
+            <td><input type="number" value="{{obj.hitpoints}}" name="hitpoints"></td></tr>
+    </table>
+{%- endmacro %}
+
+<!-- update GM notes-->
+{% macro update_gm_notes(user, obj) -%}
+    <h3>GM Notes</h3>
+    <table id="gm-notes">
+        <tr><th style="width: 10em;">Look-A-Like</th>
+            <td><textarea name="lookalike">{{obj.lookalike | safe}}</textarea></td></tr>
+        <tr><th>Voice</th>
+            <td><textarea name="voice_description">{{obj.voice_description | safe}}</textarea></td></tr>
+        <tr><th>Goals and Secrets</th>
+            <td><textarea name="goal">{{obj.goal | safe}}</textarea></td></tr>
+    </table>
 {%- endmacro %}
