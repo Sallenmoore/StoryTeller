@@ -77,8 +77,8 @@
             <li><a href="/{{obj.path}}/map">{{icon_components.map(size="1rem")}} Map</a></li>
             {% endif %}
         
-            <!-- Object Menus -->
-            {{obj.snippet(user, 'menu') | safe}}
+            <!-- Object Menus 
+            {#{obj.snippet(user, 'menu') | safe}#}-->
 
         </ul>
     </div>

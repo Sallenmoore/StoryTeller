@@ -97,6 +97,14 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "Region"]
 
     @property
+    def report(self):
+        return self.episode_report
+
+    @report.setter
+    def report(self, value):
+        self.episode_report = value
+
+    @property
     def shops(self):
         return [a for a in self.associations if a.model_name() == "Shop"]
 
@@ -194,16 +202,6 @@ class Episode(AutoModel):
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
         self.save()
-
-    # /////////// HTML SNIPPET Methods ///////////
-    def snippet(self, user, macro, kwargs=None):
-        module = f"models/_{self.model_name().lower()}.html"
-        kwargs = kwargs or {}
-        try:
-            return get_template_attribute(module, macro)(user, self, **kwargs)
-        except Exception as e:
-            log(e)
-            return ""
 
     ## MARK: - Verification Hooks
     ###############################################################

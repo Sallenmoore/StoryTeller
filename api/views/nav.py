@@ -54,7 +54,7 @@ def navsearch():
 
 @nav_endpoint.route(
     "/mentions",
-    methods=("POST",),
+    methods=("POST","GET"),
 )
 def mentionlookupsearch():
     user, obj, world, *_ = _loader()
