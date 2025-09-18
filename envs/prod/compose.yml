@@ -48,13 +48,6 @@ services:
       test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
     logging:
       driver: none
-  db-express:
-    image: mongo-express:latest
-    ports:
-      - ${DBDEBUG_PORT}:8081
-    env_file: .env
-    depends_on:
-      - db
   tasks:
     image: ${APP_NAME}_tasks:latest
     build:

@@ -43,6 +43,4 @@ def loader(
         log(f"Error getting model: {e}")
         obj = None
     # log(obj)
-    # get world
-    world = obj.world if obj else None
     return user, obj, request_data

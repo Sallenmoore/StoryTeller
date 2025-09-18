@@ -17,15 +17,15 @@
 <div id="{{obj.model_name()}}-manage" class="grid-x grid-padding-x">
     <div class="story cell small-12 medium-7">
         {{ ai_buttons(obj) }}
-        
+
         <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
             <label>Name
                 <input id="model-name" type="text" name="name"
-                    value="{{obj.name}}"
-                    onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
-                    oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+                       value="{{obj.name}}"
+                       onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+                       oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
             </label>
-        
+
             <label>Theme/Traits
                 <textarea name="traits" style="height: 6rem;">{{obj.traits}}</textarea>
             </label>
@@ -41,14 +41,14 @@
         {{ display.dsp_object_image(obj,'400') }}
 
         <table></table>
-        
+
         <h2>Associations</h2>
         {{ display.dsp_all_associations(user, obj) }}
     </div>
 </div>
 
 
-    <!--
+<!--
     <div class="column is-shrink is-vertically-centered">
         <button class="button has-bg-dark has-text-primary"
                 hx-post="/api/manage/delete/{{obj.path}}"
@@ -63,50 +63,50 @@
 {%- endmacro %}
 
 {%macro backstory(user, obj) -%}
-        <h3>Backstory</h3>
+<h3>Backstory</h3>
 
-        <form method="post" action="/api/manage/update">
-        {{form_components.richtexteditor(user, obj, 'backstory')}}
-    </form>
+<form method="post" action="/api/manage/update">
+    {{form_components.richtexteditor(user, obj, 'backstory')}}
+</form>
 
 {% endmacro %}
 
 <!-- consistent code to update a start or end date -->
 {% macro manage_date (obj, pos) -%}
-    {% set field = pos + '_date' %}
-    <label>{{display.dsp_object_lifetime(obj,pos)}}
-        <div class="grid-x">
-            <div class="small-2">
-                <input type="number" name="{{field}}.day" placeholder='day'
-                value="{{obj[field].day}}">
-            </div>
-            <div class="small-7">
-                <select name="{{field}}.month">
-                    {% for m in obj.world.calendar.months %}
-                    <option value='{{m}}' {% if loop.index0==obj[field].month %}
-                            selected {% endif %}>{{m}}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="small-3">
-                <input type="number" name="{{field}}.year" placeholder='year' class="year"
-            value="{{obj[field].year}}">
-            </div>
+{% set field = pos + '_date' %}
+<label>{{display.dsp_object_lifetime(obj,pos)}}
+    <div class="grid-x">
+        <div class="small-2">
+            <input type="number" name="{{field}}.day" placeholder='day'
+                   value="{{obj[field].day}}">
         </div>
-    </label>
+        <div class="small-7">
+            <select name="{{field}}.month">
+                {% for m in obj.world.calendar.months %}
+                <option value='{{m}}' {% if loop.index0==obj[field].month %}
+                        selected {% endif %}>{{m}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="small-3">
+            <input type="number" name="{{field}}.year" placeholder='year' class="year"
+                   value="{{obj[field].year}}">
+        </div>
+    </div>
+</label>
 {% endmacro %}
 
 {%macro dates(obj) -%}
-    <form hx-post="/api/manage/update"
-        hx-swap="none" hx-trigger="input delay:1s, change">
-        <div class="grid-x">
-            <div class="small-6">
+<form hx-post="/api/manage/update"
+      hx-swap="none" hx-trigger="input delay:1s, change">
+    <div class="grid-x">
+        <div class="small-6">
             <label>{{display.dsp_object_lifetime(obj,"start")}}
                 <div class="grid-x">
                     <div class="small-2">
                         <input type="number" name="start_date.day" placeholder='day'
-                        value="{{obj.start_date.day}}">
+                               value="{{obj.start_date.day}}">
                     </div>
                     <div class="small-7">
                         <select name="start_date.month">
@@ -119,17 +119,17 @@
                     </div>
                     <div class="small-3">
                         <input type="number" name="start_date.year" placeholder='year' class="year"
-                    value="{{obj.start_date.year}}">
+                               value="{{obj.start_date.year}}">
                     </div>
                 </div>
             </label>
-            </div>
-            <div class="small-6">
+        </div>
+        <div class="small-6">
             <label>{{display.dsp_object_lifetime(obj,"end")}}
                 <div class="grid-x">
                     <div class="small-2">
                         <input type="number" name="end_date.day" placeholder='day'
-                        value="{{obj.end_date.day}}">
+                               value="{{obj.end_date.day}}">
                     </div>
                     <div class="small-7">
                         <select name="end_date.month">
@@ -142,7 +142,7 @@
                     </div>
                     <div class="small-3">
                         <input type="number" name="end_date.year" placeholder='year' class="year"
-                       value="{{obj.end_date.year}}">
+                               value="{{obj.end_date.year}}">
                     </div>
                 </div>
             </label>
@@ -161,11 +161,7 @@
                 <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
             </div>
             {% else %}
-            <div class="is-vertically-centered has-text-center" hx-post="/api/manage/{{obj.path}}"
-                 hx-trigger='load delay:5s' hx-target="#model-owner-image"
-                 hx-select="#model-owner-image" hx-swap="outerHTML">
-                <h5 class='has-text-dark'>No Image</h5>
-            </div>
+            <h5 class='has-text-dark'>No Image</h5>
             {% endif %}
         </div>
         <div class="column is-4">

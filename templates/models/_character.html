@@ -14,19 +14,19 @@
 
 <!-- default action -->
 {% macro index(user, obj) -%}
-    {{overview(user, obj)}}
+{{overview(user, obj)}}
 {%- endmacro %}
 
 <!-- unique menu items for character -->
 {% macro menu(user, obj) -%}
-    <li><a href="/{{obj.path}}/gameplay">{{icon_components.campaigns(size="1rem")}} Game Play</a></li>
+<li><a href="/{{obj.path}}/gameplay">{{icon_components.campaigns(size="1rem")}} Game Play</a></li>
 {%- endmacro %}
 
 <!-- link to manage -->
 {% macro manage(user, obj) -%}
-    <!-- Character Model -->
-    {{ manage_character_components.manage(user, obj) }}
-    <p>Hello</p>
+<!-- Character Model -->
+{{ manage_character_components.manage(user, obj) }}
+<p>Hello</p>
 {%- endmacro %}
 
 
@@ -34,21 +34,92 @@
 {% macro overview(user, obj) -%}
 <title>{{obj.name or obj.title}} - Overview</title>
 <div id="{{obj.model_name()}}-overview" class="grid-x grid-padding-x">
-    <div class="cell small-12"><h2>{{obj.model_name()}} Overview</h2></div>
+    <div class="cell small-12">
+        <h2>{{obj.model_name()}} Overview</h2>
+    </div>
     <div class="story cell small-12 medium-7">
         {{obj.backstory | safe}}
-
-        <h2>History</h2>
-        {{obj.history | safe}}
     </div>
-    <div class="related-panel cell small-12 medium-4 large-offset-1">
-        {{ display.dsp_object_image(obj,'400') }}
+</div>
+{%- endmacro %}
 
-        {{ demographics(user, obj) }}
-        
-        <h2>Associations</h2>
-        {{ display.dsp_all_associations(user, obj) }}
+
+{% macro gmnotes(user, obj) -%}
+<div id="gmnotes" class="panel has-bg-dark">
+    <h3 class='has-text-center has-text-light'>GM Notes</h3>
+    <div class="row">
+        <div class="column is-half">
+            <div class="panel has-bg-muted">
+                <h5> Details</h5>
+                <ul>
+                    <li>{{obj.description_summary | safe}}</li>
+                    {% for sd in obj.sensory_details %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="column is-half">
+            <div class="panel has-bg-muted">
+                <h5>Current Status</h5>
+                {{obj.status | safe}}
+            </div>
+        </div>
+        <div class="column">
+            <div class="panel has-bg-muted">
+                <h5>Look-A-Like</h5>
+                {{obj.lookalike | safe}}
+            </div>
+        </div>
+        <div class="column">
+            <div class="panel has-bg-muted">
+                <h5>Voice</h5>
+                {{obj.voice_description | safe}}
+            </div>
+        </div>
+        {% if obj.quests %}
+        <div class="column is-full">
+            <div class="panel has-bg-muted">
+                <h5>Hooks</h5>
+                <ul>
+                    {% for q in obj.quests %}
+                    <li>
+                        {{ q.summary | safe }}
+                        <hr class='has-bg-primary'>
+                        {{ q.hook | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        <div class="column is-full">
+            <div class="panel has-bg-muted">
+                <h5>Rumors</h5>
+                <ul>
+                    {% for r in obj.rumors %}
+                    <li>
+                        {{ r | safe }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
+</div>
+{%- endmacro %}
+
+<h2>History</h2>
+{{obj.history | safe}}
+</div>
+<div class="related-panel cell small-12 medium-4 large-offset-1">
+    {{ display.dsp_object_image(obj,'400') }}
+
+    {{ demographics(user, obj) }}
+
+    <h2>Associations</h2>
+    {{ display.dsp_all_associations(user, obj) }}
+</div>
 </div>
 {%- endmacro %}
 
@@ -65,8 +136,8 @@
     </div>
     <div class="main-panel cell small-12 medium-8">
         {% if obj.abilities %}
-            <h3>Abilities</h3>
-            {{abilities.dsp_abilities(user, obj)}}
+        <h3>Abilities</h3>
+        {{abilities.dsp_abilities(user, obj)}}
         {% endif %}
     </div>
     <div class="side-panel cell small-12 medium-4">
@@ -88,91 +159,156 @@
         <div class="card">
             <div class="card-divider">{{ q.hook | safe }}</div>
             <div class="card-section">{{ q.summary | safe }}</div>
-        </div>
-        {% endfor %}
+            =======
+            <div class='row has-space-around'>
+                <div class="column is-full is-mobile-full">
+                    <div class="row has-space-around">
+                        <div class="column is-shrink">
+                            <h4 class='has-text-screen'>Age</h4>
+                            {% if obj.age %}
+                            <p class="has-text-dark">{{obj.age}}</p>
+                            {% else%}
+                            <p class="has-text-dark">Unknown</p>
+                            {% endif %}
+                        </div>
+                        <div class="column is-shrink">
+                            <h4 class='has-text-screen'>Species</h4>
+                            <p class="has-text-dark">{{obj.species}}</p>
+                        </div>
+                        <div class="column is-shrink">
+                            <h4 class='has-text-screen'>Gender</h4>
+                            <p class="has-text-dark">{{obj.gender}}</p>
+                        </div>
+                        >>>>>>> main
+                    </div>
+                    {% endfor %}
 
-        <h3>Rumors</h3>
-        {% for r in obj.rumors %}
-        <div class="card">
-            <div class="card-divider">{{ r | safe }}</div>
+                    <h3>Rumors</h3>
+                    {% for r in obj.rumors %}
+                    <div class="card">
+                        <div class="card-divider">{{ r | safe }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="related-panel cell small-12 medium-4 large-offset-1">
+                    {{ display.dsp_object_image(obj,'400') }}
+                    <table>
+                        <tr>
+                            <th>Details</th>
+                            <td>
+                                {{obj.description_summary | safe}}
+                                {% for sd in obj.sensory_details %}
+                                <li>{{ sd | safe }}</li>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Look-A-Like</th>
+                            <td>{{obj.lookalike | safe}}</td>
+                        </tr>
+                        <tr>
+                            <th>Voice</th>
+                            <td>{{obj.voice_description | safe}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            {%- endmacro %}
+
+            <!-- display character demographics -->
+            {% macro demographics(user, obj) -%}
+            <table id="demographics">
+                <tr>
+                    <th>Name</th>
+                    <td>{{obj.name or obj.title}}</td>
+                </tr>
+                <tr>
+                    <th>{{display.dsp_object_lifetime(obj,"start")}}</th>
+                    <td>{{obj.start_date}} </td>
+                </tr>
+                {% if obj.end_date and obj.end_date.year > 0 %}
+                <tr>
+                    <th>{{display.dsp_object_lifetime(obj,"end")}}</th>
+                    <td>{{obj.end_date}}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Age</th>
+                    <td>{{ obj.age or "Unknown" }}</td>
+                </tr>
+                <tr>
+                    <th>Species</th>
+                    <td>{{obj.species or "Unknown"}}</td>
+                </tr>
+                <tr>
+                    <th>Class</th>
+                    <td>{{obj.archetype or "Unknown"}}</td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td>{{obj.gender or "Unknown"}}</td>
+                </tr>
+                <tr>
+                    <th>Occupation</th>
+                    <td>{{obj.occupation or "Unknown"}}</td>
+                </tr>
+            </table>
+            {%- endmacro %}
+
+            <!-- display ability stats -->
+            {% macro stats(obj) -%}
+            <h3>Stats</h3>
+            <table>
+                <tr>
+                    <th>STR</th>
+                    <th>DEX</th>
+                    <th>INT</th>
+                    <th>WIS</th>
+                    <th>CHA</th>
+                    <th>CON</th>
+                </tr>
+                <tr>
+                    <td>{{obj.strength}} ({{(obj.strength|int-10)//2}})</td>
+                    <td>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</td>
+                    <td>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</td>
+                    <td>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</td>
+                    <td>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</td>
+                    <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
+                </tr>
+            </table>
+
+            <table id="ac-hp">
+                <tr>
+                    <th>AC</th>
+                    <td>{{obj.ac}}</td>
+                </tr>
+                <tr>
+                    <th>HP</th>
+                    <td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td>
+                </tr>
+            </table>
+            {%- endmacro %}
+
+            <!-- display special skills -->
+            {% macro skills(obj) -%}
+            {% if obj.skills %}
+            <h3>Skills</h3>
+            <div class="grid-x grid-margin-x">
+                {% for skill, val in obj.skills.items() %}
+
+                <table class="cell auto">
+                    <tr>
+                        <th>{{skill}}</th>
+                        <td>{{val}}</td>
+                    </tr>
+                </table>
+                {% endfor %}
+            </div>
+            {%endif%}
         </div>
-        {% endfor %}
-    </div>
-    <div class="related-panel cell small-12 medium-4 large-offset-1">
-        {{ display.dsp_object_image(obj,'400') }}
-        <table>
-            <tr><th>Details</th><td>
-            {{obj.description_summary | safe}}
-            {% for sd in obj.sensory_details %}
-            <li>{{ sd | safe }}</li>
-            {% endfor %}
-            </td></tr>
-            <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
-            <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
-        </table>
     </div>
 </div>
 {%- endmacro %}
-
-<!-- display character demographics -->
-{% macro demographics(user, obj) -%}
-    <table id="demographics">
-        <tr><th>Name</th><td>{{obj.name or obj.title}}</td></tr>
-        <tr><th>{{display.dsp_object_lifetime(obj,"start")}}</th><td>{{obj.start_date}} </td></tr>
-    {% if obj.end_date and obj.end_date.year > 0 %}
-        <tr><th>{{display.dsp_object_lifetime(obj,"end")}}</th><td>{{obj.end_date}}</td></tr>
-    {% endif %}
-        <tr><th>Age</th><td>{{ obj.age or "Unknown" }}</td></tr>
-        <tr><th>Species</th><td>{{obj.species or "Unknown"}}</td></tr>
-        <tr><th>Class</th><td>{{obj.archetype or "Unknown"}}</td></tr>
-        <tr><th>Gender</th><td>{{obj.gender or "Unknown"}}</td></tr>
-        <tr><th>Occupation</th><td>{{obj.occupation or "Unknown"}}</td></tr>
-    </table>
-{%- endmacro %}
-
-<!-- display ability stats -->
-{% macro stats(obj) -%}
-    <h3>Stats</h3>
-    <table>
-        <tr>
-            <th>STR</th>
-            <th>DEX</th>
-            <th>INT</th>
-            <th>WIS</th>
-            <th>CHA</th>
-            <th>CON</th>
-        </tr>
-        <tr>
-            <td>{{obj.strength}} ({{(obj.strength|int-10)//2}})</td>
-            <td>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</td>
-            <td>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</td>
-            <td>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</td>
-            <td>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</td>
-            <td>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</td>
-        </tr>
-    </table>
-
-    <table id="ac-hp">
-        <tr><th>AC</th><td>{{obj.ac}}</td></tr>
-        <tr><th>HP</th><td>{{obj.current_hitpoints}} / {{obj.hitpoints}}</td></tr>
-    </table>
-{%- endmacro %}
-
-<!-- display special skills -->
-{% macro skills(obj) -%}
-    {% if obj.skills %}
-        <h3>Skills</h3>
-        <div class="grid-x grid-margin-x">
-        {% for skill, val in obj.skills.items() %}
-            
-        <table class="cell auto"><tr><th>{{skill}}</th><td>{{val}}</td></tr></table>
-        {% endfor %}
-        </div>
-    {%endif%}
-{%- endmacro %}
-
-
-
 
 
 <!-- are these needed ?????? -->

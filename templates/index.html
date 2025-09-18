@@ -23,10 +23,12 @@
               href="{{url_for('static', filename='images/favicon-16x16.png')}}">
 
         <!--------------------------- Vendor CSS libs ---------------------------->
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap"
+              rel="stylesheet">
 
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
@@ -38,81 +40,168 @@
               href="{{ url_for('static', filename='style/main.css') }}">-->
 
         <!--------------------------- Vendor JavaScript Libs ---------------------------->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-webcomponent@2/dist/tinymce-webcomponent.min.js"></script>
-        <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+                integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+                crossorigin="anonymous"></script>
+        <script
+                src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-webcomponent@2/dist/tinymce-webcomponent.min.js"></script>
+        <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"
+                referrerpolicy="origin"></script>
         <script src="{{ url_for('static', filename='js/sortable.js') }}"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.11"
+                integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0"
+                crossorigin="anonymous"></script>
         <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
         <script src="https://code.iconify.design/iconify-icon/1.0.3/iconify-icon.min.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                crossorigin=""></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
 
         <!-- Compressed CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css" crossorigin="anonymous">
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
+              crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.css" />
 
         <!-- Compressed JavaScript -->
-        <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
+                crossorigin="anonymous"></script>
 
         <style>
-            body { font-family: 'Rosarivo', serif; -webkit-font-smoothing: initial;}
-            .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-                font-family: 'Rosarivo'; }
-            .container { max-width: 75rem;
+            body {
+                font-family: 'Rosarivo', serif;
+                -webkit-font-smoothing: initial;
+            }
+
+            .h1,
+            .h2,
+            .h3,
+            .h4,
+            .h5,
+            .h6,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: 'Rosarivo';
+            }
+
+            .container {
+                max-width: 75rem;
                 margin-right: auto;
-                margin-left: auto; background-color: #eee;}
-            .main-panel { font-size: 1.2rem; }            
-            .side-panel { background-color: #ddd; }
-            
-            h2 { font-size: clamp(1.5rem, 2.25vw, 2.0rem); }
-            h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); }
-            h4 { font-size: clamp(1.1rem, 1.9vw, 1.3rem); }
-            h5 { font-size: clamp(1.05rem, 1.8vw, 1.2rem); }
-            h6 { font-size: clamp(1.0rem, 1.75vw, 1.1rem); }
-            
-            h2, h3, h4, h5, h6 {
+                margin-left: auto;
+                background-color: #eee;
+            }
+
+            .main-panel {
+                font-size: 1.2rem;
+            }
+
+            .side-panel {
+                background-color: #ddd;
+            }
+
+            h2 {
+                font-size: clamp(1.5rem, 2.25vw, 2.0rem);
+            }
+
+            h3 {
+                font-size: clamp(1.2rem, 2vw, 1.5rem);
+            }
+
+            h4 {
+                font-size: clamp(1.1rem, 1.9vw, 1.3rem);
+            }
+
+            h5 {
+                font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+            }
+
+            h6 {
+                font-size: clamp(1.0rem, 1.75vw, 1.1rem);
+            }
+
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
                 border-bottom: 1px solid #bbb;
                 text-align: center;
             }
+
             h2 {
                 margin: 2rem 0 1rem;
                 padding-top: 1rem;
                 border-top: .3rem solid;
             }
-            .accordion-title { font-size: inherit; }
-            table.ability {font-size: 90%;}
+
+            .accordion-title {
+                font-size: inherit;
+            }
+
+            table.ability {
+                font-size: 90%;
+            }
+
             .object-name {
                 font-family: 'Open Sans', sans-serif;
                 font-size: 0.75rem;
                 font-weight: 600;
                 text-align: center;
             }
+
             input[type="number"] {
-                width: 3em; text-align: center;
+                width: 3em;
+                text-align: center;
             }
+
             input.year {
                 width: 5em;
             }
-            #top-nav {background-color: #c3ddef;}
-            #object-title { background-color: #304350;}
-            #object-menu { background-color: #dee2e5;}
-            h1 { margin: .3em 0; color: white; }
+
+            #top-nav {
+                background-color: #c3ddef;
+            }
+
+            #object-title {
+                background-color: #304350;
+            }
+
+            #object-menu {
+                background-color: #dee2e5;
+            }
+
+            h1 {
+                margin: .3em 0;
+                color: white;
+            }
+
             #logo {
                 font-size: 2rem;
                 display: flex;
             }
+
             #nav-search {
                 position: absolute;
                 background: white;
             }
-            li.menu a { width: 100%; }
-            #sidenav { background-color: #efe;}
-                    </style>
-            
-                    <!-- JavaScript Libs -->
-                    <script type="importmap">
+
+            li.menu a {
+                width: 100%;
+            }
+
+            #sidenav {
+                background-color: #efe;
+            }
+        </style>
+
+        <!-- JavaScript Libs -->
+        <script type="importmap">
                       {
                         "imports": {
                           "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
@@ -120,9 +209,9 @@
                         }
                       }
                     </script>
-                    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-                    
+
         {% endblock %}
         {% block head_ext %}
         {% endblock %}
@@ -141,10 +230,12 @@
         </div>
 
         {% if obj %}
-        {# 
+        {#
         <div class="title-bar align-center">
-            <div class="align-middle"><a class="align-middle" style="display: flex; font-size: 1.5rem;" 
-                href="/{{obj.get_world().path}}">{{icon_components.world(size="2rem")}} &nbsp; {{obj.get_world().name}}</a>
+            <div class="align-middle"><a class="align-middle"
+                   style="display: flex; font-size: 1.5rem;"
+                   href="/{{obj.get_world().path}}">{{icon_components.world(size="2rem")}} &nbsp;
+                    {{obj.get_world().name}}</a>
             </div>
         </div>#}
 
@@ -158,18 +249,18 @@
         {% endif %}
 
         {% if page_url %}
-            <div  class="container pu" id="page-content"
-                    hx-get='/api{{page_url}}'
-                    hx-trigger='load'
-                    hx-indicator='#request-indicator'
-                    hx-push-url='{{page_url}}'>
-            </div>
+        <div class="container pu" id="page-content"
+             hx-get='/api{{page_url}}'
+             hx-trigger='load'
+             hx-indicator='#request-indicator'
+             hx-push-url='{{page_url}}'>
+        </div>
         {% endif %}
 
         <div class="image htmx-indicator has-text-muted has-bg-screen" id="request-indicator">
             <img src="/static/images/grid.svg" alt="loading">
         </div>
-        
+
         <footer style="height: 4rem;">
             <div class="row">
                 <div class="column">
@@ -186,32 +277,32 @@
     </body>
 
     <script>
-        $(function() {
+        $(function () {
             $(document).foundation();
             //chopMentions();
         });
         // also re-run foundation after htmx loads
-        document.addEventListener('htmx:afterSettle', function(evt) {
+        document.addEventListener('htmx:afterSettle', function (evt) {
             $(document).foundation();
             chopMentions();
             console.log(evt);
 
-const elements = document.querySelectorAll('.rich-text'); // Selects all elements with 'yourClassName'
+            const elements = document.querySelectorAll('.rich-text'); // Selects all elements with 'yourClassName'
 
-elements.forEach(element => {
-    const txteditors = [];
+            elements.forEach(element => {
+                const txteditors = [];
 
 
-    console.log(element.id); // Example: log the text content
-  element.style.backgroundColor = 'lightblue'; // Example: change background color
+                console.log(element.id); // Example: log the text content
+                element.style.backgroundColor = 'lightblue'; // Example: change background color
 
-    if(!txteditors.includes(element.id)) {
-       // createCK(element.id);
-        txteditors.push(element.id);
-    }
-  // Perform actions on each element here
-  
-});
+                if (!txteditors.includes(element.id)) {
+                    // createCK(element.id);
+                    txteditors.push(element.id);
+                }
+                // Perform actions on each element here
+
+            });
 
             //createCK('rich-text');
         });
@@ -280,7 +371,7 @@ elements.forEach(element => {
                                 minimumCharacters: 3
                             }
                         ],
-                    }, 
+                    },
                     autosave: {
                         waitingTime: 2000, // in ms
                         save(editor) {
@@ -291,19 +382,19 @@ elements.forEach(element => {
                             console.log(textarea);
                             console.log(textarea.name);
                             const data = {};
-                            data[textarea.name] = editor.getData(); 
+                            data[textarea.name] = editor.getData();
                             data['model'] = textarea.getAttribute('data-model');
                             data['user'] = textarea.getAttribute('data-user');
                             data['pk'] = textarea.getAttribute('data-pk');
-                           /* data['user'] = {{user.pk}};
-                            data['pk'] = {{obj.pk}};*/
+                            /* data['user'] = {{user.pk}};
+                             data['pk'] = {{obj.pk}};*/
 
                             console.log(data);
                             return saveCkData(data, el);
-                    /*
-                            //textarea.value = editor.getData();
-                            //htmx.process(textarea);
-                            //return saveData(editor.getData(), el);*/
+                            /*
+                                    //textarea.value = editor.getData();
+                                    //htmx.process(textarea);
+                                    //return saveData(editor.getData(), el);*/
                         }
                     },
                 })
@@ -348,7 +439,7 @@ elements.forEach(element => {
                     console.log('Saved', data);
                     //console.log( textarea.closest('form') );
                     //htmx.process(textarea.closest('form'));
-                    
+
                     */
 
                     resolve();
@@ -356,65 +447,65 @@ elements.forEach(element => {
             });
         }
 
-        function MentionCustomization( editor ) {
-	// The upcast converter will convert view <a class="mention" href="" data-user-id="">
-	// elements to the model 'mention' text attribute.
-	editor.conversion.for( 'upcast' ).elementToAttribute( {
-		view: {
-			name: 'a',
-			key: 'data-mention',
-			classes: 'mention',
-			attributes: {
-				href: true,
-				'data-obj-id': true
-			}
-		},
-		model: {
-			key: 'mention',
-			value: viewItem => {
-				// The mention feature expects that the mention attribute value
-				// in the model is a plain object with a set of additional attributes.
-				// In order to create a proper object use the toMentionAttribute() helper method:
-				const mentionAttribute = editor.plugins.get( 'Mention' ).toMentionAttribute( viewItem, {
-					// Add any other properties that you need.
-					link: viewItem.getAttribute( 'href' ),
-					pk: viewItem.getAttribute( 'data-obj-id' )
-				} );
+        function MentionCustomization(editor) {
+            // The upcast converter will convert view <a class="mention" href="" data-user-id="">
+            // elements to the model 'mention' text attribute.
+            editor.conversion.for('upcast').elementToAttribute({
+                view: {
+                    name: 'a',
+                    key: 'data-mention',
+                    classes: 'mention',
+                    attributes: {
+                        href: true,
+                        'data-obj-id': true
+                    }
+                },
+                model: {
+                    key: 'mention',
+                    value: viewItem => {
+                        // The mention feature expects that the mention attribute value
+                        // in the model is a plain object with a set of additional attributes.
+                        // In order to create a proper object use the toMentionAttribute() helper method:
+                        const mentionAttribute = editor.plugins.get('Mention').toMentionAttribute(viewItem, {
+                            // Add any other properties that you need.
+                            link: viewItem.getAttribute('href'),
+                            pk: viewItem.getAttribute('data-obj-id')
+                        });
 
-				return mentionAttribute;
-			}
-		},
-		converterPriority: 'high'
-	} );
+                        return mentionAttribute;
+                    }
+                },
+                converterPriority: 'high'
+            });
 
-	// Downcast the model 'mention' text attribute to a view <a> element.
-	editor.conversion.for( 'downcast' ).attributeToElement( {
-		model: 'mention',
-		view: ( modelAttributeValue, { writer } ) => {
-			// Do not convert empty attributes (lack of value means no mention).
-			if ( !modelAttributeValue ) {
-				return;
-			}
+            // Downcast the model 'mention' text attribute to a view <a> element.
+            editor.conversion.for('downcast').attributeToElement({
+                model: 'mention',
+                view: (modelAttributeValue, { writer }) => {
+                    // Do not convert empty attributes (lack of value means no mention).
+                    if (!modelAttributeValue) {
+                        return;
+                    }
 
-			return writer.createAttributeElement( 'a', {
-				class: 'mention',
-				'data-mention': modelAttributeValue.id,
-				'data-obj-id': modelAttributeValue.pk,
-				'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
-			}, {
-				// Make mention attribute to be wrapped by other attribute elements.
-				priority: 20,
-				// Prevent merging mentions together.
-				id: modelAttributeValue.uid
-			} );
-		},
-		converterPriority: 'high'
-	} );
-}
+                    return writer.createAttributeElement('a', {
+                        class: 'mention',
+                        'data-mention': modelAttributeValue.id,
+                        'data-obj-id': modelAttributeValue.pk,
+                        'href': '/' + modelAttributeValue.type + '/' + modelAttributeValue.pk
+                    }, {
+                        // Make mention attribute to be wrapped by other attribute elements.
+                        priority: 20,
+                        // Prevent merging mentions together.
+                        id: modelAttributeValue.uid
+                    });
+                },
+                converterPriority: 'high'
+            });
+        }
 
         function chopMentions() {
             // chops the "@" from the mentions link
-            $('.mention').each(function() {
+            $('.mention').each(function () {
                 let originalText = $(this).text().trim();
                 if (originalText.length > 0) {
                     let newText = originalText.replace("@", "");

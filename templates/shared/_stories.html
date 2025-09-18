@@ -1,4 +1,5 @@
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
 
 {% macro stories(user, obj)%}
 <title>{{obj.name | title}} - View Stories</title>
@@ -20,6 +21,17 @@
             {% endfor %}
         </select>
     </div>
+    {% if user.world_user(obj)%}
+    <div class="column is-shrink is-end">
+        <button class="button is-primary is-small" hx-post="/api/story/new"
+                hx-target="#stories-list"
+                hx-selector="#stories-list"
+                hx-swap="outerHTML">
+            {{icon_components.plus(size="1rem")}}
+            New Story
+        </button>
+    </div>
+    {% endif %}
     <div id="story-details" class="column is-full">
         <div class="row has-space-around">
             {% for story in obj.stories %}

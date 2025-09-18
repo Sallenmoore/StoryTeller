@@ -6,7 +6,7 @@
 <title>{{obj.name}} - Map</title>
 <h2>Map</h2>
 <hr>
-<div class="row fade-it-in" id='object-map-view'>
+<div class="row fade-it-in" hx-push-url="false" id='object-map-view'>
     <div class="column is-full">
         <div class="row">
             <div class="column">
@@ -78,12 +78,15 @@
                 </form>
             </div>
             <div class="column">
-                <form hx-post="/api/manage/map/file/upload" enctype="multipart/form-data"
+                <form hx-post="/api/manage/map/file/upload"
+                      hx-ext="ignore:json-enc"
                       hx-encoding='multipart/form-data'
                       hx-select='#map-container'
                       hx-target="#map-container"
                       hx-swap="outerHTML show:#map-container:bottom"
-                      hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                      {% if obj.map %}
+                      hx-confirm="Are you sure you want to upload and overwrite the current map?"
+                      {% endif %}>
                     <div class="row">
                         <div class="column is-shrink">
                             <button class="button is-primary is-small" type="submit">
@@ -247,7 +250,7 @@
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
                 <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
                      hx-post="/api/manage/update"
-                     hx-target="#map-image-container" hx-select="#map-image-container"
+                     hx-target="#map-container" hx-select="#map-container"
                      hx-swap="outerHTML"
                      hx-vals='{"map":"{{image.pk}}"}'
                      hx-indicator="#request-indicator" />

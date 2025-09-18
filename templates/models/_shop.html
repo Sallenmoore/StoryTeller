@@ -223,7 +223,7 @@
 <div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
     <h3 class='has-text-center'>GM Notes</h3>
     <div class="row">
-        <div class="column is-full">
+        <div class="column is-8">
             <h5> Details</h5>
             <div class="panel has-text-light">
                 <ul>
@@ -234,14 +234,10 @@
                 </ul>
             </div>
         </div>
-        <div class="column is-full">
-            <h5>Recent Events</h5>
+        <div class="column">
+            <h5>Current Status</h5>
             <div class="panel">
-                <ul>
-                    {% for sd in obj.recent_events %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
+                {{obj.status | safe}}
             </div>
         </div>
         {% if obj.owner and obj.owner.quests %}
@@ -264,7 +260,7 @@
             <h5>Rumors</h5>
             <div class="panel has-text-light">
                 <ul>
-                    {% for r in obj.rumors %}
+                    {% for r in obj.rumors + obj.recent_events %}
                     <li>
                         {{ r | safe }}
                     </li>

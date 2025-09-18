@@ -9,10 +9,10 @@ import os
 import random
 
 import requests
+from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.stories.event import Event
@@ -50,7 +50,7 @@ def manage(pk=None):
     user, obj, request_data = _loader()
     obj.world.save()
     story = Story.get(pk or request.json.get("storypk"))
-    return get_template_attribute("manage/_story.html", "manage")(
+    return get_template_attribute("models/_story.html", "manage")(
         user,
         story,
     )
@@ -62,25 +62,16 @@ def manage(pk=None):
 @story_endpoint.route("/new", methods=("POST",))
 def add_story():
     user, obj, request_data = _loader()
-    story = Story()
+    story = Story(world=obj.world)
+    if obj.model_name() != "World":
+        story.associations += [obj]
     story.save()
     obj.world.stories += [story]
     obj.world.save()
-    return get_template_attribute("manage/_stories.html", "stories")(
-        user,
-        obj.world,
-        story=story,
-    )
-
-
-@story_endpoint.route("/manage", methods=("POST",))
-def manage_story():
-    user, obj, request_data = _loader()
-    story = Story.get(request.json.get("storypk"))
-    return get_template_attribute("manage/_story.html", "manage")(
-        user,
-        story,
-    )
+    return f"""<script>
+        window.location.replace('/story/{story.pk}/manage');
+    </script>
+"""
 
 
 @story_endpoint.route("/<string:pk>/update", methods=("POST",))
@@ -100,7 +91,7 @@ def edit_story(pk=None):
     if story not in obj.world.stories:
         obj.world.stories += [story]
     obj.world.save()
-    return get_template_attribute("manage/_stories.html", "stories")(
+    return get_template_attribute("manage/_story.html", "manage")(
         user,
         story,
     )
@@ -112,11 +103,8 @@ def addlistitem(pk, attr):
     story = Story.get(pk)
     if isinstance(getattr(story, attr, None), list):
         item = getattr(story, attr)
-        if item is not None:
-            item += [""]
-    return get_template_attribute("manage/_stories.html", "story_details")(
-        user, obj, story
-    )
+        item += [""]
+    return get_template_attribute("manage/_story.html", "manage")(user, story)
 
 
 @story_endpoint.route("/<string:pk>/delete", methods=("POST",))
@@ -127,10 +115,9 @@ def remove_story(pk):
         obj.world.stories.remove(story)
         obj.world.save()
     story.delete()
-    return get_template_attribute("manage/_stories.html", "stories")(
+    return get_template_attribute("manage/_story.html", "manage")(
         user,
-        obj.world,
-        story=story,
+        story,
     )
 
 
@@ -149,23 +136,8 @@ def storyassociationsearch(pk):
     query = request.json.get("query")
     results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [r for r in results if r not in story.associations]
-    return get_template_attribute("manage/_stories.html", "associations_dropdown")(
-        user, obj.world, story, results
-    )
-
-
-@story_endpoint.route(
-    "<string:pk>/bbeg/add/search",
-    methods=("POST",),
-)
-def storybbegsearch(pk):
-    user, obj, request_data = _loader()
-    story = Story.get(pk)
-    query = request.json.get("query")
-    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
-    results = [r for r in results if isinstance(r, Character) and r != story.bbeg]
-    return get_template_attribute("manage/_stories.html", "bbeg_dropdown")(
-        user, obj.world, story, results
+    return get_template_attribute("manage/_story.html", "associations_dropdown")(
+        user, story, results
     )
 
 
@@ -189,22 +161,67 @@ def storyassociationadd(pk, amodel, apk=None):
     if obj not in story.associations:
         story.associations += [obj]
         story.save()
-    return get_template_attribute("manage/_stories.html", "stories")(
-        user, obj.world, story
-    )
+    return get_template_attribute("manage/_story.html", "manage")(user, story)
 
 
+###########################################################
+##             Story Event Routes                        ##
+###########################################################
 @story_endpoint.route(
     "<string:pk>/event/add",
     methods=("POST",),
 )
-def storyeventadd(pk):
+@story_endpoint.route(
+    "<string:pk>/event/add/<string:eventpk>",
+    methods=("POST",),
+)
+def storyeventadd(pk, eventpk=None):
     user, obj, request_data = _loader()
     story = Story.get(pk)
-    obj = Event(world=obj.world, story=story)
-    obj.save()
-    return get_template_attribute("manage/_stories.html", "stories")(
-        user, obj.world, story
+    if eventpk:
+        event = Event.get(eventpk)
+    else:
+        event = Event(world=story.world)
+    if story not in event.stories:
+        event.stories += [story]
+    event.save()
+    log(event.stories)
+    return get_template_attribute("manage/_story.html", "manage")(user, story)
+
+
+@story_endpoint.route(
+    "<string:pk>/event/add/search",
+    methods=("POST",),
+)
+def storyeventaddsearch(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    query = request.json.get("query")
+    results = (
+        obj.world.search_autocomplete(query=query, model=Event)
+        if len(query) > 2
+        else []
+    )
+    return get_template_attribute("manage/_story.html", "events_dropdown")(
+        user, story, results
+    )
+
+
+###########################################################
+##             Story BBEG Routes                         ##
+###########################################################
+@story_endpoint.route(
+    "<string:pk>/bbeg/add/search",
+    methods=("POST",),
+)
+def storybbegsearch(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    query = request.json.get("query")
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = [r for r in results if isinstance(r, Character) and r != story.bbeg]
+    return get_template_attribute("manage/_story.html", "bbeg_dropdown")(
+        user, obj.world, story, results
     )
 
 
@@ -218,6 +235,4 @@ def storybbegadd(pk, cpk):
     obj = Character.get(cpk)
     story.bbeg = obj
     story.save()
-    return get_template_attribute("manage/_stories.html", "stories")(
-        user, obj.world, story
-    )
+    return get_template_attribute("manage/_story.html", "manage")(user, story)

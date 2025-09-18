@@ -9,10 +9,10 @@ import os
 import random
 
 import requests
+from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.ttrpgobject.character import Character
@@ -62,29 +62,7 @@ def manage(pk=None):
     pk = pk or request_data.get("campaignpk")
     campaign = Campaign.get(pk or request.json.get("campaignpk"))
 
-    return get_template_attribute("manage/_campaign.html", "manage")(user, campaign)
-
-
-@campaign_endpoint.route("/<string:pk>/details", methods=("POST",))
-def campaigndetails(pk):
-    user, obj, request_data = _loader()
-    campaign = Campaign.get(pk)
-    campaign.save()
-    return get_template_attribute("manage/_campaign.html", "campaign_details")(
-        user, obj, campaign=campaign
-    )
-
-
-@campaign_endpoint.route("/new", methods=("POST",))
-def campaignnew():
-    user, obj, request_data = _loader()
-    campaign = Campaign(world=obj.world, name="New Campaign")
-    campaign.save()
-    obj.world.campaigns.append(campaign)
-    obj.world.save()
-    return get_template_attribute(module, macro)(
-        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
-    )
+    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
 @campaign_endpoint.route("/<string:pk>/delete", methods=("POST",))
@@ -151,10 +129,7 @@ def episodenew(pk):
     campaign.current_episode = episode
     return get_template_attribute("manage/_campaign.html", "manage")(
         user,
-        obj,
-        campaign_list=obj.world.campaigns,
-        campaign=campaign,
-        episode=campaign.current_episode,
+        campaign,
     )
 
 

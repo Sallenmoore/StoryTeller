@@ -1,9 +1,11 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
+{% import "shared/_title.html" as title_components %}
 
 {% macro manage(user, entry) -%}
 <title>{{entry.name}} - Quest Editor</title>
+{{title_components.object_title(user, entry.contact)}}<br>
 <div class="row">
     <div class="column is-vertically-centered">
         <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
@@ -18,8 +20,7 @@
     <div class="column is-shrink">
         <button class="button is-primary"
                 hx-post="/task/generate/{{entry.pk}}/quest/create"
-                hx-target="#page-content"
-                hx-indicator='#request-indicator'>
+                hx-swap='outerHTML'>
             Generate Quest
         </button>
     </div>
@@ -70,15 +71,9 @@
                       rows="3">{{entry.antagonist}}</textarea>
         </div>
         <div class="column is-full">
-            <h5 class='has-text-center'>Plot Twists</h5>
-            <div class="row">
-                {% for plot_twist in entry.plot_twists %}
-                <div class="column">
-                    <textarea class="has-bg-muted" name="plot_twists[]"
-                              rows="3">{{plot_twist}}</textarea>
-                </div>
-                {% endfor %}
-            </div>
+            <h5 class='has-text-center'>Plot Twist</h5>
+            <textarea class="has-bg-muted" name="plot_twist"
+                      rows="3">{{entry.plot_twist}}</textarea>
         </div>
         <div class="column is-full">
             <h5 class='has-text-center'>Rewards</h5>

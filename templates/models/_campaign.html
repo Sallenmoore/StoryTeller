@@ -3,6 +3,8 @@
 {% import "shared/_title.html" as title_components %}
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_stories.html" as story_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "manage/_campaign.html" as manage_campaign_components %}
 
 {% macro index(user, campaign) -%}
 {{title_components.object_title(user, campaign)}}
@@ -66,31 +68,6 @@
         </a>
     </div>
     {% endfor %}
-    <div class="column is-full">
-        <h2 class=" has-text-secondary has-text-center is-subtitle">
-            Associations</h2>
-        <div class="row">
-            {% for o in campaign.associations %}
-            <div class="column has-text-center">
-                <a href="/{{o.path}}">
-                    <div class="image is-small is-thumbnail is-margin-center">
-                        {% if o.image %}
-                        <img src="{{o.image.url(size='100')}}" loading="lazy"
-                             alt="{{o.name}}"
-                             style="width:100%;" />
-                        {% endif %}
-                    </div>
-                    <h5 class='has-text-dark'>
-                        {{o.name}}
-                    </h5>
-                    <h6 class='has-text-dark'>
-                        {{o.title}}
-                    </h6>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 {%- endmacro %}
 
@@ -211,9 +188,24 @@
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
+{% macro associations(user, obj, associations) -%}
+{{title_components.object_title(user, obj)}}
+
+<h2 class=" has-text-secondary has-text-center is-subtitle">
+    Associations</h2>
+<div class="row">
+    {% for o in associations %}
+    <div class="column is-1 has-text-center">
+        {{display_components.object_display(o, type=True)}}
+    </div>
+    {% endfor %}
+</div>
+
+{%- endmacro %}
+
 {% macro manage(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-{{ manage_character_components.manage(user, obj) }}
+{{ manage_campaign_components.manage(user, obj) }}
 {%- endmacro %}
 
 {% macro stories(user, obj)%}

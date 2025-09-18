@@ -4,14 +4,14 @@ import random
 
 import requests
 import validators
-
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     ListAttr,
     ReferenceAttr,
     StringAttr,
 )
+
+from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.calendar import Calendar
 from models.campaign.campaign import Campaign
@@ -211,7 +211,11 @@ class World(TTRPGBase):
     @property
     def events(self):
         return sorted(
-            Event.search(world=self) if self.pk else [], key=lambda x: x.start_date
+            [e for e in Event.search(world=self) if e.end_date and e.end_date.year]
+            if self.pk
+            else [],
+            key=lambda x: x.end_date,
+            reverse=True,
         )
 
     @property
@@ -373,14 +377,14 @@ class World(TTRPGBase):
         return self.map
 
     def get_map_list(self):
-        images = []
-        for img in Image.all():
+        maps = []
+        for img in Map.all():
             # log(img.asset_id)
             if all(
                 t in img.tags for t in ["map", self.model_name().lower(), self.genre]
             ):
-                images.append(img)
-        return images
+                maps.append(img)
+        return maps
 
     def page_data(self):
         response = {
@@ -471,11 +475,11 @@ class World(TTRPGBase):
                     tags=["map", *self.image_tags],
                 )
                 self.map.save()
+            elif map := Map.get(self.map):
+                self.map = map
             elif image := Image.get(self.map):
                 self.map = Map.from_image(image)
                 self.map.save()
-            elif image := Map.get(self.map):
-                self.map = image
             else:
                 raise ValidationError(
                     f"Image must be an Map object, url, or Image, not {self.map}"
@@ -487,6 +491,10 @@ class World(TTRPGBase):
             log("converted to map", self.map, _print=True)
         elif self.map and not self.map.tags:
             self.map.tags = self.map_tags
+            self.map.save()
+
+        if self.map and self not in self.map.associations:
+            self.map.associations += [self]
             self.map.save()
 
     def pre_save_system(self):

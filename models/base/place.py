@@ -1,13 +1,13 @@
 import markdown
 import validators
-
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     ListAttr,
     ReferenceAttr,
     StringAttr,
 )
+
+from autonomous import log
 from models.images.image import Image
 from models.images.map import Map
 from models.ttrpgobject.ttrpgobject import TTRPGObject
@@ -67,14 +67,14 @@ class Place(TTRPGObject):
         return self.map
 
     def get_map_list(self):
-        images = []
-        for img in Image.all():
+        maps = []
+        for img in Map.all():
             # log(img.asset_id)
             if all(
                 t in img.tags for t in ["map", self.model_name().lower(), self.genre]
             ):
-                images.append(img)
-        return images
+                maps.append(img)
+        return maps
 
     def generate_dungeon(self):
         primer = f"""As an expert AI tabletop RPG GM assistant, you will assist in creating a encounters, traps, and puzzles in a location for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the location, as well as a backstory. You will then generate a list of at least 10 possible enemy encounters, traps, or puzzles that player characters will encounter in the location. Each item should have an explanation of the encounter, trap, or puzzle, any associated mechanics, as well as the outcome if the players fail or succeed.
@@ -165,11 +165,11 @@ DUNGEON BACKSTORY
                     tags=["map", *self.image_tags],
                 )
                 self.map.save()
+            elif image := Map.get(self.map):
+                self.map = image
             elif image := Image.get(self.map):
                 self.map = Map.from_image(image)
                 self.map.save()
-            elif image := Map.get(self.map):
-                self.map = image
             else:
                 raise ValidationError(
                     f"Image must be an Image object, url, or Image pk, not {self.map}"
@@ -180,7 +180,11 @@ DUNGEON BACKSTORY
             self.map.save()
             log("converted to map", self.map, _print=True)
         elif self.map and not self.map.tags:
-            self.map.tags = self.map_tags
+            self.map.tags = [*self.image_tags, "map"]
+            self.map.save()
+
+        if self.map and self not in self.map.associations:
+            self.map.associations += [self]
             self.map.save()
 
         # log(self.map)

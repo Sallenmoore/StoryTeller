@@ -35,11 +35,24 @@
                         {{story.backstory | safe }}
                     </div>
                 </div>
-                <div class="column is-full has-text-secondary">
+                <div id="story-tasks" class="column is-full has-text-secondary">
+                    <h3 class='has-text-center'>Tasks</h3>
+                    <div class="row has-space-around">
+                        {% for task in story.tasks %}
+                        <div class="column is-2">
+                            <div class="panel has-bg-muted has-text-dark">
+                                {{task}}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr class='has-bg-primary'>
+                </div>
+                <div class="column is-6 has-text-secondary">
                     <div class="panel has-bg-muted has-text-dark">
-                        <h3 class='has-text-center'>Hooks</h3>
+                        <h3 class='has-text-center'>Information</h3>
                         <ul>
-                            {%for q in story.hooks %}
+                            {%for q in story.information %}
                             <li>{{q | safe}}</li>
                             {%endfor%}
                         </ul>
@@ -55,16 +68,6 @@
                         </ul>
                     </div>
                 </div>
-                <div class="column is-6 has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h3 class='has-text-center'>Information</h3>
-                        <ul>
-                            {%for q in story.information %}
-                            <li>{{q | safe}}</li>
-                            {%endfor%}
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
         {% if story.image %}
@@ -74,17 +77,6 @@
             </div>
         </div>
         {% endif %}
-    </div>
-    <hr>
-    <div id="story-tasks" class="column is-full has-text-secondary">
-        <div class="panel has-bg-muted has-text-dark">
-            <h3 class='has-text-center'>Tasks</h3>
-            <div class="row has-space-around">
-                {% for task in story.tasks %}
-                <div class="column is-2">{{task}}</div>
-                {% endfor %}
-            </div>
-        </div>
     </div>
     <hr class='has-bg-primary'>
     <div class="row">
@@ -116,7 +108,7 @@
             <div class="row has-space-around">
                 {% for event in story.events %}
                 <div class="column is-2">
-                    {{display_components.object_display(event)}}
+                    {{display_components.object_display(event, date=True)}}
                 </div>
                 {% endfor %}
             </div>

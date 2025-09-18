@@ -7,25 +7,25 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="row">
+        <div id="model-slogan" class="column">
+            <h4>Slogan</h4>
+            <input type="text" name="slogan" value="{{obj.slogan}}">
+        </div>
         <div class="column is-shrink ">
-            <h4 class='has-text-center has-text-primary'>Adventuring Party?</h4>
-            <div class="is-select">
-                <select class="has-no-border" name="is_player_faction">
-                    <option value="False">---</option>
-                    <option value="True" {%if obj.is_player_faction %} selected {%endif%}>
-                        Adventuring Party</option>
-                </select>
+            <div class="panel">
+                <h4 class='has-text-center has-text-muted'>Adventuring Party?</h4>
+                <div class="is-select">
+                    <select class="has-no-border" name="is_player_faction">
+                        <option value="False">---</option>
+                        <option value="True" {%if obj.is_player_faction %} selected {%endif%}>
+                            Adventuring Party</option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div id="model-goal" class="column">
-            <h4 class='has-text-light has-text-center'>Goals and Secrets</h4>
+        <div id="model-goal" class="column is-full">
+            <h4 class='has-text-center'>Goals and Secrets</h4>
             {{form_components.texteditor(user, obj, "goal")}}
-        </div>
-    </div>
-    <div class="row">
-        <div id="model-goal" class="column">
-            <h4 class='has-text-light has-text-center'>Status</h4>
-            {{form_components.texteditor(user, obj, "status")}}
         </div>
     </div>
 </form>

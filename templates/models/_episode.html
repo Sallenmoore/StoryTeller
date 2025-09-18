@@ -6,7 +6,7 @@
 {% import "shared/_title.html" as title_components %}
 
 {% macro index(user, obj) -%}
-    {{overview(user, obj)}}
+{{overview(user, obj)}}
 {%- endmacro %}
 
 <!-- unique menu items for campaigns -->
@@ -40,10 +40,22 @@
         {{ display.dsp_object_image(obj,'400') }}
 
         <table>
-            <tr><th>Campaign</th><td><a href="/{{obj.campaign.path}}">{{obj.campaign.name}}</a></td></tr>
-            <tr><th>Episode #</th><td>{{obj.episode_num}}</td></tr>
-            <tr><th>Start Date</th><td>{{obj.start_date}}</td></tr>
-            <tr><th>End Date</th><td>{{obj.end_date}}</td></tr>
+            <tr>
+                <th>Campaign</th>
+                <td><a href="/{{obj.campaign.path}}">{{obj.campaign.name}}</a></td>
+            </tr>
+            <tr>
+                <th>Episode #</th>
+                <td>{{obj.episode_num}}</td>
+            </tr>
+            <tr>
+                <th>Start Date</th>
+                <td>{{obj.start_date}}</td>
+            </tr>
+            <tr>
+                <th>End Date</th>
+                <td>{{obj.end_date}}</td>
+            </tr>
         </table>
 
         {{ episode_selector(obj) }}
@@ -68,7 +80,7 @@
     {% for ep in obj.campaign.episodes %}
     <option value="{{ep.pk}}" {%if obj.pk and
             ep.pk==obj.pk %} selected {% endif %}>
-            {{ep.episode_num}}: {{ep.name}}
+        {{ep.episode_num}}: {{ep.name}}
     </option>
     {% endfor %}
 </select>

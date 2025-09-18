@@ -68,6 +68,19 @@ def edit_event(pk=None):
     )
 
 
+@event_endpoint.route("/<string:pk>/delete", methods=("POST",))
+def delete_event(pk=None):
+    user, obj, request_data = _loader()
+    log(request.json)
+    event = Event.get(pk)
+    world = event.world
+    event.delete()
+    return get_template_attribute("models/_world.html", "timeline")(
+        user,
+        world,
+    )
+
+
 ###########################################################
 ##             Event Association Routes                  ##
 ###########################################################

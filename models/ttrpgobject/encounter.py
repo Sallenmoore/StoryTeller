@@ -1,11 +1,8 @@
-import json
 import random
 
 from autonomous import log
 from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
 from models.ttrpgobject.ttrpgobject import TTRPGObject
-
-LOOT_MULTIPLIER = 3
 
 
 class Encounter(TTRPGObject):
@@ -16,11 +13,11 @@ class Encounter(TTRPGObject):
     player_contingencies = ListAttr(StringAttr(default=""))
     potential_outcomes = ListAttr(StringAttr(default=""))
     story = ReferenceAttr(choices=["Story"])
-
+    mechanics = StringAttr(default="")
+    notes = StringAttr(default="")
     start_date_label = "Began"
     end_date_label = "Ended"
 
-    LOOT_MULTIPLIER = 3
     parent_list = ["Location", "City", "District", "Region", "Shop"]
     _difficulty_list = [
         "trivial",
@@ -86,28 +83,24 @@ class Encounter(TTRPGObject):
                     "type": "string",
                     "description": "What are the conditions that will trigger the encounter?",
                 },
+                "mechanics": {
+                    "type": "string",
+                    "description": "What are the specific mechanics or rules that govern the encounter? Are there any associated skill checks or saving throws?",
+                },
+                "notes": {
+                    "type": "string",
+                    "description": "Any additional notes or information about running the encounter.",
+                },
             },
         },
     }
 
     ################## Class Methods ##################
 
-    @classmethod
-    def _icon(cls, type="basic"):
-        return {
-            "basic": "game-icons:battle-gear",
-            "start": "game-icons:battle-gear",
-            "end": "mdi:shop-complete",
-        }.get(type, "game-icons:battle-gear")
-
     ################## Instance Properties ##################
     @property
     def actors(self):
         return [*self.characters, *self.creatures]
-
-    # @property
-    # def rewards(self):
-    #     return GMScreenLootGenerator.generate()
 
     @property
     def difficulty(self):
@@ -163,16 +156,6 @@ class Encounter(TTRPGObject):
         return "Began" if self.start_date.get("year") else "Unknown"
 
     @property
-    def history_prompt(self):
-        return f"""
-{f"BEGAN\n---\n{self.start_date}" if self.start_date else ""}
-
-HISTORY
----
-{self.backstory}
-"""
-
-    @property
     def image_prompt(self):
         enemies = [f"- {e.name} ({e.title}) : {e.desc}" for e in self.enemies]
         enemies_str = "\n".join(enemies)
@@ -191,7 +174,7 @@ HISTORY
     def generate(self):
         enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
         if story := self.story or random.choice(self.world.stories):
-            context = f"An unexpected, but relevant encounter related to the following storyline: {story.situation}"
+            context = f"An encounter related to the following storyline: {story.situation} {story.current_status}"
         else:
             context = "Trouble is brewing."
 
@@ -216,16 +199,6 @@ HISTORY
         return results
 
     ################## Instance Methods ##################
-    def check_current(self, episode):
-        if (
-            episode.start_date
-            and self.start_date
-            and episode.start_date >= self.start_date
-        ):
-            return False
-        if episode.end_date and self.end_date and episode.end_date <= self.end_date:
-            return False
-        return True
 
     def label(self, model):
         if not isinstance(model, str):

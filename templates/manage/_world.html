@@ -14,7 +14,6 @@
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
-{{manage_components.dates(user, obj)}}
 <div class="row">
     <div class="column is-full">
         <form hx-post="/api/{{obj.path}}/calendar/update"

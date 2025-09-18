@@ -262,54 +262,6 @@
     </li>
     {% if user.world_user(obj) %}
     <li>
-        <a href="" class="menu-anchor" hx-post="/api/{{obj.path}}/managestories"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/managestories">
-            <div class="row">
-                <div id='menu-manage-stories-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.history(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-manage-stories-anchor', {
-                        content: 'Manage Stories',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Manage Stories</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor" hx-post="/api/{{obj.path}}/managecampaigns"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-push-url="/{{obj.path}}/managecampaigns">
-            <div class="row">
-                <div id='menu-manage-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaignmanage(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-manage-campaigns-anchor', {
-                        content: 'Manage Campaigns',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 slide-it-in is-hidden menu-anchor-text">
-                    <span>Manage Campaigns</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
         <a href="" class="menu-anchor" hx-post="/api/{{obj.path}}/managescreens"
            hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML"
@@ -428,13 +380,30 @@
 
 {% macro stories(user, obj)%}
 {{title_components.object_title(user, obj)}}
-{{stories_components.stories(user, obj)}}
+<div id='stories-list'>
+    {{stories_components.stories(user, obj)}}
+</div>
 {%- endmacro %}
 
 
 {% macro campaigns(user, obj)%}
 {{title_components.object_title(user, obj)}}
-{{campaigns_components.campaigns(user, obj)}}
+{% if user.world_user(obj)%}
+<div class="row">
+    <div class="column is-shrink is-end">
+        <button class="button is-primary is-small" hx-post="/api/world/campaign/new"
+                hx-target="#campaigns-list"
+                hx-selector="#campaigns-list"
+                hx-swap="outerHTML">
+            {{icon_components.plus(size="1rem")}}
+            New Campaign
+        </button>
+    </div>
+</div>
+{% endif %}
+<div id='campaigns-list'>
+    {{campaigns_components.campaigns(user, obj)}}
+</div>
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
@@ -492,90 +461,6 @@
 {{title_components.object_title(user, obj)}}
 {{ manage_world_components.manage(user, obj) }}
 {%- endmacro %}
-
-
-{% macro managecampaigns(user, world) -%}
-{{title_components.object_title(user, obj)}}
-<h2>Manage Campaigns</h2>
-<div class="row">
-    <div class="column is-shrink is-end">
-        <button class="button is-primary is-small" hx-post="/api/campaign/new"
-                hx-target="#manage-campaign"
-                hx-swap="outerHTML">
-            {{icon_components.plus(size="1rem")}}
-            New Campaign
-        </button>
-    </div>
-    <div id='manage-campaign' class="column is-full">
-        <div class="row has-space-around">
-            {% for campaign in world.campaigns %}
-            <div class="column is-full">
-                <div class="panel">
-                    <div class="row">
-                        <div class="column is-full">
-                            <a href="/campaign/{{campaign.pk}}/manage"
-                               style='text-decoration: none;'>
-                                <h4 class='has-text-center'>{{campaign.name}}</h4>
-                            </a>
-                            <hr class='has-bg-muted'>
-                        </div>
-                        <div class="column is-full">
-                            <div class="row has-space-around">
-                                {%for ass in campaign.party.players %}
-                                <div class="column is-1">
-                                    {{display_components.object_display(ass, type=False, name=False)}}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <a href="/campaign/{{campaign.pk}}/manage"
-                               style='text-decoration: none;'>
-                                <div class='panel has-bg-muted has-text-justified has-text-black'>
-                                    {{campaign.summary | safe}}
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro managestories(user, obj) -%}
-{{title_components.object_title(user, obj)}}
-<div class="row">
-    <div id="story-details" class="column is-full">
-        <div class="row has-space-around">
-            {% for story in obj.stories %}
-            <div class="column is-4">
-                <div class="panel">
-                    <a href="/story/{{story.pk}}/manage" style='text-decoration: none;'>
-                        <h4 class='has-text-center'>{{story.name}}</h4>
-                    </a>
-                    <hr class='has-bg-white'>
-                    <div class="row has-space-around">
-                        {%for ass in story.associations %}
-                        <div class="column is-2">
-                            {{display_components.object_display(ass, type=False, name=False)}}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <hr class='has-bg-white'>
-                    <a href="/story/{{story.pk}}/manage" style='text-decoration: none;'>
-                        <div class='has-text-justified has-text-black'>
-                            {{story.situation | safe}}
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{%- endmacro %}
-
 
 {% macro managescreens(user, obj) -%}
 {{title_components.object_title(user, obj)}}

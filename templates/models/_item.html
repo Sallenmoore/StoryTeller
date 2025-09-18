@@ -1,5 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_abilities.html" as abilities_components %}
+{% import "shared/_icons.html" as icon_components %}
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_details.html" as details_components %}
 {% import "shared/_timeline.html" as timeline_components %}
@@ -199,7 +200,7 @@
 <div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
     <h3 class='has-text-center'>GM Notes</h3>
     <div class="row">
-        <div class="column is-full">
+        <div class="column is-8">
             <h5> Details</h5>
             <div class="panel has-text-light">
                 <ul>
@@ -208,6 +209,12 @@
                     <li>{{ sd | safe }}</li>
                     {% endfor %}
                 </ul>
+            </div>
+        </div>
+        <div class="column">
+            <h5>Current Status</h5>
+            <div class="panel">
+                {{obj.status | safe}}
             </div>
         </div>
         <div class="column is-full">

@@ -8,8 +8,9 @@
 <div id="episode-manage" class="grid-x grid-padding-x">
     <div class="story cell small-12 medium-8">
         {% if episode %}
-        
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none" hx-trigger="input delay:1s, change">
+
+        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+              hx-trigger="input delay:1s, change">
             <div class="grid-x">
                 <div class="cell small-1">
                     <label>No.
@@ -19,9 +20,9 @@
                 <div class="cell small-11">
                     <label>Name
                         <input id="model-name" type="text" name="name"
-                            value="{{episode.name}}"
-                            onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
-                            oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+                               value="{{episode.name}}"
+                               onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+                               oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
                     </label>
                 </div>
             </div>
@@ -37,9 +38,10 @@
 
         <div class="grid-x">
             <div class="cell small-12">
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none" hx-trigger="input delay:1s, change">
-                {{ manage_components.manage_date (episode, 'start') }}
-                {{ manage_components.manage_date (episode, 'end') }}
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{ manage_components.manage_date (episode, 'start') }}
+                    {{ manage_components.manage_date (episode, 'end') }}
                 </form>
             </div>
         </div>
@@ -50,14 +52,14 @@
 
         <p>Manage</p>
 
-                <button class="button is-light has-text-dark"
-                        hx-post="/api/campaign/episode/{{episode.pk}}/delete"
-                        hx-target="#details-container"
-                        hx-select="#details-container"
-                        hx-swap="outerHTML"
-                        hx-confirm='Are you sure you want to delete this Episode?'>
-                    {{icon_components.trash(size="1rem")}}
-                </button>
+        <button class="button is-light has-text-dark"
+                hx-post="/api/campaign/episode/{{episode.pk}}/delete"
+                hx-target="#details-container"
+                hx-select="#details-container"
+                hx-swap="outerHTML"
+                hx-confirm='Are you sure you want to delete this Episode?'>
+            {{icon_components.trash(size="1rem")}}
+        </button>
 
 
         <!-- display AI Generative buttons -->
@@ -80,18 +82,16 @@
 
 {% macro episode_report(user, episode, afilter=None) -%}
 
-    {{form_components.richtexteditor(user, episode, 'episode_report')}}
-    <h3>Loot</h3>
-    {{form_components.texteditor(user, episode, 'loot')}}
-    <h3>Hooks</h3>
-    {{form_components.texteditor(user, episode, 'hooks')}}
-
-        
+{{form_components.richtexteditor(user, episode, 'episode_report')}}
+<h3>Loot</h3>
+{{form_components.texteditor(user, episode, 'loot')}}
+<h3>Hooks</h3>
+{{form_components.texteditor(user, episode, 'hooks')}}
 
 {%- endmacro %}
 
 
-{% macro associations(user, episode, afilter=None) -%}
+{% macro associations(user, episode) -%}
 <div id="episode-associations" class="row">
     <div class="column fade-it-in">
         <h5 class='has-text-primary'>Add New...</h5>

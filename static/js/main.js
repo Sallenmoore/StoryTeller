@@ -17,7 +17,7 @@ htmx.onLoad(function (e) {
     });
 });
 
-function load(){
+function load() {
     console.log('htmx loaded');
 }
 ///////// Configure editors ///////////

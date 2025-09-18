@@ -111,27 +111,41 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
     <h3 class='has-text-center'>GM Notes</h3>
     <div class="row">
-        <div class="column is-full">
+        <div class="column is-half">
             <h5>Summary</h5>
             <div class="panel">
                 {{obj.backstory_summary | safe}}
             </div>
         </div>
         <div class="column is-half">
+            <h5>Notes</h5>
+            <div class="panel">
+                {{obj.notes | safe}}
+            </div>
+        </div>
+        <div class="column is-full">
+            <h5>Mechanics</h5>
+            <div class="panel">
+                {{obj.mechanics | safe}}
+            </div>
+        </div>
+        {% if obj.enemies %}
+        <div class="column is-full">
             <h5>Antagonists</h5>
             <div class="panel">
-                <div class="row">
-                    {% for sd in obj.enemies() %}
-                    <div class="column">
+                <div class="row has-space-around">
+                    {% for sd in obj.enemies %}
+                    <div class="column is-2">
                         {{display_components.object_display(sd)}}
                     </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {%- endmacro %}
@@ -165,21 +179,32 @@
 </div>
 <div class="row">
     {% if user.world_user(obj)%}
-    <div class="column">
+    <div class="column is-full">
         <div class="panel has-bg-muted">
-            <h3 class="has-text-dark">Combat Scenario</h3>
+            <h3 class="has-text-dark">Triggers</h3>
             <span class="has-text-dark">
-                {{obj.combat_scenario | safe}}
+                {{obj.trigger_conditions | safe}}
             </span>
         </div>
         <hr>
-        <div class="panel has-bg-muted">
-            <h3 class="has-text-dark">Non-Combat Scenario</h3>
-            <span class="has-text-dark">
-                {{obj.noncombat_scenario | safe}}
-            </span>
-        </div>
-        <hr>
+    </div>
+    <div class="column is-half">
+        <h3 class="has-text-dark">Player Contingencies</h3>
+        <ul class="has-text-dark">
+            {% for pc in obj.player_contingencies %}
+            <li>{{ pc | safe }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="column is-half">
+        <h3 class="has-text-dark">Potential Outcomes</h3>
+        <ul class="has-text-dark">
+            {% for pc in obj.potential_outcomes %}
+            <li>{{ pc | safe }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="column is-full">
         <div class="panel has-bg-muted">
             <h3 class="has-text-dark">Complications</h3>
             <span class="has-text-dark">
