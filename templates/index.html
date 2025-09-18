@@ -387,7 +387,7 @@
                             data['user'] = textarea.getAttribute('data-user');
                             data['pk'] = textarea.getAttribute('data-pk');
                             /* data['user'] = {{user.pk}};
-                             data['pk'] = {{obj.pk}};*/
+                             data['pk'] = {% if obj %}{{obj.pk}} {%else%} undefined {%endif%};*/
 
                             console.log(data);
                             return saveCkData(data, el);

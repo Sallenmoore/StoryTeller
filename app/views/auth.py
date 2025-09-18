@@ -34,7 +34,7 @@ def login():
         session["authprovider_state"] = state
 
         return redirect(uri)
-    return render_template("index.html", page_url="/auth/login")
+    return render_template("index.html", user=user, page_url="/auth/login")
 
 
 @auth_page.route("/authorize", methods=("GET", "POST"))

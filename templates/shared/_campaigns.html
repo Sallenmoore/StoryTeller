@@ -1,6 +1,6 @@
 {% import "models/_episode.html" as episode_components %}
 {% import "shared/_icons.html" as icon_components %}
-{# 
+
 {% macro campaigns(user, obj) -%}
 <title>{{obj.name | title}} - Campaigns</title>
 <h2>Campaigns</h2>
@@ -16,8 +16,7 @@
                 hx-target="#campaign-details" hx-trigger='change'>
             <option value="">=== Select Campaign ===</option>
             {% for s in obj.campaigns %}
-            <option class="has-text-dark" value="{{s.pk}}" {% if campaign and campaign.pk==s.pk %}
-                    selected {% endif %}>
+            <option class="has-text-dark" value="{{s.pk}}">
                 {{s.name}}
             </option>
             {% endfor %}
@@ -57,85 +56,87 @@
                         <a href='/episode/{{entry.pk}}'>
                             <span class="tag">{{entry.name}}</span>
                         </a>
-                <hr>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="column is-full">
-        <h3 class='has-text-center'>Associated Episodes</h3>
-        <div class="accordion">
-            <ul class="accordion__list">
-                {% for entry in campaign.episodes %}
-                {% if obj.model_name() == 'World' or obj in entry.associations %}
-                <li class="accordion__item" style='margin-bottom: 1rem;'>
-                    <div class="panel has-bg-muted">
-                        <div class="row" class='has-text-secondary'>
-                            <div class="column is-vertically-centered">
-                                <h4 class=' has-text-dark'>{{entry.name}}</h4>
-                                <!-- {{entry.pk}} -->
-                            </div>
-                            <div class="column is-shrink">
-                                {% if entry.start_date %}
-                                <span class='tag is-primary has-text-white'>
-                                    {{entry.start_date}}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <div class="column is-shrink">
-                                {{icon_components.line()}}
-                            </div>
-                            <div class="column is-shrink">
-                                {% if entry.end_date %}
-                                <span class='tag is-primary has-text-white'>
-                                    {{entry.end_date}}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <!--<div class="column is-full generated-text-lightbg has-text-dark">
-                                {{entry.summary | safe}}
-                            </div>-->
-                        </div>
-                        <div class="row">
-                            {% if entry.summary %}
-                            <div class="button"
-                                 onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                                Summary
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="accordion__content has-bg-white">
-                        <div class="has-text-dark" style="text-wrap: wrap;">
-                            {{entry.summary | safe}}
-                            <!--<hr class='has-bg-dark-grey'>
-                            {{entry.episode_report | safe}}-->
-                            <a href="/{{obj.path}}/episodes/{{entry.pk}}">Episode Report</a>
-                        </div>
-                    </div>
-
-                </li>
-                {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    <div class="column is-full">
-        <h2 class=" has-text-secondary has-text-center is-subtitle">
-            Associations</h2>
-        <div class="row">
-            {% for o in campaign.associations %}
-            <div class="column has-text-center">
-                <a href="/{{o.path}}">
-                    <div class="image is-small is-thumbnail is-margin-center">
-                        {% if o.image %}
-                        <img src="{{o.image.url(size='100')}}" loading="lazy"
-                             alt="{{o.name}}"
-                             style="width:100%;" />
                         {% endif %}
                         {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column is-full">
+                        <h3 class='has-text-center'>Associated Episodes</h3>
+                        <div class="accordion">
+                            <ul class="accordion__list">
+                                {% for entry in campaign.episodes %}
+                                {% if obj.model_name() == 'World' or obj in entry.associations %}
+                                <li class="accordion__item" style='margin-bottom: 1rem;'>
+                                    <div class="panel has-bg-muted">
+                                        <div class="row" class='has-text-secondary'>
+                                            <div class="column is-vertically-centered">
+                                                <h4 class=' has-text-dark'>{{entry.name}}</h4>
+                                                <!-- {{entry.pk}} -->
+                                            </div>
+                                            <div class="column is-shrink">
+                                                {% if entry.start_date %}
+                                                <span class='tag is-primary has-text-white'>
+                                                    {{entry.start_date}}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="column is-shrink">
+                                                {{icon_components.line()}}
+                                            </div>
+                                            <div class="column is-shrink">
+                                                {% if entry.end_date %}
+                                                <span class='tag is-primary has-text-white'>
+                                                    {{entry.end_date}}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                            <!--<div class="column is-full generated-text-lightbg has-text-dark">
+                                                {{entry.summary | safe}}
+                                            </div>-->
+                                        </div>
+                                        <div class="row">
+                                            {% if entry.summary %}
+                                            <div class="button"
+                                                onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                                                Summary
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="accordion__content has-bg-white">
+                                        <div class="has-text-dark" style="text-wrap: wrap;">
+                                            {{entry.summary | safe}}
+                                            <!--<hr class='has-bg-dark-grey'>
+                                            {{entry.episode_report | safe}}-->
+                                            <a href="/{{obj.path}}/episodes/{{entry.pk}}">Episode Report</a>
+                                        </div>
+                                    </div>
+
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="column is-full">
+                        <h2 class=" has-text-secondary has-text-center is-subtitle">
+                            Associations</h2>
+                        <div class="row">
+                            {% for o in campaign.associations %}
+                            <div class="column has-text-center">
+                                <a href="/{{o.path}}">
+                                    <div class="image is-small is-thumbnail is-margin-center">
+                                        {% if o.image %}
+                                        <img src="{{o.image.url(size='100')}}" loading="lazy"
+                                            alt="{{o.name}}"
+                                            style="width:100%;" />
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -144,5 +145,5 @@
     </div>
 </div>
 {% endif %}
+
 {%- endmacro %}
-#}
