@@ -4,7 +4,7 @@
 
 ##### Frameworks #####
 
-autonomous-app >= 0.3.18
+autonomous-app >= 0.3.19
 
 ##### Configuration and Documentation #####
 pdoc
