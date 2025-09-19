@@ -5,7 +5,7 @@ FROM python:3.12
 
 RUN apt-get clean
 RUN apt-get update
-RUN apt-get install --no-install-recommends -y build-essential curl git nodejs npm
+RUN apt-get install --no-install-recommends -y build-essential curl git nodejs npm ffmpeg
 RUN curl https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.9.4.deb --output mongodb-database-tools.deb; apt install ./mongodb-database-tools.deb
 # Install the vendor applications/configurations
 COPY ./vendor/gunicorn.conf.py /var/gunicorn.conf.py
