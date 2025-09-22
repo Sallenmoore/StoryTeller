@@ -17,6 +17,16 @@
                 <div class="column is-shrink is-vertically-centered">
                     <h3 class='has-text-secondary has-text-center'>Scope: {{story.scope}}</h3>
                 </div>
+                <div id="story-bbeg" class="column has-text-secondary">
+                    <div class="panel has-bg-muted has-text-dark">
+                        <h3 class='has-text-center'>BBEG</h3>
+                        {% if story.bbeg %}
+                        {{display_components.object_display(story.bbeg)}}
+                        {% else %}
+                        Unknown
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="column is-full has-text-secondary">
                     <div class="panel has-bg-muted has-text-dark">
                         <h4 class='has-text-center'>Situation</h4>
@@ -80,17 +90,27 @@
     </div>
     <hr class='has-bg-primary'>
     <div class="row">
-        <div id="story-bbeg" class="column is-3 has-text-secondary">
+        <div id="story-encounters" class="column has-text-secondary">
             <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>BBEG</h3>
-                {% if story.bbeg %}
-                {{display_components.object_display(story.bbeg)}}
-                {% else %}
-                Unknown
-                {% endif %}
+                <h3 class='has-text-center'>Quests</h3>
+                <div class="row has-space-around">
+                    {% for quest in story.quests %}
+                    <div class="column is-full">
+                        <div class="row">
+                            <div class="column is-2">
+                                {{display_components.object_display(quest.contact)}}
+                            </div>
+                            <div class="column">
+                                <h6 class='has-text-center'>{{quest.name}}</h6>
+                                {{quest.hook | safe}}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        <div id="story-encounters" class="column is-9 has-text-secondary">
+        <div id="story-encounters" class="column has-text-secondary">
             <div class="panel has-bg-muted has-text-dark">
                 <h3 class='has-text-center'>Encounters</h3>
                 <div class="row has-space-around">

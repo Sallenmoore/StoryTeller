@@ -1,11 +1,11 @@
 import random
 
 import markdown
+from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 
 from autonomous import log
-from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
-from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 
 
@@ -71,7 +71,7 @@ class Quest(AutoModel):
         return self.storyline.world
 
     def generate_quest(self):
-        prompt = f"""Generate a scenario for a sandbox style {self.contact.genre} Table Top RPG.The situation challenging for the player characters to overcome. The scenario can involve a mix of encounter types, such as Combat, Social, Exploration, and Stealth. The situation is brought to the players' attention by or with the character named {self.contact.name} who is described as: {self.contact.backstory}.
+        prompt = f"""Generate a scenario for a sandbox style {self.contact.genre} Table Top RPG.The situation should be challenging for the player characters to overcome and involve a mix of encounter types, such as Combat, Social, Exploration, and Stealth. The situation is brought to the players' attention by or with the character named {self.contact.name} who is described as: {self.contact.backstory}.
 
         The initiating npc also has the following goals, which may or may not play into the situation: {self.contact.goal}.
 """
@@ -87,7 +87,7 @@ LOCATION: {parent.backstory}.
                 prompt += f"""Which is located in:
         {parent.name} [{parent.title}]: {parent.backstory}.
 """
-        prompt += "\nADDITIONAL ELEMENTS:\n"
+        prompt += "\n- ADDITIONAL ASSOCIATIONS:\n"
         for ass in self.associations:
             if ass not in self.contact.geneology:
                 prompt += f"""
@@ -102,10 +102,14 @@ The situation should be tangentially related in some way to the following global
 """
         if self.description:
             prompt += f"""\n\nUse the following prompt as an additional design constraint on the situation:
-{self.description}
+{f"\n- DESCRIPTION: {self.description}" if self.description else ""}
+{f"\n- REWARD: {self.rewards}" if self.rewards else ""}
+{f"\n- HOOK: {self.hook}" if self.hook else ""}
+{f"\n- PLOT TWIST: {self.plot_twist}" if self.plot_twist else ""}
+{f"\n- ANTAGONIST: {self.antagonist}" if self.antagonist else ""}
 """
 
-        primer = "You are an expert AI Table Top RPG Situation Generator. You will be provided with a character and a location. Generate a situation that is connected to the character's backstory, world events, and has a clearly defined story arc."
+        primer = "You are an expert AI Table Top RPG Situation Generator. You will be provided with a character and a location, as well as additional details. Generate a situation that is connected to the character's backstory, world events, provided storyline, and has a clearly defined goal."
         log(prompt, _print=True)
         results = self.contact.system.generate_json(prompt, primer, self.funcobj)
         # log(results, _print=True)

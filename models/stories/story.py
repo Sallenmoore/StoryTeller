@@ -7,6 +7,7 @@ from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.images.image import Image
 from models.stories.event import Event
+from models.stories.quest import Quest
 from models.ttrpgobject.encounter import Encounter
 
 
@@ -83,6 +84,10 @@ class Story(AutoModel):
                 key=lambda x: x.end_date if x.end_date else x.world.current_date
             )
         return events
+
+    @property
+    def quests(self):
+        return Quest.search(storyline=self)
 
     @property
     def history(self):

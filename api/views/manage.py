@@ -323,6 +323,7 @@ def association_search():
     associations = (
         obj.world.search_autocomplete(query) if query and len(query) > 2 else []
     )
+    associations = [a for a in associations if a not in obj.associations and a != obj]
     return get_template_attribute("shared/_associations.html", "association_dropdown")(
         user, obj, associations
     )
