@@ -34,16 +34,16 @@ Note:
 
 import os
 
+from autonomous.auth import AutoAuth
 from config import Config
 from flask import Flask, json, render_template, request, url_for
 from views.admin import admin_page
 from views.auth import auth_page
 from views.index import index_page
-from filters.utils import roll_dice, bonus
 from werkzeug.exceptions import HTTPException
 
 from autonomous import log
-from autonomous.auth import AutoAuth
+from filters.utils import bonus, roll_dice
 from models.user import User
 
 
@@ -80,7 +80,7 @@ def create_app():
                     "code": e.code,
                     "name": e.name,
                     "description": e.description,
-                    "trace": e.get_traceback(),
+                    # "trace": e.get_traceback(),
                 }
             )
         )
