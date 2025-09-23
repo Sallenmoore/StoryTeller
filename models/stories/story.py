@@ -21,7 +21,7 @@ class Story(AutoModel):
     image = ReferenceAttr(choices=[Image])
     rumors = ListAttr(StringAttr(default=""))
     information = ListAttr(StringAttr(default=""))
-    bbeg = ReferenceAttr(choices=["Character"])
+    bbeg = ReferenceAttr(choices=["Character", "Faction"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     world = ReferenceAttr(choices=["World"], required=True)
 

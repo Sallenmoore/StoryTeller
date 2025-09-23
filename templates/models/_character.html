@@ -541,59 +541,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark has-text-center'>Scenes</h4>
-                        <ul class='has-no-list-style'>
-                            {% for scene in entry.scenes %}
-                            <li>
-                                <h5 class='has-text-dark has-text-center'>{{scene.type}}</h5>
-                                <b>SETUP:</b> {{scene.setup}}
-                                <ul>
-                                    <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
-                                    <li> <b>TASK:</b> {{scene.task}}</li>
-                                    <li> <b>STAKES:</b> {{scene.stakes}}</li>
-                                    <li>
-                                        <b>NPCs:</b>
-                                        <ul>
-                                            {% for npc in scene.npcs%}
-                                            <li>{{npc}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>INFORMATION:</b>
-                                        <ul>
-                                            {% for info in scene.information%}
-                                            <li>{{info}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <b>CHALLENGES:</b>
-                                        <ul>
-                                            {% for challenge in scene.challenges%}
-                                            <li> {{challenge}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                    <li><b>RESOLUTION:</b> {{scene.resolution}}</li>
-                                    <li><b>REWARDS:</b> {{scene.rewards}}</li>
-                                </ul>
-                                <hr>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
                     <hr>
                     <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Plot Twists</h4>
-                        <ul>
-                            {% for twist in entry.plot_twists %}
-                            <li>{{twist}}</li>
-                            {% endfor %}
-                        </ul>
+                        <h4 class='has-text-center'>Plot Twist</h4>
+                        <div>{{entry.plot_twist | safe}}</div>
                     </div>
-                    <hr>
                     <hr>
                     <div class="panel has-bg-light">
                         <h4 class='has-text-center'>Rewards</h4>
