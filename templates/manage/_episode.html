@@ -1,8 +1,89 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_manage.html" as manage_components %}
 
 {% macro manage(user, episode) -%}
+<div id="episode-manage" class="grid-x grid-padding-x">
+    <div class="story cell small-12 medium-8">
+        {% if episode %}
+
+        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+              hx-trigger="input delay:1s, change">
+            <div class="grid-x">
+                <div class="cell small-1">
+                    <label>No.
+                        <input type="number" name="episode_num" value="{{episode.episode_num}}">
+                    </label>
+                </div>
+                <div class="cell small-11">
+                    <label>Name
+                        <input id="model-name" type="text" name="name"
+                               value="{{episode.name}}"
+                               onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+                               oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+                    </label>
+                </div>
+            </div>
+
+{{form_components.richtexteditor(user, episode, 'episode_report')}}
+<h3>Loot</h3>
+{{form_components.texteditor(user, episode, 'loot')}}
+<h3>Hooks</h3>
+{{form_components.texteditor(user, episode, 'hooks')}}
+
+        </form>
+    </div>
+    <div class="related-panel cell small-12 medium-4">
+        <!-- replace this with link -->{{ display_components.dsp_object_image(episode,'400') }}
+
+        <h2>Dates</h2>
+
+        <div class="grid-x">
+            <div class="cell small-12">
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{ manage_components.manage_date (episode, 'start') }}
+                    {{ manage_components.manage_date (episode, 'end') }}
+                </form>
+            </div>
+        </div>
+
+        <h2>Associations</h2>
+
+        {{associations(user, episode)}}
+
+        <p>Manage</p>
+
+        <button class="button is-light has-text-dark"
+                hx-post="/api/campaign/episode/{{episode.pk}}/delete"
+                hx-target="#details-container"
+                hx-select="#details-container"
+                hx-swap="outerHTML"
+                hx-confirm='Are you sure you want to delete this Episode?'>
+            {{icon_components.trash(size="1rem")}}
+        </button>
+
+
+        <!-- display AI Generative buttons -->
+        <div id="ai-buttons" class="grid-x grid-padding-x">
+            <div class="cell small-12 large-6">
+                <button class="button"
+                        hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                        hx-target="closest .column"
+                        hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
+                    {{icon_components.ai(size="1rem")}}
+                    Update Summary (AI Generated)
+                </button>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage_old(user, episode) -%}
 <div class="row fade-it-in" id='campaign-episode-container'>
     <div id='episode-details' class="column">
         {% if episode %}
@@ -162,7 +243,7 @@
             </div>
             <div id="episode-report-container" class="fade-it-in">
                 <h3 class='has-text-center'>Planning</h3>
-                {{form_components.texteditor(user, episode, 'description')}}
+                {{form_components.richtexteditor(user, episode, 'description')}}
             </div>
             <div id="episode-report-container" class="fade-it-in">
                 <h3 class='has-text-center'>Report</h3>

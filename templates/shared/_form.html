@@ -1,3 +1,23 @@
+{% macro richtexteditor(user, obj, attr) -%}
+    <textarea id="edit-{{obj.pk}}-{{attr}}" 
+        name="{{name or attr}}" 
+        data-model="{{obj.__class__.__name__.lower()}}"
+        data-user="{{user.pk}}"
+        data-pk="{{obj.pk}}"
+        class="rich-text">
+        {% if not (content is none) %}
+            {{content | string |  safe}}
+        {% elif obj %}
+            {{obj[attr] | string | safe}}
+        {% endif %}
+    </textarea>
+    <script>
+        $(function() {
+            createCK('edit-{{obj.pk}}-{{attr}}');
+        });
+    </script>
+{%- endmacro %}
+
 {% macro textarea(user, obj, name="", content="") -%}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text has-bg-white" rows="1"
           placeholder="Start typing...">{{ content }}</textarea>

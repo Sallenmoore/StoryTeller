@@ -1,5 +1,11 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
+{% macro dsp_object_image(obj, dim="400") -%}
+    {% if obj.image %}
+    <img src="{{obj.image.url(size=dim)}}" alt="{{obj.name}}" loading="lazy" />
+    {% endif %}
+{% endmacro %}
+
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
 <a href="/{{obj.path}}" style='position: relative;'>
     <div class="image is-tile is-margin-center" style="width:100%;">
