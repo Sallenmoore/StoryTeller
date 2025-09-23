@@ -209,12 +209,10 @@
 {%- endmacro %}
 
 {% macro history(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
 {% macro details(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{details_components.details(user, obj)}}
 {%- endmacro %}
 
@@ -329,31 +327,25 @@
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
 {% macro journal(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{journal_components.journal(user, obj)}}
 {%- endmacro %}
 
 {% macro stories(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{story_components.stories(user, obj)}}
 {%- endmacro %}
 
 {% macro campaigns(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{campaigns_components.campaigns(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
-{{title_components.object_title(user, obj)}}
 {{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_faction_components.manage(user, obj) }}
 {%- endmacro %}

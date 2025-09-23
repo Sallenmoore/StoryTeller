@@ -21,6 +21,28 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
+    <li><a href="/{{obj.path}}/history">{{icon_components.history(size="1rem")}} History</a></li>
+    <li><a href="/{{obj.path}}/timeline">{{icon_components.timeline(size="1rem")}} Timeline</a></li>
+    <li><a href="/{{obj.path}}/campaigns">{{icon_components.campaigns(size="1rem")}} Campaigns</a></li>
+
+    {% if user.world_user(obj) %}
+    <li><a href="/{{obj.path}}/stories">{{icon_components.story(size="1rem")}} Stories</a></li>
+    <li><a href="/{{obj.path}}/journal">{{icon_components.journal(size="1rem")}} Journal</a></li>
+    {% endif %}
+
+    <!-- divider here -->
+
+    <li><a href="/{{obj.path}}/map">{{icon_components.map(size="1rem")}} Map</a></li>
+    <li><a href="/{{obj.path}}/players">{{icon_components.players(size="1rem")}} Players</a></li>
+    <!-- <li><a href="/{{obj.path}}/jobs">{{icon_components.jobs(size="1rem")}} Job Board</a></li> -->
+
+
+    {% if user.world_user(obj) %}
+    <li><a href="/{{obj.path}}/managescreens">{{icon_components.gmscreenmanage(size="1rem")}} GM Screen Manager</a></li>
+    {% endif %}
+{%- endmacro %}
+
+{% macro menu_org(user, obj) -%}
 <ul class="menu__list">
     <li>
         <a href="" class="menu-anchor"
@@ -293,13 +315,11 @@
 
 
 {% macro history(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
 
 {% macro details(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{details_components.details(user, obj)}}
 {%- endmacro %}
 
@@ -367,19 +387,16 @@
 
 
 {% macro timeline(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
 
 {% macro journal(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{journal_components.journal(user, obj)}}
 {%- endmacro %}
 
 
 {% macro stories(user, obj)%}
-{{title_components.object_title(user, obj)}}
 <div id='stories-list'>
     {{stories_components.stories(user, obj)}}
 </div>
@@ -387,7 +404,6 @@
 
 
 {% macro campaigns(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {% if user.world_user(obj)%}
 <div class="row">
     <div class="column is-shrink is-end">
@@ -407,23 +423,19 @@
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
-{{title_components.object_title(user, obj)}}
 {{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 
 {% macro map(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{map_components.map(user, obj)}}
 {%- endmacro %}
 
 {% macro jobs(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{jobs_components.jobs(user, obj)}}
 {%- endmacro %}
 
 
 {% macro players(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 <title>{{obj.name}} - Players Panel</title>
 <h2 class="has-text-dark">Players</h2>
 {% for player in obj.players %}
@@ -458,11 +470,9 @@
 
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_world_components.manage(user, obj) }}
 {%- endmacro %}
 
 {% macro managescreens(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_screen_components.manage(user, obj) }}
 {%- endmacro %}

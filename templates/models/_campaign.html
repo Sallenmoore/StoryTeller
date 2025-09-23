@@ -7,7 +7,6 @@
 {% import "manage/_campaign.html" as manage_campaign_components %}
 
 {% macro index(user, campaign) -%}
-{{title_components.object_title(user, campaign)}}
 <div class="row">
     <div class="column is-half">
         <h4 class="has-text-dark-grey has-text-center">
@@ -72,124 +71,16 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/history"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/history">
-            <div class="row">
-                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.history(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-history-anchor', {
-                        content: 'History',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>History</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/timeline"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/timeline">
-            <div class="row">
-                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.timeline(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-timeline-anchor', {
-                        content: 'Timeline',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Timeline</span>
-                </div>
-            </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/stories"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/stories">
-            <div class="row">
-                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.story(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-stories-anchor', {
-                        content: 'Stories',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Stories</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
+    <li><a href="/{{obj.path}}/history">{{icon_components.history(size="1rem")}} History</a></li>
+    <li><a href="/{{obj.path}}/timeline">{{icon_components.timeline(size="1rem")}} Timeline</a></li>
+    <li><a href="/{{obj.path}}/stories">{{icon_components.story(size="1rem")}} Stories</a></li>
 {% endmacro %}
 
 {% macro history(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations) -%}
-{{title_components.object_title(user, obj)}}
 
 <h2 class=" has-text-secondary has-text-center is-subtitle">
     Associations</h2>
@@ -204,11 +95,9 @@
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_campaign_components.manage(user, obj) }}
 {%- endmacro %}
 
 {% macro stories(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{story_components.stories(user, obj)}}
 {%- endmacro %}
