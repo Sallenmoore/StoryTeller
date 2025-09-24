@@ -100,8 +100,14 @@ The situation should be tangentially related in some way to the following global
   - Backstory: {BeautifulSoup(self.storyline.backstory, "html.parser").get_text()}
   - Current Situation: {BeautifulSoup(self.storyline.current_status, "html.parser").get_text()}
 """
-        if self.description:
-            prompt += f"""\n\nUse the following prompt as an additional design constraint on the situation:
+        if (
+            self.description
+            or self.rewards
+            or self.hook
+            or self.plot_twist
+            or self.antagonist
+        ):
+            prompt += f"""\n\nUse the following  as an additional design constraint on the situation:
 {f"\n- DESCRIPTION: {self.description}" if self.description else ""}
 {f"\n- REWARD: {self.rewards}" if self.rewards else ""}
 {f"\n- HOOK: {self.hook}" if self.hook else ""}

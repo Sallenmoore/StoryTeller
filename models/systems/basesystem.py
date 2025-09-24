@@ -1,15 +1,15 @@
 import random
 import re
 
-from bs4 import BeautifulSoup
-
-from autonomous import log
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.ai.textagent import TextAgent
 from autonomous.model.autoattr import (
     ReferenceAttr,
 )
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
+
+from autonomous import log
 
 
 class BaseSystem(AutoModel):
@@ -250,36 +250,36 @@ class BaseSystem(AutoModel):
     }
 
     _map_prompts = {
-        "city": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image:
-- MAP TYPE: A top-down atlas of the {obj.title}
-- SCALE: 1 inch == 500 feet
+        "city": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image.<br>
+- MAP TYPE: A top-down atlas of the {obj.title} <br>
+- SCALE: 1 inch == 500 feet <br>
 """,
-        "region": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title}  that fills the entire image:
-- MAP TYPE: A top-down atlas of the {obj.title}
-- SCALE: 1 inch == 50 miles
+        "region": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title}  that fills the entire image.<br>
+- MAP TYPE: A top-down atlas of the {obj.title} <br>
+- SCALE: 1 inch == 50 miles <br>
 """,
-        "world": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image:
-- MAP TYPE: A top-down atlas of the {obj.title}
-- SCALE: 1 inch == 500 miles
+        "world": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image.<br>
+- MAP TYPE: A top-down atlas of the {obj.title} <br>
+- SCALE: 1 inch == 500 miles <br>
 """,
-        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.location_type} {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
-- MAP TYPE: directly overhead, top-down
-- SCALE: 1 inch == 5 feet
+        "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map suitable for a {obj.genre} encounter in a {obj.location_type}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.<br>
+- MAP TYPE: directly overhead, top-down, no grid <br>
+- SCALE: 1 inch == 5 feet <br>
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG battlemap of an establishment suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
-- MAP TYPE: directly overhead, top-down
-- SCALE: 1 inch == 5 feet
+        "shop": lambda obj: f"""Generate a top-down navigable Table Top RPG battlemap of an establishment suitable for a {obj.genre} encounter at a {obj.title}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.<br>
+- MAP TYPE: directly overhead, top-down, no grid <br>
+- SCALE: 1 inch == 5 feet <br>
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter in a location with the following description: {obj.description_summary}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
-- MAP TYPE: directly overhead, top-down
-- SCALE: 1 inch == 5 feet
+        "district": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of a {obj.title} suitable for a {obj.genre} encounter in a {obj.title}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.<br>
+- MAP TYPE: directly overhead, top-down, no grid <br>
+- SCALE: 1 inch == 5 feet <br>
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
-        "vehicle": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map of the floor plan of a {obj.type} with the following description: {obj.description_summary}. The map should  fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.
-- MAP TYPE: directly overhead, top-down
-- SCALE: 1 inch == 5 feet
+        "vehicle": lambda obj: f"""Generate a top-down navigable {obj.genre} Table Top RPG battle map of the floor plan of a {obj.type}. The map should  fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.<br>
+- MAP TYPE: directly overhead, top-down, no grid <br>
+- SCALE: 1 inch == 5 feet <br>
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
     }
@@ -478,7 +478,7 @@ class BaseSystem(AutoModel):
     def map_prompt(cls, obj):
         return f"""{cls._map_prompts[obj.model_name().lower()](obj)}
 
-    !!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS
+    !!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS, NO GRID, NO UI, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST, DETAILED TEXTURE AND SHADING
     """
 
     ############# Property Methods #############

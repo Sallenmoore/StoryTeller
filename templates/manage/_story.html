@@ -188,7 +188,27 @@
 </div>
 <hr class='has-bg-muted'>
 <div class="row">
-    <div class="column is-shrink is-center">
+    <div class="column is-shrink is-vertically-centered">
+        <h4 class='has-text-center'>Merge Story</h4>
+        <div class="is-select" style="width: 100%;">
+            <select class="has-bg-light" name="mergepk"
+                    hx-post="/api/story/{{story.pk}}/merge"
+                    hx-target="#page-content"
+                    hx-push-url='false'
+                    hx-trigger="change"
+                    hx-confirm="Are you sure you want to merge another story into this one? This will overwrite existing content and delete the other story.">
+                <option value="" selected disabled> === Select Story to Merge Into This One ===
+                </option>
+                {% for s in story.world.stories %}
+                {% if s.pk != story.pk %}
+                <option value="{{s.pk}}">{{s.name}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="column is-shrink is-end">
+        <h4 class='has-text-center'>Delete Story</h4>
         <a hx-post="/api/story/{{story.pk}}/delete"
            hx-target="#page-content"
            hx-confirm='Are you sure you want to delete this story?'>

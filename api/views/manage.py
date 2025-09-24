@@ -109,13 +109,13 @@ def delete(model, pk):
 @manage_endpoint.route("/image", methods=("POST",))
 def image():
     user, obj, request_data = _loader()
-    return get_template_attribute("manage/_details.html", "image")(user, obj)
+    return get_template_attribute("shared/_manage.html", "image")(user, obj)
 
 
 @manage_endpoint.route("/image/gallery", methods=("POST",))
 def image_gallery():
     user, obj, request_data = _loader()
-    return get_template_attribute("manage/_details.html", "imagegallery")(
+    return get_template_attribute("shared/_manage.html", "imagegallery")(
         user, obj, images=obj.get_image_list()
     )
 

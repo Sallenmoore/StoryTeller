@@ -1,5 +1,6 @@
 import random
 
+import validators
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 
@@ -19,9 +20,8 @@ class Event(AutoModel):
     image = ReferenceAttr(choices=[Image])
     desc = StringAttr(default="")
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-    episode = ReferenceAttr(choices=["Episode"])
-    story = ReferenceAttr(choices=["Story"])
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
+    episode = ReferenceAttr(choices=["Episode"])
     world = ReferenceAttr(choices=["World"], required=True)
 
     @classmethod
@@ -78,10 +78,25 @@ class Event(AutoModel):
     def path(self):
         return f"event/{self.pk}"
 
+    ############# CRUD #############
+
+    def delete(self):
+        if self.image:
+            self.image.delete()
+        if self.start_date:
+            self.start_date.delete()
+        if self.end_date:
+            self.end_date.delete()
+        super().delete()
+
     ############# image generation #############
     def generate_image(self):
         if self.image:
-            self.image.delete()
+            if self in self.image.associations:
+                self.image.associations.remove(self)
+                self.image.save()
+            if len(self.image.associations) == 0:
+                self.image.delete()
             self.image = None
         if image := Image.generate(prompt=self.desc, tags=["event"]):
             self.image = image
@@ -90,6 +105,9 @@ class Event(AutoModel):
         else:
             log(self.desc, "Image generation failed.", _print=True)
         return self.image
+
+    def get_image_list(self):
+        return [i.image for i in self.associations if i.image]
 
     ############# Association Methods #############
     # MARK: Associations
@@ -118,11 +136,7 @@ class Event(AutoModel):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_associations()
         document.pre_save_dates()
-
-        ### MIGRATION: story to stories
-        if document.story and document.story not in document.stories:
-            document.stories += [document.story]
-            document.story = None
+        document.pre_save_image()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -210,9 +224,25 @@ class Event(AutoModel):
         if self.end_date and self.end_date.month <= 0:
             self.end_date.month = random.randint(1, 12)
 
-        # log(
-        #     f"Pre-saved dates for {self}",
-        #     self.start_date,
-        #     self.end_date,
-        #     self.world.current_date,
-        # )
+    def pre_save_image(self):
+        if isinstance(self.image, str):
+            if validators.url(self.image):
+                self.image = Image.from_url(
+                    self.image,
+                    prompt=self.image_prompt,
+                    tags=[*self.image_tags],
+                )
+                self.image.save()
+            elif image := Image.get(self.image):
+                self.image = image
+            else:
+                raise validators.ValidationError(
+                    f"Image must be an Image object, url, or Image pk, not {self.image}"
+                )
+        elif self.image and not self.image.tags:
+            self.image.tags = self.image_tags
+            self.image.save()
+
+        if self.image and self not in self.image.associations:
+            self.image.associations += [self]
+            self.image.save()

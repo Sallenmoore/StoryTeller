@@ -75,7 +75,7 @@ def add_story():
 
 
 @story_endpoint.route("/<string:pk>/update", methods=("POST",))
-def edit_story(pk=None):
+def edit_story(pk):
     user, obj, request_data = _loader()
     log(request.json)
     story = Story.get(pk)
@@ -91,6 +91,44 @@ def edit_story(pk=None):
     if story not in obj.world.stories:
         obj.world.stories += [story]
     obj.world.save()
+    return get_template_attribute("manage/_story.html", "manage")(
+        user,
+        story,
+    )
+
+
+@story_endpoint.route("/<string:pk>/merge", methods=("POST",))
+def merge_story(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+
+    if pk == request_data.get("mergepk"):
+        return get_template_attribute("manage/_story.html", "manage")(
+            user,
+            story,
+        )
+
+    if mergestory := Story.get(request_data.get("mergepk")):
+        story.name = request.json.get("name", story.name)
+        story.scope = request.json.get("scope", story.scope)
+        story.situation = request.json.get("situation", story.situation)
+        story.current_status = (
+            f"{story.current_status}" + f"<br> <br> {mergestory.current_status}"
+        )
+        story.backstory = f"{story.backstory}" + f"<br> <br> {mergestory.backstory}"
+        story.rumors += mergestory.rumors
+        story.information += mergestory.information
+        story.tasks += mergestory.tasks
+        for assoc in mergestory.associations:
+            story.add_association(assoc)
+        for event in mergestory.events:
+            if story not in event.stories:
+                event.stories += [story]
+                event.save()
+        if mergestory.bbeg and not story.bbeg:
+            story.bbeg = mergestory.bbeg
+        mergestory.delete()
+        story.save()
     return get_template_attribute("manage/_story.html", "manage")(
         user,
         story,

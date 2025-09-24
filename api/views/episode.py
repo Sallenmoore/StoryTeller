@@ -9,10 +9,10 @@ import os
 import random
 
 import requests
+from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.stories.story import Story
@@ -64,6 +64,19 @@ def edit_episode(pk=None):
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
         episode,
+    )
+
+
+@episode_endpoint.route("/<string:episodepk>/delete", methods=("POST",))
+def delete(episodepk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(episodepk)
+    campaign = episode.campaign
+    campaign.delete_episode(episodepk)
+    # log(module, macro)
+    return get_template_attribute("models/_campaign.html", "index")(
+        user,
+        campaign,
     )
 
 
@@ -146,22 +159,3 @@ def episodeassociationentrydelete(pk, amodel, apk):
         episode = episode.remove_association(a)
         a.save()
     return "<p>success</p>"
-
-
-@episode_endpoint.route("/<string:episodepk>/delete", methods=("POST",))
-def episodedelete(episodepk):
-    user, obj, request_data = _loader()
-    episode = Episode.get(episodepk)
-    campaign = episode.campaign
-    campaign.delete_episode(episodepk)
-    # log(module, macro)
-    return
-
-
-@episode_endpoint.route("/<string:pk>/report", methods=("POST",))
-def episodereportpanel(pk):
-    user, obj, request_data = _loader()
-    episode = Episode.get(pk)
-    return get_template_attribute("manage/_campaign.html", "episode_report")(
-        user, obj, episode
-    )

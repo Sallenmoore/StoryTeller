@@ -49,11 +49,18 @@ class Place(TTRPGObject):
     # MARK: generate_map
     def generate_map(self):
         # log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
+        if self.map and self in self.map.associations:
+            if len(self.map.associations) <= 1:
+                self.map.delete()
+            else:
+                self.map.associations.remove(self)
+                self.map.save()
         if self.backstory and self.backstory_summary:
-            map_prompt = self.map_prompt or self.system.map_prompt(self)
+            if not self.map_prompt:
+                self.map_prompt = self.system.map_prompt(self)
             # log(map_prompt)
             self.map = Map.generate(
-                prompt=map_prompt,
+                prompt=self.map_prompt,
                 tags=["map", *self.image_tags],
                 img_quality="hd",
                 img_size="1792x1024",

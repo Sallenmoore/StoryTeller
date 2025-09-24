@@ -402,8 +402,13 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_image
     def generate_image(self):
-        if self.image and len(self.image.associations) <= 1:
-            self.image.delete()
+        if self.image and self in self.image.associations:
+            if len(self.image.associations) <= 1:
+                log("deleting image", self.image, _print=True)
+                self.image.delete()
+            else:
+                self.image.associations.remove(self)
+                self.image.save()
         if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
             self.image = image
             self.image.associations += [self]

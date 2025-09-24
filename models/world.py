@@ -366,8 +366,17 @@ class World(TTRPGBase):
 
     # MARK: generate_map
     def generate_map(self):
+        if self.map and self in self.map.associations:
+            if len(self.map.associations) <= 1:
+                log("deleting map", self.map, _print=True)
+                self.map.delete()
+            else:
+                self.map.associations.remove(self)
+                self.map.save()
+        if not self.map_prompt:
+            self.map_prompt = self.system.map_prompt(self)
         self.map = Map.generate(
-            prompt=self.map_prompt or self.system.map_prompt(self),
+            prompt=self.map_prompt,
             tags=["map", self.model_name().lower(), self.genre],
             img_quality="hd",
             img_size="1792x1024",

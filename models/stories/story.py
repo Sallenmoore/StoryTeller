@@ -99,6 +99,12 @@ class Story(AutoModel):
     def path(self):
         return f"story/{self.pk}"
 
+    ################ Crud ################
+    def delete(self):
+        if self.image:
+            self.image.delete()
+        super().delete()
+
     def generate(self):
         prompt = f"Your task is to create a new storyline with a {self.scope} scope for the following {self.world.genre} TTRPG world. The story should incorporate existing world elements and relationships. however, the plot must include elements that can benefit from outside assistance or interference. Here is some context about the world: {self.world.name}, {self.world.description}. "
 
