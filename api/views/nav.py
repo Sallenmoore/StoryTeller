@@ -50,3 +50,22 @@ def navsearch():
     results = [r for r in results if r != obj]
     # log(macro, query, [r.name for r in results])
     return get_template_attribute("_nav.html", "nav_dropdown")(user, obj, results)
+
+@nav_endpoint.route(
+    "/mentions",
+    methods=("POST",),
+)
+def mentionsearch():
+    user, obj, request_data = _loader()
+    query = request.json.get("query")
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
+
+    response=[]
+    for item in results:
+        mention = "@" + item.name
+        model_name = item.model_name().lower()
+        guid = str(item.pk)
+        entry = {"id": mention, "pk": str(item.pk), "name": item.name, "type": item.model_name().lower(), "guid": guid}
+        response.append(entry)
+
+    return response

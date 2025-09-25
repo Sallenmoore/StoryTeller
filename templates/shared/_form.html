@@ -5,9 +5,7 @@
         data-user="{{user.pk}}"
         data-pk="{{obj.pk}}"
         class="rich-text">
-        {% if not (content is none) %}
-            {{content | string |  safe}}
-        {% elif obj %}
+        {% if obj %}
             {{obj[attr] | string | safe}}
         {% endif %}
     </textarea>
@@ -22,7 +20,7 @@
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text has-bg-white" rows="1"
           placeholder="Start typing...">{{ content }}</textarea>
 <script>
-    var textareas = document.querySelectorAll('.auto-resize-text');
+    var textareas = document.querySelectorAll('.auto-resize-text0');
 
     textareas.forEach(textarea => {
         // Adjust height on input
@@ -53,7 +51,7 @@
     {% endfor %}
 </div>
 <script>
-    var textareas = document.querySelectorAll('.auto-resize-text');
+    var textareas = document.querySelectorAll('.auto-resize-text0');
 
     textareas.forEach(textarea => {
         // Adjust height on input

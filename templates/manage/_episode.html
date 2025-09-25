@@ -4,12 +4,12 @@
 {% import "shared/_manage.html" as manage_components %}
 
 {% macro manage(user, episode) -%}
+<form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+      hx-trigger="input delay:1s, change">
 <div id="episode-manage" class="grid-x grid-padding-x">
     <div class="story cell small-12 medium-8">
         {% if episode %}
 
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
-              hx-trigger="input delay:1s, change">
             <div class="grid-x">
                 <div class="cell small-1">
                     <label>No.
@@ -32,7 +32,6 @@
 <h3>Hooks</h3>
 {{form_components.texteditor(user, episode, 'hooks')}}
 
-        </form>
     </div>
     <div class="related-panel cell small-12 medium-4">
         <!-- replace this with link -->{{ display_components.dsp_object_image(episode,'400') }}
@@ -81,6 +80,8 @@
         {% endif %}
     </div>
 </div>
+
+</form>
 {%- endmacro %}
 
 {% macro manage_old(user, episode) -%}

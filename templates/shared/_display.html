@@ -6,6 +6,20 @@
     {% endif %}
 {% endmacro %}
 
+{% macro dsp_object_lifetime(obj, event="start") -%}
+    {% if obj.model_name() in ['Character', 'Creature'] %}
+        {% set lifetime = {"start": "Born", "end": "Died"} %}
+    {% elif obj.model_name() in ['Faction'] %}
+        {% set lifetime = {"start": "Assembled", "end": "Disbanded"} %}
+    {% elif obj.model_name() in ['Item', 'Vehicle'] %}
+        {% set lifetime = {"start": "Created", "end": "Destroyed"} %}
+    {% else %}
+        {% set lifetime = {"start": "Began", "end": "Ended"} %}
+    {% endif %}
+
+    {{lifetime[event]}}
+{%- endmacro %}
+
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
 <a href="/{{obj.path}}" style='position: relative;'>
     <div class="image is-tile is-margin-center" style="width:100%;">
