@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
+from models.images.image import Image
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
@@ -32,6 +33,7 @@ class Episode(AutoModel):
     end_date_obj = ReferenceAttr(choices=["Date"])
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
+    graphic = ReferenceAttr(choices=["Image"])
     episode_report = StringAttr(default="")
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
@@ -181,6 +183,29 @@ class Episode(AutoModel):
         )
         self.save()
         return self.summary
+
+    def generate_graphic(self):
+        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
+        description = self.world.system.generate_summary(
+            prompt,
+            primer="Provide a vivid and detailed description for an AI-generated image that captures the essence of the episode, including key visual elements, atmosphere, and significant characters or locations.",
+        )
+        description = description.replace("```markdown", "").replace("```", "")
+        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files to reference character appearances.\n\nHere is a description of the main characters:\n\n{'\n\n'.join([f'{c.name}:{c.description_summary or c.description[:100]}' for c in self.players])}."
+        log(f"Graphic Description: {description}", _print=True)
+        party = [c.image for c in self.players]
+        if image := Image.generate(
+            prompt=description, tags=["episode", "graphic"], files=party
+        ):
+            if self.graphic:
+                self.graphic.delete()
+            self.graphic = image
+            self.graphic.associations += [self]
+            self.graphic.save()
+            self.save()
+        else:
+            log("Image generation failed.", _print=True)
+        return self.graphic
 
     def get_scene(self, pk):
         return Location.get(pk) or District.get(pk)

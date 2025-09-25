@@ -132,6 +132,18 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/episode/<string:pk>/graphic", methods=("POST",))
+    def generate_episode_graphic(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_episode_graphic_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
     def generate_story_summary(pk):
         task = (

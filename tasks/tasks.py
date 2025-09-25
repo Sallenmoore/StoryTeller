@@ -65,7 +65,13 @@ def _generate_campaign_summary_task(pk):
 def _generate_session_summary_task(pk):
     if obj := Episode.get(pk):
         obj.resummarize()
-    return {"url": f"/api/episode/{obj.pk}/manage"}
+    return {"url": f"/api/{obj.path}/manage"}
+
+
+def _generate_episode_graphic_task(pk):
+    if obj := Episode.get(pk):
+        obj.generate_graphic()
+    return {"url": f"/api/{obj.path}/graphic"}
 
 
 def _generate_character_chat_task(pk, chat):

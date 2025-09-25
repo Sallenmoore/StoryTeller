@@ -159,3 +159,20 @@ def episodeassociationentrydelete(pk, amodel, apk):
         episode = episode.remove_association(a)
         a.save()
     return "<p>success</p>"
+
+
+###########################################################
+##             episode Graphic Routes                    ##
+###########################################################
+
+
+@episode_endpoint.route(
+    "/<string:pk>/graphic/generate",
+    methods=("POST",),
+)
+def episodegenerategraphic(pk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(pk)
+    return requests.post(
+        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.path}/graphic"
+    ).text

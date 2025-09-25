@@ -2,10 +2,6 @@ import io
 import random
 
 import requests
-from bs4 import BeautifulSoup
-from PIL import Image as ImageTools
-
-from autonomous import log
 from autonomous.ai.imageagent import ImageAgent
 from autonomous.model.autoattr import (
     FileAttr,
@@ -14,6 +10,10 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
+from PIL import Image as ImageTools
+
+from autonomous import log
 
 
 class Image(AutoModel):
@@ -35,11 +35,15 @@ class Image(AutoModel):
     def generate(
         cls,
         prompt,
-        tags=[],
+        tags=None,
         img_quality="standard",
         img_size="1024x1024",
         text=False,
+        files=None,
     ):
+        tags = tags or []
+        files = files or []
+        # Clean the prompt to remove any HTML tags
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
         # log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         temp_prompt = (
@@ -51,7 +55,7 @@ IMPORTANT: The image MUST NOT contain any TEXT.
         )
         try:
             image = ImageAgent().generate(
-                prompt=temp_prompt,
+                prompt=temp_prompt, files=[f.to_file() for f in files if f]
             )
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
@@ -124,6 +128,12 @@ IMPORTANT: The image MUST NOT contain any TEXT.
         if self.data:
             self.data.seek(0)
             return self.data.read()
+
+    def to_file(self):
+        if self.data:
+            self.data.seek(0)
+            return self.data.read()
+        return None
 
     def delete(self):
         if self.data:

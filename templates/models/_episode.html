@@ -39,6 +39,29 @@
         </a>
     </li>
     <li>
+        <a href="/{{obj.path}}/graphic">
+            <div class="row">
+                <div id='menu-graphic-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.campaigns(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-graphic-anchor', {
+                        content: 'Graphic',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Graphic</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
         <a href="/{{obj.campaign.path}}">
             <div class="row">
                 <div id='menu-campaign-anchor' class="column is-3 is-mobile-shrink">
@@ -104,6 +127,37 @@
         </div>
     </div>
 </div>
+{%- endmacro %}
+
+{% macro graphic(user, obj) -%}
+<title>{{obj.name or obj.title}} - Details</title>
+{{title_components.object_title(user, obj)}}
+<div class="panel">
+    <div id="episode-graphic" class="row has-space-around">
+        {% if user.world_user(obj) %}
+        <div class="column is-shrink has-text-muted">
+            <div class="panel has-bg-screen has-centered">
+                <button class="button is-primary"
+                        hx-post="/api/{{obj.path}}/graphic/generate"
+                        hx-indicator="#request-indicator"
+                        hx-push-url="/{{obj.path}}/graphic">
+                    Generate New Graphic
+                </button>
+            </div>
+        </div>
+        {% endif %}
+        <div class=" column is-10 has-text-dark">
+            <div class="panel has-bg-muted">
+                {% if obj.graphic %}
+                <div class="image">
+                    <img src="{{obj.graphic.url()}}" alt="{{obj.name}}" />
+                </div>
+                {% else %}
+                <p>No graphic has been generated for this episode.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {%- endmacro %}
 
