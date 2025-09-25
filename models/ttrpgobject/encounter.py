@@ -1,7 +1,8 @@
 import random
 
-from autonomous import log
 from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
+
+from autonomous import log
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 
@@ -187,11 +188,16 @@ class Encounter(TTRPGObject):
 """
 
         prompt = f"""Generate a {self.genre} TTRPG encounter scenario using the following guidelines:
-{f"- LOCATION: {desc}" if desc else ""}
 - CONTEXT: {context}
-- SCENARIO: {self.backstory}
-- DIFFICULTY: {self.difficulty}
 - ENEMY TYPE: {enemy_type}
+{f"- NAME: {self.name}" if self.name else ""}
+{f"- LOCATION: {desc}" if desc else ""}
+{f"- SCENARIO: {self.description}" if self.description else ""}
+{f"- DIFFICULTY: {self.difficulty}" if self.difficulty else ""}
+{f"- TRIGGER CONDITION: {self.trigger_conditions}" if self.trigger_conditions else ""}
+{f"- COMPLICATIONS: {self.complications}" if self.complications else ""}
+{f"- PLAYER CONTINGENCIES: {'; '.join(self.player_contingencies)}" if self.player_contingencies else ""}
+{f"- POTENTIAL OUTCOMES: {'; '.join(self.potential_outcomes)}" if self.potential_outcomes else ""}
 """
         # log(prompt, _print=True)
         results = super().generate(prompt=prompt)

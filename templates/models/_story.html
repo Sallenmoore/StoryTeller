@@ -12,79 +12,75 @@
 {{title_components.object_title(user, story)}}
 <div class="section">
     <div class="row has-space-around">
-        <div class="column">
-            <div class="row">
-                <div class="column has-text-secondary">
-                    <h3 class='has-text-secondary has-text-center'>Scope: {{story.scope}}</h3>
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h4 class='has-text-center'>Situation</h4>
-                        {{story.situation | safe}}
-                    </div>
-                </div>
-                <div id="story-bbeg" class="column is-3 is-end has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h3 class='has-text-center'>BBEG</h3>
-                        {% if story.bbeg %}
-                        {{display_components.object_display(story.bbeg)}}
-                        {% else %}
-                        Unknown
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="column is-full has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h4 class='has-text-center'>Current Status</h4>
-                        {{story.current_status | safe}}
-                    </div>
-                </div>
-                <div class="column is-full has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h4 class='has-text-center'>Backstory</h4>
-                        {{story.backstory | safe }}
-                    </div>
-                </div>
-                <div id="story-tasks" class="column is-full has-text-secondary">
-                    <h3 class='has-text-center'>Tasks</h3>
-                    <div class="row has-space-around">
-                        {% for task in story.tasks %}
-                        <div class="column is-2">
-                            <div class="panel has-bg-muted has-text-dark">
-                                {{task}}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <hr class='has-bg-primary'>
-                </div>
-                <div class="column is-6 has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h3 class='has-text-center'>Information</h3>
-                        <ul>
-                            {%for q in story.information %}
-                            <li>{{q | safe}}</li>
-                            {%endfor%}
-                        </ul>
-                    </div>
-                </div>
-                <div class="column is-6 has-text-secondary">
-                    <div class="panel has-bg-muted has-text-dark">
-                        <h3 class='has-text-center'>Rumors</h3>
-                        <ul>
-                            {%for q in story.rumors %}
-                            <li>{{q | safe}}</li>
-                            {%endfor%}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
         {% if story.image %}
         <div class="column is-4">
             <div class="image" style="width:100%;">
-                <img src="{{story.image.url()}}" alt="{{obj.name}}" />
+                <img src="{{story.image.url()}}" alt="{{story.name}}" />
             </div>
         </div>
         {% endif %}
+        <div class="column has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h4 class='has-text-center'>Situation</h4>
+                {{story.situation | safe}}
+            </div>
+        </div>
+        <div id="story-bbeg" class="column is-3 is-end has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h3 class='has-text-center'>BBEG</h3>
+                {% if story.bbeg %}
+                {{display_components.object_display(story.bbeg)}}
+                {% else %}
+                Unknown
+                {% endif %}
+                <h3 class='has-text-secondary has-text-center'>Scope: {{story.scope}}</h3>
+            </div>
+        </div>
+        <div class="column is-full has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h4 class='has-text-center'>Current Status</h4>
+                {{story.current_status | safe}}
+            </div>
+        </div>
+        <div class="column is-full has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h4 class='has-text-center'>Backstory</h4>
+                {{story.backstory | safe }}
+            </div>
+        </div>
+        <div id="story-tasks" class="column is-full has-text-secondary">
+            <h3 class='has-text-center'>Tasks</h3>
+            <div class="row has-space-around">
+                {% for task in story.tasks %}
+                <div class="column is-2">
+                    <div class="panel has-bg-muted has-text-dark">
+                        {{task}}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <hr class='has-bg-primary'>
+        </div>
+        <div class="column is-6 has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h3 class='has-text-center'>Information</h3>
+                <ul>
+                    {%for q in story.information %}
+                    <li>{{q | safe}}</li>
+                    {%endfor%}
+                </ul>
+            </div>
+        </div>
+        <div class="column is-6 has-text-secondary">
+            <div class="panel has-bg-muted has-text-dark">
+                <h3 class='has-text-center'>Rumors</h3>
+                <ul>
+                    {%for q in story.rumors %}
+                    <li>{{q | safe}}</li>
+                    {%endfor%}
+                </ul>
+            </div>
+        </div>
     </div>
     <hr class='has-bg-primary'>
     <div class="row">

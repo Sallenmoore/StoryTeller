@@ -1,12 +1,12 @@
 import os
 
+from autonomous.model.automodel import AutoModel
+from autonomous.tasks import AutoTasks
 from config import Config
 from flask import Flask, get_template_attribute, request
 
 import tasks
 from autonomous import log
-from autonomous.model.automodel import AutoModel
-from autonomous.tasks import AutoTasks
 from filters.utils import bonus, roll_dice
 from models.ttrpgobject.faction import Faction
 from models.user import User
@@ -126,6 +126,18 @@ def create_app():
             AutoTasks()
             .task(
                 tasks._generate_session_summary_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
+    def generate_story_summary(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_story_summary_task,
                 pk=pk,
             )
             .result

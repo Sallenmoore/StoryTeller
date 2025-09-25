@@ -19,7 +19,6 @@ class TTRPGObject(TTRPGBase):
     parent = ReferenceAttr(choices=[TTRPGBase])
     start_date = ReferenceAttr(choices=["Date"])
     end_date = ReferenceAttr(choices=["Date"])
-    status = StringAttr(default="")
     parent_list = []
 
     start_date_label = "Founded"

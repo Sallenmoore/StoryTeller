@@ -1,10 +1,10 @@
 import json
 
+from autonomous.model.automodel import AutoModel
+from autonomous.tasks import AutoTasks
 from dmtoolkit import dmtools
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
-from autonomous.tasks import AutoTasks
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
@@ -46,7 +46,7 @@ def _generate_map_task(model, pk):
 
 def _generate_history_task(model, pk):
     if obj := World.get_model(model, pk):
-        obj.resummarize(upload=True)
+        obj.resummarize()
     return {"url": f"/api/{obj.path}/history"}
 
 
@@ -96,3 +96,9 @@ def _generate_story_task(pk):
     story = Story.get(pk)
     story.generate()
     return {"url": f"/api/{story.path}/manage"}
+
+
+def _generate_story_summary_task(pk):
+    if obj := Story.get(pk):
+        obj.summarize()
+    return {"url": f"/api/{obj.path}/history"}

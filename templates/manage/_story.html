@@ -36,6 +36,14 @@
                             hx-confirm="Are you sure you want to re-generate the story? This will overwrite existing content.">
                         Generate
                     </button>
+                    <hr>
+                    <button class="button"
+                            hx-post='/task/generate/story/{{story.pk}}/summary'
+                            hx-swap='outerHTML'
+                            hx-trigger="click consume"
+                            hx-confirm="Are you sure you want to re-generate the history? This will overwrite the existing history.">
+                        Summarize
+                    </button>
                 </div>
             </div>
         </div>

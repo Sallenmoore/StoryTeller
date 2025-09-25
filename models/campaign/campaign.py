@@ -121,11 +121,12 @@ class Campaign(AutoModel):
                 text += f"\n{entry.summary}\n"
             elif entry.end_date:
                 entry.resummarize()
-                text += entry.summary
+                text += f"\n{entry.summary}\n"
+        text = f"Summarize the following campaign for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the campaign and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.name}, {self.description}. Here are the episode summaries: {text}."
         if text:
             self.summary = self.world.system.generate_summary(
                 text,
-                primer="Generate a complete and comprehensive summary of the described events in MARKDOWN format with paragraph breaks where appropriate, but after no more than 4 sentences.",
+                primer="Provide an engaging, narrative summary of the campaign, highlighting its key elements and significance within the larger story in MARKDOWN.",
             )
             self.summary = self.summary.replace("```markdown", "").replace("```", "")
             self.summary = (

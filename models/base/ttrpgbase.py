@@ -34,6 +34,7 @@ class TTRPGBase(AutoModel):
     image = ReferenceAttr(choices=[Image])
     current_age = IntAttr(default=lambda: random.randint(18, 50))
     history = StringAttr(default="")
+    status = StringAttr(default="")
     journal = ReferenceAttr(choices=[Journal])
 
     story_types = [
@@ -469,11 +470,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     ########## Object Data ######################
     # MARK: History
-    def resummarize(self, upload=False):
+    def resummarize(self):
         from models.stories.quest import Quest
 
-        self.history = "Generating... please refresh the page in a few seconds."
-        self.save()
         # generate backstory summary
         if len(self.backstory.split()) < 80:
             self.backstory_summary = self.backstory
@@ -491,7 +490,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if len(self.description.split()) < 25:
             self.description_summary = self.description
         else:
-            primer = f"Generate a plain text summary of the provided {self.title}'s description in 20 words or fewer."
+            primer = f"Generate a plain text summary of the provided {self.title}'s description in 25 words or fewer."
             self.description_summary = self.system.generate_summary(
                 self.description, primer
             )
@@ -509,9 +508,9 @@ HISTORY
             prompt += """
 ## Associated Events
 """
-            prompt += "\n".join(
-                f"- {e.name}: {e.backstory} {e.outcome}"
-                for e in self.events
+            prompt += "\n\n".join(
+                f"- {e.name} [{e.end_date}]: {e.backstory} {e.outcome}"
+                for e in sorted(self.events, key=lambda e: e.end_date)
                 if e.backstory and e.outcome
             )
 
@@ -522,7 +521,7 @@ HISTORY
 {self.status}
 """
         log(f"Generating history...\n{prompt}", _print=True)
-        history_primer = f"Incorporate the given information into the given {self.title}'s HISTORY to generate a narrative summary of the {self.title}'s story. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
+        history_primer = f"Incorporate the given information into the {self.title}'s HISTORY to generate a narrative summary of the {self.title}'s story. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
         history = self.system.generate_summary(prompt, history_primer)
         history = history.replace("```markdown", "").replace("```", "")
         self.history = (

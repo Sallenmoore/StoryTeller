@@ -19,6 +19,7 @@ class Story(AutoModel):
     backstory = StringAttr(default="")
     tasks = ListAttr(StringAttr(default=""))
     image = ReferenceAttr(choices=[Image])
+    summary = StringAttr(default="")
     rumors = ListAttr(StringAttr(default=""))
     information = ListAttr(StringAttr(default=""))
     bbeg = ReferenceAttr(choices=["Character", "Faction"])
@@ -91,9 +92,7 @@ class Story(AutoModel):
 
     @property
     def history(self):
-        return (
-            f"{self.situation}<br><br> {self.backstory}<br><br> {self.current_status}"
-        )
+        return self.summary
 
     @property
     def path(self):
@@ -150,11 +149,36 @@ class Story(AutoModel):
         else:
             log("Failed to generate Story", __print=True)
 
+    def summarize(self):
+        prompt = f"Summarize the following storyline for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the story and its significance within the larger world. Here is some context about the world: {self.world.name}, {self.world.description}. Here is the storyline: {self.situation}, {self.backstory}, {self.current_status}. The storyline includes the following tasks: {', '.join(self.tasks)}. There are also the following rumors associated with the storyline: {', '.join(self.rumors)}. Finally, here is some reliable information about the storyline: {', '.join(self.information)}. Here are the events that have occurred related to this storyline: {', '.join([f'{e.end_date}: {e.outcome}' for e in self.events])}"
+        primer = "Provide an engaging, narrative summary of the storyline, highlighting its key elements and significance within the larger world."
+        log(f"Generating summary...\n{prompt}", _print=True)
+        self.summary = self.world.system.generate_summary(prompt, primer)
+        # MARK: generate_image
+        self.save()
+
+        if self.image and self in self.image.associations:
+            if len(self.image.associations) <= 1:
+                log("deleting image", self.image, _print=True)
+                self.image.delete()
+            else:
+                self.image.associations.remove(self)
+                self.image.save()
+        if image := Image.generate(
+            prompt=self.history, tags=[self.world.name, "story"]
+        ):
+            self.image = image
+            self.image.associations += [self]
+            self.image.save()
+            self.save()
+        else:
+            log(self.image_prompt, "Image generation failed.", _print=True)
+
     ############# Association Methods #############
     # MARK: Associations
     def add_association(self, obj):
         # log(len(self.associations), obj in self.associations)
-        if obj not in self.associations:
+        if obj != self and obj not in self.associations:
             self.associations += [obj]
             self.save()
         return obj

@@ -5,9 +5,6 @@ import re
 
 import markdown
 import requests
-from bs4 import BeautifulSoup
-
-from autonomous import log
 from autonomous.model.autoattr import (
     DictAttr,
     FileAttr,
@@ -17,6 +14,9 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
+
+from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 from models.ttrpgobject.character import Character
@@ -167,14 +167,14 @@ class Episode(AutoModel):
     ##################### INSTANCE METHODS ####################
 
     def resummarize(self):
-        self.summary = (
-            self.world.system.generate_summary(
-                self.episode_report,
-                primer="Generate a summary of less than 250 words of the episode events in MARKDOWN format with a paragraph breaks where appropriate, but after no more than 4 sentences.",
-            )
-            if len(self.episode_report) > 256
-            else self.episode_report
+        if not self.episode_report:
+            return ""
+        prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode report: {self.episode_report}."
+        self.summary = self.world.system.generate_summary(
+            prompt,
+            primer="Provide an engaging, narrative summary of the episode, highlighting its key elements and significance within the larger story.",
         )
+
         self.summary = self.summary.replace("```markdown", "").replace("```", "")
         self.summary = (
             markdown.markdown(self.summary).replace("h1>", "h3>").replace("h2>", "h3>")
