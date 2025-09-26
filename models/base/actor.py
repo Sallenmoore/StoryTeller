@@ -94,7 +94,6 @@ class Actor(TTRPGObject):
             "description": "Generate at least 2 offensive combat, 2 defensive combat AND 2 roleplay special ability objects for the array. Each object in the array should have attributes for the ability name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
             "items": {
                 "type": "object",
-                "additionalProperties": False,
                 "required": [
                     "name",
                     "action",

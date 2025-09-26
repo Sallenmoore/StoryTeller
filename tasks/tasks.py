@@ -30,11 +30,7 @@ def _generate_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate()
         if not obj.image:
-            AutoTasks().task(
-                _generate_image_task,
-                model,
-                pk,
-            )
+            obj.generate_image()
     return {"url": f"/api/{obj.path}/manage"}
 
 

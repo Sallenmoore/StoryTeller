@@ -6,6 +6,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./app:/var/app/
       - ./models:/var/app/models/
@@ -20,7 +23,7 @@ services:
       - "${APP_PORT}:${COMM_PORT}"
     depends_on:
       - api
-      - db
+      #- db
   api:
     image: ${APP_NAME}_api:latest
     build:
@@ -28,6 +31,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}_api
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./api:/var/app/
       - ./models:/var/app/models/
@@ -40,25 +46,25 @@ services:
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
     ports:
       - "${API_PORT}:${COMM_PORT}"
-    depends_on:
-      - db
-  db:
-    image: mongo:latest
-    container_name: ${APP_NAME}_db
-    env_file: .env
-    healthcheck:
-      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
-    volumes:
-      - ./tables:/data/db
-    logging:
-      driver: none
-  db-express:
-    image: mongo-express:latest
-    ports:
-      - ${DBDEBUG_PORT}:8081
-    env_file: .env
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
+  # db:
+  #   image: mongo:latest
+  #   container_name: ${APP_NAME}_db
+  #   env_file: .env
+  #   healthcheck:
+  #     test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+  #   volumes:
+  #     - ./tables:/data/db
+  #   logging:
+  #     driver: none
+  # db-express:
+  #   image: mongo-express:latest
+  #   ports:
+  #     - ${DBDEBUG_PORT}:8081
+  #   env_file: .env
+  #   depends_on:
+  #     - db
   tasks:
     image: ${APP_NAME}_tasks:latest
     build:
@@ -66,8 +72,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}_tasks
-    ports:
-      - "${EXTERNAL_MONITOR_PORT}:${MONITOR_PORT}"
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./tasks:/var/app/
       - ./models:/var/app/models/
@@ -78,16 +85,16 @@ services:
       - ./logs:/var/app/logs/
       - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-    depends_on:
-      - taskdb
-      - db
-  taskdb:
-    image: redis/redis-stack-server:latest
-    container_name: ${APP_NAME}_taskdb
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+    # depends_on:
+    #   - taskdb
+    #   - db
+  # taskdb:
+  #   image: redis/redis-stack-server:latest
+  #   container_name: ${APP_NAME}_taskdb
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
 networks:
   default:
     name: ${APP_NAME}_net
-  world_net:
+  db_net:
     external: true
