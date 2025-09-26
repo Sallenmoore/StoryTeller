@@ -20,6 +20,7 @@ from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 from models.images.image import Image
+from models.stories.event import Event
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
@@ -57,6 +58,10 @@ class Episode(AutoModel):
     @property
     def encounters(self):
         return [a for a in self.associations if a.model_name() == "Encounter"]
+
+    @property
+    def events(self):
+        return Event.search(episode=self)
 
     @property
     def factions(self):

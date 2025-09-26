@@ -5,13 +5,13 @@ import subprocess
 from datetime import datetime
 
 import requests
+from autonomous.auth.autoauth import AutoAuth
+from autonomous.tasks.autotask import AutoTasks
 
 # external Modules
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.auth.autoauth import AutoAuth
-from autonomous.tasks.autotask import AutoTasks
 from models.calendar.date import Date
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
@@ -58,7 +58,13 @@ tags = {
 tag_list = sorted([*tags["type"], *tags["genre"]])
 
 
-@admin_endpoint.route("/manage", methods=("POST",))
+@admin_endpoint.route(
+    "/manage",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def index():
     return get_template_attribute("admin/_index.html", "manage")()
 

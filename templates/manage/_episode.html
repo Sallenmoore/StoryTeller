@@ -12,7 +12,7 @@
                      style='position:relative;'>
                     {{episode.summary | safe}}
                     <button class='button is-small' class="button is-primary"
-                            style='position: absolute; bottom:0px; right:0px;'
+                            style='position: absolute; top:0px; right:0px;'
                             hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
                             hx-target='closest .column'>
                         Update Summary
@@ -179,6 +179,22 @@
         </form>
     </div>
     <div class="column is-4">
+        <hr class='has-bg-muted'>
+        <h3 class='has-text-center'>Events</h3>
+        <div class="row has-space-around">
+            {% for event in episode.events %}
+            <div class="column is-4">
+                {{display_components.object_display(event, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+        <button class='button is-fullwidth is-primary'
+                hx-post='/api/{{episode.path}}/event/generate'
+                hx-target='#page-content'>
+            Generate Event From Episode
+        </button>
+        <hr class='has-bg-muted'>
+        <h3 class='has-text-center'>Manage Associations</h3>
         {{associations(user, episode)}}
     </div>
 </div>

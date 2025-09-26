@@ -46,25 +46,6 @@ services:
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
     ports:
       - "${API_PORT}:${COMM_PORT}"
-    # depends_on:
-    #   - db
-  # db:
-  #   image: mongo:latest
-  #   container_name: ${APP_NAME}_db
-  #   env_file: .env
-  #   healthcheck:
-  #     test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
-  #   volumes:
-  #     - ./tables:/data/db
-  #   logging:
-  #     driver: none
-  # db-express:
-  #   image: mongo-express:latest
-  #   ports:
-  #     - ${DBDEBUG_PORT}:8081
-  #   env_file: .env
-  #   depends_on:
-  #     - db
   tasks:
     image: ${APP_NAME}_tasks:latest
     build:
@@ -85,14 +66,6 @@ services:
       - ./logs:/var/app/logs/
       - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-    # depends_on:
-    #   - taskdb
-    #   - db
-  # taskdb:
-  #   image: redis/redis-stack-server:latest
-  #   container_name: ${APP_NAME}_taskdb
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
 networks:
   default:
     name: ${APP_NAME}_net

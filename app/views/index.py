@@ -129,7 +129,7 @@ def api(rest_path):
             params = dict(request.json)
         params["response_path"] = response_url
         log("API POST REQUEST", rest_path, params)
-        if "admin/" in url and user.is_admin:
+        if "/admin/" in url and user.is_admin:
             response = requests.post(url, json=params).text
         elif params.get("model") and params.get("pk"):
             obj = AutoModel.get_model(params.get("model"), params.get("pk"))

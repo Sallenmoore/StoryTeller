@@ -15,6 +15,7 @@ from flask import Blueprint, get_template_attribute, request
 from autonomous import log
 from models.campaign import Campaign
 from models.campaign.episode import Episode
+from models.stories.event import Event
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.encounter import Encounter
@@ -162,10 +163,27 @@ def episodeassociationentrydelete(pk, amodel, apk):
 
 
 ###########################################################
-##             episode Graphic Routes                    ##
+##             Episode Event Routes                      ##
 ###########################################################
 
 
+@episode_endpoint.route(
+    "/<string:pk>/event/generate",
+    methods=("POST",),
+)
+def episodegenerateevent(pk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(pk)
+    Event.create_event_from_episode(episode)
+    return get_template_attribute("manage/_episode.html", "manage")(
+        user,
+        episode,
+    )
+
+
+###########################################################
+##             episode Graphic Routes                    ##
+###########################################################
 @episode_endpoint.route(
     "/<string:pk>/graphic/generate",
     methods=("POST",),

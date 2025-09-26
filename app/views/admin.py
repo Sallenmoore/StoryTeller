@@ -1,9 +1,9 @@
 # external Modules
 import requests
+from autonomous.auth import AutoAuth, auth_required
 from flask import Blueprint, get_template_attribute, render_template, request
 
 from autonomous import log
-from autonomous.auth import AutoAuth, auth_required
 
 admin_page = Blueprint("admin", __name__)
 
@@ -12,11 +12,10 @@ admin_page = Blueprint("admin", __name__)
 # @auth_required(admin=True)
 def index():
     log("admin index")
-    pc = requests.post("http://api:5000/admin/manage").text
     return render_template(
         "index.html",
         user=AutoAuth.current_user().pk,
-        page_content=pc,
+        page_url="/api/admin/manage",
     )
 
 
@@ -74,3 +73,9 @@ def agents():
     # log(args)
     pc = requests.post("http://api:5000/admin/manage/agents", json=args).text
     return pc
+
+
+@admin_page.route("/dbdump", methods=("GET", "POST"))
+# @auth_required(admin=True)
+def dbdump():
+    return requests.post("http://api:5000/admin/dbdump").text
