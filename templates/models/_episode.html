@@ -39,10 +39,36 @@
         </a>
     </li>
     <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/gmnotes">
+            <div class="row">
+                <div id='menu-gmnotes-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.gamemaster(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-gmnotes-anchor', {
+                        content: 'GM Notes',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>GM Notes</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
         <a href="/{{obj.path}}/graphic">
             <div class="row">
                 <div id='menu-graphic-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaigns(size="1rem")}}
+                    {{icon_components.drama(size="1rem")}}
                 </div>
                 <script>
                     tippy('#menu-graphic-anchor', {
@@ -92,25 +118,49 @@
 {{title_components.object_title(user, obj)}}
 <div class="panel">
     <div id="episode-info" class="row has-space-around">
-        <div class="column is-8 has-text-dark">
-
-            <div class="panel has-bg-muted">
-                <h2>Report</h2>
-                {{obj.report | safe}}
-            </div>
-        </div>
         <div class="column is-4 has-text-dark">
             {% if obj.image %}
             <div class="image">
                 <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
             </div>
             {% endif %}
+        </div>
+        <div class="column is-full has-text-dark">
+            <div class="row has-space-around">
+                <div class="column is-4 has-text-dark has-text-center">
+                    <h3 class='has-text-center'>Start</h3>
+                    {{obj.start_date}}
+                </div>
+                <div class="column is-4 has-text-dark has-text-center">
+                    <h3 class='has-text-center'>End</h3>
+                    {{obj.end_date}}
+                </div>
+            </div>
+        </div>
+        <div class="column is-full has-text-dark">
+            <div class="panel has-bg-muted">
+                <h2 class='has-text-center'>Report</h2>
+                <div>
+                    {{obj.report | safe}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
 
+{% macro gmnotes(user, obj) -%}
+<title>{{obj.name or obj.title}} - GM Notes</title>
+{{title_components.object_title(user, obj)}}
+<div class="panel">
+    <div id="episode-info" class="row has-space-around">
+        <div class="column is-4 has-text-dark">
             <div class="panel has-bg-muted">
                 <h3 class='has-text-center'>Loot</h3>
                 {{obj.loot | safe}}
             </div>
-            <hr>
+        </div>
+        <div class="column is-4 has-text-dark">
             <div class="panel has-bg-muted">
                 <h3 class='has-text-center'>Current Active Hooks</h3>
                 {{obj.hooks | safe}}
@@ -119,10 +169,7 @@
         <div class="column is-full has-text-dark">
             <h2 class='has-text-center'>Planning Notes</h2>
             <div class="panel has-bg-muted">
-                <h6 onclick='this.nextElementSibling.classList.toggle("is-hidden")'>Click to
-                    Reveal/Hide
-                </h6>
-                <div class='is-hidden'>{{obj.description | safe}}</div>
+                <div>{{obj.description | safe}}</div>
             </div>
         </div>
     </div>
@@ -159,6 +206,11 @@
         </div>
     </div>
 </div>
+{%- endmacro %}
+
+{% macro timeline(user, obj)%}
+{{title_components.object_title(user, obj)}}
+{{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}

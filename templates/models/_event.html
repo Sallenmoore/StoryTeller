@@ -74,11 +74,9 @@
         </div>
         {% if event.episode %}
         <div class="column is-full">
-            <div class="row has-space-around">
-                <div class="column is-half">
-                    <h5 class='has-text-center'>Episode: {{ event.episode.name }}</h5>
-                    <div>{{ event.episode.report | safe }}</div>
-                </div>
+            <div class="panel has-bg-muted has-text-dark">
+                <h5 class='has-text-center'>{{ event.episode.name }}</h5>
+                <div>{{ event.episode.report | safe }}</div>
             </div>
         </div>
         {% endif %}

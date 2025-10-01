@@ -1,15 +1,32 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "admin/_index.html" as admin_components %}
 
-{% macro manage(worlds) -%}
-<title>{{obj.name or obj.title}} - Agents</title>
+{% macro manage(user, images, tags=None, tag=None) -%}
+<title>Storyteller Admin - Manage Images</title>
 <div class="row">
     <div class="column is-full is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
+        <h2 class='has-text-center has-text-primary'>Manage Images</h2>
     </div>
-    {% for world in worlds %}
-    <div class="column is-3">
-        {{display_components.object_display(world)}}
+    {% for image in images %}
+    <div class="column is-2">
+        <div class='image'>
+            <img src="{{ image.url() }}" loading="lazy" alt="{{ image.name or image.title }}">
+        </div>
+        <p class="has-text-centered">{{ image.name or image.title }}</p>
+        <div class="is-tag-group">
+            {% for tag in image.tags %}
+            <span class="tag">{{tag}}</span>
+            {% endfor %}
+        </div>
+        <small class="has-text-centered">Associations: {{ image.associations | count }}</small>
+        <button class="button is-small is-full"
+                hx-post="/api/admin/manage/image/delete"
+                hx-vals='{"pk": "{{ image.pk }}", "model": "Image"}'
+                hx-swap="delete"
+                hx-target='closest .column'>
+            <span>Delete</span>
+        </button>
     </div>
     {% endfor %}
 </div>

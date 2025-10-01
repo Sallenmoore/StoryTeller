@@ -11,7 +11,6 @@ from models.world import World
 
 
 class User(AutoUser):
-    admin = BoolAttr(default=False)
     current_screen = ReferenceAttr("Screen", default=None)
     screens = ListAttr(ReferenceAttr("Screen"), default=[])
 

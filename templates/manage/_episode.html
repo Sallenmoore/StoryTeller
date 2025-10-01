@@ -178,7 +178,7 @@
             </div>
         </form>
     </div>
-    <div class="column is-4">
+    <div id="episode-events" class="column is-4">
         <hr class='has-bg-muted'>
         <h3 class='has-text-center'>Events</h3>
         <div class="row has-space-around">
@@ -188,11 +188,28 @@
             </div>
             {% endfor %}
         </div>
-        <button class='button is-fullwidth is-primary'
-                hx-post='/api/{{episode.path}}/event/generate'
-                hx-target='#page-content'>
-            Generate Event From Episode
-        </button>
+        <div class="row">
+            <div class="column">
+                <div class="has-dropdown" style="width: 100%;">
+                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                           style="border-bottom: solid #000;"
+                           hx-post="/api/{{episode.path}}/events/add/search"
+                           hx-target="#episode-new-events-list"
+                           hx-trigger="input changed delay:500ms consume"
+                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')"
+                           onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+                    <ul class="dropdown has-bg-light" id="episode-new-events-list">
+                    </ul>
+                </div>
+            </div>
+            <div class="column">
+                <button class='button is-fullwidth is-primary'
+                        hx-post='/api/{{episode.path}}/event/generate'
+                        hx-target='#page-content'>
+                    Generate Event From Episode
+                </button>
+            </div>
+        </div>
         <hr class='has-bg-muted'>
         <h3 class='has-text-center'>Manage Associations</h3>
         {{associations(user, episode)}}
@@ -334,6 +351,30 @@
     <a hx-post="/api/episode/{{episode.pk}}/associations/add/{{o.path}}"
        hx-target='#episode-associations'
        hx-select='#episode-associations' hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro events_dropdown(user, episode, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post="/api/episode/{{episode.pk}}/events/add/{{o.pk}}"
+       hx-target='#episode-events'
+       hx-select='#episode-events' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="row">
             <div class="column is-shrink">

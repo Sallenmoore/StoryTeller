@@ -181,6 +181,22 @@ def episodegenerateevent(pk):
     )
 
 
+@episode_endpoint.route(
+    "<string:pk>/events/add/search",
+    methods=("POST",),
+)
+def episodeeventsearch(pk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(pk)
+    query = request.json.get("query")
+    log(query)
+    results = Event.search(name=query, world=episode.world) if len(query) > 2 else []
+    results = [r for r in results if r not in episode.events]
+    return get_template_attribute("manage/_episode.html", "events_dropdown")(
+        user, episode, results
+    )
+
+
 ###########################################################
 ##             episode Graphic Routes                    ##
 ###########################################################

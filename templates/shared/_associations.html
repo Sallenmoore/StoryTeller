@@ -16,6 +16,7 @@
                    hx-post="/api/manage/association/add/search"
                    hx-trigger="input delay:750ms, search"
                    hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
+                   onclick=''
                    hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <ul class="dropdown autocomplete-list has-bg-light" id="association-search">
             </ul>
@@ -215,7 +216,8 @@
        hx-select='#associations-container'
        hx-swap='outerHTML'
        hx-indicator='#request-indicator'
-       hx-push-url='/{{obj.path}}/associations'>
+       hx-push-url='/{{obj.path}}/associations'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="row">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">

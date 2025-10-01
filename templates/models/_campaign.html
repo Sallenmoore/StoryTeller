@@ -4,6 +4,7 @@
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_stories.html" as story_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_timeline.html" as timeline_components %}
 {% import "manage/_campaign.html" as manage_campaign_components %}
 
 {% macro index(user, campaign) -%}
@@ -202,12 +203,17 @@
 
 {%- endmacro %}
 
-{% macro manage(user, obj) -%}
+{% macro timeline(user, obj)%}
 {{title_components.object_title(user, obj)}}
-{{ manage_campaign_components.manage(user, obj) }}
+{{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
 {% macro stories(user, obj)%}
 {{title_components.object_title(user, obj)}}
 {{story_components.stories(user, obj)}}
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+{{title_components.object_title(user, obj)}}
+{{ manage_campaign_components.manage(user, obj) }}
 {%- endmacro %}

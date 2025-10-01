@@ -35,7 +35,7 @@ Authlib
 ##### AI #####
 ollama
 openai >= 1.35.6
-google-genai
+google-genai >= 1.39.1
 
 ##### Parsing #####
 markdown

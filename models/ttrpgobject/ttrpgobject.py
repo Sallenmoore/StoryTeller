@@ -1,9 +1,10 @@
 import random
 from copy import deepcopy
 
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringAttr
+
+from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 
@@ -23,8 +24,6 @@ class TTRPGObject(TTRPGBase):
 
     start_date_label = "Founded"
     end_date_label = "Abandoned"
-
-    is_ttrpgobject = True
 
     @property
     def calendar(self):

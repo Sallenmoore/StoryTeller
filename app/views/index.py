@@ -111,8 +111,8 @@ def api(rest_path):
     response = "<p>You do not have permission to alter this object<p>"
     user = AutoAuth.current_user()
     response_url = urlparse(request.referrer).path
+    log(rest_path)
     if request.method == "GET":
-        rest_path = request.path.replace("/api/", "")
         params = dict(request.args)
         params["user"] = user.pk
         params["response_path"] = response_url
@@ -125,11 +125,12 @@ def api(rest_path):
             params = dict(request.form)
             for key, file in request.files.items():
                 params[key] = base64.b64encode(file.read()).decode("utf-8")
-        else:
+        elif request.json:
             params = dict(request.json)
         params["response_path"] = response_url
+        params |= {"user": str(AutoAuth.current_user().pk)}
         log("API POST REQUEST", rest_path, params)
-        if "/admin/" in url and user.is_admin:
+        if "/admin/" in url:  # and user.is_admin:
             response = requests.post(url, json=params).text
         elif params.get("model") and params.get("pk"):
             obj = AutoModel.get_model(params.get("model"), params.get("pk"))

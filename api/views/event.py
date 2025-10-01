@@ -9,10 +9,10 @@ import os
 import random
 
 import requests
+from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.stories.event import Event
@@ -121,4 +121,40 @@ def eventassociationadd(pk, amodel, apk=None):
     if obj not in event.associations:
         event.associations += [obj]
         event.save()
-    return get_template_attribute("manage/_event.html", "events")(user, event)
+    return get_template_attribute("model/_event.html", "events")(user, event)
+
+
+###########################################################
+##                    Event CRUD Routes                  ##
+###########################################################
+
+
+@event_endpoint.route("/<string:pk>/stories/add", methods=("POST",))
+def event_add_story(pk):
+    user, obj, request_data = _loader()
+    log(request.json)
+    event = Event.get(pk)
+    story = Story.get(request_data.get("storypk"))
+    if story not in event.stories:
+        event.stories += [story]
+    event.save()
+
+    return get_template_attribute("manage/_event.html", "manage")(
+        user,
+        event,
+    )
+
+
+@event_endpoint.route("/<string:pk>/stories/<string:storypk>/delete", methods=("POST",))
+def event_remove_story(pk, storypk):
+    user, obj, request_data = _loader()
+    log(request.json)
+    event = Event.get(pk)
+    story = Story.get(storypk)
+    if story in event.stories:
+        event.stories.remove(story)
+    event.save()
+    return get_template_attribute("manage/_event.html", "manage")(
+        user,
+        event,
+    )

@@ -3,20 +3,25 @@
 
 {% macro manage(user) -%}
 <title>Manage</title>
-<hr>
 <div class="row has-space-around">
+    <div class="column is-full">
+        <h2 class='has-text-center has-text-primary'>Admin Management</h2>
+    </div>
     <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/images">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/images"
+                hx-target="#manager">
             <span>Images</span>
         </button>
     </div>
     <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/worlds">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/worlds"
+                hx-target="#manager">
             <span>Worlds</span>
         </button>
     </div>
     <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/users">
+        <button class="button is-primary is-full" hx-post="/api/admin/manage/users"
+                hx-target="#manager">
             <span>Users</span>
         </button>
     </div>
@@ -30,20 +35,23 @@
 <hr>
 <div class="row has-space-around">
     <div class="column is-3">
-        <button class="button is-primary is-full" hx-post="/api/admin/dbdump">
+        <button class="button is-primary is-full" hx-post="/admin/manage/migrate"
+                hx-target="#manager">
+            <span>Migration</span>
+        </button>
+    </div>
+    <div class="column is-3">
+        <button class="button is-primary is-full" hx-post="/api/admin/dbdump" hx-target="#manager">
             <span>DB Backup</span>
         </button>
     </div>
     <div class="column is-3">
-        <button class="button is-primary is-full" hx-post="/api/admin/dbload">
+        <button class="button is-primary is-full" hx-post="/api/admin/dbload" hx-target="#manager">
             <span>DB Load</span>
         </button>
     </div>
 </div>
 <hr>
-<div id="manager" class="panel">
-    {% if page_content %}
-    {{ page_content | safe }}
-    {% endif %}
+<div id="manager">
 </div>
 {%- endmacro %}

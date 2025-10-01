@@ -1,15 +1,35 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
 
-{% macro manage(worlds) -%}
-<title>{{obj.name or obj.title}} - Agents</title>
+{% macro manage(user, users) -%}
+<title>ADMIN - Manage Users</title>
 <div class="row">
     <div class="column is-full is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
+        <h2 class='has-text-center has-text-primary'>Manage Users</h2>
     </div>
-    {% for world in worlds %}
+    {% for u in users %}
     <div class="column is-3">
-        {{display_components.object_display(world)}}
+        {{u.name}}
+        <br>
+        {{u.email}}
+        <br>
+        {{u.role}}
+        <br>
+        ADMIN: {{u.is_admin}}
+        <br>
+        <button class="button is-small is-full"
+                hx-post="/api/admin/manage/user/delete"
+                hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
+                hx-swap="delete"
+                hx-target=' closest .column'>
+            <span>Delete</span>
+        </button>
+        <button class="button is-small is-full"
+                hx-post="/api/admin/manage/user/toggle_admin"
+                hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
+                hx-target='#manager'>
+            <span>Toggle Admin</span>
+        </button>
     </div>
     {% endfor %}
 </div>

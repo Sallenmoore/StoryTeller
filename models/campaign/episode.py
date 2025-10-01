@@ -249,6 +249,7 @@ class Episode(AutoModel):
         document.pre_save_associations()
         document.pre_save_episode_num()
         document.pre_save_dates()
+        document.pre_save_report()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -286,3 +287,46 @@ class Episode(AutoModel):
         if self.end_date_obj:
             self.world.current_date = self.end_date_obj
             self.world.save()
+
+    def pre_save_report(self):
+        """
+        Checks for a full name (obj.name) in a block of text and replaces it
+        with a link, while respecting existing anchor tags.
+
+        Args:
+            text (str): The block of text to search and modify.
+            obj (object): An object with 'name' and 'path' attributes
+                        (e.g., Character, City, etc.).
+
+        Returns:
+            str: The modified text with the name parts linked.
+        """
+        if self.episode_report and self.associations:
+            STRIP_ANCHOR_TAGS_PATTERN = re.compile(
+                r"</?a[^>]*>", re.IGNORECASE | re.DOTALL
+            )
+            self.episode_report = STRIP_ANCHOR_TAGS_PATTERN.sub("", self.episode_report)
+            log(f"Pre Save Report Check for Episode: {self.name}")
+            associations = sorted(
+                self.associations, key=lambda x: len(x.name), reverse=True
+            )
+            for obj in associations:
+                if not obj or not obj.name or not obj.path:
+                    continue
+
+                # --- 1. Strip all existing anchor tags from the text ---
+                # This ensures that any existing links are removed, allowing a clean, full-name match.
+
+                # --- 2. Define the exact, case-insensitive match pattern ---
+                # We escape the name to handle special characters and enforce word boundaries (\b)
+                # to ensure "John" matches but not "Johnston".
+                full_name_pattern = re.compile(
+                    r"\b" + re.escape(obj.name) + r"\b", re.IGNORECASE
+                )
+
+                # --- 3. Replace all occurrences of the unwrapped full name ---
+                link_template = f"<a href='/{obj.path}' style='a{{color: cadetblue; font-weight:bold;}}'>{obj.name}</a>"
+                self.episode_report = full_name_pattern.sub(
+                    link_template, self.episode_report
+                )
+            log(self.episode_report)

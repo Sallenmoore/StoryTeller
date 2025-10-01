@@ -310,7 +310,11 @@ class TTRPGBase(AutoModel):
         if self.journal:
             self.journal.delete()
         if self.image:
-            self.image.delete()
+            if self in self.image.associations:
+                self.image.associations.remove(self)
+                self.image.save()
+            if len(self.image.associations) == 0:
+                self.image.delete()
         if self.map:
             self.map.delete()
         return super().delete()
@@ -443,19 +447,29 @@ Use and expand on the existing object data listed below for the {self.title} obj
         return self.associations
 
     def remove_association(self, obj):
-        # log(f"Removing association: {obj in self.associations}", _print=True)
-        # log(f"Associations: {obj} {self.associations}", _print=True)
+        log(
+            f"Association: {obj.name}, Removing association: {obj in self.associations}"
+        )
         if obj.parent == self:
-            # log(f"Removing parent association: {obj} from {self}", _print=True)
+            log(f"Removing parent association: {obj.name} from {self.name}")
             obj.parent = None
             obj.save()
         elif self.parent == obj:
+            log(f"Removing parent association: {self.name} from {obj.name}")
             self.parent = None
             self.save()
         elif obj in self.associations:
+            log(f"Removing association: {obj.name} from {self.name}")
+            log(f"Before removal: {len(self.associations)} associations")
             self.associations.remove(obj)
+            log(f"After removal: {len(self.associations)} associations")
             self.save()
+            log(f"After save: {len(self.associations)} associations")
             obj.remove_association(self)
+            log(f"After reciprocal removal: {len(self.associations)} associations")
+        log(
+            f"Associations: {obj.name}, Removed association: {obj not in self.associations}"
+        )
         return self.associations
 
     def has_associations(self, model):

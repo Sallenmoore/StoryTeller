@@ -4,11 +4,11 @@ import random
 
 import markdown
 import requests
+from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 
 from autonomous import log
-from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
-from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 
 from .episode import Episode
@@ -39,6 +39,10 @@ class Campaign(AutoModel):
     @property
     def encounters(self):
         return [a for a in self.associations if a.model_name() == "Encounter"]
+
+    @property
+    def events(self):
+        return [e for ep in self.episodes for e in ep.events]
 
     @property
     def factions(self):
@@ -101,6 +105,10 @@ class Campaign(AutoModel):
             for episode in self.episodes[::-1]:
                 if episode.start_date:
                     return episode.start_date
+
+    @property
+    def stories(self):
+        return list(set([ep.story for ep in self.episodes if ep.story]))
 
     @property
     def episode_reports(self):

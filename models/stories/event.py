@@ -32,11 +32,15 @@ class Event(AutoModel):
         event.impact = (
             f"A {encounter.enemy_type} encounter of {encounter.difficulty} difficulty."
         )
-        event.backstory = encounter.backstory
+        event.backstory = encounter.history or encounter.backstory
         event.outcome = ";----;".join(encounter.potential_outcomes)
-        event.impact = encounter.history
         event.start_date = encounter.start_date
+        encounter.start_date = None
         event.end_date = encounter.end_date
+        encounter.end_date = None
+        if encounter.image:
+            event.image = encounter.image
+            event.image.associations += [event] if event.image else []
         event.desc = encounter.description
         event.associations = encounter.associations
         event.episode = encounter.episodes[0] if encounter.episodes else None
@@ -82,7 +86,11 @@ class Event(AutoModel):
 
     def delete(self):
         if self.image:
-            self.image.delete()
+            if self in self.image.associations:
+                self.image.associations.remove(self)
+                self.image.save()
+            if len(self.image.associations) == 0:
+                self.image.delete()
         if self.start_date:
             self.start_date.delete()
         if self.end_date:

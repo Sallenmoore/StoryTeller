@@ -34,6 +34,8 @@ from models.ttrpgobject.region import Region
 from models.user import User
 from models.world import World
 
+from ._utilities import loader as _loader
+
 admin_endpoint = Blueprint("admin", __name__)
 
 tags = {
@@ -66,16 +68,30 @@ tag_list = sorted([*tags["type"], *tags["genre"]])
     ),
 )
 def index():
-    return get_template_attribute("admin/_index.html", "manage")()
+    user, *_ = _loader()
+    return get_template_attribute("admin/_index.html", "manage")(user)
 
 
-@admin_endpoint.route("/manage/images", methods=("POST",))
+@admin_endpoint.route(
+    "/manage/images",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def images():
-    if request.json.get("scan"):
+    user, _, request_data = _loader()
+    if request_data.get("scan"):
         Image.storage_scan()
+
     images = Image.all()
-    if tag_filter := request.json.get("tag"):
-        # log(tag_filter)
+    tag_list = []
+    for i in images:
+        for tag in i.tags:
+            if tag not in tag_list:
+                tag_list.append(tag)
+    if tag_filter := request_data.get("tag"):
+        log(tag_filter)
         if tag_filter == "_NoGenre":
             images = [
                 img for img in images if not any(t in img.tags for t in tags["genre"])
@@ -88,8 +104,9 @@ def images():
             images = [img for img in images if not any(t in img.tags for t in tag_list)]
         else:
             images = [img for img in images if tag_filter.lower() in img.tags]
+    images.sort(key=lambda x: len(x.associations))
     return get_template_attribute("admin/_images.html", "manage")(
-        images=images, tags=tag_list, tag=tag_filter
+        user, images=images, tags=tag_list, tag=tag_filter
     )
 
 
@@ -103,14 +120,16 @@ def add_image_tag(pk):
     return images()
 
 
-@admin_endpoint.route("/manage/image/<string:pk>/delete", methods=("POST",))
-def delete_image(pk):
+@admin_endpoint.route("/manage/image/delete", methods=("POST",))
+def delete_image():
+    user, _, request_data = _loader()
+    pk = request_data.get("pk")
     img = Image.get(pk)
     if img:
         img.delete()
-        # log(f"Image {pk} deleted")
+        log(f"Image {pk} deleted")
         return "Success"
-    # log(f"Image {pk} not found")
+    log(f"Image {pk} not found")
     return "File not found"
 
 
@@ -127,21 +146,22 @@ def remove_image_tag(pk):
 
 @admin_endpoint.route("/manage/users", methods=("POST",))
 def users():
-    return get_template_attribute("admin/_users.html", "manage")(users=User.all())
+    user, _, request_data = _loader()
+    return get_template_attribute("admin/_users.html", "manage")(user, users=User.all())
 
 
-@admin_endpoint.route("/manage/users/role", methods=("POST",))
+@admin_endpoint.route("/manage/user/toggle_admin", methods=("POST",))
 def role_user():
-    if user := User.get(request.json.get("user")):
-        user.role = request.json.get("role")
-        user.save()
-        return "Success"
-    return "User not found"
+    user, _, request_data = _loader()
+    if u := User.get(request.json.get("pk")):
+        u.role = "admin" if u.role != "admin" else "user"
+        u.save()
+    return get_template_attribute("admin/_users.html", "manage")(user, users=User.all())
 
 
-@admin_endpoint.route("/manage/users/delete", methods=("POST",))
+@admin_endpoint.route("/manage/user/delete", methods=("POST",))
 def delete_user():
-    if user := User.get(request.json.get("user")):
+    if user := User.get(request.json.get("pk")):
         user.delete()
         return "Success"
     return "User not found"
@@ -149,10 +169,13 @@ def delete_user():
 
 @admin_endpoint.route("/manage/worlds", methods=("POST",))
 def worlds():
-    return get_template_attribute("admin/_worlds.html", "manage")(worlds=World.all())
+    user, _, request_data = _loader()
+    return get_template_attribute("admin/_worlds.html", "manage")(
+        user, worlds=World.all()
+    )
 
 
-@admin_endpoint.route("/manage/users/delete", methods=("POST",))
+@admin_endpoint.route("/manage/world/delete", methods=("POST",))
 def delete_world():
     if world := World.get(request.json.get("world")):
         world.delete()
@@ -170,25 +193,6 @@ def delete_agents():
     from autonomous.ai.baseagent import clear_agents
 
     result = clear_agents()
-    return "Success"
-
-
-@admin_endpoint.route("/migration/data", methods=("GET", "POST"))
-def migration():
-    for obj in Campaign.all():
-        for ep in obj.episodes:
-            if not ep.campaign:
-                ep.campaign = obj
-            if not ep.start_date.calendar:
-                ep.start_date.calendar = obj.world.calendar
-                ep.start_date.save()
-            if not ep.end_date.calendar:
-                ep.end_date.calendar = obj.world.calendar
-                ep.end_date.save()
-    # for obj in Episode.all():
-    #     if not obj.campaign:
-    #         obj.delete()
-
     return "Success"
 
 
