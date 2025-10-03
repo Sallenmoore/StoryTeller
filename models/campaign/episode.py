@@ -5,9 +5,6 @@ import re
 
 import markdown
 import requests
-from bs4 import BeautifulSoup
-
-from autonomous import log
 from autonomous.model.autoattr import (
     DictAttr,
     FileAttr,
@@ -17,6 +14,9 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
+
+from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 from models.ttrpgobject.character import Character
@@ -202,6 +202,17 @@ class Episode(AutoModel):
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
         self.save()
+
+    def page_data(self):
+        data = {
+            "pk": str(self.pk),
+            "name": self.name,
+            "associations": [(a.model_name(), str(a.pk)) for a in self.associations],
+            "episode_report": self.episode_report,
+            "loot": self.loot,
+            "hooks": self.hooks,
+        }
+        return data
 
     ## MARK: - Verification Hooks
     ###############################################################

@@ -16,6 +16,7 @@ from flask import (
 )
 
 from autonomous import log
+from models.campaign.campaign import Campaign
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
 from models.stories.event import Event
@@ -185,12 +186,11 @@ def tasks(rest_path):
 ##                    Data        Routes                 ##
 ###########################################################
 @index_page.route(
-    "/<pk>/list/<string:model>",
+    "/data/list/<string:model>",
     methods=("GET", "POST"),
 )
-def listobjs(pk, model):
-    world = World.get(pk)
-    objs = World.get_model(model).search(world=world)
+def listobjs(model):
+    objs = World.get_model(model).all()
     result = []
     for obj in objs:
         objs_dict = json.loads(obj.to_json())

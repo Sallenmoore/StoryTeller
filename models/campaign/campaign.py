@@ -4,11 +4,11 @@ import random
 
 import markdown
 import requests
+from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 
 from autonomous import log
-from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
-from autonomous.model.automodel import AutoModel
 from models.base.ttrpgbase import TTRPGBase
 
 from .episode import Episode
@@ -216,11 +216,15 @@ class Campaign(AutoModel):
     def page_data(self):
         data = {
             "name": self.name,
+            "pk": str(self.pk),
             "description": self.description,
             "summary": self.summary,
         }
         data["start_date"] = str(self.start_date) if self.start_date else "Unknown"
         data["end_date"] = str(self.end_date) if self.end_date else "Ongoing"
+        data["episodes"] = [
+            e.page_data() for e in sorted(self.episodes, key=lambda x: x.episode_num)
+        ]
         return data
 
     # MARK: Verification

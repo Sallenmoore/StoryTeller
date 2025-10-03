@@ -18,11 +18,6 @@ deploy: refresh run
 
 run: initprod clean
 	$(UP_CMD)
-	docker compose stop db-express
-	$(LOGS_CMD)
-
-rundb: initprod clean
-	$(UP_CMD)
 	$(LOGS_CMD)
 
 initprod:
