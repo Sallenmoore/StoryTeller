@@ -2,6 +2,7 @@
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_manage.html" as manage_components %}
+{% import "shared/_associations.html" as associations_components%}
 
 {% macro manage(user, episode) -%}
 <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"

@@ -2,7 +2,9 @@
 
 {% macro dsp_object_image(obj, dim="400") -%}
     {% if obj.image %}
-    <img src="{{obj.image.url(size=dim)}}" alt="{{obj.name}}" loading="lazy" />
+        <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+    {% elif obj.world.image %}
+        <img src="{{obj.world.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
     {% endif %}
 {% endmacro %}
 
@@ -21,40 +23,30 @@
 {%- endmacro %}
 
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
-<a href="/{{obj.path}}" style='position: relative;'>
-    <div class="image is-tile is-margin-center" style="width:100%;">
-        {% if obj.image %}
-        <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
-        {% elif obj.world.image %}
-        <img src="{{obj.world.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+<a href="/{{obj.path}}">
+    <div class="card">
+        {{dsp_object_image(obj,dim)}}
+        {% if name %}
+            <div class="card-section title">
+                {{obj.name}}
+                {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
+            </div>
         {% endif %}
-    </div>
-    {% if name %}
-    <h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
-        {{obj.name}}
-        {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
-    </h6>
-    {% endif %}
-    {% if date %}
-    <p class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1rem);'>
-        {{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
-        {{obj.end_date}}{%endif%}
-    </p>
-    {% endif %}
-    <div class="row has-space-around">
+        {% if date %}
+            <div class="card-section">
+            <p>{{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
+                {{obj.end_date}}{%endif%}</p>
+            </div>
+        {% endif %}
         {% if type %}
-        <div class="column">
-            <p class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1rem);'>
+            <div class="card-section">
                 {{obj.title}}
-            </p>
-        </div>
+            </div>
         {% endif %}
         {% if pk %}
-        <div class="column is-shrink">
-            <h6 class='has-text-center' style='font-size: .5rem;'>
+            <div class="card-section">
                 pk: {{obj.pk}}
-            </h6>
-        </div>
+            </div>
         {% endif %}
     </div>
 </a>
