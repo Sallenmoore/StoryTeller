@@ -1,5 +1,5 @@
 
-TARGETS=deploy run rundb initprod cleandev dev initdev cleantests tests test inittests clean refresh logs prune
+TARGETS=deploy run initprod cleandev dev initdev cleantests tests test inittests clean refresh logs prune
 BUILD_CMD=docker compose build --no-cache
 UP_CMD=docker compose up --build -d
 DOWN_CMD=docker compose down --remove-orphans
