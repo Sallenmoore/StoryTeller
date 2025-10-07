@@ -24,6 +24,40 @@ class Event(AutoModel):
     episode = ReferenceAttr(choices=["Episode"])
     world = ReferenceAttr(choices=["World"], required=True)
 
+    funcobj = {
+        "name": "generate_event",
+        "description": "creates the description and details surrounding an event that occured.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "A name for the event.",
+                },
+                "scope": {
+                    "type": "string",
+                    "description": "The scope of the story and how it fits into the larger world. One of the following: 'Local', 'Regional', 'Global', or 'Epic'",
+                },
+                "impact": {
+                    "type": "string",
+                    "description": "The overall impact the event had on the world. This should be a brief summary of the consequences of the event.",
+                },
+                "backstory": {
+                    "type": "string",
+                    "description": "A detailed description of the backstory leading up to the event.",
+                },
+                "outcome": {
+                    "type": "string",
+                    "description": "A description of the actual the event.",
+                },
+                "desc": {
+                    "type": "string",
+                    "description": "A prompt with the physical description of the event that could be used to generate an image with AI",
+                },
+            },
+        },
+    }
+
     @classmethod
     def create_event_from_encounter(cls, encounter):
         event = cls()
@@ -33,7 +67,11 @@ class Event(AutoModel):
             f"A {encounter.enemy_type} encounter of {encounter.difficulty} difficulty."
         )
         event.backstory = encounter.history or encounter.backstory
-        event.outcome = ";----;".join(encounter.potential_outcomes)
+        event.outcome = (
+            encounter.potential_outcomes[0]
+            if encounter.potential_outcomes
+            else "Unknown"
+        )
         event.start_date = encounter.start_date
         encounter.start_date = None
         event.end_date = encounter.end_date
@@ -98,6 +136,50 @@ class Event(AutoModel):
         super().delete()
 
     ############# image generation #############
+    def generate(self):
+        prompt = f"Your task is to create a new event for a {self.world.genre} TTRPG world. The event should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.history}. "
+
+        if self.start_date or self.end_date:
+            prompt += "\n\nThe event has the following dates: "
+            if self.start_date:
+                prompt += f"\n\nThe event starts on {self.start_date}. "
+            if self.end_date:
+                prompt += f"\n\nThe event ends on {self.end_date}. "
+        if self.stories:
+            prompt += "\n\nThe event is part of the following storylines: "
+            for story in self.stories:
+                prompt += f"\n\n{story.name}: {story.summary or story.backstory}. "
+
+        if self.associations:
+            prompt += "\n\nHere are some existing elements related to this event: "
+            for assoc in self.associations:
+                prompt += f"\n\n{assoc.name}: {assoc.history}. "
+
+        if self.impact or self.backstory or self.outcome:
+            prompt += f"\n\nUse the following prompt to create the event: {self.backstory} {self.outcome} {self.impact}. "
+
+        log("Generating Event with prompt: " + prompt, __print=True)
+        result = self.world.system.generate_json(
+            prompt=prompt,
+            primer=f"Create a new event that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
+            funcobj=self.funcobj,
+        )
+        if result:
+            result.get("name") and setattr(self, "name", result.get("name"))
+            result.get("scope") and setattr(self, "scope", result.get("scope"))
+            result.get("backstory") and setattr(
+                self, "backstory", result.get("backstory")
+            )
+            result.get("outcome") and setattr(self, "outcome", result.get("outcome"))
+            result.get("impact") and setattr(self, "impact", result.get("impact"))
+            result.get("desc") and setattr(self, "desc", result.get("desc"))
+            log(f"Generated Event: {self.name}", __print=True)
+            self.save()
+        else:
+            log("Failed to generate Event", __print=True)
+        if not self.image and self.desc:
+            self.generate_image()
+
     def generate_image(self):
         if self.image:
             if self in self.image.associations:
@@ -106,7 +188,9 @@ class Event(AutoModel):
             if len(self.image.associations) == 0:
                 self.image.delete()
             self.image = None
-        if image := Image.generate(prompt=self.desc, tags=["event"]):
+        if image := Image.generate(
+            prompt=self.desc, tags=["event", self.world.name, str(self.world.pk)]
+        ):
             self.image = image
             self.image.save()
             self.save()

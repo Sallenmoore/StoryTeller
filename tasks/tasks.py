@@ -8,6 +8,7 @@ from autonomous import log
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
+from models.stories.event import Event
 from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
@@ -104,3 +105,9 @@ def _generate_story_summary_task(pk):
     if obj := Story.get(pk):
         obj.summarize()
     return {"url": f"/api/{obj.path}/history"}
+
+
+def _generate_event_task(pk):
+    event = Event.get(pk)
+    event.generate()
+    return {"url": f"/api/{event.path}/manage"}

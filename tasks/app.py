@@ -144,18 +144,6 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
-    @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
-    def generate_story_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_story_summary_task,
-                pk=pk,
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
     @app.route("/generate/character/<string:pk>/chat", methods=("POST",))
     def generate_character_chat(pk):
         task = (
@@ -236,6 +224,23 @@ def create_app():
     @app.route("/generate/story/<string:pk>", methods=("POST",))
     def create_story(pk):
         task = AutoTasks().task(tasks._generate_story_task, pk=pk).result
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
+    def generate_story_summary(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_story_summary_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/event/<string:pk>", methods=("POST",))
+    def generate_event(pk):
+        task = AutoTasks().task(tasks._generate_event_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     return app

@@ -5,6 +5,17 @@
 
 {% macro manage(user, event) -%}
 <div class="panel">
+    <div class="row has-space-around">
+        <div class="column is-shrink">
+            <button class="button has-bg-dark-grey has-text-white"
+                    hx-post="/task/generate/event/{{event.pk}}"
+                    hx-target="closest .column"
+                    hx-confirm='Details can be generated from scratch, but works best if you add any required details to the Event first, such as name, brief history, or other details'>
+                {{icon_components.ai(size="1rem")}}
+                Generate Details
+            </button>
+        </div>
+    </div>
     <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
         <div class="row">
             <div class="column">

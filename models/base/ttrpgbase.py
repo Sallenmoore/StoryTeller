@@ -451,16 +451,16 @@ Use and expand on the existing object data listed below for the {self.title} obj
             f"Association: {obj.name}, Removing association: {obj in self.associations}"
         )
         if obj.parent == self:
-            log(f"Removing parent association: {obj.name} from {self.name}")
+            # log(f"Removing parent association: {obj.name} from {self.name}")
             obj.parent = None
             obj.save()
         elif self.parent == obj:
-            log(f"Removing parent association: {self.name} from {obj.name}")
+            # log(f"Removing parent association: {self.name} from {obj.name}")
             self.parent = None
             self.save()
         elif obj in self.associations:
-            log(f"Removing association: {obj.name} from {self.name}")
-            log(f"Before removal: {len(self.associations)} associations")
+            # log(f"Removing association: {obj.name} from {self.name}")
+            # log(f"Before removal: {len(self.associations)} associations")
             self.associations.remove(obj)
             log(f"After removal: {len(self.associations)} associations")
             self.save()

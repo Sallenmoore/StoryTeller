@@ -35,40 +35,6 @@
         </div>
     </div>
 </div>
-<h3 class='has-text-center'>Episodes</h3>
-<div class="row">
-    {% for entry in campaign.episodes %}
-    <div class="column is-full">
-        <a href='/episode/{{entry.pk}}'>
-            <div class="panel has-bg-muted">
-                <div class="row" class='has-text-secondary'>
-                    <div class="column is-vertically-centered">
-                        <h4 class=' has-text-dark'>{{entry.name}}</h4>
-                        <!-- {{entry.pk}} -->
-                    </div>
-                    <div class="column is-shrink">
-                        {% if entry.start_date %}
-                        <span class='tag is-primary has-text-white'>
-                            {{entry.start_date}}
-                        </span>
-                        {% endif %}
-                    </div>
-                    <div class="column is-shrink">
-                        {{icon_components.line()}}
-                    </div>
-                    <div class="column is-shrink">
-                        {% if entry.end_date %}
-                        <span class='tag is-primary has-text-white'>
-                            {{entry.end_date}}
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </a>
-    </div>
-    {% endfor %}
-</div>
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
@@ -127,6 +93,33 @@
     </li>
     <li>
         <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/episodes"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/episodes">
+            <div class="row">
+                <div id='menu-episodes-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.episode(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-episodes-anchor', {
+                        content: 'Episodes',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Episodes</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
            hx-get="/api/{{obj.path}}/timeline"
            hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
@@ -148,6 +141,33 @@
                 <div
                      class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
                     <span>Timeline</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/graphic_novel"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/graphic_novel">
+            <div class="row">
+                <div id='menu-graphic_novel-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.graphic_novel(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-graphic_novel-anchor', {
+                        content: 'Graphic Novel',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div
+                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Graphic Novel</span>
                 </div>
             </div>
         </a>
@@ -203,6 +223,44 @@
 
 {%- endmacro %}
 
+{% macro episodes(user, campaign) -%}
+{{title_components.object_title(user, campaign)}}
+<h3 class='has-text-center'>Episodes</h3>
+<div class="row">
+    {% for entry in campaign.episodes %}
+    <div class="column is-full">
+        <a href='/episode/{{entry.pk}}'>
+            <div class="panel has-bg-muted">
+                <div class="row" class='has-text-secondary'>
+                    <div class="column is-vertically-centered">
+                        <h4 class=' has-text-dark'>{{entry.name}}</h4>
+                        <!-- {{entry.pk}} -->
+                    </div>
+                    <div class="column is-shrink">
+                        {% if entry.start_date %}
+                        <span class='tag is-primary has-text-white'>
+                            {{entry.start_date}}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="column is-shrink">
+                        {{icon_components.line()}}
+                    </div>
+                    <div class="column is-shrink">
+                        {% if entry.end_date %}
+                        <span class='tag is-primary has-text-white'>
+                            {{entry.end_date}}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
 {% macro timeline(user, obj)%}
 {{title_components.object_title(user, obj)}}
 {{timeline_components.timeline(user, obj)}}
@@ -211,6 +269,22 @@
 {% macro stories(user, obj)%}
 {{title_components.object_title(user, obj)}}
 {{story_components.stories(user, obj)}}
+{%- endmacro %}
+
+{% macro graphic_novel(user, obj)%}
+{{title_components.object_title(user, obj)}}
+<h3 class='has-text-center'>Graphic Novel</h3>
+<div class="row">
+    {% for entry in obj.graphic_novel %}
+    <div class="column is-half">
+        <div class="panel has-bg-muted">
+            <div class='image'>
+                <img src='{{entry.url()}}' alt='{{entry.name}}'>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}

@@ -53,6 +53,10 @@ class Campaign(AutoModel):
         return self.world.genre
 
     @property
+    def graphic_novel(self):
+        return [ep.graphic for ep in self.episodes if ep.graphic]
+
+    @property
     def history(self):
         return self.summary
 
@@ -116,6 +120,20 @@ class Campaign(AutoModel):
         for episode in self.episodes:
             reports.append(episode.episode_report)
         return reports
+
+    def page_data(self):
+        data = {
+            "name": self.name,
+            "pk": str(self.pk),
+            "description": self.description,
+            "summary": self.summary,
+        }
+        data["start_date"] = str(self.start_date) if self.start_date else "Unknown"
+        data["end_date"] = str(self.end_date) if self.end_date else "Ongoing"
+        data["episodes"] = [
+            e.page_data() for e in sorted(self.episodes, key=lambda x: x.episode_num)
+        ]
+        return data
 
     ## MARK: INSTANCE METHODS
     ################################################################

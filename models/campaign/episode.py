@@ -233,6 +233,17 @@ class Episode(AutoModel):
         self.associations = [a for a in self.associations if a != obj]
         self.save()
 
+    def page_data(self):
+        data = {
+            "pk": str(self.pk),
+            "name": self.name,
+            "associations": [(a.model_name(), str(a.pk)) for a in self.associations],
+            "episode_report": self.episode_report,
+            "loot": self.loot,
+            "hooks": self.hooks,
+        }
+        return data
+
     ## MARK: - Verification Hooks
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
@@ -306,7 +317,7 @@ class Episode(AutoModel):
                 r"</?a[^>]*>", re.IGNORECASE | re.DOTALL
             )
             self.episode_report = STRIP_ANCHOR_TAGS_PATTERN.sub("", self.episode_report)
-            log(f"Pre Save Report Check for Episode: {self.name}")
+            # log(f"Pre Save Report Check for Episode: {self.name}")
             associations = sorted(
                 self.associations, key=lambda x: len(x.name), reverse=True
             )
@@ -329,4 +340,4 @@ class Episode(AutoModel):
                 self.episode_report = full_name_pattern.sub(
                     link_template, self.episode_report
                 )
-            log(self.episode_report)
+            # log(self.episode_report)

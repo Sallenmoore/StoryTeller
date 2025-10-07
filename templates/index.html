@@ -45,44 +45,8 @@
                 crossorigin=""></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
-        <!------------------------------ Tailwind Libs ---------------------------->
-        {#
-        <script src="https://cdn.tailwindcss.com"></script>
-
-        <!-- configuration example -->
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            primary: '#45576b',
-                        }
-                    }
-                }
-            }
-        </script>
-        <!-- customcss example -->
-        <style type="text/tailwindcss">
-            @layer utilities {
-              .content-auto {
-                content-visibility: auto;
-              }
-            }
-          </style>
-        <!--plugin example -->
-        <script
-                src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
-        #}
 
         <!-- JavaScript Libs -->
-        <script type="importmap">
-          {
-            "imports": {
-              "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
-              "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
-            }
-          }
-        </script>
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
         {% endblock %}
