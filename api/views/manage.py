@@ -546,7 +546,7 @@ def dndbeyondapi(pk):
                     itemobj.save()
                 if not itemobj.image:
                     requests.post(
-                        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{itemobj.path}"
+                        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{itemobj.path}"
                     )
                 if itemobj not in obj.associations:
                     obj.add_association(itemobj)

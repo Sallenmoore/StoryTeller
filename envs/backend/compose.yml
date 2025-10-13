@@ -1,5 +1,5 @@
 services:
-  stappfrontdev:
+  stappbackdev:
     image: ${APP_NAME}:latest
     build:
       context: .
@@ -24,7 +24,7 @@ services:
     depends_on:
       - ${API_SERVICE_NAME}
       #- db
-  stapifrontdev:
+  stapibackdev:
     image: ${APP_NAME}_api:latest
     build:
       context: .
@@ -46,7 +46,7 @@ services:
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
     # ports:
     #   - "${API_PORT}:${COMM_PORT}"
-  sttasksfrontdev:
+  sttasksbackdev:
     image: ${APP_NAME}_tasks:latest
     build:
       context: .

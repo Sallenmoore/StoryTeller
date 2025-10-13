@@ -179,14 +179,15 @@ DUNGEON BACKSTORY
                 self.map.save()
             else:
                 raise ValidationError(
-                    f"Image must be an Image object, url, or Image pk, not {self.map}"
+                    f"Image must be an Image object, url, or Map pk, not {self.map}"
                 )
-        elif type(self.map) is Image:
+        elif type(self.map) is not Map and type(self.map) is Image:
             log("converting to map...", self.map, _print=True)
             self.map = Map.from_image(self.map)
             self.map.save()
             log("converted to map", self.map, _print=True)
-        elif self.map and not self.map.tags:
+
+        if self.map and not self.map.tags:
             self.map.tags = [*self.image_tags, "map"]
             self.map.save()
 

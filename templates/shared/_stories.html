@@ -35,24 +35,34 @@
     <div id="story-details" class="column is-full">
         <div class="row has-space-around">
             {% for story in obj.stories %}
-            <div class="column is-4">
-                <div class="panel">
+            <div class="column is-full">
+                <div class="panel has-bg-muted">
                     <a href="/story/{{story.pk}}">
-                        <h4 class='has-text-center'>{{story.name}}</h4>
+                        <h3 class='has-text-center'>{{story.name}}</h3>
                     </a>
-                    <hr class='has-bg-white'>
+                    <div class="row">
+                        {% if story.image %}
+                        <div class="column is-3">
+                            <div class='image'>
+                                <img src='{{story.image.url()}}' alt='{{story.name}}'>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="column">
+                            <a href="/story/{{story.pk}}">
+                                <div class='has-text-justified has-text-black'>
+                                    {{story.summary | safe}}
+                                </div>
+                            </a>
+                        </div>
+                    </div>
                     <div class="row has-space-around">
                         {%for ass in story.associations %}
-                        <div class="column is-2">
+                        <div class="column is-1">
                             {{display_components.object_display(ass, type=False, name=False)}}
                         </div>
                         {% endfor %}
                     </div>
-                    <hr class='has-bg-white'>
-                    <a href="/story/{{story.pk}}">
-                        <div class='has-text-justified has-text-black'>{{story.situation | safe}}
-                        </div>
-                    </a>
                 </div>
             </div>
             {% endfor %}

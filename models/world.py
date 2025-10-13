@@ -140,10 +140,14 @@ class World(TTRPGBase):
         world.add_association(c)
         f.add_association(c)
         requests.post(
-            f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{world.path}"
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{world.path}"
         )
-        requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{f.path}")
-        requests.post(f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{c.path}")
+        requests.post(
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{f.path}"
+        )
+        requests.post(
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{c.path}"
+        )
         return world
 
     ############################ PROPERTIES ############################
@@ -493,12 +497,13 @@ class World(TTRPGBase):
                 raise ValidationError(
                     f"Image must be an Map object, url, or Image, not {self.map}"
                 )
-        elif type(self.map) is Image:
+        elif type(self.map) is not Map and type(self.map) is Image:
             log("converting to map...", self.map, _print=True)
             self.map = Map.from_image(self.map)
             self.map.save()
             log("converted to map", self.map, _print=True)
-        elif self.map and not self.map.tags:
+
+        if self.map and not self.map.tags:
             self.map.tags = self.map_tags
             self.map.save()
 

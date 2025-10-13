@@ -107,7 +107,7 @@ def audio(model, pk, attrib=None):
     ),
 )
 def api(rest_path):
-    url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}"
+    url = f"http://{os.environ.get('API_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}"
     response = "<p>You do not have permission to alter this object<p>"
     user = AutoAuth.current_user()
     response_url = urlparse(request.referrer).path
@@ -116,7 +116,7 @@ def api(rest_path):
         params = dict(request.args)
         params["user"] = user.pk
         params["response_path"] = response_url
-        url = f"http://api:{os.environ.get('COMM_PORT')}/{rest_path}?{requests.compat.urlencode(params)}"
+        url = f"http://{os.environ.get('API_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}?{requests.compat.urlencode(params)}"
         log("API GET REQUEST", url)
         response = requests.get(url).text
     elif not user.is_guest:
@@ -130,13 +130,13 @@ def api(rest_path):
         params["response_path"] = response_url
         params |= {"user": str(AutoAuth.current_user().pk)}
         log("API POST REQUEST", rest_path, params)
-        if "/admin/" in url and user.is_admin:
+        if "/admin/" in url:  # and user.is_admin:
             response = requests.post(url, json=params).text
         elif params.get("model") and params.get("pk"):
             obj = AutoModel.get_model(params.get("model"), params.get("pk"))
             if _authenticate(user, obj.world):
                 response = requests.post(url, json=params).text
-    log(response)
+    # log(response)
     return response
 
 
@@ -162,7 +162,7 @@ def tasks(rest_path):
         if _authenticate(user, obj):
             log("Sending files:", files, metadata, _print=True)
             response = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}",
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}",
                 files=files,
                 data={
                     "model": metadata.get("model"),
@@ -175,7 +175,7 @@ def tasks(rest_path):
         obj = AutoModel.get_model(request.json.get("model")).get(request.json.get("pk"))
         if _authenticate(user, obj):
             response = requests.post(
-                f"http://tasks:{os.environ.get('COMM_PORT')}/{rest_path}",
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}",
                 json=request.json,
             )
     return response.text

@@ -1,5 +1,5 @@
 services:
-  app:
+  stapp:
     image: ${APP_NAME}:latest
     build:
       context: .
@@ -17,9 +17,8 @@ services:
     ports:
       - "${APP_PORT}:${COMM_PORT}"
     depends_on:
-      - db
-      - api
-  api:
+      - ${API_SERVICE_NAME}
+  stapi:
     image: ${APP_NAME}_api:latest
     build:
       context: .
@@ -36,19 +35,7 @@ services:
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
     ports:
       - "${API_PORT}:${COMM_PORT}"
-    depends_on:
-      - db
-  db:
-    image: mongo:latest
-    container_name: ${APP_NAME}_db
-    env_file: .env
-    volumes:
-      - ./tables:/data/db
-    healthcheck:
-      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
-    logging:
-      driver: none
-  tasks:
+  sttasks:
     image: ${APP_NAME}_tasks:latest
     build:
       context: .
@@ -63,13 +50,7 @@ services:
       - ./logs:/var/app/logs/
       - ./templates:/var/app/templates/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-    depends_on:
-      - taskdb
-  taskdb:
-    image: redis/redis-stack-server:latest
-    container_name: ${APP_NAME}_taskdb
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+
 networks:
   default:
     name: ${APP_NAME}_net

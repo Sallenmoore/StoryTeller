@@ -25,7 +25,7 @@ initprod:
 	cp -rf envs/prod/compose.yml ./
 	cp -rf envs/prod/gunicorn.conf.py ./vendor
 
-###### DEV #######
+###### Frontend DEV #######
 
 cleandev: refresh dev
 
@@ -37,6 +37,19 @@ initdev:
 	cp -rf envs/dev/.env ./
 	cp -rf envs/dev/compose.yml ./
 	cp -rf envs/dev/gunicorn.conf.py ./vendor
+
+###### Backend DEV #######
+
+cleandev: refresh dev
+
+dev: initdev
+	$(UP_CMD)
+	$(LOGS_CMD)
+
+initdev:
+	cp -rf envs/backend/.env ./
+	cp -rf envs/backend/compose.yml ./
+	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
 ###### TESTING #######
 

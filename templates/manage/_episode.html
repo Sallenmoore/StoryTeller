@@ -158,7 +158,34 @@
                     </div>
                 </div>
             </div>
-            <div id="episode-report-container" class="fade-it-in">
+            <div class="tabs">
+                <ul class="tabs__list has-centered has-text-screen">
+                    <li class='is-active'><a>Report</a></li>
+                    <li><a>Loot</a></li>
+                    <li><a>Hooks</a></li>
+                    <li><a>Planning</a></li>
+                </ul>
+            </div>
+            <hr>
+            <script>
+                const tabs = document.querySelectorAll('.tabs ul li a');
+                tabs.forEach((tab) => {
+                    tab.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetText = tab.textContent.trim().toLowerCase();
+                        document.querySelectorAll('#episode-report-container, #episode-loot-container, #episode-planning-container, #episode-hooks-container').forEach((container) => {
+                            if (container.id.includes(targetText)) {
+                                container.classList.remove('is-hidden');
+                                container.classList.add('is-active');
+                            } else {
+                                container.classList.add('is-hidden');
+                                container.classList.remove('is-active');
+                            }
+                        });
+                    });
+                });
+            </script>
+            <div id="episode-planning-container" class="fade-it-in is-hidden">
                 <h3 class='has-text-center'>Planning</h3>
                 {{form_components.texteditor(user, episode, 'description')}}
             </div>
@@ -166,12 +193,12 @@
                 <h3 class='has-text-center'>Report</h3>
                 {{form_components.texteditor(user, episode, 'episode_report')}}
             </div>
-            <div id="episode-loot-container" class="fade-it-in">
+            <div id="episode-loot-container" class="fade-it-in  is-hidden">
                 <hr class='has-bg-muted'>
                 <h3 class='has-text-center'>Loot</h3>
                 {{form_components.texteditor(user, episode, 'loot')}}
             </div>
-            <div id="episode-loot-container" class="fade-it-in">
+            <div id="episode-hooks-container" class="fade-it-in is-hidden">
                 <hr class='has-bg-muted'>
                 <h3 class='has-text-center'>Hooks</h3>
                 {{form_components.texteditor(user, episode, 'hooks')}}
@@ -192,6 +219,7 @@
             <div class="column">
                 <div class="has-dropdown" style="width: 100%;">
                     <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                           placeholder='Search Events to Add'
                            style="border-bottom: solid #000;"
                            hx-post="/api/{{episode.path}}/events/add/search"
                            hx-target="#episode-new-events-list"
@@ -203,7 +231,7 @@
                 </div>
             </div>
             <div class="column">
-                <button class='button is-fullwidth is-primary'
+                <button class='button is-small is-fullwidth is-primary'
                         hx-post='/api/{{episode.path}}/event/generate'
                         hx-target='#page-content'>
                     Generate Event From Episode

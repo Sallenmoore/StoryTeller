@@ -208,5 +208,5 @@ def episodegenerategraphic(pk):
     user, obj, request_data = _loader()
     episode = Episode.get(pk)
     return requests.post(
-        f"http://tasks:{os.environ.get('COMM_PORT')}/generate/{episode.path}/graphic"
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{episode.path}/graphic"
     ).text

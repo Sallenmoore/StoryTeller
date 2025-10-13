@@ -53,9 +53,12 @@ tags = {
         "creature",
         "shop",
         "item",
+        "vehicle",
         "character",
+        "event",
+        "story",
     ],
-    "genre": ["fantasy", "horror", "sci-fi", "western", "historical"],
+    "genre": ["fantasy", "horror", "sci-fi", "hard sci-fi", "western", "historical"],
 }
 tag_list = sorted([*tags["type"], *tags["genre"]])
 
@@ -79,18 +82,26 @@ def index():
         "POST",
     ),
 )
-def images():
+@admin_endpoint.route(
+    "/manage/images/tag/<string:tag_filter>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def images(tag_filter=None):
     user, _, request_data = _loader()
     if request_data.get("scan"):
         Image.storage_scan()
 
     images = Image.all()
-    tag_list = []
+    tag_list = ["_NoGenre", "_NoType", "_Missing"]
     for i in images:
         for tag in i.tags:
             if tag not in tag_list:
                 tag_list.append(tag)
-    if tag_filter := request_data.get("tag"):
+    tag_list = sorted(list(set(tag_list)))
+    if tag_filter:
         log(tag_filter)
         if tag_filter == "_NoGenre":
             images = [
@@ -104,7 +115,7 @@ def images():
             images = [img for img in images if not any(t in img.tags for t in tag_list)]
         else:
             images = [img for img in images if tag_filter.lower() in img.tags]
-    images.sort(key=lambda x: len(x.associations))
+    images.sort(key=lambda x: len(x.associations), reverse=True)
     return get_template_attribute("admin/_images.html", "manage")(
         user, images=images, tags=tag_list, tag=tag_filter
     )

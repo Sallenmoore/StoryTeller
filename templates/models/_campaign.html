@@ -229,33 +229,36 @@
 <div class="row">
     {% for entry in campaign.episodes %}
     <div class="column is-full">
-        <a href='/episode/{{entry.pk}}'>
-            <div class="panel has-bg-muted">
-                <div class="row" class='has-text-secondary'>
-                    <div class="column is-vertically-centered">
+        <div class="panel has-bg-muted">
+            <div class="row" class='has-text-secondary'>
+                <div class="column is-vertically-centered">
+                    <a href='/episode/{{entry.pk}}'>
                         <h4 class=' has-text-dark'>{{entry.name}}</h4>
-                        <!-- {{entry.pk}} -->
-                    </div>
-                    <div class="column is-shrink">
-                        {% if entry.start_date %}
-                        <span class='tag is-primary has-text-white'>
-                            {{entry.start_date}}
-                        </span>
-                        {% endif %}
-                    </div>
-                    <div class="column is-shrink">
-                        {{icon_components.line()}}
-                    </div>
-                    <div class="column is-shrink">
-                        {% if entry.end_date %}
-                        <span class='tag is-primary has-text-white'>
-                            {{entry.end_date}}
-                        </span>
-                        {% endif %}
-                    </div>
+                    </a>
+                </div>
+                <div class="column is-shrink">
+                    {% if entry.start_date %}
+                    <span class='tag is-primary has-text-white'>
+                        {{entry.start_date}}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="column is-shrink">
+                    {{icon_components.line()}}
+                </div>
+                <div class="column is-shrink">
+                    {% if entry.end_date %}
+                    <span class='tag is-primary has-text-white'>
+                        {{entry.end_date}}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="column is-full is-vertically-centered generated-text-lightbg"
+                     style='font-size: 0.75rem;'>
+                    {{entry.summary | safe}}
                 </div>
             </div>
-        </a>
+        </div>
     </div>
     {% endfor %}
 </div>

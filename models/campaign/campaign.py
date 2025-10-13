@@ -54,7 +54,7 @@ class Campaign(AutoModel):
 
     @property
     def graphic_novel(self):
-        return [ep.graphic for ep in self.episodes if ep.graphic]
+        return [ep.graphic for ep in self.episodes if ep.graphic][::-1]
 
     @property
     def history(self):
@@ -148,7 +148,12 @@ class Campaign(AutoModel):
             elif entry.end_date:
                 entry.resummarize()
                 text += f"\n{entry.summary}\n"
-        text = f"Summarize the following campaign for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the campaign and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.name}, {self.description}. Here are the episode summaries: {text}."
+        storylines = (
+            ", ".join([f"{s.name}:{s.summary}" for s in self.stories])
+            if self.stories
+            else "None"
+        )
+        text = f"Summarize the following campaign for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the campaign and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.name}, {self.description}. Here are the storylines the party has interacted with: {storylines} Here are the episode summaries: {text}."
         if text:
             self.summary = self.world.system.generate_summary(
                 text,

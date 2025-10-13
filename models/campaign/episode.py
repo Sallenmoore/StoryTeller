@@ -131,16 +131,18 @@ class Episode(AutoModel):
 
     @start_date.setter
     def start_date(self, value):
-        if self.start_date_obj:
-            self.start_date_obj.delete()
-            self.start_date_obj = None
-        if not value:
+        if isinstance(value, Date):
+            if value != self.start_date_obj:
+                if self.start_date_obj:
+                    self.start_date_obj.delete()
+                self.start_date_obj = value
+        elif not value:
             self.start_date_obj = None
             return
-        if isinstance(value, dict):
+        elif isinstance(value, dict):
+            if self.start_date_obj:
+                self.start_date_obj.delete()
             self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
-        elif isinstance(value, Date):
-            self.start_date_obj = value
         else:
             log(f"Invalid start_date value: {value}")
             raise ValueError("start_date must be a Date instance or dict")
@@ -152,19 +154,21 @@ class Episode(AutoModel):
 
     @end_date.setter
     def end_date(self, value):
-        if self.end_date_obj:
-            self.end_date_obj.delete()
-            self.end_date_obj = None
-        if not value:
+        if isinstance(value, Date):
+            if value != self.end_date_obj:
+                if self.end_date_obj:
+                    self.end_date_obj.delete()
+                self.end_date_obj = value
+        elif not value:
             self.end_date_obj = None
             return
-        if isinstance(value, dict):
+        elif isinstance(value, dict):
+            if self.end_date_obj:
+                self.end_date_obj.delete()
             self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
-        elif isinstance(value, Date):
-            self.end_date_obj = value
         else:
-            log(f"Invalid end_date value: {value}")
-            raise ValueError("end_date must be a Date instance or dict")
+            log(f"Invalid start_date value: {value}")
+            raise ValueError("start_date must be a Date instance or dict")
         self.end_date_obj.save()
 
     @property

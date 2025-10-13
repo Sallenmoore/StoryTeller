@@ -1,5 +1,6 @@
 import random
 
+import markdown
 from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 
@@ -154,7 +155,14 @@ class Story(AutoModel):
         primer = "Provide an engaging, narrative summary of the storyline, highlighting its key elements and significance within the larger world."
         log(f"Generating summary...\n{prompt}", _print=True)
         self.summary = self.world.system.generate_summary(prompt, primer)
-        # MARK: generate_image
+        self.summary = self.summary.replace("```markdown", "").replace("```", "")
+        self.summary = (
+            markdown.markdown(self.summary)
+            .replace("h1>", "h3>")
+            .replace("h2>", "h3>")
+            .replace("h3>", "h4>")
+            .replace("h4>", "h5>")
+        )
         self.save()
 
         if self.image and self in self.image.associations:
@@ -172,7 +180,7 @@ class Story(AutoModel):
             self.image.save()
             self.save()
         else:
-            log(self.image_prompt, "Image generation failed.", _print=True)
+            log(prompt, "Image generation failed.", _print=True)
 
     ############# Association Methods #############
     # MARK: Associations

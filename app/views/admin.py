@@ -14,7 +14,7 @@ from models.world import World
 admin_page = Blueprint("admin", __name__)
 
 
-@admin_page.route("/manage", methods=("GET",))
+@admin_page.route("/manage", methods=("GET",))  #
 # @auth_required(admin=True)
 def index():
     return render_template(
@@ -22,30 +22,6 @@ def index():
         user=AutoAuth.current_user().pk,
         page_url="/admin/manage",
     )
-
-
-# @admin_page.route("/manage/images", methods=("GET",))
-# # @auth_required(admin=True)
-# def images():
-#     # url = f"http://api:{os.environ.get('COMM_PORT')}/admin/manage/images"
-#     # params = {"user": str(AutoAuth.current_user().pk)}
-#     return render_template(
-#         "index.html",
-#         user=AutoAuth.current_user().pk,
-#         page_url="/admin/manage/images",
-#     )
-
-
-# @admin_page.route("/manage/worlds", methods=("GET",))
-# # @auth_required(admin=True)
-# def worlds():
-#     # url = f"http://api:{os.environ.get('COMM_PORT')}/admin/manage/images"
-#     # params = {"user": str(AutoAuth.current_user().pk)}
-#     return render_template(
-#         "index.html",
-#         user=AutoAuth.current_user().pk,
-#         page_url="/admin/manage/worlds",
-#     )
 
 
 @admin_page.route("/manage/migrate", methods=("POST",))

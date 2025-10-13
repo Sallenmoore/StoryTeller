@@ -54,9 +54,9 @@ IMPORTANT: The image MUST NOT contain any TEXT.
             else prompt
         )
         try:
-            image = ImageAgent().generate(
-                prompt=temp_prompt, files=[f.to_file() for f in files if f]
-            )
+            if files := [f.to_file() for f in files if f]:
+                random.shuffle(files)
+            image = ImageAgent().generate(prompt=temp_prompt, files=files)
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
@@ -210,6 +210,7 @@ IMPORTANT: The image MUST NOT contain any TEXT.
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_tags()
+        document.pre_save_associations()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -222,3 +223,7 @@ IMPORTANT: The image MUST NOT contain any TEXT.
     def pre_save_tags(self):
         # log("=== Pre Save Tags ===", self.tags)
         self.tags = [t.lower() for t in self.tags if t]
+
+    def pre_save_associations(self):
+        # log("=== Pre Save Associations ===", self.associations)
+        self.associations = list(set(self.associations))
