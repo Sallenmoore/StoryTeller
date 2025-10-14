@@ -130,8 +130,8 @@
 
     .timeline .tentry .content span {
         margin: 0;
-        font-size: 14px;
-        line-height: 22px;
+        font-size: 12px;
+        line-height: 1px;
         color: #000000;
     }
 </style>
@@ -162,8 +162,8 @@
                             <a href="/{{a.path}}">
                                 <h4 class='has-text-center'>{{a.name}}</h4>
                             </a>
-                            <span>
-                                {{a.outcome | safe}}
+                            <span style='line-height: 1.25rem; font-size: 0.75rem;'>
+                                {{a.summary | safe or a.outcome | safe}}
                             </span>
                         </div>
                     </div>

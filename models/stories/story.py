@@ -83,7 +83,8 @@ class Story(AutoModel):
     def events(self):
         if events := [e for e in Event.search(world=self.world) if self in e.stories]:
             events.sort(
-                key=lambda x: x.end_date if x.end_date else x.world.current_date
+                key=lambda x: x.end_date if x.end_date else x.world.current_date,
+                reverse=True,
             )
         return events
 
@@ -115,10 +116,17 @@ class Story(AutoModel):
             ):
                 prompt += f"\n\n{story.name}: {story.situation}. "
 
+        prompt += "\n\nHere are some existing elements related to this storyline: "
         if self.associations:
-            prompt += "\n\nHere are some existing elements related to this storyline: "
             for assoc in self.associations:
                 prompt += f"\n\n{assoc.name}: {assoc.backstory}. "
+        elif self.world.associations:
+            for assoc in random.sample(
+                self.world.associations, min(len(self.world.associations), 5)
+            ):
+                self.associations += [assoc]
+                prompt += f"\n\n{assoc.name}: {assoc.backstory}."
+            self.save()
 
         if self.situation:
             prompt += f"\n\nUse the following prompt to guide the storyline: {self.situation}. "

@@ -40,13 +40,13 @@ initdev:
 
 ###### Backend DEV #######
 
-cleandev: refresh dev
+cleanbackend: refresh backend
 
-dev: initdev
+backend: initbackend
 	$(UP_CMD)
 	$(LOGS_CMD)
 
-initdev:
+initbackend:
 	cp -rf envs/backend/.env ./
 	cp -rf envs/backend/compose.yml ./
 	cp -rf envs/backend/gunicorn.conf.py ./vendor

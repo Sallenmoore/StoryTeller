@@ -48,7 +48,7 @@ class World(TTRPGBase):
     users = ListAttr(ReferenceAttr(choices=["User"]))
     calendar = ReferenceAttr(choices=["Calendar"])
     current_date = ReferenceAttr(choices=["Date"])
-    map = ReferenceAttr(choices=["Image"])
+    map = ReferenceAttr(choices=["Map"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
@@ -529,9 +529,25 @@ class World(TTRPGBase):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def pre_save_current_date(self):
-        # log(
-        #     f"Verifying current_date for {self.name}: self.current_date={self.current_date}:{type(self.current_date)}"
-        # )
+        event_date = (
+            sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
+            if self.events
+            else None
+        )
+        episode_date = (
+            sorted(
+                [
+                    c.episodes[0].start_date
+                    for c in self.campaigns
+                    if c.episodes and c.episodes[0].start_date
+                ],
+                key=lambda x: x,
+                reverse=True,
+            )[0]
+            if self.campaigns
+            else None
+        )
+        self.current_date = episode_date if episode_date > event_date else event_date
         if not self.calendar:
             self.calendar = Calendar()
             self.calendar.save()

@@ -515,6 +515,50 @@ def characterhitpoints():
     return get_template_attribute("models/_character.html", "details")(user, obj)
 
 
+@manage_endpoint.route("/character/addlineage", methods=("POST",))
+def lineage():
+    user, obj, request_data = _loader()
+    role = request_data.get("role")
+    log(request_data)
+    if character := Character.get(request_data.get("character")):
+        if role == "parent" and character not in obj.parents:
+            obj.parents += [character]
+            if obj not in character.children:
+                character.children += [obj]
+        elif role == "sibling" and character not in obj.siblings:
+            obj.siblings += [character]
+            if obj not in character.siblings:
+                character.siblings += [obj]
+        elif role == "child" and character not in obj.children:
+            obj.children += [character]
+            if obj not in character.parents:
+                character.parents += [obj]
+        character.save()
+        obj.save()
+    return get_template_attribute("models/_character.html", "lineage")(user, obj)
+
+
+@manage_endpoint.route("/character/removelineage/<string:character>", methods=("POST",))
+def removelineage(character):
+    user, obj, request_data = _loader()
+    if character := Character.get(character):
+        if character in obj.parents:
+            obj.parents.remove(character)
+            if obj in character.children:
+                character.children.remove(obj)
+        elif character in obj.siblings:
+            obj.siblings.remove(character)
+            if obj in character.siblings:
+                character.siblings.remove(obj)
+        elif character in obj.children:
+            obj.children.remove(character)
+            if obj in character.parents:
+                character.parents.remove(obj)
+        character.save()
+        obj.save()
+    return get_template_attribute("models/_character.html", "lineage")(user, obj)
+
+
 @manage_endpoint.route("/character/<string:pk>/dndbeyond", methods=("POST",))
 def dndbeyondapi(pk):
     # log(request.json)

@@ -1,5 +1,6 @@
 import random
 
+import markdown
 import validators
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
@@ -12,6 +13,7 @@ from models.images.image import Image
 class Event(AutoModel):
     name = StringAttr(default="")
     scope = StringAttr(default="Local", choices=["Local", "Regional", "Global", "Epic"])
+    summary = StringAttr(default="")
     impact = StringAttr(default="")
     backstory = StringAttr(default="")
     outcome = StringAttr(default="")
@@ -200,6 +202,21 @@ class Event(AutoModel):
 
     def get_image_list(self):
         return [i.image for i in self.associations if i.image]
+
+    def summarize(self):
+        prompt = f"Summarize the following event that occurred in a {self.world.genre} TTRPG world. The event has the following details: Backstory: {self.backstory}. Outcome: {self.outcome}. Impact: {self.impact}."
+        primer = "Provide an engaging summary of the event, highlighting its key elements in less than 80 words."
+        log(f"Generating summary...\n{prompt}", _print=True)
+        self.summary = self.world.system.generate_summary(prompt, primer)
+        self.summary = self.summary.replace("```markdown", "").replace("```", "")
+        self.summary = (
+            markdown.markdown(self.summary)
+            .replace("h1>", "h3>")
+            .replace("h2>", "h3>")
+            .replace("h3>", "h4>")
+            .replace("h4>", "h5>")
+        )
+        self.save()
 
     ############# Association Methods #############
     # MARK: Associations

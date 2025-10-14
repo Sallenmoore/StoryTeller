@@ -30,6 +30,7 @@ from models.world import World
 def _generate_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate()
+        obj.resummarize()
         if not obj.image:
             obj.generate_image()
     return {"url": f"/api/{obj.path}/manage"}
@@ -110,4 +111,16 @@ def _generate_story_summary_task(pk):
 def _generate_event_task(pk):
     event = Event.get(pk)
     event.generate()
+    return {"url": f"/api/{event.path}/manage"}
+
+
+def _generate_event_task(pk):
+    event = Event.get(pk)
+    event.generate()
+    return {"url": f"/api/{event.path}/manage"}
+
+
+def _generate_event_summary_task(pk):
+    event = Event.get(pk)
+    event.summarize()
     return {"url": f"/api/{event.path}/manage"}

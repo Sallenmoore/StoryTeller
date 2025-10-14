@@ -226,7 +226,11 @@ class TTRPGBase(AutoModel):
     @property
     def events(self):
         self.world.events.sort(key=lambda e: e.end_date, reverse=True)
-        return [e for e in self.world.events if self in e.associations]
+        return sorted(
+            [e for e in self.world.events if self in e.associations],
+            key=lambda e: e.end_date,
+            reverse=True,
+        )
 
     @property
     def funcobj(self):

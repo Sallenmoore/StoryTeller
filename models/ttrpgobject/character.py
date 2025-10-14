@@ -1,13 +1,13 @@
 import random
 
 import markdown
-
-from autonomous import log
 from autonomous.model.autoattr import (
     ListAttr,
     ReferenceAttr,
     StringAttr,
 )
+
+from autonomous import log
 from models.base.actor import Actor
 
 
@@ -16,6 +16,9 @@ class Character(Actor):
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
+    parents = ListAttr(ReferenceAttr(choices=["Character"]))
+    siblings = ListAttr(ReferenceAttr(choices=["Character"]))
+    children = ListAttr(ReferenceAttr(choices=["Character"]))
 
     start_date_label = "Born"
     end_date_label = "Died"
@@ -111,6 +114,10 @@ A full-body color portrait of a fictional {self.gender} {self.species} {self.gen
 PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """
         return prompt
+
+    @property
+    def lineage(self):
+        return [*self.parents, *self.siblings, *self.children]
 
     ################# Instance Methods #################
 

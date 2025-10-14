@@ -23,7 +23,6 @@ services:
       - "${APP_PORT}:${COMM_PORT}"
     depends_on:
       - ${API_SERVICE_NAME}
-      #- db
   stapifrontdev:
     image: ${APP_NAME}_api:latest
     build:

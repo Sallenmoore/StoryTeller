@@ -23,7 +23,6 @@ services:
       - "${APP_PORT}:${COMM_PORT}"
     depends_on:
       - ${API_SERVICE_NAME}
-      #- db
   stapibackdev:
     image: ${APP_NAME}_api:latest
     build:
@@ -44,8 +43,6 @@ services:
       - ./logs:/var/app/logs/
       - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-    # ports:
-    #   - "${API_PORT}:${COMM_PORT}"
   sttasksbackdev:
     image: ${APP_NAME}_tasks:latest
     build:

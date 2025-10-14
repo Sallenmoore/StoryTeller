@@ -73,6 +73,32 @@
     </li>
     <li>
         <a href="" class="menu-anchor"
+           hx-get="/api/{{obj.path}}/lineage"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/lineage">
+            <div class="row">
+                <div id='menu-lineage-anchor' class="column is-3 is-mobile-shrink">
+                    {{icon_components.lineage(size="1rem")}}
+                </div>
+                <script>
+                    tippy('#menu-lineage-anchor', {
+                        content: 'Lineage',
+                        placement: 'right',
+                        allowHTML: true,
+                        arrow: false,
+                        animation: 'perspective-extreme',
+
+                    });
+                </script>
+                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                    <span>Lineage</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="" class="menu-anchor"
            hx-get="/api/{{obj.path}}/timeline"
            hx-target="#page-content"
            hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
@@ -450,6 +476,114 @@
 {% macro associations(user, obj, associations)%}
 {{title_components.object_title(user, obj)}}
 {{associations_components.associations(user, obj, associations)}}
+{%- endmacro %}
+
+{% macro lineage(user, obj)%}
+{{title_components.object_title(user, obj)}}
+<h2 class='has-text-primary'>Lineage</h2>
+{% if user.world_user(obj) %}
+<div class="panel has-bg-muted">
+    <h4 class='has-text-dark has-text-center'>Add Family Member</h4>
+    <form hx-post="/api/manage/character/addlineage" hx-target="#page-content">
+        <div class="row has-centered">
+            <div class="column is-shrink is-mobile-4">
+                <div class="is-select">
+                    <select class="has-bg-muted select" name="role">
+                        <option value="parent">Parent</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="child">Child</option>
+                    </select>
+                </div>
+            </div>
+            <div class="column is-4 is-mobile-6">
+                <div class="is-select">
+                    <select class="has-bg-muted select" name="character">
+                        <option value="">=== Select from Associations ===</option>
+                        {% for character in obj.characters %}
+                        {% if character not in obj.lineage %}
+                        <option value="{{character.pk}}">{{character.name}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-shrink is-mobile-2 is-vertically-centered">
+                <button class="button is-small">
+                    Add Family Member
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endif %}
+<div class="panel has-bg-screen">
+    <div class="row has-space-around">
+        <div class="column is-full">
+            <h4 class='has-text-screen has-text-center'>Parents</h4>
+            {% if obj.parents %}
+            <div class="row has-space-around">
+                {% for parent in obj.parents %}
+                <div class="column is-2" style='position:relative;'>
+                    {{display_components.object_display(parent)}}
+                    <a style='position:absolute; top:0px; right:5px;'
+                       hx-post="/api/manage/character/removelineage/{{parent.pk}}"
+                       hx-target="#page-content"
+                       hx-confirm="Are you sure you want to remove this character from the lineage?">
+                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                      width="1rem"></iconify-icon>
+                    </a>
+                </div>
+
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="has-text-dark has-text-center">None</p>
+            {% endif %}
+        </div>
+        <div class="column is-full">
+            <h4 class='has-text-screen has-text-center'>Siblings</h4>
+            {% if obj.siblings %}
+            <div class="row has-space-around">
+                {% for sibling in obj.siblings %}
+                <div class="column is-2" style='position:relative;'>
+                    {{display_components.object_display(sibling)}}
+                    <a style='position:absolute; top:0px; right:5px;'
+                       hx-post="/api/manage/character/removelineage/{{sibling.pk}}"
+                       hx-target="#page-content"
+                       hx-confirm="Are you sure you want to remove this character from the lineage?">
+                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                      width="1rem"></iconify-icon>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="has-text-dark has-text-center">None</p>
+            {% endif %}
+        </div>
+        <div class="column is-full">
+            <h4 class='has-text-screen has-text-center'>Children</h4>
+            {% if obj.children %}
+            <div class="row has-space-around">
+                {% for child in obj.children %}
+                <div class="column is-2" style='position:relative;'>
+                    {{display_components.object_display(child)}}
+                    <a style='position:absolute; top:0px; right:5px;'
+                       hx-post="/api/manage/character/removelineage/{{child.pk}}"
+                       hx-target="#page-content"
+                       hx-confirm="Are you sure you want to remove this character from the lineage?">
+                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                      width="1rem"></iconify-icon>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="has-text-dark has-text-center">None</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {%- endmacro %}
 
 {% macro quests(user, obj) -%}
