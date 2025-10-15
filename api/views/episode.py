@@ -53,8 +53,6 @@ def edit_episode(pk=None):
         end_date = request.json.get("end_date", episode.end_date)
         if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
             episode.end_date = end_date
-        if storypk := request.json.get("storypk"):
-            episode.story = Story.get(storypk)
         episode.description = request.json.get("description", episode.description)
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
@@ -78,6 +76,43 @@ def delete(episodepk):
     return get_template_attribute("models/_campaign.html", "index")(
         user,
         campaign,
+    )
+
+
+###########################################################
+##             episode Story Routes                  ##
+###########################################################
+# /api/{{episode.path}}/stories/{{story.pk}}/delete
+
+
+@episode_endpoint.route("/<string:episodepk>/stories/add", methods=("POST",))
+def addstory(episodepk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(episodepk)
+    story = Story.get(request_data.get("storypk"))
+    if story not in episode.stories:
+        episode.stories += [story]
+    episode.save()
+    return get_template_attribute("manage/_episode.html", "manage")(
+        user,
+        episode,
+    )
+
+
+@episode_endpoint.route(
+    "/<string:episodepk>/stories/<string:storypk>/delete", methods=("POST",)
+)
+def removestory(episodepk, storypk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(episodepk)
+    story = Story.get(storypk)
+    if story in episode.stories:
+        episode.stories.remove(story)
+        episode.save()
+    # log(module, macro)
+    return get_template_attribute("manage/_episode.html", "manage")(
+        user,
+        episode,
     )
 
 

@@ -255,7 +255,9 @@
                 </div>
                 <div class="column is-full is-vertically-centered generated-text-lightbg"
                      style='font-size: 0.75rem;'>
-                    {{entry.summary | safe}}
+                    <div class="panel has-bg-muted">
+                        {{entry.summary | safe}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -278,12 +280,15 @@
 {{title_components.object_title(user, obj)}}
 <h3 class='has-text-center'>Graphic Novel</h3>
 <div class="row">
-    {% for entry in obj.graphic_novel %}
+    {% for entry in obj.episodes[::-1] %}
     <div class="column is-half">
         <div class="panel has-bg-muted">
+            <h5 class='has-text-center'>{{entry.name}}</h5>
+            {% if entry.graphic %}
             <div class='image'>
-                <img src='{{entry.url()}}' alt='{{entry.name}}'>
+                <img src='{{entry.graphic.url()}}' alt='{{entry.name}}'>
             </div>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

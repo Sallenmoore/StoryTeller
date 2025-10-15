@@ -53,10 +53,6 @@ class Campaign(AutoModel):
         return self.world.genre
 
     @property
-    def graphic_novel(self):
-        return [ep.graphic for ep in self.episodes if ep.graphic][::-1]
-
-    @property
     def history(self):
         return self.summary
 

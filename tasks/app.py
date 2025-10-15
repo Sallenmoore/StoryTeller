@@ -132,6 +132,18 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/campaign/episode/<string:pk>/report", methods=("POST",))
+    def generate_session_report(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_session_report_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/episode/<string:pk>/graphic", methods=("POST",))
     def generate_episode_graphic(pk):
         task = (

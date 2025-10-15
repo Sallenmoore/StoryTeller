@@ -205,7 +205,7 @@ class Event(AutoModel):
 
     def summarize(self):
         prompt = f"Summarize the following event that occurred in a {self.world.genre} TTRPG world. The event has the following details: Backstory: {self.backstory}. Outcome: {self.outcome}. Impact: {self.impact}."
-        primer = "Provide an engaging summary of the event, highlighting its key elements in less than 80 words."
+        primer = "Provide an engaging summary of the event, highlighting its key elements in less than 65 words."
         log(f"Generating summary...\n{prompt}", _print=True)
         self.summary = self.world.system.generate_summary(prompt, primer)
         self.summary = self.summary.replace("```markdown", "").replace("```", "")

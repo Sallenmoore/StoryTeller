@@ -40,6 +40,7 @@ class Episode(AutoModel):
     hooks = StringAttr(default="")
     summary = StringAttr(default="")
     story = ReferenceAttr(choices=["Story"])
+    stories = ListAttr(ReferenceAttr(choices=["Story"]))
 
     ##################### PROPERTY METHODS ####################
 
@@ -193,9 +194,45 @@ class Episode(AutoModel):
         self.save()
         return self.summary
 
+    def regenerate_report(self):
+        if not self.episode_report:
+            return ""
+        prompt = f"Rewrite and expand on the following session notes for a {self.world.genre} TTRPG in MARKDOWN to be an engaging and exciting narrative, highlighting the key elements of the session and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}."
+
+        if self.stories:
+            prompt += "\n\nHere is some context about the story arcs involved in the episode:\n\n"
+            for s in self.stories:
+                if not s.summary:
+                    s.summarize()
+                prompt += f"\n\n{s.name}:{s.summary}."
+
+        if self.associations:
+            prompt += "\n\nHere are descriptions of world elements involved in the episode:\n\n"
+            for assoc in self.associations:
+                if assoc.history:
+                    prompt += f"\n\n{assoc.name}: {assoc.history}."
+
+        prompt += f"\n\nHere are the current session notes: {self.episode_report}."
+        self.episode_report = self.world.system.generate_text(
+            prompt,
+            primer=f"Rewrite the following session notes in MARKDOWN for a {self.world.genre} TTRPG world in a narrative, evocative, and vivid style using a witty and judgemental narrator tone.",
+        )
+
+        self.episode_report = self.episode_report.replace("```markdown", "").replace(
+            "```", ""
+        )
+        self.episode_report = (
+            markdown.markdown(self.episode_report)
+            .replace("h1>", "h3>")
+            .replace("h2>", "h3>")
+        )
+        self.save()
+        return self.episode_report
+
     def generate_graphic(self):
         prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
-        description = self.world.system.generate_summary(
+        log(f"Graphic Prompt: {prompt}", _print=True)
+        description = self.world.system.generate_text(
             prompt,
             primer="Provide a vivid and detailed description for an AI-generated image that captures the essence of the episode, including key visual elements, atmosphere, and significant characters or locations.",
         )
@@ -265,6 +302,12 @@ class Episode(AutoModel):
         document.pre_save_episode_num()
         document.pre_save_dates()
         document.pre_save_report()
+
+        ##### MIGRATION: story to stories #######
+        if document.story and document.story not in document.stories:
+            document.stories += [document.story]
+            document.story = None
+        #########################################
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
