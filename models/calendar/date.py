@@ -7,7 +7,7 @@ from autonomous import log
 
 
 class Date(AutoModel):
-    obj = ReferenceAttr(choices=["TTRPGObject", "Episode", "Event"], required=True)
+    obj = ReferenceAttr(choices=["TTRPGBase", "Episode", "Event"], required=True)
     year = IntAttr(default=0)
     day = IntAttr(default=0)
     month = IntAttr(default=-1)
@@ -71,6 +71,7 @@ class Date(AutoModel):
             )
         return False
 
+    @classmethod
     def from_string(cls, obj, calendar, date_string):
         parts = date_string.split(" ")
         day = int(parts[0])

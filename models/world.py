@@ -48,10 +48,12 @@ class World(TTRPGBase):
     users = ListAttr(ReferenceAttr(choices=["User"]))
     calendar = ReferenceAttr(choices=["Calendar"])
     current_date = ReferenceAttr(choices=["Date"])
+    start_date = ReferenceAttr(choices=["Date"])
     map = ReferenceAttr(choices=["Map"])
     map_prompt = StringAttr(default="")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
+    lore_entries = ListAttr(ReferenceAttr(choices=["Lore"]))
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -403,7 +405,7 @@ class World(TTRPGBase):
         response = {
             "worldname": self.name,
             "genre": self.genre,
-            "backstory": self.backstory,
+            "backstory": self.history,
             "current_date": str(self.current_date),
             "world_objects": {
                 "Regions": [o.page_data() for o in self.regions],
@@ -529,6 +531,9 @@ class World(TTRPGBase):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def pre_save_current_date(self):
+        if not self.start_date:
+            self.start_date = self.calendar.date(1, 1, 1, self)
+
         event_date = (
             sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
             if self.events
