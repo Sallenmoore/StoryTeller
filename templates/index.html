@@ -83,16 +83,11 @@
                  style='position:relative;'>
                 <div class="row has-no-padding-left slide-it-in has-centered">
                     {% if obj %}
-                    <div class="column is-shrink is-mobile-shrink has-no-padding-left slide-it-in"
-                         style='position:absolute;top:0;left:0;'>
-                        <button id="mobile-menu-burger" class='button is-mobile-only'
-                                style='position:fixed; z-index:1002; border-radius:0 10px 10px 0;'>
-                            {{icon_components.menuburger(size="1.5rem")}}
-                        </button>
-                        {{nav.sidemenu_active(user, obj)}}
+                    <div class="column is-full has-no-padding slide-it-in">
+                        {{nav.object_menu(user, obj)}}
                     </div>
                     {% endif %}
-                    <div class="column is-11 is-mobile-full has-no-padding">
+                    <div class="column is-10 is-mobile-full has-no-padding">
                         {% if page_url %}
                         <div class='has-bg-transparent raise-it'
                              style='border-radius: 0 0 5px 5px;' id="page-content"

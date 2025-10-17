@@ -17,222 +17,134 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/details">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/details">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.details(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/history"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/history">
-            <div class="row">
-                <div id='menu-history-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.history(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-history-anchor', {
-                        content: 'History',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>History</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>Details</span>
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/timeline"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/timeline">
-            <div class="row">
-                <div id='menu-timeline-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.timeline(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-timeline-anchor', {
-                        content: 'Timeline',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Timeline</span>
-                </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/history"
+       hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/history">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.history(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/campaigns"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/campaigns">
-            <div class="row">
-                <div id='menu-campaigns-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaigns(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-campaigns-anchor', {
-                        content: 'Campaigns',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Campaigns</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>History</span>
             </div>
-        </a>
-    </li>
-    {% if user.world_user(obj) %}
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/stories"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/stories">
-            <div class="row">
-                <div id='menu-stories-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.story(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-stories-anchor', {
-                        content: 'Stories',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Stories</span>
-                </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/timeline"
+       hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/timeline">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.timeline(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/journal">
-            <div class="row">
-                <div id='menu-journal-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.journal(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-journal-anchor', {
-                        content: 'Journal',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Journal</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>Timeline</span>
             </div>
-        </a>
-    </li>
-    {% endif %}
-</ul>
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
-           hx-target="#page-content" hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
-            <div class="row">
-                <div id='menu-map-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.map(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-map-anchor', {
-                        content: 'Map',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Map</span>
-                </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/campaigns"
+       hx-target="#page-content"
+       hx-indicator="#request-indicator"
+       hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/campaigns">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.campaigns(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/jobs">
-            <div class="row">
-                <div id='menu-jobs-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.jobs(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-jobs-anchor', {
-                        content: 'Jobs',
-                        placement: 'right',
-                        arrow: false,
-                        animation: 'perspective-extreme',
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Job Board</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>Campaigns</span>
             </div>
-        </a>
-    </li>
-</ul>
+        </div>
+    </a>
+</li>
+{% if user.world_user(obj) %}
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/stories"
+       hx-target="#page-content"
+       hx-indicator="#request-indicator"
+       hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/stories">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.story(size="1rem")}}
+            </div>
+        </div>
+        <div class="column slide-it-in">
+            <span>Stories</span>
+        </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/journal">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.journal(size="1rem")}}
+            </div>
+            <div class="column slide-it-in">
+                <span>Journal</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
+<li class="menu-anchor">
+    <a href="" hx-get="/api/{{obj.path}}/map"
+       hx-target="#page-content" hx-indicator="#request-indicator"
+       hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.map(size="1rem")}}
+            </div>
+            <div class="column slide-it-in">
+                <span>Map</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/jobs">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.jobs(size="1rem")}}
+            </div>
+            <div class="column slide-it-in">
+                <span>Job Board</span>
+            </div>
+        </div>
+    </a>
+</li>
 {%- endmacro %}
 
 {% macro history(user, obj) -%}

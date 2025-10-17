@@ -85,34 +85,21 @@
 {%- endmacro %}
 
 {% macro menu(user, event) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{event.path}}" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{event.path}}">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{event.path}}" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{event.path}}">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.details(size="1rem")}}
             </div>
-        </a>
-    </li>
-</ul>
+            <div class="column slide-it-in">
+                <span>Details</span>
+            </div>
+        </div>
+    </a>
+</li>
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}

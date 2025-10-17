@@ -49,80 +49,74 @@
 </div>
 <hr>
 {% endif %}
-<div class="row has-space-around">
-    <div class="column is-4">
-        <div class="panel has-bg-muted is-small" style='border-radius: 5px 5px 0 0 ;'>
-            <input type="search" name="filter" placeholder="Begin typing to filter..."
-                   style="border-bottom: solid #000;"
-                   hx-post="/api/{{obj.path}}/associations"
-                   hx-trigger="input changed delay:250ms, search"
-                   hx-target='#associations-container'
-                   hx-select='#associations-container'
-                   hx-swap='outerHTML'>
-        </div>
-    </div>
-    <div class="column is-4">
-        <div class="panel is-small" style='border-radius: 0 0 5px 5px;'>
-            <form hx-post="/api/{{obj.path}}/associations"
-                  hx-target='#associations-container'
-                  hx-select='#associations-container'
-                  hx-swap='outerHTML'>
+<form hx-post="/api/{{obj.path}}/associations"
+      hx-target='#associations-container'
+      hx-select='#associations-container'
+      hx-trigger="input delay:250ms, change, search"
+      hx-swap='outerHTML'>
+    <div class="panel has-bg-muted">
+        <div class="row has-space-around">
+            <div class="column is-3">
+                <input type="search" name="filter" placeholder="Filter by name..."
+                       style="border-bottom: solid #000;">
+            </div>
+            <div class="column is-3">
+                <div class="is-select">
+                    <select class="has-text-dark" name="type">
+                        <option value=''>Filter by Type</option>
+                        {% for model in obj.world.all_models() %}
+                        <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="is-select">
+                    <select class="has-text-dark" name="relationship">
+                        <option value=''>Filter by Relationship</option>
+                        <option value='parent'>Within</option>
+                        <option value='child'>Contains</option>
+                        {% if obj.model_name() == "Character" %}
+                        <option value='lineage'>Lineage</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-3">
                 <div class="row">
                     <div class="column is-shrink is-vertically-centered">
-                        <h5 class="has-text-muted">Sort by</h5>
+                        <h5 class="has-text-screen">Sort by</h5>
                     </div>
                     <div class="column">
                         <div class="is-select">
-                            <select class="has-text-white" name="sorter">
+                            <select class="has-text-white has-bg-screen" name="sorter">
                                 <option value='name'>Name</option>
                                 <option value='date'>Date</option>
                                 <option value='type'>Type</option>
-                                <option value='parent'>No Parent</option>
                             </select>
                         </div>
                     </div>
-                    <div class="column is-shrink is-mobile-shrink">
-                        <button type="submit" class="button is-small" name="order" value="asc">
-                            {{icon_components.sortascending(size="1rem")}}
-                            Ascending
-                        </button>
-                    </div>
-                    <div class="column is-shrink is-mobile-shrink">
-                        <button type="submit" class="button is-small" name="order" value="desc">
-                            {{icon_components.sortdescending(size="1rem")}}
-                            Descending
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<hr>
-<div id='associations-container'>
-    <div id="related-objects" class="row has-space-around">
-        {% if obj.model_name() != "World"%}
-        {% if obj.parent|default(false) %}
-        {% for ancestor in obj.geneology | reverse %}
-        <div class="column is-3 is-mobile-6 is-desktop-2 card-container has-bg-black">
-            <div class="panel has-bg-black" style='height:100%;'>
-                {{display_components.object_display(ancestor)}}
-                <div class="row has-space-around">
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
-                                hx-post="/api/manage/unassociate/{{ancestor.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.unlink(size="1rem")}}
-                            <span style="font-size:0.5rem">Unlink</span>
-                        </button>
+                    <div class="column">
+                        <div class="is-select">
+                            <select class="has-text-white has-bg-screen" name="order">
+                                <option value='ascending'>
+                                    ASC
+                                </option>
+                                <option value='descending'>
+                                    DESC
+                                </option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
-        {% endif %}
+    </div>
+</form>
+<hr>
+<div id='associations-container'>
+    <div id="related-objects" class="row has-space-around">
         {% for a in obj.children %}
         <div
              class="column is-3 is-mobile-6 is-desktop-2 card-container
@@ -148,7 +142,6 @@
             </div>
         </div>
         {% endfor %}
-        {% endif%}
         {% for a in associations %}
         {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
         <div

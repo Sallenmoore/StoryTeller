@@ -519,22 +519,23 @@ def characterhitpoints():
 def lineage():
     user, obj, request_data = _loader()
     role = request_data.get("role")
-    log(request_data)
+    # log(request_data)
     if character := Character.get(request_data.get("character")):
-        if role == "parent" and character not in obj.parents:
-            obj.parents += [character]
-            if obj not in character.children:
-                character.children += [obj]
-        elif role == "sibling" and character not in obj.siblings:
-            obj.siblings += [character]
-            if obj not in character.siblings:
-                character.siblings += [obj]
-        elif role == "child" and character not in obj.children:
-            obj.children += [character]
-            if obj not in character.parents:
-                character.parents += [obj]
+        if role == "parent" and character not in obj.parent_lineage:
+            obj.parent_lineage += [character]
+            if obj not in character.children_lineage:
+                character.children_lineage += [obj]
+        elif role == "sibling" and character not in obj.sibling_lineage:
+            obj.sibling_lineage += [character]
+            if obj not in character.sibling_lineage:
+                character.sibling_lineage += [obj]
+        elif role == "child" and character not in obj.children_lineage:
+            obj.children_lineage += [character]
+            if obj not in character.parent_lineage:
+                character.parent_lineage += [obj]
         character.save()
         obj.save()
+        obj.add_association(character)
     return get_template_attribute("models/_character.html", "lineage")(user, obj)
 
 
@@ -542,18 +543,18 @@ def lineage():
 def removelineage(character):
     user, obj, request_data = _loader()
     if character := Character.get(character):
-        if character in obj.parents:
-            obj.parents.remove(character)
-            if obj in character.children:
-                character.children.remove(obj)
-        elif character in obj.siblings:
-            obj.siblings.remove(character)
-            if obj in character.siblings:
-                character.siblings.remove(obj)
-        elif character in obj.children:
-            obj.children.remove(character)
-            if obj in character.parents:
-                character.parents.remove(obj)
+        if character in obj.parent_lineage:
+            obj.parent_lineage.remove(character)
+            if obj in character.children_lineage:
+                character.children_lineage.remove(obj)
+        elif character in obj.sibling_lineage:
+            obj.sibling_lineage.remove(character)
+            if obj in character.sibling_lineage:
+                character.sibling_lineage.remove(obj)
+        elif character in obj.children_lineage:
+            obj.children_lineage.remove(character)
+            if obj in character.parent_lineage:
+                character.parent_lineage.remove(obj)
         character.save()
         obj.save()
     return get_template_attribute("models/_character.html", "lineage")(user, obj)

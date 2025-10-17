@@ -109,31 +109,49 @@ def model(model, pk, page=""):
 ##                    Association Routes                 ##
 ###########################################################
 @index_endpoint.route(
-    "/<string:model>/<string:pk>/associations/<string:modelstr>",
-    methods=("GET", "POST"),
-)
-@index_endpoint.route(
     "/<string:model>/<string:pk>/associations", methods=("GET", "POST")
 )
-def associations(model, pk, modelstr=None):
+def associations(model, pk):
     user, obj, request_data = _loader()
-    associations = [
-        o
-        for o in obj.associations
-        if not modelstr or modelstr.lower() == o.model_name().lower()
-    ]
-    args = dict(request.args) if request.method == "GET" else request.json
-    if filter_str := args.get("filter"):
-        associations = [o for o in associations if filter_str.lower() in o.name.lower()]
-    if sort_str := args.get("sorter"):
+    associations = obj.associations
+    if filter_str := request_data.get("filter"):
+        if len(filter_str) > 2:
+            associations = [
+                o for o in associations if filter_str.lower() in o.name.lower()
+            ]
+
+    if type_str := request_data.get("type"):
+        associations = [
+            o for o in associations if o.model_name().lower() == type_str.lower()
+        ]
+
+    if rel_str := request_data.get("relationship"):
+        if rel_str.lower() == "parent":
+            associations = [o for o in associations if o in obj.geneology]
+        elif rel_str.lower() == "child":
+            associations = [o for o in associations if obj == o.parent]
+        elif hasattr(obj, "lineage") and rel_str.lower() == "lineage":
+            associations = [o for o in associations if o in obj.lineage]
+
+    associations.sort(key=lambda x: x.name)
+    order = request_data.get("order", "ascending")
+    if sort_str := request_data.get("sorter"):
         if sort_str.lower() == "name":
-            associations.sort(key=lambda x: x.name)
+            associations.sort(
+                key=lambda x: x.name, reverse=True
+            ) if order == "descending" else associations
         elif sort_str.lower() == "date":
-            associations.sort(key=lambda x: x.start_date)
+            associations.sort(
+                key=lambda x: x.start_date, reverse=True
+            ) if order == "descending" else associations.sort(
+                key=lambda x: x.start_date
+            )
         elif sort_str.lower() == "type":
-            associations.sort(key=lambda x: x.model_name())
-        elif sort_str.lower() == "parent":
-            associations = [o for o in associations if not o.parent]
+            associations.sort(
+                key=lambda x: x.model_name(), reverse=True
+            ) if order == "descending" else associations.sort(
+                key=lambda x: x.model_name()
+            )
 
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, associations

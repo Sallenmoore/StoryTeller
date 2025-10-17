@@ -11,106 +11,60 @@
 
 <!-- unique menu items for campaigns -->
 {% macro menu(user, obj) -%}
-<ul class="menu__list">
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/details">
-            <div class="row">
-                <div id='menu-details-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.details(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-details-anchor', {
-                        content: 'Details',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Details</span>
-                </div>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/details">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.details(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="" class="menu-anchor"
-           hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
-           hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/gmnotes">
-            <div class="row">
-                <div id='menu-gmnotes-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.gamemaster(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-gmnotes-anchor', {
-                        content: 'GM Notes',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>GM Notes</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>Details</span>
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="/{{obj.path}}/graphic">
-            <div class="row">
-                <div id='menu-graphic-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.drama(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-graphic-anchor', {
-                        content: 'Graphic',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Graphic</span>
-                </div>
+        </div>
+    </a>
+</li>
+<li class="menu-anchor">
+    <a href=""
+       hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/gmnotes">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.gamemaster(size="1rem")}}
             </div>
-        </a>
-    </li>
-    <li>
-        <a href="/{{obj.campaign.path}}">
-            <div class="row">
-                <div id='menu-campaign-anchor' class="column is-3 is-mobile-shrink">
-                    {{icon_components.campaigns(size="1rem")}}
-                </div>
-                <script>
-                    tippy('#menu-campaign-anchor', {
-                        content: 'Campaign',
-                        placement: 'right',
-                        allowHTML: true,
-                        arrow: false,
-                        animation: 'perspective-extreme',
-
-                    });
-                </script>
-                <div
-                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                    <span>Campaign</span>
-                </div>
+            <div class="column slide-it-in">
+                <span>GM Notes</span>
             </div>
-        </a>
-    </li>
-</ul>
+        </div>
+    </a>
+</li>
+<li>
+    <a href="/{{obj.path}}/graphic">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.drama(size="1rem")}}
+            </div>
+            <div class="column slide-it-in">
+                <span>Graphic</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href="/{{obj.campaign.path}}">
+        <div class="row">
+            <div class="column is-shrink">
+                {{icon_components.campaigns(size="1rem")}}
+            </div>
+            <div class="column slide-it-in">
+                <span>Campaign</span>
+            </div>
+        </div>
+    </a>
+</li>
 {%- endmacro %}
 
 {% macro details(user, obj) -%}

@@ -16,9 +16,9 @@ class Character(Actor):
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
-    parents = ListAttr(ReferenceAttr(choices=["Character"]))
-    siblings = ListAttr(ReferenceAttr(choices=["Character"]))
-    children = ListAttr(ReferenceAttr(choices=["Character"]))
+    parent_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
+    sibling_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
+    children_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
 
     start_date_label = "Born"
     end_date_label = "Died"
@@ -117,7 +117,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
     @property
     def lineage(self):
-        return [*self.parents, *self.siblings, *self.children]
+        return [*self.parent_lineage, *self.sibling_lineage, *self.children_lineage]
 
     ################# Instance Methods #################
 

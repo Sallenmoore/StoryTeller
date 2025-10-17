@@ -84,141 +84,45 @@
 {% endfor %}
 {%- endmacro%}
 
-{% macro sidemenu_active(user, obj) -%}
-<div id="sidenav"
-     class="is-tablet-up has-bg-secondary has-no-padding-bottom has-no-padding-right slide-it-in"
-     style='position:relative; z-index:1001; padding-top:1rem;border-radius: 0 10px 10px 0;border-right: solid;border-top: solid;border-bottom: solid;'>
-    <div class="row ">
-        <div class="column has-no-padding-bottom is-vertically-centered">
-            <div class="row slide-it-in">
-                <div id="collapse-sidemenu"
-                     class="column is-mobile-only is-mobile-3 is-end menu-anchor-text is-hidden">
-                    {{icon_components.close()}}
-                </div>
-            </div>
-        </div>
-    </div>
-    <nav class="menu is-active" id="model-menu-container">
-        <ul class="menu__list">
-            <li>
-                <a href="/{{obj.world.path}}" class="menu-anchor">
-                    <div class="row">
-                        <div id="menu-world-anchor" class="column is-3 is-mobile-shrink">
-                            {{icon_components.world(size="1rem")}}
-                        </div>
-                        <script>
-                            tippy('#menu-world-anchor', {
-                                content: '{{obj.world.name}}',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                            <h4>{{obj.world.name}}</h4>
-                        </div>
-                    </div>
-                </a>
-            </li>
-        </ul>
-        <p class="menu__divider"></p>
-        <span hx-get="/api/nav/sidemenu/{{obj.path}}"
-              hx-trigger="load"
-              hx-swap="outerHTML">
-        </span>
-        <p class="menu__divider"></p>
-        <ul class="menu__list">
-            <li>
-                <a href="" class="menu-anchor"
+{% macro object_menu(user, obj) -%}
+<nav class="top has-centered has-bg-muted has-no-margin has-no-padding">
+    <div class="top__links">
+        <ul>
+            <li class='menu-anchor'>
+                <a href=""
                    hx-get="/api/{{obj.path}}/associations"
                    hx-target="#page-content"
                    hx-indicator="#request-indicator"
                    hx-swap="innerHTML show:#page-content:top"
                    hx-push-url="/{{obj.path}}/associations">
                     <div class="row">
-                        <div id='menu-associations-anchor' class="column is-3 is-mobile-shrink">
+                        <div class="column is-shrink is-mobile-shrink">
                             {{icon_components.associations(size="1rem")}}
                         </div>
-                        <script>
-                            tippy('#menu-associations-anchor', {
-                                content: 'Associations',
-                                placement: 'right',
-                                allowHTML: true,
-                                arrow: false,
-                                animation: 'perspective-extreme',
-
-                            });
-                        </script>
-                        <div
-                             class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
+                        <div class="column slide-it-in">
                             <span>Associations</span>
                         </div>
                     </div>
                 </a>
             </li>
+            <span hx-get="/api/nav/sidemenu/{{obj.path}}"
+                  hx-trigger="load"
+                  hx-swap="outerHTML">
+            </span>
         </ul>
-        <ul class="menu__list" id='child-object-submenu'>
-            {% for model in obj.world.all_models_str() %}
-            <li>
-                <div class="row" style='position:relative;'>
-                    <div class="column has-no-padding">
-                        <a href="/{{obj.path}}/associations/{{model | lower}}" class="menu-anchor"
-                           hx-get="/api/{{obj.path}}/associations/{{model | lower}}"
-                           hx-target="#page-content"
-                           hx-indicator="#request-indicator"
-                           hx-swap="innerHTML show:#content:top"
-                           hx-push-url="/{{obj.path}}/associations/{{model | lower}}">
-                            <div class="row">
-                                <div id='menu-{{model | lower}}-anchor'
-                                     class="column is-3 is-mobile-shrink">
-                                    {{obj.world.get_icon(model)}}
-                                </div>
-                                <script>
-                                    tippy('#menu-{{model | lower}}-anchor', {
-                                        content: '{{obj.world.get_title(model)}}',
-                                        placement: 'right',
-                                        allowHTML: true,
-                                        arrow: false,
-                                        animation: 'perspective-extreme',
-
-                                    });
-                                </script>
-                                <div
-                                     class="column is-9 is-mobile-9 is-hidden slide-it-in menu-anchor-text">
-                                    <span>{{obj.world.get_title(model)}}</span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+    </div>
+    <div class="top__brand">
+        <a href="/{{obj.world.path}}">
+            <div class="row">
+                <div class="column is-shrink is-mobile-shrink">
+                    {{icon_components.world(size="1rem")}}
                 </div>
-            </li>
-            {% endfor %}
-        </ul>
-    </nav>
-    <script>
-        var timeout = null;
-        var sideMenu = document.getElementById('sidenav');
-        var isOpen = false;
-        if ((window.innerWidth <= 850)) {
-            htmx.find('#mobile-menu-burger').addEventListener("click", (event) => {
-                var sidenav = htmx.find("#sidenav");
-                sidenav.style.position = "absolute";
-                sidenav.classList.remove("is-tablet-up");
-                sidenav.scrollIntoView(alignToTop = true, scrollIntoViewOptions = { behavior: 'smooth' });
-                htmx.find("#mobile-menu-burger").classList.add("is-hidden");
-                Array.from(sidenav.querySelectorAll('.menu-anchor-text')).forEach(el => el.classList.remove('is-hidden'));
-            });
-            sideMenu.addEventListener("click", (event) => {
-                event.stopImmediatePropagation();
-                var sidenav = htmx.find("#sidenav");
-                sidenav.style.position = "static";
-                sidenav.classList.add("is-tablet-up");
-                htmx.find("#mobile-menu-burger").classList.remove("is-hidden");
-            });
-        }
-    </script>
-</div>
+                <div
+                     class="column slide-it-in">
+                    <h4>{{obj.world.name}}</h4>
+                </div>
+            </div>
+        </a>
+    </div>
+</nav>
 {%- endmacro %}

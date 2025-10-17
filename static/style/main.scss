@@ -94,7 +94,7 @@
     left: 0.5rem;
     background-color: $primary;
     border: 1px solid $light;
-    color: $primarytext;
+    color: $primary;
     cursor: pointer;
     z-index: 999;
     transition: display 1s ease;
@@ -107,9 +107,18 @@
 
 .menu-anchor
 {
-    color: $primarytext;
-    font-family: $heading-font-family;
-    font-size: 1.25rem;
+    vertical-align: middle;
+
+    a
+    {
+        color: $primary;
+
+        span
+        {
+            font-family: $heading-font-family;
+            font-size: 0.75rem;
+        }
+    }
 }
 
 .htmx-indicator

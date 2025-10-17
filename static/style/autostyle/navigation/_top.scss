@@ -39,7 +39,7 @@ $top-burger-transition: 0.75s !default;
     flex-flow: row nowrap;
     padding: var(--padding);
     position: relative;
-    z-index: 9999;
+    //z-index: 9999;
 
     &__brand,
     &__links,
