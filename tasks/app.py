@@ -260,4 +260,13 @@ def create_app():
         task = AutoTasks().task(tasks._generate_event_summary_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/lore/<string:pk>", methods=("POST",))
+    def generate_lore(pk):
+        task = (
+            AutoTasks()
+            .task(tasks._generate_lore_task, pk, request.json.get("prompt"))
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     return app

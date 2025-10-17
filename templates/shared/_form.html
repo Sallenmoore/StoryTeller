@@ -1,4 +1,19 @@
-{% macro textarea(user, obj, name="", content="") -%}
+{% macro text_input(name, label="", value="", placeholder="")%}
+{% if label %}
+<label for="{{name}}" class="label">{{label}}</label>
+{% endif %}
+<input type="text"
+       class="input has-bg-white"
+       id="{{name}}"
+       name='{{name}}'
+       value='{{value}}'
+       placeholder='{{placeholder}}' />
+{%- endmacro %}
+
+{% macro textarea(user, obj, name="", content="", label="") -%}
+{% if label %}
+<label for="{{name}}" class="label">{{label}}</label>
+{% endif %}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text has-bg-white" rows="1"
           placeholder="Start typing...">{{ content }}</textarea>
 <script>

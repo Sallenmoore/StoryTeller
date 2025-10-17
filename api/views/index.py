@@ -141,11 +141,12 @@ def associations(model, pk):
                 key=lambda x: x.name, reverse=True
             ) if order == "descending" else associations
         elif sort_str.lower() == "date":
+            associations = [
+                a for a in associations if a.end_date and a.end_date.year > 0
+            ]
             associations.sort(
-                key=lambda x: x.start_date, reverse=True
-            ) if order == "descending" else associations.sort(
-                key=lambda x: x.start_date
-            )
+                key=lambda x: x.end_date, reverse=True
+            ) if order == "descending" else associations.sort(key=lambda x: x.end_date)
         elif sort_str.lower() == "type":
             associations.sort(
                 key=lambda x: x.model_name(), reverse=True

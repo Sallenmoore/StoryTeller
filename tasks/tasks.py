@@ -9,6 +9,7 @@ from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
 from models.stories.event import Event
+from models.stories.lore import Lore
 from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
@@ -130,3 +131,9 @@ def _generate_event_summary_task(pk):
     event = Event.get(pk)
     event.summarize()
     return {"url": f"/api/{event.path}/manage"}
+
+
+def _generate_lore_task(pk, prompt):
+    lore = Lore.get(pk)
+    lore.generate(prompt)
+    return {"url": f"/api/world/{lore.world.pk}/lore"}

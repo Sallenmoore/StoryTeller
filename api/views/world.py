@@ -15,8 +15,10 @@ from jinja2 import TemplateNotFound
 from autonomous import log
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
+from models.stories.lore import Lore
 from models.stories.quest import Quest  # for the importer
 from models.stories.story import Story
+from models.ttrpgobject.character import Character
 from models.ttrpgobject.encounter import Encounter
 from models.world import World
 
@@ -109,30 +111,66 @@ def worlddelete(pk):
 ##################### Lore Endpoints #####################
 
 
-@world_endpoint.route("/<string:pk>/lore/new", methods=("POST",))
-def lore_new(pk):
+@world_endpoint.route("/lore/new", methods=("POST",))
+def lore_new():
     user, obj, request_data = _loader()
-    lore = Story(name="New Story", world=obj)
+    lore = Lore(name="New Lore", world=obj)
     lore.save()
-    obj.stories.append(lore)
+    if story := Story.get(request_data.get("story_pk")):
+        lore.story = story
+        lore.associations = [a for a in story.associations]
+        lore.backstory = story.summary
+    lore.start_date = {
+        "day": request_data.get("start_day"),
+        "month": request_data.get("start_month"),
+        "year": request_data.get("start_year"),
+    }
+    lore.save()
+    obj.lore_entries += [lore]
     obj.save()
-    return get_template_attribute("models/_world.html", "stories")(
+    return get_template_attribute("models/_world.html", "lore")(
         user,
         obj,
     )
 
 
+@world_endpoint.route("/lore/<string:lore_pk>/edit", methods=("POST",))
+def lore_edit(lore_pk):
+    user, obj, request_data = _loader()
+    lore = Lore.get(lore_pk)
+    if name := request_data.get("name"):
+        lore.name = name
+    if scope := request_data.get("scope"):
+        lore.scope = scope.title()
+    if story := Story.get(request_data.get("storypk")):
+        lore.story = story
+        lore.associations += [a for a in story.associations]
+        lore.backstory = story.summary
+    lore.save()
+    return get_template_attribute("models/_world.html", "lore_details")(user, lore)
+
+
+@world_endpoint.route("/lore/<string:lore_pk>/delete", methods=("POST",))
+def lore_delete(lore_pk):
+    user, obj, request_data = _loader()
+    if lore := Lore.get(lore_pk):
+        lore.story = None
+        lore.delete()
+    return get_template_attribute("models/_world.html", "lore")(user, obj)
+
+
 ###########################################################
-##             World Lore Association Routes                  ##
+##             World Lore Association Routes             ##
 ###########################################################
 
 
 @world_endpoint.route(
-    "<string:pk>/lore/party/add/search",
+    "/lore/<string:pk>/party/add/search",
     methods=("POST",),
 )
-def loreassociationsearch(pk):
+def lorepartysearch(pk):
     user, obj, request_data = _loader()
+    lore = Lore.get(pk)
     query = request.json.get("query")
     results = (
         [
@@ -143,40 +181,80 @@ def loreassociationsearch(pk):
         if len(query) > 2
         else []
     )
-    return get_template_attribute("models/_world.html", "lore_association_dropdown")(
-        user, obj, results
+    results = [a for a in results if a not in lore.party]
+    return get_template_attribute("models/_world.html", "lore_party_dropdown")(
+        user, lore, results
     )
 
 
 @world_endpoint.route(
-    "<string:pk>/associations/add/<string:amodel>",
+    "/lore/<string:pk>/party/add/<string:apk>",
     methods=("POST",),
 )
+def lorepartyadd(pk, apk=None):
+    user, obj, request_data = _loader()
+    lore = Lore.get(pk)
+    if apk:
+        obj = Character.get(apk)
+        if obj not in lore.party:
+            lore.party += [obj]
+            lore.save()
+    return get_template_attribute("models/_world.html", "lore_details")(user, lore)
+
+
 @world_endpoint.route(
-    "<string:pk>/associations/add/<string:amodel>/<string:apk>",
+    "/lore/<string:pk>/party/remove/<string:apk>",
+    methods=("POST",),
+)
+def lorepartyremove(pk, apk=None):
+    user, obj, request_data = _loader()
+    lore = Lore.get(pk)
+    if apk:
+        obj = Character.get(apk)
+        if obj in lore.party:
+            lore.party.remove(obj)
+            lore.save()
+    return get_template_attribute("models/_world.html", "lore_details")(user, lore)
+
+
+@world_endpoint.route(
+    "/lore/<string:pk>/association/add/search",
+    methods=("POST",),
+)
+def loreassociationsearch(pk):
+    user, obj, request_data = _loader()
+    lore = Lore.get(pk)
+    query = request.json.get("query")
+    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
+    results = [a for a in results if a not in lore.associations]
+    return get_template_attribute("models/_world.html", "lore_association_dropdown")(
+        user, lore, results
+    )
+
+
+@world_endpoint.route(
+    "/lore/<string:pk>/association/add/<string:amodel>/<string:apk>",
     methods=("POST",),
 )
 def loreassociationadd(pk, amodel, apk=None):
     user, obj, request_data = _loader()
-    story = Story.get(pk)
-    if apk:
-        obj = obj.world.get_model(amodel, apk)
-    else:
-        Model = obj.world.get_model(amodel)
-        obj = Model(world=obj.world)
-        obj.save()
-    if obj not in story.associations:
-        story.associations += [obj]
-        story.save()
-    return get_template_attribute("manage/_story.html", "manage")(user, story)
+    lore = Lore.get(pk)
+    if obj := obj.world.get_model(amodel, apk):
+        if obj not in lore.associations:
+            lore.associations += [obj]
+            lore.save()
+    return get_template_attribute("models/_world.html", "lore_details")(user, lore)
 
 
-@world_endpoint.route("/<string:pk>/lore/<string:lore_pk>/delete", methods=("POST",))
-def lore_delete(pk, lore_pk):
+@world_endpoint.route(
+    "/lore/<string:pk>/association/remove/<string:amodel>/<string:apk>",
+    methods=("POST",),
+)
+def loreassociationremove(pk, amodel, apk=None):
     user, obj, request_data = _loader()
-    if lore := Story.get(lore_pk):
-        lore.delete()
-    if lore in obj.stories:
-        obj.stories.remove(lore)
-        obj.save()
-    return get_template_attribute("models/_world.html", "stories")(user, obj)
+    lore = Lore.get(pk)
+    if obj := obj.world.get_model(amodel, apk):
+        if obj in lore.associations:
+            lore.associations.remove(obj)
+            lore.save()
+    return get_template_attribute("models/_world.html", "lore_details")(user, lore)

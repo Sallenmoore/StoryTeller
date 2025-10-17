@@ -374,47 +374,66 @@
 
 {% macro lore(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-<div class="panel has-bg-muted">
+<div id="lore-container" class="panel has-bg-muted">
     <h2 class="has-text-dark has-text-centered">Lore Builder</h2>
-    <p class="has-text-dark">
-        Use this tool to build out the lore of your world. Create entries for important
-        events, places, people, and more. Link entries together to create a web of lore that
-        players can explore.
-    </p>
     <hr>
     <form hx-post="/api/world/lore/new"
-          hx-target="#lore-entries"
-          hx-selector="#lore-entries"
+          hx-target="#lore-container"
+          hx-selector="#lore-container"
           hx-swap="outerHTML">
-        <div class="row">
-            <div class="column">
-                <select name="story" class="input is-fullwidth">
+        <div class="row has-space-around">
+            <div class="column is-3">
+                <select name="storypk" class="input is-fullwidth" required>
                     <option value="" selected>=== Select Storyline ===</option>
                     {% for entry in obj.stories %}
-                    <option value="{{entry.pk}}">{{entry.title}}</option>
+                    <option value="{{entry.pk}}">{{entry.name}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="column">
-                <input type="number" name="day" class="input is-fullwidth" min="1" max="31">
-                <div class='select'>
-                    <select name="month" class="input is-fullwidth">
-                        <option value="" selected>=== Select Month ===</option>
-                        {% for month in obj.calendar.months %}
-                        <option value="{{month}}">{{month}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="is-slider">
-                    <input name="year" type="range" min="{{obj.start_date.year}}"
-                           max="{{obj.end_date.year}}">
+            <div class="column is-4">
+                <div class="row">
+                    <div class="column is-shrink is-vertically-centered">
+                        <h6 class="has-text-screen has-text-center">
+                            Current Date
+                        </h6>
+                    </div>
+                    <div class="column is-shrink">
+                        <input type="number" name="start_day"
+                               class="input is-fullwidth has-text-center"
+                               value="{{obj.current_date.day}}" min="1"
+                               max="31">
+                    </div>
+                    <div class="column is-shrink">
+                        <div class='select'>
+                            <select name="start_month" class="input is-fullwidth">
+                                <option value="" selected>=== Select Month ===</option>
+                                {% for month in obj.calendar.months %}
+                                <option value="{{month}}" {% if obj.current_date.month==loop.index
+                                        %}
+                                        selected {% endif %}>
+                                    {{month}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h6 class="has-text-screen has-text-center">
+                            {{obj.end_date.year // 2}}
+                            {{obj.calendar.age}}
+                        </h6>
+                        <div class="is-slider"
+                             onchange="this.previousElementSibling.innerHTML = this.firstElementChild.value + ' {{obj.calendar.age}}';">
+                            <input
+                                   name="start_year" type="range" min="{{obj.start_date.year}}"
+                                   max="{{obj.end_date.year}}" step='1'
+                                   value="{{obj.current_date.year}}">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="column">
-
-            </div>
-            <div class="column">
-                <button class="button is-primary is-small">
+            <div class="column is-shrink">
+                <button type="submit" class="button is-primary is-small">
                     {{icon_components.plus(size="1rem")}}
                     New Lore Entry
                 </button>
@@ -422,118 +441,268 @@
         </div>
     </form>
     <hr>
-    <div id='lore-entries'>
+    <div id='lore-entries' class='row has-space-around'>
         {% for entry in obj.lore_entries %}
-        <div class="panel has-bg-screen is-full">
-            <h3 class="has-text-dark">{{entry.title}}</h3>
-            <div class="generated-text-lightbg">
-                {{entry.content_summary | safe}}
-            </div>
-            <div class="row">
-                <div class="column is-shrink is-end">
-                    <button class="button is-danger is-small"
-                            hx-delete="/api/world/lore/{{entry.pk}}/delete"
-                            hx-target="#lore-entries"
-                            hx-selector="#lore-entries"
-                            hx-swap="outerHTML">
-                        {{icon_components.trash(size="1rem")}}
-                        Delete
-                    </button>
+        <div class="column is-4" hx-post="/api/world/lore/{{entry.pk}}/edit"
+             hx-target="#lore-container">
+            <div class="panel has-bg-screen">
+                <h3 class="has-text-dark">{{entry.name}}</h3>
+                <div class="generated-text-lightbg">
+                    {{entry.summary | safe}}
+                </div>
+                <div class="row">
+                    <div class="column is-shrink is-end">
+                        <button class="button is-small"
+                                hx-post="/api/world/lore/{{entry.pk}}/delete"
+                                hx-target="#lore-entries"
+                                hx-selector="#lore-entries"
+                                hx-trigger="click consume"
+                                hx-swap="outerHTML">
+                            {{icon_components.trash(size="1rem")}}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        <hr>
         {% endfor %}
     </div>
 </div>
 {%- endmacro %}
 
-{% macro lore_associations(user, episode) -%}
-<div id="episode-associations" class="row">
-    <div class="column fade-it-in">
-        <h5 class='has-text-primary'>Add New...</h5>
+{% macro lore_details(user, lore) -%}
+<div class="panel">
+    <form hx-post="/api/world/lore/{{lore.pk}}/edit"
+          hx-trigger="change delay:500ms"
+          hx-swap="none">
         <div class="row has-space-around">
-            {% for model in episode.world.all_models_str() %}
-            <div class="column is-shrink">
-                <button class='button is-small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/{{model | lower}}'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    {{episode.world.get_title(model)}}
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        <h5 class='has-text-primary'>...or Add Existing</h5>
-        <div class="row has-space-around">
-            <div class="column is-shrink">
-                <button class='button is-primary is-small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/campaignassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-swap='outerHTML'>
-                    All Story Associations
-                </button>
-            </div>
             <div class="column is-half">
+                {{form_components.text_input(name="name",label="Title",value=lore.name)}}
+            </div>
+            <div class="column is-shrink">
+                <label class="label has-text-muted" for="scope">Scope</label>
+                <div class="select">
+                    <select class="has-bg-muted" name="scope">
+                        <option value="" selected>=== Select Scope ===</option>
+                        <option value="local" selected>Local</option>
+                        <option value="regional" selected>Regional</option>
+                        <option value="global" selected>Global</option>
+                        <option value="epic" selected>Epic</option>
+                    </select>
+                </div>
+            </div>
+            <div class="column is-4">
+                <h6 class="has-text-muted has-text-center">
+                    Current Date
+                </h6>
+                <div class="row has-bg-muted">
+                    <div class="column is-shrink">
+                        <input type="number" name="start_day"
+                               class="input is-fullwidth has-text-center"
+                               value="{{lore.start_date.day}}" min="1"
+                               max="31">
+                    </div>
+                    <div class="column is-shrink">
+                        <div class='select'>
+                            <select name="start_month" class="input is-fullwidth">
+                                <option value="" selected>=== Select Month ===</option>
+                                {% for month in lore.calendar.months %}
+                                <option value="{{month}}" {% if lore.start_date.month==loop.index
+                                        %}
+                                        selected {% endif %}>
+                                    {{month}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <input
+                               name="start_year" type="number" min="{{lore.start_date.year}}"
+                               max="{{lore.start_date.year}}" step='1'
+                               value="{{lore.start_date.year}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="panel has-bg-muted has-text-screen">
+        {% if lore.story %}
+        <h3 class="has-text-screen has-text-centered"
+            onclick='this.nextElementSibling.classList.toggle("is-hidden")'>Associated Storyline:
+            {{lore.story.name}}
+        </h3>
+        <div class="is-hidden ease-in-out">
+            {{lore.story.summary | safe}}
+        </div>
+        {% else %}
+        <div class=" row has-space-around">
+            <div class="column is-shrink">
+                <select name="storypk"
+                        hx-post="/api/world/lore/{{lore.pk}}/edit"
+                        hx-target="#lore-container"
+                        hx-trigger="change"
+                        hx-selector="#lore-container"
+                        hx-swap="outerHTML">
+                    <option value="" selected>=== Select Storyline ===</option>
+                    {% for entry in lore.world.stories %}
+                    <option value="{{entry.pk}}">{{entry.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="row has-space-around">
+        <div class="column is-half">
+            <form hx-post="/task/generate/lore/{{lore.pk}}">
+                <div class="row">
+                    <div class="column is-full">
+                        {{form_components.textarea(lore, name="prompt", label="Prompt")}}
+                    </div>
+                    <div class="column is-shrink is-end">
+                        <button type="submit"
+                                class="button is-primary is-small">
+                            {{icon_components.refresh(size="1rem")}}
+                            Generate Lore
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% if lore.summary %}
+        <div class="column is-half">
+            {{lore.summary | safe}}
+        </div>
+        {% endif%}
+        {% if lore.situation %}
+        <div class="column is-half">
+            {{lore.situation | safe}}
+        </div>
+        {% endif%}
+        {% if lore.backstory %}
+        <div class="column is-half">
+            {{lore.backstory | safe}}
+        </div>
+        {% endif%}
+        {% if lore.potential_events %}
+        <div class="column is-half">
+            <h3 class="has-text-dark">Potential Events</h3>
+            <ul>
+                {% for event in lore.potential_events %}
+                <li>{{event | safe}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif%}
+    </div>
+</div>
+<div class="row">
+    <div class="column">
+        <div id="lore-party-container" class="row has-centered">
+            <div class="column is-shrink">
+                <h3 class="has-text-dark has-text-centered">Party Members</h3>
+            </div>
+            <div class="column is-4">
                 <div class="has-dropdown" style="width: 100%;">
                     <input class="has-bg-light" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
-                           hx-post="/api/episode/{{episode.pk}}/associations/add/search"
-                           hx-target="#episode-new-associations-list"
+                           hx-post="/api/world/lore/{{lore.pk}}/party/add/search"
+                           hx-target="#lore-new-party-list"
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="episode-new-associations-list">
+                    <ul class="dropdown has-bg-light" id="lore-new-party-list">
                     </ul>
                 </div>
-                <div id="lore-party" class="panel">
+            </div>
+            <div class="column is-full">
+                <div class="row has-space-around">
+                    {% for o in lore.party %}
+                    <div class="column is-2" style='position:relative;'>
+                        {{display_components.object_display(o, type=False, dim=150)}}
+                        <a style='position:absolute; top:0px; right:5px;'
+                           hx-post="/api/world/lore/{{lore.pk}}/party/remove/{{o.pk}}"
+                           hx-target="closest .column" hx-swap="delete"
+                           hx-confirm="Are you sure you want to remove this character from the party?">
+                            <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                          width="1rem"></iconify-icon>
+                        </a>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        <hr>
-        <div class="panel has-bg-screen">
-            <div class="row">
-                {% for a in children %}
-                <div class="column is-2 is-mobile-6 episode-association-entry fade-it-in"
-                     style='position:relative;'>
-                    {{display_components.object_display(a, type=False, dim=250)}}
-                    <a style='position:absolute; top:0px; right:5px;'
-                       hx-post="/api/episode/{{episode.pk}}/association/{{a.path}}/delete"
-                       hx-target="closest .episode-association-entry" hx-swap="delete"
-                       hx-confirm="Are you sure you want to remove this association from the episode?">
-                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
-                                      width="1rem"></iconify-icon>
-                    </a>
+    </div>
+    <div class="column">
+        <div id="lore-associations-container" class="row has-centered">
+            <div class="column is-shrink">
+                <h3 class="has-text-dark has-text-centered">Associations</h3>
+            </div>
+            <div class="column is-4">
+                <div class="has-dropdown" style="width: 100%;">
+                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                           style="border-bottom: solid #000;"
+                           hx-post="/api/world/lore/{{lore.pk}}/association/add/search"
+                           hx-target="#lore-new-association-list"
+                           hx-trigger="input changed delay:500ms consume"
+                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                    <ul class="dropdown has-bg-light" id="lore-new-association-list">
+                    </ul>
                 </div>
-                {% endfor %}
+            </div>
+            <div class="column is-full">
+                <div class="row has-space-around">
+                    {% for o in lore.associations %}
+                    <div class="column is-2" style='position:relative;'>
+                        {{display_components.object_display(o, type=False, dim=150)}}
+                        <a style='position:absolute; top:0px; right:5px;'
+                           hx-post="/api/world/lore/{{lore.pk}}/association/remove/{{o.path}}"
+                           hx-target="closest .column" hx-swap="delete"
+                           hx-confirm="Are you sure you want to remove this association from the lore?">
+                            <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                                          width="1rem"></iconify-icon>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 {%- endmacro %}
 
-{% macro lore_party_form(user, obj, party=[]) -%}
-<div class="row">
-    {% for o in party %}
-    <div class="column">
-        {{display_components.object_display(o, type=False, dim=100)}}
-        <input type="hidden" name="party[]" value="{{o.pk}}">
-    </div>
-    {% endfor %}
-</div>
-{%- endmacro%}
-
-{% macro lore_party_dropdown(user, obj, objs=[]) -%}
+{% macro lore_party_dropdown(user, lore, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link has-bg-muted">
-    <a hx-post="/api/{{obj.path}}/party/add/{{o.path}}"
-       hx-target='#lore-party'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')"
-       hx-vals='{js:{party: ??? }'>
+    <a hx-post="/api/world/lore/{{lore.pk}}/party/add/{{o.pk}}"
+       hx-target='#lore-party-container'
+       hx-select='#lore-party-container'
+       hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="row">
+            <div class="column is-shrink">
+                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                    {% if o.image %}
+                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="column">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro lore_association_dropdown(user, lore, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link has-bg-muted">
+    <a hx-post="/api/world/lore/{{lore.pk}}/association/add/{{o.path}}"
+       hx-target='#lore-associations-container'
+       hx-select='#lore-associations-container'
+       hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="row">
             <div class="column is-shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
