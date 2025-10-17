@@ -8,7 +8,8 @@
   ), url("{{obj.world.image.url()}}"); background-size: cover;{%endif%}'>
     <div class="column is-vertically-centered has-no-padding">
         <a href='/{{obj.path}}'>
-            <h1 id="object-title" class="has-text-center has-bg-muted has-no-margin ">
+            <h1 id="object-title"
+                class="has-text-center has-bg-muted has-text-screen has-no-margin ">
                 {{obj.name or obj.title or obj.model_name()|title}}
             </h1>
         </a>
@@ -24,6 +25,7 @@
     </div>
     {% endif %}
 </div>
+{% if obj.model_name() != "World" %}
 <div class="row has-centered">
     <div class="column is-shrink">
         <nav class="breadcrumb">
@@ -35,4 +37,5 @@
         </nav>
     </div>
 </div>
+{% endif %}
 {% endmacro %}
