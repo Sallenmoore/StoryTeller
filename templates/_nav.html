@@ -67,14 +67,14 @@
 <li class="dropdown__link">
     <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
         <div class=" row">
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
                     <img src=" {{o.image.url(size=50)}}" alt="{{o.name}}" />
                     {% endif %}
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>
@@ -84,44 +84,40 @@
 {%- endmacro%}
 
 {% macro object_menu(user, obj) -%}
-<nav class="top has-centered has-bg-muted has-no-margin has-no-padding">
-    <div class="top__links">
-        <ul>
-            <li class='menu-anchor'>
-                <a href=""
-                   hx-get="/api/{{obj.path}}/associations"
-                   hx-target="#page-content"
-                   hx-indicator="#request-indicator"
-                   hx-swap="innerHTML show:#page-content:top"
-                   hx-push-url="/{{obj.path}}/associations">
-                    <div class="row">
-                        <div class="column is-shrink is-mobile-shrink">
-                            {{icon_components.associations(size="1rem")}}
-                        </div>
-                        <div class="column slide-it-in">
-                            <span>Associations</span>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            <span hx-get="/api/nav/sidemenu/{{obj.path}}"
-                  hx-trigger="load"
-                  hx-swap="outerHTML">
-            </span>
-        </ul>
-    </div>
-    <div class="top__brand">
+<ul class='menu expanded'>
+    <li>
+        <a href=""
+           hx-get="/api/{{obj.path}}/associations"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="/{{obj.path}}/associations">
+            <div class="grid-x">
+                <div class="cell shrink align-center-middle">
+                    {{icon_components.associations(size="1rem")}}
+                </div>
+                <div class="cell auto">
+                    <span>Associations</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    <span hx-get="/api/nav/sidemenu/{{obj.path}}"
+          hx-trigger="load"
+          hx-swap="outerHTML">
+    </span>
+    <li>
         <a href="/{{obj.world.path}}">
-            <div class="row">
-                <div class="column is-shrink is-mobile-shrink">
+            <div class="grid-x">
+                <div class="cell shrink align-center-middle">
                     {{icon_components.world(size="1rem")}}
                 </div>
                 <div
-                     class="column slide-it-in">
+                     class="cell auto">
                     <h4 class='has-text-screen'>{{obj.world.name}}</h4>
                 </div>
             </div>
         </a>
-    </div>
-</nav>
+    </li>
+</ul>
 {%- endmacro %}

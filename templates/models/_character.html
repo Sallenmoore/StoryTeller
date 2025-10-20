@@ -19,114 +19,114 @@
 
 {% macro menu(user, obj) -%}
 
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/lineage"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/lineage">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.lineage(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Lineage</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/timeline"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/timeline">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/campaigns"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/campaigns">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Campaigns</span>
             </div>
         </div>
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/stories"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/stories">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Stories</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/journal">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Journal</span>
             </div>
         </div>
@@ -134,30 +134,30 @@
 </li>
 {% endif %}
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href="" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
        hx-push-url=" /{{obj.path}}/quests">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.quest(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Quests</span>
             </div>
         </div>
     </a>
 </li>
 {% endif %}
-<li class="menu-anchor">
+<li>
     <a href="" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
        hx-push-url=" /{{obj.path}}/chat">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.chat(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Chat</span>
             </div>
         </div>
@@ -177,10 +177,10 @@
 
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" class="panel has-bg-dark">
-    <h3 class='has-text-center has-text-light'>GM Notes</h3>
-    <div class="row">
-        <div class="column is-half">
-            <div class="panel has-bg-muted">
+    <h3 class='text-center has-text-light'>GM Notes</h3>
+    <div class="grid-x">
+        <div class="cell is-half">
+            <div class="panel ">
                 <h5> Details</h5>
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
@@ -190,27 +190,27 @@
                 </ul>
             </div>
         </div>
-        <div class="column is-half">
-            <div class="panel has-bg-muted">
+        <div class="cell is-half">
+            <div class="panel ">
                 <h5>Current Status</h5>
                 {{obj.status | safe}}
             </div>
         </div>
-        <div class="column">
-            <div class="panel has-bg-muted">
+        <div class="cell">
+            <div class="panel ">
                 <h5>Look-A-Like</h5>
                 {{obj.lookalike | safe}}
             </div>
         </div>
-        <div class="column">
-            <div class="panel has-bg-muted">
+        <div class="cell">
+            <div class="panel ">
                 <h5>Voice</h5>
                 {{obj.voice_description | safe}}
             </div>
         </div>
         {% if obj.quests %}
-        <div class="column is-full">
-            <div class="panel has-bg-muted">
+        <div class="cell is-full">
+            <div class="panel ">
                 <h5>Hooks</h5>
                 <ul>
                     {% for q in obj.quests %}
@@ -224,8 +224,8 @@
             </div>
         </div>
         {% endif %}
-        <div class="column is-full">
-            <div class="panel has-bg-muted">
+        <div class="cell is-full">
+            <div class="panel ">
                 <h5>Rumors</h5>
                 <ul>
                     {% for r in obj.rumors %}
@@ -242,54 +242,54 @@
 
 {% macro info(user, obj) -%}
 <div class="panel has-bg-screen">
-    <div class="row has-space-around">
-        <div class="column is-shrink is-mobile-4">
+    <div class="grid-x align-spaced">
+        <div class="cell shrink is-mobile-4">
             <h4>STR</h4>
             <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
         </div>
-        <div class="column is-shrink is-mobile-4">
+        <div class="cell shrink is-mobile-4">
             <h4>DEX</h4>
             <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
         </div>
-        <div class="column is-shrink is-mobile-4">
+        <div class="cell shrink is-mobile-4">
             <h4>INT</h4>
             <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
         </div>
-        <div class="column is-shrink is-mobile-4">
+        <div class="cell shrink is-mobile-4">
             <h4>WIS</h4>
             <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
         </div>
-        <div class="column is-shrink is-mobile-4">
+        <div class="cell shrink is-mobile-4">
             <h4>CHA</h4>
             <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
         </div>
-        <div class="column is-shrink is-mobile-4">
+        <div class="cell shrink is-mobile-4">
             <h4>CON</h4>
             <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
         </div>
     </div>
-    <div class="row has-space-around">
+    <div class="grid-x align-spaced">
         {% for skill, val in obj.skills.items() %}
 
-        <div class="column is-shrink is-mobile-3">
+        <div class="cell shrink is-mobile-3">
             <div class="panel has-bg-screen is-full">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <p class='has-text-center'>{{val}}</p>
+                <h5 class='text-center'>{{skill}}</h5>
+                <p class='text-center'>{{val}}</p>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
-<div class="row has-space-around">
-    <div class="column is-3 is-mobile-4">
-        <div id="current-hitpoints" class="panel has-bg-muted">
+<div class="grid-x align-spaced">
+    <div class="cell medium-3 is-mobile-4">
+        <div id="current-hitpoints" class="panel ">
             <h4 class="has-text-dark">Current HP</h4>
             <input hx-get="/api/manage/character/hitpoints"
                    hx-swap="none" hx-trigger="input delay:1s, change" type="number"
                    value="{{obj.current_hitpoints}}" name="current_hitpoints">
-            <div class="row">
-                <div class="column is-shrink is-end">
-                    <button class="button is-small" hx-get="/api/manage/character/hitpoints"
+            <div class="grid-x">
+                <div class="cell shrink is-end">
+                    <button class="button small" hx-get="/api/manage/character/hitpoints"
                             hx-target="#current-hitpoints" hx-select="#current-hitpoints"
                             hx-swap="outerHTML">
                         reset
@@ -298,27 +298,27 @@
             </div>
         </div>
     </div>
-    <div class="column is-shrink is-mobile-4">
+    <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>MAX HP</h4>
         <p class="has-text-dark">{{obj.hitpoints}}</p>
     </div>
-    <div class="column is-shrink is-mobile-4">
+    <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>Occupation</h4>
         <p class="has-text-dark">{{obj.occupation}}</p>
     </div>
-    <div class="column is-shrink is-mobile-4">
+    <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>Archetype (i.e. Class)</h4>
         <p class="has-text-dark">{{obj.archetype}}</p>
     </div>
-    <div class="column is-shrink is-mobile-4">
+    <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>AC</h4>
         <p class="has-text-dark">{{obj.ac}}</p>
     </div>
 </div>
-<div class='row has-space-around'>
-    <div class="column is-full is-mobile-full">
-        <div class="row has-space-around">
-            <div class="column is-shrink">
+<div class='row align-spaced'>
+    <div class="cell is-full is-mobile-full">
+        <div class="grid-x align-spaced">
+            <div class="cell shrink">
                 <h4 class='has-text-screen'>Age</h4>
                 {% if obj.age %}
                 <p class="has-text-dark">{{obj.age}}</p>
@@ -326,11 +326,11 @@
                 <p class="has-text-dark">Unknown</p>
                 {% endif %}
             </div>
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 <h4 class='has-text-screen'>Species</h4>
                 <p class="has-text-dark">{{obj.species}}</p>
             </div>
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 <h4 class='has-text-screen'>Gender</h4>
                 <p class="has-text-dark">{{obj.gender}}</p>
             </div>
@@ -339,25 +339,25 @@
 </div>
 <hr>
 {% if user.world_user(obj)%}
-<div class="row">
-    <div class="column is-full">
-        <h3 class='has-text-center has-text-primary'>Goals and Secrets</h3>
+<div class="grid-x">
+    <div class="cell is-full">
+        <h3 class='text-center has-text-primary'>Goals and Secrets</h3>
         <div class="panel has-bg-screen">
             <p class='has-text-light'>{{obj.goal | safe}}</p>
         </div>
     </div>
     {% if obj.abilities %}
-    <div id="model-abilities" class="column is-full">
+    <div id="model-abilities" class="cell is-full">
         {{abilities_components.abilities(user, obj)}}
     </div>
     {% endif %}
     {% if obj.wealth or obj.items %}
-    <div id="model-wealth" class="column is-full">
+    <div id="model-wealth" class="cell is-full">
         <h4>Wealth</h4>
         <div class="panel">
-            <div class="row">
+            <div class="grid-x">
                 {% for item in obj.items %}
-                <div class="column is-2">
+                <div class="cell is-2">
                     {{display_components.object_display(item, type=False)}}
                 </div>
                 {% endfor %}
@@ -404,22 +404,22 @@
 {{title_components.object_title(user, obj)}}
 <h2 class='has-text-primary'>Lineage</h2>
 {% if user.world_user(obj) %}
-<div class="panel has-bg-muted">
-    <h4 class='has-text-dark has-text-center'>Add Family Member</h4>
+<div class="panel ">
+    <h4 class='has-text-dark text-center'>Add Family Member</h4>
     <form hx-post="/api/manage/character/addlineage" hx-target="#page-content">
-        <div class="row has-centered">
-            <div class="column is-shrink is-mobile-4">
+        <div class="grid-x has-centered">
+            <div class="cell shrink is-mobile-4">
                 <div class="is-select">
-                    <select class="has-bg-muted select" name="role">
+                    <select class=" select" name="role">
                         <option value="parent">Parent</option>
                         <option value="sibling">Sibling</option>
                         <option value="child">Child</option>
                     </select>
                 </div>
             </div>
-            <div class="column is-4 is-mobile-6">
+            <div class="cell medium-4 is-mobile-6">
                 <div class="is-select">
-                    <select class="has-bg-muted select" name="character">
+                    <select class=" select" name="character">
                         <option value="">=== Select from Associations ===</option>
                         {% for character in obj.characters %}
                         {% if character not in obj.lineage %}
@@ -429,8 +429,8 @@
                     </select>
                 </div>
             </div>
-            <div class="column is-shrink is-mobile-2 is-vertically-centered">
-                <button class="button is-small">
+            <div class="cell shrink is-mobile-2 align-center-middle">
+                <button class="button small">
                     Add Family Member
                 </button>
             </div>
@@ -439,19 +439,19 @@
 </div>
 {% endif %}
 <div class="panel has-bg-screen">
-    <div class="row has-space-around">
-        <div class="column is-full">
-            <h4 class='has-text-screen has-text-center'>Parents</h4>
+    <div class="grid-x align-spaced">
+        <div class="cell is-full">
+            <h4 class='text-center'>Parents</h4>
             {% if obj.parent_lineage %}
-            <div class="row has-space-around">
+            <div class="grid-x align-spaced">
                 {% for parent in obj.parent_lineage %}
-                <div class="column is-2" style='position:relative;'>
+                <div class="cell is-2" style='position:relative;'>
                     {{display_components.object_display(parent)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{parent.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                        <iconify-icon class="" icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
@@ -459,49 +459,49 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark has-text-center">None</p>
+            <p class="has-text-dark text-center">None</p>
             {% endif %}
         </div>
-        <div class="column is-full">
-            <h4 class='has-text-screen has-text-center'>Siblings</h4>
+        <div class="cell is-full">
+            <h4 class='text-center'>Siblings</h4>
             {% if obj.sibling_lineage %}
-            <div class="row has-space-around">
+            <div class="grid-x align-spaced">
                 {% for sibling in obj.sibling_lineage %}
-                <div class="column is-2" style='position:relative;'>
+                <div class="cell is-2" style='position:relative;'>
                     {{display_components.object_display(sibling)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{sibling.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                        <iconify-icon class="" icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark has-text-center">None</p>
+            <p class="has-text-dark text-center">None</p>
             {% endif %}
         </div>
-        <div class="column is-full">
-            <h4 class='has-text-screen has-text-center'>Children</h4>
+        <div class="cell is-full">
+            <h4 class='text-center'>Children</h4>
             {% if obj.children_lineage %}
-            <div class="row has-space-around">
+            <div class="grid-x align-spaced">
                 {% for child in obj.children_lineage %}
-                <div class="column is-2" style='position:relative;'>
+                <div class="cell is-2" style='position:relative;'>
                     {{display_components.object_display(child)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{child.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                        <iconify-icon class="" icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark has-text-center">None</p>
+            <p class="has-text-dark text-center">None</p>
             {% endif %}
         </div>
     </div>
@@ -512,23 +512,23 @@
 {{title_components.object_title(user, obj)}}
 <div class="panel has-bg-screen">
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
-        <div class="row has-space-around">
-            <div class="column">
+        <div class="grid-x align-spaced">
+            <div class="cell">
                 <h3 class='has-text-muted'>Quest Board</h3>
             </div>
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 <h5 class='has-text-muted'>Storyline</h5>
             </div>
-            <div class="column is-4">
+            <div class="cell medium-4">
                 <div class="is-select">
-                    <select class="has-bg-muted select" name="storyline">
+                    <select class=" select" name="storyline">
                         {% for story in obj.world.stories %}
                         <option value="{{story.pk}}">{{story.name}}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
-            <div class="column is-shrink is-vertically-centered">
+            <div class="cell shrink align-center-middle">
                 <button class="button">
                     Create New Quest
                 </button>
@@ -542,21 +542,21 @@
         {% for entry in obj.quests %}
         <li class="accordion__item ">
             <a class="accordion__title" href="#quest-entry-{{obj.pk}}">
-                <div class="row has-space-between">
-                    <div class="column is-vertically-centered journal-entry-title"
+                <div class="grid-x align-justify">
+                    <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         <h3 class='has-text-dark'>{{entry.name}}</h3>
                         <h5 class='has-text-dark'>{{entry.status}}</h5>
                     </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
+                    <div class="cell shrink align-center-middle">
+                        <button class="button small"
                                 hx-post="/api/manage/quest/{{entry.pk}}/edit"
                                 hx-target="#page-content">
                             Edit
                         </button>
                     </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
+                    <div class="cell shrink align-center-middle">
+                        <button class="button small"
                                 hx-post="/api/manage/quest/{{entry.pk}}/delete"
                                 hx-target='closest li'
                                 hx-swap="delete"
@@ -569,50 +569,50 @@
             <div class="accordion__content">
                 <hr class='has-bg-primary'>
                 <div class="panel has-bg-light-grey">
-                    <div class="row">
-                        <div class="column is-half">
+                    <div class="grid-x">
+                        <div class="cell is-half">
                             <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Summary</h4>
+                                <h4 class='text-center'>Summary</h4>
                                 {{entry.summary | safe}}
                             </div>
                         </div>
-                        <div class="column is-half">
+                        <div class="cell is-half">
                             <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Hook</h4>
+                                <h4 class='has-text-dark text-center'>Hook</h4>
                                 {{entry.hook | safe}}
                             </div>
                         </div>
-                        <div class="column is-full">
+                        <div class="cell is-full">
                             <div class="panel has-bg-light">
-                                <h4 class='has-text-dark has-text-center'>Description</h4>
+                                <h4 class='has-text-dark text-center'>Description</h4>
                                 {{entry.description | safe}}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="column">
+                    <div class="grid-x">
+                        <div class="cell">
                             <div class="panel has-bg-light">
-                                <h4 class='has-text-center'>Antagonist</h4>
+                                <h4 class='text-center'>Antagonist</h4>
                                 {{entry.antagonist | safe}}
                             </div>
                         </div>
                     </div>
                     <hr>
                     <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Plot Twist</h4>
+                        <h4 class='text-center'>Plot Twist</h4>
                         <div>{{entry.plot_twist | safe}}</div>
                     </div>
                     <hr>
                     <div class="panel has-bg-light">
-                        <h4 class='has-text-center'>Rewards</h4>
+                        <h4 class='text-center'>Rewards</h4>
                         {{entry.rewards | safe}}
                     </div>
                     <hr>
-                    <h4 class='has-text-dark has-text-center'>Associations</h4>
-                    <div class="row has-space-around">
+                    <h4 class='has-text-dark text-center'>Associations</h4>
+                    <div class="grid-x align-spaced">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
-                        <div class="column is-1">
+                        <div class="cell is-1">
                             {{display_components.object_display(ass)}}
                         </div>
                         {% endfor %}

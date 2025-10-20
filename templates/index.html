@@ -68,47 +68,40 @@
                 "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
                 "pk": "{%if obj%}{{obj.pk}}{%endif%}"
             }'>
-        <div class="is-full" id="nav" style='box-shadow: 0px 1px 5px; margin-bottom:2px;'>
+        <div id="nav" style='box-shadow: 0px 1px 5px; margin-bottom:2px;'>
             {% block topnav %}
             {{nav.topnav(user)}}
             {% endblock %}
         </div>
-        <div id='screen-container' class='is-tablet-up'>
+        <div id='screen-container'>
         </div>
-        <div class="container has-no-padding has-bg-muted is-full is-mobile-full" id="content">
-            <div id='page-container'
-                 class="container has-no-padding-top has-no-padding-left is-full is-mobile-full"
-                 style='position:relative;'>
-                <div class="row has-no-padding-left slide-it-in has-centered">
-                    {% if obj %}
-                    <div class="column is-full has-no-padding slide-it-in">
-                        {{nav.object_menu(user, obj)}}
-                    </div>
-                    {% endif %}
-                    <div class="column is-10 is-mobile-full has-no-padding">
-                        {% if page_url %}
-                        <div class='has-bg-transparent raise-it'
-                             style='border-radius: 0 0 5px 5px;' id="page-content"
-                             hx-get='/api{{page_url}}'
-                             hx-trigger='load'
-                             hx-indicator='#request-indicator'
-                             hx-push-url='{{page_url}}'>
-                        </div>
-                        {% endif %}
-                    </div>
+        <div class="grid-x align-center-middle" style='position:relative;'>
+            {% if obj %}
+            <div class="cell">
+                {{nav.object_menu(user, obj)}}
+            </div>
+            {% endif %}
+            <div class="cell medium-10 small-12">
+                {% if page_url %}
+                <div style='border-radius: 0 0 5px 5px;' id="page-content"
+                     hx-get='/api{{page_url}}'
+                     hx-trigger='load'
+                     hx-indicator='#request-indicator'
+                     hx-push-url='{{page_url}}'>
                 </div>
+                {% endif %}
             </div>
         </div>
-        <div class="image htmx-indicator has-text-muted has-bg-screen" id="request-indicator">
+        <div class="htmx-indicator" id="request-indicator">
             <img src="/static/images/grid.svg" alt="loading">
         </div>
         <footer style="height: 4rem;">
-            <div class="row">
-                <div class="column">
+            <div class="grid-x">
+                <div class="cell auto">
                     {% block footer %}{% endblock %}
                 </div>
-                <div class="column is-shrink is-end">
-                    <button class="button is-large is-circle" id="back-to-top"
+                <div class="cell shrink">
+                    <button class="button large" id="back-to-top"
                             onclick="window.scrollTo({top: 0,behavior: 'smooth'});">
                         {{icon_components.top(size="1.5rem")}}
                     </button>

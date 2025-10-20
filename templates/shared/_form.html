@@ -37,9 +37,9 @@
 {%- endmacro %}
 
 {% macro listarea(user, obj, name) -%}
-<div class="row is-vertical" id='{{name}}-item-list'>
+<div class="grid-x is-vertical" id='{{name}}-item-list'>
     {% for item in obj[name] %}
-    <div class="column">
+    <div class="cell">
         <textarea id="{{name}}-{{ loop.index }}" name='{{name}}[]'
                   class="auto-resize-text has-bg-white" rows="3"
                   placeholder="Start typing...">{{ item }}</textarea>
@@ -110,9 +110,9 @@
 {%- endmacro %}
 
 {% macro listeditor(user, obj, attr, limit=0) -%}
-<div class="row is-vertical" id='{{attr}}-item-list' data-max='{{limit}}'>
+<div class="grid-x is-vertical" id='{{attr}}-item-list' data-max='{{limit}}'>
     {% for item in obj[attr] %}
-    <div class="column">
+    <div class="cell">
         <div onmouseout="tinyMCE.triggerSave();">
             <textarea id="edit-{{obj.pk}}-{{attr}}-{{loop.index}}"
                       name="{{attr}}[]">{{item | string | safe}}</textarea>

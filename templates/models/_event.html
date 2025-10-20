@@ -7,30 +7,30 @@
 
 {% macro index(user, event) -%}
 {{title_components.object_title(user, event)}}
-<div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
-    <div class="row">
-        <div class="column is-full">
+<div class="panel " style='border-top-right-radius: 0; border-top-left-radius:0;'>
+    <div class="grid-x">
+        <div class="cell is-full">
             <hr>
-            <div class="row">
+            <div class="grid-x">
                 {% if event.start_date %}
-                <div class="column">
+                <div class="cell">
                     <div class="panel has-bg-transparent">
                         <span class='has-text-dark'>{{event.start_date}} - {{event.end_date}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.backstory %}
-                <div class="column is-full">
-                    <div class="panel has-bg-muted has-text-dark ">
+                <div class="cell is-full">
+                    <div class="panel  has-text-dark ">
                         <h5 class='has-text-primary'
-                            style='text-decoration: underline; has-text-center'>
+                            style='text-decoration: underline; text-center'>
                             Description</h5>
                         {{event.backstory | safe}}
                     </div>
                 </div>
                 {% endif %}
                 {% if event.impact %}
-                <div class="column is-half">
+                <div class="cell is-half">
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Impact</h5>
@@ -39,7 +39,7 @@
                 </div>
                 {% endif %}
                 {% if event.outcome %}
-                <div class="column is-half">
+                <div class="cell is-half">
                     <div class="panel has-bg-transparent">
                         <h5 class='has-text-primary'
                             style='text-decoration: underline;'>Outcome</h5>
@@ -48,7 +48,7 @@
                 </div>
                 {% endif %}
                 {% if event.image %}
-                <div class="column">
+                <div class="cell">
                     <div class="panel has-bg-transparent">
                         <div class="image is-tile is-margin-center" style="width:100%;">
                             <img src="{{event.image.url()}}" loading="lazy" alt="{{event.name}}" />
@@ -58,13 +58,13 @@
                 {% endif %}
             </div>
         </div>
-        <div class="column is-full">
-            <div class="row">
+        <div class="cell is-full">
+            <div class="grid-x">
                 {% for story in event.stories %}
-                <div class="column">
-                    <div class="panel has-bg-muted has-text-dark">
+                <div class="cell">
+                    <div class="panel  has-text-dark">
                         <a href='/{{ story.path }}' class='has-text-dark'>
-                            <h5 class='has-text-center'>Story: {{ story.name }}</h5>
+                            <h5 class='text-center'>Story: {{ story.name }}</h5>
                             <div>{{ story.situation | safe }}</div>
                         </a>
                     </div>
@@ -73,9 +73,9 @@
             </div>
         </div>
         {% if event.episode %}
-        <div class="column is-full">
-            <div class="panel has-bg-muted has-text-dark">
-                <h5 class='has-text-center'>{{ event.episode.name }}</h5>
+        <div class="cell is-full">
+            <div class="panel  has-text-dark">
+                <h5 class='text-center'>{{ event.episode.name }}</h5>
                 <div>{{ event.episode.report | safe }}</div>
             </div>
         </div>
@@ -85,16 +85,16 @@
 {%- endmacro %}
 
 {% macro menu(user, event) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{event.path}}" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{event.path}}">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>

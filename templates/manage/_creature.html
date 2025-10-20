@@ -8,48 +8,48 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row has-space-around">
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">STR</label>
-            <input type="number" class="has-text-center" value="{{obj.strength}}" name="strength">
+    <div class="grid-x align-spaced">
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">STR</label>
+            <input type="number" class="text-center" value="{{obj.strength}}" name="strength">
         </div>
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">DEX</label>
-            <input type="number" class="has-text-center" value="{{obj.dexterity}}" name="dexterity">
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">DEX</label>
+            <input type="number" class="text-center" value="{{obj.dexterity}}" name="dexterity">
         </div>
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">INT</label>
-            <input type="number" class="has-text-center" value="{{obj.intelligence}}"
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">INT</label>
+            <input type="number" class="text-center" value="{{obj.intelligence}}"
                    name="intelligence">
         </div>
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">WIS</label>
-            <input type="number" class="has-text-center" value="{{obj.wisdom}}" name="wisdom">
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">WIS</label>
+            <input type="number" class="text-center" value="{{obj.wisdom}}" name="wisdom">
         </div>
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">CHA</label>
-            <input type="number" class="has-text-center" value="{{obj.charisma}}" name="charisma">
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">CHA</label>
+            <input type="number" class="text-center" value="{{obj.charisma}}" name="charisma">
         </div>
-        <div class="column inputlabel has-text-center is-1 is-mobile-4">
-            <label class="has-text-center">CON</label>
-            <input type="number" class="has-text-center" value="{{obj.constitution}}"
+        <div class="cell inputlabel text-center is-1 is-mobile-4">
+            <label class="text-center">CON</label>
+            <input type="number" class="text-center" value="{{obj.constitution}}"
                    name="constitution">
         </div>
     </div>
-    <div class="row has-space-around">
+    <div class="grid-x align-spaced">
         {% for skill, val in obj.skills.items() %}
-        <div class="column is-1 is-mobile-3">
+        <div class="cell is-1 is-mobile-3">
             <div class="panel has-bg-screen">
-                <h5 class='has-text-center'>{{skill}}</h5>
-                <input class="has-text-center" type="number" value="{{val}}"
+                <h5 class='text-center'>{{skill}}</h5>
+                <input class="text-center" type="number" value="{{val}}"
                        name="skills.{{skill}}">
             </div>
         </div>
         {% endfor %}
     </div>
     <hr>
-    <div class="row has-space-around">
-        <div class="column is-shrink">
+    <div class="grid-x align-spaced">
+        <div class="cell shrink">
             <label class="is-subheading">Group</label>
             <div class="is-select">
                 <select name="group">
@@ -84,27 +84,27 @@
                 document.querySelector('select[name="group"]').addEventListener('change', toggleVisibility);
             </script>
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">HP</label>
             <input id="model-hitpoints" type="text" value="{{obj.hitpoints}}" name="hitpoints">
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">AC</label>
             <input id="model-hitpoints" type="text" value="{{obj.ac}}" name="ac">
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-size" class="is-subheading">Size</label>
             <input id="model-size" type="text" value="{{obj.size}}" name="size">
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-type" class="is-subheading">Type</label>
             <input id="model-type" type="text" value="{{obj.type}}" name="type">
         </div>
     </div>
     <hr>
-    <div class="row">
-        <div id="model-goal" class="column">
-            <h3 class='has-text-center has-text-dark'>Goals and Secrets</h3>
+    <div class="grid-x">
+        <div id="model-goal" class="cell">
+            <h3 class='text-center has-text-dark'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>

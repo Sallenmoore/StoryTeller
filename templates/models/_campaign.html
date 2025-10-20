@@ -9,24 +9,24 @@
 
 {% macro index(user, campaign) -%}
 {{title_components.object_title(user, campaign)}}
-<div class="row">
-    <div class="column is-half">
-        <h4 class="has-text-dark-grey has-text-center">
+<div class="grid-x">
+    <div class="cell is-half">
+        <h4 class="has-text-dark-grey text-center">
             Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
         </h4>
     </div>
-    <div class="column is-half">
-        <h4 class="has-text-dark-grey has-text-center">
+    <div class="cell is-half">
+        <h4 class="has-text-dark-grey text-center">
             Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
         </h4>
     </div>
-    <div class="column is-full">
+    <div class="cell is-full">
         <div class="panel has-bg-screen has-text-justified">
             {{campaign.description | safe}}
         </div>
     </div>
-    <div class="column is-full">
-        <div class="panel has-bg-muted">
+    <div class="cell is-full">
+        <div class="panel ">
             <hr>
             <div class='has-text-dark  has-text-justified generated-text-lightbg'>
                 {{campaign.summary | safe}}
@@ -38,97 +38,97 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/episodes"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/episodes">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.episode(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Episodes</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/timeline"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/timeline">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/graphic_novel"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/graphic_novel">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.graphic_novel(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Graphic Novel</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/stories"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/stories">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Stories</span>
             </div>
         </div>
@@ -144,11 +144,11 @@
 {% macro associations(user, obj, associations) -%}
 {{title_components.object_title(user, obj)}}
 
-<h2 class=" has-text-secondary has-text-center is-subtitle">
+<h2 class="  text-center is-subtitle">
     Associations</h2>
-<div class="row">
+<div class="grid-x">
     {% for o in associations %}
-    <div class="column is-1 has-text-center">
+    <div class="cell is-1 text-center">
         {{display_components.object_display(o, type=True)}}
     </div>
     {% endfor %}
@@ -158,37 +158,37 @@
 
 {% macro episodes(user, campaign) -%}
 {{title_components.object_title(user, campaign)}}
-<h3 class='has-text-center'>Episodes</h3>
-<div class="row">
+<h3 class='text-center'>Episodes</h3>
+<div class="grid-x">
     {% for entry in campaign.episodes %}
-    <div class="column is-full">
-        <div class="panel has-bg-muted">
-            <div class="row" class='has-text-secondary'>
-                <div class="column is-vertically-centered">
+    <div class="cell is-full">
+        <div class="panel ">
+            <div class="grid-x" class=''>
+                <div class="cell align-center-middle">
                     <a href='/episode/{{entry.pk}}'>
                         <h4 class=' has-text-dark'>{{entry.name}}</h4>
                     </a>
                 </div>
-                <div class="column is-shrink">
+                <div class="cell shrink">
                     {% if entry.start_date %}
-                    <span class='tag is-primary has-text-white'>
+                    <span class='tag has-text-white'>
                         {{entry.start_date}}
                     </span>
                     {% endif %}
                 </div>
-                <div class="column is-shrink">
+                <div class="cell shrink">
                     {{icon_components.line()}}
                 </div>
-                <div class="column is-shrink">
+                <div class="cell shrink">
                     {% if entry.end_date %}
-                    <span class='tag is-primary has-text-white'>
+                    <span class='tag has-text-white'>
                         {{entry.end_date}}
                     </span>
                     {% endif %}
                 </div>
-                <div class="column is-full is-vertically-centered generated-text-lightbg"
+                <div class="cell is-full align-center-middle generated-text-lightbg"
                      style='font-size: 0.75rem;'>
-                    <div class="panel has-bg-muted">
+                    <div class="panel ">
                         {{entry.summary | safe}}
                     </div>
                 </div>
@@ -211,12 +211,12 @@
 
 {% macro graphic_novel(user, obj)%}
 {{title_components.object_title(user, obj)}}
-<h3 class='has-text-center'>Graphic Novel</h3>
-<div class="row">
+<h3 class='text-center'>Graphic Novel</h3>
+<div class="grid-x">
     {% for entry in obj.episodes[::-1] %}
-    <div class="column is-half">
-        <div class="panel has-bg-muted">
-            <h5 class='has-text-center'>{{entry.name}}</h5>
+    <div class="cell is-half">
+        <div class="panel ">
+            <h5 class='text-center'>{{entry.name}}</h5>
             {% if entry.graphic %}
             <div class='image'>
                 <img src='{{entry.graphic.url()}}' alt='{{entry.name}}'>

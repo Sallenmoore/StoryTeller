@@ -11,49 +11,49 @@
 {% macro index(user, story) -%}
 {{title_components.object_title(user, story)}}
 <div class="section">
-    <div class="row has-space-around">
+    <div class="grid-x align-spaced">
         {% if story.image %}
-        <div class="column is-4">
+        <div class="cell medium-4">
             <div class="image" style="width:100%;">
                 <img src="{{story.image.url()}}" alt="{{story.name}}" />
             </div>
         </div>
         {% endif %}
-        <div class="column has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Situation</h4>
+        <div class="cell ">
+            <div class="panel  has-text-dark">
+                <h4 class='text-center'>Situation</h4>
                 {{story.situation | safe}}
             </div>
         </div>
-        <div id="story-bbeg" class="column is-3 is-end has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>BBEG</h3>
+        <div id="story-bbeg" class="cell medium-3 is-end ">
+            <div class="panel  has-text-dark">
+                <h3 class='text-center'>BBEG</h3>
                 {% if story.bbeg %}
                 {{display_components.object_display(story.bbeg)}}
                 {% else %}
                 Unknown
                 {% endif %}
-                <h3 class='has-text-secondary has-text-center'>Scope: {{story.scope}}</h3>
+                <h3 class=' text-center'>Scope: {{story.scope}}</h3>
             </div>
         </div>
-        <div class="column is-full has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Current Status</h4>
+        <div class="cell is-full ">
+            <div class="panel  has-text-dark">
+                <h4 class='text-center'>Current Status</h4>
                 {{story.current_status | safe}}
             </div>
         </div>
-        <div class="column is-full has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h4 class='has-text-center'>Backstory</h4>
+        <div class="cell is-full ">
+            <div class="panel  has-text-dark">
+                <h4 class='text-center'>Backstory</h4>
                 {{story.backstory | safe }}
             </div>
         </div>
-        <div id="story-tasks" class="column is-full has-text-secondary">
-            <h3 class='has-text-center'>Tasks</h3>
-            <div class="row has-space-around">
+        <div id="story-tasks" class="cell is-full ">
+            <h3 class='text-center'>Tasks</h3>
+            <div class="grid-x align-spaced">
                 {% for task in story.tasks %}
-                <div class="column is-2">
-                    <div class="panel has-bg-muted has-text-dark">
+                <div class="cell is-2">
+                    <div class="panel  has-text-dark">
                         {{task}}
                     </div>
                 </div>
@@ -61,9 +61,9 @@
             </div>
             <hr class='has-bg-primary'>
         </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Information</h3>
+        <div class="cell medium-6 ">
+            <div class="panel  has-text-dark">
+                <h3 class='text-center'>Information</h3>
                 <ul>
                     {%for q in story.information %}
                     <li>{{q | safe}}</li>
@@ -71,9 +71,9 @@
                 </ul>
             </div>
         </div>
-        <div class="column is-6 has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Rumors</h3>
+        <div class="cell medium-6 ">
+            <div class="panel  has-text-dark">
+                <h3 class='text-center'>Rumors</h3>
                 <ul>
                     {%for q in story.rumors %}
                     <li>{{q | safe}}</li>
@@ -83,19 +83,19 @@
         </div>
     </div>
     <hr class='has-bg-primary'>
-    <div class="row">
-        <div id="story-encounters" class="column has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Quests</h3>
-                <div class="row has-space-around">
+    <div class="grid-x">
+        <div id="story-encounters" class="cell ">
+            <div class="panel  has-text-dark">
+                <h3 class='text-center'>Quests</h3>
+                <div class="grid-x align-spaced">
                     {% for quest in story.quests %}
-                    <div class="column is-full">
-                        <div class="row">
-                            <div class="column is-2">
+                    <div class="cell is-full">
+                        <div class="grid-x">
+                            <div class="cell is-2">
                                 {{display_components.object_display(quest.contact)}}
                             </div>
-                            <div class="column">
-                                <h6 class='has-text-center'>{{quest.name}}</h6>
+                            <div class="cell">
+                                <h6 class='text-center'>{{quest.name}}</h6>
                                 {{quest.hook | safe}}
                             </div>
                         </div>
@@ -104,36 +104,36 @@
                 </div>
             </div>
         </div>
-        <div id="story-encounters" class="column has-text-secondary">
-            <div class="panel has-bg-muted has-text-dark">
-                <h3 class='has-text-center'>Encounters</h3>
-                <div class="row has-space-around">
+        <div id="story-encounters" class="cell ">
+            <div class="panel  has-text-dark">
+                <h3 class='text-center'>Encounters</h3>
+                <div class="grid-x align-spaced">
                     {% for encounter in story.encounters %}
-                    <div class="column is-2">{{display_components.object_display(encounter)}}</div>
+                    <div class="cell is-2">{{display_components.object_display(encounter)}}</div>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
     <hr class='has-bg-primary'>
-    <div id="story-encounters" class="column is-full has-text-secondary">
-        <div class="panel has-bg-muted has-text-dark">
-            <h3 class='has-text-center'>Events</h3>
-            <div class="row has-space-around">
+    <div id="story-encounters" class="cell is-full ">
+        <div class="panel  has-text-dark">
+            <h3 class='text-center'>Events</h3>
+            <div class="grid-x align-spaced">
                 {% for event in story.events %}
-                <div class="column is-2">
+                <div class="cell is-2">
                     {{display_components.object_display(event, date=True)}}
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
-    <div id="story-associations" class="section is-small">
+    <div id="story-associations" class="section small">
         <div class="panel">
-            <h2 class='has-text-center'> Associations </h2>
-            <div class="row has-space-around">
+            <h2 class='text-center'> Associations </h2>
+            <div class="grid-x align-spaced">
                 {% for a in story.associations %}
-                <div class="column is-2">
+                <div class="cell is-2">
                     {{display_components.object_display(a)}}
                 </div>
                 {% endfor %}
@@ -144,48 +144,48 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/timeline"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/timeline">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>

@@ -5,18 +5,18 @@
 <div id="task-loader" class="panel has-bg-screen" hx-post="/task/checktask/{{task_id}}"
      hx-target="#task-loader" hx-select="#task-loader" hx-swap="outerHTML" hx-indicator=""
      hx-trigger="every 3s">
-    <div class="row has-centered">
-        <div class="column has-text-center has-text-secondary is-shrink">
+    <div class="grid-x has-centered">
+        <div class="cell text-center  shrink">
             <h3 class="has-text-light">Working...</h3>
         </div>
-        <div class="column is-shrink has-bg-screen">
+        <div class="cell shrink has-bg-screen">
             <img class="has-text-primary" src="/static/images/grid.svg" width="50px"
                  height="50px" alt="loading">
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="column">
+<div class="grid-x">
+    <div class="cell">
         {{ snippet | safe}}
     </div>
 </div>

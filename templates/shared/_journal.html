@@ -4,13 +4,13 @@
 
 {% macro journal(user, obj) -%}
 <title>{{obj.name or obj.title}} - Journal</title>
-<div class="row">
-    <div class="column is-vertically-centered">
+<div class="grid-x">
+    <div class="cell align-center-middle">
         <h2>Journal</h2>
     </div>
-    <div class="column is-shrink is-end">
-        <div class="column is-mobile-shrink is-shrink is-end is-vertically-centered">
-            <button class="button is-primary is-small" hx-post="/api/manage/journal/entry/edit"
+    <div class="cell shrink is-end">
+        <div class="cell shrink is-end align-center-middle">
+            <button class="button small" hx-post="/api/manage/journal/entry/edit"
                     hx-target="#page-content">
                 {{icon_components.journal()}}
                 New Entry
@@ -24,29 +24,29 @@
         {% for entry in obj.journal.entries %}
         <li class="accordion__item ">
             <a class="accordion__title" href="#journal-entry-{{obj.pk}}">
-                <div class="row">
-                    <div class="column is-vertically-centered journal-entry-title"
+                <div class="grid-x">
+                    <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         <h3 class='has-text-dark'>{{entry.title}}</h3>
                     </div>
-                    <div class="column is-shrink is-vertically-centered"
+                    <div class="cell shrink align-center-middle"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         <small>
                             Last updated: {{entry.date.strftime("%d/%m/%Y")}}
                         </small>
                     </div>
-                    <div class="column is-shrink is-vertically-centered"
+                    <div class="cell shrink align-center-middle"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         {%if entry.importance==0 %}
                         <span class="tag">
                             No Campaign Effects
                         </span>
                         {%elif entry.importance==1 %}
-                        <span class="tag has-bg-muted has-text-secondary">
+                        <span class="tag  ">
                             Possible Campaign Effects
                         </span>
                         {%elif entry.importance==2 %}
-                        <span class="tag has-bg-secondary has-text-secondary">
+                        <span class="tag has-bg-secondary ">
                             Consequential Campaign Effects
                         </span>
                         {%elif entry.importance==3 %}
@@ -59,16 +59,16 @@
                         </span>
                         {%endif%}
                     </div>
-                    <div class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
+                    <div class="cell shrink align-center-middle">
+                        <button class="button small"
                                 hx-post="/api/manage/journal/entry/edit/{{entry.pk}}"
                                 hx-target="#page-content">
                             Edit
                         </button>
                     </div>
                     <div
-                         class="column is-shrink is-mobile-shrink is-vertically-centered">
-                        <button class="button is-small"
+                         class="cell shrink align-center-middle">
+                        <button class="button small"
                                 hx-post="/api/manage/journal/entry/delete/{{entry.pk}}"
                                 hx-target='closest li'
                                 hx-swap="delete"
@@ -84,12 +84,12 @@
                     {{entry.text | safe}}
                 </div>
                 <hr>
-                <h4 class='has-text-dark has-text-center'>Associations</h4>
+                <h4 class='has-text-dark text-center'>Associations</h4>
                 <div class="panel has-bg-light-grey">
-                    <div class="row has-space-around">
+                    <div class="grid-x align-spaced">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
-                        <div class="column has-text-center is-shrink">
+                        <div class="cell text-center shrink">
                             {{element.object_display(ass)}}
                         </div>
                         {% endfor %}
@@ -106,11 +106,11 @@
 
 {% macro journal_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Journal Editor</title>
-<div class="row">
-    <div class="column is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Journal Editor</h2>
+<div class="grid-x">
+    <div class="cell align-center-middle">
+        <h2 class='text-center has-text-primary'>Journal Editor</h2>
     </div>
-    <div class="column is-shrink is-mobile-shrink is-end is-vertically-centered">
+    <div class="cell shrink is-end align-center-middle">
         <a href="/{{obj.path}}/journal">
             {{icon_components.close()}}
         </a>
@@ -121,15 +121,15 @@
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
 
-    <div class="row">
-        <div class="column is-half">
-            <h5 class='has-text-center'>Title</h5>
-            <input class="has-bg-muted" type="text" name="name" value="{{entry.title}}">
+    <div class="grid-x">
+        <div class="cell is-half">
+            <h5 class='text-center'>Title</h5>
+            <input class="" type="text" name="name" value="{{entry.title}}">
         </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'> Importance </h5>
+        <div class="cell is-half">
+            <h5 class='text-center'> Importance </h5>
             <div class="is-select">
-                <select class="has-bg-muted has-text-center" name="importance">
+                <select class=" text-center" name="importance">
                     <option value=0 {%if entry.importance==0 %}selected {%endif %}>
                         No Consequence
                     </option>
@@ -148,17 +148,17 @@
                 </select>
             </div>
         </div>
-        <div class="column is-full">
+        <div class="cell is-full">
             {{form_components.texteditor(user, entry, 'text')}}
         </div>
     </div>
     <hr>
 </form>
-<div class="row">
-    <div class="column is-full">
-        <h3 class="has-text-center">Add Associations</h3>
+<div class="grid-x">
+    <div class="cell is-full">
+        <h3 class="text-center">Add Associations</h3>
         <div class="has-dropdown" style="width: 100%;">
-            <input class="has-bg-muted" autocomplete="off" type="search" name="query"
+            <input class="" autocomplete="off" type="search" name="query"
                    hx-post="/api/manage/journal/search"
                    hx-target="#journal-entry-association-search"
                    hx-trigger="input delay:750ms consume, change consume, search"
@@ -168,10 +168,10 @@
             </ul>
         </div>
         <hr>
-        <div class="panel has-bg-light-grey is-small">
-            <div class="row has-space-around" id="journal-entry-associations">
+        <div class="panel has-bg-light-grey small">
+            <div class="grid-x align-spaced" id="journal-entry-associations">
                 {% for a in entry.associations %}
-                <div class="column is-shrink ">
+                <div class="cell shrink ">
                     {{element.object_display(a)}}
                 </div>
                 {% endfor %}
@@ -190,15 +190,15 @@
           hx-indicator='#request-indicator'>
         <input type="hidden" name="ass_model" value="{{o.model_name()}}">
         <input type="hidden" name="ass_pk" value="{{o.pk}}">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
                     <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
                     {% endif %}
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>

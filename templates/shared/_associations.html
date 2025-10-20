@@ -7,8 +7,8 @@
 <h2>Associations</h2>
 {% if obj.model_name() != "World" and user.world_user(obj) %}
 <hr>
-<div class="row" id='association-manager-container'>
-    <div class="column search is-vertically-centered">
+<div class="grid-x" id='association-manager-container'>
+    <div class="cell auto align-center-middle">
         <div class="has-dropdown" style="width: 100%;">
             <input class="has-bg-light" autocomplete=off type="search" name="query"
                    placeholder="Search to Add Associations..."
@@ -22,19 +22,19 @@
             </ul>
         </div>
     </div>
-    <div class="column is-2">
-        <button class="button is-primary is-small"
+    <div class="cell small-2">
+        <button class="button small"
                 hx-post="/api/manage/associations/random"
                 hx-target="#page-content"
                 hx-indicator='#request-indicator'>
             Random Associations
         </button>
     </div>
-    <div class="column is-6">
-        <div class="row has-centered">
+    <div class="cell small-6">
+        <div class="grid-x align-center-middle">
             {% for child in obj.world.all_models() %}
-            <div class="column is-shrink is-mobile-shrink">
-                <button class="button is-primary is-small"
+            <div class="cell shrink">
+                <button class="button small"
                         hx-post="/api/manage/add/{{child.__name__ | lower}}"
                         hx-target="#associations-container"
                         hx-select="#associations-container"
@@ -54,60 +54,52 @@
       hx-select='#associations-container'
       hx-trigger="input delay:250ms, change, search"
       hx-swap='outerHTML'>
-    <div class="panel has-bg-muted">
-        <div class="row has-space-around">
-            <div class="column is-3">
+    <div class="panel ">
+        <div class="grid-x align-spaced">
+            <div class="cell medium-4">
                 <input type="search" name="filter" placeholder="Filter by name..."
                        style="border-bottom: solid #000;">
             </div>
-            <div class="column is-3">
-                <div class="is-select">
-                    <select class="has-text-dark" name="type">
-                        <option value=''>Filter by Type</option>
-                        {% for model in obj.world.all_models() %}
-                        <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="cell medium-4">
+                <select name="type">
+                    <option value=''>Filter by Type</option>
+                    {% for model in obj.world.all_models() %}
+                    <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
-            <div class="column is-3">
-                <div class="is-select">
-                    <select class="has-text-dark" name="relationship">
-                        <option value=''>Filter by Relationship</option>
-                        <option value='parent'>Within</option>
-                        <option value='child'>Contains</option>
-                        {% if obj.model_name() == "Character" %}
-                        <option value='lineage'>Lineage</option>
-                        {% endif %}
-                    </select>
-                </div>
+            <div class="cell medium-4">
+                <select class="has-text-dark" name="relationship">
+                    <option value=''>Filter by Relationship</option>
+                    <option value='parent'>Within</option>
+                    <option value='child'>Contains</option>
+                    {% if obj.model_name() == "Character" %}
+                    <option value='lineage'>Lineage</option>
+                    {% endif %}
+                </select>
             </div>
-            <div class="column is-3">
-                <div class="row">
-                    <div class="column is-shrink is-vertically-centered">
-                        <h5 class="has-text-screen">Sort by</h5>
+            <div class="cell medium-6">
+                <div class="grid-x grid-margin-x align-center-middle">
+                    <div class="cell shrink">
+                        <h5>Sort by</h5>
                     </div>
-                    <div class="column">
-                        <div class="is-select">
-                            <select class="has-text-white has-bg-screen" name="sorter">
-                                <option value='name'>Name</option>
-                                <option value='date'>Date</option>
-                                <option value='type'>Type</option>
-                            </select>
-                        </div>
+                    <div class="cell auto">
+                        <select name="sorter">
+                            <option value='name'>Name</option>
+                            <option value='date'>Date</option>
+                            <option value='type'>Type</option>
+                        </select>
                     </div>
-                    <div class="column">
-                        <div class="is-select">
-                            <select class="has-text-white has-bg-screen" name="order">
-                                <option value='ascending'>
-                                    ASC
-                                </option>
-                                <option value='descending'>
-                                    DESC
-                                </option>
-                            </select>
-                        </div>
+                    <div class="cell auto">
+                        <select name="order">
+                            <option value='ascending'>
+                                ASC
+                            </option>
+                            <option value='descending'>
+                                DESC
+                            </option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -116,18 +108,17 @@
 </form>
 <hr>
 <div id='associations-container'>
-    <div id="related-objects" class="row has-space-around">
+    <div id="related-objects" class="grid-x align-spaced">
         {% for a in obj.children %}
         <div
-             class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
+             class="cell medium-2 small-4">
             <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
-                <div class="row has-space-around">
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
+                <div class="grid-x align-spaced">
+                    <div class="cell medium-3 text-center">
+                        <button class="button small"
                                 hx-post="/api/manage/unassociate/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
@@ -145,17 +136,17 @@
         {% for a in associations %}
         {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
         <div
-             class="column is-3 is-mobile-6 is-desktop-2 card-container
+             class="cell medium-3 is-mobile-6 is-desktop-2 card-container
                 {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
             <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
                  style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
-                <div class="row has-space-around">
+                <div class="grid-x align-spaced">
                     {% if obj.model_name() in a.parent_list|default([]) and obj !=
                     a.parent|default(false) %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
+                    <div class="cell medium-3 text-center">
+                        <button class="button small"
                                 hx-post="/api/manage/parent/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
@@ -168,8 +159,8 @@
                     {% endif %}
                     {% if a.model_name() in obj.parent_list|default([]) and a !=
                     obj.parent|default(false) %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
+                    <div class="cell medium-3 text-center">
+                        <button class="button small"
                                 hx-post="/api/manage/child/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
@@ -180,8 +171,8 @@
                         </button>
                     </div>
                     {% endif %}
-                    <div class="column is-3 is-mobile-shrink has-text-center">
-                        <button class="button is-small is-primary"
+                    <div class="cell medium-3 text-center">
+                        <button class="button small"
                                 hx-post="/api/manage/unassociate/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
@@ -211,15 +202,15 @@
        hx-indicator='#request-indicator'
        hx-push-url='/{{obj.path}}/associations'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
                     <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
                     {% endif %}
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>

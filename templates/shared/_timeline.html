@@ -135,21 +135,21 @@
         color: #000000;
     }
 </style>
-<div class="row">
-    <div class="column">
-        <h2 class="has-text-center">
+<div class="grid-x">
+    <div class="cell">
+        <h2 class="text-center">
             Timeline
         </h2>
     </div>
-    <div class="column is-full">
+    <div class="cell is-full">
         <div class="timeline">
             {% for a in obj.events %}
             {% if a.end_date and a.end_date.year and a.name and a.outcome %}
             <div class='tentry {{ loop.cycle("right", "left" ) }}'>
                 <div class="date">{{a.end_date}}</div>
                 <div class="content">
-                    <div class="row">
-                        <div class="column is-3">
+                    <div class="grid-x">
+                        <div class="cell medium-3">
                             <a href="/{{a.path}}">
                                 {% if a.image %}
                                 <div class="image">
@@ -158,9 +158,9 @@
                                 {% endif %}
                             </a>
                         </div>
-                        <div class="column">
+                        <div class="cell">
                             <a href="/{{a.path}}">
-                                <h4 class='has-text-center'>{{a.name}}</h4>
+                                <h4 class='text-center'>{{a.name}}</h4>
                             </a>
                             <span style='line-height: 1.25rem; font-size: 0.75rem;'>
                                 {{a.summary | safe or a.outcome | safe}}

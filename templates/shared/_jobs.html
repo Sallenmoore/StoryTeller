@@ -2,25 +2,25 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro jobs(user, obj) -%}
-<h3 class="has-text-muted has-bg-screen has-text-center" style='padding: 0.25rem;'>Job Board</h3>
+<h3 class="has-text-muted has-bg-screen text-center" style='padding: 0.25rem;'>Job Board</h3>
 
-<div class="panel has-bg-muted" style='border-top-right-radius: 0; border-top-left-radius:0;'>
-    <div class="row">
+<div class="panel " style='border-top-right-radius: 0; border-top-left-radius:0;'>
+    <div class="grid-x">
         {%for job in obj.jobs%}
         {% if job.status in ['active', 'available']%}
-        <div class="column is-full has-text-dark">
-            <div class="row">
-                <div class="column has-bg-light-grey">
+        <div class="cell is-full has-text-dark">
+            <div class="grid-x">
+                <div class="cell has-bg-light-grey">
                     {% if user.world_user(obj)%}
                     <a href="/{{job.contact.path}}/quests">
                         {% endif %}
-                        <div class="row has-space-between">
-                            <div class="column is-4 is-vertically-centered">
-                                <h2 class='has-text-center'>{{job.name}}</h2>
+                        <div class="grid-x align-justify">
+                            <div class="cell medium-4 align-center-middle">
+                                <h2 class='text-center'>{{job.name}}</h2>
                             </div>
                             {% if job.contact.parent%}
-                            <div class="column is-vertically-centered">
-                                <h4 class='has-text-center'>
+                            <div class="cell align-center-middle">
+                                <h4 class='text-center'>
                                     {% set curr = job.contact.parent %}
                                     {% if curr %}
                                     {{curr.name}},
@@ -40,13 +40,13 @@
                                 </h4>
                             </div>
                             {%endif%}
-                            <div class="column is-3 is-vertically-centered">
-                                <h3 class='has-text-center'>
+                            <div class="cell medium-3 align-center-middle">
+                                <h3 class='text-center'>
                                     Status: {{job.status}}
                                 </h3>
                             </div>
-                            <div class="column is-3 is-vertically-centered">
-                                <h3 class='has-text-center'>
+                            <div class="cell medium-3 align-center-middle">
+                                <h3 class='text-center'>
                                     Contact: {{job.contact.name}}
                                 </h3>
                             </div>
@@ -55,7 +55,7 @@
                     </a>
                     {% endif %}
                 </div>
-                <div class="column is-full">
+                <div class="cell is-full">
                     {{job.summary | safe}}
                 </div>
             </div>

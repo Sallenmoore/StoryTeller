@@ -9,32 +9,32 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row">
-        <div class="column">
+    <div class="grid-x">
+        <div class="cell">
             <h3>Vehicle Type</h3>
             <input class="has-bg-light" type="text" id='type' name="type" value='{{obj.type}}'>
         </div>
     </div>
-    <div class="column is-shrink">
+    <div class="cell shrink">
         <h4>Owner</h4>
         <input class="has-bg-light" disabled id='owner' type="text" name="owner" value='TBD...'>
     </div>
-    <div class="row has-space-around">
-        <div class="column is-shrink">
+    <div class="grid-x align-spaced">
+        <div class="cell shrink">
             <label class="is-subheading">Crew Capacity</label>
             <input class="has-bg-light" id="capacity" type="number" name="capacity"
                    value='{{obj.capacity}}'>
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">HP</label>
             <input id="model-hitpoints" type="number" value="{{obj.hitpoints}}"
                    name="hitpoints">
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">Armor</label>
             <input id="model-armor" type="number" value="{{obj.armor}}" name="armor">
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <label for="model-size" class="is-subheading">Size</label>
             <input id="model-size" type="text" value="{{obj.size}}" name="size">
         </div>

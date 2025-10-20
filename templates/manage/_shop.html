@@ -4,11 +4,11 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
-<div class="row has-space-around">
-    <div class="column is-half">
+<div class="grid-x align-spaced">
+    <div class="cell is-half">
         <h4>Owner</h4>
-        <div class="row has-space-around" id='owner-manager-container'>
-            <div class="column is-full search">
+        <div class="grid-x align-spaced" id='owner-manager-container'>
+            <div class="cell is-full search">
                 <div class="has-dropdown" style="width: 100%;">
                     <input class="has-bg-light" autocomplete=off type="search" name="query"
                            placeholder="Search to Add Owner..."
@@ -21,9 +21,9 @@
                 </div>
             </div>
             {% if obj.owner %}
-            <div class="column is-half">
+            <div class="cell is-half">
                 <div class="panel has-bg-primary">
-                    <h4 class="has-text-secondary">Owner</h4>
+                    <h4 class="">Owner</h4>
                     <a href="/{{obj.owner.path}}">
                         <div class="image is-large is-thumbnail is-margin-center">
                             {% if obj.owner.image %}
@@ -39,7 +39,7 @@
             {% endif %}
         </div>
     </div>
-    <div class="column is-half">
+    <div class="cell is-half">
         <form hx-post="/api/manage/update"
               hx-swap="none" hx-trigger="input delay:1s, change">
             <h4>Inventory</h4>
@@ -57,17 +57,17 @@
 {% for o in objs %}
 <li class="dropdown__link">
     <a hx-post='/api/manage/{{obj.path}}/owner/add/{{o.path}}'
-       hx-target='#page-container'
+       hx-target='#page-content'
        hx-indicator='#request-indicator'>
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
                     <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
                     {% endif %}
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>

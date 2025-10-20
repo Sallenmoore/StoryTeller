@@ -16,7 +16,7 @@
     </div>
 
     <hr>
-    <div class="grid-x has-space-around">
+    <div class="grid-x align-spaced">
         {% for w in user.worlds %}
         <div class="cell world-entry">
             <div class="callout"
@@ -54,50 +54,46 @@
 {% endmacro%}
 
 {% macro worldbuild (user) -%}
-<div class="grid-x">
-    <div class="cell">
-        <div class="panel align-center-middle" style='position:relative;'>
-            <h2 class="text-center">Give your world some details</h2>
-            <a style="position:absolute; top:10px; right:10px;"
-               hx-get="/api/home" hx-target="#page-content"
-               hx-indicator="#request-indicator">
-                {{icon_components.close(size="3rem")}}
-            </a>
-            <hr>
-            <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
-                  hx-indicator="#request-indicator">
-                <input type="hidden" name="user" value="{{user.pk}}">
-                <div class="grid-x">
-                    <div class="cell small-6">
-                        <input type="text" name="name" placeholder="World Name">
-                    </div>
-                    <div class="cell shrink">
-                        <select name="system">
-                            <option value="fantasy">Fantasy</option>
-                            <option value="sci-fi">Sci-Fi</option>
-                            <option value="horror">Horror</option>
-                            <option value="hardboiled">Mystery</option>
-                            <option value="historical">Historical</option>
-                            <option value="western">Western</option>
-                            <option value="post-apocalyptic">Post-Apocalyptic</option>
-                        </select>
-                    </div>
-                    <div class="cell">
-                        <input type="text" name="desc"
-                               placeholder="Brief World Description...">
-                    </div>
-                    <div class="cell">
-                        <input type="text" name="backstory"
-                               placeholder="Brief World History...">
-                    </div>
-                    <div class="cell">
-                        <input class="button expanded" type="submit"
-                               value="Build"
-                               id="create-world-submit">
-                    </div>
-                </div>
-            </form>
+<div class="callout large align-center-middle" style='position:relative;'>
+    <h2 class="text-center">Give your world some details</h2>
+    <a style="position:absolute; top:10px; right:10px;"
+       hx-get="/api/home" hx-target="#page-content"
+       hx-indicator="#request-indicator">
+        {{icon_components.close(size="3rem")}}
+    </a>
+    <hr>
+    <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
+          hx-indicator="#request-indicator">
+        <input type="hidden" name="user" value="{{user.pk}}">
+        <div class="grid-x">
+            <div class="cell auto">
+                <input type="text" name="name" placeholder="World Name">
+            </div>
+            <div class="cell shrink">
+                <select name="system">
+                    <option value="fantasy">Fantasy</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="horror">Horror</option>
+                    <option value="hardboiled">Mystery</option>
+                    <option value="historical">Historical</option>
+                    <option value="western">Western</option>
+                    <option value="post-apocalyptic">Post-Apocalyptic</option>
+                </select>
+            </div>
+            <div class="cell">
+                <input type="text" name="desc"
+                       placeholder="Brief World Description...">
+            </div>
+            <div class="cell">
+                <input type="text" name="backstory"
+                       placeholder="Brief World History...">
+            </div>
+            <div class="cell">
+                <input class="button expanded" type="submit"
+                       value="Build"
+                       id="create-world-submit">
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 {%- endmacro %}

@@ -6,14 +6,14 @@
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row">
-        <div id="model-slogan" class="column">
+    <div class="grid-x">
+        <div id="model-slogan" class="cell">
             <h4>Slogan</h4>
             <input type="text" name="slogan" value="{{obj.slogan}}">
         </div>
-        <div class="column is-shrink ">
+        <div class="cell shrink ">
             <div class="panel">
-                <h4 class='has-text-center has-text-muted'>Adventuring Party?</h4>
+                <h4 class='text-center has-text-muted'>Adventuring Party?</h4>
                 <div class="is-select">
                     <select class="has-no-border" name="is_player_faction">
                         <option value="False">---</option>
@@ -23,8 +23,8 @@
                 </div>
             </div>
         </div>
-        <div id="model-goal" class="column is-full">
-            <h4 class='has-text-center'>Goals and Secrets</h4>
+        <div id="model-goal" class="cell is-full">
+            <h4 class='text-center'>Goals and Secrets</h4>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>

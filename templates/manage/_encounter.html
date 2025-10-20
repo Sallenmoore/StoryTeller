@@ -6,14 +6,14 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
-<div class="row has-space-around">
-    <div class="column is-shrink">
-        <div class="panel has-bg-muted">
-            <div class="row">
-                <div class="column is-shrink is-vertically-centered">
+<div class="grid-x align-spaced">
+    <div class="cell shrink">
+        <div class="panel ">
+            <div class="grid-x">
+                <div class="cell shrink align-center-middle">
                     <h4>Story</h4>
                 </div>
-                <div class="column is-vertically-centered">
+                <div class="cell align-center-middle">
                     <div class="select">
                         <select class="has-bg-white" name='storypk'
                                 hx-post='/api/manage/encounter/story'
@@ -33,8 +33,8 @@
             </div>
         </div>
     </div>
-    <div class="column is-shrink is-vertically-centered">
-        <button type="button" class="button is-small"
+    <div class="cell shrink align-center-middle">
+        <button type="button" class="button small"
                 hx-post='/api/manage/encounter/toevent'
                 hx-target='#page-content'
                 hx-confirm='Are you sure you want to convert this encounter to an event?'
@@ -47,13 +47,13 @@
 <hr>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="row">
-        <div class="column">
-            <div class="row">
-                <div class="column">
-                    <h5 class='has-text-center has-text-dark'>Difficulty</h5>
+    <div class="grid-x">
+        <div class="cell">
+            <div class="grid-x">
+                <div class="cell">
+                    <h5 class='text-center has-text-dark'>Difficulty</h5>
                     <div class="is-select">
-                        <select class="has-bg-muted has-text-center"
+                        <select class=" text-center"
                                 name="difficulty">
                             {% for diff in obj.difficulty_list %}
                             <option value='{{diff}}' {% if diff==obj.difficulty %} selected {% endif
@@ -62,30 +62,30 @@
                         </select>
                     </div>
                 </div>
-                <div class="column">
-                    <h5 class='has-text-center  has-text-dark'>Enemy Type</h5>
-                    <input type="text" class="has-bg-muted"
+                <div class="cell">
+                    <h5 class='text-center  has-text-dark'>Enemy Type</h5>
+                    <input type="text" class=""
                            value="{{obj.enemy_type}}" name="enemy_type" style='width:100%;'>
                 </div>
             </div>
         </div>
-        <div class="column is-full" id="model-trigger">
-            <h4 class="has-text-center">Trigger Conditions</h4>
+        <div class="cell is-full" id="model-trigger">
+            <h4 class="text-center">Trigger Conditions</h4>
             {{form_components.texteditor(user, obj, "trigger_conditions")}}
         </div>
-        <div class="column is-full" id="model-mechanics">
-            <h4 class="has-text-center">Mechanics</h4>
+        <div class="cell is-full" id="model-mechanics">
+            <h4 class="text-center">Mechanics</h4>
             {{form_components.texteditor(user, obj, "mechanics")}}
         </div>
-        <div class="column is-full" id="model-notes">
-            <h4 class="has-text-center">Notes</h4>
+        <div class="cell is-full" id="model-notes">
+            <h4 class="text-center">Notes</h4>
             {{form_components.texteditor(user, obj, "notes")}}
         </div>
-        <div class="column is-full" id="model-contingencies">
-            <h4 class="has-text-center">Player Contingencies</h4>
-            <div class="row is-vertical">
-                <div class="column is-shrink">
-                    <button type="button" class="button is-small"
+        <div class="cell is-full" id="model-contingencies">
+            <h4 class="text-center">Player Contingencies</h4>
+            <div class="grid-x is-vertical">
+                <div class="cell shrink">
+                    <button type="button" class="button small"
                             hx-post='/api/manage/add/listitem/player_contingencies'
                             hx-target='#player_contingencies-item-list'
                             hx-select='#player_contingencies-item-list'
@@ -97,11 +97,11 @@
             </div>
             {{form_components.listeditor(user, obj, "player_contingencies")}}
         </div>
-        <div class="column is-full" id="model-outcomes">
-            <h4 class="has-text-center">Potential Outcomes</h4>
-            <div class="row is-vertical">
-                <div class="column is-shrink">
-                    <button type="button" class="button is-small"
+        <div class="cell is-full" id="model-outcomes">
+            <h4 class="text-center">Potential Outcomes</h4>
+            <div class="grid-x is-vertical">
+                <div class="cell shrink">
+                    <button type="button" class="button small"
                             hx-post='/api/manage/add/listitem/potential_outcomes'
                             hx-target='#potential_outcomes-item-list'
                             hx-select='#potential_outcomes-item-list'
@@ -113,8 +113,8 @@
             </div>
             {{form_components.listeditor(user, obj, "potential_outcomes")}}
         </div>
-        <div class="column is-full" id="model-complications">
-            <h4 class="has-text-center">Complications</h4>
+        <div class="cell is-full" id="model-complications">
+            <h4 class="text-center">Complications</h4>
             {{form_components.texteditor(user, obj, "complications")}}
         </div>
     </div>

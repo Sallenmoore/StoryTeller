@@ -16,48 +16,48 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/journal">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Journal</span>
             </div>
         </div>
@@ -78,33 +78,33 @@
 
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
-    <h3 class='has-text-center'>GM Notes</h3>
-    <div class="row">
-        <div class="column is-half">
+    <h3 class='text-center'>GM Notes</h3>
+    <div class="grid-x">
+        <div class="cell is-half">
             <h5>Summary</h5>
             <div class="panel">
                 {{obj.backstory_summary | safe}}
             </div>
         </div>
-        <div class="column is-half">
+        <div class="cell is-half">
             <h5>Notes</h5>
             <div class="panel">
                 {{obj.notes | safe}}
             </div>
         </div>
-        <div class="column is-full">
+        <div class="cell is-full">
             <h5>Mechanics</h5>
             <div class="panel">
                 {{obj.mechanics | safe}}
             </div>
         </div>
         {% if obj.enemies %}
-        <div class="column is-full">
+        <div class="cell is-full">
             <h5>Antagonists</h5>
             <div class="panel">
-                <div class="row has-space-around">
+                <div class="grid-x align-spaced">
                     {% for sd in obj.enemies %}
-                    <div class="column is-2">
+                    <div class="cell is-2">
                         {{display_components.object_display(sd)}}
                     </div>
                     {% endfor %}
@@ -117,36 +117,36 @@
 {%- endmacro %}
 
 {% macro info(user, obj=None) -%}
-<div class="row has-space-around">
-    <div class="column is-shrink">
+<div class="grid-x align-spaced">
+    <div class="cell shrink">
         <div class="panel">
-            <div class="row">
-                <div class="column is-shrink is-vertically-centered">
+            <div class="grid-x">
+                <div class="cell shrink align-center-middle">
                     <h4>Difficulty:</h4>
                 </div>
-                <div class="column is-vertically-centered">
+                <div class="cell align-center-middle">
                     <h5 class='has-text-light-grey'>{{obj.difficulty}}</h5>
                 </div>
             </div>
         </div>
     </div>
-    <div class="column is-shrink">
+    <div class="cell shrink">
         <div class="panel">
-            <div class="row">
-                <div class="column is-shrink is-vertically-centered">
+            <div class="grid-x">
+                <div class="cell shrink align-center-middle">
                     <h4>Enemy Type:</h4>
                 </div>
-                <div class="column is-vertically-centered">
+                <div class="cell align-center-middle">
                     <h5 class='has-text-light-grey'>{{obj.enemy_type}}</h5>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
+<div class="grid-x">
     {% if user.world_user(obj)%}
-    <div class="column is-full">
-        <div class="panel has-bg-muted">
+    <div class="cell is-full">
+        <div class="panel ">
             <h3 class="has-text-dark">Triggers</h3>
             <span class="has-text-dark">
                 {{obj.trigger_conditions | safe}}
@@ -154,7 +154,7 @@
         </div>
         <hr>
     </div>
-    <div class="column is-half">
+    <div class="cell is-half">
         <h3 class="has-text-dark">Player Contingencies</h3>
         <ul class="has-text-dark">
             {% for pc in obj.player_contingencies %}
@@ -162,7 +162,7 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="column is-half">
+    <div class="cell is-half">
         <h3 class="has-text-dark">Potential Outcomes</h3>
         <ul class="has-text-dark">
             {% for pc in obj.potential_outcomes %}
@@ -170,8 +170,8 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="column is-full">
-        <div class="panel has-bg-muted">
+    <div class="cell is-full">
+        <div class="panel ">
             <h3 class="has-text-dark">Complications</h3>
             <span class="has-text-dark">
                 {{obj.complications | safe}}

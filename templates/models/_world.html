@@ -21,173 +21,173 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/timeline"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/timeline">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/campaigns"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/campaigns">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Campaigns</span>
             </div>
         </div>
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/stories"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/stories">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Stories</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/journal">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Journal</span>
             </div>
         </div>
     </a>
 </li>
 {% endif %}
-<li class="menu-anchor">
+<li>
     <a href="" hx-get="/api/{{obj.path}}/map"
        hx-target="#page-content" hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.map(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Map</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href="" hx-get="/api/{{obj.path}}/players" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
        hx-push-url=" /{{obj.path}}/players">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.players(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Players</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/jobs">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.jobs(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Job Board</span>
             </div>
         </div>
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/lore" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/lore">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.lore(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Lore Builder</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href="" hx-post="/api/{{obj.path}}/managescreens"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
        hx-push-url="/{{obj.path}}/managescreens">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.gmscreenmanage(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>GM Screen Manager</span>
             </div>
         </div>
@@ -210,17 +210,17 @@
 
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
-    <h3 class='has-text-center'>GM Notes</h3>
-    <div class="row">
-        <div class="column is-full">
-            <div class="panel has-text-light">
+<div id="gmnotes" class="callout">
+    <h3 class='text-center'>GM Notes</h3>
+    <div class="grid-x">
+        <div class="cell">
+            <div class="callout">
                 {{obj.description_summary | safe}}
             </div>
         </div>
-        <div class="column is-full">
+        <div class="cell">
             <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="callout">
                 <ul>
                     {% for sd in obj.rumors %}
                     <li>{{ sd | safe }}
@@ -231,11 +231,12 @@
             </div>
         </div>
     </div>
-    <h2 class='has-text-center' id='manage-stories'>Stories</h2>
-    <ul class="has-no-list-style">
+    <h2 class='text-center' id='manage-stories'>Stories</h2>
+    <ul class="no-bullet">
         {% for story in obj.stories %}
         <li>
-            <h5>{{story.name}}</h5>{{story | safe}}
+            <h5>{{story.name}}</h5>
+            {{story | safe}}
         </li>
         {% endfor %}
     </ul>
@@ -245,9 +246,9 @@
 
 {% macro info(user, obj) -%}
 {% if obj.current_date %}
-<div class="row">
-    <div class="column is-full">
-        <h3 class="has-text-dark-grey has-text-center">
+<div class="grid-x">
+    <div class="cell is-full">
+        <h3 class="has-text-dark-grey text-center">
             Present Date:
             {{obj.current_date}}
         </h3>
@@ -255,13 +256,13 @@
 </div>
 {% endif %}
 <hr>
-<h2 class='has-text-center' id='manage-factions'>Faction Control</h2>
-<div class="row">
+<h2 class='text-center' id='manage-factions'>Faction Control</h2>
+<div class="grid-x">
     {% for region in obj.regions %}
-    <div class="column is-2">
+    <div class="cell is-2">
         <div class="panel has-bg-screen is-full">
             {{display_components.object_display(region, type=False) | safe }}
-            <h6 class="has-text-white has-text-center">
+            <h6 class="has-text-white text-center">
                 {{(region.owner and region.owner.name) or "Unknown"}}
             </h6>
         </div>
@@ -294,9 +295,9 @@
 {% macro campaigns(user, obj)%}
 {{title_components.object_title(user, obj)}}
 {% if user.world_user(obj)%}
-<div class="row">
-    <div class="column is-shrink is-end">
-        <button class="button is-primary is-small" hx-post="/api/world/campaign/new"
+<div class="grid-x">
+    <div class="cell shrink is-end">
+        <button class="button small" hx-post="/api/world/campaign/new"
                 hx-target="#campaigns-list"
                 hx-selector="#campaigns-list"
                 hx-swap="outerHTML">
@@ -333,16 +334,16 @@
 <h2 class="has-text-dark">Players</h2>
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>
-    <div class="panel has-bg-muted">
-        <div class="row cards-container has-center">
-            <div class="column  is-vertically-centered is-shrink">
+    <div class="panel ">
+        <div class="grid-x cards-container has-center">
+            <div class="cell  align-center-middle shrink">
 
                 <div class="image is-medium is-thumbnail is-margin-center">
                     <img src="{{player.image.url(size='100')}}" loading="lazy" alt="{{player.name}}"
                          style="width:100%; height:100%;" />
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 <h4 class="has-text-dark" style='text-decoration:underline;'>
                     {% if player.name %}
                     {{player.name}}
@@ -374,15 +375,15 @@
 
 {% macro lore(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-<div id="lore-container" class="panel has-bg-muted">
-    <h2 class="has-text-dark has-text-centered">Lore Builder</h2>
+<div id="lore-container" class="panel ">
+    <h2 class="has-text-dark text-centered">Lore Builder</h2>
     <hr>
     <form hx-post="/api/world/lore/new"
           hx-target="#lore-container"
           hx-selector="#lore-container"
           hx-swap="outerHTML">
-        <div class="row has-space-around">
-            <div class="column is-3">
+        <div class="grid-x align-spaced">
+            <div class="cell medium-3">
                 <select name="storypk" class="input is-fullwidth" required>
                     <option value="" selected>=== Select Storyline ===</option>
                     {% for entry in obj.stories %}
@@ -390,20 +391,20 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="column is-4">
-                <div class="row">
-                    <div class="column is-shrink is-vertically-centered">
-                        <h6 class="has-text-screen has-text-center">
+            <div class="cell medium-4">
+                <div class="grid-x">
+                    <div class="cell shrink align-center-middle">
+                        <h6 class="text-center">
                             Current Date
                         </h6>
                     </div>
-                    <div class="column is-shrink">
+                    <div class="cell shrink">
                         <input type="number" name="start_day"
-                               class="input is-fullwidth has-text-center"
+                               class="input is-fullwidth text-center"
                                value="{{obj.current_date.day}}" min="1"
                                max="31">
                     </div>
-                    <div class="column is-shrink">
+                    <div class="cell shrink">
                         <div class='select'>
                             <select name="start_month" class="input is-fullwidth">
                                 <option value="" selected>=== Select Month ===</option>
@@ -417,8 +418,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="column">
-                        <h6 class="has-text-screen has-text-center">
+                    <div class="cell">
+                        <h6 class="text-center">
                             {{obj.end_date.year // 2}}
                             {{obj.calendar.age}}
                         </h6>
@@ -432,8 +433,8 @@
                     </div>
                 </div>
             </div>
-            <div class="column is-shrink">
-                <button type="submit" class="button is-primary is-small">
+            <div class="cell shrink">
+                <button type="submit" class="button small">
                     {{icon_components.plus(size="1rem")}}
                     New Lore Entry
                 </button>
@@ -441,18 +442,18 @@
         </div>
     </form>
     <hr>
-    <div id='lore-entries' class='row has-space-around'>
+    <div id='lore-entries' class='grid-x align-spaced'>
         {% for entry in obj.lore_entries %}
-        <div class="column is-4" hx-post="/api/world/lore/{{entry.pk}}/edit"
+        <div class="cell medium-4" hx-post="/api/world/lore/{{entry.pk}}/edit"
              hx-target="#lore-container">
             <div class="panel has-bg-screen">
                 <h3 class="has-text-dark">{{entry.name}}</h3>
                 <div class="generated-text-lightbg">
                     {{entry.summary | safe}}
                 </div>
-                <div class="row">
-                    <div class="column is-shrink is-end">
-                        <button class="button is-small"
+                <div class="grid-x">
+                    <div class="cell shrink is-end">
+                        <button class="button small"
                                 hx-post="/api/world/lore/{{entry.pk}}/delete"
                                 hx-target="#lore-entries"
                                 hx-selector="#lore-entries"
@@ -474,14 +475,14 @@
     <form hx-post="/api/world/lore/{{lore.pk}}/edit"
           hx-trigger="change delay:500ms"
           hx-swap="none">
-        <div class="row has-space-around">
-            <div class="column is-half">
+        <div class="grid-x align-spaced">
+            <div class="cell is-half">
                 {{form_components.text_input(name="name",label="Title",value=lore.name)}}
             </div>
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 <label class="label has-text-muted" for="scope">Scope</label>
                 <div class="select">
-                    <select class="has-bg-muted" name="scope">
+                    <select class="" name="scope">
                         <option value="" selected>=== Select Scope ===</option>
                         <option value="local" selected>Local</option>
                         <option value="regional" selected>Regional</option>
@@ -490,18 +491,18 @@
                     </select>
                 </div>
             </div>
-            <div class="column is-4">
-                <h6 class="has-text-muted has-text-center">
+            <div class="cell medium-4">
+                <h6 class="has-text-muted text-center">
                     Current Date
                 </h6>
-                <div class="row has-bg-muted">
-                    <div class="column is-shrink">
+                <div class="grid-x ">
+                    <div class="cell shrink">
                         <input type="number" name="start_day"
-                               class="input is-fullwidth has-text-center"
+                               class="input is-fullwidth text-center"
                                value="{{lore.start_date.day}}" min="1"
                                max="31">
                     </div>
-                    <div class="column is-shrink">
+                    <div class="cell shrink">
                         <div class='select'>
                             <select name="start_month" class="input is-fullwidth">
                                 <option value="" selected>=== Select Month ===</option>
@@ -515,7 +516,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="column">
+                    <div class="cell">
                         <input
                                name="start_year" type="number" min="{{lore.start_date.year}}"
                                max="{{lore.start_date.year}}" step='1'
@@ -525,9 +526,9 @@
             </div>
         </div>
     </form>
-    <div class="panel has-bg-muted has-text-screen">
+    <div class="panel  has-text-screen">
         {% if lore.story %}
-        <h3 class="has-text-screen has-text-centered"
+        <h3 class="text-centered"
             onclick='this.nextElementSibling.classList.toggle("is-hidden")'>Associated Storyline:
             {{lore.story.name}}
         </h3>
@@ -535,8 +536,8 @@
             {{lore.story.summary | safe}}
         </div>
         {% else %}
-        <div class=" row has-space-around">
-            <div class="column is-shrink">
+        <div class=" grid-x align-spaced">
+            <div class="cell shrink">
                 <select name="storypk"
                         hx-post="/api/world/lore/{{lore.pk}}/edit"
                         hx-target="#lore-container"
@@ -552,16 +553,16 @@
         </div>
         {% endif %}
     </div>
-    <div class="row has-space-around">
-        <div class="column is-half">
+    <div class="grid-x align-spaced">
+        <div class="cell is-half">
             <form hx-post="/task/generate/lore/{{lore.pk}}">
-                <div class="row">
-                    <div class="column is-full">
+                <div class="grid-x">
+                    <div class="cell is-full">
                         {{form_components.textarea(lore, name="prompt", label="Prompt")}}
                     </div>
-                    <div class="column is-shrink is-end">
+                    <div class="cell shrink is-end">
                         <button type="submit"
-                                class="button is-primary is-small">
+                                class="button small">
                             {{icon_components.refresh(size="1rem")}}
                             Generate Lore
                         </button>
@@ -570,22 +571,22 @@
             </form>
         </div>
         {% if lore.summary %}
-        <div class="column is-half">
+        <div class="cell is-half">
             {{lore.summary | safe}}
         </div>
         {% endif%}
         {% if lore.situation %}
-        <div class="column is-half">
+        <div class="cell is-half">
             {{lore.situation | safe}}
         </div>
         {% endif%}
         {% if lore.backstory %}
-        <div class="column is-half">
+        <div class="cell is-half">
             {{lore.backstory | safe}}
         </div>
         {% endif%}
         {% if lore.potential_events %}
-        <div class="column is-half">
+        <div class="cell is-half">
             <h3 class="has-text-dark">Potential Events</h3>
             <ul>
                 {% for event in lore.potential_events %}
@@ -596,13 +597,13 @@
         {% endif%}
     </div>
 </div>
-<div class="row">
-    <div class="column">
-        <div id="lore-party-container" class="row has-centered">
-            <div class="column is-shrink">
-                <h3 class="has-text-dark has-text-centered">Party Members</h3>
+<div class="grid-x">
+    <div class="cell">
+        <div id="lore-party-container" class="grid-x has-centered">
+            <div class="cell shrink">
+                <h3 class="has-text-dark text-centered">Party Members</h3>
             </div>
-            <div class="column is-4">
+            <div class="cell medium-4">
                 <div class="has-dropdown" style="width: 100%;">
                     <input class="has-bg-light" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
@@ -614,16 +615,16 @@
                     </ul>
                 </div>
             </div>
-            <div class="column is-full">
-                <div class="row has-space-around">
+            <div class="cell is-full">
+                <div class="grid-x align-spaced">
                     {% for o in lore.party %}
-                    <div class="column is-2" style='position:relative;'>
+                    <div class="cell is-2" style='position:relative;'>
                         {{display_components.object_display(o, type=False, dim=150)}}
                         <a style='position:absolute; top:0px; right:5px;'
                            hx-post="/api/world/lore/{{lore.pk}}/party/remove/{{o.pk}}"
-                           hx-target="closest .column" hx-swap="delete"
+                           hx-target="closest .cell" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this character from the party?">
-                            <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                            <iconify-icon class="" icon="mdi:remove"
                                           width="1rem"></iconify-icon>
                         </a>
                     </div>
@@ -632,12 +633,12 @@
             </div>
         </div>
     </div>
-    <div class="column">
-        <div id="lore-associations-container" class="row has-centered">
-            <div class="column is-shrink">
-                <h3 class="has-text-dark has-text-centered">Associations</h3>
+    <div class="cell">
+        <div id="lore-associations-container" class="grid-x has-centered">
+            <div class="cell shrink">
+                <h3 class="has-text-dark text-centered">Associations</h3>
             </div>
-            <div class="column is-4">
+            <div class="cell medium-4">
                 <div class="has-dropdown" style="width: 100%;">
                     <input class="has-bg-light" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
@@ -649,16 +650,16 @@
                     </ul>
                 </div>
             </div>
-            <div class="column is-full">
-                <div class="row has-space-around">
+            <div class="cell is-full">
+                <div class="grid-x align-spaced">
                     {% for o in lore.associations %}
-                    <div class="column is-2" style='position:relative;'>
+                    <div class="cell is-2" style='position:relative;'>
                         {{display_components.object_display(o, type=False, dim=150)}}
                         <a style='position:absolute; top:0px; right:5px;'
                            hx-post="/api/world/lore/{{lore.pk}}/association/remove/{{o.path}}"
-                           hx-target="closest .column" hx-swap="delete"
+                           hx-target="closest .cell" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this association from the lore?">
-                            <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                            <iconify-icon class="" icon="mdi:remove"
                                           width="1rem"></iconify-icon>
                         </a>
                     </div>
@@ -672,21 +673,21 @@
 
 {% macro lore_party_dropdown(user, lore, objs=[]) -%}
 {% for o in objs %}
-<li class="dropdown__link has-bg-muted">
+<li class="dropdown__link ">
     <a hx-post="/api/world/lore/{{lore.pk}}/party/add/{{o.pk}}"
        hx-target='#lore-party-container'
        hx-select='#lore-party-container'
        hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
+        <div class="grid-x">
+            <div class="cell shrink">
+                {% if o.image %}
+                <img class="thumbnail" style="cursor: pointer" src="{{o.image.url(size=50)}}"
+                     alt="{{o.name}}" />
+                {% endif %}
+
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>
@@ -697,21 +698,20 @@
 
 {% macro lore_association_dropdown(user, lore, objs=[]) -%}
 {% for o in objs %}
-<li class="dropdown__link has-bg-muted">
+<li class="dropdown__link ">
     <a hx-post="/api/world/lore/{{lore.pk}}/association/add/{{o.path}}"
        hx-target='#lore-associations-container'
        hx-select='#lore-associations-container'
        hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="row">
-            <div class="column is-shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
+        <div class="grid-x">
+            <div class="cell shrink">
+                {% if o.image %}
+                <img class="thumbnail" style="cursor: pointer" src="{{o.image.url(size=50)}}"
+                     alt="{{o.name}}" />
+                {% endif %}
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>

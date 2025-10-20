@@ -6,12 +6,12 @@
 <h2>Campaigns</h2>
 <hr>
 {% if not obj.campaigns %}
-<h3 class='has-text-center has-text-secondary'>Not yet associated with any campaigns
+<h3 class='text-center '>Not yet associated with any campaigns
 </h3>
 {% else %}
-<div id="object-campaigns" class="row has-space-around raise-it">
-    <div class="column is-full">
-        <select class="has-bg-muted" name="campaignpk" id="campaignpk"
+<div id="object-campaigns" class="grid-x align-spaced raise-it">
+    <div class="cell is-full">
+        <select class="" name="campaignpk" id="campaignpk"
                 hx-post="/api/campaign/"
                 hx-target="#campaign-details" hx-trigger='change'>
             <option value="">=== Select Campaign ===</option>
@@ -23,35 +23,35 @@
             {% endfor %}
         </select>
     </div>
-    <div id="campaign-details" class="column is-full">
-        <div class="row has-space-around">
+    <div id="campaign-details" class="cell is-full">
+        <div class="grid-x align-spaced">
             {% for campaign in obj.campaigns %}
-            <div class="column is-4">
+            <div class="cell medium-4">
                 <a href="/campaign/{{campaign.pk}}">
-                    <h3 class='has-text-primary has-text-center'>{{campaign.name}}</h3>
+                    <h3 class='has-text-primary text-center'>{{campaign.name}}</h3>
                 </a>
-                <div class="row">
-                    <div class="column is-half">
-                        <h6 class="has-text-dark-grey has-text-center">
+                <div class="grid-x">
+                    <div class="cell is-half">
+                        <h6 class="has-text-dark-grey text-center">
                             Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
                         </h6>
                     </div>
-                    <div class="column is-half">
-                        <h6 class="has-text-dark-grey has-text-center">
+                    <div class="cell is-half">
+                        <h6 class="has-text-dark-grey text-center">
                             Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
                         </h6>
                     </div>
-                    <div class="column is-full">
+                    <div class="cell is-full">
                         <div class="panel has-bg-screen has-text-justified">
                             {{campaign.description | safe}}
                         </div>
                     </div>
                 </div>
-                <h5 class='has-text-center'
+                <h5 class='text-center'
                     onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
                     View Episodes</h5>
-                <div class="row is-hidden slide-it-down">
-                    <div class="column is-full">
+                <div class="grid-x is-hidden slide-it-down">
+                    <div class="cell is-full">
                         {% for entry in campaign.episodes %}
                         {% if obj.model_name() == 'World' or obj in entry.associations %}
                         <a href='/episode/{{entry.pk}}'>

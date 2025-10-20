@@ -6,9 +6,9 @@
 <h2 id='view-stories'>
     View Stories
 </h2>
-<div id="object-stories" class="row raise-it">
-    <div class="column">
-        <select class="has-bg-muted" name="storypk" id="storypk"
+<div id="object-stories" class="grid-x raise-it">
+    <div class="cell">
+        <select class="" name="storypk" id="storypk"
                 hx-post="/api/story/"
                 hx-target="#story-details" hx-trigger='change'
                 onchange='history.pushState({}, "", `/story/${this.value}`);'>
@@ -22,8 +22,8 @@
         </select>
     </div>
     {% if user.world_user(obj)%}
-    <div class="column is-shrink is-end">
-        <button class="button is-primary is-small" hx-post="/api/story/new"
+    <div class="cell shrink is-end">
+        <button class="button small" hx-post="/api/story/new"
                 hx-target="#stories-list"
                 hx-selector="#stories-list"
                 hx-swap="outerHTML">
@@ -32,23 +32,23 @@
         </button>
     </div>
     {% endif %}
-    <div id="story-details" class="column is-full">
-        <div class="row has-space-around">
+    <div id="story-details" class="cell is-full">
+        <div class="grid-x align-spaced">
             {% for story in obj.stories %}
-            <div class="column is-full">
-                <div class="panel has-bg-muted">
+            <div class="cell is-full">
+                <div class="panel ">
                     <a href="/story/{{story.pk}}">
-                        <h3 class='has-text-center'>{{story.name}}</h3>
+                        <h3 class='text-center'>{{story.name}}</h3>
                     </a>
-                    <div class="row">
+                    <div class="grid-x">
                         {% if story.image %}
-                        <div class="column is-3">
+                        <div class="cell medium-3">
                             <div class='image'>
                                 <img src='{{story.image.url()}}' alt='{{story.name}}'>
                             </div>
                         </div>
                         {% endif %}
-                        <div class="column">
+                        <div class="cell">
                             <a href="/story/{{story.pk}}">
                                 <div class='has-text-justified has-text-black'>
                                     {{story.summary | safe}}
@@ -56,9 +56,9 @@
                             </a>
                         </div>
                     </div>
-                    <div class="row has-space-around">
+                    <div class="grid-x align-spaced">
                         {%for ass in story.associations %}
-                        <div class="column is-1">
+                        <div class="cell is-1">
                             {{display_components.object_display(ass, type=False, name=False)}}
                         </div>
                         {% endfor %}

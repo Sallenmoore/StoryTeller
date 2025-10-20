@@ -2,11 +2,11 @@
 
 {% macro childpanel(user, obj, model, children=[], associations=[]) -%}
 <title>{{obj.name | title}} - {{obj.get_title(model)}}</title>
-<div class="row has-space-between">
-    <div class="column is-shrink">
+<div class="grid-x align-justify">
+    <div class="cell shrink">
         <h2>{{obj.get_title(model)}}</h2>
     </div>
-    <div class="column is-3">
+    <div class="cell medium-3">
         <input type="search" name="query" placeholder="Begin typing to filter..."
                style="border-bottom: solid #000;"
                hx-get="/api/{{obj.path}}/childpanel/{{model | lower}}"
@@ -16,8 +16,8 @@
                hx-swap='outerHTML'>
     </div>
     {% if user.world_user(obj) %}
-    <div class="column is-shrink is-vertically-centered">
-        <button class="button is-small is-primary"
+    <div class="cell shrink align-center-middle">
+        <button class="button small"
                 hx-post="/api/manage/add/{{ model | lower}}" hx-target="#page-content"
                 hx-push-url="/{{obj.path}}/childpanel/{{model | lower}}"
                 hx-indicator='#request-indicator'>
@@ -27,27 +27,27 @@
     {% endif %}
 </div>
 <hr>
-<div class="panel has-bg-screen is-small" id='children-container-panel'>
-    <div class="row has-space-around">
+<div class="panel has-bg-screen small" id='children-container-panel'>
+    <div class="grid-x align-spaced">
         {% if obj.model_name() != 'World' and children %}
-        <div class="column is-full">
-            <h3 class='has-text-center'>Children</h3>
+        <div class="cell is-full">
+            <h3 class='text-center'>Children</h3>
         </div>
         {%endif%}
         {% for c in children %}
-        <div class="column is-3 is-mobile-6 has-text-center">
+        <div class="cell medium-3 is-mobile-6 text-center">
             {{element.object_display(c)}}
         </div>
         {% endfor %}
 
         {% if obj.model_name() != 'World' and associations %}
-        <div class="column is-full">
+        <div class="cell is-full">
             <hr>
-            <h3 class='has-text-center'>General Associations</h4>
+            <h3 class='text-center'>General Associations</h4>
         </div>
         {%endif%}
         {% for a in associations %}
-        <div class="column is-3 is-mobile-6 has-text-center">
+        <div class="cell medium-3 is-mobile-6 text-center">
             {{element.object_display(a)}}
         </div>
         {%endfor %}

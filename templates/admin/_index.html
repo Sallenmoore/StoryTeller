@@ -3,50 +3,50 @@
 
 {% macro manage(user) -%}
 <title>Manage</title>
-<div class="row has-space-around">
-    <div class="column is-full">
-        <h2 class='has-text-center has-text-primary'>Admin Management</h2>
+<div class="grid-x align-spaced">
+    <div class="cell is-full">
+        <h2 class='text-center has-text-primary'>Admin Management</h2>
     </div>
-    <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/images"
+    <div class="cell is-2">
+        <button class="button is-full" hx-post="/api/admin/manage/images"
                 hx-target="#manager">
             <span>Images</span>
         </button>
     </div>
-    <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/worlds"
+    <div class="cell is-2">
+        <button class="button is-full" hx-post="/api/admin/manage/worlds"
                 hx-target="#manager">
             <span>Worlds</span>
         </button>
     </div>
-    <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/users"
+    <div class="cell is-2">
+        <button class="button is-full" hx-post="/api/admin/manage/users"
                 hx-target="#manager">
             <span>Users</span>
         </button>
     </div>
-    <div class="column is-2">
-        <button class="button is-primary is-full" hx-post="/api/admin/manage/agents"
+    <div class="cell is-2">
+        <button class="button is-full" hx-post="/api/admin/manage/agents"
                 hx-target="#manager">
             <span>Agents</span>
         </button>
     </div>
 </div>
 <hr>
-<div class="row has-space-around">
-    <div class="column is-3">
-        <button class="button is-primary is-full" hx-post="/admin/manage/migrate"
+<div class="grid-x align-spaced">
+    <div class="cell medium-3">
+        <button class="button is-full" hx-post="/admin/manage/migrate"
                 hx-target="#manager">
             <span>Migration</span>
         </button>
     </div>
-    <div class="column is-3">
-        <button class="button is-primary is-full" hx-post="/api/admin/dbdump" hx-target="#manager">
+    <div class="cell medium-3">
+        <button class="button is-full" hx-post="/api/admin/dbdump" hx-target="#manager">
             <span>DB Backup</span>
         </button>
     </div>
-    <div class="column is-3">
-        <button class="button is-primary is-full" hx-post="/api/admin/dbload" hx-target="#manager">
+    <div class="cell medium-3">
+        <button class="button is-full" hx-post="/api/admin/dbload" hx-target="#manager">
             <span>DB Load</span>
         </button>
     </div>

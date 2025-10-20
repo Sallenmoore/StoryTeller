@@ -9,8 +9,8 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
 
-    <div class="row has-space-between">
-        <div class="column is-shrink">
+    <div class="grid-x align-justify">
+        <div class="cell shrink">
             <h4>Rarity</h4>
             <div class="is-select">
                 <select class="has-bg-light" name="rarity">
@@ -21,19 +21,19 @@
                 </select>
             </div>
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             <h4>Weight</h4>
             <input class="has-bg-light" type="text" value="{{obj.weight}}" name="weight">
         </div>
-        <div class="column">
+        <div class="cell">
             <h4>Cost</h4>
             <textarea class="has-bg-light" name="cost">{{obj.cost}}</textarea>
         </div>
-        <div class="column">
+        <div class="cell">
             <h4>Duration</h4>
             <textarea class="has-bg-light" name="duration">{{obj.duration}}</textarea>
         </div>
-        <div class="column is-full">
+        <div class="cell is-full">
             {{abilities_components.edit_abilities(user, obj, abilities=obj.features)}}
         </div>
     </div>

@@ -6,29 +6,29 @@
 
 {% macro manage(user, campaign) -%}
 <title>{{campaign.name | title}} - Manage Campaign</title>
-<div class="section is-small">
+<div class="section small">
     <div class="panel has-bg-screen">
-        <div class="row has-space-around">
-            <div class="column is-shrink">
+        <div class="grid-x align-spaced">
+            <div class="cell shrink">
                 {% if campaign.start_date %}
                 <h5>Began: {{campaign.start_date}}</h5>
                 {% endif %}
             </div>
-            <div class="column is-shrink">
+            <div class="cell shrink">
                 {% if campaign.end_date %}
                 <h5>Ended: {{campaign.end_date}}</h5>
                 {% endif %}
             </div>
         </div>
     </div>
-    <div class="panel has-bg-muted has-text-dark" style='position:relative;'>
+    <div class="panel  has-text-dark" style='position:relative;'>
         {{campaign.summary | safe}}
         <div style='position: absolute; bottom:0px; right:0px;'>
-            <div class="row">
-                <div class="column">
-                    <button class='button is-small' class="button is-primary"
+            <div class="grid-x">
+                <div class="cell">
+                    <button class='button small' class="button"
                             hx-post="/task/generate/campaign/{{campaign.pk}}/summary"
-                            hx-target='closest .column'>
+                            hx-target='closest .cell'>
                         Update Summary
                     </button>
                 </div>
@@ -37,13 +37,13 @@
     </div>
     <form hx-post="/api/campaign/{{campaign.pk}}/update" hx-swap='none'
           hx-trigger='input delay:0.5s'>
-        <div class="row has-space-between" id="current-campaign-name">
-            <div class="column is-full has-text-secondarybg">
-                <div class="row">
-                    <div class="column is-shrink is-vertically-centered">
+        <div class="grid-x align-justify" id="current-campaign-name">
+            <div class="cell is-full bg">
+                <div class="grid-x">
+                    <div class="cell shrink align-center-middle">
                         <h4>Name</h4>
                     </div>
-                    <div class="column is-vertically-centered">
+                    <div class="cell align-center-middle">
                         <input class="has-bg-light" type="text" name="name"
                                value="{{campaign.name}}">
                     </div>
@@ -51,18 +51,18 @@
             </div>
         </div>
         <hr>
-        <div class="row" id="current-campaign-description">
-            <div class="column is-full has-text-secondarybg">
-                <h3 class='has-text-center'>Description</h>
+        <div class="grid-x" id="current-campaign-description">
+            <div class="cell is-full bg">
+                <h3 class='text-center'>Description</h>
                     {{form_components.texteditor(user, campaign, 'description')}}
             </div>
         </div>
     </form>
     <hr class='has-bg-primary'>
-    <div class="row" id='campaign-players'>
-        <div class="column is-4">
+    <div class="grid-x" id='campaign-players'>
+        <div class="cell medium-4">
             <h5>Add Party</h5>
-            <div class="panel has-bg-muted">
+            <div class="panel ">
                 <div class="is-multiple-select">
                     <select
                             name='party'
@@ -88,17 +88,17 @@
                 </div>
             </div>
         </div>
-        <div class="column is-shrink">
+        <div class="cell shrink">
             {% if campaign.party %}
             {{display_components.object_display(campaign.party, dim=250, type=False)}}
             {% endif %}
         </div>
-        <div class="column">
+        <div class="cell">
             <div class="panel">
-                <h3 class='has-text-center'> Players </h3>
-                <div class="row has-space-around">
+                <h3 class='text-center'> Players </h3>
+                <div class="grid-x align-spaced">
                     {% for p in campaign.players %}
-                    <div class="column is-2 has-text-center">
+                    <div class="cell is-2 text-center">
                         {{display_components.object_display(p, dim=250, type=False)}}
                         <a
                            hx-post="/api/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
@@ -113,12 +113,12 @@
             </div>
         </div>
     </div>
-    <div id="episode-list" class="section is-small">
+    <div id="episode-list" class="section small">
         <div class="panel">
-            <h2 class='has-text-center'> Episodes </h2>
-            <div class="row">
-                <div class="column is-shrink is-end">
-                    <button class="button is-primary is-small"
+            <h2 class='text-center'> Episodes </h2>
+            <div class="grid-x">
+                <div class="cell shrink is-end">
+                    <button class="button small"
                             hx-post="/api/campaign/{{campaign.pk}}/episode/new"
                             hx-target="#episode-list"
                             hx-select="#episode-list"
@@ -128,17 +128,17 @@
                     </button>
                 </div>
                 {% for e in campaign.episodes %}
-                <div class="column is-full has-bg-screen episode-association-entry">
+                <div class="cell is-full has-bg-screen episode-association-entry">
                     <a href='/episode/{{e.pk}}/manage' target='_blank'>
-                        <div class="row">
-                            <div class="column is-2">
-                                <h5 class='has-text-center has-text-light'>{{e.name}}: {{e.num}}
+                        <div class="grid-x">
+                            <div class="cell is-2">
+                                <h5 class='text-center has-text-light'>{{e.name}}: {{e.num}}
                                 </h5>
-                                <h6 class='has-text-center has-text-light'>{{e.start_date}} -
+                                <h6 class='text-center has-text-light'>{{e.start_date}} -
                                     {{e.end_date}}
                                 </h6>
                             </div>
-                            <div class="column" class='has-text-dark generated-text-lightbg'>
+                            <div class="cell" class='has-text-dark generated-text-lightbg'>
                                 {{e.summary | safe}}
                             </div>
                         </div>
@@ -149,19 +149,19 @@
             </div>
         </div>
     </div>
-    <div class="section is-small">
+    <div class="section small">
         <div class="panel">
-            <h2 class='has-text-center'> Associations </h2>
+            <h2 class='text-center'> Associations </h2>
             {% for title in ['Locations', 'Characters', 'Creatures', 'Items', 'Factions'] %}
             {% set obj_key = title | lower %}
             {% if campaign[obj_key] %}
-            <hr class='has-bg-muted'>
-            <h3 class='has-text-center'> {{title}} </h3>
-            <div class="row has-space-around" id="episode-encounters">
+            <hr class=''>
+            <h3 class='text-center'> {{title}} </h3>
+            <div class="grid-x align-spaced" id="episode-encounters">
                 {% for a in campaign[obj_key] %}
-                <div class="column is-2 episode-association-entry">
-                    <div class="row">
-                        <div class="column is-full">
+                <div class="cell is-2 episode-association-entry">
+                    <div class="grid-x">
+                        <div class="cell is-full">
                             {{display_components.object_display(a)}}
                         </div>
                     </div>
@@ -172,9 +172,9 @@
             {% endfor %}
         </div>
     </div>
-    <hr class='has-bg-muted'>
-    <div class="row">
-        <div class="column is-shrink is-center">
+    <hr class=''>
+    <div class="grid-x">
+        <div class="cell shrink is-center">
             <a hx-post="/api/campaign/{{campaign.pk}}/delete"
                hx-target="#page-content"
                hx-confirm='Are you sure you want to delete this campaign?'>

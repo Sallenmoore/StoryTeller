@@ -3,14 +3,14 @@
 {% macro login(worlds) -%}
 <div class="grid-x align-center-middle">
     <div class="cell shrink">
-        <h2 class='has-text-center has-text-primary'>Login to build</h2>
+        <h2 class='text-center has-text-primary'>Login to build</h2>
     </div>
 </div>
 <div class="grid-x align-center-middle">
     <div class="cell shrink">
         <form action="/auth/login" method="post">
             <input type="hidden" name="authprovider" value="google">
-            <button class="button is-primary" type="submit">
+            <button class="button" type="submit">
                 with &ensp;{{icon_components.google(size="1.5rem")}}
             </button>
         </form>

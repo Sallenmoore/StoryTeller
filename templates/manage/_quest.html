@@ -6,19 +6,19 @@
 {% macro manage(user, entry) -%}
 <title>{{entry.name}} - Quest Editor</title>
 {{title_components.object_title(user, entry.contact)}}<br>
-<div class="row">
-    <div class="column is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Quest Editor</h2>
+<div class="grid-x">
+    <div class="cell align-center-middle">
+        <h2 class='text-center has-text-primary'>Quest Editor</h2>
     </div>
-    <div class="column is-shrink is-mobile-shrink is-end is-vertically-centered">
+    <div class="cell shrink is-end align-center-middle">
         <a href="/{{entry.contact.path}}/quests">
             {{icon_components.close()}}
         </a>
     </div>
 </div>
-<div class="row has-space-around">
-    <div class="column is-shrink">
-        <button class="button is-primary"
+<div class="grid-x align-spaced">
+    <div class="cell shrink">
+        <button class="button"
                 hx-post="/task/generate/{{entry.pk}}/quest/create"
                 hx-swap='outerHTML'>
             Generate Quest
@@ -30,15 +30,15 @@
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
 
-    <div class="row has-centered">
-        <div class="column is-half">
-            <h5 class='has-text-center'>Title</h5>
-            <input class="has-bg-muted has-text-center" type="text" name="name"
+    <div class="grid-x has-centered">
+        <div class="cell is-half">
+            <h5 class='text-center'>Title</h5>
+            <input class=" text-center" type="text" name="name"
                    value="{{entry.name}}">
         </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Status</h5>
-            <select class="has-bg-muted" name="status">
+        <div class="cell is-half">
+            <h5 class='text-center'>Status</h5>
+            <select class="" name="status">
                 {% for i in ['available','active', 'failed', 'completed'] %}
                 <option value="{{i}}" {% if entry.status=='{{i}}' %}selected{% endif %}>
                     {{i | title}}
@@ -46,48 +46,48 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Storyline</h5>
+        <div class="cell is-full">
+            <h5 class='text-center'>Storyline</h5>
             <div class="panel">
                 {{entry.storyline.name}}:{{entry.storyline.situation | safe}}
             </div>
         </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Description</h5>
+        <div class="cell is-full">
+            <h5 class='text-center'>Description</h5>
             {{form_components.texteditor(user, entry, 'description')}}
             <hr>
         </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Summary</h5>
-            <textarea class="has-bg-muted" name="summary" rows="3">{{entry.summary}}</textarea>
+        <div class="cell is-half">
+            <h5 class='text-center'>Summary</h5>
+            <textarea class="" name="summary" rows="3">{{entry.summary}}</textarea>
         </div>
-        <div class="column is-half">
-            <h5 class='has-text-center'>Hook</h5>
-            <textarea class="has-bg-muted" name="hook" rows="3">{{entry.hook}}</textarea>
+        <div class="cell is-half">
+            <h5 class='text-center'>Hook</h5>
+            <textarea class="" name="hook" rows="3">{{entry.hook}}</textarea>
         </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Antagonist</h5>
-            <textarea class="has-bg-muted" name="antagonist"
+        <div class="cell is-full">
+            <h5 class='text-center'>Antagonist</h5>
+            <textarea class="" name="antagonist"
                       rows="3">{{entry.antagonist}}</textarea>
         </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Plot Twist</h5>
-            <textarea class="has-bg-muted" name="plot_twist"
+        <div class="cell is-full">
+            <h5 class='text-center'>Plot Twist</h5>
+            <textarea class="" name="plot_twist"
                       rows="3">{{entry.plot_twist}}</textarea>
         </div>
-        <div class="column is-full">
-            <h5 class='has-text-center'>Rewards</h5>
-            <textarea class="has-bg-muted" name="rewards"
+        <div class="cell is-full">
+            <h5 class='text-center'>Rewards</h5>
+            <textarea class="" name="rewards"
                       rows="3">{{entry.rewards}}</textarea>
         </div>
     </div>
 </form>
 <hr>
-<div class="row">
-    <div class="column is-full">
-        <h3 class="has-text-center">Add Associations</h3>
+<div class="grid-x">
+    <div class="cell is-full">
+        <h3 class="text-center">Add Associations</h3>
         <div class="has-dropdown" style="width: 100%;">
-            <input class="has-bg-muted" autocomplete="off" type="search" name="query"
+            <input class="" autocomplete="off" type="search" name="query"
                    hx-post="/api/manage/quest/search"
                    hx-target="#quest-entry-association-search"
                    hx-trigger="input delay:750ms, change, search"
@@ -97,17 +97,17 @@
             </ul>
         </div>
         <hr>
-        <div class="panel has-bg-light-grey is-small">
-            <div class="row has-space-around" id="quest-entry-associations">
+        <div class="panel has-bg-light-grey small">
+            <div class="grid-x align-spaced" id="quest-entry-associations">
                 {% for a in entry.associations %}
-                <div class="column is-1" style="position: relative;">
+                <div class="cell is-1" style="position: relative;">
                     {{display_components.object_display(a)}}
                     <a style='position: absolute; top: 0; right: 5px;'
                        hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
-                       hx-target="closest .column"
+                       hx-target="closest .cell"
                        hx-swap="delete"
                        hx-indicator='#request-indicator'>
-                        <iconify-icon class="has-bg-muted" icon="mdi:remove"
+                        <iconify-icon class="" icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
@@ -127,15 +127,15 @@
           hx-indicator='#request-indicator'>
         <input type="hidden" name="ass_model" value="{{o.model_name()}}">
         <input type="hidden" name="ass_pk" value="{{o.pk}}">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 <div class="image is-tiny is-thumbnail" style="cursor: pointer">
                     {% if o.image %}
                     <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
                     {% endif %}
                 </div>
             </div>
-            <div class="column">
+            <div class="cell">
                 {{o.name}}
             </div>
         </div>

@@ -11,31 +11,31 @@
 
 <!-- unique menu items for campaigns -->
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/gmnotes">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.gamemaster(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>GM Notes</span>
             </div>
         </div>
@@ -43,11 +43,11 @@
 </li>
 <li>
     <a href="/{{obj.path}}/graphic">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.drama(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Graphic</span>
             </div>
         </div>
@@ -55,11 +55,11 @@
 </li>
 <li>
     <a href="/{{obj.campaign.path}}">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell slide-it-in">
                 <span>Campaign</span>
             </div>
         </div>
@@ -71,29 +71,29 @@
 <title>{{obj.name or obj.title}} - Details</title>
 {{title_components.object_title(user, obj)}}
 <div class="panel">
-    <div id="episode-info" class="row has-space-around">
-        <div class="column is-4 has-text-dark">
+    <div id="episode-info" class="grid-x align-spaced">
+        <div class="cell medium-4 has-text-dark">
             {% if obj.image %}
             <div class="image">
                 <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
             </div>
             {% endif %}
         </div>
-        <div class="column is-full has-text-dark">
-            <div class="row has-space-around">
-                <div class="column is-4 has-text-dark has-text-center">
-                    <h3 class='has-text-center'>Start</h3>
+        <div class="cell is-full has-text-dark">
+            <div class="grid-x align-spaced">
+                <div class="cell medium-4 has-text-dark text-center">
+                    <h3 class='text-center'>Start</h3>
                     {{obj.start_date}}
                 </div>
-                <div class="column is-4 has-text-dark has-text-center">
-                    <h3 class='has-text-center'>End</h3>
+                <div class="cell medium-4 has-text-dark text-center">
+                    <h3 class='text-center'>End</h3>
                     {{obj.end_date}}
                 </div>
             </div>
         </div>
-        <div class="column is-full has-text-dark">
-            <div class="panel has-bg-muted">
-                <h2 class='has-text-center'>Report</h2>
+        <div class="cell is-full has-text-dark">
+            <div class="panel ">
+                <h2 class='text-center'>Report</h2>
                 <div>
                     {{obj.report | safe}}
                 </div>
@@ -107,22 +107,22 @@
 <title>{{obj.name or obj.title}} - GM Notes</title>
 {{title_components.object_title(user, obj)}}
 <div class="panel">
-    <div id="episode-info" class="row has-space-around">
-        <div class="column is-4 has-text-dark">
-            <div class="panel has-bg-muted">
-                <h3 class='has-text-center'>Loot</h3>
+    <div id="episode-info" class="grid-x align-spaced">
+        <div class="cell medium-4 has-text-dark">
+            <div class="panel ">
+                <h3 class='text-center'>Loot</h3>
                 {{obj.loot | safe}}
             </div>
         </div>
-        <div class="column is-4 has-text-dark">
-            <div class="panel has-bg-muted">
-                <h3 class='has-text-center'>Current Active Hooks</h3>
+        <div class="cell medium-4 has-text-dark">
+            <div class="panel ">
+                <h3 class='text-center'>Current Active Hooks</h3>
                 {{obj.hooks | safe}}
             </div>
         </div>
-        <div class="column is-full has-text-dark">
-            <h2 class='has-text-center'>Planning Notes</h2>
-            <div class="panel has-bg-muted">
+        <div class="cell is-full has-text-dark">
+            <h2 class='text-center'>Planning Notes</h2>
+            <div class="panel ">
                 <div>{{obj.description | safe}}</div>
             </div>
         </div>
@@ -134,11 +134,11 @@
 <title>{{obj.name or obj.title}} - Details</title>
 {{title_components.object_title(user, obj)}}
 <div class="panel">
-    <div id="episode-graphic" class="row has-space-around">
+    <div id="episode-graphic" class="grid-x align-spaced">
         {% if user.world_user(obj) %}
-        <div class="column is-shrink has-text-muted">
+        <div class="cell shrink has-text-muted">
             <div class="panel has-bg-screen has-centered">
-                <button class="button is-primary"
+                <button class="button"
                         hx-post="/api/{{obj.path}}/graphic/generate"
                         hx-indicator="#request-indicator"
                         hx-push-url="/{{obj.path}}/graphic">
@@ -147,8 +147,8 @@
             </div>
         </div>
         {% endif %}
-        <div class=" column is-10 has-text-dark">
-            <div class="panel has-bg-muted">
+        <div class=" cell is-10 has-text-dark">
+            <div class="panel ">
                 {% if obj.graphic %}
                 <div class="image">
                     <img src="{{obj.graphic.url()}}" alt="{{obj.name}}" />

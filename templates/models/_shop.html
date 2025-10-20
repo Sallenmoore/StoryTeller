@@ -15,98 +15,98 @@
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Details</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/history">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>History</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/timeline"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/timeline">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/campaigns"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/campaigns">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Campaigns</span>
             </div>
         </div>
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/stories"
        hx-target="#page-content"
        hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/stories">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Stories</span>
             </div>
         </div>
     </a>
 </li>
-<li class="menu-anchor">
+<li>
     <a href=""
        hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/journal">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Journal</span>
             </div>
         </div>
@@ -114,14 +114,14 @@
 </li>
 {% endif %}
 <li>
-    <a href="" class="menu-anchor" hx-get="/api/{{obj.path}}/map"
+    <a href="" hx-get="/api/{{obj.path}}/map"
        hx-target="#page-content" hx-indicator="#request-indicator"
        hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
-        <div class="row">
-            <div class="column is-shrink">
+        <div class="grid-x">
+            <div class="cell shrink">
                 {{icon_components.map(size="1rem")}}
             </div>
-            <div class="column slide-it-in">
+            <div class="cell auto">
                 <span>Map</span>
             </div>
         </div>
@@ -141,9 +141,9 @@
 
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
-    <h3 class='has-text-center'>GM Notes</h3>
-    <div class="row">
-        <div class="column is-8">
+    <h3 class='text-center'>GM Notes</h3>
+    <div class="grid-x">
+        <div class="cell is-8">
             <h5> Details</h5>
             <div class="panel has-text-light">
                 <ul>
@@ -154,14 +154,14 @@
                 </ul>
             </div>
         </div>
-        <div class="column">
+        <div class="cell">
             <h5>Current Status</h5>
             <div class="panel">
                 {{obj.status | safe}}
             </div>
         </div>
         {% if obj.owner and obj.owner.quests %}
-        <div class="column is-full">
+        <div class="cell is-full">
             <h5>Hooks</h5>
             <div class="panel has-text-light">
                 <ul>
@@ -176,7 +176,7 @@
             </div>
         </div>
         {% endif %}
-        <div class="column is-full">
+        <div class="cell is-full">
             <h5>Rumors</h5>
             <div class="panel has-text-light">
                 <ul>
@@ -193,11 +193,11 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-<div class="row has-space-around">
+<div class="grid-x align-spaced">
     {% if obj.owner %}
-    <div class="column is-shrink">
+    <div class="cell shrink">
         <div class="panel has-bg-primary">
-            <h4 class="has-text-secondary">Owner</h4>
+            <h4 class="">Owner</h4>
             <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
                 <div class="image is-large is-thumbnail is-margin-center">
                     {% if obj.owner.image %}
@@ -211,7 +211,7 @@
         </div>
     </div>
     {% endif %}
-    <div class="column is-shrink">
+    <div class="cell shrink">
         <h4>Inventory</h4>
         <ul>
             {%for i in obj.inventory %}

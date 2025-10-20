@@ -2,36 +2,36 @@
 
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
 <a href="/{{obj.path}}" style='position: relative;'>
-    <div class="image is-tile is-margin-center" style="width:100%;">
-        {% if obj.image %}
-        <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
-        {% elif obj.world.image %}
-        <img src="{{obj.world.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
-        {% endif %}
-    </div>
+    {% if obj.image %}
+    <img class="thumbnail" style="width:100%;" src="{{obj.image.url(size=dim)}}" loading="lazy"
+         alt="{{obj.name}}" />
+    {% elif obj.world.image %}
+    <img class="thumbnail" style="width:100%;" src="{{obj.world.image.url(size=dim)}}"
+         loading="lazy" alt="{{obj.name}}" />
+    {% endif %}
     {% if name %}
-    <h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
+    <h6 class='text-center' style='font-size: clamp(0.25rem, 0.75rem, 1.25rem);'>
         {{obj.name}}
-        {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
+        {% if obj.canon|default(false) %} <sup>(c)</sup> {% endif %}
     </h6>
     {% endif %}
     {% if date %}
-    <p class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1rem);'>
+    <p class='text-center' style='font-size: clamp(0.05rem, 0.75rem, 1rem);'>
         {{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
         {{obj.end_date}}{%endif%}
     </p>
     {% endif %}
-    <div class="row has-space-around">
+    <div class="grid-x align-spaced">
         {% if type %}
-        <div class="column">
-            <p class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1rem);'>
+        <div class="cell auto">
+            <p class='text-center' style='font-size: clamp(0.05rem, 0.75rem, 1rem);'>
                 {{obj.title}}
             </p>
         </div>
         {% endif %}
         {% if pk %}
-        <div class="column is-shrink">
-            <h6 class='has-text-center' style='font-size: .5rem;'>
+        <div class="cell shrink">
+            <h6 class='text-center' style='font-size: .5rem;'>
                 pk: {{obj.pk}}
             </h6>
         </div>
@@ -48,7 +48,7 @@
     {% endif %}
 </div>
 {% if name %}
-<h6 class='has-text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
+<h6 class='text-center' style='font-size: clamp(0.15rem, 0.75rem, 1.25rem);'>
     {{obj.name}} <sup>({% if obj.canon %}c{%else%}nc{% endif %})</sup>
 </h6>
 {% endif %}
@@ -56,12 +56,12 @@
     <div class="modal__background"
          onclick='document.querySelector("#modal-{{obj.pk}}").classList.remove("is-active");'></div>
     <div class="modal__content">
-        <h3 class='has-text-center has-text-dark'
+        <h3 class='text-center has-text-dark'
             onclick='document.querySelector("#modal-{{obj.pk}}").classList.remove("is-active");'>
             {{obj.name}}
         </h3>
         <div class='row has-bg-white initiative-card'>
-            <div class="column is-2">
+            <div class="cell is-2">
                 {% if obj.image %}
                 <div class='image'
                      onclick='document.querySelector("#modal-{{obj.pk}}").classList.remove("is-active");'>
@@ -70,38 +70,38 @@
                 {% endif %}
                 {% if obj.model_name() in ['Creature', 'Character']%}
                 <div class="panel has-bg-screen">
-                    <div class="row has-space-around has-text-center has-text-dark"
+                    <div class="grid-x align-spaced text-center has-text-dark"
                          style='cursor: pointer;'>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">STR</h4>
                             <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})
                             </p>
                         </div>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">DEX</h4>
                             <p>{{obj.dexterity}}
                                 ({{(obj.dexterity|int-10)//2}})</p>
                         </div>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">INT</h4>
                             <p>{{obj.intelligence}}
                                 ({{(obj.intelligence|int-10)//2}})</p>
                         </div>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">WIS</h4>
                             <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
                         </div>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">CHA</h4>
                             <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})
                             </p>
                         </div>
-                        <div class="column is-4 is-mobile-3"
+                        <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
                             <h4 class="has-text-dark">CON</h4>
                             <p>{{obj.constitution}}
@@ -109,40 +109,40 @@
                         </div>
                     </div>
                 </div>
-                <div class="row has-space-around">
-                    <div class="column is-shrink">
-                        <h4 class='has-text-dark has-text-center'>HP</h4>
-                        <div class="column is-shrink">
+                <div class="grid-x align-spaced">
+                    <div class="cell shrink">
+                        <h4 class='has-text-dark text-center'>HP</h4>
+                        <div class="cell shrink">
                             <h5 class='has-text-dark'>/{{obj.hitpoints}}</h5>
                         </div>
                     </div>
-                    <div class="column is-shrink">
-                        <h4 class='has-text-dark has-text-center'>AC</h4>
-                        <h5 class='has-text-dark has-text-center'>{{obj.ac}}
+                    <div class="cell shrink">
+                        <h4 class='has-text-dark text-center'>AC</h4>
+                        <h5 class='has-text-dark text-center'>{{obj.ac}}
                         </h5>
                     </div>
 
                 </div>
                 {% endif %}
             </div>
-            <div class="column">
-                <div class="row has-bg-white">
-                    <div class="column">
+            <div class="cell">
+                <div class="grid-x has-bg-white">
+                    <div class="cell">
                         {{obj.backstory_summary | safe}}
                     </div>
                     {% if obj.abilities or obj.features %}
                     <div id="card-abilities-details-panel"
-                         class="column card-details-panel generated-text-lightbg">
+                         class="cell card-details-panel generated-text-lightbg">
                         {{abilities_components.abilities(user, obj)}}
                     </div>
                     {% endif %}
                     {% if obj.items %}
                     <div id="card-items-details-panel"
-                         class="column is-2 card-details-panel">
+                         class="cell is-2 card-details-panel">
                         <div class="panel has-bg-dark-grey">
-                            <div class="row">
+                            <div class="grid-x">
                                 {% for item in obj.items %}
-                                <div class="column is-4">
+                                <div class="cell medium-4">
                                     {{object_display(item, type=False, name=False)}}
                                 </div>
                                 {% endfor %}
@@ -160,11 +160,11 @@
 
 {% macro card(user, obj) -%}
 <div class="section has-bg-white">
-    <div class="row">
-        <div class="column is-6">
-            <div class="row">
-                <div class="column is-6">
-                    <h2 class='has-text-center has-text-primary'
+    <div class="grid-x">
+        <div class="cell medium-6">
+            <div class="grid-x">
+                <div class="cell medium-6">
+                    <h2 class='text-center has-text-primary'
                         style='font-size: clamp(0.5rem, 1rem, 1.25rem);'>
                         {{obj.name}}
                     </h2>
@@ -173,65 +173,65 @@
                         <img src="{{obj.image.url()}}" loading="lazy" alt="{{obj.name}}" />
                         {% endif %}
                     </div>
-                    <div class="row">
-                        <div class="column">
-                            <h6 class='has-text-center  has-text-primary'
+                    <div class="grid-x">
+                        <div class="cell">
+                            <h6 class='text-center  has-text-primary'
                                 style='font-size: clamp(0.25rem, 0.75rem, 1rem);'>
                                 {{obj.title}}
                             </h6>
                         </div>
                         {% if pk %}
-                        <div class="column is-shrink">
-                            <h6 class='has-text-center' style='font-size: .5rem;'>
+                        <div class="cell shrink">
+                            <h6 class='text-center' style='font-size: .5rem;'>
                                 pk: {{obj.pk}}
                             </h6>
                         </div>
                         {% endif %}
                     </div>
                 </div>
-                <div class="column is-6">
+                <div class="cell medium-6">
                     {% if obj.model_name() in ['Creature', 'Character']%}
-                    <div class="row has-space-around">
-                        <div class="column is-shrink">
-                            <h4 class='has-text-dark has-text-center'>HP</h4>
-                            <div class="column is-shrink">
+                    <div class="grid-x align-spaced">
+                        <div class="cell shrink">
+                            <h4 class='has-text-dark text-center'>HP</h4>
+                            <div class="cell shrink">
                                 <h5 class='has-text-dark'>/{{obj.hitpoints}}</h5>
                             </div>
                         </div>
-                        <div class="column is-shrink">
-                            <h4 class='has-text-dark has-text-center'>AC</h4>
-                            <h5 class='has-text-dark has-text-center'>{{obj.ac}}
+                        <div class="cell shrink">
+                            <h4 class='has-text-dark text-center'>AC</h4>
+                            <h5 class='has-text-dark text-center'>{{obj.ac}}
                             </h5>
                         </div>
                     </div>
                     <div class="panel has-bg-screen">
-                        <div class="row has-space-around has-text-center has-text-dark"
+                        <div class="grid-x align-spaced text-center has-text-dark"
                              style='cursor: pointer;'>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">STR</h4>
                                 <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})
                                 </p>
                             </div>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">DEX</h4>
                                 <p>{{obj.dexterity}}
                                     ({{(obj.dexterity|int-10)//2}})</p>
                             </div>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">INT</h4>
                                 <p>{{obj.intelligence}}
                                     ({{(obj.intelligence|int-10)//2}})</p>
                             </div>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">WIS</h4>
                                 <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
                             </div>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">CHA</h4>
                                 <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})
                                 </p>
                             </div>
-                            <div class="column is-4 is-mobile-3">
+                            <div class="cell medium-4 is-mobile-3">
                                 <h4 class="has-text-dark">CON</h4>
                                 <p>{{obj.constitution}}
                                     ({{(obj.constitution|int-10)//2}})</p>
@@ -241,13 +241,13 @@
                     {% endif %}
                 </div>
                 {% if obj.skills %}
-                <div class="column is-full">
+                <div class="cell is-full">
                     <div class="panel has-bg-light-grey">
-                        <div class="row has-space-between">
+                        <div class="grid-x align-justify">
                             {% for skill, val in obj.skills.items() %}
-                            <div class="column is-shrink is-mobile-4">
-                                <h5 class='has-text-center'>{{skill}}</h5>
-                                <p class='has-text-center'>{{val}}</p>
+                            <div class="cell shrink is-mobile-4">
+                                <h5 class='text-center'>{{skill}}</h5>
+                                <p class='text-center'>{{val}}</p>
                             </div>
                             {% endfor %}
                         </div>
@@ -255,13 +255,13 @@
                 </div>
                 {% endif %}
                 {% if obj.items %}
-                <div class="column is-full">
+                <div class="cell is-full">
                     <hr>
                     <div class="panel">
                         Inventory
-                        <div class="row">
+                        <div class="grid-x">
                             {% for item in obj.items %}
-                            <div class="column is-2">
+                            <div class="cell is-2">
                                 {{object_display(item, type=False)}}
                             </div>
                             {% endfor %}
@@ -270,37 +270,37 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="column is-full">
+            <div class="cell is-full">
                 <div class="panel has-bg-light-grey has-text-dark">
                     <h2 class='has-text-dark'>Backstory</h2>
                     {{obj.history | safe}}
                 </div>
             </div>
         </div>
-        <div class="column is-6">
+        <div class="cell medium-6">
             <h3 class='has-text-dark'>Features</h3>
             {% if obj.abilities or obj.features %}
-            <div class="panel has-bg-muted"
+            <div class="panel "
                  style='border-top-right-radius: 0; border-top-left-radius:0;'>
-                <div class="row">
+                <div class="grid-x">
                     {%for ability in obj.abilities or obj.features %}
-                    <div class="column is-full">
-                        <div class="row">
-                            <h4 class='has-text-dark has-text-center'>
+                    <div class="cell is-full">
+                        <div class="grid-x">
+                            <h4 class='has-text-dark text-center'>
                                 {{ability.name}}
                             </h4>
                             {% if ability.description %}
-                            <div class="column is-full">
-                                <div class="panel has-bg-muted has-text-primary">
+                            <div class="cell is-full">
+                                <div class="panel  has-text-primary">
                                     <h5 class='has-text-primary'
-                                        style='text-decoration: underline; has-text-center'>
+                                        style='text-decoration: underline; text-center'>
                                         Description</h5>
                                     {{ability.description | safe}}
                                 </div>
                             </div>
                             {% endif %}
                             {% if ability.dice_roll %}
-                            <div class="column">
+                            <div class="cell">
                                 <div class="panel has-bg-transparent">
                                     <h5 class='has-text-primary'
                                         style='text-decoration: underline;'>Roll
@@ -310,7 +310,7 @@
                             </div>
                             {% endif %}
                             {% if ability.effects %}
-                            <div class="column">
+                            <div class="cell">
                                 <div class="panel has-bg-transparent">
                                     <h5 class='has-text-primary'
                                         style='text-decoration: underline;'>Effects
@@ -320,7 +320,7 @@
                             </div>
                             {% endif %}
                             {% if ability.duration %}
-                            <div class="column">
+                            <div class="cell">
                                 <div class="panel has-bg-transparent">
                                     <h5 class='has-text-primary'
                                         style='text-decoration: underline;'>Duration</h5>

@@ -1,23 +1,23 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro object_title(user, obj) -%}
-<div class="row has-bg-muted has-no-padding has-no-margin has-centered" style='position:relative; margin: 0 3rem; border-radius: 5px 5px 0 0; {% if obj.world.image %} background-image: linear-gradient(
+<div class="grid-x align-center-middle" style='position:relative; border-radius: 5px 5px 0 0; {% if obj.world.image %} background-image: linear-gradient(
     to bottom,
     rgba(247, 247, 244, 0.5),
     rgba(83, 83, 84, 0.5)
   ), url("{{obj.world.image.url()}}"); background-size: cover;{%endif%}'>
-    <div class="column is-vertically-centered has-no-padding">
+    <div class="cell align-center-middle ">
         <a href='/{{obj.path}}'>
             <h1 id="object-title"
-                class="has-text-center has-bg-muted has-text-screen has-no-margin ">
+                class="text-center">
                 {{obj.name or obj.title or obj.model_name()|title}}
             </h1>
         </a>
     </div>
     {% if user.world_user(obj) %}
-    <div class="column is-shrink is-mobile-shrink"
+    <div class="cell shrink"
          style="position:absolute;top:0.5rem;right:0.5rem;">
-        <a class=" has-text-secondary" hx-post="/api/{{obj.path}}/manage"
+        <a hx-post="/api/{{obj.path}}/manage"
            hx-target="#page-content" hx-indicator='#request-indicator'
            hx-push-url='/{{obj.path}}/manage'>
             {{icon_components.gear(size="1.5rem")}}
@@ -25,11 +25,11 @@
     </div>
     {% endif %}
 </div>
-{% if obj.model_name() != "World" %}
-<div class="row has-centered">
-    <div class="column is-shrink">
-        <nav class="breadcrumb">
-            <ul>
+{% if obj.geneology %}
+<div class="grid-x align-center-middle">
+    <div class="cell shrink">
+        <nav>
+            <ul class="breadcrumbs" role="navigation">
                 {% for p in obj.geneology[::-1] %}
                 <li><a href="/{{p.path}}">{{p.name}} <small>({{p.title}})</small></a></li>
                 {% endfor %}

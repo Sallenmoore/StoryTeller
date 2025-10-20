@@ -3,12 +3,12 @@
 
 {% macro manage(user, worlds) -%}
 <title>Admin - Manage Worlds</title>
-<div class="row">
-    <div class="column is-full is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Manage Worlds</h2>
+<div class="grid-x">
+    <div class="cell is-full align-center-middle">
+        <h2 class='text-center has-text-primary'>Manage Worlds</h2>
     </div>
     {% for world in worlds %}
-    <div class="column is-3">
+    <div class="cell medium-3">
         {{display_components.object_display(world)}}
     </div>
     {% endfor %}

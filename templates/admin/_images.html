@@ -4,19 +4,19 @@
 
 {% macro manage(user, images, tags=None, tag=None) -%}
 <title>Storyteller Admin - Manage Images</title>
-<div class="row">
-    <div class="column is-full is-vertically-centered">
-        <h2 class='has-text-center has-text-primary'>Manage Images</h2>
+<div class="grid-x">
+    <div class="cell is-full align-center-middle">
+        <h2 class='text-center has-text-primary'>Manage Images</h2>
     </div>
-    <div class="column is-full is-vertically-centered">
-        <h3 class='has-text-center has-text-primary'>Filter</h3>
+    <div class="cell is-full align-center-middle">
+        <h3 class='text-center has-text-primary'>Filter</h3>
         <div class="buttons is-centered">
-            <a class="button is-small {% if not tag %}is-primary{% else %}is-muted has-text-screen{% endif %}"
+            <a class="button small {% if not tag %}is-primary{% else %}is-muted has-text-screen{% endif %}"
                href="/admin/manage/images">
                 All
             </a>
             {% for t in tags %}
-            <a class="button is-small {% if tag == t %}is-primary{% else %}is-muted has-text-screen{% endif %}"
+            <a class="button small {% if tag == t %}is-primary{% else %}is-muted has-text-screen{% endif %}"
                hx-post='/api/admin/manage/images/tag/{{t}}' hx-target='#manager'>
                 {{ t }}
             </a>
@@ -24,27 +24,27 @@
         </div>
     </div>
     {% for image in images %}
-    <div class="column is-2">
+    <div class="cell is-2">
         <div class='image'>
             <img src="{{ image.url() }}" loading="lazy" alt="{{ image.name or image.title }}">
         </div>
-        <p class="has-text-centered">{{ image.name or image.title }}</p>
+        <p class="text-centered">{{ image.name or image.title }}</p>
         <div class="is-tag-group">
             {% for tag in image.tags %}
             <span class="tag">{{tag}}</span>
             {% endfor %}
         </div>
-        <small class="has-text-centered">Associations: {{ image.associations | count }}</small>
+        <small class="text-centered">Associations: {{ image.associations | count }}</small>
         <div class="is-tag-group">
             {% for ass in image.associations %}
-            <span class="tag is-primary"><a href="/{{ass.path}}/history">{{ass.name}}</a></span>
+            <span class="tag"><a href="/{{ass.path}}/history">{{ass.name}}</a></span>
             {% endfor %}
         </div>
-        <button class="button is-small is-full"
+        <button class="button small is-full"
                 hx-post="/api/admin/manage/image/delete"
                 hx-vals='{"pk": "{{ image.pk }}", "model": "Image"}'
                 hx-swap="delete"
-                hx-target='closest .column'>
+                hx-target='closest .cell'>
             <span>Delete</span>
         </button>
     </div>

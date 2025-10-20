@@ -14,19 +14,19 @@
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
-<div class="row">
-    <div class="column is-full">
+<div class="grid-x">
+    <div class="cell is-full">
         <form hx-post="/api/{{obj.path}}/calendar/update"
               hx-swap="none"
               hx-trigger="input delay:1s, change, submit" 7>
-            <div class="row">
-                <div class="column is-4">
-                    <div class="panel has-bg-primary is-small">
+            <div class="grid-x">
+                <div class="cell medium-4">
+                    <div class="panel has-bg-primary small">
                         <label>Epoch Name</label>
-                        <input class="has-bg-muted" type="text" name="age"
+                        <input class="" type="text" name="age"
                                value="{{obj.calendar.age}}">
                         <label>Number of Days / Year</label>
-                        <input class="has-bg-muted has-text-dark" type="number"
+                        <input class=" has-text-dark" type="number"
                                name="num_days_per_year"
                                value="{{obj.calendar.days_per_year}}">
                         <hr>
@@ -35,33 +35,33 @@
                         <p>{{obj.current_date}}</p>
                     </div>
                 </div>
-                <div class="column">
-                    <div id="calendar-label-lists-container" class="row has-space-between">
-                        <div class="column is-5" id="month-names">
+                <div class="cell">
+                    <div id="calendar-label-lists-container" class="grid-x align-justify">
+                        <div class="cell is-5" id="month-names">
                             <label>Number of Months / Year</label>
-                            <input class="has-bg-muted" type="number"
+                            <input class="" type="number"
                                    id="month-names" name="month_names"
                                    value="{{obj.calendar.months | length}}"
                                    oninput='updateEntries(this);'>
                             <h4>Month Names</h4>
                             <div id="month-names-container">
                                 {% for month in obj.calendar.months %}
-                                <input class="has-bg-muted month-name-entry" type="text"
+                                <input class=" month-name-entry" type="text"
                                        name="month_names_list[]"
                                        value="{{month}}">
                                 {% endfor %}
                             </div>
                         </div>
-                        <div class="column is-5">
+                        <div class="cell is-5">
                             <label>Number of Days / Week</label>
-                            <input class="has-bg-muted has-text-dark" type="number"
+                            <input class=" has-text-dark" type="number"
                                    id="day-names" name="day_names"
                                    oninput='updateEntries(this);'
                                    value="{{obj.calendar.days | length}}">
                             <h4>Day Names</h4>
                             <div id="day-names-container">
                                 {% for day in obj.calendar.days %}
-                                <input class="has-bg-muted day-name-entry" type="text"
+                                <input class=" day-name-entry" type="text"
                                        name="day_names_list[]"
                                        value="{{day}}">
                                 {% endfor %}
@@ -76,7 +76,7 @@
                             if (children.length < num) {
                                 for (let i = children.length; i < num; i++) {
                                     let newEntry = document.createElement("input");
-                                    newEntry.classList.add("has-bg-muted");
+                                    newEntry.classList.add("");
                                     newEntry.classList.add(input.id.replace("_", "-") + "-entry");
                                     newEntry.setAttribute("type", "text");
                                     newEntry.setAttribute("name", `${input.name}_list[]`);
@@ -94,14 +94,14 @@
         </form>
         <hr>
     </div>
-    <div class="column is-4">
+    <div class="cell medium-4">
         <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"
               hx-target="#change_system_form"
               hx-select="#change_system_form"
               hx-swap="outerHTML"
               hx-confirm="By changing the system, all previous system data (skills, classes, and backgrounds) will be lost. Are you sure?">
-            <div class="row ">
-                <div class="column">
+            <div class="grid-x ">
+                <div class="cell">
                     <h4>Change System</h4>
                     <div class="select">
                         <select class='has-bg-light' name="system">
@@ -114,31 +114,31 @@
                         </select>
                     </div>
                 </div>
-                <div class="column is-full">
-                    <input class="button is-primary" type="submit" value="change">
+                <div class="cell is-full">
+                    <input class="button" type="submit" value="change">
                 </div>
             </div>
         </form>
     </div>
-    <div class="column">
+    <div class="cell">
         <h4>Add Users</h4>
         <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
               hx-target="closest .row"
               hx-swap="outerHTML"
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
-            <div class="row is-vertical">
-                <div class="column">
+            <div class="grid-x is-vertical">
+                <div class="cell">
                     <input class="has-bg-light" type="email" name="new_user" id="new_user"
                            placeholder="enter user email">
                 </div>
-                <div class="column">
-                    <input class="button is-primary" type="submit" value="add">
+                <div class="cell">
+                    <input class="button" type="submit" value="add">
                 </div>
             </div>
         </form>
-        <div class="panel has-bg-primary is-small">
-            <div class="row">
-                <div class="column">
+        <div class="panel has-bg-primary small">
+            <div class="grid-x">
+                <div class="cell">
                     <h4>Users</h4>
                     <ul class="has-no-list-style" id="userlist">
                         {% for u in obj.users %}
