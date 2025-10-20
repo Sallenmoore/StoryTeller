@@ -24,16 +24,15 @@
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
               crossorigin="" />
         <!--- Foundation -->
-        <!-- Compressed CSS -->
-        {#
         <link rel="stylesheet"
               href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
-              crossorigin="anonymous"> #}
+              crossorigin="anonymous">
 
         <!--------------------------- Custom CSS ---------------------------->
         <!-- Compiled and minified CSS-->
+        {#
         <link rel="stylesheet" type="text/css"
-              href="{{ url_for('static', filename='style/main.css') }}">
+              href="{{ url_for('static', filename='style/main.css') }}"> #}
 
         <!--------------------------- Vendor JavaScript Libs ---------------------------->
         <script
@@ -52,10 +51,9 @@
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
         <!--- Foundation -->
-        <!-- Compressed JavaScript -->
-        {#
+
         <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
-                crossorigin="anonymous"></script> #}
+                crossorigin="anonymous"></script>
 
         <!-- JavaScript Libs -->
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>

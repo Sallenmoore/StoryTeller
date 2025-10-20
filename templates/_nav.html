@@ -1,8 +1,8 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro topnav(user) -%}
-<nav class="row">
-    <div class="column is-shrink is-vertically-centered has-text-center">
+<nav class="grid-x grid-margin-x">
+    <div class="cell shrink align-center-middle text-center">
         <a href="/">
             <h2>
                 {{icon_components.dungeon(size="2.5rem")}}
@@ -10,56 +10,55 @@
             </h2>
         </a>
     </div>
-    <div class="column is-shrink is-vertically-centered">
-        <small>ver. 0.2.2</small>
+    <div class="cell small-2 align-center-middle">
+        <small>ver. 0.2.3</small>
     </div>
-    <div class="column is-4 is-center is-vertically-centered" hx-indicator="#request-indicator">
-        <div class="is-input-group has-bg-secondary">
-            <span>
-                {{icon_components.search(size="1.25rem")}}
-            </span>
-            <div class="has-dropdown" style="width:100%;">
+    {% if user and user.state != "guest"%}
+    <div class="cell small-4 align-center-middle" hx-indicator="#request-indicator">
+        <div class='grid-x grid-margin-x'>
+            <div class="cell shrink align-center-middle">
+                <span>
+                    {{icon_components.search(size="1.25rem")}}
+                </span>
+            </div>
+            <div class="cell auto">
                 <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
                        type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
-                       hx-trigger="input changed delay:500ms, search"
-                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                <ul class="dropdown has-bg-light" id="nav-search">
+                       hx-trigger="input changed delay:500ms, search">
+                <ul id="nav-search">
                 </ul>
             </div>
         </div>
     </div>
-    {% if user and user.state != "guest"%}
-    <div class="column is-shrink is-tablet-up is-vertically-centered is-end">
-        <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+    <div class="cell shrink align-center-middle">
+        <button type="button" class='button' hx-post="/api/gmscreen/display"
+                hx-target="#screen-container"
                 onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
             {{icon_components.keyboard(size="1.5rem")}}
             GM Screen
         </button>
     </div>
-    {% endif %}
-    <div class="column is-shrink is-tablet-up is-vertically-centered">
+    <div class="cell shrink align-center-middle">
         <a href="/">
             <h4>
-                {% if user and user.state != "guest"%}
                 {{user.name | title}}
-                {% endif %}
             </h4>
         </a>
     </div>
-    <div class="column is-shrink is-vertically-centered">
-        {% if not user or user.state == "guest" %}
-        <a href="/auth/login" class="button is-rounded is-small">Login</a>
+    {% endif %}
+    <div class="cell auto"></div>
+    <div class="cell shrink align-center-middle">
+        {% if not user or user.state == " guest" %}
+        <a href="/auth/login" class="button small">Login</a>
         {% else %}
-        <a href="/auth/logout" class="button is-rounded is-small">Logout</a>
-        {% endif %}
-    </div>
-    {% if user and user.admin %}
-    <div class="column is-shrink is-tablet-up is-vertically-centered">
-        <a class="button is-small is-rounded" href="/admin/">
+        <a href="/auth/logout" class="button small">Logout</a>
+        {% if user.admin %}
+        <a class="button small" href="/admin/">
             ADMIN
         </a>
+        {% endif %}
+        {% endif %}
     </div>
-    {% endif %}
 </nav>
 {%- endmacro %}
 

@@ -1,105 +1,102 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro home(user) %}
-<div class="hero" id="world-model">
-    <div class="hero__content">
-        <div class="row">
-            <div class="column is-vertically-centered" id="create-world">
-                <div class="container has-text-center">
-                    <h2 class="is-subheading has-text-primary">A place to create and explore your
-                        worlds</h2>
-                    <button class="button is-large"
-                            hx-post="/api/build/form" hx-target="#create-world"
-                            hx-swap='outerHTML show:#world-model:top'>
-                        Create a World to Explore
-                    </button>
-                </div>
+<div class="grid-container" id="world-model">
+    <div class="grid-x">
+        <div class="cell align-center-middle" id="create-world">
+            <div class="text-center">
+                <h2 class="subheader">A place to create and explore your worlds</h2>
+                <button class="button large"
+                        hx-post="/api/build/form" hx-target="#create-world"
+                        hx-swap='outerHTML show:#world-model:top'>
+                    Create a World to Explore
+                </button>
             </div>
         </div>
     </div>
-</div>
-<hr>
-<div class="row has-space-around">
-    {% for w in user.worlds %}
-    <div class="column world-entry is-full">
-        <div class="panel"
-             {% if w.image %}
-             style="background-image: url('{{w.image.url()}}'); background-size: cover;" {% endif
-             %}>
-            <div class="row has-bg-muted" style='position:relative;'>
-                <div class="column is-full">
-                    <a href="/world/{{w.pk}}">
-                        <span class="tag">{{w.genre}}</span>
-                        <h2 class='has-text-dark has-text-center'>{{w.name}}</h2>
-                        <div class="panel has-bg-light generated-text-lightbg">
-                            <p class='has-text-dark'>{{w.backstory_summary | safe}}</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="column is-shrink is-end"
-                     style='position: absolute; top: 1rem; right: 1rem;'>
-                    <button class="button is-small"
-                            hx-post="/api/world/{{w.pk}}/delete"
-                            hx-target="closest .world-entry"
-                            hx-swap="delete"
-                            hx-confirm="Are you sure you want to delete this world and all associated objects? THIS CANNOT BE UNDONE."
-                            hx-indicator="#request-indicator">
-                        {{icon_components.trash(size="1rem")}}
-                    </button>
+
+    <hr>
+    <div class="grid-x has-space-around">
+        {% for w in user.worlds %}
+        <div class="cell world-entry">
+            <div class="callout"
+                 {% if w.image %}
+                 style="background-image: url('{{w.image.url()}}'); background-size: cover;" {%
+                 endif
+                 %}>
+                <div class="grid-x" style='position:relative;'>
+                    <div class="cell" style='background-color: rgba(255, 255, 255, 0.8);'>
+                        <a href="/world/{{w.pk}}">
+                            <span class="label">{{w.genre}}</span>
+                            <h2>{{w.name}}</h2>
+                            <div class="callout">
+                                <p>{{w.backstory_summary | safe}}</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class=" cell shrink"
+                         style='position: absolute; top: 1rem; right: 1rem;'>
+                        <button class="button small"
+                                hx-post="/api/world/{{w.pk}}/delete"
+                                hx-target="closest .world-entry"
+                                hx-swap="delete"
+                                hx-confirm="Are you sure you want to delete this world and all associated objects? THIS CANNOT BE UNDONE."
+                                hx-indicator="#request-indicator">
+                            {{icon_components.trash(size="1rem")}}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {% endmacro%}
 
 {% macro worldbuild (user) -%}
-<div class="container">
-    <div class="row fade-it-in">
-        <div class="column is-full">
-            <div class="panel is-vertically-centered" style='position:relative;'>
-                <h2 class="has-text-center">Give your world some details</h2>
-                <a style="position:absolute; top:10px; right:10px;"
-                   hx-get="/api/home" hx-target="#page-content" hx-indicator="#request-indicator">
-                    {{icon_components.close(size="3rem")}}
-                </a>
-                <hr class='has-bg-secondary'>
-                <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
-                      hx-indicator="#request-indicator">
-                    <input type="hidden" name="user" value="{{user.pk}}">
-                    <div class="row">
-                        <div class="column is-half">
-                            <input class="has-bg-light has-text-dark" type="text" name="name"
-                                   placeholder="World Name">
-                        </div>
-                        <div class="column is-shrink">
-                            <select class="has-bg-light has-text-dark" name="system">
-                                <option value="fantasy">Fantasy</option>
-                                <option value="sci-fi">Sci-Fi</option>
-                                <option value="horror">Horror</option>
-                                <option value="hardboiled">Mystery</option>
-                                <option value="historical">Historical</option>
-                                <option value="western">Western</option>
-                                <option value="post-apocalyptic">Post-Apocalyptic</option>
-                            </select>
-                        </div>
-                        <div class="column is-full">
-                            <input class="has-bg-light has-text-dark" type="text" name="desc"
-                                   placeholder="Brief World Description...">
-                        </div>
-                        <div class="column is-full">
-                            <input class="has-bg-light has-text-dark" type="text" name="backstory"
-                                   placeholder="Brief World History...">
-                        </div>
-                        <div class="column is-full">
-                            <input class="button rounded is-full has-bg-screen" type="submit"
-                                   value="Build"
-                                   id="create-world-submit">
-                        </div>
+<div class="grid-x">
+    <div class="cell">
+        <div class="panel align-center-middle" style='position:relative;'>
+            <h2 class="text-center">Give your world some details</h2>
+            <a style="position:absolute; top:10px; right:10px;"
+               hx-get="/api/home" hx-target="#page-content"
+               hx-indicator="#request-indicator">
+                {{icon_components.close(size="3rem")}}
+            </a>
+            <hr>
+            <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
+                  hx-indicator="#request-indicator">
+                <input type="hidden" name="user" value="{{user.pk}}">
+                <div class="grid-x">
+                    <div class="cell small-6">
+                        <input type="text" name="name" placeholder="World Name">
                     </div>
-                </form>
-            </div>
+                    <div class="cell shrink">
+                        <select name="system">
+                            <option value="fantasy">Fantasy</option>
+                            <option value="sci-fi">Sci-Fi</option>
+                            <option value="horror">Horror</option>
+                            <option value="hardboiled">Mystery</option>
+                            <option value="historical">Historical</option>
+                            <option value="western">Western</option>
+                            <option value="post-apocalyptic">Post-Apocalyptic</option>
+                        </select>
+                    </div>
+                    <div class="cell">
+                        <input type="text" name="desc"
+                               placeholder="Brief World Description...">
+                    </div>
+                    <div class="cell">
+                        <input type="text" name="backstory"
+                               placeholder="Brief World History...">
+                    </div>
+                    <div class="cell">
+                        <input class="button expanded" type="submit"
+                               value="Build"
+                               id="create-world-submit">
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
