@@ -9,6 +9,7 @@ dbbackups/
 core
 /docker-compose.yml
 /.env
+.env
 /vendor/gunicorn.conf.py
 
 # Byte-compiled / optimized / DLL files

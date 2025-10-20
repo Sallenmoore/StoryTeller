@@ -1,5 +1,5 @@
 services:
-  stapp:
+  stappbackdev:
     image: ${APP_NAME}:latest
     build:
       context: .
@@ -15,13 +15,15 @@ services:
       - ./static:/var/app/static/
       - ./templates:/var/app/templates/
       - ./filters:/var/app/filters/
+      - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
     depends_on:
       - ${API_SERVICE_NAME}
-  stapi:
+  stapibackdev:
     image: ${APP_NAME}_api:latest
     build:
       context: .
@@ -37,11 +39,11 @@ services:
       - ./static:/var/app/static/
       - ./templates:/var/app/templates/
       - ./filters:/var/app/filters/
+      - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-    ports:
-      - "${API_PORT}:${COMM_PORT}"
-  sttasks:
+  sttasksbackdev:
     image: ${APP_NAME}_tasks:latest
     build:
       context: .
@@ -55,11 +57,12 @@ services:
       - ./tasks:/var/app/
       - ./models:/var/app/models/
       - ./static:/var/app/static/
+      - ./tests:/var/app/tests/
       - ./filters:/var/app/filters/
-      - ./logs:/var/app/logs/
       - ./templates:/var/app/templates/
+      - ./logs:/var/app/logs/
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
-
 networks:
   default:
     name: ${APP_NAME}_net
