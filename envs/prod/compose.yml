@@ -6,6 +6,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./app:/var/app/
       - ./models:/var/app/models/
@@ -25,6 +28,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}_api
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./api:/var/app/
       - ./models:/var/app/models/
@@ -42,6 +48,9 @@ services:
     working_dir: /var/app
     env_file: .env
     container_name: ${APP_NAME}_tasks
+    networks:
+      - default # The application's default network
+      - db_net  # The network created by the database stack
     volumes:
       - ./tasks:/var/app/
       - ./models:/var/app/models/
@@ -54,3 +63,5 @@ services:
 networks:
   default:
     name: ${APP_NAME}_net
+  db_net:
+    external: true

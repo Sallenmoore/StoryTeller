@@ -14,9 +14,9 @@ include .env
 export
 ###### PROD #######
 
-deploy: refresh run
+deploy: initprod refresh prod
 
-run: initprod clean
+prod: initprod clean
 	$(UP_CMD)
 	$(LOGS_CMD)
 
@@ -27,20 +27,20 @@ initprod:
 
 ###### Frontend DEV #######
 
-cleandev: refresh dev
+cleandfrontend: initfrontend refresh frontend
 
-dev: initdev
+frontend: initfrontend
 	$(UP_CMD)
 	$(LOGS_CMD)
 
-initdev:
-	cp -rf envs/dev/.env ./
-	cp -rf envs/dev/compose.yml ./
-	cp -rf envs/dev/gunicorn.conf.py ./vendor
+initfrontend:
+	cp -rf envs/frontend/.env ./
+	cp -rf envs/frontend/compose.yml ./
+	cp -rf envs/frontend/gunicorn.conf.py ./vendor
 
 ###### Backend DEV #######
 
-cleanbackend: refresh backend
+cleanbackend: initbackend refresh backend
 
 backend: initbackend
 	$(UP_CMD)
