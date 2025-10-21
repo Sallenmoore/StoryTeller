@@ -4,14 +4,14 @@
 {% macro manage(worlds) -%}
 <title>Agents</title>
 <div class="grid-x align-spaced">
-    <div class="cell is-full align-center-middle">
+    <div class="cell align-center-middle">
         <button class="button" hx-post="/api/admin/manage/agents/delete"
                 hx-target="#manager">
             <span>Clear All Agents</span>
         </button>
     </div>
     {% for world in worlds %}
-    <div class="cell is-2">
+    <div class="cell medium-2">
         {{display_components.object_display(world)}}
     </div>
     {% endfor %}

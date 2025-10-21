@@ -10,39 +10,39 @@
 </h3>
 {% else %}
 <div id="object-campaigns" class="grid-x align-spaced raise-it">
-    <div class="cell is-full">
+    <div class="cell">
         <select class="" name="campaignpk" id="campaignpk"
                 hx-post="/api/campaign/"
                 hx-target="#campaign-details" hx-trigger='change'>
             <option value="">=== Select Campaign ===</option>
             {% for s in obj.campaigns %}
-            <option class="has-text-dark" value="{{s.pk}}" {% if campaign and campaign.pk==s.pk %}
+            <option class="" value="{{s.pk}}" {% if campaign and campaign.pk==s.pk %}
                     selected {% endif %}>
                 {{s.name}}
             </option>
             {% endfor %}
         </select>
     </div>
-    <div id="campaign-details" class="cell is-full">
+    <div id="campaign-details" class="cell">
         <div class="grid-x align-spaced">
             {% for campaign in obj.campaigns %}
             <div class="cell medium-4">
                 <a href="/campaign/{{campaign.pk}}">
-                    <h3 class='has-text-primary text-center'>{{campaign.name}}</h3>
+                    <h3 class=' text-center'>{{campaign.name}}</h3>
                 </a>
                 <div class="grid-x">
                     <div class="cell is-half">
-                        <h6 class="has-text-dark-grey text-center">
+                        <h6 class="-grey text-center">
                             Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
                         </h6>
                     </div>
                     <div class="cell is-half">
-                        <h6 class="has-text-dark-grey text-center">
+                        <h6 class="-grey text-center">
                             Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
                         </h6>
                     </div>
-                    <div class="cell is-full">
-                        <div class="panel has-bg-screen has-text-justified">
+                    <div class="cell">
+                        <div class="callout has-text-justified">
                             {{campaign.description | safe}}
                         </div>
                     </div>
@@ -51,11 +51,11 @@
                     onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
                     View Episodes</h5>
                 <div class="grid-x is-hidden slide-it-down">
-                    <div class="cell is-full">
+                    <div class="cell">
                         {% for entry in campaign.episodes %}
                         {% if obj.model_name() == 'World' or obj in entry.associations %}
                         <a href='/episode/{{entry.pk}}'>
-                            <span class="tag">{{entry.name}}</span>
+                            <span class="label">{{entry.name}}</span>
                         </a>
                         {% endif %}
                         {% endfor %}

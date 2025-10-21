@@ -10,7 +10,7 @@
 <div class="grid-x" id='association-manager-container'>
     <div class="cell auto align-center-middle">
         <div class="has-dropdown" style="width: 100%;">
-            <input class="has-bg-light" autocomplete=off type="search" name="query"
+            <input class="" autocomplete=off type="search" name="query"
                    placeholder="Search to Add Associations..."
                    style="border-bottom: solid #000;" hx-target="#association-search"
                    hx-post="/api/manage/association/add/search"
@@ -18,7 +18,7 @@
                    hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
                    onclick=''
                    hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown autocomplete-list has-bg-light" id="association-search">
+            <ul class="dropdown autocomplete-list" id="association-search">
             </ul>
         </div>
     </div>
@@ -54,7 +54,7 @@
       hx-select='#associations-container'
       hx-trigger="input delay:250ms, change, search"
       hx-swap='outerHTML'>
-    <div class="panel ">
+    <div class="callout ">
         <div class="grid-x align-spaced">
             <div class="cell medium-4">
                 <input type="search" name="filter" placeholder="Filter by name..."
@@ -70,7 +70,7 @@
                 </select>
             </div>
             <div class="cell medium-4">
-                <select class="has-text-dark" name="relationship">
+                <select class="" name="relationship">
                     <option value=''>Filter by Relationship</option>
                     <option value='parent'>Within</option>
                     <option value='child'>Contains</option>
@@ -112,7 +112,7 @@
         {% for a in obj.children %}
         <div
              class="cell medium-2 small-4">
-            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
+            <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
                  style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
@@ -138,7 +138,7 @@
         <div
              class="cell medium-3 is-mobile-6 is-desktop-2 card-container
                 {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
-            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
+            <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
                  style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}

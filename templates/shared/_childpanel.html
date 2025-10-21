@@ -1,6 +1,6 @@
 {% import "shared/_display.html" as element %}
 
-{% macro childpanel(user, obj, model, children=[], associations=[]) -%}
+{% macro childcallout(user, obj, model, children=[], associations=[]) -%}
 <title>{{obj.name | title}} - {{obj.get_title(model)}}</title>
 <div class="grid-x align-justify">
     <div class="cell shrink">
@@ -9,17 +9,17 @@
     <div class="cell medium-3">
         <input type="search" name="query" placeholder="Begin typing to filter..."
                style="border-bottom: solid #000;"
-               hx-get="/api/{{obj.path}}/childpanel/{{model | lower}}"
+               hx-get="/api/{{obj.path}}/childcallout/{{model | lower}}"
                hx-trigger="input changed delay:250ms, search"
-               hx-target='#children-container-panel'
-               hx-select='#children-container-panel'
+               hx-target='#children-container-callout'
+               hx-select='#children-container-callout'
                hx-swap='outerHTML'>
     </div>
     {% if user.world_user(obj) %}
     <div class="cell shrink align-center-middle">
         <button class="button small"
                 hx-post="/api/manage/add/{{ model | lower}}" hx-target="#page-content"
-                hx-push-url="/{{obj.path}}/childpanel/{{model | lower}}"
+                hx-push-url="/{{obj.path}}/childcallout/{{model | lower}}"
                 hx-indicator='#request-indicator'>
             Add {{obj.get_title(model)}}
         </button>
@@ -27,10 +27,10 @@
     {% endif %}
 </div>
 <hr>
-<div class="panel has-bg-screen small" id='children-container-panel'>
+<div class="callout small" id='children-container-callout'>
     <div class="grid-x align-spaced">
         {% if obj.model_name() != 'World' and children %}
-        <div class="cell is-full">
+        <div class="cell">
             <h3 class='text-center'>Children</h3>
         </div>
         {%endif%}
@@ -41,7 +41,7 @@
         {% endfor %}
 
         {% if obj.model_name() != 'World' and associations %}
-        <div class="cell is-full">
+        <div class="cell">
             <hr>
             <h3 class='text-center'>General Associations</h4>
         </div>

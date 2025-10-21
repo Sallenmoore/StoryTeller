@@ -7,7 +7,7 @@
 {% macro manage(user, campaign) -%}
 <title>{{campaign.name | title}} - Manage Campaign</title>
 <div class="section small">
-    <div class="panel has-bg-screen">
+    <div class="callout">
         <div class="grid-x align-spaced">
             <div class="cell shrink">
                 {% if campaign.start_date %}
@@ -21,7 +21,7 @@
             </div>
         </div>
     </div>
-    <div class="panel  has-text-dark" style='position:relative;'>
+    <div class="callout " style='position:relative;'>
         {{campaign.summary | safe}}
         <div style='position: absolute; bottom:0px; right:0px;'>
             <div class="grid-x">
@@ -38,13 +38,13 @@
     <form hx-post="/api/campaign/{{campaign.pk}}/update" hx-swap='none'
           hx-trigger='input delay:0.5s'>
         <div class="grid-x align-justify" id="current-campaign-name">
-            <div class="cell is-full bg">
+            <div class="cell bg">
                 <div class="grid-x">
                     <div class="cell shrink align-center-middle">
                         <h4>Name</h4>
                     </div>
                     <div class="cell align-center-middle">
-                        <input class="has-bg-light" type="text" name="name"
+                        <input class="" type="text" name="name"
                                value="{{campaign.name}}">
                     </div>
                 </div>
@@ -52,17 +52,17 @@
         </div>
         <hr>
         <div class="grid-x" id="current-campaign-description">
-            <div class="cell is-full bg">
+            <div class="cell bg">
                 <h3 class='text-center'>Description</h>
                     {{form_components.texteditor(user, campaign, 'description')}}
             </div>
         </div>
     </form>
-    <hr class='has-bg-primary'>
+    <hr class=''>
     <div class="grid-x" id='campaign-players'>
         <div class="cell medium-4">
             <h5>Add Party</h5>
-            <div class="panel ">
+            <div class="callout ">
                 <div class="is-multiple-select">
                     <select
                             name='party'
@@ -94,11 +94,11 @@
             {% endif %}
         </div>
         <div class="cell">
-            <div class="panel">
+            <div class="callout">
                 <h3 class='text-center'> Players </h3>
                 <div class="grid-x align-spaced">
                     {% for p in campaign.players %}
-                    <div class="cell is-2 text-center">
+                    <div class="cell medium-2 text-center">
                         {{display_components.object_display(p, dim=250, type=False)}}
                         <a
                            hx-post="/api/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
@@ -114,10 +114,10 @@
         </div>
     </div>
     <div id="episode-list" class="section small">
-        <div class="panel">
+        <div class="callout">
             <h2 class='text-center'> Episodes </h2>
             <div class="grid-x">
-                <div class="cell shrink is-end">
+                <div class="cell shrink">
                     <button class="button small"
                             hx-post="/api/campaign/{{campaign.pk}}/episode/new"
                             hx-target="#episode-list"
@@ -128,29 +128,29 @@
                     </button>
                 </div>
                 {% for e in campaign.episodes %}
-                <div class="cell is-full has-bg-screen episode-association-entry">
+                <div class="cell episode-association-entry">
                     <a href='/episode/{{e.pk}}/manage' target='_blank'>
                         <div class="grid-x">
-                            <div class="cell is-2">
-                                <h5 class='text-center has-text-light'>{{e.name}}: {{e.num}}
+                            <div class="cell medium-2">
+                                <h5 class='text-center '>{{e.name}}: {{e.num}}
                                 </h5>
-                                <h6 class='text-center has-text-light'>{{e.start_date}} -
+                                <h6 class='text-center '>{{e.start_date}} -
                                     {{e.end_date}}
                                 </h6>
                             </div>
-                            <div class="cell" class='has-text-dark generated-text-lightbg'>
+                            <div class="cell" class=' generated-text-lightbg'>
                                 {{e.summary | safe}}
                             </div>
                         </div>
                     </a>
-                    <hr class='has-bg-light'>
+                    <hr class=''>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
     <div class="section small">
-        <div class="panel">
+        <div class="callout">
             <h2 class='text-center'> Associations </h2>
             {% for title in ['Locations', 'Characters', 'Creatures', 'Items', 'Factions'] %}
             {% set obj_key = title | lower %}
@@ -159,9 +159,9 @@
             <h3 class='text-center'> {{title}} </h3>
             <div class="grid-x align-spaced" id="episode-encounters">
                 {% for a in campaign[obj_key] %}
-                <div class="cell is-2 episode-association-entry">
+                <div class="cell medium-2 episode-association-entry">
                     <div class="grid-x">
-                        <div class="cell is-full">
+                        <div class="cell">
                             {{display_components.object_display(a)}}
                         </div>
                     </div>

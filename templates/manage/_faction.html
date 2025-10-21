@@ -12,8 +12,8 @@
             <input type="text" name="slogan" value="{{obj.slogan}}">
         </div>
         <div class="cell shrink ">
-            <div class="panel">
-                <h4 class='text-center has-text-muted'>Adventuring Party?</h4>
+            <div class="callout">
+                <h4 class='text-center '>Adventuring Party?</h4>
                 <div class="is-select">
                     <select class="has-no-border" name="is_player_faction">
                         <option value="False">---</option>
@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-        <div id="model-goal" class="cell is-full">
+        <div id="model-goal" class="cell">
             <h4 class='text-center'>Goals and Secrets</h4>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>

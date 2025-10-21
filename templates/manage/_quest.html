@@ -8,9 +8,9 @@
 {{title_components.object_title(user, entry.contact)}}<br>
 <div class="grid-x">
     <div class="cell align-center-middle">
-        <h2 class='text-center has-text-primary'>Quest Editor</h2>
+        <h2 class='text-center'>Quest Editor</h2>
     </div>
-    <div class="cell shrink is-end align-center-middle">
+    <div class="cell shrink align-center-middle">
         <a href="/{{entry.contact.path}}/quests">
             {{icon_components.close()}}
         </a>
@@ -46,13 +46,13 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5 class='text-center'>Storyline</h5>
-            <div class="panel">
+            <div class="callout">
                 {{entry.storyline.name}}:{{entry.storyline.situation | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5 class='text-center'>Description</h5>
             {{form_components.texteditor(user, entry, 'description')}}
             <hr>
@@ -65,17 +65,17 @@
             <h5 class='text-center'>Hook</h5>
             <textarea class="" name="hook" rows="3">{{entry.hook}}</textarea>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5 class='text-center'>Antagonist</h5>
             <textarea class="" name="antagonist"
                       rows="3">{{entry.antagonist}}</textarea>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5 class='text-center'>Plot Twist</h5>
             <textarea class="" name="plot_twist"
                       rows="3">{{entry.plot_twist}}</textarea>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5 class='text-center'>Rewards</h5>
             <textarea class="" name="rewards"
                       rows="3">{{entry.rewards}}</textarea>
@@ -84,7 +84,7 @@
 </form>
 <hr>
 <div class="grid-x">
-    <div class="cell is-full">
+    <div class="cell">
         <h3 class="text-center">Add Associations</h3>
         <div class="has-dropdown" style="width: 100%;">
             <input class="" autocomplete="off" type="search" name="query"
@@ -92,15 +92,15 @@
                    hx-target="#quest-entry-association-search"
                    hx-trigger="input delay:750ms, change, search"
                    hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown has-bg-light" id="quest-entry-association-search"
+            <ul class="dropdown" id="quest-entry-association-search"
                 hx-vals='{"entrypk":"{{entry.pk}}"}'>
             </ul>
         </div>
         <hr>
-        <div class="panel has-bg-light-grey small">
+        <div class="callout small">
             <div class="grid-x align-spaced" id="quest-entry-associations">
                 {% for a in entry.associations %}
-                <div class="cell is-1" style="position: relative;">
+                <div class="cell medium-1" style="position: relative;">
                     {{display_components.object_display(a)}}
                     <a style='position: absolute; top: 0; right: 5px;'
                        hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"

@@ -15,18 +15,18 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 <div class="grid-x">
-    <div class="cell is-full">
+    <div class="cell">
         <form hx-post="/api/{{obj.path}}/calendar/update"
               hx-swap="none"
               hx-trigger="input delay:1s, change, submit" 7>
             <div class="grid-x">
                 <div class="cell medium-4">
-                    <div class="panel has-bg-primary small">
+                    <div class="callout small">
                         <label>Epoch Name</label>
                         <input class="" type="text" name="age"
                                value="{{obj.calendar.age}}">
                         <label>Number of Days / Year</label>
-                        <input class=" has-text-dark" type="number"
+                        <input class="" type="number"
                                name="num_days_per_year"
                                value="{{obj.calendar.days_per_year}}">
                         <hr>
@@ -54,7 +54,7 @@
                         </div>
                         <div class="cell is-5">
                             <label>Number of Days / Week</label>
-                            <input class=" has-text-dark" type="number"
+                            <input class="" type="number"
                                    id="day-names" name="day_names"
                                    oninput='updateEntries(this);'
                                    value="{{obj.calendar.days | length}}">
@@ -104,7 +104,7 @@
                 <div class="cell">
                     <h4>Change System</h4>
                     <div class="select">
-                        <select class='has-bg-light' name="system">
+                        <select class='' name="system">
                             {% for k, v in obj.SYSTEMS.items() %}
                             <option value="{{k}}" {% if v==obj.system.__class__ %} selected {% endif
                                     %}>
@@ -114,7 +114,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="cell is-full">
+                <div class="cell">
                     <input class="button" type="submit" value="change">
                 </div>
             </div>
@@ -128,7 +128,7 @@
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
             <div class="grid-x is-vertical">
                 <div class="cell">
-                    <input class="has-bg-light" type="email" name="new_user" id="new_user"
+                    <input class="" type="email" name="new_user" id="new_user"
                            placeholder="enter user email">
                 </div>
                 <div class="cell">
@@ -136,7 +136,7 @@
                 </div>
             </div>
         </form>
-        <div class="panel has-bg-primary small">
+        <div class="callout small">
             <div class="grid-x">
                 <div class="cell">
                     <h4>Users</h4>

@@ -247,8 +247,8 @@
 {% macro info(user, obj) -%}
 {% if obj.current_date %}
 <div class="grid-x">
-    <div class="cell is-full">
-        <h3 class="has-text-dark-grey text-center">
+    <div class="cell">
+        <h3 class="-grey text-center">
             Present Date:
             {{obj.current_date}}
         </h3>
@@ -259,10 +259,10 @@
 <h2 class='text-center' id='manage-factions'>Faction Control</h2>
 <div class="grid-x">
     {% for region in obj.regions %}
-    <div class="cell is-2">
-        <div class="panel has-bg-screen is-full">
+    <div class="cell medium-2">
+        <div class="callout">
             {{display_components.object_display(region, type=False) | safe }}
-            <h6 class="has-text-white text-center">
+            <h6 class="text-center">
                 {{(region.owner and region.owner.name) or "Unknown"}}
             </h6>
         </div>
@@ -296,7 +296,7 @@
 {{title_components.object_title(user, obj)}}
 {% if user.world_user(obj)%}
 <div class="grid-x">
-    <div class="cell shrink is-end">
+    <div class="cell shrink">
         <button class="button small" hx-post="/api/world/campaign/new"
                 hx-target="#campaigns-list"
                 hx-selector="#campaigns-list"
@@ -330,11 +330,11 @@
 
 {% macro players(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-<title>{{obj.name}} - Players Panel</title>
-<h2 class="has-text-dark">Players</h2>
+<title>{{obj.name}} - Players callout</title>
+<h2 class="">Players</h2>
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>
-    <div class="panel ">
+    <div class="callout ">
         <div class="grid-x cards-container has-center">
             <div class="cell  align-center-middle shrink">
 
@@ -344,7 +344,7 @@
                 </div>
             </div>
             <div class="cell">
-                <h4 class="has-text-dark" style='text-decoration:underline;'>
+                <h4 class="" style='text-decoration:underline;'>
                     {% if player.name %}
                     {{player.name}}
                     {% else %}
@@ -375,8 +375,8 @@
 
 {% macro lore(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-<div id="lore-container" class="panel ">
-    <h2 class="has-text-dark text-centered">Lore Builder</h2>
+<div id="lore-container" class="callout ">
+    <h2 class=" text-centered">Lore Builder</h2>
     <hr>
     <form hx-post="/api/world/lore/new"
           hx-target="#lore-container"
@@ -384,7 +384,7 @@
           hx-swap="outerHTML">
         <div class="grid-x align-spaced">
             <div class="cell medium-3">
-                <select name="storypk" class="input is-fullwidth" required>
+                <select name="storypk" class="inputwidth" required>
                     <option value="" selected>=== Select Storyline ===</option>
                     {% for entry in obj.stories %}
                     <option value="{{entry.pk}}">{{entry.name}}</option>
@@ -400,13 +400,13 @@
                     </div>
                     <div class="cell shrink">
                         <input type="number" name="start_day"
-                               class="input is-fullwidth text-center"
+                               class="inputwidth text-center"
                                value="{{obj.current_date.day}}" min="1"
                                max="31">
                     </div>
                     <div class="cell shrink">
                         <div class='select'>
-                            <select name="start_month" class="input is-fullwidth">
+                            <select name="start_month" class="inputwidth">
                                 <option value="" selected>=== Select Month ===</option>
                                 {% for month in obj.calendar.months %}
                                 <option value="{{month}}" {% if obj.current_date.month==loop.index
@@ -446,13 +446,13 @@
         {% for entry in obj.lore_entries %}
         <div class="cell medium-4" hx-post="/api/world/lore/{{entry.pk}}/edit"
              hx-target="#lore-container">
-            <div class="panel has-bg-screen">
-                <h3 class="has-text-dark">{{entry.name}}</h3>
+            <div class="callout">
+                <h3 class="">{{entry.name}}</h3>
                 <div class="generated-text-lightbg">
                     {{entry.summary | safe}}
                 </div>
                 <div class="grid-x">
-                    <div class="cell shrink is-end">
+                    <div class="cell shrink">
                         <button class="button small"
                                 hx-post="/api/world/lore/{{entry.pk}}/delete"
                                 hx-target="#lore-entries"
@@ -471,7 +471,7 @@
 {%- endmacro %}
 
 {% macro lore_details(user, lore) -%}
-<div class="panel">
+<div class="callout">
     <form hx-post="/api/world/lore/{{lore.pk}}/edit"
           hx-trigger="change delay:500ms"
           hx-swap="none">
@@ -480,7 +480,7 @@
                 {{form_components.text_input(name="name",label="Title",value=lore.name)}}
             </div>
             <div class="cell shrink">
-                <label class="label has-text-muted" for="scope">Scope</label>
+                <label class="label " for="scope">Scope</label>
                 <div class="select">
                     <select class="" name="scope">
                         <option value="" selected>=== Select Scope ===</option>
@@ -492,19 +492,19 @@
                 </div>
             </div>
             <div class="cell medium-4">
-                <h6 class="has-text-muted text-center">
+                <h6 class=" text-center">
                     Current Date
                 </h6>
                 <div class="grid-x ">
                     <div class="cell shrink">
                         <input type="number" name="start_day"
-                               class="input is-fullwidth text-center"
+                               class="inputwidth text-center"
                                value="{{lore.start_date.day}}" min="1"
                                max="31">
                     </div>
                     <div class="cell shrink">
                         <div class='select'>
-                            <select name="start_month" class="input is-fullwidth">
+                            <select name="start_month" class="inputwidth">
                                 <option value="" selected>=== Select Month ===</option>
                                 {% for month in lore.calendar.months %}
                                 <option value="{{month}}" {% if lore.start_date.month==loop.index
@@ -526,7 +526,7 @@
             </div>
         </div>
     </form>
-    <div class="panel  has-text-screen">
+    <div class="callout  has-text-screen">
         {% if lore.story %}
         <h3 class="text-centered"
             onclick='this.nextElementSibling.classList.toggle("is-hidden")'>Associated Storyline:
@@ -557,10 +557,10 @@
         <div class="cell is-half">
             <form hx-post="/task/generate/lore/{{lore.pk}}">
                 <div class="grid-x">
-                    <div class="cell is-full">
+                    <div class="cell">
                         {{form_components.textarea(lore, name="prompt", label="Prompt")}}
                     </div>
-                    <div class="cell shrink is-end">
+                    <div class="cell shrink">
                         <button type="submit"
                                 class="button small">
                             {{icon_components.refresh(size="1rem")}}
@@ -587,7 +587,7 @@
         {% endif%}
         {% if lore.potential_events %}
         <div class="cell is-half">
-            <h3 class="has-text-dark">Potential Events</h3>
+            <h3 class="">Potential Events</h3>
             <ul>
                 {% for event in lore.potential_events %}
                 <li>{{event | safe}}</li>
@@ -601,24 +601,24 @@
     <div class="cell">
         <div id="lore-party-container" class="grid-x has-centered">
             <div class="cell shrink">
-                <h3 class="has-text-dark text-centered">Party Members</h3>
+                <h3 class=" text-centered">Party Members</h3>
             </div>
             <div class="cell medium-4">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                    <input class="" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
                            hx-post="/api/world/lore/{{lore.pk}}/party/add/search"
                            hx-target="#lore-new-party-list"
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="lore-new-party-list">
+                    <ul class="dropdown" id="lore-new-party-list">
                     </ul>
                 </div>
             </div>
-            <div class="cell is-full">
+            <div class="cell">
                 <div class="grid-x align-spaced">
                     {% for o in lore.party %}
-                    <div class="cell is-2" style='position:relative;'>
+                    <div class="cell medium-2" style='position:relative;'>
                         {{display_components.object_display(o, type=False, dim=150)}}
                         <a style='position:absolute; top:0px; right:5px;'
                            hx-post="/api/world/lore/{{lore.pk}}/party/remove/{{o.pk}}"
@@ -636,24 +636,24 @@
     <div class="cell">
         <div id="lore-associations-container" class="grid-x has-centered">
             <div class="cell shrink">
-                <h3 class="has-text-dark text-centered">Associations</h3>
+                <h3 class=" text-centered">Associations</h3>
             </div>
             <div class="cell medium-4">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                    <input class="" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
                            hx-post="/api/world/lore/{{lore.pk}}/association/add/search"
                            hx-target="#lore-new-association-list"
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="lore-new-association-list">
+                    <ul class="dropdown" id="lore-new-association-list">
                     </ul>
                 </div>
             </div>
-            <div class="cell is-full">
+            <div class="cell">
                 <div class="grid-x align-spaced">
                     {% for o in lore.associations %}
-                    <div class="cell is-2" style='position:relative;'>
+                    <div class="cell medium-2" style='position:relative;'>
                         {{display_components.object_display(o, type=False, dim=150)}}
                         <a style='position:absolute; top:0px; right:5px;'
                            hx-post="/api/world/lore/{{lore.pk}}/association/remove/{{o.path}}"

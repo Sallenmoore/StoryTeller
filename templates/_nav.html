@@ -22,7 +22,7 @@
                 </span>
             </div>
             <div class="cell auto">
-                <input type="text" autocomplete="off" class="has-bg-secondary has-text-white"
+                <input type="text" autocomplete="off" class=" has-text-white"
                        type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
                        hx-trigger="input changed delay:500ms, search">
                 <ul id="nav-search">
@@ -68,11 +68,9 @@
     <a href='/{{o.model_name() | lower}}/{{o.pk}}' target='_blank'>
         <div class=" row">
             <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src=" {{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                {% endif %}
             </div>
             <div class="cell">
                 {{o.name}}

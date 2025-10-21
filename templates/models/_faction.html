@@ -141,12 +141,12 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
     <div class="grid-x">
-        <div class="cell is-full">
+        <div class="cell">
             <h5> Details</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -155,9 +155,9 @@
                 </ul>
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Recent Events</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     {% for sd in obj.recent_events %}
                     <li>{{ sd | safe }}</li>
@@ -165,9 +165,9 @@
                 </ul>
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     {% for r in obj.rumors %}
                     <li>
@@ -184,25 +184,25 @@
 {% macro info(user, obj) -%}
 <div class="grid-x">
     <div id="model-goal" class="cell">
-        <div class="panel  generated-text-lightbg">
+        <div class="callout  generated-text-lightbg">
             <h4>Goal</h4>
             {{obj.goal | safe}}
         </div>
     </div>
     <div id="model-status" class="cell">
-        <div class="panel  generated-text-lightbg">
+        <div class="callout  generated-text-lightbg">
             <h4>Status</h4>
             {{obj.status | safe}}
         </div>
     </div>
 </div>
 <hr>
-<div class="panel small has-bg-light-grey">
+<div class="callout small">
     <div class="grid-x">
         {% if obj.leader %}
         <div class="cell shrink">
-            <div class="panel has-bg-primary">
-                <h4 class="has-text-primary text-center">Leader</h4>
+            <div class="callout">
+                <h4 class=" text-center">Leader</h4>
                 <a href="{{obj.leader.path}}">
                     <div class="image is-large is-thumbnail is-margin-center">
                         {% if obj.leader.image %}
@@ -211,13 +211,13 @@
                     </div>
                 </a>
             </div>
-            <h4 class="has-text-dark text-center">
+            <h4 class=" text-center">
                 {{obj.leader.name}}
             </h4>
         </div>
         {% endif %}
         <div class="cell">
-            <h3 class="has-text-dark text-center">Members</h3>
+            <h3 class=" text-center">Members</h3>
             <div class="grid-x">
                 {% for member in obj.associations %}
                 {% if member.model_name() == "Character" and member != obj.leader %}
@@ -229,7 +229,7 @@
                                  alt="{{obj.name}}" style="width:100%; height:100%;" />
                             {% endif %}
                         </div>
-                        <h4 class="has-text-dark">
+                        <h4 class="">
                             {% if member.name %} {{member.name}} {% else %} {{member.title}} {%
                             endif %}
                         </h4>

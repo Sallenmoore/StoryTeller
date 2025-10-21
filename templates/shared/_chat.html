@@ -9,14 +9,14 @@
     </div>
 </div>
 <hr>
-<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+<div class="callout generated-text-lightbg">
     <div id="model-chat" class="grid-x align-spaced">
-        <div class="cell is-2">
+        <div class="cell medium-2">
             {{display_components.object_display(obj, dim=250, name=False, type=False)}}
         </div>
-        <div class="cell is-10">
+        <div class="cell medium-10">
             {% if obj.backstory_summary %}
-            <div class="panel generated-text-darkbg">
+            <div class="callout">
                 {{ obj.backstory_summary | safe }}
             </div>
             {% endif %}
@@ -24,11 +24,11 @@
                   hx-target="#model-chat">
                 <textarea class="textarea" name="chat" id="chat" rows="5"
                           placeholder="{{obj.last_chat.get('pc', 'What would you like to talk about?')}}"></textarea>
-                <button class="button is-full small" type="submit">Chat</button>
+                <button class="button small" type="submit">Chat</button>
             </form>
             <hr>
         </div>
-        <div class="cell is-full" style="position:relative">
+        <div class="cell" style="position:relative">
             <div class="grid-x align-justify">
                 <div class="cell medium-6">
                     <h3>Last Response</h3>
@@ -40,26 +40,26 @@
                     </audio>
                 </div>
             </div>
-            <div class="panel ">
+            <div class="callout ">
                 {{obj.last_chat.get('npc', "") | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             {% if obj.chat_summary %}
-            <div class="panel has-bg-black generated-text-darkbg">
+            <div class="callout has-bg-black">
                 {{obj.chat_summary | safe}}
             </div>
             <hr>
             {% for chat in obj.chats[::-1] %}
-            <div class="panel has-bg-light">
+            <div class="callout">
                 <div class="grid-x">
                     <div class="cell ">
-                        <div class="panel ">
+                        <div class="callout ">
                             {{chat['pc']}}
                         </div>
                     </div>
                     <div class="cell">
-                        <div class="panel generated-text-darkbg">
+                        <div class="callout">
                             {{chat['npc']}}
                         </div>
                     </div>

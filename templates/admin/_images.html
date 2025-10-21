@@ -5,11 +5,11 @@
 {% macro manage(user, images, tags=None, tag=None) -%}
 <title>Storyteller Admin - Manage Images</title>
 <div class="grid-x">
-    <div class="cell is-full align-center-middle">
-        <h2 class='text-center has-text-primary'>Manage Images</h2>
+    <div class="cell align-center-middle">
+        <h2 class='text-center'>Manage Images</h2>
     </div>
-    <div class="cell is-full align-center-middle">
-        <h3 class='text-center has-text-primary'>Filter</h3>
+    <div class="cell align-center-middle">
+        <h3 class='text-center'>Filter</h3>
         <div class="buttons is-centered">
             <a class="button small {% if not tag %}is-primary{% else %}is-muted has-text-screen{% endif %}"
                href="/admin/manage/images">
@@ -24,23 +24,23 @@
         </div>
     </div>
     {% for image in images %}
-    <div class="cell is-2">
+    <div class="cell medium-2">
         <div class='image'>
             <img src="{{ image.url() }}" loading="lazy" alt="{{ image.name or image.title }}">
         </div>
         <p class="text-centered">{{ image.name or image.title }}</p>
         <div class="is-tag-group">
             {% for tag in image.tags %}
-            <span class="tag">{{tag}}</span>
+            <span class="label">{{tag}}</span>
             {% endfor %}
         </div>
         <small class="text-centered">Associations: {{ image.associations | count }}</small>
         <div class="is-tag-group">
             {% for ass in image.associations %}
-            <span class="tag"><a href="/{{ass.path}}/history">{{ass.name}}</a></span>
+            <span class="label"><a href="/{{ass.path}}/history">{{ass.name}}</a></span>
             {% endfor %}
         </div>
-        <button class="button small is-full"
+        <button class="button small"
                 hx-post="/api/admin/manage/image/delete"
                 hx-vals='{"pk": "{{ image.pk }}", "model": "Image"}'
                 hx-swap="delete"

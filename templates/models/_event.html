@@ -7,22 +7,22 @@
 
 {% macro index(user, event) -%}
 {{title_components.object_title(user, event)}}
-<div class="panel " style='border-top-right-radius: 0; border-top-left-radius:0;'>
+<div class="callout " style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="grid-x">
-        <div class="cell is-full">
+        <div class="cell">
             <hr>
             <div class="grid-x">
                 {% if event.start_date %}
                 <div class="cell">
-                    <div class="panel has-bg-transparent">
-                        <span class='has-text-dark'>{{event.start_date}} - {{event.end_date}}</span>
+                    <div class="callout has-bg-transparent">
+                        <span class=''>{{event.start_date}} - {{event.end_date}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.backstory %}
-                <div class="cell is-full">
-                    <div class="panel  has-text-dark ">
-                        <h5 class='has-text-primary'
+                <div class="cell">
+                    <div class="callout  ">
+                        <h5 class=''
                             style='text-decoration: underline; text-center'>
                             Description</h5>
                         {{event.backstory | safe}}
@@ -31,25 +31,25 @@
                 {% endif %}
                 {% if event.impact %}
                 <div class="cell is-half">
-                    <div class="panel has-bg-transparent">
-                        <h5 class='has-text-primary'
+                    <div class="callout has-bg-transparent">
+                        <h5 class=''
                             style='text-decoration: underline;'>Impact</h5>
-                        <span class='has-text-dark'>{{event.impact | safe}}</span>
+                        <span class=''>{{event.impact | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.outcome %}
                 <div class="cell is-half">
-                    <div class="panel has-bg-transparent">
-                        <h5 class='has-text-primary'
+                    <div class="callout has-bg-transparent">
+                        <h5 class=''
                             style='text-decoration: underline;'>Outcome</h5>
-                        <span class='has-text-dark'>{{event.outcome | safe}}</span>
+                        <span class=''>{{event.outcome | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.image %}
                 <div class="cell">
-                    <div class="panel has-bg-transparent">
+                    <div class="callout has-bg-transparent">
                         <div class="image is-tile is-margin-center" style="width:100%;">
                             <img src="{{event.image.url()}}" loading="lazy" alt="{{event.name}}" />
                         </div>
@@ -58,12 +58,12 @@
                 {% endif %}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <div class="grid-x">
                 {% for story in event.stories %}
                 <div class="cell">
-                    <div class="panel  has-text-dark">
-                        <a href='/{{ story.path }}' class='has-text-dark'>
+                    <div class="callout ">
+                        <a href='/{{ story.path }}' class=''>
                             <h5 class='text-center'>Story: {{ story.name }}</h5>
                             <div>{{ story.situation | safe }}</div>
                         </a>
@@ -73,8 +73,8 @@
             </div>
         </div>
         {% if event.episode %}
-        <div class="cell is-full">
-            <div class="panel  has-text-dark">
+        <div class="cell">
+            <div class="callout ">
                 <h5 class='text-center'>{{ event.episode.name }}</h5>
                 <div>{{ event.episode.report | safe }}</div>
             </div>

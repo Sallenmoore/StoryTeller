@@ -77,34 +77,34 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" class="callout">
     <h3 class='text-center'>GM Notes</h3>
     <div class="grid-x">
         <div class="cell is-half">
             <h5>Summary</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.backstory_summary | safe}}
             </div>
         </div>
         <div class="cell is-half">
             <h5>Notes</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.notes | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Mechanics</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.mechanics | safe}}
             </div>
         </div>
         {% if obj.enemies %}
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Antagonists</h5>
-            <div class="panel">
+            <div class="callout">
                 <div class="grid-x align-spaced">
                     {% for sd in obj.enemies %}
-                    <div class="cell is-2">
+                    <div class="cell medium-2">
                         {{display_components.object_display(sd)}}
                     </div>
                     {% endfor %}
@@ -119,25 +119,25 @@
 {% macro info(user, obj=None) -%}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <div class="panel">
+        <div class="callout">
             <div class="grid-x">
                 <div class="cell shrink align-center-middle">
                     <h4>Difficulty:</h4>
                 </div>
                 <div class="cell align-center-middle">
-                    <h5 class='has-text-light-grey'>{{obj.difficulty}}</h5>
+                    <h5 class='-grey'>{{obj.difficulty}}</h5>
                 </div>
             </div>
         </div>
     </div>
     <div class="cell shrink">
-        <div class="panel">
+        <div class="callout">
             <div class="grid-x">
                 <div class="cell shrink align-center-middle">
                     <h4>Enemy Type:</h4>
                 </div>
                 <div class="cell align-center-middle">
-                    <h5 class='has-text-light-grey'>{{obj.enemy_type}}</h5>
+                    <h5 class='-grey'>{{obj.enemy_type}}</h5>
                 </div>
             </div>
         </div>
@@ -145,35 +145,35 @@
 </div>
 <div class="grid-x">
     {% if user.world_user(obj)%}
-    <div class="cell is-full">
-        <div class="panel ">
-            <h3 class="has-text-dark">Triggers</h3>
-            <span class="has-text-dark">
+    <div class="cell">
+        <div class="callout ">
+            <h3 class="">Triggers</h3>
+            <span class="">
                 {{obj.trigger_conditions | safe}}
             </span>
         </div>
         <hr>
     </div>
     <div class="cell is-half">
-        <h3 class="has-text-dark">Player Contingencies</h3>
-        <ul class="has-text-dark">
+        <h3 class="">Player Contingencies</h3>
+        <ul class="">
             {% for pc in obj.player_contingencies %}
             <li>{{ pc | safe }}</li>
             {% endfor %}
         </ul>
     </div>
     <div class="cell is-half">
-        <h3 class="has-text-dark">Potential Outcomes</h3>
-        <ul class="has-text-dark">
+        <h3 class="">Potential Outcomes</h3>
+        <ul class="">
             {% for pc in obj.potential_outcomes %}
             <li>{{ pc | safe }}</li>
             {% endfor %}
         </ul>
     </div>
-    <div class="cell is-full">
-        <div class="panel ">
-            <h3 class="has-text-dark">Complications</h3>
-            <span class="has-text-dark">
+    <div class="cell">
+        <div class="callout ">
+            <h3 class="">Complications</h3>
+            <span class="">
                 {{obj.complications | safe}}
             </span>
         </div>

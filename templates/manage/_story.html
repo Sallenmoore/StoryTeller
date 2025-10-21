@@ -7,18 +7,18 @@
 <form hx-post="/api/story/{{story.pk}}/update" hx-swap='none' hx-push-url='false'
       hx-trigger='input delay:0.5s'>
     <div class="grid-x align-justify">
-        <div class="cell is-full bg">
+        <div class="cell bg">
             <div class="grid-x align-spaced">
                 <div class="cell shrink align-center-middle">
                     <h4>Name</h4>
                 </div>
                 <div class="cell is-half align-center-middle">
-                    <input class="has-bg-light" type="text" name="name"
+                    <input class="" type="text" name="name"
                            value="{{story.name}}">
                 </div>
                 <div class="cell align-center-middle shrink">
                     <div class="is-select">
-                        <select class="has-bg-light" name='scope'>
+                        <select class="" name='scope'>
                             <option value="local" {%if story.scope=="local" %}selected{%endif%}>
                                 Local</option>
                             <option value='regional' {%if story.scope=="regional"
@@ -50,15 +50,15 @@
     </div>
     <hr>
     <div class="grid-x">
-        <div class="cell is-full ">
+        <div class="cell ">
             <h3 class='text-center'>Situation</h3>
             {{form_components.texteditor(user, story, 'situation')}}
         </div>
-        <div class="cell is-full ">
+        <div class="cell ">
             <h3 class='text-center'>Backstory</h3>
             {{form_components.texteditor(user, story, 'backstory')}}
         </div>
-        <div class="cell is-full ">
+        <div class="cell ">
             <h3 class='text-center'>Current Status</h3>
             {{form_components.texteditor(user, story, 'current_status')}}
         </div>
@@ -112,20 +112,20 @@
         </div>
     </div>
 </form>
-<hr class='has-bg-primary'>
+<hr class=''>
 <div class="grid-x">
-    <div id="story-bbeg" class="cell is-2 ">
+    <div id="story-bbeg" class="cell medium-2 ">
         <h3 class='text-center'>BBEG</h3>
         <div class="grid-x">
-            <div class="cell is-full">
+            <div class="cell">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                    <input class="" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
                            hx-post="/api/story/{{story.pk}}/bbeg/add/search"
                            hx-target="#story-new-bbeg-list"
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="story-new-bbeg-list">
+                    <ul class="dropdown" id="story-new-bbeg-list">
                     </ul>
                 </div>
             </div>
@@ -138,30 +138,30 @@
         <h3 class='text-center'>Planned Encounters</h3>
         <div class="grid-x align-spaced">
             {% for encounter in story.encounters %}
-            <div class="cell is-2">{{display_components.object_display(encounter)}}</div>
+            <div class="cell medium-2">{{display_components.object_display(encounter)}}</div>
             {% endfor %}
         </div>
     </div>
 </div>
 <hr class=''>
 <div id="story-events" class="section small">
-    <div class="panel">
+    <div class="callout">
         <h2 class='text-center'> Events </h2>
         <div class="grid-x">
             <div class="cell search is-half align-center-middle">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete=off type="search" name="query"
+                    <input class="" autocomplete=off type="search" name="query"
                            placeholder="Search to Add Events..."
                            style="border-bottom: solid #000;" hx-target="#event-search"
                            hx-post="/api/{{story.path}}/event/add/search"
                            hx-push-url='false'
                            hx-trigger="input delay:750ms, search"
                            hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown autocomplete-list has-bg-light" id="event-search">
+                    <ul class="dropdown autocomplete-list" id="event-search">
                     </ul>
                 </div>
             </div>
-            <div class="cell shrink is-end">
+            <div class="cell shrink">
                 <button class='button '
                         hx-post='/api/{{story.path}}/event/add'
                         hx-target="#story-events-list"
@@ -175,12 +175,12 @@
             {% for e in story.events %}
             <div class="cell medium-3">
                 <a href="/{{e.path}}">
-                    <div class="panel ">
+                    <div class="callout ">
                         <div class="grid-x">
-                            <div class="cell is-full">
+                            <div class="cell">
                                 <h5 class="text-center">{{e.name}}</h5>
                             </div>
-                            <div class="cell is-full">
+                            <div class="cell">
                                 <h6 class="text-center">{{e.start_date}} - {{e.end_date}}</h6>
                             </div>
                             <div class="cell">
@@ -199,7 +199,7 @@
     <div class="cell shrink align-center-middle">
         <h4 class='text-center'>Merge Story</h4>
         <div class="is-select" style="width: 100%;">
-            <select class="has-bg-light" name="mergepk"
+            <select class="" name="mergepk"
                     hx-post="/api/story/{{story.pk}}/merge"
                     hx-target="#page-content"
                     hx-push-url='false'
@@ -215,7 +215,7 @@
             </select>
         </div>
     </div>
-    <div class="cell shrink is-end">
+    <div class="cell shrink">
         <h4 class='text-center'>Delete Story</h4>
         <a hx-post="/api/story/{{story.pk}}/delete"
            hx-target="#page-content"

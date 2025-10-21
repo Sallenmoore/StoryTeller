@@ -60,7 +60,7 @@
             <div class="cell shrink">
                 {{icon_components.lineage(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>Lineage</span>
             </div>
         </div>
@@ -142,7 +142,7 @@
             <div class="cell shrink">
                 {{icon_components.quest(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>Quests</span>
             </div>
         </div>
@@ -157,7 +157,7 @@
             <div class="cell shrink">
                 {{icon_components.chat(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>Chat</span>
             </div>
         </div>
@@ -176,11 +176,11 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="panel has-bg-dark">
-    <h3 class='text-center has-text-light'>GM Notes</h3>
+<div id="gmnotes" class="callout ">
+    <h3 class='text-center '>GM Notes</h3>
     <div class="grid-x">
         <div class="cell is-half">
-            <div class="panel ">
+            <div class="callout ">
                 <h5> Details</h5>
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
@@ -191,32 +191,32 @@
             </div>
         </div>
         <div class="cell is-half">
-            <div class="panel ">
+            <div class="callout ">
                 <h5>Current Status</h5>
                 {{obj.status | safe}}
             </div>
         </div>
         <div class="cell">
-            <div class="panel ">
+            <div class="callout ">
                 <h5>Look-A-Like</h5>
                 {{obj.lookalike | safe}}
             </div>
         </div>
         <div class="cell">
-            <div class="panel ">
+            <div class="callout ">
                 <h5>Voice</h5>
                 {{obj.voice_description | safe}}
             </div>
         </div>
         {% if obj.quests %}
-        <div class="cell is-full">
-            <div class="panel ">
+        <div class="cell">
+            <div class="callout ">
                 <h5>Hooks</h5>
                 <ul>
                     {% for q in obj.quests %}
                     <li>
                         {{ q.summary | safe }}
-                        <hr class='has-bg-primary'>
+                        <hr class=''>
                         {{ q.hook | safe }}
                     </li>
                     {% endfor %}
@@ -224,8 +224,8 @@
             </div>
         </div>
         {% endif %}
-        <div class="cell is-full">
-            <div class="panel ">
+        <div class="cell">
+            <div class="callout ">
                 <h5>Rumors</h5>
                 <ul>
                     {% for r in obj.rumors %}
@@ -241,7 +241,7 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-<div class="panel has-bg-screen">
+<div class="callout">
     <div class="grid-x align-spaced">
         <div class="cell shrink is-mobile-4">
             <h4>STR</h4>
@@ -272,7 +272,7 @@
         {% for skill, val in obj.skills.items() %}
 
         <div class="cell shrink is-mobile-3">
-            <div class="panel has-bg-screen is-full">
+            <div class="callout">
                 <h5 class='text-center'>{{skill}}</h5>
                 <p class='text-center'>{{val}}</p>
             </div>
@@ -282,13 +282,13 @@
 </div>
 <div class="grid-x align-spaced">
     <div class="cell medium-3 is-mobile-4">
-        <div id="current-hitpoints" class="panel ">
-            <h4 class="has-text-dark">Current HP</h4>
+        <div id="current-hitpoints" class="callout ">
+            <h4 class="">Current HP</h4>
             <input hx-get="/api/manage/character/hitpoints"
                    hx-swap="none" hx-trigger="input delay:1s, change" type="number"
                    value="{{obj.current_hitpoints}}" name="current_hitpoints">
             <div class="grid-x">
-                <div class="cell shrink is-end">
+                <div class="cell shrink">
                     <button class="button small" hx-get="/api/manage/character/hitpoints"
                             hx-target="#current-hitpoints" hx-select="#current-hitpoints"
                             hx-swap="outerHTML">
@@ -300,39 +300,39 @@
     </div>
     <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>MAX HP</h4>
-        <p class="has-text-dark">{{obj.hitpoints}}</p>
+        <p class="">{{obj.hitpoints}}</p>
     </div>
     <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>Occupation</h4>
-        <p class="has-text-dark">{{obj.occupation}}</p>
+        <p class="">{{obj.occupation}}</p>
     </div>
     <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>Archetype (i.e. Class)</h4>
-        <p class="has-text-dark">{{obj.archetype}}</p>
+        <p class="">{{obj.archetype}}</p>
     </div>
     <div class="cell shrink is-mobile-4">
         <h4 class='has-text-screen'>AC</h4>
-        <p class="has-text-dark">{{obj.ac}}</p>
+        <p class="">{{obj.ac}}</p>
     </div>
 </div>
 <div class='row align-spaced'>
-    <div class="cell is-full is-mobile-full">
+    <div class="cell is-mobile-full">
         <div class="grid-x align-spaced">
             <div class="cell shrink">
                 <h4 class='has-text-screen'>Age</h4>
                 {% if obj.age %}
-                <p class="has-text-dark">{{obj.age}}</p>
+                <p class="">{{obj.age}}</p>
                 {% else%}
-                <p class="has-text-dark">Unknown</p>
+                <p class="">Unknown</p>
                 {% endif %}
             </div>
             <div class="cell shrink">
                 <h4 class='has-text-screen'>Species</h4>
-                <p class="has-text-dark">{{obj.species}}</p>
+                <p class="">{{obj.species}}</p>
             </div>
             <div class="cell shrink">
                 <h4 class='has-text-screen'>Gender</h4>
-                <p class="has-text-dark">{{obj.gender}}</p>
+                <p class="">{{obj.gender}}</p>
             </div>
         </div>
     </div>
@@ -340,30 +340,30 @@
 <hr>
 {% if user.world_user(obj)%}
 <div class="grid-x">
-    <div class="cell is-full">
-        <h3 class='text-center has-text-primary'>Goals and Secrets</h3>
-        <div class="panel has-bg-screen">
-            <p class='has-text-light'>{{obj.goal | safe}}</p>
+    <div class="cell">
+        <h3 class='text-center'>Goals and Secrets</h3>
+        <div class="callout">
+            <p class=''>{{obj.goal | safe}}</p>
         </div>
     </div>
     {% if obj.abilities %}
-    <div id="model-abilities" class="cell is-full">
+    <div id="model-abilities" class="cell">
         {{abilities_components.abilities(user, obj)}}
     </div>
     {% endif %}
     {% if obj.wealth or obj.items %}
-    <div id="model-wealth" class="cell is-full">
+    <div id="model-wealth" class="cell">
         <h4>Wealth</h4>
-        <div class="panel">
+        <div class="callout">
             <div class="grid-x">
                 {% for item in obj.items %}
-                <div class="cell is-2">
+                <div class="cell medium-2">
                     {{display_components.object_display(item, type=False)}}
                 </div>
                 {% endfor %}
             </div>
         </div>
-        <div class="panel has-bg-primary">
+        <div class="callout">
             {% for w in obj.wealth %}
             <p>{{w | safe}}</p>
             <hr>
@@ -402,10 +402,10 @@
 
 {% macro lineage(user, obj)%}
 {{title_components.object_title(user, obj)}}
-<h2 class='has-text-primary'>Lineage</h2>
+<h2 class=''>Lineage</h2>
 {% if user.world_user(obj) %}
-<div class="panel ">
-    <h4 class='has-text-dark text-center'>Add Family Member</h4>
+<div class="callout ">
+    <h4 class=' text-center'>Add Family Member</h4>
     <form hx-post="/api/manage/character/addlineage" hx-target="#page-content">
         <div class="grid-x has-centered">
             <div class="cell shrink is-mobile-4">
@@ -438,14 +438,14 @@
     </form>
 </div>
 {% endif %}
-<div class="panel has-bg-screen">
+<div class="callout">
     <div class="grid-x align-spaced">
-        <div class="cell is-full">
+        <div class="cell">
             <h4 class='text-center'>Parents</h4>
             {% if obj.parent_lineage %}
             <div class="grid-x align-spaced">
                 {% for parent in obj.parent_lineage %}
-                <div class="cell is-2" style='position:relative;'>
+                <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(parent)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{parent.pk}}"
@@ -459,15 +459,15 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark text-center">None</p>
+            <p class=" text-center">None</p>
             {% endif %}
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h4 class='text-center'>Siblings</h4>
             {% if obj.sibling_lineage %}
             <div class="grid-x align-spaced">
                 {% for sibling in obj.sibling_lineage %}
-                <div class="cell is-2" style='position:relative;'>
+                <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(sibling)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{sibling.pk}}"
@@ -480,15 +480,15 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark text-center">None</p>
+            <p class=" text-center">None</p>
             {% endif %}
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h4 class='text-center'>Children</h4>
             {% if obj.children_lineage %}
             <div class="grid-x align-spaced">
                 {% for child in obj.children_lineage %}
-                <div class="cell is-2" style='position:relative;'>
+                <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(child)}}
                     <a style='position:absolute; top:0px; right:5px;'
                        hx-post="/api/manage/character/removelineage/{{child.pk}}"
@@ -501,7 +501,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="has-text-dark text-center">None</p>
+            <p class=" text-center">None</p>
             {% endif %}
         </div>
     </div>
@@ -510,14 +510,14 @@
 
 {% macro quests(user, obj) -%}
 {{title_components.object_title(user, obj)}}
-<div class="panel has-bg-screen">
+<div class="callout">
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="grid-x align-spaced">
             <div class="cell">
-                <h3 class='has-text-muted'>Quest Board</h3>
+                <h3 class=''>Quest Board</h3>
             </div>
             <div class="cell shrink">
-                <h5 class='has-text-muted'>Storyline</h5>
+                <h5 class=''>Storyline</h5>
             </div>
             <div class="cell medium-4">
                 <div class="is-select">
@@ -545,8 +545,8 @@
                 <div class="grid-x align-justify">
                     <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class='has-text-dark'>{{entry.name}}</h3>
-                        <h5 class='has-text-dark'>{{entry.status}}</h5>
+                        <h3 class=''>{{entry.name}}</h3>
+                        <h5 class=''>{{entry.status}}</h5>
                     </div>
                     <div class="cell shrink align-center-middle">
                         <button class="button small"
@@ -567,59 +567,59 @@
                 </div>
             </a>
             <div class="accordion__content">
-                <hr class='has-bg-primary'>
-                <div class="panel has-bg-light-grey">
+                <hr class=''>
+                <div class="callout">
                     <div class="grid-x">
                         <div class="cell is-half">
-                            <div class="panel has-bg-light">
+                            <div class="callout">
                                 <h4 class='text-center'>Summary</h4>
                                 {{entry.summary | safe}}
                             </div>
                         </div>
                         <div class="cell is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark text-center'>Hook</h4>
+                            <div class="callout">
+                                <h4 class=' text-center'>Hook</h4>
                                 {{entry.hook | safe}}
                             </div>
                         </div>
-                        <div class="cell is-full">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark text-center'>Description</h4>
+                        <div class="cell">
+                            <div class="callout">
+                                <h4 class=' text-center'>Description</h4>
                                 {{entry.description | safe}}
                             </div>
                         </div>
                     </div>
                     <div class="grid-x">
                         <div class="cell">
-                            <div class="panel has-bg-light">
+                            <div class="callout">
                                 <h4 class='text-center'>Antagonist</h4>
                                 {{entry.antagonist | safe}}
                             </div>
                         </div>
                     </div>
                     <hr>
-                    <div class="panel has-bg-light">
+                    <div class="callout">
                         <h4 class='text-center'>Plot Twist</h4>
                         <div>{{entry.plot_twist | safe}}</div>
                     </div>
                     <hr>
-                    <div class="panel has-bg-light">
+                    <div class="callout">
                         <h4 class='text-center'>Rewards</h4>
                         {{entry.rewards | safe}}
                     </div>
                     <hr>
-                    <h4 class='has-text-dark text-center'>Associations</h4>
+                    <h4 class=' text-center'>Associations</h4>
                     <div class="grid-x align-spaced">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
-                        <div class="cell is-1">
+                        <div class="cell medium-1">
                             {{display_components.object_display(ass)}}
                         </div>
                         {% endfor %}
                         {% endif %}
                     </div>
                 </div>
-                <hr class='has-bg-primary'>
+                <hr class=''>
             </div>
         </li>
         {% endfor %}

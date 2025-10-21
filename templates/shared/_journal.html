@@ -8,8 +8,8 @@
     <div class="cell align-center-middle">
         <h2>Journal</h2>
     </div>
-    <div class="cell shrink is-end">
-        <div class="cell shrink is-end align-center-middle">
+    <div class="cell shrink">
+        <div class="cell shrink align-center-middle">
             <button class="button small" hx-post="/api/manage/journal/entry/edit"
                     hx-target="#page-content">
                 {{icon_components.journal()}}
@@ -24,10 +24,10 @@
         {% for entry in obj.journal.entries %}
         <li class="accordion__item ">
             <a class="accordion__title" href="#journal-entry-{{obj.pk}}">
-                <div class="grid-x">
+                <div class="grid-x align-justify">
                     <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class='has-text-dark'>{{entry.title}}</h3>
+                        <h3 class=''>{{entry.title}}</h3>
                     </div>
                     <div class="cell shrink align-center-middle"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
@@ -38,23 +38,23 @@
                     <div class="cell shrink align-center-middle"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
                         {%if entry.importance==0 %}
-                        <span class="tag">
+                        <span class="label">
                             No Campaign Effects
                         </span>
                         {%elif entry.importance==1 %}
-                        <span class="tag  ">
+                        <span class="label">
                             Possible Campaign Effects
                         </span>
                         {%elif entry.importance==2 %}
-                        <span class="tag has-bg-secondary ">
+                        <span class="label ">
                             Consequential Campaign Effects
                         </span>
                         {%elif entry.importance==3 %}
-                        <span class="tag has-bg-screen has-text-primary">
+                        <span class="label">
                             Critical Campaign Effects
                         </span>
                         {%elif entry.importance==4 %}
-                        <span class="tag has-bg-primary has-text-primary">
+                        <span class="label">
                             Main Campaign Event
                         </span>
                         {%endif%}
@@ -79,13 +79,13 @@
                 </div>
             </a>
             <div class="accordion__content">
-                <hr class='has-bg-primary'>
-                <div class="panel has-bg-light">
+                <hr class=''>
+                <div class="callout">
                     {{entry.text | safe}}
                 </div>
                 <hr>
-                <h4 class='has-text-dark text-center'>Associations</h4>
-                <div class="panel has-bg-light-grey">
+                <h4 class=' text-center'>Associations</h4>
+                <div class="callout">
                     <div class="grid-x align-spaced">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
@@ -96,7 +96,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <hr class='has-bg-primary'>
+                <hr class=''>
             </div>
         </li>
         {% endfor %}
@@ -108,9 +108,9 @@
 <title>{{obj.name or obj.title}} - Journal Editor</title>
 <div class="grid-x">
     <div class="cell align-center-middle">
-        <h2 class='text-center has-text-primary'>Journal Editor</h2>
+        <h2 class='text-center'>Journal Editor</h2>
     </div>
-    <div class="cell shrink is-end align-center-middle">
+    <div class="cell shrink align-center-middle">
         <a href="/{{obj.path}}/journal">
             {{icon_components.close()}}
         </a>
@@ -121,7 +121,7 @@
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
 
-    <div class="grid-x">
+    <div class="grid-x align-justify">
         <div class="cell is-half">
             <h5 class='text-center'>Title</h5>
             <input class="" type="text" name="name" value="{{entry.title}}">
@@ -148,14 +148,14 @@
                 </select>
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             {{form_components.texteditor(user, entry, 'text')}}
         </div>
     </div>
     <hr>
 </form>
 <div class="grid-x">
-    <div class="cell is-full">
+    <div class="cell">
         <h3 class="text-center">Add Associations</h3>
         <div class="has-dropdown" style="width: 100%;">
             <input class="" autocomplete="off" type="search" name="query"
@@ -163,12 +163,12 @@
                    hx-target="#journal-entry-association-search"
                    hx-trigger="input delay:750ms consume, change consume, search"
                    hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown has-bg-light" id="journal-entry-association-search"
+            <ul class="dropdown" id="journal-entry-association-search"
                 hx-vals='{"entrypk":"{{entry.pk}}"}'>
             </ul>
         </div>
         <hr>
-        <div class="panel has-bg-light-grey small">
+        <div class="callout small">
             <div class="grid-x align-spaced" id="journal-entry-associations">
                 {% for a in entry.associations %}
                 <div class="cell shrink ">
@@ -192,9 +192,10 @@
         <input type="hidden" name="ass_pk" value="{{o.pk}}">
         <div class="grid-x">
             <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+                <div class="image is-tiny is-thumbnail">
                     {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    <img class="thumbnail" src="{{o.image.url(size=50)}}" alt="{{o.name}}"
+                         style="cursor: pointer" />
                     {% endif %}
                 </div>
             </div>

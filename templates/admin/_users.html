@@ -4,8 +4,8 @@
 {% macro manage(user, users) -%}
 <title>ADMIN - Manage Users</title>
 <div class="grid-x">
-    <div class="cell is-full align-center-middle">
-        <h2 class='text-center has-text-primary'>Manage Users</h2>
+    <div class="cell align-center-middle">
+        <h2 class='text-center'>Manage Users</h2>
     </div>
     {% for u in users %}
     <div class="cell medium-3">
@@ -17,14 +17,14 @@
         <br>
         ADMIN: {{u.is_admin}}
         <br>
-        <button class="button small is-full"
+        <button class="button small"
                 hx-post="/api/admin/manage/user/delete"
                 hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
                 hx-swap="delete"
                 hx-target=' closest .cell'>
             <span>Delete</span>
         </button>
-        <button class="button small is-full"
+        <button class="button small"
                 hx-post="/api/admin/manage/user/toggle_admin"
                 hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
                 hx-target='#manager'>

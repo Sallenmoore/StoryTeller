@@ -9,28 +9,28 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x align-spaced">
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">STR</label>
             <input type="number" class="text-center" value="{{obj.strength}}" name="strength">
         </div>
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">DEX</label>
             <input type="number" class="text-center" value="{{obj.dexterity}}" name="dexterity">
         </div>
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">INT</label>
             <input type="number" class="text-center" value="{{obj.intelligence}}"
                    name="intelligence">
         </div>
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">WIS</label>
             <input type="number" class="text-center" value="{{obj.wisdom}}" name="wisdom">
         </div>
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">CHA</label>
             <input type="number" class="text-center" value="{{obj.charisma}}" name="charisma">
         </div>
-        <div class="cell inputlabel text-center is-1 is-mobile-4">
+        <div class="cell  text-center medium-1 is-mobile-4">
             <label class="text-center">CON</label>
             <input type="number" class="text-center" value="{{obj.constitution}}"
                    name="constitution">
@@ -38,8 +38,8 @@
     </div>
     <div class="grid-x align-spaced">
         {% for skill, val in obj.skills.items() %}
-        <div class="cell is-1 is-mobile-3">
-            <div class="panel has-bg-screen">
+        <div class="cell medium-1 is-mobile-3">
+            <div class="callout">
                 <h5 class='text-center'>{{skill}}</h5>
                 <input class="text-center" type="number" value="{{val}}"
                        name="skills.{{skill}}">
@@ -104,7 +104,7 @@
     <hr>
     <div class="grid-x">
         <div id="model-goal" class="cell">
-            <h3 class='text-center has-text-dark'>Goals and Secrets</h3>
+            <h3 class='text-center'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>

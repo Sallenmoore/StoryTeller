@@ -7,14 +7,14 @@
     View Stories
 </h2>
 <div id="object-stories" class="grid-x raise-it">
-    <div class="cell">
+    <div class="cell auto">
         <select class="" name="storypk" id="storypk"
                 hx-post="/api/story/"
                 hx-target="#story-details" hx-trigger='change'
                 onchange='history.pushState({}, "", `/story/${this.value}`);'>
             <option value="">=== Select Story ===</option>
             {% for s in obj.stories %}
-            <option class="has-text-dark" value="{{s.pk}}" {% if story and story.pk==s.pk %}
+            <option class="" value="{{s.pk}}" {% if story and story.pk==s.pk %}
                     selected {% endif %}>
                 {{s.name}}
             </option>
@@ -22,7 +22,7 @@
         </select>
     </div>
     {% if user.world_user(obj)%}
-    <div class="cell shrink is-end">
+    <div class="cell shrink">
         <button class="button small" hx-post="/api/story/new"
                 hx-target="#stories-list"
                 hx-selector="#stories-list"
@@ -32,11 +32,11 @@
         </button>
     </div>
     {% endif %}
-    <div id="story-details" class="cell is-full">
+    <div id="story-details" class="cell">
         <div class="grid-x align-spaced">
             {% for story in obj.stories %}
-            <div class="cell is-full">
-                <div class="panel ">
+            <div class="cell">
+                <div class="callout ">
                     <a href="/story/{{story.pk}}">
                         <h3 class='text-center'>{{story.name}}</h3>
                     </a>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="grid-x align-spaced">
                         {%for ass in story.associations %}
-                        <div class="cell is-1">
+                        <div class="cell medium-1">
                             {{display_components.object_display(ass, type=False, name=False)}}
                         </div>
                         {% endfor %}

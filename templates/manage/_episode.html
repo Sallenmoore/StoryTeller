@@ -3,12 +3,12 @@
 {% import "shared/_display.html" as display_components %}
 
 {% macro manage(user, episode) -%}
-<div class="grid-x fade-it-in" id='campaign-episode-container'>
+<div class="grid-x" id='campaign-episode-container'>
     <div id='episode-details' class="cell">
         {% if episode %}
         <div class="grid-x align-spaced">
             <div class="cell">
-                <div class="panel  has-text-dark generated-text-lightbg"
+                <div class="callout  generated-text-lightbg"
                      style='position:relative;'>
                     {{episode.summary | safe}}
                     <button class='button small' class="button"
@@ -26,23 +26,23 @@
               hx-trigger='input delay:1s, change'>
             <div class="grid-x">
                 <div class="cell medium-6">
-                    <h4 class='text-center has-text-dark'>Name</h4>
-                    <input class="has-bg-light text-center" type="text" name="name"
+                    <h4 class='text-center'>Name</h4>
+                    <input class=" text-center" type="text" name="name"
                            value="{{episode.name}}">
                 </div>
                 <div class="cell medium-6">
-                    <h4 class='text-center has-text-dark'>Episode Number</h4>
-                    <input class="has-bg-light text-center" type="number"
+                    <h4 class='text-center'>Episode Number</h4>
+                    <input class=" text-center" type="number"
                            name="episode_num"
                            value="{{episode.episode_num}}">
                 </div>
             </div>
             <div class="grid-x has-centered" style='position:relative;'>
                 <div class="cell shrink align-center-middle">
-                    <h5 class='text-center has-text-dark'>Start</h5>
+                    <h5 class='text-center'>Start</h5>
                 </div>
                 <div
-                     class="cell is-1   align-center-middle">
+                     class="cell medium-1   align-center-middle">
                     <input class="text-center" type="number"
                            name="start_date.day"
                            placeholder='day'
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div
-                     class="cell is-2   align-center-middle">
+                     class="cell medium-2   align-center-middle">
                     <input class="text-center" type="number"
                            name="start_date.year"
                            placeholder='year'
@@ -73,7 +73,7 @@
                     {{icon_components.dash()}}
                 </div>
                 <div
-                     class="cell is-1   align-center-middle">
+                     class="cell medium-1   align-center-middle">
                     <input class="text-center" type="number"
                            name="end_date.day"
                            placeholder='day'
@@ -94,25 +94,25 @@
                     </div>
                 </div>
                 <div
-                     class="cell is-2   align-center-middle">
+                     class="cell medium-2   align-center-middle">
                     <input class="text-center" type="number"
                            name="end_date.year"
                            placeholder='year'
                            value="{{episode.end_date.year}}">
                 </div>
                 <div class="cell shrink  align-center-middle">
-                    <h5 class='text-center has-text-dark'>End</h5>
+                    <h5 class='text-center'>End</h5>
                 </div>
             </div>
         </form>
         <div class="grid-x">
-            <div id="episode-manage-container" class="cell is-full fade-it-in">
+            <div id="episode-manage-container" class="cell">
                 {{episode_report(user, episode)}}
             </div>
         </div>
         <div class="grid-x ">
-            <div class="cell is-end shrink">
-                <button class="button is-light has-text-dark"
+            <div class="cell shrink">
+                <button class="button is-light"
                         hx-post="/api/episode/{{episode.pk}}/delete"
                         hx-target="#page-content"
                         hx-confirm='Are you sure you want to delete this Episode?'>
@@ -127,10 +127,10 @@
 
 {% macro episode_report(user, episode) -%}
 <div class="grid-x">
-    <div class="cell is-8">
+    <div class="cell medium-8">
         <div class="grid-x align-spaced">
             <div class="cell shrink">
-                <div class="panel ">
+                <div class="callout ">
                     <div class="grid-x">
                         <div class="cell shrink align-center-middle">
                             <h4>Add Associated Stories</h4>
@@ -155,10 +155,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cell is-full">
+                    <div class="cell">
                         <div id="episode-stories-list" class="grid-x">
                             {% for story in episode.stories %}
-                            <div class="cell is-2 episode-story-entry"
+                            <div class="cell medium-2 episode-story-entry"
                                  style="position: relative;">
                                 {{display_components.object_display(story, type=False)}}
                                 <a style='position:absolute; top:0px; right:5px;'
@@ -206,11 +206,11 @@
                     });
                 });
             </script>
-            <div id="episode-planning-container" class="fade-it-in is-hidden">
+            <div id="episode-planning-container" class=" is-hidden">
                 <h3 class='text-center'>Planning</h3>
                 {{form_components.texteditor(user, episode, 'description')}}
             </div>
-            <div id="episode-report-container" class="fade-it-in">
+            <div id="episode-report-container" class="">
                 <div class="grid-x has-centered">
                     <div class="cell shrink">
                         <h3 class='text-center'>Report</h3>
@@ -224,12 +224,12 @@
                 </div>
                 {{form_components.texteditor(user, episode, 'episode_report')}}
             </div>
-            <div id="episode-loot-container" class="fade-it-in  is-hidden">
+            <div id="episode-loot-container" class="  is-hidden">
                 <hr class=''>
                 <h3 class='text-center'>Loot</h3>
                 {{form_components.texteditor(user, episode, 'loot')}}
             </div>
-            <div id="episode-hooks-container" class="fade-it-in is-hidden">
+            <div id="episode-hooks-container" class=" is-hidden">
                 <hr class=''>
                 <h3 class='text-center'>Hooks</h3>
                 {{form_components.texteditor(user, episode, 'hooks')}}
@@ -249,7 +249,7 @@
         <div class="grid-x">
             <div class="cell">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                    <input class="" autocomplete="off" type="search" name="query"
                            placeholder='Search Events to Add'
                            style="border-bottom: solid #000;"
                            hx-post="/api/{{episode.path}}/events/add/search"
@@ -257,12 +257,12 @@
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')"
                            onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-                    <ul class="dropdown has-bg-light" id="episode-new-events-list">
+                    <ul class="dropdown" id="episode-new-events-list">
                     </ul>
                 </div>
             </div>
             <div class="cell">
-                <button class='button small is-fullwidth'
+                <button class='button smallwidth'
                         hx-post='/api/{{episode.path}}/event/generate'
                         hx-target='#page-content'>
                     Generate Event From Episode
@@ -279,8 +279,8 @@
 
 {% macro associations(user, episode) -%}
 <div id="episode-associations" class="grid-x">
-    <div class="cell fade-it-in">
-        <h5 class='has-text-primary'>Add New...</h5>
+    <div class="cell">
+        <h5 class=''>Add New...</h5>
         <div class="grid-x align-spaced">
             {% for model in episode.world.all_models_str() %}
             <div class="cell shrink">
@@ -296,7 +296,7 @@
             </div>
             {% endfor %}
         </div>
-        <h5 class='has-text-primary'>...or Add Existing</h5>
+        <h5 class=''>...or Add Existing</h5>
         <div class="grid-x align-spaced">
             <div class="cell shrink">
                 <button class='button small'
@@ -333,19 +333,19 @@
             </div>
             <div class="cell is-half">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete="off" type="search" name="query"
+                    <input class="" autocomplete="off" type="search" name="query"
                            style="border-bottom: solid #000;"
                            hx-post="/api/episode/{{episode.pk}}/associations/add/search"
                            hx-target="#episode-new-associations-list"
                            hx-trigger="input changed delay:500ms consume"
                            hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown has-bg-light" id="episode-new-associations-list">
+                    <ul class="dropdown" id="episode-new-associations-list">
                     </ul>
                 </div>
             </div>
         </div>
         <hr>
-        <div class="panel has-bg-screen">
+        <div class="callout">
             {% if episode.encounters %}
             {{ association_display(user, episode, episode.encounters, episode.world.get_title("Encounter")) }}
             {% endif %}
@@ -390,7 +390,7 @@
 <hr class=''>
 <div class="grid-x">
     {% for a in children %}
-    <div class="cell is-2 is-mobile-6 episode-association-entry fade-it-in"
+    <div class="cell medium-2 is-mobile-6 episode-association-entry"
          style='position:relative;'>
         {{display_components.object_display(a, type=False, dim=250)}}
         <a style='position:absolute; top:0px; right:5px;'
@@ -413,11 +413,9 @@
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="grid-x">
             <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" style="cursor: pointer" />
+                {% endif %}
             </div>
             <div class="cell">
                 {{o.name}}
@@ -437,11 +435,9 @@
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
         <div class="grid-x">
             <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
-                    {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
-                    {% endif %}
-                </div>
+                {% if o.image %}
+                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" style="cursor: pointer" />
+                {% endif %}
             </div>
             <div class="cell">
                 {{o.name}}

@@ -7,10 +7,10 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <h3 class='text-center has-text-light'>Ruling Faction</h3>
+    <h3 class='text-center '>Ruling Faction</h3>
     <div class="grid-x">
-        <div class="cell is-full">
-            <div class="panel small has-bg-light">
+        <div class="cell">
+            <div class="callout small">
                 <div class="is-select">
                     <select name='ruling_faction'>
                         <option value=''>=== Select a Faction ===</option>
@@ -24,23 +24,23 @@
             </div>
         </div>
         {% for faction in obj.factions %}
-        <div class="cell is-full">
-            <div class="panel small has-bg-primary has-text-white">
+        <div class="cell">
+            <div class="callout small has-text-white">
                 {{faction.backstory_summary | safe}}
             </div>
         </div>
         {% endfor %}
     </div>
     <div class="grid-x">
-        <div class="cell is-full">
+        <div class="cell">
             <h3 class="has-text-screen">Culture</h3>
             {{form_components.texteditor(user, obj, "culture")}}
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h3 class="has-text-screen">Government</h3>
             {{form_components.texteditor(user, obj, "government")}}
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h3 class="has-text-screen">Religion</h3>
             {{form_components.texteditor(user, obj, "religion")}}
         </div>

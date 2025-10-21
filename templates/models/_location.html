@@ -122,7 +122,7 @@
             <div class="cell shrink">
                 {{icon_components.map(size="1rem")}}
                 << /div>
-                    <div class="cell slide-it-in">
+                    <div class="cell">
                         <span>Map</span>
                     </div>
             </div>
@@ -156,12 +156,12 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
     <div class="grid-x">
-        <div class="cell is-8">
+        <div class="cell medium-8">
             <h5> Details</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -172,13 +172,13 @@
         </div>
         <div class="cell">
             <h5>Current Status</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.status | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     {% for r in obj.rumors + obj.recent_events %}
                     <li>
@@ -196,14 +196,14 @@
 {{title_components.object_title(user, obj)}}
 <div class="grid-x">
     <div class="cell shrink align-center-middle">
-        <h3 class='has-text-dark'>{{obj.title}} Type:</h3>
+        <h3 class=''>{{obj.title}} Type:</h3>
     </div>
     <div class="cell shrink align-center-middle ">
-        <h4 class="has-text-dark">{{obj.location_type}}</h4>
+        <h4 class="">{{obj.location_type}}</h4>
     </div>
     {% if obj.owner %}
     <div class="cell">
-        <div class="panel has-bg-primary">
+        <div class="callout">
             <h4 class="">Owner</h4>
             <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
                 <div class="image is-large is-thumbnail is-margin-center">
@@ -211,7 +211,7 @@
                     <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
                     {% endif %}
                 </div>
-                <h4 class="has-text-light">
+                <h4 class="">
                     {{obj.owner.name}}
                 </h4>
             </a>

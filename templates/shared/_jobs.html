@@ -2,15 +2,15 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro jobs(user, obj) -%}
-<h3 class="has-text-muted has-bg-screen text-center" style='padding: 0.25rem;'>Job Board</h3>
+<h3 class=" text-center" style='padding: 0.25rem;'>Job Board</h3>
 
-<div class="panel " style='border-top-right-radius: 0; border-top-left-radius:0;'>
+<div class="callout " style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="grid-x">
         {%for job in obj.jobs%}
         {% if job.status in ['active', 'available']%}
-        <div class="cell is-full has-text-dark">
+        <div class="cell">
             <div class="grid-x">
-                <div class="cell has-bg-light-grey">
+                <div class="cell">
                     {% if user.world_user(obj)%}
                     <a href="/{{job.contact.path}}/quests">
                         {% endif %}
@@ -55,7 +55,7 @@
                     </a>
                     {% endif %}
                 </div>
-                <div class="cell is-full">
+                <div class="cell">
                     {{job.summary | safe}}
                 </div>
             </div>

@@ -8,7 +8,7 @@
 {{manage_components.dates(user, obj)}}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <div class="panel ">
+        <div class="callout ">
             <div class="grid-x">
                 <div class="cell shrink align-center-middle">
                     <h4>Story</h4>
@@ -51,7 +51,7 @@
         <div class="cell">
             <div class="grid-x">
                 <div class="cell">
-                    <h5 class='text-center has-text-dark'>Difficulty</h5>
+                    <h5 class='text-center'>Difficulty</h5>
                     <div class="is-select">
                         <select class=" text-center"
                                 name="difficulty">
@@ -63,25 +63,25 @@
                     </div>
                 </div>
                 <div class="cell">
-                    <h5 class='text-center  has-text-dark'>Enemy Type</h5>
+                    <h5 class='text-center '>Enemy Type</h5>
                     <input type="text" class=""
                            value="{{obj.enemy_type}}" name="enemy_type" style='width:100%;'>
                 </div>
             </div>
         </div>
-        <div class="cell is-full" id="model-trigger">
+        <div class="cell" id="model-trigger">
             <h4 class="text-center">Trigger Conditions</h4>
             {{form_components.texteditor(user, obj, "trigger_conditions")}}
         </div>
-        <div class="cell is-full" id="model-mechanics">
+        <div class="cell" id="model-mechanics">
             <h4 class="text-center">Mechanics</h4>
             {{form_components.texteditor(user, obj, "mechanics")}}
         </div>
-        <div class="cell is-full" id="model-notes">
+        <div class="cell" id="model-notes">
             <h4 class="text-center">Notes</h4>
             {{form_components.texteditor(user, obj, "notes")}}
         </div>
-        <div class="cell is-full" id="model-contingencies">
+        <div class="cell" id="model-contingencies">
             <h4 class="text-center">Player Contingencies</h4>
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
@@ -97,7 +97,7 @@
             </div>
             {{form_components.listeditor(user, obj, "player_contingencies")}}
         </div>
-        <div class="cell is-full" id="model-outcomes">
+        <div class="cell" id="model-outcomes">
             <h4 class="text-center">Potential Outcomes</h4>
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
@@ -113,7 +113,7 @@
             </div>
             {{form_components.listeditor(user, obj, "potential_outcomes")}}
         </div>
-        <div class="cell is-full" id="model-complications">
+        <div class="cell" id="model-complications">
             <h4 class="text-center">Complications</h4>
             {{form_components.texteditor(user, obj, "complications")}}
         </div>

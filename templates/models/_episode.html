@@ -35,7 +35,7 @@
             <div class="cell shrink">
                 {{icon_components.gamemaster(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>GM Notes</span>
             </div>
         </div>
@@ -47,7 +47,7 @@
             <div class="cell shrink">
                 {{icon_components.drama(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>Graphic</span>
             </div>
         </div>
@@ -59,7 +59,7 @@
             <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">
+            <div class="cell">
                 <span>Campaign</span>
             </div>
         </div>
@@ -70,29 +70,29 @@
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
 {{title_components.object_title(user, obj)}}
-<div class="panel">
+<div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
-        <div class="cell medium-4 has-text-dark">
+        <div class="cell medium-4">
             {% if obj.image %}
             <div class="image">
                 <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
             </div>
             {% endif %}
         </div>
-        <div class="cell is-full has-text-dark">
+        <div class="cell">
             <div class="grid-x align-spaced">
-                <div class="cell medium-4 has-text-dark text-center">
+                <div class="cell medium-4 text-center">
                     <h3 class='text-center'>Start</h3>
                     {{obj.start_date}}
                 </div>
-                <div class="cell medium-4 has-text-dark text-center">
+                <div class="cell medium-4 text-center">
                     <h3 class='text-center'>End</h3>
                     {{obj.end_date}}
                 </div>
             </div>
         </div>
-        <div class="cell is-full has-text-dark">
-            <div class="panel ">
+        <div class="cell">
+            <div class="callout ">
                 <h2 class='text-center'>Report</h2>
                 <div>
                     {{obj.report | safe}}
@@ -106,23 +106,23 @@
 {% macro gmnotes(user, obj) -%}
 <title>{{obj.name or obj.title}} - GM Notes</title>
 {{title_components.object_title(user, obj)}}
-<div class="panel">
+<div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
-        <div class="cell medium-4 has-text-dark">
-            <div class="panel ">
+        <div class="cell medium-4">
+            <div class="callout ">
                 <h3 class='text-center'>Loot</h3>
                 {{obj.loot | safe}}
             </div>
         </div>
-        <div class="cell medium-4 has-text-dark">
-            <div class="panel ">
+        <div class="cell medium-4">
+            <div class="callout ">
                 <h3 class='text-center'>Current Active Hooks</h3>
                 {{obj.hooks | safe}}
             </div>
         </div>
-        <div class="cell is-full has-text-dark">
+        <div class="cell">
             <h2 class='text-center'>Planning Notes</h2>
-            <div class="panel ">
+            <div class="callout ">
                 <div>{{obj.description | safe}}</div>
             </div>
         </div>
@@ -133,11 +133,11 @@
 {% macro graphic(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
 {{title_components.object_title(user, obj)}}
-<div class="panel">
+<div class="callout">
     <div id="episode-graphic" class="grid-x align-spaced">
         {% if user.world_user(obj) %}
-        <div class="cell shrink has-text-muted">
-            <div class="panel has-bg-screen has-centered">
+        <div class="cell shrink ">
+            <div class="callout has-centered">
                 <button class="button"
                         hx-post="/api/{{obj.path}}/graphic/generate"
                         hx-indicator="#request-indicator"
@@ -147,8 +147,8 @@
             </div>
         </div>
         {% endif %}
-        <div class=" cell is-10 has-text-dark">
-            <div class="panel ">
+        <div class=" cell medium-10">
+            <div class="callout ">
                 {% if obj.graphic %}
                 <div class="image">
                     <img src="{{obj.graphic.url()}}" alt="{{obj.name}}" />

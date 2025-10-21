@@ -4,17 +4,17 @@
 {%- macro manage(user, obj) -%}
 <div class="grid-x">
     <div class="cell is-center">
-        <h2 class='has-text-dark'>Details Editor</h2>
+        <h2 class=''>Details Editor</h2>
     </div>
     <div class="cell shrink is-float-right">
-        <a class='has-text-dark' href="/{{obj.path}}/details">
+        <a class='' href="/{{obj.path}}/details">
             {{icon_components.close(size="3rem")}}
         </a>
     </div>
 </div>
 <div class="grid-x align-spaced">
     <div class="cell shrink align-center-middle">
-        <button class="button has-bg-dark-grey has-text-white"
+        <button class="button  has-text-white"
                 hx-post="/task/generate/{{obj.path}}"
                 hx-target="closest .cell"
                 hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
@@ -30,7 +30,7 @@
         </button>
     </div>
     <div class="cell shrink align-center-middle">
-        <button class="button has-bg-dark has-text-primary"
+        <button class="button "
                 hx-post="/api/manage/delete/{{obj.path}}"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>
@@ -43,21 +43,21 @@
 <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x">
         <div class="cell">
-            <h5 class='text-center has-text-dark'>Name</h5>
-            <input id='model-name' class="has-bg-light text-center" type="text" name="name"
+            <h5 class='text-center'>Name</h5>
+            <input id='model-name' class=" text-center" type="text" name="name"
                    value="{{obj.name}}"
                    onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
                    oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
         </div>
         <div class="cell">
-            <h5 class='text-center has-text-dark'>Theme</h5>
-            <input class="has-bg-light text-center" type="text" name="traits"
+            <h5 class='text-center'>Theme</h5>
+            <input class=" text-center" type="text" name="traits"
                    value="{{obj.traits}}" maxlength="64">
         </div>
     </div>
     <div class="grid-x">
         <div id="model-goal" class="cell">
-            <h4 class='has-text-light text-center'>Status</h4>
+            <h4 class=' text-center'>Status</h4>
             {{form_components.texteditor(user, obj, "status")}}
         </div>
     </div>
@@ -67,7 +67,7 @@
 {%macro backstory(user, obj) -%}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <h4 class='text-center has-text-dark'>Backstory</h4>
+    <h4 class='text-center'>Backstory</h4>
     {{form_components.texteditor(user, obj, 'backstory')}}
 </form>
 <hr>
@@ -78,9 +78,9 @@
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div id="manage-obj-dates" class="grid-x has-centered" style='position:relative;'>
         <div class="cell shrink align-center-middle">
-            <h5 class='text-center has-text-dark'>Start</h5>
+            <h5 class='text-center'>Start</h5>
         </div>
-        <div class="cell is-1   align-center-middle">
+        <div class="cell medium-1   align-center-middle">
             <input class="text-center" type="number"
                    name="start_date.day"
                    placeholder='day'
@@ -99,7 +99,7 @@
                 </select>
             </div>
         </div>
-        <div class="cell is-2   align-center-middle">
+        <div class="cell medium-2   align-center-middle">
             <input class="text-center" type="number"
                    name="start_date.year"
                    placeholder='year'
@@ -108,7 +108,7 @@
         <div class="cell shrink  align-center-middle">
             {{icon_components.dash()}}
         </div>
-        <div class="cell is-1   align-center-middle">
+        <div class="cell medium-1   align-center-middle">
             <input class="text-center" type="number"
                    name="end_date.day"
                    placeholder='day'
@@ -127,39 +127,39 @@
                 </select>
             </div>
         </div>
-        <div class="cell is-2   align-center-middle">
+        <div class="cell medium-2   align-center-middle">
             <input class="text-center" type="number"
                    name="end_date.year"
                    placeholder='year'
                    value="{{obj.end_date.year}}">
         </div>
         <div class="cell shrink  align-center-middle">
-            <h5 class='text-center has-text-dark'>End</h5>
+            <h5 class='text-center'>End</h5>
         </div>
     </div>
 </form>
 {%- endmacro %}
 
 {% macro image(user, obj) -%}
-<h3 class='text-center has-text-dark' id='manage-image'>Image Editor</h3>
-<div class="panel has-bg-light-grey small">
+<h3 class='text-center' id='manage-image'>Image Editor</h3>
+<div class="callout small">
     <div class="grid-x" id="image-manage-container">
-        <div class="cell is-8" id="model-owner-image">
+        <div class="cell medium-8" id="model-owner-image">
             {% if obj.image %}
             <div class="image is-margin-center">
                 <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
             </div>
             {% else %}
-            <h5 class='has-text-dark'>No Image</h5>
+            <h5 class=''>No Image</h5>
             {% endif %}
         </div>
         <div class="cell medium-4">
             <div class="grid-x">
                 <div class="cell">
-                    <h5 class='text-center has-text-dark'>Image Description (editable)
+                    <h5 class='text-center'>Image Description (editable)
                     </h5>
-                    <div class="panel has-bg-light">
-                        <p id="model-desc" class="has-text-dark" contentEditable="true"
+                    <div class="callout">
+                        <p id="model-desc" class="" contentEditable="true"
                            hx-post="/api/manage/update" hx-trigger="input delay:1s"
                            hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
                            hx-swap="none">
@@ -170,7 +170,7 @@
             </div>
             <div class="grid-x">
                 <div class="cell align-center-middle">
-                    <button class="button is-full small"
+                    <button class="button small"
                             hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .cell"
                             hx-indicator="#request-indicator"
                             hx-confirm="Are you sure you want to generate and overwrite the current image?">
@@ -181,7 +181,7 @@
             </div>
             <div class="grid-x">
                 <div class="cell">
-                    <button class="button is-full small" hx-post="/api/manage/image/gallery"
+                    <button class="button small" hx-post="/api/manage/image/gallery"
                             hx-target="#model-owner-image" hx-swap="innerHTML">
                         {{icon_components.random(size="1rem")}}
                         Select From Gallery
@@ -199,7 +199,7 @@
                         </button>
                     </div>
                     <div class="cell">
-                        <div class="inputlabel">
+                        <div class="">
                             <input class=" " type="url" name="image"
                                    placeholder="enter url...">
                         </div>
@@ -212,7 +212,7 @@
 {%- endmacro%}
 
 {%macro imagegallery(user, obj, images) -%}
-<div class="panel has-bg-primary">
+<div class="callout">
     <div class="grid-x align-spaced">
         {% for image in images%}
         <div class="cell shrink text-center has-centered">

@@ -8,21 +8,21 @@
     <div class="cell is-half">
         <h4>Owner</h4>
         <div class="grid-x align-spaced" id='owner-manager-container'>
-            <div class="cell is-full search">
+            <div class="cell search">
                 <div class="has-dropdown" style="width: 100%;">
-                    <input class="has-bg-light" autocomplete=off type="search" name="query"
+                    <input class="" autocomplete=off type="search" name="query"
                            placeholder="Search to Add Owner..."
                            style="border-bottom: solid #000;" hx-target="#owner-search"
                            hx-post="/api/manage/owner/add/search"
                            hx-trigger="input delay:750ms, search"
                            hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown autocomplete-list has-bg-light" id="owner-search">
+                    <ul class="dropdown autocomplete-list" id="owner-search">
                     </ul>
                 </div>
             </div>
             {% if obj.owner %}
             <div class="cell is-half">
-                <div class="panel has-bg-primary">
+                <div class="callout">
                     <h4 class="">Owner</h4>
                     <a href="/{{obj.owner.path}}">
                         <div class="image is-large is-thumbnail is-margin-center">
@@ -30,7 +30,7 @@
                             <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
                             {% endif %}
                         </div>
-                        <h4 class="has-text-light">
+                        <h4 class="">
                             {{obj.owner.name}}
                         </h4>
                     </a>
@@ -44,7 +44,7 @@
               hx-swap="none" hx-trigger="input delay:1s, change">
             <h4>Inventory</h4>
             {%for i in obj.inventory %}
-            <input class="has-bg-light" type="text" name="inventory[]" value='{{i}}'>
+            <input class="" type="text" name="inventory[]" value='{{i}}'>
             {% endfor%}
         </form>
     </div>

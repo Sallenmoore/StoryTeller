@@ -27,7 +27,7 @@
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
             </div>
-            <div class="cell slide-it-in">>
+            <div class="cell">>
                 <span>Details</span>
             </div>
         </div>
@@ -158,12 +158,12 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
     <div class="grid-x">
-        <div class="cell is-8">
+        <div class="cell medium-8">
             <h5> Details</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -174,13 +174,13 @@
         </div>
         <div class="cell">
             <h5>Current Status</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.status | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     {% for r in obj.rumors + obj.recent_events %}
                     <li>
@@ -197,51 +197,51 @@
 {% macro info(user, obj) -%}
 <div class="grid-x">
     {% if obj.ruling_faction %}
-    <div class="cell is-full">
-        <div class="panel small has-bg-dark-grey generated-text-darkbg">
-            <h4 class='text-center has-text-muted'>Ruling Faction</h4>
+    <div class="cell">
+        <div class="callout small">
+            <h4 class='text-center '>Ruling Faction</h4>
             <h5>{{obj.ruling_faction.name}}</h5>
             {{obj.ruling_faction.backstory_summary | safe}}
         </div>
     </div>
     {% elif obj.factions %}
-    <div class="cell is-full">
-        <h4 class='text-center has-text-dark'>Local Factions</h4>
+    <div class="cell">
+        <h4 class='text-center'>Local Factions</h4>
         {% for faction in obj.factions %}
-        <div class="panel small has-bg-dark-grey">
+        <div class="callout small ">
             <h5>{{faction.name}}</h5>
             {{faction.backstory_summary | safe}}
         </div>
         {% endfor %}
     </div>
     {% endif %}
-    <div class="cell is-full">
-        <div class="card has-bg-light">
-            <div class="card__header align-center-middle has-bg-secondary">
-                <h3 class="has-text-muted">Culture</h3>
+    <div class="cell">
+        <div class="card">
+            <div class="card__header align-center-middle">
+                <h3 class="">Culture</h3>
             </div>
-            <div class="card__content has-bg-light">
-                <p class="has-text-dark">{{obj.culture | safe}}</p>
-            </div>
-        </div>
-    </div>
-    <div class="cell is-full">
-        <div class="card has-bg-light">
-            <div class="card__header align-center-middle has-bg-secondary">
-                <h3 class="has-text-muted">Government</h3>
-            </div>
-            <div class="card__content has-bg-light">
-                <p class="has-text-dark">{{obj.government | safe}}</p>
+            <div class="card__content">
+                <p class="">{{obj.culture | safe}}</p>
             </div>
         </div>
     </div>
-    <div class="cell is-full">
-        <div class="card has-bg-light">
-            <div class="card__header align-center-middle has-bg-secondary">
-                <h3 class="has-text-muted">Religion</h3>
+    <div class="cell">
+        <div class="card">
+            <div class="card__header align-center-middle">
+                <h3 class="">Government</h3>
             </div>
-            <div class="card__content has-bg-light">
-                <p class="has-text-dark">{{obj.religion | safe}}</p>
+            <div class="card__content">
+                <p class="">{{obj.government | safe}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="cell">
+        <div class="card">
+            <div class="card__header align-center-middle">
+                <h3 class="">Religion</h3>
+            </div>
+            <div class="card__content">
+                <p class="">{{obj.religion | safe}}</p>
             </div>
         </div>
     </div>

@@ -9,8 +9,8 @@
         <h2>Details</h2>
     </div>
     {% if obj.traits %}
-    <div class="cell shrink is-end">
-        <span class="tag">{{obj.traits}}</span>
+    <div class="cell shrink">
+        <span class="label">{{obj.traits}}</span>
     </div>
     {% endif %}
 </div>
@@ -18,38 +18,38 @@
 <div class="grid-x has-centered">
     {% if obj.start_date and obj.start_date.year > 0 %}
     <div class="cell shrink align-center-middle">
-        <h4 class='has-text-dark'>{{obj.start_date_label}}</h4>
+        <h4 class=''>{{obj.start_date_label}}</h4>
     </div>
     <div class="cell shrink align-center-middle">
-        <h3 class='has-text-dark'>{{obj.start_date}}</h3>
+        <h3 class=''>{{obj.start_date}}</h3>
     </div>
     {% endif %}
     {% if obj.end_date and obj.end_date.year > 0 %}
     <div class="cell shrink align-center-middle">
-        <h3 class='has-text-dark'>- {{obj.end_date}}
+        <h3 class=''>- {{obj.end_date}}
         </h3>
     </div>
     <div class="cell shrink align-center-middle">
-        <h4 class='has-text-dark'>{{obj.end_date_label}}</h4>
+        <h4 class=''>{{obj.end_date_label}}</h4>
     </div>
     {% endif %}
 </div>
 {%endif%}
 <hr>
-<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+<div class="callout generated-text-lightbg">
     <span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
 </div>
 <hr>
-<div class="panel has-bg-light has-text-dark generated-text-lightbg">
+<div class="callout generated-text-lightbg">
     <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
 </div>
 <hr>
-<div class="panel has-bg-light generated-text-lightbg">
+<div class="callout generated-text-lightbg">
     <h3 class='text-center'>Description</h3>
     {{obj.description | safe}}
 </div>
 <hr>
-<div class="panel has-bg-light generated-text-lightbg">
+<div class="callout generated-text-lightbg">
     <h3 class='text-center'>Backstory</h3>
     {{obj.backstory | safe}}
 </div>

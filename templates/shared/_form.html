@@ -69,7 +69,7 @@
 
 {% macro texteditor(user, obj, attr, content=None, limit=0, name="") -%}
 <div onmouseout="tinyMCE.triggerSave();" data-max='{{limit}}'>
-    <textarea class="has-text-dark has-bg-white" id="edit-{{obj.pk}}-{{attr}}"
+    <textarea class=" has-bg-white" id="edit-{{obj.pk}}-{{attr}}"
               name="{{name or attr}}">
         {% if not (content is none) %}
             {{content | string |  safe}}

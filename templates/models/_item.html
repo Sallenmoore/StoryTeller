@@ -131,12 +131,12 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="panel has-bg-dark generated-text-darkbg">
+<div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
     <div class="grid-x">
-        <div class="cell is-8">
+        <div class="cell medium-8">
             <h5> Details</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -147,13 +147,13 @@
         </div>
         <div class="cell">
             <h5>Current Status</h5>
-            <div class="panel">
+            <div class="callout">
                 {{obj.status | safe}}
             </div>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             <h5>Rumors</h5>
-            <div class="panel has-text-light">
+            <div class="callout ">
                 <ul>
                     {% for r in obj.rumors %}
                     <li>
@@ -168,22 +168,22 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-<div class="panel  has-text-primary">
+<div class="callout ">
     <div class="grid-x align-spaced">
         <div class="cell shrink">
-            <h4 class="has-text-dark">Rarity</h4>
+            <h4 class="">Rarity</h4>
             <p>{{obj.rarity}}</p>
         </div>
         <div class="cell shrink">
-            <h4 class="has-text-dark">Weight</h4>
+            <h4 class="">Weight</h4>
             <p>{{obj.weight}}</p>
         </div>
         <div class="cell shrink">
-            <h4 class="has-text-dark">Cost</h4>
+            <h4 class="">Cost</h4>
             <p>{{obj.cost}}</p>
         </div>
         <div class="cell shrink">
-            <h4 class="has-text-dark">Duration</h4>
+            <h4 class="">Duration</h4>
             <p>{{obj.duration | safe}}</p>
         </div>
     </div>
@@ -191,7 +191,7 @@
 <hr>
 {% if obj.features %}
 <div class="grid-x">
-    <div id="model-abilities" class="cell is-full">
+    <div id="model-abilities" class="cell">
         {{abilities_components.abilities(user, obj, abilities=obj.features)}}
     </div>
 </div>

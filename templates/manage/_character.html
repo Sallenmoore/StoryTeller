@@ -11,7 +11,7 @@
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x align-spaced">
         <div class="cell shrink ">
-            <h4 class='text-center has-text-primary'>Player/NPC</h4>
+            <h4 class='text-center'>Player/NPC</h4>
             <div class="is-select">
                 <select class="has-no-border" name="is_player">
                     <option value="False">NPC</option>
@@ -21,48 +21,48 @@
         </div>
         {% if obj.is_player %}
         <div class="cell shrink " id="dnd-beyond-id-input-container">
-            <h4 class='text-center has-text-primary'>D&DBeyond ID</h4>
+            <h4 class='text-center'>D&DBeyond ID</h4>
             <input type="text" value="{{obj.dnd_beyond_id}}" name="dnd_beyond_id">
         </div>
         {% endif %}
         <div class="cell medium-4">
-            <h4 class='has-text-primary'>Look-A-Like</h4>
+            <h4 class=''>Look-A-Like</h4>
             <input type="text" value="{{obj.lookalike}}" name="lookalike">
         </div>
     </div>
     <hr>
     <div class="grid-x align-justify">
         <div class="cell">
-            <h4 class="text-center has-text-primary">STR</h4>
+            <h4 class="text-center">STR</h4>
             <input class="text-center" type="text" value="{{obj.strength}}" name="strength">
         </div>
         <div class="cell ">
-            <h4 class="text-center has-text-primary">DEX</h4>
+            <h4 class="text-center">DEX</h4>
             <input class="text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
         </div>
         <div class="cell ">
-            <h4 class="text-center has-text-primary">INT</h4>
+            <h4 class="text-center">INT</h4>
             <input class="text-center" type="text" value="{{obj.intelligence}}"
                    name="intelligence">
         </div>
         <div class="cell ">
-            <h4 class="text-center has-text-primary">WIS</h4>
+            <h4 class="text-center">WIS</h4>
             <input class="text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
         </div>
         <div class="cell ">
-            <h4 class="text-center has-text-primary">CHA</h4>
+            <h4 class="text-center">CHA</h4>
             <input class="text-center" type="text" value="{{obj.charisma}}" name="charisma">
         </div>
         <div class="cell ">
-            <h4 class="text-center has-text-primary">CON</h4>
+            <h4 class="text-center">CON</h4>
             <input class="text-center" type="text" value="{{obj.constitution}}"
                    name="constitution">
         </div>
     </div>
     <div class="grid-x align-spaced">
         {% for skill, val in obj.skills.items() %}
-        <div class="cell is-1 is-mobile-3">
-            <div class="panel has-bg-screen">
+        <div class="cell medium-1 is-mobile-3">
+            <div class="callout">
                 <h5 class='text-center'>{{skill}}</h5>
                 <input class="text-center" type="number" value="{{val}}"
                        name="skills.{{skill}}">
@@ -73,31 +73,31 @@
     <hr>
     <div class="grid-x align-spaced">
         <div class="cell shrink ">
-            <h4 class='text-center has-text-primary' for="model-hitpoints">MAX HP</h4>
+            <h4 class='text-center' for="model-hitpoints">MAX HP</h4>
             <input class="text-center" id="model-hitpoints" type="number"
                    value="{{obj.hitpoints}}" name="hitpoints">
         </div>
         <div class="cell shrink ">
-            <h4 class='text-center has-text-primary' for="model-ac">AC</h4>
+            <h4 class='text-center' for="model-ac">AC</h4>
             <input class="text-center" id="model-ac" type="number"
                    value="{{obj.ac}}" name="ac">
         </div>
     </div>
     <div class="grid-x align-justify">
-        <div class="cell is-2">
-            <h4 class='has-text-primary'>Species</h4>
+        <div class="cell medium-2">
+            <h4 class=''>Species</h4>
             <input type="text" value="{{obj.species}}" name="species">
         </div>
-        <div class="cell is-2">
-            <h4 class='has-text-primary'>Gender</h4>
+        <div class="cell medium-2">
+            <h4 class=''>Gender</h4>
             <input type="text" value="{{obj.gender}}" name="gender">
         </div>
         <div class="cell shrink">
-            <h4 class='text-center has-text-primary'>Age</h4>
+            <h4 class='text-center'>Age</h4>
             <input class="text-center" type="number" value="{{obj.age}}" name="age">
         </div>
         <div class="cell shrink">
-            <h4 class='has-text-primary'>Archetype</h4>
+            <h4 class=''>Archetype</h4>
             <select name="archetype">
                 {%for a in obj.system.classes.keys() %}
                 <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
@@ -105,7 +105,7 @@
             </select>
         </div>
         <div class="cell shrink">
-            <h4 class='has-text-primary'>Occupation</h4>
+            <h4 class=''>Occupation</h4>
             <select name="occupation">
                 {%for k, v in obj.system.backgrounds.items() %}
                 <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
@@ -118,18 +118,18 @@
     <hr>
     <div class="grid-x">
         <div class="cell">
-            <h3 class='text-center has-text-primary'>Goals and Secrets</h3>
+            <h3 class='text-center'>Goals and Secrets</h3>
             {{form_components.texteditor(user, obj, "goal")}}
         </div>
     </div>
     <hr>
     <div class="grid-x">
-        <div id="model-wealth" class="cell is-full">
-            <h3 class='text-center has-text-primary'>Wealth</h3>
+        <div id="model-wealth" class="cell">
+            <h3 class='text-center'>Wealth</h3>
             {{form_components.listeditor(user, obj, "wealth")}}
             <hr>
         </div>
-        <div class="cell is-full">
+        <div class="cell">
             {{abilities_components.edit_abilities(user, obj)}}
         </div>
     </div>
@@ -139,14 +139,14 @@
 {%- endmacro %}
 
 {% macro quests(user, obj) -%}
-<div class="panel has-bg-screen">
+<div class="callout">
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="grid-x align-spaced">
             <div class="cell">
-                <h3 class='has-text-muted'>Quest Board</h3>
+                <h3 class=''>Quest Board</h3>
             </div>
             <div class="cell shrink">
-                <h5 class='has-text-muted'>Storyline</h5>
+                <h5 class=''>Storyline</h5>
             </div>
             <div class="cell medium-4">
                 <div class="is-select">
@@ -174,8 +174,8 @@
                 <div class="grid-x align-justify">
                     <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class='has-text-dark'>{{entry.name}}</h3>
-                        <h5 class='has-text-dark'>{{entry.status}}</h5>
+                        <h3 class=''>{{entry.name}}</h3>
+                        <h5 class=''>{{entry.status}}</h5>
                     </div>
                     <div class="cell shrink align-center-middle">
                         <button class="button small"
@@ -196,42 +196,42 @@
                 </div>
             </a>
             <div class="accordion__content">
-                <hr class='has-bg-primary'>
-                <div class="panel has-bg-light-grey">
+                <hr class=''>
+                <div class="callout">
                     <div class="grid-x">
                         <div class="cell is-half">
-                            <div class="panel has-bg-light">
+                            <div class="callout">
                                 <h4 class='text-center'>Summary</h4>
                                 {{entry.summary | safe}}
                             </div>
                         </div>
                         <div class="cell is-half">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark text-center'>Hook</h4>
+                            <div class="callout">
+                                <h4 class=' text-center'>Hook</h4>
                                 {{entry.hook | safe}}
                             </div>
                         </div>
-                        <div class="cell is-full">
-                            <div class="panel has-bg-light">
-                                <h4 class='has-text-dark text-center'>Description</h4>
+                        <div class="cell">
+                            <div class="callout">
+                                <h4 class=' text-center'>Description</h4>
                                 {{entry.description | safe}}
                             </div>
                         </div>
                     </div>
                     <div class="grid-x">
                         <div class="cell">
-                            <div class="panel has-bg-light">
+                            <div class="callout">
                                 <h4 class='text-center'>Antagonist</h4>
                                 {{entry.antagonist | safe}}
                             </div>
                         </div>
                     </div>
-                    <div class="panel has-bg-light">
-                        <h4 class='has-text-dark text-center'>Scenes</h4>
+                    <div class="callout">
+                        <h4 class=' text-center'>Scenes</h4>
                         <ul class='has-no-list-style'>
                             {% for scene in entry.scenes %}
                             <li>
-                                <h5 class='has-text-dark text-center'>{{scene.type}}</h5>
+                                <h5 class=' text-center'>{{scene.type}}</h5>
                                 <b>SETUP:</b> {{scene.setup}}
                                 <ul>
                                     <li> <b>DESCRIPTION:</b> {{scene.description}}</li>
@@ -270,7 +270,7 @@
                         </ul>
                     </div>
                     <hr>
-                    <div class="panel has-bg-light">
+                    <div class="callout">
                         <h4 class='text-center'>Plot Twists</h4>
                         <ul>
                             {% for twist in entry.plot_twists %}
@@ -280,23 +280,23 @@
                     </div>
                     <hr>
                     <hr>
-                    <div class="panel has-bg-light">
+                    <div class="callout">
                         <h4 class='text-center'>Rewards</h4>
                         {{entry.rewards | safe}}
                     </div>
                     <hr>
-                    <h4 class='has-text-dark text-center'>Associations</h4>
+                    <h4 class=' text-center'>Associations</h4>
                     <div class="grid-x align-spaced">
                         {% if entry.associations %}
                         {% for ass in entry.associations %}
-                        <div class="cell is-1">
+                        <div class="cell medium-1">
                             {{display_components.object_display(ass)}}
                         </div>
                         {% endfor %}
                         {% endif %}
                     </div>
                 </div>
-                <hr class='has-bg-primary'>
+                <hr class=''>
             </div>
         </li>
         {% endfor %}

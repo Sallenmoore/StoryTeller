@@ -20,13 +20,13 @@
         </div>
         {% endif %}
         <div class="cell ">
-            <div class="panel  has-text-dark">
+            <div class="callout ">
                 <h4 class='text-center'>Situation</h4>
                 {{story.situation | safe}}
             </div>
         </div>
-        <div id="story-bbeg" class="cell medium-3 is-end ">
-            <div class="panel  has-text-dark">
+        <div id="story-bbeg" class="cell medium-3 ">
+            <div class="callout ">
                 <h3 class='text-center'>BBEG</h3>
                 {% if story.bbeg %}
                 {{display_components.object_display(story.bbeg)}}
@@ -36,33 +36,33 @@
                 <h3 class=' text-center'>Scope: {{story.scope}}</h3>
             </div>
         </div>
-        <div class="cell is-full ">
-            <div class="panel  has-text-dark">
+        <div class="cell ">
+            <div class="callout ">
                 <h4 class='text-center'>Current Status</h4>
                 {{story.current_status | safe}}
             </div>
         </div>
-        <div class="cell is-full ">
-            <div class="panel  has-text-dark">
+        <div class="cell ">
+            <div class="callout ">
                 <h4 class='text-center'>Backstory</h4>
                 {{story.backstory | safe }}
             </div>
         </div>
-        <div id="story-tasks" class="cell is-full ">
+        <div id="story-tasks" class="cell ">
             <h3 class='text-center'>Tasks</h3>
             <div class="grid-x align-spaced">
                 {% for task in story.tasks %}
-                <div class="cell is-2">
-                    <div class="panel  has-text-dark">
+                <div class="cell medium-2">
+                    <div class="callout ">
                         {{task}}
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            <hr class='has-bg-primary'>
+            <hr class=''>
         </div>
         <div class="cell medium-6 ">
-            <div class="panel  has-text-dark">
+            <div class="callout ">
                 <h3 class='text-center'>Information</h3>
                 <ul>
                     {%for q in story.information %}
@@ -72,7 +72,7 @@
             </div>
         </div>
         <div class="cell medium-6 ">
-            <div class="panel  has-text-dark">
+            <div class="callout ">
                 <h3 class='text-center'>Rumors</h3>
                 <ul>
                     {%for q in story.rumors %}
@@ -82,16 +82,16 @@
             </div>
         </div>
     </div>
-    <hr class='has-bg-primary'>
+    <hr class=''>
     <div class="grid-x">
         <div id="story-encounters" class="cell ">
-            <div class="panel  has-text-dark">
+            <div class="callout ">
                 <h3 class='text-center'>Quests</h3>
                 <div class="grid-x align-spaced">
                     {% for quest in story.quests %}
-                    <div class="cell is-full">
+                    <div class="cell">
                         <div class="grid-x">
-                            <div class="cell is-2">
+                            <div class="cell medium-2">
                                 {{display_components.object_display(quest.contact)}}
                             </div>
                             <div class="cell">
@@ -105,23 +105,24 @@
             </div>
         </div>
         <div id="story-encounters" class="cell ">
-            <div class="panel  has-text-dark">
+            <div class="callout ">
                 <h3 class='text-center'>Encounters</h3>
                 <div class="grid-x align-spaced">
                     {% for encounter in story.encounters %}
-                    <div class="cell is-2">{{display_components.object_display(encounter)}}</div>
+                    <div class="cell medium-2">{{display_components.object_display(encounter)}}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-    <hr class='has-bg-primary'>
-    <div id="story-encounters" class="cell is-full ">
-        <div class="panel  has-text-dark">
+    <hr class=''>
+    <div id="story-encounters" class="cell ">
+        <div class="callout ">
             <h3 class='text-center'>Events</h3>
             <div class="grid-x align-spaced">
                 {% for event in story.events %}
-                <div class="cell is-2">
+                <div class="cell medium-2">
                     {{display_components.object_display(event, date=True)}}
                 </div>
                 {% endfor %}
@@ -129,11 +130,11 @@
         </div>
     </div>
     <div id="story-associations" class="section small">
-        <div class="panel">
+        <div class="callout">
             <h2 class='text-center'> Associations </h2>
             <div class="grid-x align-spaced">
                 {% for a in story.associations %}
-                <div class="cell is-2">
+                <div class="cell medium-2">
                     {{display_components.object_display(a)}}
                 </div>
                 {% endfor %}
