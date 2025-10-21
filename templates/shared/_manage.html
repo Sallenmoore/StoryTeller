@@ -1,5 +1,32 @@
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+
+<!-- consistent code to update a start or end date -->
+{% macro manage_date (obj, pos) -%}
+{% set field = pos + '_date' %}
+<label>{{display_components.dsp_object_lifetime(obj,pos)}}
+    <div class="grid-x">
+        <div class="small-2">
+            <input type="number" name="{{field}}.day" placeholder='day'
+                   value="{{obj[field].day}}">
+        </div>
+        <div class="small-7">
+            <select name="{{field}}.month">
+                {% for m in obj.world.calendar.months %}
+                <option value='{{m}}' {% if loop.index0==obj[field].month %}
+                        selected {% endif %}>{{m}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="small-3">
+            <input type="number" name="{{field}}.year" placeholder='year' class="year"
+                   value="{{obj[field].year}}">
+        </div>
+    </div>
+</label>
+{% endmacro %}
 
 {%- macro manage(user, obj) -%}
 <div class="grid-x">

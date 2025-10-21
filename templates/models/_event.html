@@ -103,11 +103,9 @@
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
-{{title_components.object_title(user, obj)}}
 {{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_event_components.manage(user, obj) }}
 {%- endmacro %}

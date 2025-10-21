@@ -407,6 +407,7 @@ class World(TTRPGBase):
             "genre": self.genre,
             "backstory": self.history,
             "current_date": str(self.current_date),
+            "campaigns": [c.page_data() for c in self.campaigns],
             "world_objects": {
                 "Regions": [o.page_data() for o in self.regions],
                 "Locations": [o.page_data() for o in self.locations],

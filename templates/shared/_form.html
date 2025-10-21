@@ -10,6 +10,25 @@
        placeholder='{{placeholder}}' />
 {%- endmacro %}
 
+
+{% macro richtexteditor(user, obj, attr) -%}
+<textarea id="edit-{{obj.pk}}-{{attr}}"
+          name="{{name or attr}}"
+          data-model="{{obj.__class__.__name__.lower()}}"
+          data-user="{{user.pk}}"
+          data-pk="{{obj.pk}}"
+          class="rich-text">
+        {% if obj %}
+            {{obj[attr] | string | safe}}
+        {% endif %}
+    </textarea>
+<script>
+    $(function () {
+        createCK('edit-{{obj.pk}}-{{attr}}');
+    });
+</script>
+{%- endmacro %}
+
 {% macro textarea(user, obj, name="", content="", label="") -%}
 {% if label %}
 <label for="{{name}}" class="label">{{label}}</label>
@@ -17,7 +36,7 @@
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text has-bg-white" rows="1"
           placeholder="Start typing...">{{ content }}</textarea>
 <script>
-    var textareas = document.querySelectorAll('.auto-resize-text');
+    var textareas = document.querySelectorAll('.auto-resize-text0');
 
     textareas.forEach(textarea => {
         // Adjust height on input
@@ -48,7 +67,7 @@
     {% endfor %}
 </div>
 <script>
-    var textareas = document.querySelectorAll('.auto-resize-text');
+    var textareas = document.querySelectorAll('.auto-resize-text0');
 
     textareas.forEach(textarea => {
         // Adjust height on input

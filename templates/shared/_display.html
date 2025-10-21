@@ -1,39 +1,52 @@
 {% import "shared/_abilities.html" as abilities_components %}
 
+{% macro dsp_object_image(obj, dim="400") -%}
+{% if obj.image %}
+<img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+{% elif obj.world.image %}
+<img src="{{obj.world.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />
+{% endif %}
+{% endmacro %}
+
+{% macro dsp_object_lifetime(obj, event="start") -%}
+{% if obj.model_name() in ['Character', 'Creature'] %}
+{% set lifetime = {"start": "Born", "end": "Died"} %}
+{% elif obj.model_name() in ['Faction'] %}
+{% set lifetime = {"start": "Assembled", "end": "Disbanded"} %}
+{% elif obj.model_name() in ['Item', 'Vehicle'] %}
+{% set lifetime = {"start": "Created", "end": "Destroyed"} %}
+{% else %}
+{% set lifetime = {"start": "Began", "end": "Ended"} %}
+{% endif %}
+
+{{lifetime[event]}}
+{%- endmacro %}
+
 {% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
-<a href="/{{obj.path}}" style='position: relative;'>
-    {% if obj.image %}
-    <img class="thumbnail" style="width:100%;" src="{{obj.image.url(size=dim)}}" loading="lazy"
-         alt="{{obj.name}}" />
-    {% elif obj.world.image %}
-    <img class="thumbnail" style="width:100%;" src="{{obj.world.image.url(size=dim)}}"
-         loading="lazy" alt="{{obj.name}}" />
-    {% endif %}
-    {% if name %}
-    <h6 class='text-center' style='font-size: clamp(0.25rem, 0.75rem, 1.25rem);'>
-        {{obj.name}}
-        {% if obj.canon|default(false) %} <sup>(c)</sup> {% endif %}
-    </h6>
-    {% endif %}
-    {% if date %}
-    <p class='text-center' style='font-size: clamp(0.05rem, 0.75rem, 1rem);'>
-        {{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
-        {{obj.end_date}}{%endif%}
-    </p>
-    {% endif %}
-    <div class="grid-x align-spaced">
-        {% if type %}
-        <div class="cell auto">
-            <p class='text-center' style='font-size: clamp(0.05rem, 0.75rem, 1rem);'>
-                {{obj.title}}
+<a href="/{{obj.path}}">
+    <div class="card">
+        {{dsp_object_image(obj,dim)}}
+        {% if name %}
+        <div class="card-section title">
+            {{obj.name}}
+            {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
+        </div>
+        {% endif %}
+        {% if date %}
+        <div class="card-section">
+            <p>{{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
+                {{obj.end_date}}{%endif%}
             </p>
         </div>
         {% endif %}
+        {% if type %}
+        <div class="card-section">
+            {{obj.title}}
+        </div>
+        {% endif %}
         {% if pk %}
-        <div class="cell shrink">
-            <h6 class='text-center' style='font-size: .5rem;'>
-                pk: {{obj.pk}}
-            </h6>
+        <div class="card-section">
+            pk: {{obj.pk}}
         </div>
         {% endif %}
     </div>

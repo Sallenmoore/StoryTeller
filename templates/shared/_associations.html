@@ -9,16 +9,16 @@
 <hr>
 <div class="grid-x align-justify" id='association-manager-container'>
     <div class="cell medium-3 align-center-middle">
-            <input class="" autocomplete=off type="search" name="query"
-                   placeholder="Search to Add Associations..."
-                   style="border-bottom: solid #000;" hx-target="#association-search"
-                   hx-post="/api/manage/association/add/search"
-                   hx-trigger="input delay:750ms, search"
-                   hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
-                   onclick=''
-                   hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown menu autocomplete-list" data-dropdown-menu id="association-search">
-            </ul>
+        <input class="" autocomplete=off type="search" name="query"
+               placeholder="Search to Add Associations..."
+               style="border-bottom: solid #000;" hx-target="#association-search"
+               hx-post="/api/manage/association/add/search"
+               hx-trigger="input delay:750ms, search"
+               hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
+               onclick=''
+               hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+        <ul class="dropdown menu autocomplete-list" data-dropdown-menu id="association-search">
+        </ul>
     </div>
     <div class="cell shrink">
         <button class="button small"
@@ -40,149 +40,146 @@
                         hx-indicator='#request-indicator'>
                     New {{obj.world.get_title(child)}}
                 </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <hr>
+    {% endif %}
+    <form hx-post="/api/{{obj.path}}/associations"
+          hx-target='#associations-container'
+          hx-select='#associations-container'
+          hx-trigger="input delay:250ms, change, search"
+          hx-swap='outerHTML'>
+        <div class="callout ">
+            <div class="grid-x align-spaced">
+                <div class="cell medium-4">
+                    <input type="search" name="filter" placeholder="Filter by name..."
+                           style="border-bottom: solid #000;">
+                </div>
+                <div class="cell medium-4">
+                    <select name="type">
+                        <option value=''>Filter by Type</option>
+                        {% for model in obj.world.all_models() %}
+                        <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="cell medium-4">
+                    <select class="" name="relationship">
+                        <option value=''>Filter by Relationship</option>
+                        <option value='parent'>Within</option>
+                        <option value='child'>Contains</option>
+                        {% if obj.model_name() == "Character" %}
+                        <option value='lineage'>Lineage</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="cell medium-6">
+                    <div class="grid-x grid-margin-x align-center-middle">
+                        <div class="cell shrink">
+                            <h5>Sort by</h5>
+                        </div>
+                        <div class="cell auto">
+                            <select name="sorter">
+                                <option value='name'>Name</option>
+                                <option value='date'>Date</option>
+                                <option value='type'>Type</option>
+                            </select>
+                        </div>
+                        <div class="cell auto">
+                            <select name="order">
+                                <option value='ascending'>
+                                    ASC
+                                </option>
+                                <option value='descending'>
+                                    DESC
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <div id='associations-container'>
+        <div id="related-objects" class="grid-x align-spaced">
+            {% for a in obj.children %}
+            <div
+                 class="cell medium-2 small-4">
+                <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
+                     style='height:100%;'>
+                    {{display_components.object_display(a)}}
+                    {% if 'World' not in [obj.model_name(), a.model_name()] %}
+                    <div class="grid-x align-spaced">
+                        <div class="cell medium-3 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/unassociate/{{a.path}}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                    hx-indicator='#request-indicator'>
+                                {{icon_components.unlink(size="1rem")}}
+                                <span style="font-size:0.5rem">Unlink</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
             {% endfor %}
-        </div>
-    </div>
-</div>
-<hr>
-{% endif %}
-<form hx-post="/api/{{obj.path}}/associations"
-      hx-target='#associations-container'
-      hx-select='#associations-container'
-      hx-trigger="input delay:250ms, change, search"
-      hx-swap='outerHTML'>
-    <div class="callout ">
-        <div class="grid-x align-spaced">
-            <div class="cell medium-4">
-                <input type="search" name="filter" placeholder="Filter by name..."
-                       style="border-bottom: solid #000;">
-            </div>
-            <div class="cell medium-4">
-                <select name="type">
-                    <option value=''>Filter by Type</option>
-                    {% for model in obj.world.all_models() %}
-                    <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="cell medium-4">
-                <select class="" name="relationship">
-                    <option value=''>Filter by Relationship</option>
-                    <option value='parent'>Within</option>
-                    <option value='child'>Contains</option>
-                    {% if obj.model_name() == "Character" %}
-                    <option value='lineage'>Lineage</option>
-                    {% endif %}
-                </select>
-            </div>
-            <div class="cell medium-6">
-                <div class="grid-x grid-margin-x align-center-middle">
-                    <div class="cell shrink">
-                        <h5>Sort by</h5>
-                    </div>
-                    <div class="cell auto">
-                        <select name="sorter">
-                            <option value='name'>Name</option>
-                            <option value='date'>Date</option>
-                            <option value='type'>Type</option>
-                        </select>
-                    </div>
-                    <div class="cell auto">
-                        <select name="order">
-                            <option value='ascending'>
-                                ASC
-                            </option>
-                            <option value='descending'>
-                                DESC
-                            </option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-<hr>
-<div id='associations-container'>
-    <div id="related-objects" class="grid-x align-spaced">
-        {% for a in obj.children %}
-        <div
-             class="cell medium-2 small-4">
-            <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
-                 style='height:100%;'>
-                {{display_components.object_display(a)}}
-                {% if 'World' not in [obj.model_name(), a.model_name()] %}
-                <div class="grid-x align-spaced">
-                    <div class="cell medium-3 text-center">
-                        <button class="button small"
-                                hx-post="/api/manage/unassociate/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.unlink(size="1rem")}}
-                            <span style="font-size:0.5rem">Unlink</span>
-                        </button>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-        {% for a in associations %}
-        {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
-        <div
-             class="cell medium-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
-            <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
-                 style='height:100%;'>
-                {{display_components.object_display(a)}}
-                {% if 'World' not in [obj.model_name(), a.model_name()] %}
-                <div class="grid-x align-spaced">
-                    {% if obj.model_name() in a.parent_list|default([]) and obj !=
-                    a.parent|default(false) %}
-                    <div class="cell medium-3 text-center">
-                        <button class="button small"
-                                hx-post="/api/manage/parent/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.down(size="1rem")}}
-                            <span style="font-size:0.5rem">is child</span>
-                        </button>
+            {% for a in associations %}
+            {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
+            <divclass="cell medium-3">
+                <div class="callout"
+                     style='height:100%;'>
+                    {{display_components.object_display(a)}}
+                    {% if 'World' not in [obj.model_name(), a.model_name()] %}
+                    <div class="grid-x align-spaced">
+                        {% if obj.model_name() in a.parent_list|default([]) and obj !=
+                        a.parent|default(false) %}
+                        <div class="cell medium-3 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/parent/{{a.path}}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                    hx-indicator='#request-indicator'>
+                                {{icon_components.down(size="1rem")}}
+                                <span style="font-size:0.5rem">is child</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% if a.model_name() in obj.parent_list|default([]) and a !=
+                        obj.parent|default(false) %}
+                        <div class="cell medium-3 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/child/{{a.path}}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                    hx-indicator='#request-indicator'>
+                                {{icon_components.heirarchy(size="1rem")}}
+                                <span style="font-size:0.5rem">is parent</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        <div class="cell medium-3 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/unassociate/{{a.path}}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-vals='{"module":"_pages.html", "macro":"associations"}'
+                                    hx-indicator='#request-indicator'>
+                                {{icon_components.unlink(size="1rem")}}
+                                <span style="font-size:0.5rem">Unlink</span>
+                            </button>
+                        </div>
                     </div>
                     {% endif %}
-                    {% if a.model_name() in obj.parent_list|default([]) and a !=
-                    obj.parent|default(false) %}
-                    <div class="cell medium-3 text-center">
-                        <button class="button small"
-                                hx-post="/api/manage/child/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.heirarchy(size="1rem")}}
-                            <span style="font-size:0.5rem">is parent</span>
-                        </button>
-                    </div>
-                    {% endif %}
-                    <div class="cell medium-3 text-center">
-                        <button class="button small"
-                                hx-post="/api/manage/unassociate/{{a.path}}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
-                                hx-indicator='#request-indicator'>
-                            {{icon_components.unlink(size="1rem")}}
-                            <span style="font-size:0.5rem">Unlink</span>
-                        </button>
-                    </div>
                 </div>
-                {% endif %}
-            </div>
         </div>
         {% endif %}
         {% endfor %}

@@ -137,12 +137,10 @@
 {% endmacro %}
 
 {% macro history(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations) -%}
-{{title_components.object_title(user, obj)}}
 
 <h2 class="  text-center is-subtitle">
     Associations</h2>
@@ -205,7 +203,6 @@
 {%- endmacro %}
 
 {% macro stories(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{story_components.stories(user, obj)}}
 {%- endmacro %}
 

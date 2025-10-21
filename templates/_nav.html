@@ -1,5 +1,73 @@
 {% import "shared/_icons.html" as icon_components %}
 
+{% macro object_menu(user, obj) -%}
+<div class="grid-container">
+    <div class="grid-x grid-padding-x">
+    <div class="cell small-12">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li><a href="/{{obj.path}}">{{icon_components.details(size="1rem")}} Overview</a></li>
+
+            <span hx-get="/api/nav/sidemenu/{{obj.path}}"
+              hx-trigger="load"
+              hx-swap="outerHTML">
+            </span>
+        </ul>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro site_header(user) -%}
+<div id="top-nav" class="grid-x grid-padding-x">
+    <!-- logo -->
+    <div class="cell small-6 medium-3">
+        <a id="logo" class="align-middle" href="/">{{icon_components.dungeon(size="2.5rem")}}Storyteller</a>
+        <small class="show-for-medium">ver. 0.2.1</small>
+    </div>
+
+    <!-- login -->
+    <div class="cell small-6 medium-3 medium-order-3">
+        <button class="button float-right" type="button" data-toggle="auth-panel">{{icon_components.character(size="2rem")}}</button>
+        <div class="dropdown-pane" id="auth-panel" data-dropdown data-auto-focus="true">
+            {{dsp_auth(user)}}
+        </div>
+    </div>
+
+    <!-- search -->
+    <div class="cell small-12 medium-6 align-self-middle" hx-indicator="#request-indicator">
+        <div class="input-group">
+            <input type="text" autocomplete="off" class="input-group-field"
+                placeholder="search"
+                   type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
+                   hx-trigger="input changed delay:500ms, search"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+            <div class="input-group-button"><button class="button">{{icon_components.search('1.25rem')}}</button></div>
+        </div>
+        <ul id="nav-search"></ul>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro dsp_auth(user) -%}
+    {% if user and user.state != "guest"%}
+        <div>{{user.name | title}}</div>
+        <a class="button" href="/auth/logout">Logout</a>
+        <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+                onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
+            {{icon_components.keyboard(size="1.5rem")}}
+            GM Screen
+        </button>
+
+        {% if user.admin %}
+        <a class="button" href="/admin/"> {{icon_components.keyboard(size="1.5rem")}}
+            Admin
+        </a>
+        {% endif %}
+
+    {% else %}
+        <a href="/auth/login">Login</a>
+    {% endif %}
+{%- endmacro %}
+
 {% macro topnav(user) -%}
 <nav class="grid-x grid-margin-x">
     <div class="cell shrink align-center-middle text-center">
