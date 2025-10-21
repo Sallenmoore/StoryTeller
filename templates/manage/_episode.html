@@ -248,18 +248,16 @@
         </div>
         <div class="grid-x">
             <div class="cell">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="" autocomplete="off" type="search" name="query"
-                           placeholder='Search Events to Add'
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/{{episode.path}}/events/add/search"
-                           hx-target="#episode-new-events-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')"
-                           onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-                    <ul class="dropdown" id="episode-new-events-list">
-                    </ul>
-                </div>
+                <input class="" autocomplete="off" type="search" name="query"
+                       placeholder='Search Events to Add'
+                       style="border-bottom: solid #000;"
+                       hx-post="/api/{{episode.path}}/events/add/search"
+                       hx-target="#episode-new-events-list"
+                       hx-trigger="input changed delay:500ms consume"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')"
+                       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+                <ul class="dropdown menu" data-dropdown-menu id="episode-new-events-list">
+                </ul>
             </div>
             <div class="cell">
                 <button class='button smallwidth'
@@ -331,17 +329,15 @@
                     players
                 </button>
             </div>
-            <div class="cell is-half">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/episode/{{episode.pk}}/associations/add/search"
-                           hx-target="#episode-new-associations-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown" id="episode-new-associations-list">
-                    </ul>
-                </div>
+            <div class="cell medium-6">
+                <input class="" autocomplete="off" type="search" name="query"
+                       style="border-bottom: solid #000;"
+                       hx-post="/api/episode/{{episode.pk}}/associations/add/search"
+                       hx-target="#episode-new-associations-list"
+                       hx-trigger="input changed delay:500ms consume"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                <ul class="dropdown menu" data-dropdown-menu id="episode-new-associations-list">
+                </ul>
             </div>
         </div>
         <hr>

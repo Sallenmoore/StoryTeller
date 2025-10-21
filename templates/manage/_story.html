@@ -12,7 +12,7 @@
                 <div class="cell shrink align-center-middle">
                     <h4>Name</h4>
                 </div>
-                <div class="cell is-half align-center-middle">
+                <div class="cell medium-6 align-center-middle">
                     <input class="" type="text" name="name"
                            value="{{story.name}}">
                 </div>
@@ -118,16 +118,14 @@
         <h3 class='text-center'>BBEG</h3>
         <div class="grid-x">
             <div class="cell">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="" autocomplete="off" type="search" name="query"
-                           style="border-bottom: solid #000;"
-                           hx-post="/api/story/{{story.pk}}/bbeg/add/search"
-                           hx-target="#story-new-bbeg-list"
-                           hx-trigger="input changed delay:500ms consume"
-                           hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown" id="story-new-bbeg-list">
-                    </ul>
-                </div>
+                <input class="" autocomplete="off" type="search" name="query"
+                       style="border-bottom: solid #000;"
+                       hx-post="/api/story/{{story.pk}}/bbeg/add/search"
+                       hx-target="#story-new-bbeg-list"
+                       hx-trigger="input changed delay:500ms consume"
+                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                <ul class="dropdown menu" data-dropdown-menu id="story-new-bbeg-list">
+                </ul>
             </div>
         </div>
         {% if story.bbeg %}
@@ -148,18 +146,17 @@
     <div class="callout">
         <h2 class='text-center'> Events </h2>
         <div class="grid-x">
-            <div class="cell search is-half align-center-middle">
-                <div class="has-dropdown" style="width: 100%;">
-                    <input class="" autocomplete=off type="search" name="query"
-                           placeholder="Search to Add Events..."
-                           style="border-bottom: solid #000;" hx-target="#event-search"
-                           hx-post="/api/{{story.path}}/event/add/search"
-                           hx-push-url='false'
-                           hx-trigger="input delay:750ms, search"
-                           hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                    <ul class="dropdown autocomplete-list" id="event-search">
-                    </ul>
-                </div>
+            <div class="cell search medium-6 align-center-middle">
+                <input class="" autocomplete=off type="search" name="query"
+                       placeholder="Search to Add Events..."
+                       style="border-bottom: solid #000;" hx-target="#event-search"
+                       hx-post="/api/{{story.path}}/event/add/search"
+                       hx-push-url='false'
+                       hx-trigger="input delay:750ms, search"
+                       hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                <ul class="dropdown menu autocomplete-list" data-dropdown-menu
+                    id="event-search">
+                </ul>
             </div>
             <div class="cell shrink">
                 <button class='button '

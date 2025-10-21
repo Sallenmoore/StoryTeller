@@ -8,7 +8,7 @@
     <div class="grid-x">
         {% set ability_list = abilities or obj.abilities %}
         {%for ability in ability_list%}
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h4 class=' text-center'
                 onclick='this.parentElement.nextElementSibling.classList.toggle("is-hidden")'>
                 {{ability.name}}
@@ -82,7 +82,7 @@
             </div>
             <div class="grid-x" id='ability-item-list'>
                 {% for ability in ability_list %}
-                <div class="cell is-half" style='position:relative;'>
+                <div class="cell medium-6" style='position:relative;'>
                     <a class="-grey"
                        style='position:absolute; top:5px; right:5px;'
                        hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
@@ -120,13 +120,13 @@
                                 <input name='abilities[].duration' type="text"
                                        value="{{ability.duration}}">
                             </div>
-                            <div class="cell is-half">
+                            <div class="cell medium-6">
                                 <label for="ability-dice-roll">Dice Roll</label>
                                 <textarea
                                           class="has-bg-white"
                                           name='abilities[].dice_roll'>{{ability.dice_roll}}</textarea>
                             </div>
-                            <div class="cell is-half">
+                            <div class="cell medium-6">
                                 <label for="ability-effects">Effects</label>
                                 <textarea class="has-bg-white"
                                           name='abilities[].effects'>{{ability.effects}}</textarea>

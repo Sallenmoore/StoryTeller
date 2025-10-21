@@ -31,12 +31,12 @@
       hx-trigger='input delay:750ms, change'>
 
     <div class="grid-x has-centered">
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'>Title</h5>
             <input class=" text-center" type="text" name="name"
                    value="{{entry.name}}">
         </div>
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'>Status</h5>
             <select class="" name="status">
                 {% for i in ['available','active', 'failed', 'completed'] %}
@@ -57,11 +57,11 @@
             {{form_components.texteditor(user, entry, 'description')}}
             <hr>
         </div>
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'>Summary</h5>
             <textarea class="" name="summary" rows="3">{{entry.summary}}</textarea>
         </div>
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'>Hook</h5>
             <textarea class="" name="hook" rows="3">{{entry.hook}}</textarea>
         </div>
@@ -86,16 +86,14 @@
 <div class="grid-x">
     <div class="cell">
         <h3 class="text-center">Add Associations</h3>
-        <div class="has-dropdown" style="width: 100%;">
-            <input class="" autocomplete="off" type="search" name="query"
-                   hx-post="/api/manage/quest/search"
-                   hx-target="#quest-entry-association-search"
-                   hx-trigger="input delay:750ms, change, search"
-                   hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown" id="quest-entry-association-search"
-                hx-vals='{"entrypk":"{{entry.pk}}"}'>
-            </ul>
-        </div>
+        <input class="" autocomplete="off" type="search" name="query"
+               hx-post="/api/manage/quest/search"
+               hx-target="#quest-entry-association-search"
+               hx-trigger="input delay:750ms, change, search"
+               hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+        <ul class="dropdown menu" data-dropdown-menu id="quest-entry-association-search"
+            hx-vals='{"entrypk":"{{entry.pk}}"}'>
+        </ul>
         <hr>
         <div class="callout small">
             <div class="grid-x align-spaced" id="quest-entry-associations">

@@ -122,11 +122,11 @@
       hx-trigger='input delay:750ms, change'>
 
     <div class="grid-x align-justify">
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'>Title</h5>
             <input class="" type="text" name="name" value="{{entry.title}}">
         </div>
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h5 class='text-center'> Importance </h5>
             <div class="is-select">
                 <select class=" text-center" name="importance">
@@ -157,16 +157,14 @@
 <div class="grid-x">
     <div class="cell">
         <h3 class="text-center">Add Associations</h3>
-        <div class="has-dropdown" style="width: 100%;">
-            <input class="" autocomplete="off" type="search" name="query"
-                   hx-post="/api/manage/journal/search"
-                   hx-target="#journal-entry-association-search"
-                   hx-trigger="input delay:750ms consume, change consume, search"
-                   hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown" id="journal-entry-association-search"
-                hx-vals='{"entrypk":"{{entry.pk}}"}'>
-            </ul>
-        </div>
+        <input class="" autocomplete="off" type="search" name="query"
+               hx-post="/api/manage/journal/search"
+               hx-target="#journal-entry-association-search"
+               hx-trigger="input delay:750ms consume, change consume, search"
+               hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+        <ul class="dropdown menu" data-dropdown-menu id="journal-entry-association-search"
+            hx-vals='{"entrypk":"{{entry.pk}}"}'>
+        </ul>
         <hr>
         <div class="callout small">
             <div class="grid-x align-spaced" id="journal-entry-associations">

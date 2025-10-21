@@ -5,7 +5,7 @@
 {% macro screen(user, obj) -%}
 <div id="scene-dropdown-container" class=''>
     <div class="grid-x">
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <h3 class='text-center'>
                 {% if user.current_screen %}
                 {{user.current_screen.name}}
@@ -71,7 +71,7 @@
     Manage GM Screens
 </h3>
 <div class="grid-x has-centered" id='manage-gmscreens-container'>
-    <div class="cell is-half align-center-middle">
+    <div class="cell medium-6 align-center-middle">
         <div class="is-select">
             <select class="" name='screenpk' hx-post='/api/gmscreen/'
                     hx-target='#manage-gmscreens-container'
@@ -238,7 +238,7 @@
     <hr>
     <div class="grid-x">
         {% if editable%}
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <form hx-post='/task/generate/gmscreen/table/{{screenarea.pk}}'
                   hx-target='#table-{{screenarea.pk}}-item-list'>
                 <input type='hidden' name='worldpk' value='{{screenarea.screen.world.pk}}'>
@@ -256,7 +256,7 @@
             </form>
             <hr>
         </div>
-        <div class="cell is-half">
+        <div class="cell medium-6">
             <form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/preset'
                   hx-target='#table-{{screenarea.pk}}-item-list'>
                 <input type='hidden' name='worldpk' value='{{screenarea.screen.world.pk}}'>
@@ -342,17 +342,15 @@
 <div class="grid-x screen-link-area">
     {% if editable %}
     <div class="cell">
-        <div class="has-dropdown" style="width:100%;">
-            <input autocomplete="off" class=""
-                   type="search" placeholder="Search to add quick link" name="query"
-                   hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/search"
-                   hx-target="#link-area-search-{{screenarea.pk}}"
-                   hx-trigger="input changed delay:750ms"
-                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown" id="link-area-search-{{screenarea.pk}}"
-                hx-vals='{"areapk":"{{screenarea.pk}}"}'>
-            </ul>
-        </div>
+        <input autocomplete="off" class=""
+               type="search" placeholder="Search to add quick link" name="query"
+               hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/search"
+               hx-target="#link-area-search-{{screenarea.pk}}"
+               hx-trigger="input changed delay:750ms"
+               hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+        <ul class="dropdown menu" data-dropdown-menu id="link-area-search-{{screenarea.pk}}"
+            hx-vals='{"areapk":"{{screenarea.pk}}"}'>
+        </ul>
     </div>
     {% endif %}
     {% for obj in screenarea.objs %}
@@ -406,16 +404,14 @@
                 <iconify-icon class="" icon="gala:search" width="1rem">
                 </iconify-icon>
             </span>
-            <div class="has-dropdown" style="width:100%;">
-                <input autocomplete="off" class=""
-                       type="search" name="query"
-                       hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e/search"
-                       hx-target="next .dropdown"
-                       hx-trigger="input changed delay:500ms, search"
-                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active');">
-                <ul id="dnd5e-search-{{screenarea.pk}}" class="dropdown">
-                </ul>
-            </div>
+            <input autocomplete="off" class=""
+                   type="search" name="query"
+                   hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e/search"
+                   hx-target="next .dropdown"
+                   hx-trigger="input changed delay:500ms, search"
+                   hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active');">
+            <ul id="dnd5e-search-{{screenarea.pk}}" class="dropdown">
+            </ul>
         </div>
     </div>
     {% if selected %}

@@ -7,9 +7,8 @@
 <h2>Associations</h2>
 {% if obj.model_name() != "World" and user.world_user(obj) %}
 <hr>
-<div class="grid-x" id='association-manager-container'>
-    <div class="cell auto align-center-middle">
-        <div class="has-dropdown" style="width: 100%;">
+<div class="grid-x align-justify" id='association-manager-container'>
+    <div class="cell medium-3 align-center-middle">
             <input class="" autocomplete=off type="search" name="query"
                    placeholder="Search to Add Associations..."
                    style="border-bottom: solid #000;" hx-target="#association-search"
@@ -18,11 +17,10 @@
                    hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
                    onclick=''
                    hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-            <ul class="dropdown autocomplete-list" id="association-search">
+            <ul class="dropdown menu autocomplete-list" data-dropdown-menu id="association-search">
             </ul>
-        </div>
     </div>
-    <div class="cell small-2">
+    <div class="cell shrink">
         <button class="button small"
                 hx-post="/api/manage/associations/random"
                 hx-target="#page-content"
@@ -30,7 +28,7 @@
             Random Associations
         </button>
     </div>
-    <div class="cell small-6">
+    <div class="cell medium-5">
         <div class="grid-x align-center-middle">
             {% for child in obj.world.all_models() %}
             <div class="cell shrink">

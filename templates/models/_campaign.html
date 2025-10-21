@@ -10,12 +10,12 @@
 {% macro index(user, campaign) -%}
 {{title_components.object_title(user, campaign)}}
 <div class="grid-x">
-    <div class="cell is-half">
+    <div class="cell medium-6">
         <h4 class="-grey text-center">
             Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
         </h4>
     </div>
-    <div class="cell is-half">
+    <div class="cell medium-6">
         <h4 class="-grey text-center">
             Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
         </h4>
@@ -214,7 +214,7 @@
 <h3 class='text-center'>Graphic Novel</h3>
 <div class="grid-x">
     {% for entry in obj.episodes[::-1] %}
-    <div class="cell is-half">
+    <div class="cell medium-6">
         <div class="callout ">
             <h5 class='text-center'>{{entry.name}}</h5>
             {% if entry.graphic %}

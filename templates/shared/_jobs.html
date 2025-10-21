@@ -2,7 +2,7 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro jobs(user, obj) -%}
-<h3 class=" text-center" style='padding: 0.25rem;'>Job Board</h3>
+<h3 class="text-center" style='padding: 0.25rem;'>Job Board</h3>
 
 <div class="callout " style='border-top-right-radius: 0; border-top-left-radius:0;'>
     <div class="grid-x">
@@ -19,7 +19,7 @@
                                 <h2 class='text-center'>{{job.name}}</h2>
                             </div>
                             {% if job.contact.parent%}
-                            <div class="cell align-center-middle">
+                            <div class="cell auto align-center-middle">
                                 <h4 class='text-center'>
                                     {% set curr = job.contact.parent %}
                                     {% if curr %}
@@ -55,7 +55,7 @@
                     </a>
                     {% endif %}
                 </div>
-                <div class="cell">
+                <div class="cell align-center-middle text-center">
                     {{job.summary | safe}}
                 </div>
             </div>
