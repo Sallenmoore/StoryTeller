@@ -1,5 +1,5 @@
 
-TARGETS=deploy run rundb initprod cleandev dev initdev cleantests tests test inittests clean refresh logs prune
+TARGETS=deploy run initprod cleandev dev initdev cleantests tests test inittests clean refresh logs prune
 BUILD_CMD=docker compose build --no-cache
 UP_CMD=docker compose up --build -d
 DOWN_CMD=docker compose down --remove-orphans
@@ -14,9 +14,9 @@ include .env
 export
 ###### PROD #######
 
-deploy: refresh run
+deploy: initprod refresh prod
 
-run: initprod clean
+prod: initprod clean
 	$(UP_CMD)
 	$(LOGS_CMD)
 
@@ -25,18 +25,31 @@ initprod:
 	cp -rf envs/prod/compose.yml ./
 	cp -rf envs/prod/gunicorn.conf.py ./vendor
 
-###### DEV #######
+###### Frontend DEV #######
 
-cleandev: refresh dev
+cleandfrontend: initfrontend refresh frontend
 
-dev: initdev
+frontend: initfrontend
 	$(UP_CMD)
 	$(LOGS_CMD)
 
-initdev:
-	cp -rf envs/dev/.env ./
-	cp -rf envs/dev/compose.yml ./
-	cp -rf envs/dev/gunicorn.conf.py ./vendor
+initfrontend:
+	cp -rf envs/frontend/.env ./
+	cp -rf envs/frontend/compose.yml ./
+	cp -rf envs/frontend/gunicorn.conf.py ./vendor
+
+###### Backend DEV #######
+
+cleanbackend: initbackend refresh backend
+
+backend: initbackend
+	$(UP_CMD)
+	$(LOGS_CMD)
+
+initbackend:
+	cp -rf envs/backend/.env ./
+	cp -rf envs/backend/compose.yml ./
+	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
 ###### TESTING #######
 

@@ -64,6 +64,12 @@
         {% endif %}
 
     {% else %}
+        <form action="/auth/login" method="post">
+            <input type="hidden" name="authprovider" value="google">
+            <button class="button is-primary" type="submit">
+                with &ensp;{{icon_components.google(size="1.5rem")}}
+            </button>
+        </form>
         <a href="/auth/login">Login</a>
     {% endif %}
 {%- endmacro %}
