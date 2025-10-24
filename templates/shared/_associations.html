@@ -15,7 +15,6 @@
                    style="border-bottom: solid #000;" hx-target="#association-search"
                    hx-post="/api/manage/association/add/search"
                    hx-trigger="input delay:750ms, search"
-                   hx-vals='{"module":"shared/_associations.html", "macro":"association_dropdown"}'
                    onclick=''
                    hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <ul class="dropdown autocomplete-list has-bg-light" id="association-search">
@@ -117,12 +116,11 @@
 <hr>
 <div id='associations-container'>
     <div id="related-objects" class="row has-space-around">
+        {% if obj.model_name() != "World" %}
         {% for a in obj.children %}
         <div
-             class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
-            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
-                 style='height:100%;'>
+             class="column is-3 is-mobile-6 is-desktop-2 card-container">
+            <div class="panel has-bg-black" style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
                 <div class="row has-space-around">
@@ -131,7 +129,6 @@
                                 hx-post="/api/manage/unassociate/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{icon_components.unlink(size="1rem")}}
                             <span style="font-size:0.5rem">Unlink</span>
@@ -142,13 +139,12 @@
             </div>
         </div>
         {% endfor %}
+        {% endif %}
+
         {% for a in associations %}
-        {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
-        <div
-             class="column is-3 is-mobile-6 is-desktop-2 card-container
-                {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% endif %}">
-            <div class="panel {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} has-bg-screen {% endif %}"
-                 style='height:100%;'>
+        {% if obj.model_name() == "World" or (a not in obj.geneology and a not in obj.children) %}
+        <div class="column is-3 is-mobile-6 is-desktop-2 card-container">
+            <div class="panel" style='height:100%;'>
                 {{display_components.object_display(a)}}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
                 <div class="row has-space-around">
@@ -159,7 +155,6 @@
                                 hx-post="/api/manage/parent/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{icon_components.down(size="1rem")}}
                             <span style="font-size:0.5rem">is child</span>
@@ -173,7 +168,6 @@
                                 hx-post="/api/manage/child/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{icon_components.heirarchy(size="1rem")}}
                             <span style="font-size:0.5rem">is parent</span>
@@ -185,7 +179,6 @@
                                 hx-post="/api/manage/unassociate/{{a.path}}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{icon_components.unlink(size="1rem")}}
                             <span style="font-size:0.5rem">Unlink</span>

@@ -114,6 +114,7 @@ def model(model, pk, page=""):
 def associations(model, pk):
     user, obj, request_data = _loader()
     associations = obj.associations
+    log(model, pk, request_data)
     if filter_str := request_data.get("filter"):
         if len(filter_str) > 2:
             associations = [
@@ -132,7 +133,6 @@ def associations(model, pk):
             associations = [o for o in associations if obj == o.parent]
         elif hasattr(obj, "lineage") and rel_str.lower() == "lineage":
             associations = [o for o in associations if o in obj.lineage]
-
     associations.sort(key=lambda x: x.name)
     order = request_data.get("order", "ascending")
     if sort_str := request_data.get("sorter"):
@@ -153,7 +153,6 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
-
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, associations
     )

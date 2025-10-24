@@ -1,7 +1,8 @@
-from autonomous import log
 from autonomous.model.autoattr import (
     StringAttr,
 )
+
+from autonomous import log
 from models.base.place import Place
 from models.ttrpgobject.faction import Faction
 
@@ -94,14 +95,20 @@ class Region(Place):
     def page_data(self):
         return {
             "pk": str(self.pk),
+            "image": str(self.map.url()) if self.map else None,
             "name": self.name,
-            "desc": self.desc,
+            "desc": self.description,
             "backstory": self.backstory,
             "history": self.history,
-            "cities": [{"name": r.name, "pk": str(r.pk)} for r in self.cities],
-            "locations": [{"name": r.name, "pk": str(r.pk)} for r in self.locations],
-            "factions": [{"name": r.name, "pk": str(r.pk)} for r in self.factions],
+            "culture": self.culture,
+            "government": self.government,
+            "religion": self.religion,
         }
+
+    def foundry_export(self):
+        source_data = self.page_data()
+
+        return source_data
 
     ###############################################################
     ##                    VERIFICATION METHODS                   ##

@@ -108,6 +108,11 @@
 {{title_components.object_title(user, obj)}}
 <div class="panel">
     <div id="episode-info" class="row has-space-around">
+        {% if obj.summary %}
+        <div class="column is-full">
+            {{obj.summary | safe }}
+        </div>
+        {% endif %}
         <div class="column is-4 has-text-dark">
             <div class="panel has-bg-muted">
                 <h3 class='has-text-center'>Loot</h3>

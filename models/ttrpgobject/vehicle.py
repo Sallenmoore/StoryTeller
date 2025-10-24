@@ -1,9 +1,10 @@
 import random
+import re
 
 import markdown
+from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
 
 from autonomous import log
-from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
 from models.base.place import Place
 from models.ttrpgobject.ability import Ability
 
@@ -13,6 +14,7 @@ class Vehicle(Place):
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
+    speed = StringAttr(default="50 feet per round")
     hitpoints = IntAttr(default=lambda: random.randint(10, 250))
     armor = IntAttr(default=lambda: random.randint(1, 20))
     ac = IntAttr(default=lambda: random.randint(1, 20))
@@ -53,6 +55,10 @@ class Vehicle(Place):
                 "armor": {
                     "type": "integer",
                     "description": "The armor level of the vehicle. No Armor == 0, Highest Armor == 20.",
+                },
+                "speed": {
+                    "type": "string",
+                    "description": "The speed of the vehicle, typically measured in feet per round.",
                 },
                 "capacity": {
                     "type": "integer",
@@ -148,20 +154,153 @@ class Vehicle(Place):
 
     ################### Instance Methods #####################
 
+    ################### Serialization Methods #####################
+
     def page_data(self):
+        if not self.history:
+            self.resummarize()
         return {
             "pk": str(self.pk),
             "name": self.name,
             "desc": self.description,
+            "image": str(self.image.url()) if self.image else "",
             "backstory": self.backstory,
             "history": self.history,
+            "ac": self.ac,
+            "armor": self.armor,
+            "speed": self.speed,
             "type": self.type,
             "size": self.size,
-            "hit points": self.hitpoints,
-            "abilities": [str(a) for a in self.abilities],
+            "hitpoints": self.hitpoints,
             "capacity": self.capacity,
-            "crew": [c.path for c in self.crew],
         }
+
+    def foundry_export(self):
+        source_data = self.page_data()
+        """
+        Transforms a generic starship JSON object into the specific Systems Without Number (SWN)
+        "ship" Actor document schema.
+        """
+        target_schema = {
+            "name": "Ship",
+            "type": "ship",
+            "img": "systems/swnr/assets/icons/spaceship.png",
+            "system": {
+                "health": {"value": 10, "max": 10},
+                "cost": 0,
+                "ac": 10,
+                "traumaTarget": 6,
+                "armor": {"value": 1, "max": 1},
+                "speed": 1,
+                "crew": {"min": 1, "current": 1, "max": 1},
+                "crewMembers": [],
+                "tl": 5,
+                "description": "",
+                "mods": "",
+                "power": {"value": 1, "max": 1},
+                "mass": {"value": 1, "max": 1},
+                "hardpoints": {"value": 1, "max": 1},
+                "lifeSupportDays": {"value": 1, "max": 1},
+                "fuel": {"value": 1, "max": 1},
+                "cargo": {"value": 1, "max": 1},
+                "spikeDrive": {"value": 1, "max": 1},
+                "shipClass": "fighter",
+                "shipHullType": "freeMerchant",
+                "operatingCost": 1,
+                "maintenanceCost": 1,
+                "amountOwed": 0,
+                "paymentAmount": 0,
+                "paymentMonths": 0,
+                "maintenanceMonths": 0,
+                "creditPool": 0,
+                "lastMaintenance": {"year": 0, "month": 0, "day": 0},
+                "lastPayment": {"year": 0, "month": 0, "day": 0},
+                "roles": {
+                    "captain": None,
+                    "bridge": None,
+                    "engineering": None,
+                    "gunner": None,
+                    "comms": None,
+                },
+                "cargoCarried": [],
+                "commandPoints": 0,
+                "npcCommandPoints": 0,
+                "crewSkillBonus": 0,
+                "actionsTaken": [],
+                "supportingDept": "",
+                "roleOrder": [],
+            },
+            "prototypeToken": {
+                # Only essential token fields are included for brevity; most can remain defaults
+                "name": "Ship",
+                "displayName": 0,
+                "actorLink": False,
+                "width": 1,
+                "height": 1,
+                "texture": {"src": "systems/swnr/assets/icons/spaceship.png"},
+                "bar1": {"attribute": "health"},
+                "bar2": {"attribute": "power"},
+                # NOTE: Other prototypeToken fields are omitted here as they match the defaults
+                # in your target schema (e.g., light, sight, detectionModes)
+            },
+            "items": [],
+            "effects": [],
+            "flags": {},
+            "ownership": {"default": 0},
+            "_stats": {},  # Leaving empty to be populated by Foundry
+        }
+
+        # 2. Map and clean core fields
+        # Clean the name and apply it to both document and token prototype
+        ship_name = source_data.get("name", "Unknown Ship").strip()
+        target_schema["name"] = ship_name
+        target_schema["prototypeToken"]["name"] = ship_name
+
+        if url := source_data.get("image", "").strip():
+            target_schema["img"] = f"https://storyteller.stevenamoore.dev{url}"
+
+        # HP mapping
+        hp = int(source_data.get("hitpoints", 10))
+        target_schema["system"]["health"]["value"] = hp
+        target_schema["system"]["health"]["max"] = hp
+
+        # AC mapping
+        target_schema["system"]["ac"] = int(source_data.get("ac", 10))
+
+        # Armor mapping
+        armor = int(source_data.get("armor", 1))
+        target_schema["system"]["armor"]["value"] = armor
+        target_schema["system"]["armor"]["max"] = armor
+
+        # Speed mapping (extract first number)
+        speed_text = source_data.get("speed", "50")
+        speed_match = re.search(r"\d+", speed_text)
+        target_schema["system"]["speed"] = (
+            int(speed_match.group(0)) if speed_match else 1
+        )
+
+        # Cargo/Mass mapping (using capacity for Cargo Max)
+        capacity = int(source_data.get("capacity", 1))
+        target_schema["system"]["cargo"]["max"] = capacity
+
+        # 3. Concatenate and clean description fields
+        desc_text = source_data.get("desc", "")
+        history_html = source_data.get("history", "")
+
+        # Combine description fields, preserving a separation
+        combined_desc = f"""
+            <h2>Physical Description</h2>
+            <p>{desc_text}</p>
+
+            <h2>Detailed History</h2>
+            {history_html}
+        """
+
+        # Store the combined HTML string in the system description field
+        # (Foundry VTT expects HTML for this field)
+        target_schema["system"]["description"] = combined_desc.strip()
+
+        return target_schema
 
     ## MARK: - Verification Methods
     ###############################################################

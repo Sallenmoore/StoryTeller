@@ -252,6 +252,10 @@
             <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
         </div>
         <div class="column is-shrink is-mobile-4">
+            <h4>CON</h4>
+            <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
+        </div>
+        <div class="column is-shrink is-mobile-4">
             <h4>INT</h4>
             <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
         </div>
@@ -262,10 +266,6 @@
         <div class="column is-shrink is-mobile-4">
             <h4>CHA</h4>
             <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
-        </div>
-        <div class="column is-shrink is-mobile-4">
-            <h4>CON</h4>
-            <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
         </div>
     </div>
     <div class="row has-space-around">
@@ -301,6 +301,10 @@
     <div class="column is-shrink is-mobile-4">
         <h4 class='has-text-screen'>MAX HP</h4>
         <p class="has-text-dark">{{obj.hitpoints}}</p>
+    </div>
+    <div class="column is-shrink is-mobile-4">
+        <h4 class='has-text-screen'>Speed</h4>
+        <p class="has-text-dark">{{obj.speed}} {{obj.speed_units}}</p>
     </div>
     <div class="column is-shrink is-mobile-4">
         <h4 class='has-text-screen'>Occupation</h4>
