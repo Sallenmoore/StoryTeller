@@ -10,6 +10,7 @@
 {% import "shared/_jobs.html" as jobs_components %}
 {% import "manage/_location.html" as manage_location_components %}
 {% import "shared/_title.html" as title_components %}
+{% import "shared/_display.html" as display_components %}
 
 {% macro index(user, obj) -%}
 {{history(user, obj)}}
@@ -121,11 +122,11 @@
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.map(size="1rem")}}
-                << /div>
-                    <div class="cell">
-                        <span>Map</span>
-                    </div>
             </div>
+            <div class="cell auto">
+                <span>Map</span>
+            </div>
+        </div>
     </a>
 </li>
 <li>
@@ -184,6 +185,18 @@
                     </li>
                     {% endfor %}
                 </ul>
+            </div>
+        </div>
+        <div class="cell">
+            <h5>Encounters</h5>
+            <div class="callout">
+                <div class="grid-x align-spaced">
+                    {% for encounter in obj.encounters %}
+                    <div class="cell medium-2">
+                        {{ display_components.object_display(encounter, type=False) }}
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

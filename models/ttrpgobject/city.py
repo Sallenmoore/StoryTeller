@@ -1,11 +1,12 @@
 import random
 
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     IntAttr,
     StringAttr,
 )
+
+from autonomous import log
 from models.base.place import Place
 
 
@@ -120,13 +121,159 @@ class City(Place):
 
     def page_data(self):
         return super().page_data() | {
+            "name": self.name,
+            "desc": self.description,
+            "backstory": self.backstory,
+            "history": self.history,
             "population": self.population,
-            "image_pk": str(self.image.pk) if self.image else None,
-            "map_pk": str(self.map.pk) if self.map else None,
-            "districts": [{"name": r.name, "pk": str(r.pk)} for r in self.districts],
-            "encounters": [{"name": r.name, "pk": str(r.pk)} for r in self.encounters],
-            "factions": [{"name": r.name, "pk": str(r.pk)} for r in self.factions],
+            "image": str(self.map.url()) if self.map else "",
+            "culture": self.culture,
+            "religion": self.religion,
+            "government": self.government,
         }
+
+    def foundry_export(self):
+        source_data = self.page_data()
+        """
+        Transforms a generic location JSON object into the standard Foundry VTT Scene document schema.
+
+        The descriptive fields are combined into a single JournalEntryPage/Note document,
+        as Foundry Scenes do not have a dedicated 'description' field.
+        """
+        # 1. Define the target schema structure (using a known SWN base template)
+        target_schema = {
+            "name": "Scene",
+            "navigation": True,
+            "navOrder": 0,
+            "background": {
+                "src": None,
+                "anchorX": 0,
+                "anchorY": 0,
+                "offsetX": 0,
+                "offsetY": 0,
+                "fit": "fill",
+                "scaleX": 1,
+                "scaleY": 1,
+                "rotation": 0,
+                "tint": "#ffffff",
+                "alphaThreshold": 0,
+            },
+            "foreground": None,
+            "foregroundElevation": None,
+            "thumb": None,
+            "width": 1792,
+            "height": 1792,
+            "padding": 0.25,
+            "initial": {"x": None, "y": None, "scale": None},
+            "backgroundColor": "#999999",
+            "grid": {
+                "type": 1,
+                "size": 100,
+                "style": "solidLines",
+                "thickness": 1,
+                "color": "#000000",
+                "alpha": 0.2,
+                "distance": 5,
+                "units": "ft",
+            },
+            "tokenVision": True,
+            "fog": {
+                "exploration": True,
+                "overlay": None,
+                "colors": {"explored": None, "unexplored": None},
+            },
+            "environment": {
+                "darknessLevel": 0,
+                "darknessLock": False,
+                "globalLight": {
+                    "enabled": False,
+                    "alpha": 0.5,
+                    "bright": False,
+                    "color": None,
+                    "coloration": 1,
+                    "luminosity": 0,
+                    "saturation": 0,
+                    "contrast": 0,
+                    "shadows": 0,
+                    "darkness": {"min": 0, "max": 1},
+                },
+                "cycle": True,
+                "base": {
+                    "hue": 0,
+                    "intensity": 0,
+                    "luminosity": 0,
+                    "saturation": 0,
+                    "shadows": 0,
+                },
+                "dark": {
+                    "hue": 0.7138888888888889,
+                    "intensity": 0,
+                    "luminosity": -0.25,
+                    "saturation": 0,
+                    "shadows": 0,
+                },
+            },
+            "drawings": [],
+            "tokens": [],
+            "lights": [],
+            "notes": [],
+            "sounds": [],
+            "regions": [],
+            "templates": [],
+            "tiles": [],
+            "walls": [],
+            "playlist": None,
+            "playlistSound": None,
+            "journal": None,
+            "journalEntryPage": None,
+            "weather": "",
+            "folder": None,
+            "flags": {},
+            "_stats": {},
+            "ownership": {"default": 0},
+        }
+
+        # 2. Map Core Fields
+        scene_name = source_data.get("name", "Unknown Scene").strip()
+        target_schema["name"] = scene_name
+
+        # Scene Background Image (maps to background.src)
+        # The source is null, so we explicitly set it to null or a default path if needed.
+        # Use 'image' for image path
+        if url := source_data.get("image", "").strip():
+            target_schema["background"]["src"] = (
+                f"https://storyteller.stevenamoore.dev{url}"
+            )
+
+        # 3. Combine description fields into a Note document
+        desc_text = source_data.get("desc", "")
+        history_html = source_data.get("history", "")
+
+        # Combine all narratives into a single HTML block
+        combined_notes_content = f"""
+            <h2>Description</h2>
+            <p>{desc_text}</p>
+            <h2>History</h2>
+            {history_html}
+        """
+
+        # Create the embedded Note document structure
+        embedded_note = {
+            "name": f"{scene_name} Description",
+            "text": combined_notes_content.strip(),
+            "fontFamily": None,
+            "fontSize": 48,
+            "textAnchor": 1,
+            "textColor": None,
+            "x": 0,  # Placeholder coordinates
+            "y": 0,  # Placeholder coordinates
+            "visibility": 1,  # Visible to GM
+            "flags": {},
+        }
+
+        # Add the note to the scene's notes array
+        target_schema["notes"].append(embedded_note)
+        return target_schema
 
     ## MARK: - Verification Methods
     ###############################################################

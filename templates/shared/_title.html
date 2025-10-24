@@ -30,4 +30,17 @@
     </div>
     {% endif %}
 </div>
-{%- endmacro %}
+{% if obj.geneology and obj.model_name() != "World" %}
+<div class="grid-x align-center-middle">
+    <div class="cell shrink">
+        <nav>
+            <ul class="breadcrumb">
+                {% for p in obj.geneology[::-1] %}
+                <li><a href="/{{p.path}}">{{p.name}} <small>({{p.title}})</small></a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}

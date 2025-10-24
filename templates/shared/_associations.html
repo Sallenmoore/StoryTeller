@@ -61,7 +61,8 @@
                     <select name="type">
                         <option value=''>Filter by Type</option>
                         {% for model in obj.world.all_models() %}
-                        <option value='{{model.__name__ | lower}}'>{{obj.world.get_title(model)}}
+                        <option value='{{model.__name__ | lower}}'>
+                            {{obj.world.get_title(model)}}
                         </option>
                         {% endfor %}
                     </select>
@@ -106,20 +107,18 @@
     <hr>
     <div id='associations-container'>
         <div id="related-objects" class="grid-x align-spaced">
+            {% if obj.model_name() != "World" %}
             {% for a in obj.children %}
-            <div
-                 class="cell medium-2 small-4">
-                <div class="callout {% if a == obj.parent|default(false) %} has-bg-black {% elif obj == a.parent|default(false) %} has-bg-white {% else %} {% endif %}"
-                     style='height:100%;'>
+            <div class="cell medium-2 small-4">
+                <div class="callout" style='height:100%;'>
                     {{display_components.object_display(a)}}
-                    {% if 'World' not in [obj.model_name(), a.model_name()] %}
+                    {% if 'World' != obj.model_name() %}
                     <div class="grid-x align-spaced">
                         <div class="cell medium-3 text-center">
                             <button class="button small"
                                     hx-post="/api/manage/unassociate/{{a.path}}"
                                     hx-target="#associations-container"
                                     hx-select="#associations-container"
-                                    hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                     hx-indicator='#request-indicator'>
                                 {{icon_components.unlink(size="1rem")}}
                                 <span style="font-size:0.5rem">Unlink</span>
@@ -131,10 +130,10 @@
             </div>
             {% endfor %}
             {% for a in associations %}
-            {% if a.parent|default(false) != obj and obj.parent|default(false) != a %}
-            <divclass="cell medium-3">
-                <div class="callout"
-                     style='height:100%;'>
+            {% if obj.model_name() == "World" or (a not in obj.geneology and a not in
+            obj.children) %}
+            <div class="cell medium-3">
+                <div class="callout" style='height:100%;'>
                     {{display_components.object_display(a)}}
                     {% if 'World' not in [obj.model_name(), a.model_name()] %}
                     <div class="grid-x align-spaced">
@@ -180,36 +179,35 @@
                     </div>
                     {% endif %}
                 </div>
+            </div>
+            {% endif %}
+            {% endfor %}
         </div>
-        {% endif %}
-        {% endfor %}
     </div>
-</div>
-{%- endmacro %}
+    {%- endmacro %}
 
-{% macro association_dropdown(user, obj, objs=[]) -%}
-{% for o in objs %}
-<li class="dropdown__link">
-    <a hx-post='/api/manage/association/add/{{o.path}}'
-       hx-target='#associations-container'
-       hx-select='#associations-container'
-       hx-swap='outerHTML'
-       hx-indicator='#request-indicator'
-       hx-push-url='/{{obj.path}}/associations'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="grid-x">
-            <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail" style="cursor: pointer">
+    {% macro association_dropdown(user, obj, objs=[]) -%}
+    {% for o in objs %}
+    <li class="dropdown__link">
+        <a hx-post='/api/manage/association/add/{{o.path}}'
+           hx-target='#associations-container'
+           hx-select='#associations-container'
+           hx-swap='outerHTML'
+           hx-indicator='#request-indicator'
+           hx-push-url='/{{obj.path}}/associations'
+           onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+            <div class="grid-x">
+                <div class="cell shrink">
                     {% if o.image %}
-                    <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" />
+                    <img style="cursor: pointer" src="{{o.image.url(size=50)}}"
+                         alt="{{o.name}}" />
                     {% endif %}
                 </div>
+                <div class="cell auto">
+                    {{o.name}}
+                </div>
             </div>
-            <div class="cell">
-                {{o.name}}
-            </div>
-        </div>
-    </a>
-</li>
-{% endfor %}
-{%- endmacro%}
+        </a>
+    </li>
+    {% endfor %}
+    {%- endmacro%}

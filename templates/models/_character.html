@@ -333,45 +333,46 @@
 {% macro info(user, obj) -%}
 <div class="callout">
     <div class="grid-x align-spaced">
-        <div class="cell shrink is-mobile-4">
+        <div class="cell shrink">
             <h4>STR</h4>
             <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
         </div>
-        <div class="cell shrink is-mobile-4">
+        <div class="cell shrink">
             <h4>DEX</h4>
             <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
         </div>
-        <div class="cell shrink is-mobile-4">
-            <h4>INT</h4>
-            <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
-        </div>
-        <div class="cell shrink is-mobile-4">
-            <h4>WIS</h4>
-            <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
-        </div>
-        <div class="cell shrink is-mobile-4">
-            <h4>CHA</h4>
-            <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
-        </div>
-        <div class="cell shrink is-mobile-4">
+        <div class="cell shrink">
             <h4>CON</h4>
             <p>{{obj.constitution}} ({{(obj.constitution|int-10)//2}})</p>
         </div>
-    </div>
-    <div class="grid-x align-spaced">
-        {% for skill, val in obj.skills.items() %}
-
-        <div class="cell shrink is-mobile-3">
-            <div class="callout">
-                <h5 class='text-center'>{{skill}}</h5>
-                <p class='text-center'>{{val}}</p>
-            </div>
+        <div class="cell shrink">
+            <h4>INT</h4>
+            <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
         </div>
-        {% endfor %}
+        <div class="cell shrink">
+            <h4>WIS</h4>
+            <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
+        </div>
+        <div class="cell shrink">
+            <h4>CHA</h4>
+            <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
+        </div>
     </div>
 </div>
 <div class="grid-x align-spaced">
-    <div class="cell medium-3 is-mobile-4">
+    {% for skill, val in obj.skills.items() %}
+
+    <div class="cell shrink is-mobile-3">
+        <div class="callout">
+            <h5 class='text-center'>{{skill}}</h5>
+            <p class='text-center'>{{val}}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</div>
+<div class="grid-x align-spaced">
+    <div class="cell medium-3">
         <div id="current-hitpoints" class="callout ">
             <h4 class="">Current HP</h4>
             <input hx-get="/api/manage/character/hitpoints"
@@ -388,28 +389,32 @@
             </div>
         </div>
     </div>
-    <div class="cell shrink is-mobile-4">
-        <h4 class='has-text-screen'>MAX HP</h4>
+    <div class="cell shrink">
+        <h4 class=''>MAX HP</h4>
         <p class="">{{obj.hitpoints}}</p>
     </div>
-    <div class="cell shrink is-mobile-4">
-        <h4 class='has-text-screen'>Occupation</h4>
+    <div class="cell shrink">
+        <h4>Speed</h4>
+        <p>{{obj.speed}} {{obj.speed_units}}</p>
+    </div>
+    <div class="cell shrink">
+        <h4>Occupation</h4>
         <p class="">{{obj.occupation}}</p>
     </div>
-    <div class="cell shrink is-mobile-4">
-        <h4 class='has-text-screen'>Archetype (i.e. Class)</h4>
+    <div class="cell shrink">
+        <h4 class=''>Archetype (i.e. Class)</h4>
         <p class="">{{obj.archetype}}</p>
     </div>
-    <div class="cell shrink is-mobile-4">
-        <h4 class='has-text-screen'>AC</h4>
+    <div class="cell shrink">
+        <h4 class=''>AC</h4>
         <p class="">{{obj.ac}}</p>
     </div>
 </div>
 <div class='row align-spaced'>
-    <div class="cell is-mobile-full">
+    <div class="cell">
         <div class="grid-x align-spaced">
             <div class="cell shrink">
-                <h4 class='has-text-screen'>Age</h4>
+                <h4 class=''>Age</h4>
                 {% if obj.age %}
                 <p class="">{{obj.age}}</p>
                 {% else%}
@@ -417,11 +422,11 @@
                 {% endif %}
             </div>
             <div class="cell shrink">
-                <h4 class='has-text-screen'>Species</h4>
+                <h4 class=''>Species</h4>
                 <p class="">{{obj.species}}</p>
             </div>
             <div class="cell shrink">
-                <h4 class='has-text-screen'>Gender</h4>
+                <h4 class=''>Gender</h4>
                 <p class="">{{obj.gender}}</p>
             </div>
         </div>
@@ -493,7 +498,7 @@
     <h4 class=' text-center'>Add Family Member</h4>
     <form hx-post="/api/manage/character/addlineage" hx-target="#page-content">
         <div class="grid-x has-centered">
-            <div class="cell shrink is-mobile-4">
+            <div class="cell shrink">
                 <div class="is-select">
                     <select class=" select" name="role">
                         <option value="parent">Parent</option>

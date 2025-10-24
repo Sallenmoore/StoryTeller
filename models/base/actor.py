@@ -1,9 +1,6 @@
 import random
 
 import markdown
-from bs4 import BeautifulSoup
-
-from autonomous import log
 from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
     BoolAttr,
@@ -14,6 +11,9 @@ from autonomous.model.autoattr import (
     ReferenceAttr,
     StringAttr,
 )
+from bs4 import BeautifulSoup
+
+from autonomous import log
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
@@ -31,6 +31,8 @@ class Actor(TTRPGObject):
     status = StringAttr(default="healthy")
     ac = IntAttr(default=10)
     current_hitpoints = IntAttr(default=10)
+    speed = IntAttr(default=30)
+    speed_units = StringAttr(default="ft")
     strength = IntAttr(default=10)
     dexterity = IntAttr(default=10)
     constitution = IntAttr(default=10)
@@ -91,7 +93,7 @@ class Actor(TTRPGObject):
         },
         "abilities": {
             "type": "array",
-            "description": "Generate at least 2 offensive combat, 2 defensive combat AND 2 roleplay special ability objects for the array. Each object in the array should have attributes for the ability name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
+            "description": "Generate 2 offensive combat, 2 defensive combat, AND 2 roleplay special ability objects. Each ability object should have attributes for the name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
             "items": {
                 "type": "object",
                 "required": [
@@ -144,6 +146,14 @@ class Actor(TTRPGObject):
         "hitpoints": {
             "type": "integer",
             "description": "maximum hit points",
+        },
+        "speed": {
+            "type": "integer",
+            "description": "the amount of movement units the actor has per round, where the average is 30",
+        },
+        "speed_units": {
+            "type": "string",
+            "description": "the units of measurement for the actor's speed (e.g., feet, meters)",
         },
         "strength": {
             "type": "integer",

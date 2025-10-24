@@ -200,9 +200,19 @@ def listobjs(model):
 
 
 @index_page.route(
-    "/data/<string:model>/<pk>",
+    "/<string:model>/<pk>/data",
     methods=("GET", "POST"),
 )
-def getobjs(pk, model):
+def obj_data(pk, model):
     obj = World.get_model(model, pk)
     return obj.page_data()
+
+
+@index_page.route(
+    "/<string:model>/<pk>/data/foundry",
+    methods=("GET", "POST"),
+)
+def foundry_export(pk, model):
+    obj = World.get_model(model, pk)
+    log(obj)
+    return obj.foundry_export()
