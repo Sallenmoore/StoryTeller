@@ -11,12 +11,12 @@
     <div class="cell align-center-middle">
         <h3 class='text-center'>Filter</h3>
         <div class="buttons is-centered">
-            <a class="button small {% if not tag %}is-primary{% else %}is-muted has-text-screen{% endif %}"
+            <a class="button small {% if not tag %}is-primary{% else %}is-muted {% endif %}"
                href="/admin/manage/images">
                 All
             </a>
             {% for t in tags %}
-            <a class="button small {% if tag == t %}is-primary{% else %}is-muted has-text-screen{% endif %}"
+            <a class="button small {% if tag == t %}is-primary{% else %}is-muted {% endif %}"
                hx-post='/api/admin/manage/images/tag/{{t}}' hx-target='#manager'>
                 {{ t }}
             </a>
