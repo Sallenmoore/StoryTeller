@@ -46,10 +46,19 @@ def sidemenudetail(model, pk):
 def navsearch():
     user, obj, request_data = _loader()
     query = request.json.get("query")
-    results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
-    results = [r for r in results if r != obj]
+    results = []
+    if len(query) > 2:
+        if obj:
+            results = obj.world.search_autocomplete(query=query)
+            results = [r for r in results if r != obj]
+        else:
+            results = [
+                r for w in user.worlds for r in w.search_autocomplete(query=query)
+            ]
+
     # log(macro, query, [r.name for r in results])
     return get_template_attribute("_nav.html", "nav_dropdown")(user, obj, results)
+
 
 @nav_endpoint.route(
     "/mentions",
@@ -60,12 +69,18 @@ def mentionsearch():
     query = request.json.get("query")
     results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
 
-    response=[]
+    response = []
     for item in results:
         mention = "@" + item.name
         model_name = item.model_name().lower()
         guid = str(item.pk)
-        entry = {"id": mention, "pk": str(item.pk), "name": item.name, "type": item.model_name().lower(), "guid": guid}
+        entry = {
+            "id": mention,
+            "pk": str(item.pk),
+            "name": item.name,
+            "type": item.model_name().lower(),
+            "guid": guid,
+        }
         response.append(entry)
 
     return response

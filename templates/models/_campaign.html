@@ -8,7 +8,6 @@
 {% import "manage/_campaign.html" as manage_campaign_components %}
 
 {% macro index(user, campaign) -%}
-{{title_components.object_title(user, campaign)}}
 <div class="grid-x">
     <div class="cell medium-6">
         <h4 class="-grey text-center">
@@ -79,7 +78,7 @@
             <div class="cell shrink">
                 {{icon_components.episode(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>Episodes</span>
             </div>
         </div>
@@ -111,7 +110,7 @@
             <div class="cell shrink">
                 {{icon_components.graphic_novel(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>Graphic Novel</span>
             </div>
         </div>
@@ -141,9 +140,7 @@
 {%- endmacro %}
 
 {% macro associations(user, obj, associations) -%}
-
-<h2 class="  text-center is-subtitle">
-    Associations</h2>
+<h2 class="text-center">Associations</h2>
 <div class="grid-x">
     {% for o in associations %}
     <div class="cell medium-1 text-center">
@@ -151,11 +148,9 @@
     </div>
     {% endfor %}
 </div>
-
 {%- endmacro %}
 
 {% macro episodes(user, campaign) -%}
-{{title_components.object_title(user, campaign)}}
 <h3 class='text-center'>Episodes</h3>
 <div class="grid-x">
     {% for entry in campaign.episodes %}
@@ -198,7 +193,6 @@
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}
-{{title_components.object_title(user, obj)}}
 {{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
@@ -207,7 +201,6 @@
 {%- endmacro %}
 
 {% macro graphic_novel(user, obj)%}
-{{title_components.object_title(user, obj)}}
 <h3 class='text-center'>Graphic Novel</h3>
 <div class="grid-x">
     {% for entry in obj.episodes[::-1] %}
@@ -226,6 +219,5 @@
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{{title_components.object_title(user, obj)}}
 {{ manage_campaign_components.manage(user, obj) }}
 {%- endmacro %}

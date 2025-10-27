@@ -30,7 +30,6 @@ class Actor(TTRPGObject):
     hitpoints = IntAttr(default=30)
     status = StringAttr(default="healthy")
     ac = IntAttr(default=10)
-    current_hitpoints = IntAttr(default=10)
     speed = IntAttr(default=30)
     speed_units = StringAttr(default="ft")
     strength = IntAttr(default=10)
@@ -89,7 +88,7 @@ class Actor(TTRPGObject):
         },
         "goal": {
             "type": "string",
-            "description": "The character's public and private goals. The public goal is what the character tells others, while the private goal is what the character truly desires.",
+            "description": "The character's public and private goals. The public goal is what the character tells others, while the private goal is what the character truly desires. The character goials should be at least tangentially related to an existing world story",
         },
         "abilities": {
             "type": "array",

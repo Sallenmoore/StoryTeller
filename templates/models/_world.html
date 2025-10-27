@@ -289,7 +289,7 @@
 
 {% macro campaigns(user, obj)%}
 {% if user.world_user(obj)%}
-<div class="grid-x">
+{# <div class="grid-x align-right">
     <div class="cell shrink">
         <button class="button small" hx-post="/api/world/campaign/new"
                 hx-target="#campaigns-list"
@@ -299,6 +299,15 @@
             New Campaign
         </button>
     </div>
+</div> #}
+<div style='position:absolute; top:2rem; right:2rem;'>
+    <button class="button small" hx-post="/api/world/campaign/new"
+            hx-target="#campaigns-list"
+            hx-selector="#campaigns-list"
+            hx-swap="outerHTML">
+        {{icon_components.plus(size="1rem")}}
+        New Campaign
+    </button>
 </div>
 {% endif %}
 <div id='campaigns-list'>
@@ -320,7 +329,7 @@
 
 
 {% macro players(user, obj) -%}
-{{title_components.object_title(user, obj)}}
+
 <title>{{obj.name}} - Players callout</title>
 <h2 class="">Players</h2>
 {% for player in obj.players %}
@@ -363,7 +372,7 @@
 {%- endmacro %}
 
 {% macro lore(user, obj) -%}
-{{title_components.object_title(user, obj)}}
+
 <div id="lore-container" class="callout ">
     <h2 class=" text-centered">Lore Builder</h2>
     <hr>

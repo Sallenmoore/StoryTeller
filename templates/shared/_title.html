@@ -1,7 +1,7 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro object_title(user, obj) -%}
-<div id="object-title" class="grid-container">
+<div id="object-title" class="grid-container fluid">
     <div class="grid-x grid-padding-x align-middle">
         <div class="cell small-12 medium-10 medium-offset-1 text-center">
             <a href='/{{obj.path}}'>
@@ -16,7 +16,7 @@
         </div>
         {% endif %}
     </div>
-    {% if obj.geneology %}
+    {% if obj.model_name() != "World" and obj.geneology %}
     <div class="grid-x align-center-middle">
         <div class="cell shrink">
             <nav>
@@ -30,17 +30,4 @@
     </div>
     {% endif %}
 </div>
-{% if obj.geneology and obj.model_name() != "World" %}
-<div class="grid-x align-center-middle">
-    <div class="cell shrink">
-        <nav>
-            <ul class="breadcrumb">
-                {% for p in obj.geneology[::-1] %}
-                <li><a href="/{{p.path}}">{{p.name}} <small>({{p.title}})</small></a></li>
-                {% endfor %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
 {% endmacro %}

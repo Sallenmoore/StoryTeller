@@ -4,29 +4,15 @@
 {% macro campaigns(user, obj) -%}
 <title>{{obj.name | title}} - Campaigns</title>
 <h2>Campaigns</h2>
-<hr>
 {% if not obj.campaigns %}
 <h3 class='text-center '>Not yet associated with any campaigns
 </h3>
 {% else %}
-<div id="object-campaigns" class="grid-x align-spaced raise-it">
-    <div class="cell">
-        <select class="" name="campaignpk" id="campaignpk"
-                hx-post="/api/campaign/"
-                hx-target="#campaign-details" hx-trigger='change'>
-            <option value="">=== Select Campaign ===</option>
-            {% for s in obj.campaigns %}
-            <option class="" value="{{s.pk}}" {% if campaign and campaign.pk==s.pk %}
-                    selected {% endif %}>
-                {{s.name}}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div id="campaign-details" class="cell">
-        <div class="grid-x align-spaced">
-            {% for campaign in obj.campaigns %}
-            <div class="cell medium-4">
+<div id="object-campaigns">
+    <div class="grid-x grid-margin-x align-spaced">
+        {% for campaign in obj.campaigns %}
+        <div class="cell medium-4">
+            <div class="callout">
                 <a href="/campaign/{{campaign.pk}}">
                     <h3 class=' text-center'>{{campaign.name}}</h3>
                 </a>
@@ -62,8 +48,8 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
     </div>
 </div>
 {% endif %}

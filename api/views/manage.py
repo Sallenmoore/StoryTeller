@@ -324,8 +324,8 @@ def association_search():
         obj.world.search_autocomplete(query) if query and len(query) > 2 else []
     )
     associations = [a for a in associations if a not in obj.associations and a != obj]
-    return get_template_attribute("shared/_associations.html", "association_dropdown")(
-        user, obj, associations
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, obj, "manage/association/add", associations
     )
 
 
@@ -333,47 +333,15 @@ def association_search():
 @manage_endpoint.route(
     "/association/add/<string:amodel>/<string:apk>", methods=("POST",)
 )
-def association_add(amodel, apk):
+def association_add(amodel, apk=None):
     user, obj, request_data = _loader()
-    if child := World.get_model(amodel, apk):
+    child = World.get_model(amodel, apk)
+    if not child:
+        model = World.get_model(amodel)
+        child = model(world=obj.world, name="New " + obj.get_title(model))
+        child.save()
+    if child:
         obj.add_association(child)
-    params = {
-        "user": user,
-        "obj": obj,
-        "associations": obj.associations,
-    }
-    return get_template_attribute("shared/_associations.html", "associations")(**params)
-
-
-@manage_endpoint.route("/associations/random", methods=("POST",))
-def association_random():
-    user, obj, request_data = _loader()
-    log(obj.parent_list)
-    if "City" not in obj.parent_list:
-        if cities := [o for o in obj.world.cities if o.parent is None]:
-            log(cities)
-            obj.add_association(random.choice(cities))
-    if "District" not in obj.parent_list:
-        if districts := [o for o in obj.world.districts if o.parent is None]:
-            log(districts)
-            obj.add_association(random.choice(districts))
-    if "Creature" not in obj.parent_list:
-        if creatures := [o for o in obj.world.creatures if o.parent is None]:
-            log(creatures)
-            obj.add_association(random.choice(creatures))
-    if "Item" not in obj.parent_list:
-        if items := [o for o in obj.world.items if o.parent is None]:
-            log(items)
-            obj.add_association(random.choice(items))
-    if "Character" not in obj.parent_list:
-        if characters := [o for o in obj.world.characters if o.parent is None]:
-            log(characters)
-            obj.add_association(random.choice(characters))
-    if "Faction" not in obj.parent_list:
-        if factions := [o for o in obj.world.factions if o.parent is None]:
-            log(factions)
-            obj.add_association(random.choice(factions))
-
     params = {
         "user": user,
         "obj": obj,

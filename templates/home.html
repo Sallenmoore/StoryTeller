@@ -14,9 +14,8 @@
             </div>
         </div>
     </div>
-
     <hr>
-    <div class="grid-x align-spaced">
+    <div class="grid-x">
         {% for w in user.worlds %}
         <div class="cell world-entry">
             <div class="callout"
@@ -34,8 +33,7 @@
                             </div>
                         </a>
                     </div>
-                    <div class=" cell shrink"
-                         style='position: absolute; top: 1rem; right: 1rem;'>
+                    <div class="cell shrink" style='position: absolute; top: 1rem; right: 1rem;'>
                         <button class="button small"
                                 hx-post="/api/world/{{w.pk}}/delete"
                                 hx-target="closest .world-entry"

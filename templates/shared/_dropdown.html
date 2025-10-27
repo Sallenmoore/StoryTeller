@@ -1,21 +1,20 @@
 {% macro search_dropdown(user, obj, url, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link">
-    <form hx-post='/api/{{url}}'
+    <form hx-post='/api/{{url}}/{{o.path}}'
           hx-target='#page-content'
           hx-trigger='click'
           hx-indicator='#request-indicator'>
-        <input type="hidden" name="search_model" value="{{o.model_name()}}">
-        <input type="hidden" name="search_pk" value="{{o.pk}}">
-        <div class="grid-x">
-            {% if o.image %}
-            <div class="cell shrink">
-                <img class="thumbnail" src="{{o.image.url(size=50)}}" alt="{{o.name}}"
-                     style="cursor: pointer" />
+        <hr>
+        <div class="grid-x grid-padding-x grid-margin-x">
+            <div class="cell align-center-middle shrink">
+                {% if o.image %}
+                <img style="cursor: pointer" src="{{o.image.url(size=50)}}"
+                     alt="{{o.name}}" />
+                {% endif %}
             </div>
-            {% endif %}
-            <div class="cell">
-                {{o.name}}
+            <div class="cell auto align-center-middle" style="cursor: pointer;">
+                <h5>{{o.name}}</h5>
             </div>
         </div>
     </form>

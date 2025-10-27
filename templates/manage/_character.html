@@ -6,65 +6,81 @@
 
 <!-- characters have gameplay and other details -->
 {% macro manage_extended_details(user, obj) -%}
-    <div id="character-game" class="grid-x grid-padding-x">
-        <div class="cell small-12">
-            <h2>Game Info</h2>
-            <!-- DND Beyond Info -->
-            <button class="button"
-                    hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
-                    hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif%}
-                    hx-indicator="#request-indicator">
-                Updates from D&DBeyond
-            </button>
-            {% if not obj.dnd_beyond_id %}
-                <small>Must be a 'player' and have DnDBeyond ID set</small>
-            {% endif %}
+<div id="character-game" class="grid-x grid-padding-x">
+    <div class="cell small-12">
+        <h2>Game Info</h2>
+        <!-- DND Beyond Info -->
+        <button class="button"
+                hx-post="/api/manage/character/{{obj.pk}}/dndbeyond"
+                hx-target="#page-content" {% if not obj.dnd_beyond_id %} disabled {% endif%}
+                hx-indicator="#request-indicator">
+            Updates from D&DBeyond
+        </button>
+        {% if not obj.dnd_beyond_id %}
+        <small>Must be a 'player' and have DnDBeyond ID set</small>
+        {% endif %}
 
-            {{update_gm_notes(user, obj)}}
-        </div>
-
-        <div class="side-panel cell small-12 medium-3">
-            {{update_skills(user, obj)}}
-        </div>
-        <div class="side-panel cell small-12 medium-9">
-            {{update_stats(user, obj)}}
-            {{abilities.edit_abilities(user, obj)}}
-        </div>
+        {{update_gm_notes(user, obj)}}
     </div>
+
+    <div class="side-panel cell small-12 medium-3">
+        {{update_skills(user, obj)}}
+    </div>
+    <div class="side-panel cell small-12 medium-9">
+        {{update_stats(user, obj)}}
+        {{abilities.edit_abilities(user, obj)}}
+    </div>
+</div>
 {%- endmacro %}
 
 
 <!-- display GM notes-->
 {% macro update_gm_notes(user, obj) -%}
-    <h3>GM Notes</h3>
-    <table id="gm-notes">
-        <tr><th>Look-A-Like</th><td>{{obj.lookalike | safe}}</td></tr>
-        <tr><th>Voice</th><td>{{obj.voice_description | safe}}</td></tr>
-        <tr><th>Hooks</th><td>
+<h3>GM Notes</h3>
+<table id="gm-notes">
+    <tr>
+        <th>Look-A-Like</th>
+        <td>{{obj.lookalike | safe}}</td>
+    </tr>
+    <tr>
+        <th>Voice</th>
+        <td>{{obj.voice_description | safe}}</td>
+    </tr>
+    <tr>
+        <th>Hooks</th>
+        <td>
             {% for q in obj.quests %}
-                {{ q.summary | safe }}
-                <hr>
-                {{ q.hook | safe }}
+            {{ q.summary | safe }}
+            <hr>
+            {{ q.hook | safe }}
             {% endfor %}
-        </td></tr>
-        <tr><th>Rumors</th><td>
+        </td>
+    </tr>
+    <tr>
+        <th>Rumors</th>
+        <td>
             {% for r in obj.rumors %}
-                {{ r | safe }}
+            {{ r | safe }}
             {% endfor %}
-        </td></tr>
-        <tr><th>Goals and Secrets</th><td>{{obj.goal | safe}}</td></tr>
+        </td>
+    </tr>
+    <tr>
+        <th>Goals and Secrets</th>
+        <td>{{obj.goal | safe}}</td>
+    </tr>
 
 
-        <label>Goals and Secrets
-            <input type="text" name="goal" value="{{obj.goal}}">
-        </label> 
-    </table>
+    <label>Goals and Secrets
+        <input type="text" name="goal" value="{{obj.goal}}">
+    </label>
+</table>
 {%- endmacro %}
 
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
+<hr>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x align-spaced">
@@ -88,38 +104,38 @@
             <input type="text" value="{{obj.lookalike}}" name="lookalike">
         </div>
     </div>
-    <hr>
+
     <div class="grid-x align-justify">
-        <div class="cell">
+        <div class="cell auto">
             <h4 class="text-center">STR</h4>
             <input class="text-center" type="text" value="{{obj.strength}}" name="strength">
         </div>
-        <div class="cell ">
+        <div class="cell auto">
             <h4 class="text-center">DEX</h4>
             <input class="text-center" type="text" value="{{obj.dexterity}}" name="dexterity">
         </div>
-        <div class="cell ">
-            <h4 class="text-center">INT</h4>
-            <input class="text-center" type="text" value="{{obj.intelligence}}"
-                   name="intelligence">
-        </div>
-        <div class="cell ">
-            <h4 class="text-center">WIS</h4>
-            <input class="text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
-        </div>
-        <div class="cell ">
-            <h4 class="text-center">CHA</h4>
-            <input class="text-center" type="text" value="{{obj.charisma}}" name="charisma">
-        </div>
-        <div class="cell ">
+        <div class="cell auto">
             <h4 class="text-center">CON</h4>
             <input class="text-center" type="text" value="{{obj.constitution}}"
                    name="constitution">
         </div>
+        <div class="cell auto">
+            <h4 class="text-center">INT</h4>
+            <input class="text-center" type="text" value="{{obj.intelligence}}"
+                   name="intelligence">
+        </div>
+        <div class="cell auto">
+            <h4 class="text-center">WIS</h4>
+            <input class="text-center" type="text" value="{{obj.wisdom}}" name="wisdom">
+        </div>
+        <div class="cell auto">
+            <h4 class="text-center">CHA</h4>
+            <input class="text-center" type="text" value="{{obj.charisma}}" name="charisma">
+        </div>
     </div>
-    <div class="grid-x align-spaced">
+    <div class="grid-x grid-margin-x grid-margin-y align-spaced">
         {% for skill, val in obj.skills.items() %}
-        <div class="cell medium-1 is-mobile-3">
+        <div class="cell medium-2 is-mobile-3">
             <div class="callout">
                 <h5 class='text-center'>{{skill}}</h5>
                 <input class="text-center" type="number" value="{{val}}"
@@ -140,15 +156,15 @@
             <input class="text-center" id="model-ac" type="number"
                    value="{{obj.ac}}" name="ac">
         </div>
-        <div class="column is-shrink">
-            <h4 class='has-text-center has-text-primary' for="model-speed">Speed/Units</h4>
-            <div class="row">
-                <div class="column">
-                    <input class="has-text-center" id="model-speed" type="number"
+        <div class="cell shrink">
+            <h4 class='text-center' for="model-speed">Speed/Units</h4>
+            <div class="grid-x align-spaced">
+                <div class="cell auto">
+                    <input class="text-center" id="model-speed" type="number"
                            value="{{obj.speed}}" name="speed">
                 </div>
-                <div class="column">
-                    <input class="has-text-center"
+                <div class="cell auto">
+                    <input class="text-center"
                            id="model-speed_units" type="text"
                            value="{{obj.speed_units}}" name="speed_units">
                 </div>
@@ -179,14 +195,13 @@
         </div>
         <div class="cell shrink">
             <h4 class=''>Occupation</h4>
-            <select name="occupation">
+            <input name="occupation" list="character-occupations" value="{{obj.occupation}}">
+            <datalist id="character-occupations">
                 {%for k, v in obj.system.backgrounds.items() %}
-                <option value="{{k}}" {%if k==obj.occupation%} selected {%endif%}>{{k}}: {{v}}
-                </option>
+                <option value="{{k}}">{{k}}: {{v}}</option>
                 {% endfor %}
-            </select>
+            </datalist>
         </div>
-
     </div>
     <hr>
     <div class="grid-x">

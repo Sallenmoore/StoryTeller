@@ -33,10 +33,10 @@
 {% if label %}
 <label for="{{name}}" class="label">{{label}}</label>
 {% endif %}
-<textarea id="{{name}}" name='{{name}}' class="auto-resize-text has-bg-white" rows="1"
-          placeholder="Start typing...">{{ content }}</textarea>
+<textarea id="{{name}}" name='{{name}}' class="auto-resize-text secondary" rows="1"
+          placeholder="Start typing...">{{ content or obj[name] }}</textarea>
 <script>
-    var textareas = document.querySelectorAll('.auto-resize-text0');
+    var textareas = document.querySelectorAll('.auto-resize-text');
 
     textareas.forEach(textarea => {
         // Adjust height on input

@@ -26,35 +26,48 @@
                     </label>
                 </div>
             </div>
-
+            <h3>Report</h3>
             {{form_components.richtexteditor(user, episode, 'episode_report')}}
+            <!-- display AI Generative buttons -->
+            <div id="ai-buttons" class="grid-x grid-padding-x align-right">
+                <div class="cell small-shrink large-shrink">
+                    <button class="button"
+                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                            hx-target="closest .cell"
+                            hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
+                        {{icon_components.ai(size="1rem")}}
+                        Update Summary (AI Generated)
+                    </button>
+                </div>
+                <div class="cell small-shrink large-shrink">
+                    <button class="button"
+                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                            hx-target="closest .cell"
+                            hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
+                        {{icon_components.ai(size="1rem")}}
+                        Update Summary (AI Generated)
+                    </button>
+                </div>
+            </div>
+            <hr>
             <h3>Loot</h3>
             {{form_components.texteditor(user, episode, 'loot')}}
+            <hr>
             <h3>Hooks</h3>
             {{form_components.texteditor(user, episode, 'hooks')}}
 
         </div>
         <div class="related-panel cell small-12 medium-4">
-            <!-- replace this with link -->{{ display_components.dsp_object_image(episode,'400') }}
+            <!-- replace this with link -->
+            {{ display_components.dsp_object_image(episode,'400') }}
 
             <h2>Dates</h2>
-
-            <div class="grid-x">
-                <div class="cell small-12">
-                    <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
-                          hx-trigger="input delay:1s, change">
-                        {{ manage_components.manage_date (episode, 'start') }}
-                        {{ manage_components.manage_date (episode, 'end') }}
-                    </form>
-                </div>
-            </div>
+            {{ manage_components.dates (user, episode) }}
 
             <h2>Associations</h2>
-
             {{associations(user, episode)}}
 
             <p>Manage</p>
-
             <button class="button is-light has-text-dark"
                     hx-post="/api/campaign/episode/{{episode.pk}}/delete"
                     hx-target="#details-container"
@@ -63,21 +76,6 @@
                     hx-confirm='Are you sure you want to delete this Episode?'>
                 {{icon_components.trash(size="1rem")}}
             </button>
-
-
-            <!-- display AI Generative buttons -->
-            <div id="ai-buttons" class="grid-x grid-padding-x">
-                <div class="cell small-12 large-6">
-                    <button class="button"
-                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                            hx-target="closest .column"
-                            hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
-                        {{icon_components.ai(size="1rem")}}
-                        Update Summary (AI Generated)
-                    </button>
-                </div>
-            </div>
-
             {% endif %}
         </div>
     </div>

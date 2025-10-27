@@ -35,7 +35,7 @@
             <div class="cell shrink">
                 {{icon_components.gamemaster(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>GM Notes</span>
             </div>
         </div>
@@ -47,7 +47,7 @@
             <div class="cell shrink">
                 {{icon_components.drama(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>Graphic</span>
             </div>
         </div>
@@ -59,7 +59,7 @@
             <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>Campaign</span>
             </div>
         </div>
@@ -69,7 +69,6 @@
 
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
-{{title_components.object_title(user, obj)}}
 <div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
         <div class="cell medium-4">
@@ -105,7 +104,6 @@
 
 {% macro gmnotes(user, obj) -%}
 <title>{{obj.name or obj.title}} - GM Notes</title>
-{{title_components.object_title(user, obj)}}
 <div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
         {% if obj.summary %}
@@ -138,7 +136,6 @@
 
 {% macro graphic(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
-{{title_components.object_title(user, obj)}}
 <div class="callout">
     <div id="episode-graphic" class="grid-x align-spaced">
         {% if user.world_user(obj) %}
@@ -169,12 +166,11 @@
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}
-{{title_components.object_title(user, obj)}}
+
 {{timeline_components.timeline(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
-<h2>Hey</h2>
 {{associations_components.associations(user, obj, associations)}}
 {%- endmacro %}
 

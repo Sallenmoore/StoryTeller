@@ -87,7 +87,7 @@
             }
 
             .container {
-                max-width: 75rem;
+                max-width: 80%;
                 margin-right: auto;
                 margin-left: auto;
                 background-color: #eee;
@@ -126,14 +126,12 @@
             h4,
             h5,
             h6 {
-                border-bottom: 1px solid #bbb;
                 text-align: center;
             }
 
             h2 {
                 margin: 2rem 0 1rem;
                 padding-top: 1rem;
-                border-top: .3rem solid;
             }
 
             .accordion-title {
@@ -149,15 +147,6 @@
                 font-size: 0.75rem;
                 font-weight: 600;
                 text-align: center;
-            }
-
-            input[type="number"] {
-                width: 3em;
-                text-align: center;
-            }
-
-            input.year {
-                width: 5em;
             }
 
             #top-nav {
@@ -209,27 +198,20 @@
                 "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
                 "pk": "{%if obj%}{{obj.pk}}{%endif%}"
             }'>
-        <div id="nav" style='box-shadow: 0px 1px 5px; margin-bottom:2px;'>
-            {% block topnav %}
-            {{nav.site_header(user)}}
-            {% endblock %}
-        </div>
+        {% block topnav %}
+        {{nav.site_header(user)}}
+        {% endblock %}
 
         {% if obj %}
-
         <!-- display the current world -->
-        <div class="title-bar align-center">
-            <div class="align-middle">
-                <a class="align-middle" style="display: flex; font-size: 1.5rem;"
-                   href="/{{obj.world.path}}">{{icon_components.world(size="2rem")}} &nbsp;
-                    {{obj.world.name}}</a>
-            </div>
+        <div class="title-bar align-center-middle">
+            <a class="align-middle" style="display: flex; font-size: 1.5rem;"
+               href="/{{obj.world.path}}">{{icon_components.world(size="2rem")}} &nbsp;
+                {{obj.world.name}}</a>
         </div>
 
         <!-- display the object title  -->
-        <section id="object-title">
-            {{title.object_title(user, obj)}}
-        </section>
+        {{title.object_title(user, obj)}}
 
 
         <!-- display the object menu  -->
@@ -240,12 +222,16 @@
         {% endif %}
 
         {% if page_url %}
-        <div class="container" id="page-content"
-             hx-get='/api{{page_url}}'
-             hx-trigger='load'
-             hx-indicator='#request-indicator'
-             hx-push-url='{{page_url}}'>
-        </div>
+        <section id="content-container">
+            <div class="callout container">
+                <div id="page-content"
+                     hx-get='/api{{page_url}}'
+                     hx-trigger='load'
+                     hx-indicator='#request-indicator'
+                     hx-push-url='{{page_url}}'>
+                </div>
+            </div>
+        </section>
         {% endif %}
 
         <div class="image htmx-indicator has-text-muted has-bg-screen" id="request-indicator">

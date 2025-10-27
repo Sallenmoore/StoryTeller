@@ -58,7 +58,6 @@ class Item(TTRPGObject):
                     "description": "Generate at least 3 combat abilities AND 3 special ability objects for the array. Each object in the array should have attributes for the ability name, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
                     "items": {
                         "type": "object",
-                        "additionalProperties": False,
                         "required": [
                             "name",
                             "action",

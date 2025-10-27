@@ -86,7 +86,7 @@ class Character(Actor):
             "properties": {
                 "occupation": {
                     "type": "string",
-                    "description": "The NPC's profession or daily occupation",
+                    "description": "The NPC's profession or daily occupation.",
                 }
             },
         },
@@ -126,8 +126,29 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         gender = (
             self.gender or random.choices(self._genders, weights=[10, 10, 1], k=1)[0]
         )
+        occupation = self.occupation or random.choice(
+            [
+                "merchant",
+                "soldier",
+                "scholar",
+                "noble",
+                "spy",
+                "artisan",
+                "healer",
+                "farmer",
+                "laborer",
+                "sailor",
+                "thief",
+                "priest",
+                "entertainer",
+                "alchemist",
+                "explorer",
+            ]
+        )
 
-        prompt = f"Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {self.occupation} who is described as: {self.traits}. Create, or if already present expand on, the NPC's detailed backstory. Also give the NPC a unique, but {random.choice(('mysterious', 'mundane', 'sinister', 'absurd', 'deadly', 'awesome'))} secret to protect that is at least tangentially related to an existing world event."
+        prompt = f"""Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {occupation}. Use the following thematic motif: {self.traits}.
+Create, or if already present expand on, the NPC's detailed backstory.
+"""
 
         result = super().generate(prompt=prompt)
 
