@@ -29,23 +29,20 @@
             <h3>Report</h3>
             {{form_components.richtexteditor(user, episode, 'episode_report')}}
             <!-- display AI Generative buttons -->
-            <div id="ai-buttons" class="grid-x grid-padding-x align-right">
+            <div id="ai-buttons" class="grid-x grid-padding-x grid-padding-y align-right">
                 <div class="cell small-shrink large-shrink">
-                    <button class="button"
-                            hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                            hx-target="closest .cell"
-                            hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
-                        {{icon_components.ai(size="1rem")}}
-                        Update Summary (AI Generated)
+                    <button class='button'
+                            hx-post='/task/generate/campaign/episode/{{episode.pk}}/report'
+                            hx-target="closest .cell">
+                        Punch Up Report
                     </button>
                 </div>
                 <div class="cell small-shrink large-shrink">
                     <button class="button"
                             hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                            hx-target="closest .cell"
-                            hx-confirm='Details can be generated from scratch, but works best if you add any required details to the episode first, such as name, brief history, or other  details'>
+                            hx-target="closest .cell">
                         {{icon_components.ai(size="1rem")}}
-                        Update Summary (AI Generated)
+                        Update Summary
                     </button>
                 </div>
             </div>

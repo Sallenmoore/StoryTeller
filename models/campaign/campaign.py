@@ -20,13 +20,22 @@ class Campaign(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
     episodes = ListAttr(ReferenceAttr(choices=[Episode]))
     party = ReferenceAttr(choices=["Faction"])
-    associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
+    # associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
     current_episode = ReferenceAttr(choices=[Episode])
 
     def delete(self):
         all(e.delete() for e in self.episodes)
         super().delete()
+
+    @property
+    def associations(self):
+        associations = []
+        for ep in self.episodes:
+            associations += ep.associations
+        associations = list(set(associations))
+        associations.sort(key=lambda x: (x.name,))
+        return associations
 
     @property
     def characters(self):
@@ -270,7 +279,7 @@ class Campaign(AutoModel):
         document.pre_save_current_episode()
         document.pre_save_episodes()
         document.pre_save_players()
-        document.pre_save_associations()
+        # document.pre_save_associations()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -297,20 +306,20 @@ class Campaign(AutoModel):
                 # log(f"{p} is unsaved. Saving....")
                 p.save()
 
-    def pre_save_associations(self):
-        self.associations = []
-        for ep in self.episodes:
-            for a in ep.associations:
-                if a and a not in self.associations:
-                    self.associations += [a]
-                    if not a.canon:
-                        a.canon = True
-                        a.save()
-        for a in self.associations:
-            if a.world != self.world:
-                a.world = self.world
-                a.save()
-        self.associations = sorted(
-            self.associations,
-            key=lambda x: (x.name,),
-        )
+    # def pre_save_associations(self):
+    #     self.associations = []
+    #     for ep in self.episodes:
+    #         for a in ep.associations:
+    #             if a and a not in self.associations:
+    #                 self.associations += [a]
+    #                 if not a.canon:
+    #                     a.canon = True
+    #                     a.save()
+    #     for a in self.associations:
+    #         if a.world != self.world:
+    #             a.world = self.world
+    #             a.save()
+    #     self.associations = sorted(
+    #         self.associations,
+    #         key=lambda x: (x.name,),
+    #     )

@@ -15,11 +15,13 @@
         </div>
     </div>
 </div>
+{% if snippet %}
 <div class="grid-x">
     <div class="cell">
         {{ snippet | safe}}
     </div>
 </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro completetask (url, target="page-content", select=None, swap=None) -%}

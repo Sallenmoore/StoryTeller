@@ -3,6 +3,7 @@ import random
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     BoolAttr,
+    ListAttr,
     ReferenceAttr,
     StringAttr,
 )
@@ -20,6 +21,7 @@ class Faction(TTRPGObject):
     slogan = StringAttr(default="")
     is_player_faction = BoolAttr(default=False)
     parent_list = ["District", "City", "Region", "World"]
+    rumors = ListAttr(StringAttr(default=""))
 
     end_date_label = "Disbanded"
 
@@ -53,6 +55,11 @@ class Faction(TTRPGObject):
                     "type": "string",
                     "description": "The faction's current status",
                 },
+                "rumors": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of rumors about the faction",
+                },
             },
         },
     }
@@ -65,8 +72,7 @@ class Faction(TTRPGObject):
 
     @property
     def image_prompt(self):
-        return f"""A full color poster for a group named {self.name} and described as {self.desc}.
-        """
+        return f"A full color poster for a group named {self.name} and described as {self.desc}. The poster should feature symbolic imagery that represents the faction's ideals and goals, with a dramatic and epic style."
 
     @property
     def jobs(self):
@@ -90,13 +96,17 @@ class Faction(TTRPGObject):
     ################### Crud Methods #####################
 
     def generate(self):
-        prompt = f"Generate a {self.genre} faction using the following trait as a guideline: {self.traits}. The faction should have a backstory containing a {random.choice(('boring', 'mysterious', 'sinister'))} secret that gives them a goal they are working toward."
+        prompt = f"Generate a {self.genre} faction using the following trait as a motif: {self.traits}. The faction should have a backstory that gives them a goal they are working toward"
+        if self.stories:
+            prompt += f"""
+            and is somehow connected to the following storyline:
+            {random.choice(self.stories).summary}
+            """
         if self.leader:
             prompt += f"""
             The current leader of the faction is:
-            - NAME: {self.leader.name}
-            - Backstory: {self.leader.backstory_summary or self.leader.desc}
-            - Location: {self.backstory_summary or "Indoors"}
+            - Name: {self.leader.name}
+            - Backstory: {self.leader.history}
             """
         results = super().generate(prompt=prompt)
         self.save()

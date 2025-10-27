@@ -3,23 +3,12 @@
 
 {% macro stories(user, obj)%}
 <title>{{obj.name | title}} - View Stories</title>
-<h2 id='view-stories'>
-    View Stories
-</h2>
-<div id="object-stories" class="grid-x raise-it">
+
+<div id="object-stories" class="grid-x">
     <div class="cell auto">
-        <select class="" name="storypk" id="storypk"
-                hx-post="/api/story/"
-                hx-target="#story-details" hx-trigger='change'
-                onchange='history.pushState({}, "", `/story/${this.value}`);'>
-            <option value="">=== Select Story ===</option>
-            {% for s in obj.stories %}
-            <option class="" value="{{s.pk}}" {% if story and story.pk==s.pk %}
-                    selected {% endif %}>
-                {{s.name}}
-            </option>
-            {% endfor %}
-        </select>
+        <h2>
+            View Stories
+        </h2>
     </div>
     {% if user.world_user(obj)%}
     <div class="cell shrink">
@@ -41,14 +30,12 @@
                         <h3 class='text-center'>{{story.name}}</h3>
                     </a>
                     <div class="grid-x">
-                        {% if story.image %}
-                        <div class="cell medium-3">
-                            <div class='image'>
-                                <img src='{{story.image.url()}}' alt='{{story.name}}'>
-                            </div>
-                        </div>
-                        {% endif %}
                         <div class="cell">
+                            {% if story.image %}
+                            <div class="float-left" style='margin: 1.5rem;'>
+                                <img src='{{story.image.url(500)}}' alt='{{story.name}}'>
+                            </div>
+                            {% endif %}
                             <a href="/story/{{story.pk}}">
                                 <div class='has-text-justified has-text-black'>
                                     {{story.summary | safe}}
@@ -56,12 +43,14 @@
                             </a>
                         </div>
                     </div>
-                    <div class="grid-x align-spaced">
-                        {%for ass in story.associations %}
-                        <div class="cell medium-1">
-                            {{display_components.object_display(ass, type=False, name=False)}}
+                    <div class="callout">
+                        <div class="grid-x align-spaced">
+                            {%for ass in story.associations %}
+                            <div class="cell medium-1">
+                                {{display_components.object_display(ass, type=False, name=False)}}
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>

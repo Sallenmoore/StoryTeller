@@ -17,7 +17,6 @@
 
 
 {% macro menu(user, obj) -%}
-
 <li>
     <a href=""
        hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
@@ -209,7 +208,7 @@
 {%- endmacro %}
 
 {% macro campaigns(user, obj)%}
-{{campaigns_components.campaign(user, obj)}}
+{{campaigns_components.campaigns(user, obj)}}
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}

@@ -77,6 +77,10 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "Item"]
 
     @property
+    def image(self):
+        return self.graphic
+
+    @property
     def districts(self):
         return [a for a in self.associations if a.model_name() == "District"]
 
@@ -99,6 +103,13 @@ class Episode(AutoModel):
     @property
     def places(self):
         return [a for a in [*self.scenes, *self.cities, *self.regions]]
+
+    @property
+    def previous_episode(self):
+        for ep in self.campaign.episodes:
+            if ep.episode_num == self.episode_num - 1:
+                return ep
+        return None
 
     @property
     def regions(self):
