@@ -135,42 +135,45 @@
         color: #000000;
     }
 </style>
-<div class="grid-x">
-    <div class="cell">
-        <h2 class="text-center">
-            Timeline
-        </h2>
-    </div>
-    <div class="cell">
-        <div class="timeline">
-            {% for a in obj.events %}
-            {% if a.end_date and a.end_date.year and a.name and a.outcome %}
-            <div class='tentry {{ loop.cycle("right", "left" ) }}'>
-                <div class="date">{{a.end_date}}</div>
-                <div class="content">
-                    <div class="grid-x">
-                        <div class="cell medium-3">
-                            <a href="/{{a.path}}">
-                                {% if a.image %}
-                                <div class="image">
-                                    <img src="{{a.image.url()}}" alt="{{a.name}}">
-                                </div>
-                                {% endif %}
-                            </a>
-                        </div>
-                        <div class="cell">
-                            <a href="/{{a.path}}">
-                                <h4 class='text-center'>{{a.name}}</h4>
-                            </a>
-                            <span style='line-height: 1.25rem; font-size: 0.75rem;'>
-                                {{a.summary | safe or a.outcome | safe}}
-                            </span>
+<div class="callout white">
+    <div class="grid-x">
+        <div class="cell">
+            <h2 class="text-center">
+                Timeline
+            </h2>
+            <hr>
+        </div>
+        <div class="cell">
+            <div class="timeline">
+                {% for a in obj.events %}
+                {% if a.end_date and a.end_date.year and a.name and a.outcome %}
+                <div class='tentry {{ loop.cycle("right", "left" ) }}'>
+                    <div class="date">{{a.end_date}}</div>
+                    <div class="content">
+                        <div class="grid-x grid-margin-x">
+                            <div class="cell shrink medium-3">
+                                <a href="/{{a.path}}">
+                                    {% if a.image %}
+                                    <div class="image">
+                                        <img src="{{a.image.url()}}" alt="{{a.name}}">
+                                    </div>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="cell auto">
+                                <a href="/{{a.path}}">
+                                    <h4 class='text-center'>{{a.name}}</h4>
+                                </a>
+                                <span style='line-height: 1.25rem; font-size: 0.75rem;'>
+                                    {{a.summary | safe or a.outcome | safe}}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
+                {% endfor %}
             </div>
-            {% endif %}
-            {% endfor %}
         </div>
     </div>
 </div>

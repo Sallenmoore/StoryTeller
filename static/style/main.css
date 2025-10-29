@@ -58,11 +58,11 @@ h6 {
 }
 
 .text-muted {
-  color: rgba(212, 212, 212, 0.5);
+  color: rgba(212, 212, 212, 0.6);
 }
 
 .text-screen {
-  color: rgba(7, 82, 133, 0.5);
+  color: rgba(7, 82, 133, 0.3);
 }
 
 .text-white {
@@ -82,11 +82,11 @@ h6 {
 }
 
 .bg-muted {
-  background-color: rgba(212, 212, 212, 0.5);
+  background-color: rgba(212, 212, 212, 0.6);
 }
 
 .bg-screen {
-  background-color: rgba(7, 82, 133, 0.5);
+  background-color: rgba(7, 82, 133, 0.3);
 }
 
 .bg-white {

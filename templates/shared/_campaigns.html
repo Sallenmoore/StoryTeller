@@ -3,12 +3,12 @@
 }
 {% macro campaigns(user, obj) -%}
 <title>{{obj.name | title}} - Campaigns</title>
-<h2>Campaigns</h2>
 {% if not obj.campaigns %}
 <h3 class='text-center '>Not yet associated with any campaigns
 </h3>
 {% else %}
-<div id="object-campaigns">
+<div id="object-campaigns" class='callout '>
+    <h2>Campaigns</h2>
     <div class="grid-x grid-margin-x align-spaced">
         {% for campaign in obj.campaigns %}
         <div class="cell medium-4">
@@ -28,14 +28,15 @@
                         </h6>
                     </div>
                     <div class="cell">
-                        <div class="callout has-text-justified">
+                        <div class="callout has-text-justified bg-screen">
                             {{campaign.description | safe}}
                         </div>
                     </div>
                 </div>
                 <h5 class='text-center'
                     onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
-                    View Episodes</h5>
+                    View Episodes
+                </h5>
                 <div class="grid-x grid-margin-y is-hidden">
                     {% for entry in campaign.episodes %}
                     {% if obj.model_name() == 'World' or obj in entry.associations %}

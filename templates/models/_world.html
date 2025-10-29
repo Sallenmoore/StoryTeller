@@ -208,17 +208,18 @@
 
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="callout">
-    <h3 class='text-center'>GM Notes</h3>
+<div id="gmnotes" class="callout bg-screen"
+     onclick='this.querySelector(".grid-x").classList.toggle("hide")'>
+    <h3 class='text-center'>GM Notes <small>(click to expand)</small></h3>
     <div class="grid-x">
         <div class="cell">
-            <div class="callout">
+            <div class="callout bg-muted">
                 {{obj.description_summary | safe}}
             </div>
         </div>
         <div class="cell">
             <h5>Rumors</h5>
-            <div class="callout">
+            <div class="callout bg-muted">
                 <ul>
                     {% for sd in obj.rumors %}
                     <li>{{ sd | safe }}
@@ -228,16 +229,18 @@
                 </ul>
             </div>
         </div>
+        <div class="cell">
+            <h2 class='text-center' id='manage-stories'>Stories</h2>
+            <ul class="no-bullet">
+                {% for story in obj.stories %}
+                <li>
+                    <h5>{{story.name}}</h5>
+                    {{story | safe}}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <h2 class='text-center' id='manage-stories'>Stories</h2>
-    <ul class="no-bullet">
-        {% for story in obj.stories %}
-        <li>
-            <h5>{{story.name}}</h5>
-            {{story | safe}}
-        </li>
-        {% endfor %}
-    </ul>
 </div>
 {%- endmacro %}
 
@@ -329,8 +332,7 @@
 
 
 {% macro players(user, obj) -%}
-
-<title>{{obj.name}} - Players callout</title>
+<title>{{obj.name}} - Players</title>
 <h2 class="">Players</h2>
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>

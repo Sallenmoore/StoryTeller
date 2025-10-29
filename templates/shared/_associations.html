@@ -3,38 +3,39 @@
 
 {% macro associations(user, obj, associations) -%}
 <title>{{obj.name}} - Associations</title>
-<h2>Associations</h2>
-<div class="grid-x" id='association-manager-container'>
-    {% if obj.model_name() != "World" and user.world_user(obj) %}
-    <div class="cell medium-3 align-center-middle">
-        <input autocomplete=off type="search" name="query"
-               placeholder="Search to Add Associations..."
-               style="border-bottom: solid #000;" hx-target="#association-search"
-               hx-post="/api/manage/association/add/search"
-               hx-trigger="input delay:750ms, search">
-        <ul class="vertical dropdown menu" data-dropdown-menu id="association-search"
-            style='background-color: white; position: absolute; z-index:9999;'>
-        </ul>
-    </div>
-    <div class="cell auto">
-        <div class="grid-x align-center">
-            {% for child in obj.world.all_models() %}
-            <div class="cell shrink">
-                <button class="button small"
-                        hx-post="/api/manage/add/{{child.__name__ | lower}}"
-                        hx-target="#associations-container"
-                        hx-select="#associations-container"
-                        hx-swap='outerHTML'
-                        hx-indicator='#request-indicator'>
-                    New {{obj.world.get_title(child)}}
-                </button>
-            </div>
-            {% endfor %}
+<div class="callout">
+    <h2>Associations</h2>
+    <div class="grid-x" id='association-manager-container'>
+        {% if obj.model_name() != "World" and user.world_user(obj) %}
+        <div class="cell medium-3 align-center-middle">
+            <input autocomplete=off type="search" name="query"
+                   placeholder="Search to Add Associations..."
+                   style="border-bottom: solid #000;" hx-target="#association-search"
+                   hx-post="/api/manage/association/add/search"
+                   hx-trigger="input delay:750ms, search">
+            <ul class="vertical dropdown menu" data-dropdown-menu id="association-search"
+                style='background-color: white; position: absolute; z-index:9999;'>
+            </ul>
         </div>
-    </div>
-    {% endif %}
-    <div class="cell">
-        <div class="callout">
+        <div class="cell auto">
+            <div class="grid-x align-center">
+                {% for child in obj.world.all_models() %}
+                <div class="cell shrink">
+                    <button class="button small"
+                            hx-post="/api/manage/add/{{child.__name__ | lower}}"
+                            hx-target="#associations-container"
+                            hx-select="#associations-container"
+                            hx-swap='outerHTML'
+                            hx-indicator='#request-indicator'>
+                        New {{obj.world.get_title(child)}}
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <div class="cell">
+
             <form hx-post="/api/{{obj.path}}/associations"
                   hx-target='#associations-container'
                   hx-select='#associations-container'
