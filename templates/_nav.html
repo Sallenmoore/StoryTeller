@@ -3,14 +3,16 @@
 {% macro site_header(user) -%}
 <div id="top-nav" class="grid-x grid-padding-x">
     <!-- logo -->
-    <div class="cell shrink">
-        <a id="logo" class="align-middle"
+    <div class="cell shrink bg-primary ">
+        <a id="logo" class="align-middle text-white"
            href="/">{{icon_components.dungeon(size="2.5rem")}}Storyteller</a>
     </div>
-    <div class="cell shrink"><small class="show-for-medium">ver. 0.3.0</small></div>
-
+    <div class="cell shrink bg-primary">
+        <small class="show-for-medium text-white">ver. 0.3.0</small>
+    </div>
     {% if user %}
-    <div class="cell small-12 medium-5 align-self-middle" hx-indicator="#request-indicator">
+    <div class="cell small-12 medium-5 align-center-middle bg-primary align-self-stretch"
+         hx-indicator="#request-indicator" style='padding-top: 1rem;'>
         <div class="input-group">
             <input type="text" autocomplete="off" class="input-group-field"
                    placeholder="search"
@@ -18,7 +20,7 @@
                    hx-trigger="input changed delay:500ms, search"
                    hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <div class="input-group-button">
-                <button class="button">
+                <button class="button secondary">
                     {{icon_components.search('1.25rem')}}
                 </button>
             </div>
@@ -26,9 +28,9 @@
         <ul id="nav-search" class="vertical dropdown menu" data-dropdown-menu
             style='z-index: 9999;'></ul>
     </div>
-    <div class="cell auto"></div>
+    <div class="cell auto bg-primary"></div>
     <!-- login -->
-    <div class="cell shrink">
+    <div class="cell shrink bg-primary">
         {{dsp_auth(user)}}
     </div>
     {% endif %}

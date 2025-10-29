@@ -5,7 +5,7 @@
     <div class="grid-x grid-padding-x grid-margin-y align-middle">
         <div class="cell small-12 medium-10 medium-offset-1 text-center">
             <a href='/{{obj.path}}'>
-                <h1 id="object-title">
+                <h1 id="object-name" class='text-primary'>
                     {{obj.name or obj.title or obj.model_name()|title}}
                 </h1>
             </a>
@@ -18,8 +18,8 @@
         </div>
         {% endif %}
     </div>
-    {% if obj.model_name() != "World" and obj.geneology %}
     <div class="grid-x align-center-middle">
+        {% if obj.model_name() != "World" and obj.geneology %}
         <div class="cell shrink">
             <nav>
                 <ul class="breadcrumbs" role="navigation">
@@ -30,7 +30,8 @@
                 </ul>
             </nav>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
+
 </div>
 {% endmacro %}
