@@ -69,12 +69,14 @@ $global-width: rem-calc(1200);
 $global-lineheight: 1.5;
 $foundation-palette: (
     "primary": #075285,
-    "secondary": #b3b2b2,
+    "secondary": #d4d4d4,
     "success": #3adb76,
     "warning": #ffae00,
     "alert": #cc4b37,
 );
+
 @include add-foundation-colors; // 1. Global
+
 $light-gray: #e6e6e6;
 $medium-gray: #cacaca;
 $dark-gray: #8a8a8a;
@@ -84,7 +86,7 @@ $muted: rgba($secondary-color, 0.5);
 $screen: rgba($primary-color, 0.5);
 $body-background: $white;
 $body-font-color: $black;
-$body-font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+$body-font-family: 'Rosarivo', serif;
 $body-safe-padding: false;
 $body-antialiased: true;
 $global-margin: 1rem;
@@ -152,19 +154,19 @@ $header-color: inherit;
 $header-lineheight: 1.4;
 $header-margin-bottom: 0.5rem;
 $header-styles: (
-    small: ('h1': ('font-size': 24),
-        'h2': ('font-size': 20),
-        'h3': ('font-size': 19),
-        'h4': ('font-size': 18),
-        'h5': ('font-size': 17),
-        'h6': ('font-size': 16),
+    small: ('h1': ('font-size': 2.0rem),
+        'h2': ('font-size': 1.5rem),
+        'h4': ('font-size': 1.1rem),
+        'h3': ('font-size': 1.2rem),
+        'h5': ('font-size': 1.0rem),
+        'h6': ('font-size': .75rem),
     ),
-    medium: ('h1': ('font-size': 48),
-        'h2': ('font-size': 40),
-        'h3': ('font-size': 31),
-        'h4': ('font-size': 25),
-        'h5': ('font-size': 20),
-        'h6': ('font-size': 16),
+    medium: ('h1': ('font-size': 2.5rem),
+        'h2': ('font-size': 2.0rem),
+        'h3': ('font-size': 1.5rem),
+        'h4': ('font-size': 1.2rem),
+        'h5': ('font-size': 1.1rem),
+        'h6': ('font-size': 1rem),
     ),
 );
 $header-text-rendering: optimizeLegibility;
@@ -283,7 +285,7 @@ $badge-font-size: 0.6rem;
 
 $breadcrumbs-margin: 0 0 $global-margin 0;
 $breadcrumbs-item-font-size: rem-calc(11);
-$breadcrumbs-item-color: $primary-color;
+$breadcrumbs-item-color: $secondary-color;
 $breadcrumbs-item-color-current: $black;
 $breadcrumbs-item-color-disabled: $medium-gray;
 $breadcrumbs-item-margin: 0.75rem;

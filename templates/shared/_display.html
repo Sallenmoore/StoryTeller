@@ -27,28 +27,27 @@
     <div class="card">
         {{dsp_object_image(obj,dim)}}
         {% if name %}
-        <div class="card-section title">
+        <div class="card-section text-center title">
             {{obj.name}}
             {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
+            <hr>
         </div>
         {% endif %}
-        {% if date %}
-        <div class="card-section">
+        <div class="card-section text-center ">
+            {% if date %}
             <p>{{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
                 {{obj.end_date}}{%endif%}
             </p>
+            {% endif %}
+            {% if type %}
+            <p>{{obj.title}}</p>
+            {% endif %}
+            {% if pk %}
+            <p>
+                pk: {{obj.pk}}
+            </p>
+            {% endif %}
         </div>
-        {% endif %}
-        {% if type %}
-        <div class="card-section">
-            {{obj.title}}
-        </div>
-        {% endif %}
-        {% if pk %}
-        <div class="card-section">
-            pk: {{obj.pk}}
-        </div>
-        {% endif %}
     </div>
 </a>
 {% endmacro %}

@@ -18,45 +18,39 @@
             </div>
         </div>
         {% endif %}
-        <div class="cell ">
+        {% if story.bbeg %}
+        <div id="story-bbeg" class="cell medium-3 ">
+            <div class="callout ">
+                <h3 class='text-center'>BBEG</h3>
+                {{display_components.object_display(story.bbeg)}}
+                <h3 class=' text-center'>Scope: {{story.scope}}</h3>
+            </div>
+        </div>
+        {% endif %}
+        <div class="cell medium-6">
             <div class="callout ">
                 <h4 class='text-center'>Situation</h4>
                 {{story.situation | safe}}
             </div>
         </div>
-        <div id="story-bbeg" class="cell medium-3 ">
-            <div class="callout ">
-                <h3 class='text-center'>BBEG</h3>
-                {% if story.bbeg %}
-                {{display_components.object_display(story.bbeg)}}
-                {% else %}
-                Unknown
-                {% endif %}
-                <h3 class=' text-center'>Scope: {{story.scope}}</h3>
-            </div>
-        </div>
-        <div class="cell ">
+        <div class="cell medium-6">
             <div class="callout ">
                 <h4 class='text-center'>Current Status</h4>
                 {{story.current_status | safe}}
             </div>
         </div>
-        <div class="cell ">
-            <div class="callout ">
-                <h4 class='text-center'>Backstory</h4>
-                {{story.backstory | safe }}
-            </div>
-        </div>
         <div id="story-tasks" class="cell ">
-            <h3 class='text-center'>Tasks</h3>
-            <div class="grid-x align-spaced">
-                {% for task in story.tasks %}
-                <div class="cell medium-2">
-                    <div class="callout ">
-                        {{task}}
+            <div class="callout ">
+                <h3 class='text-center'>Tasks</h3>
+                <div class="grid-x grid-margin-x align-spaced">
+                    {% for task in story.tasks %}
+                    <div class="cell medium-2">
+                        <div class="callout bg-muted">
+                            #{{loop.index}}. {{task}}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
             <hr class=''>
         </div>
@@ -80,21 +74,26 @@
                 </ul>
             </div>
         </div>
+        <div class="cell ">
+            <div class="callout ">
+                <h4 class='text-center'>Backstory</h4>
+                {{story.backstory | safe }}
+            </div>
+        </div>
     </div>
-    <hr class=''>
     <div class="grid-x">
         <div id="story-encounters" class="cell ">
             <div class="callout ">
                 <h3 class='text-center'>Quests</h3>
                 <div class="grid-x align-spaced">
                     {% for quest in story.quests %}
-                    <div class="cell">
-                        <div class="grid-x">
-                            <div class="cell medium-2">
-                                {{display_components.object_display(quest.contact)}}
-                            </div>
+                    <div class="cell medium-6">
+                        <div class="grid-x grid-margin-x">
                             <div class="cell">
                                 <h6 class='text-center'>{{quest.name}}</h6>
+                                <div class="float-right" style='margin: 1rem;'>
+                                    {{display_components.object_display(quest.contact, type=False)}}
+                                </div>
                                 {{quest.hook | safe}}
                             </div>
                         </div>

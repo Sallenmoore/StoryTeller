@@ -36,16 +36,16 @@
                 <h5 class='text-center'
                     onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
                     View Episodes</h5>
-                <div class="grid-x is-hidden slide-it-down">
-                    <div class="cell">
-                        {% for entry in campaign.episodes %}
-                        {% if obj.model_name() == 'World' or obj in entry.associations %}
+                <div class="grid-x grid-margin-y is-hidden">
+                    {% for entry in campaign.episodes %}
+                    {% if obj.model_name() == 'World' or obj in entry.associations %}
+                    <div class="cell align-center-middle">
                         <a href='/episode/{{entry.pk}}'>
                             <span class="label">{{entry.name}}</span>
                         </a>
-                        {% endif %}
-                        {% endfor %}
                     </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -3,15 +3,14 @@
 {% macro site_header(user) -%}
 <div id="top-nav" class="grid-x grid-padding-x">
     <!-- logo -->
-    <div class="cell small-6 medium-3">
+    <div class="cell shrink">
         <a id="logo" class="align-middle"
            href="/">{{icon_components.dungeon(size="2.5rem")}}Storyteller</a>
-        <small class="show-for-medium">ver. 0.2.3</small>
     </div>
-    <div class="cell auto"></div>
-    <!-- search -->
+    <div class="cell shrink"><small class="show-for-medium">ver. 0.3.0</small></div>
+
     {% if user %}
-    <div class="cell small-12 medium-4 align-self-middle" hx-indicator="#request-indicator">
+    <div class="cell small-12 medium-5 align-self-middle" hx-indicator="#request-indicator">
         <div class="input-group">
             <input type="text" autocomplete="off" class="input-group-field"
                    placeholder="search"
@@ -29,7 +28,7 @@
     </div>
     <div class="cell auto"></div>
     <!-- login -->
-    <div class="cell small-4 medium-3">
+    <div class="cell shrink">
         {{dsp_auth(user)}}
     </div>
     {% endif %}

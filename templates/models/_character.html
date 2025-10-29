@@ -218,48 +218,6 @@
 {%endif%}
 {%- endmacro %}
 
-<!-- display GM notes-->
-{% macro dsp_gm_notes(user, obj) -%}
-<h3>GM Notes</h3>
-<table id="gm-notes">
-    <tr>
-        <th>Look-A-Like</th>
-        <td>{{obj.lookalike | safe}}</td>
-    </tr>
-    <tr>
-        <th>Voice</th>
-        <td>{{obj.voice_description | safe}}</td>
-    </tr>
-    <tr>
-        <th>Hooks</th>
-        <td>
-            <ul>
-                {% for q in obj.quests %}
-                <li>
-                    {{ q.summary | safe }}
-                    <hr class='has-bg-primary'>
-                    {{ q.hook | safe }}
-                </li>
-                {% endfor %}
-            </ul>
-
-        </td>
-    </tr>
-    <tr>
-        <th>Rumors</th>
-        <td>
-            <ul>
-                {% for r in obj.rumors %}
-                <li>
-                    {{ r | safe }}
-                </li>
-                {% endfor %}
-            </ul>
-        </td>
-    </tr>
-</table>
-{%- endmacro %}
-
 
 {% macro history(user, obj) -%}
 {{history_components.history(user, obj)}}
@@ -270,7 +228,8 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="callout ">
+
+{# <div id="gmnotes" class="callout ">
     <h3 class='text-center '>GM Notes</h3>
     <div class="grid-x">
         <div class="cell medium-6">
@@ -331,7 +290,69 @@
             </div>
         </div>
     </div>
-</div>
+</div> #}
+
+<h3>GM Notes</h3>
+<table id="gm-notes">
+    <tr>
+        <th> Details</th>
+        <td colspan="5">
+            <ul>
+                <li>{{obj.description_summary | safe}}</li>
+                {% for sd in obj.sensory_details %}
+                <li>{{ sd | safe }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <h5>Current Status</h5>
+        </th>
+        <td>
+            {{obj.status | safe}}
+        </td>
+        <th>Look-A-Like</th>
+        <td>{{obj.lookalike | safe}}</td>
+        <th>Voice</th>
+        <td>{{obj.voice_description | safe}}</td>
+    </tr>
+    <tr>
+        <th>Hooks</th>
+        <td colspan="5">
+            <div class="grid-x grid-margin-x">
+                <div class="cell medium-2">
+                    <h5> Hook </h5>
+                </div>
+                <div class="cell medium-10">
+                    <h5> Summary </h5>
+                </div>
+                {% for q in obj.quests %}
+                <div class="cell medium-2">
+                    <div class="callout">
+                        {{ q.summary | safe }}
+                    </div>
+                </div>
+                <div class="cell medium-10">
+                    {{ q.hook | safe }}
+                </div>
+                {% endfor %}
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th>Rumors</th>
+        <td colspan="5">
+            <ul>
+                {% for r in obj.rumors %}
+                <li>
+                    {{ r | safe }}
+                </li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+</table>
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
@@ -417,25 +438,24 @@
         </div>
     </div>
 </div>
-<hr>
 {% if user.world_user(obj)%}
 <div class="grid-x">
     <div class="cell">
-        <h3 class='text-center'>Goals and Secrets</h3>
         <div class="callout">
+            <h3 class='text-center'>Goals and Secrets</h3>
             <p class=''>{{obj.goal | safe}}</p>
         </div>
     </div>
     {% if obj.abilities %}
-    <div id="model-abilities" class="cell">
+    <div id="model-abilities" class="cell medium-6">
         {{abilities_components.abilities(user, obj)}}
     </div>
     {% endif %}
     {% if obj.wealth or obj.items %}
-    <div id="model-wealth" class="cell">
-        <h4>Wealth</h4>
+    <div id="model-wealth" class="cell medium-6">
         <div class="callout">
-            <div class="grid-x">
+            <h4>Wealth</h4>
+            <div class="grid-x align-spaced">
                 {% for item in obj.items %}
                 <div class="cell medium-2">
                     {{display_components.object_display(item, type=False)}}
@@ -443,12 +463,14 @@
                 {% endfor %}
             </div>
         </div>
+        {% if obj.wealth %}
         <div class="callout">
             {% for w in obj.wealth %}
             <p>{{w | safe}}</p>
             <hr>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -610,94 +632,95 @@
     </form>
 </div>
 <hr>
-<div class="accordian">
-    <ul class="accordion__list">
-        {% for entry in obj.quests %}
-        <li class="accordion__item ">
-            <a class="accordion__title" href="#quest-entry-{{obj.pk}}">
-                <div class="grid-x align-justify">
-                    <div class="cell align-center-middle journal-entry-title"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class=''>{{entry.name}}</h3>
-                        <h5 class=''>{{entry.status}}</h5>
-                    </div>
-                    <div class="cell shrink align-center-middle">
-                        <button class="button small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/edit"
-                                hx-target="#page-content">
-                            Edit
-                        </button>
-                    </div>
-                    <div class="cell shrink align-center-middle">
-                        <button class="button small"
-                                hx-post="/api/manage/quest/{{entry.pk}}/delete"
-                                hx-target='closest li'
-                                hx-swap="delete"
-                                hx-confirm='Are you sure you want to delete this entry?'>
-                            {{icon_components.trash(size="1rem")}}
-                        </button>
-                    </div>
+<ul class="accordion" data-accordion data-allow-all-closed="true">
+    {% for entry in obj.quests %}
+    <li class="accordion-item" data-accordion-item>
+        <a class="accordion-title" href="#quest-entry-{{obj.pk}}">
+            <div class="grid-x grid-margin-x">
+                <div class="cell shrink"
+                     onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                    <h3>{{entry.name}}</h3>
                 </div>
-            </a>
-            <div class="accordion__content">
-                <hr class=''>
-                <div class="callout">
-                    <div class="grid-x">
-                        <div class="cell medium-6">
-                            <div class="callout">
-                                <h4 class='text-center'>Summary</h4>
-                                {{entry.summary | safe}}
-                            </div>
-                        </div>
-                        <div class="cell medium-6">
-                            <div class="callout">
-                                <h4 class=' text-center'>Hook</h4>
-                                {{entry.hook | safe}}
-                            </div>
-                        </div>
-                        <div class="cell">
-                            <div class="callout">
-                                <h4 class=' text-center'>Description</h4>
-                                {{entry.description | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid-x">
-                        <div class="cell">
-                            <div class="callout">
-                                <h4 class='text-center'>Antagonist</h4>
-                                {{entry.antagonist | safe}}
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="callout">
-                        <h4 class='text-center'>Plot Twist</h4>
-                        <div>{{entry.plot_twist | safe}}</div>
-                    </div>
-                    <hr>
-                    <div class="callout">
-                        <h4 class='text-center'>Rewards</h4>
-                        {{entry.rewards | safe}}
-                    </div>
-                    <hr>
-                    <h4 class=' text-center'>Associations</h4>
-                    <div class="grid-x align-spaced">
-                        {% if entry.associations %}
-                        {% for ass in entry.associations %}
-                        <div class="cell medium-1">
-                            {{display_components.object_display(ass)}}
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
+                <div class="cell shrink">
+                    <h5 class=''>({{entry.status}})</h5>
                 </div>
-                <hr class=''>
+                <div class="cell auto"></div>
+                <div class="cell shrink">
+                    <button class="button small"
+                            hx-post="/api/manage/quest/{{entry.pk}}/edit"
+                            hx-target="#page-content">
+                        Edit
+                    </button>
+                </div>
+                <div class="cell shrink align-center-middle">
+                    <button class="button small"
+                            hx-post="/api/manage/quest/{{entry.pk}}/delete"
+                            hx-target='closest li'
+                            hx-swap="delete"
+                            hx-confirm='Are you sure you want to delete this entry?'>
+                        {{icon_components.trash(size="1rem")}}
+                    </button>
+                </div>
             </div>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+        </a>
+        <div class="accordion-content" data-tab-content>
+            <hr>
+            <div class="callout">
+                <div class="grid-x">
+                    <div class="cell medium-6">
+                        <div class="callout">
+                            <h4 class='text-center'>Summary</h4>
+                            {{entry.summary | safe}}
+                        </div>
+                    </div>
+                    <div class="cell medium-6">
+                        <div class="callout">
+                            <h4 class=' text-center'>Hook</h4>
+                            {{entry.hook | safe}}
+                        </div>
+                    </div>
+                    <div class="cell">
+                        <div class="callout">
+                            <h4 class=' text-center'>Description</h4>
+                            {{entry.description | safe}}
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-x">
+                    <div class="cell">
+                        <div class="callout">
+                            <h4 class='text-center'>Antagonist</h4>
+                            {{entry.antagonist | safe}}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="callout">
+                    <h4 class='text-center'>Plot Twist</h4>
+                    <div>{{entry.plot_twist | safe}}</div>
+                </div>
+                <hr>
+                <div class="callout">
+                    <h4 class='text-center'>Rewards</h4>
+                    {{entry.rewards | safe}}
+                </div>
+                <hr>
+                <h4 class=' text-center'>Associations</h4>
+                <div class="grid-x align-spaced">
+                    {% if entry.associations %}
+                    {% for ass in entry.associations %}
+                    <div class="cell medium-1">
+                        {{display_components.object_display(ass)}}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <hr class=''>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}

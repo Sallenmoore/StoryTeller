@@ -36,13 +36,9 @@
 </div>
 {%endif%}
 <hr>
-<div class="callout generated-text-lightbg">
-    <span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
-</div>
+<span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
 <hr>
-<div class="callout generated-text-lightbg">
-    <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-</div>
+<span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
 <hr>
 <div class="callout generated-text-lightbg">
     <h3 class='text-center'>Description</h3>

@@ -108,22 +108,21 @@
 {% macro gmnotes(user, obj) -%}
 <title>{{obj.name or obj.title}} - GM Notes</title>
 {% if user.world_user(obj) %}
-{% if obj.summary %}
-<div class="callout">
-    <h4>Previous Episode</h4>
-    {{obj.previous_episode and obj.previous_episode.summary | safe }}
-</div>
-{% endif %}
 <div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
+        {% if obj.previous_episode and obj.previous_episode.summary %}
+        <div class="cell auto">
+            <div class="callout">
+                <h4>Previous Episode</h4>
+                {{obj.previous_episode.summary | safe }}
+            </div>
+        </div>
+        {% endif %}
         <div class="cell medium-4">
             <div class="callout ">
                 <h3 class='text-center'>Loot</h3>
-
                 {{obj.loot | safe}}
             </div>
-        </div>
-        <div class="cell medium-4">
             <div class="callout ">
                 <h3 class='text-center'>Current Active Hooks</h3>
                 {{obj.hooks | safe}}

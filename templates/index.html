@@ -88,9 +88,12 @@
         {% if obj %}
         <!-- display the current world -->
         <div class="title-bar align-center-middle">
-            <a class="align-middle" style="display: flex; font-size: 1.5rem;"
-               href="/{{obj.world.path}}">{{icon_components.world(size="2rem")}} &nbsp;
-                {{obj.world.name}}</a>
+            <a class="text-secondary"
+               style="display: flex; font-size: 1.5rem; padding:0.25rem;"
+               href="/{{obj.world.path}}">
+                <span>{{icon_components.world(size="2rem")}} </span>
+                <span class="title-bar-title ">{{obj.world.name}}</span>
+            </a>
         </div>
 
         <!-- display the object title  -->

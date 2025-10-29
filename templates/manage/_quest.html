@@ -5,9 +5,8 @@
 
 {% macro manage(user, entry) -%}
 <title>{{entry.name}} - Quest Editor</title>
-{{title_components.object_title(user, entry.contact)}}<br>
 <div class="grid-x">
-    <div class="cell align-center-middle">
+    <div class="cell auto align-center-middle">
         <h2 class='text-center'>Quest Editor</h2>
     </div>
     <div class="cell shrink align-center-middle">
@@ -58,27 +57,19 @@
             <hr>
         </div>
         <div class="cell medium-6">
-            <h5 class='text-center'>Summary</h5>
-            <textarea class="" name="summary" rows="3">{{entry.summary}}</textarea>
+            {{form_components.textarea(user, entry, 'summary', label="Summary")}}
         </div>
         <div class="cell medium-6">
-            <h5 class='text-center'>Hook</h5>
-            <textarea class="" name="hook" rows="3">{{entry.hook}}</textarea>
+            {{form_components.textarea(user, entry, 'hook', label="Hook")}}
         </div>
         <div class="cell">
-            <h5 class='text-center'>Antagonist</h5>
-            <textarea class="" name="antagonist"
-                      rows="3">{{entry.antagonist}}</textarea>
+            {{form_components.textarea(user, entry, 'antagonist', label="Antagonist")}}
         </div>
         <div class="cell">
-            <h5 class='text-center'>Plot Twist</h5>
-            <textarea class="" name="plot_twist"
-                      rows="3">{{entry.plot_twist}}</textarea>
+            {{form_components.textarea(user, entry, 'plot_twist', label="Plot Twist")}}
         </div>
         <div class="cell">
-            <h5 class='text-center'>Rewards</h5>
-            <textarea class="" name="rewards"
-                      rows="3">{{entry.rewards}}</textarea>
+            {{form_components.textarea(user, entry, 'rewards', label="Rewards")}}
         </div>
     </div>
 </form>
@@ -86,31 +77,27 @@
 <div class="grid-x">
     <div class="cell">
         <h3 class="text-center">Add Associations</h3>
-        <input class="" autocomplete="off" type="search" name="query"
+        <input autocomplete="off" type="search" name="query"
+               placeholder='Search for entries to associate...'
                hx-post="/api/manage/quest/search"
                hx-target="#quest-entry-association-search"
-               hx-trigger="input delay:750ms, change, search"
-               hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+               hx-trigger="input delay:750ms, change, search">
         <ul class="dropdown menu" data-dropdown-menu id="quest-entry-association-search"
             hx-vals='{"entrypk":"{{entry.pk}}"}'>
         </ul>
-        <hr>
-        <div class="callout small">
-            <div class="grid-x align-spaced" id="quest-entry-associations">
-                {% for a in entry.associations %}
-                <div class="cell medium-1" style="position: relative;">
-                    {{display_components.object_display(a)}}
-                    <a style='position: absolute; top: 0; right: 5px;'
-                       hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
-                       hx-target="closest .cell"
-                       hx-swap="delete"
-                       hx-indicator='#request-indicator'>
-                        <iconify-icon class="" icon="mdi:remove"
-                                      width="1rem"></iconify-icon>
-                    </a>
-                </div>
-                {% endfor %}
+        <div class="grid-x align-spaced" id="quest-entry-associations">
+            {% for a in entry.associations %}
+            <div class="cell medium-1" style="position: relative;">
+                {{display_components.object_display(a)}}
+                <a class="text-white" style='position: absolute; top: 5px; right: 5px;'
+                   hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
+                   hx-target="closest .cell"
+                   hx-swap="delete"
+                   hx-indicator='#request-indicator'>
+                    {{icon_components.remove(size="1rem")}}
+                </a>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -1,85 +1,38 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_icons.html" as icon_components %}
 
-{% macro dsp_abilities(user, obj, abilities=None) -%}
+{% macro abilities(user, obj, abilities=None) -%}
+<div class="callout">
+    <h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
     {% set ability_list = abilities or obj.abilities %}
-
-    <ul class="accordion abilities" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-    {%for ability in ability_list%}
+    <ul class="accordion abilities" data-accordion data-multi-expand="true"
+        data-allow-all-closed="true">
+        {%for ability in ability_list%}
         <li class="accordion-item" data-accordion-item>
             <a href="#" class="accordion-title">{{ability.name}}</a>
             <div class="accordion-content" data-tab-content>
-            <table class="ability">
-                <tr><th>Description</th><td>{{ability.description | safe}}</td></tr>
-                <tr><th>Roll Mechanics</th><td>{{ability.dice_roll or "N/A"}}</td></tr>
-                <tr><th>Effects</th><td>{{ability.effects or "N/A"}}</td></tr>
-                <tr><th>Duration</th><td>{{ability.duration or "N/A"}}</td></tr>
-            </table>
+                <table class="ability">
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ability.description | safe}}</td>
+                    </tr>
+                    <tr>
+                        <th>Roll Mechanics</th>
+                        <td>{{ability.dice_roll or "N/A"}}</td>
+                    </tr>
+                    <tr>
+                        <th>Effects</th>
+                        <td>{{ability.effects or "N/A"}}</td>
+                    </tr>
+                    <tr>
+                        <th>Duration</th>
+                        <td>{{ability.duration or "N/A"}}</td>
+                    </tr>
+                </table>
             </div>
         </li>
-    {% endfor %}
-    </ul>
-{%- endmacro %}
-
-{% macro abilities(user, obj, abilities=None) -%}
-<h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
-
-<div class="callout " style='border-top-right-radius: 0; border-top-left-radius:0;'>
-    <div class="grid-x">
-        {% set ability_list = abilities or obj.abilities %}
-        {%for ability in ability_list%}
-        <div class="cell medium-6">
-            <h4 class=' text-center'
-                onclick='this.parentElement.nextElementSibling.classList.toggle("is-hidden")'>
-                {{ability.name}}
-            </h4>
-            <hr>
-        </div>
-        <div class="cell is-hidden">
-            <div class="grid-x">
-                {% if ability.description %}
-                <div class="cell">
-                    <div class="callout  ">
-                        <h5 class=''
-                            style='text-decoration: underline; text-center'>
-                            Description</h5>
-                        {{ability.description | safe}}
-                    </div>
-                </div>
-                {% endif %}
-                {% if ability.dice_roll %}
-                <div class="cell">
-                    <div class="callout has-bg-transparent">
-                        <h5 class=''
-                            style='text-decoration: underline;'>Roll
-                            Mechanics</h5>
-                        <span class=''>{{ability.dice_roll}}</span>
-                    </div>
-                </div>
-                {% endif %}
-                {% if ability.effects %}
-                <div class="cell">
-                    <div class="callout has-bg-transparent">
-                        <h5 class=''
-                            style='text-decoration: underline;'>Effects
-                        </h5>
-                        <span class=''>{{ability.effects}}</span>
-                    </div>
-                </div>
-                {% endif %}
-                {% if ability.duration %}
-                <div class="cell">
-                    <div class="callout has-bg-transparent">
-                        <h5 class=''
-                            style='text-decoration: underline;'>Duration</h5>
-                        <span class=''>{{ability.duration}}</span>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
         {% endfor %}
-    </div>
+    </ul>
 </div>
 {%- endmacro %}
 

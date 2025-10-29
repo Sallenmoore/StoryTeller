@@ -4,34 +4,13 @@
 @import '../../node_modules/foundation-sites/scss/foundation';
 @include foundation-everything;
 
-body
-{
-    font-family: 'Rosarivo', serif;
-    -webkit-font-smoothing: initial;
-}
-
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6
-{
-    font-family: 'Rosarivo';
-}
 
 .container
 {
     max-width: 90%;
     margin-right: auto;
     margin-left: auto;
-    background-color: #eee;
+    background-color: $secondary-color;
 }
 
 .main-panel
@@ -41,34 +20,15 @@ h6
 
 .side-panel
 {
-    background-color: #ddd;
+    background-color: $secondary-color;
 }
 
-h2
+h1
 {
-    font-size: clamp(1.5rem, 2.25vw, 2.0rem);
+    color: white;
 }
 
-h3
-{
-    font-size: clamp(1.2rem, 2vw, 1.5rem);
-}
-
-h4
-{
-    font-size: clamp(1.1rem, 1.9vw, 1.3rem);
-}
-
-h5
-{
-    font-size: clamp(1.05rem, 1.8vw, 1.2rem);
-}
-
-h6
-{
-    font-size: clamp(1.0rem, 1.75vw, 1.1rem);
-}
-
+h1,
 h2,
 h3,
 h4,
@@ -78,15 +38,64 @@ h6
     text-align: center;
 }
 
-h2
+.text-primary
 {
-    margin: 2rem 0 1rem;
-    padding-top: 1rem;
+    color: $primary-color;
 }
 
-.accordion-title
+.text-secondary
 {
-    font-size: inherit;
+    color: $secondary-color;
+}
+
+.text-muted
+{
+    color: $muted;
+}
+
+.text-screen
+{
+    color: $screen;
+}
+
+.text-white
+{
+    color: $white;
+}
+
+.text-black
+{
+    color: $black;
+}
+
+.bg-primary
+{
+    background-color: $primary-color;
+}
+
+.bg-secondary
+{
+    background-color: $secondary-color;
+}
+
+.bg-muted
+{
+    background-color: $muted;
+}
+
+.bg-screen
+{
+    background-color: $screen;
+}
+
+.bg-white
+{
+    background-color: $white;
+}
+
+.bg-black
+{
+    background-color: $black;
 }
 
 table.ability
@@ -104,23 +113,17 @@ table.ability
 
 #top-nav
 {
-    background-color: #c3ddef;
+    background-color: $secondary-color;
 }
 
 #object-title
 {
-    background-color: #304350;
+    background-color: $primary-color;
 }
 
 #object-menu
 {
-    background-color: #dee2e5;
-}
-
-h1
-{
-    margin: .3em 0;
-    color: white;
+    background-color: $secondary-color;
 }
 
 #logo
@@ -132,7 +135,7 @@ h1
 #nav-search
 {
     position: absolute;
-    background: white;
+    background: $white;
 }
 
 li.menu a
@@ -142,7 +145,7 @@ li.menu a
 
 #sidenav
 {
-    background-color: #efe;
+    background-color: $white;
 }
 
 #back-to-top

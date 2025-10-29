@@ -5,7 +5,7 @@
 {% macro journal(user, obj) -%}
 <title>{{obj.name or obj.title}} - Journal</title>
 <div class="grid-x">
-    <div class="cell align-center-middle">
+    <div class="cell auto align-center-middle">
         <h2>Journal</h2>
     </div>
     <div class="cell shrink">
@@ -19,95 +19,92 @@
     </div>
 </div>
 <hr>
-<div class="accordian">
-    <ul class="accordion__list">
-        {% for entry in obj.journal.entries %}
-        <li class="accordion__item ">
-            <a class="accordion__title" href="#journal-entry-{{obj.pk}}">
-                <div class="grid-x align-justify">
-                    <div class="cell align-center-middle journal-entry-title"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class=''>{{entry.title}}</h3>
-                    </div>
-                    <div class="cell shrink align-center-middle"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <small>
-                            Last updated: {{entry.date.strftime("%d/%m/%Y")}}
-                        </small>
-                    </div>
-                    <div class="cell shrink align-center-middle"
-                         onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        {%if entry.importance==0 %}
-                        <span class="label">
-                            No Campaign Effects
-                        </span>
-                        {%elif entry.importance==1 %}
-                        <span class="label">
-                            Possible Campaign Effects
-                        </span>
-                        {%elif entry.importance==2 %}
-                        <span class="label ">
-                            Consequential Campaign Effects
-                        </span>
-                        {%elif entry.importance==3 %}
-                        <span class="label">
-                            Critical Campaign Effects
-                        </span>
-                        {%elif entry.importance==4 %}
-                        <span class="label">
-                            Main Campaign Event
-                        </span>
-                        {%endif%}
-                    </div>
-                    <div class="cell shrink align-center-middle">
-                        <button class="button small"
-                                hx-post="/api/manage/journal/entry/edit/{{entry.pk}}"
-                                hx-target="#page-content">
-                            Edit
-                        </button>
-                    </div>
-                    <div
-                         class="cell shrink align-center-middle">
-                        <button class="button small"
-                                hx-post="/api/manage/journal/entry/delete/{{entry.pk}}"
-                                hx-target='closest li'
-                                hx-swap="delete"
-                                hx-confirm='Are you sure you want to delete this entry?'>
-                            {{icon_components.trash(size="1rem")}}
-                        </button>
-                    </div>
+<ul class="accordion" data-accordion data-allow-all-closed="true">
+    {% for entry in obj.journal.entries %}
+    <li class="accordion-item" data-accordion-item>
+        <a class="accordion-title" href="#journal-entry-{{obj.pk}}">
+            <div class="grid-x grid-margin-x align-justify">
+                <div class="cell shrink align-center-middle journal-entry-title"
+                     onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                    <h3 class=''>{{entry.title}}</h3>
                 </div>
-            </a>
-            <div class="accordion__content">
-                <hr class=''>
-                <div class="callout">
-                    {{entry.text | safe}}
+                <div class="cell auto align-center-middle"
+                     onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                    <h6>
+                        Last updated: {{entry.date.strftime("%m/%d/%Y")}}
+                    </h6>
                 </div>
-                <hr>
-                <h4 class=' text-center'>Associations</h4>
-                <div class="callout">
-                    <div class="grid-x align-spaced">
-                        {% if entry.associations %}
-                        {% for ass in entry.associations %}
-                        <div class="cell text-center shrink">
-                            {{element.object_display(ass)}}
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
+                <div class="cell shrink align-center-middle"
+                     onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
+                    {%if entry.importance==0 %}
+                    <span class="label">
+                        No Campaign Effects
+                    </span>
+                    {%elif entry.importance==1 %}
+                    <span class="label">
+                        Possible Campaign Effects
+                    </span>
+                    {%elif entry.importance==2 %}
+                    <span class="label ">
+                        Consequential Campaign Effects
+                    </span>
+                    {%elif entry.importance==3 %}
+                    <span class="label">
+                        Critical Campaign Effects
+                    </span>
+                    {%elif entry.importance==4 %}
+                    <span class="label">
+                        Main Campaign Event
+                    </span>
+                    {%endif%}
                 </div>
-                <hr class=''>
+                <div class="cell shrink align-center-middle">
+                    <button class="button small"
+                            hx-post="/api/manage/journal/entry/edit/{{entry.pk}}"
+                            hx-target="#page-content">
+                        Edit
+                    </button>
+                </div>
+                <div
+                     class="cell shrink align-center-middle">
+                    <button class="button small"
+                            hx-post="/api/manage/journal/entry/delete/{{entry.pk}}"
+                            hx-target='closest li'
+                            hx-swap="delete"
+                            hx-confirm='Are you sure you want to delete this entry?'>
+                        {{icon_components.trash(size="1rem")}}
+                    </button>
+                </div>
             </div>
-        </li>
-        {% endfor %}
-    </ul>
+        </a>
+        <div class="accordion-content" data-tab-content>
+            <div class="callout">
+                {{entry.text | safe}}
+            </div>
+            <hr>
+            <h4 class=' text-center'>Associations</h4>
+            <div class="callout">
+                <div class="grid-x align-spaced">
+                    {% if entry.associations %}
+                    {% for ass in entry.associations %}
+                    <div class="cell medium-1 text-center shrink">
+                        {{element.object_display(ass)}}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
 </div>
 {%- endmacro %}
 
 {% macro journal_entry(user, obj, entry) -%}
 <title>{{obj.name or obj.title}} - Journal Editor</title>
 <div class="grid-x">
-    <div class="cell align-center-middle">
+    <div class="cell auto align-center-middle">
         <h2 class='text-center'>Journal Editor</h2>
     </div>
     <div class="cell shrink align-center-middle">

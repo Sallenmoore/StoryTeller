@@ -335,15 +335,15 @@
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>
     <div class="callout ">
-        <div class="grid-x cards-container has-center">
-            <div class="cell  align-center-middle shrink">
+        <div class="grid-x grid-margin-x cards-container has-center">
+            <div class="cell shrink align-center-middle shrink">
 
                 <div class="image is-medium is-thumbnail is-margin-center">
                     <img src="{{player.image.url(size='100')}}" loading="lazy" alt="{{player.name}}"
                          style="width:100%; height:100%;" />
                 </div>
             </div>
-            <div class="cell">
+            <div class="cell auto ">
                 <h4 class="" style='text-decoration:underline;'>
                     {% if player.name %}
                     {{player.name}}
