@@ -18,28 +18,17 @@
             </div>
         </div>
         {% endif %}
-        {% if story.bbeg %}
-        <div id="story-bbeg" class="cell medium-3 ">
-            <div class="callout ">
-                <h3 class='text-center'>BBEG</h3>
-                {{display_components.object_display(story.bbeg)}}
-                <h3 class=' text-center'>Scope: {{story.scope}}</h3>
-            </div>
-        </div>
-        {% endif %}
         <div class="cell medium-6">
             <div class="callout ">
                 <h4 class='text-center'>Situation</h4>
                 {{story.situation | safe}}
             </div>
-        </div>
-        <div class="cell medium-6">
             <div class="callout ">
                 <h4 class='text-center'>Current Status</h4>
                 {{story.current_status | safe}}
             </div>
         </div>
-        <div id="story-tasks" class="cell ">
+        <div id="story-tasks" class="cell">
             <div class="callout ">
                 <h3 class='text-center'>Tasks</h3>
                 <div class="grid-x grid-margin-x align-spaced">
@@ -75,8 +64,15 @@
             </div>
         </div>
         <div class="cell ">
-            <div class="callout ">
-                <h4 class='text-center'>Backstory</h4>
+            <div class="callout clearfix">
+                <h3 class='text-center'>Backstory</h3>
+                <h5 class=' text-center'>Scope: {{story.scope}}</h5>
+                {% if story.bbeg %}
+                <div class="callout float-right ">
+                    <h4 class='text-center'>BBEG</h4>
+                    {{display_components.object_display(story.bbeg, type=False)}}
+                </div>
+                {% endif %}
                 {{story.backstory | safe }}
             </div>
         </div>

@@ -30,9 +30,11 @@
         <div class="card-section text-center title">
             {{obj.name}}
             {% if obj.canon|default(false) %} (<sup>c</sup>) {% endif %}
-            <hr>
+
         </div>
         {% endif %}
+        {% if date or type or pk%}
+        <hr>
         <div class="card-section text-center ">
             {% if date %}
             <p>{{obj.start_date}}{%if obj.end_date and obj.end_date != obj.start_date %} -
@@ -48,6 +50,7 @@
             </p>
             {% endif %}
         </div>
+        {% endif %}
     </div>
 </a>
 {% endmacro %}
