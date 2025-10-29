@@ -78,6 +78,7 @@
         </div>
     </div>
     <div class="grid-x">
+        {% if story.quests %}
         <div id="story-encounters" class="cell ">
             <div class="callout ">
                 <h3 class='text-center'>Quests</h3>
@@ -98,6 +99,8 @@
                 </div>
             </div>
         </div>
+        {% endif %}
+        {% if story.encounters %}
         <div id="story-encounters" class="cell ">
             <div class="callout ">
                 <h3 class='text-center'>Encounters</h3>
@@ -109,19 +112,21 @@
                 </div>
             </div>
         </div>
-    </div>
-    <hr class=''>
-    <div id="story-encounters" class="cell ">
-        <div class="callout ">
-            <h3 class='text-center'>Events</h3>
-            <div class="grid-x align-spaced">
-                {% for event in story.events %}
-                <div class="cell medium-2">
-                    {{display_components.object_display(event, date=True)}}
+        {% endif %}
+        {% if story.events %}
+        <div id="story-events" class="cell ">
+            <div class="callout ">
+                <h3 class='text-center'>Events</h3>
+                <div class="grid-x align-spaced">
+                    {% for event in story.events %}
+                    <div class="cell medium-2">
+                        {{display_components.object_display(event, date=True)}}
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
+        {% endif %}
     </div>
     <div id="story-associations" class="section small">
         <div class="callout">
