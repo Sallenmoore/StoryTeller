@@ -3,6 +3,7 @@ autonomous/
 logs/
 static/images/tabletop
 static/compendiums/
+static/style/main.css
 tables/
 dbbackups/
 node_modules/
