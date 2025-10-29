@@ -4,49 +4,51 @@
 
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
-<div class="grid-x align-center">
-    <div class="cell align-center-middle">
-        <h2>Details</h2>
+<div class="callout white">
+    <div class="grid-x align-center">
+        <div class="cell align-center-middle">
+            <h2>Details</h2>
+        </div>
+        {% if obj.traits %}
+        <div class="cell shrink">
+            <span class="label">{{obj.traits}}</span>
+        </div>
+        {% endif %}
     </div>
-    {% if obj.traits %}
-    <div class="cell shrink">
-        <span class="label">{{obj.traits}}</span>
+    {%if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group) %}
+    <div class="grid-x align-center">
+        {% if obj.start_date and obj.start_date.year > 0 %}
+        <div class="cell shrink">
+            <h4 class=''>{{obj.start_date_label}}</h4>
+        </div>
+        <div class="cell shrink">
+            <h3 class=''>{{obj.start_date}}</h3>
+        </div>
+        {% endif %}
+        {% if obj.end_date and obj.end_date.year > 0 %}
+        <div class="cell shrink">
+            <h3 class=''>- {{obj.end_date}}
+            </h3>
+        </div>
+        <div class="cell shrink">
+            <h4 class=''>{{obj.end_date_label}}</h4>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-</div>
-{%if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group) %}
-<div class="grid-x align-center">
-    {% if obj.start_date and obj.start_date.year > 0 %}
-    <div class="cell shrink">
-        <h4 class=''>{{obj.start_date_label}}</h4>
+    {%endif%}
+    <hr>
+    <span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
+    <hr>
+    <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
+    <hr>
+    <div class="callout generated-text-lightbg">
+        <h3 class='text-center'>Description</h3>
+        {{obj.description | safe}}
     </div>
-    <div class="cell shrink">
-        <h3 class=''>{{obj.start_date}}</h3>
+    <hr>
+    <div class="callout generated-text-lightbg">
+        <h3 class='text-center'>Backstory</h3>
+        {{obj.backstory | safe}}
     </div>
-    {% endif %}
-    {% if obj.end_date and obj.end_date.year > 0 %}
-    <div class="cell shrink">
-        <h3 class=''>- {{obj.end_date}}
-        </h3>
-    </div>
-    <div class="cell shrink">
-        <h4 class=''>{{obj.end_date_label}}</h4>
-    </div>
-    {% endif %}
-</div>
-{%endif%}
-<hr>
-<span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
-<hr>
-<span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-<hr>
-<div class="callout generated-text-lightbg">
-    <h3 class='text-center'>Description</h3>
-    {{obj.description | safe}}
-</div>
-<hr>
-<div class="callout generated-text-lightbg">
-    <h3 class='text-center'>Backstory</h3>
-    {{obj.backstory | safe}}
 </div>
 {%- endmacro %}
