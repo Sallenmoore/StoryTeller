@@ -56,134 +56,17 @@
         <script src="https://unpkg.com/tippy.js@6"></script>
 
         <!-- Compressed CSS -->
+        {#
         <link rel="stylesheet"
               href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
-              crossorigin="anonymous">
+              crossorigin="anonymous"> #}
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='style/main.css') }}">
         <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.css" />
 
         <!-- Compressed JavaScript -->
         <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
                 crossorigin="anonymous"></script>
-
-        <style>
-            body {
-                font-family: 'Rosarivo', serif;
-                -webkit-font-smoothing: initial;
-            }
-
-            .h1,
-            .h2,
-            .h3,
-            .h4,
-            .h5,
-            .h6,
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6 {
-                font-family: 'Rosarivo';
-            }
-
-            .container {
-                max-width: 80%;
-                margin-right: auto;
-                margin-left: auto;
-                background-color: #eee;
-            }
-
-            .main-panel {
-                font-size: 1.2rem;
-            }
-
-            .side-panel {
-                background-color: #ddd;
-            }
-
-            h2 {
-                font-size: clamp(1.5rem, 2.25vw, 2.0rem);
-            }
-
-            h3 {
-                font-size: clamp(1.2rem, 2vw, 1.5rem);
-            }
-
-            h4 {
-                font-size: clamp(1.1rem, 1.9vw, 1.3rem);
-            }
-
-            h5 {
-                font-size: clamp(1.05rem, 1.8vw, 1.2rem);
-            }
-
-            h6 {
-                font-size: clamp(1.0rem, 1.75vw, 1.1rem);
-            }
-
-            h2,
-            h3,
-            h4,
-            h5,
-            h6 {
-                text-align: center;
-            }
-
-            h2 {
-                margin: 2rem 0 1rem;
-                padding-top: 1rem;
-            }
-
-            .accordion-title {
-                font-size: inherit;
-            }
-
-            table.ability {
-                font-size: 90%;
-            }
-
-            .object-name {
-                font-family: 'Open Sans', sans-serif;
-                font-size: 0.75rem;
-                font-weight: 600;
-                text-align: center;
-            }
-
-            #top-nav {
-                background-color: #c3ddef;
-            }
-
-            #object-title {
-                background-color: #304350;
-            }
-
-            #object-menu {
-                background-color: #dee2e5;
-            }
-
-            h1 {
-                margin: .3em 0;
-                color: white;
-            }
-
-            #logo {
-                font-size: 2rem;
-                display: flex;
-            }
-
-            #nav-search {
-                position: absolute;
-                background: white;
-            }
-
-            li.menu a {
-                width: 100%;
-            }
-
-            #sidenav {
-                background-color: #efe;
-            }
-        </style>
 
         <!-- JavaScript Libs -->
         <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>

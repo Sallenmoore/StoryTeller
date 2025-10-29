@@ -58,8 +58,8 @@
                     <div class="cell medium-4">
                         <select class="" name="relationship">
                             <option value=''>Filter by Relationship</option>
-                            <option value='parent'>Within</option>
-                            <option value='child'>Contains</option>
+                            <option value='parent'>Parent</option>
+                            <option value='child'>Child</option>
                             {% if obj.model_name() == "Character" %}
                             <option value='lineage'>Lineage</option>
                             {% endif %}
@@ -98,6 +98,7 @@
 <div id="associations-container" class="grid-x grid-margin-x grid-margin-y align-spaced">
     {% if obj.model_name() != "World" %}
     {% for a in obj.children %}
+    {% if a in associations %}
     <div class="cell medium-2 small-4">
         <div class="callout" style='height:100%;'>
             {{display_components.object_display(a, type=False)}}
@@ -117,6 +118,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
     {% endfor %}
     {% endif %}
     {% for a in associations %}

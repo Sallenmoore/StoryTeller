@@ -120,12 +120,10 @@ def associations(model, pk):
             associations = [
                 o for o in associations if filter_str.lower() in o.name.lower()
             ]
-
     if type_str := request_data.get("type"):
         associations = [
             o for o in associations if o.model_name().lower() == type_str.lower()
         ]
-
     if rel_str := request_data.get("relationship"):
         if rel_str.lower() == "parent":
             associations = [o for o in associations if o in obj.geneology]

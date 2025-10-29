@@ -5,6 +5,7 @@ static/images/tabletop
 static/compendiums/
 tables/
 dbbackups/
+node_modules/
 !dbbackups/.gitkeep
 core
 /docker-compose.yml

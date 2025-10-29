@@ -72,7 +72,6 @@ class TTRPGObject(TTRPGBase):
             ancestry.append(self.parent)
             ancestor = self.parent
             while ancestor.parent and ancestor.parent not in ancestry:
-                log(f"Adding ancestor {ancestor} to ancestry of {self}")
                 ancestry.append(ancestor.parent)
                 ancestor = ancestor.parent
         if self.world not in ancestry:
