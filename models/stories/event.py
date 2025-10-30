@@ -24,6 +24,7 @@ class Event(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
     episode = ReferenceAttr(choices=["Episode"])
+    episodes = ListAttr(ReferenceAttr(choices=["Episode"]))
     world = ReferenceAttr(choices=["World"], required=True)
 
     funcobj = {
@@ -83,7 +84,7 @@ class Event(AutoModel):
             event.image.associations += [event] if event.image else []
         event.desc = encounter.description
         event.associations = encounter.associations
-        event.episode = encounter.episodes[0] if encounter.episodes else None
+        event.episodes = encounter.episodes
         event.story = encounter.story
         event.world = encounter.world
         event.save()
@@ -101,7 +102,7 @@ class Event(AutoModel):
         event.end_date = episode.end_date
         event.story = episode.story
         event.associations = episode.associations
-        event.episode = episode
+        event.episodes = [episode]
         event.world = episode.world
         event.save()
         return event
@@ -239,6 +240,10 @@ class Event(AutoModel):
             document.start_date = None
         if document.end_date and not isinstance(document.end_date, Date):
             document.end_date = None
+        ##### MIGRATION HOOKS #####
+        if document.episode and not document.episodes:
+            document.episodes = [document.episode]
+            document.episode = None
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
