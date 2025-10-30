@@ -217,6 +217,22 @@ def episodegenerateevent(pk):
 
 
 @episode_endpoint.route(
+    "/<string:pk>/add/event/<string:eventpk>",
+    methods=("POST",),
+)
+def episodeeventadd(pk, eventpk):
+    user, obj, request_data = _loader()
+    episode = Episode.get(pk)
+    event = Event.get(eventpk)
+    episode.add_event(event)
+    log(len(episode.events))
+    return get_template_attribute("manage/_episode.html", "manage")(
+        user,
+        episode,
+    )
+
+
+@episode_endpoint.route(
     "<string:pk>/events/add/search",
     methods=("POST",),
 )
@@ -230,7 +246,7 @@ def episodeeventsearch(pk):
     results = [r for r in results if r not in episode.events]
     log(results)
     return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
-        user, episode, f"{episode.path}/events/add", objs=results
+        user, episode, f"{episode.path}/add", objs=results
     )
 
 

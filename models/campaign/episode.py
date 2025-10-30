@@ -62,7 +62,7 @@ class Episode(AutoModel):
 
     @property
     def events(self):
-        return Event.search(episode=self)
+        return [e for e in Event.search(world=self.world) if self in e.episodes]
 
     @property
     def factions(self):
@@ -280,6 +280,15 @@ class Episode(AutoModel):
             self.save()
             obj.save()
         return obj
+
+    def add_event(self, event):
+        if not event:
+            raise ValueError("event must be a valid object")
+        log(self not in event.episodes)
+        if self not in event.episodes:
+            event.episodes += [self]
+            event.save()
+        return event
 
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
