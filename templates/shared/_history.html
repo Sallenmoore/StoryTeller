@@ -43,28 +43,5 @@
             </div>
         </div>
     </div>
-    <div class="grid-x grid-margin-x align-center-middle">
-        {% for event in obj.events %}
-        <div class="cell medium-4">
-            <a href="/{{event.path}}">
-                <div class="callout ">
-                    <h4 class='text-center'>{{event.name}}</h4>
-                    {% if event.date %}
-                    <div class='text-center'>
-                        <strong>{{event.date}}</strong>
-                    </div>
-                    {% endif %}
-                    {% if event.image %}
-                    <img src='{{event.image.url()}}' alt='{{event.name}}'
-                         style='width:100%; height: auto; padding-bottom: 1rem;' />
-                    {% endif %}
-                    <div class='align-justify'>
-                        {{event.summary | safe}}
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
 </div>
 {% endmacro -%}
