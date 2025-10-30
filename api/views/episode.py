@@ -131,8 +131,8 @@ def episodeassociationsearch(pk):
     query = request.json.get("query")
     results = episode.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [r for r in results if r not in episode.associations]
-    return get_template_attribute("manage/_episode.html", "association_dropdown")(
-        user, episode, results
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, episode, f"{episode.path}/associations/add", objs=results
     )
 
 
@@ -223,12 +223,14 @@ def episodegenerateevent(pk):
 def episodeeventsearch(pk):
     user, obj, request_data = _loader()
     episode = Episode.get(pk)
-    query = request.json.get("query")
+    query = request.json.get("event_query")
     log(query)
     results = Event.search(name=query, world=episode.world) if len(query) > 2 else []
+    log(results)
     results = [r for r in results if r not in episode.events]
-    return get_template_attribute("manage/_episode.html", "events_dropdown")(
-        user, episode, results
+    log(results)
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, episode, f"{episode.path}/events/add", objs=results
     )
 
 

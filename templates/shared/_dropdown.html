@@ -1,12 +1,10 @@
 {% macro search_dropdown(user, obj, url, objs=[]) -%}
 {% for o in objs %}
-<li class="dropdown__link">
-    <form hx-post='/api/{{url}}/{{o.path}}'
-          hx-target='#page-content'
-          hx-trigger='click'
-          hx-indicator='#request-indicator'>
-        <hr>
-        <div class="grid-x grid-padding-x grid-margin-x">
+<li>
+    <a hx-post='/api/{{url}}/{{o.path}}'
+       hx-target='#page-content'
+       hx-indicator='#request-indicator'>
+        <div class="grid-x grid-margin-x">
             <div class="cell align-center-middle shrink">
                 {% if o.image %}
                 <img style="cursor: pointer" src="{{o.image.url(size=50)}}"
@@ -17,7 +15,7 @@
                 <h5>{{o.name}}</h5>
             </div>
         </div>
-    </form>
+    </a>
 </li>
 {% endfor %}
 {%- endmacro%}

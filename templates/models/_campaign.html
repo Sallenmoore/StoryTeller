@@ -8,38 +8,29 @@
 {% import "manage/_campaign.html" as manage_campaign_components %}
 
 {% macro index(user, campaign) -%}
-<div class="grid-x">
-    <div class="cell medium-6">
-        <h4 class="-grey text-center">
-            Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
-        </h4>
-    </div>
-    <div class="cell medium-6">
-        <h4 class="-grey text-center">
-            Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
-        </h4>
-    </div>
-    <div class="cell">
-        <div class="callout has-text-justified">
-            {{campaign.description | safe}}
-        </div>
-    </div>
-    <div class="cell">
-        <div class="callout ">
-            <hr>
-            <div class='  has-text-justified generated-text-lightbg'>
-                {{campaign.summary | safe}}
-            </div>
-            <hr>
-        </div>
-    </div>
-</div>
+{{episodes(user, campaign)}}
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
 <li>
     <a href=""
-       hx-get="/api/{{obj.path}}" hx-target="#page-content"
+       hx-get="/api/{{obj.path}}/episodes"
+       hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/episodes">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.episode(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Episodes</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href=""
+       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
        hx-push-url="/{{obj.path}}/details">
         <div class="grid-x">
@@ -64,22 +55,6 @@
             </div>
             <div class="cell auto">
                 <span>History</span>
-            </div>
-        </div>
-    </a>
-</li>
-<li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/episodes"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/episodes">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.episode(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>Episodes</span>
             </div>
         </div>
     </a>
@@ -134,6 +109,35 @@
     </a>
 </li>
 {% endmacro %}
+
+{% macro details(user, campaign) -%}
+<div class="grid-x">
+    <div class="cell medium-6">
+        <h4 class="-grey text-center">
+            Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
+        </h4>
+    </div>
+    <div class="cell medium-6">
+        <h4 class="-grey text-center">
+            Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
+        </h4>
+    </div>
+    <div class="cell">
+        <div class="callout has-text-justified">
+            {{campaign.description | safe}}
+        </div>
+    </div>
+    <div class="cell">
+        <div class="callout ">
+            <hr>
+            <div class='  has-text-justified generated-text-lightbg'>
+                {{campaign.summary | safe}}
+            </div>
+            <hr>
+        </div>
+    </div>
+</div>
+{%- endmacro %}
 
 {% macro history(user, obj) -%}
 {{history_components.history(user, obj)}}
