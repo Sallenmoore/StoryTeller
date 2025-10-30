@@ -54,8 +54,10 @@
                         <strong>{{event.date}}</strong>
                     </div>
                     {% endif %}
+                    {% if event.image %}
                     <img src='{{event.image.url()}}' alt='{{event.name}}'
                          style='width:100%; height: auto; padding-bottom: 1rem;' />
+                    {% endif %}
                     <div class='align-justify'>
                         {{event.summary | safe}}
                     </div>
