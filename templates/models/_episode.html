@@ -94,6 +94,14 @@
             </div>
         </div>
         <div class="cell">
+            <div class="callout ">
+                <h2 class='text-center'>Report</h2>
+                <div>
+                    {{obj.report | safe}}
+                </div>
+            </div>
+        </div>
+        <div class="cell">
             <div class="grid-x grid-margin-x align-center-middle">
                 {% for event in obj.events %}
                 <div class="cell medium-4">
@@ -116,14 +124,6 @@
                     </a>
                 </div>
                 {% endfor %}
-            </div>
-        </div>
-        <div class="cell">
-            <div class="callout ">
-                <h2 class='text-center'>Report</h2>
-                <div>
-                    {{obj.report | safe}}
-                </div>
             </div>
         </div>
     </div>
