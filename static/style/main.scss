@@ -158,3 +158,28 @@ li.menu a
     z-index: 999;
     transition: display 1s ease;
 }
+
+.htmx-indicator
+{
+    display: none;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba($primary-color, 0.8);
+    color: $screen;
+}
+
+.htmx-request .htmx-indicator
+{
+    display: inline-block;
+    position: fixed;
+    bottom: 10%;
+    right: 50%;
+}
+
+.htmx-request.htmx-indicator
+{
+    display: inline-block;
+    position: fixed;
+    bottom: 10%;
+    right: 47%;
+}
