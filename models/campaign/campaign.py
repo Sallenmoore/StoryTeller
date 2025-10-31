@@ -33,7 +33,7 @@ class Campaign(AutoModel):
         for ep in self.episodes:
             associations += ep.associations
         associations = list(set(associations))
-        associations.sort(key=lambda x: (x.name,))
+        associations.sort(key=lambda x: (x.model_name(), x.name))
         return associations
 
     @property
