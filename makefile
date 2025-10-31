@@ -14,9 +14,9 @@ include .env
 export
 ###### PROD #######
 
-deploy: refresh prod
+deploy: initprod refresh prod
 
-prod: initprod
+prod:
 	$(UP_CMD)
 	$(LOGS_CMD)
 
