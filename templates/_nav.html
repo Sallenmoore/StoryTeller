@@ -3,11 +3,11 @@
 {% macro site_header(user) -%}
 <div id="top-nav" class="grid-x grid-padding-x">
     <!-- logo -->
-    <div class="cell shrink bg-primary ">
+    <div class="cell shrink bg-primary" style='padding-top: 1rem;'>
         <a id="logo" class="align-middle text-white"
            href="/">{{icon_components.dungeon(size="2.5rem")}}Storyteller</a>
     </div>
-    <div class="cell shrink bg-primary">
+    <div class="cell shrink bg-primary" style='padding-top: 1rem;'>
         <small class="show-for-medium text-white">ver. 0.3.0</small>
     </div>
     {% if user %}

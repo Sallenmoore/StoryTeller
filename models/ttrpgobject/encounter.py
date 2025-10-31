@@ -192,7 +192,7 @@ class Encounter(TTRPGObject):
 - ENEMY TYPE: {enemy_type}
 {f"- NAME: {self.name}" if self.name else ""}
 {f"- LOCATION: {desc}" if desc else ""}
-{f"- SCENARIO: {self.description}" if self.description else ""}
+{f"- SCENARIO: {self.backstory}" if self.backstory else ""}
 {f"- DIFFICULTY: {self.difficulty}" if self.difficulty else ""}
 {f"- TRIGGER CONDITION: {self.trigger_conditions}" if self.trigger_conditions else ""}
 {f"- COMPLICATIONS: {self.complications}" if self.complications else ""}

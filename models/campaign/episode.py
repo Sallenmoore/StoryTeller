@@ -355,14 +355,7 @@ class Episode(AutoModel):
                 self.campaign.save()
 
     def pre_save_associations(self):
-        assoc = []
-        for a in self.associations:
-            if a:
-                if a not in assoc:
-                    assoc += [a]
-                if a not in self.campaign.associations:
-                    self.campaign.associations += [a]
-        self.associations = assoc
+        self.associations = list(set([a for a in self.associations if a]))
         self.associations.sort(key=lambda x: (x.model_name(), x.name))
 
     ################### verify current_scene ##################

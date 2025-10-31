@@ -20,7 +20,6 @@ class Campaign(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
     episodes = ListAttr(ReferenceAttr(choices=[Episode]))
     party = ReferenceAttr(choices=["Faction"])
-    # associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     summary = StringAttr(default="")
     current_episode = ReferenceAttr(choices=[Episode])
 
