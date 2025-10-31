@@ -25,6 +25,7 @@ class Story(AutoModel):
     information = ListAttr(StringAttr(default=""))
     bbeg = ReferenceAttr(choices=["Character", "Faction"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+    associated_stories = ListAttr(ReferenceAttr(choices=["Story"]))
     world = ReferenceAttr(choices=["World"], required=True)
 
     def __str__(self):
@@ -91,6 +92,22 @@ class Story(AutoModel):
     @property
     def quests(self):
         return Quest.search(storyline=self)
+
+    @property
+    def epic_stories(self):
+        return [
+            s
+            for s in self.associated_stories
+            if s.start_date < self.start_date and s.end_date > self.end_date
+        ]
+
+    @property
+    def side_stories(self):
+        return [
+            s
+            for s in self.associated_stories
+            if s.start_date > self.start_date and s.end_date < self.end_date
+        ]
 
     @property
     def history(self):
@@ -198,3 +215,9 @@ class Story(AutoModel):
             self.associations += [obj]
             self.save()
         return obj
+
+    def add_story(self, story):
+        if story != self and story not in self.associated_stories:
+            self.associated_stories += [story]
+            self.save()
+        return story

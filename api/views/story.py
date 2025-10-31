@@ -203,6 +203,39 @@ def storyassociationadd(pk, amodel, apk=None):
 
 
 ###########################################################
+##              Associated Story Routes                  ##
+###########################################################
+
+
+@story_endpoint.route(
+    "<string:pk>/story/add/search",
+    methods=("POST",),
+)
+def associated_story_search(pk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    query = request.json.get("story_query")
+    results = Story.search(name=query) if len(query) > 2 else []
+    results = [r for r in results if r not in story.associated_stories and r != story]
+    url = f"story/{pk}/add"
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, story, url, results
+    )
+
+
+@story_endpoint.route(
+    "<string:pk>/add/story/<string:apk>",
+    methods=("POST",),
+)
+def associated_story_add(pk, apk):
+    user, obj, request_data = _loader()
+    story = Story.get(pk)
+    obj = Story.get(apk)
+    story.add_story(obj)
+    return get_template_attribute("manage/_story.html", "manage")(user, story)
+
+
+###########################################################
 ##             Story Event Routes                        ##
 ###########################################################
 @story_endpoint.route(

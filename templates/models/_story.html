@@ -127,18 +127,39 @@
             </div>
         </div>
         {% endif %}
-    </div>
-    <div id="story-associations" class="section small">
-        <div class="callout">
-            <h2 class='text-center'> Associations </h2>
-            <div class="grid-x align-spaced">
-                {% for a in story.associations %}
-                <div class="cell medium-2">
-                    {{display_components.object_display(a)}}
+        {% if story.associated_stories %}
+        <div id="story-stories" class="cell ">
+            <div class="callout ">
+                <h3 class='text-center'>Associated Stories</h3>
+                <h4>Epic Stories</h4>
+                <div class="grid-x align-spaced">
+                    {% for st in story.epic_stories %}
+                    <div class="cell medium-2">
+                        {{display_components.object_display(st, date=True)}}
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <h4>Side Stories</h4>
+                <div class="grid-x align-spaced">
+                    {% for st in story.side_stories %}
+                    <div class="cell medium-2">
+                        {{display_components.object_display(st, date=True)}}
+                    </div>
+                    {% endfor %}
+                </div>
+                <h4>Other Related Stories</h4>
+                <div class="grid-x align-spaced">
+                    {% for st in story.stories %}
+                    {% if st not in story.side_stories and st not in story.epic_stories%}
+                    <div class="cell medium-2">
+                        {{display_components.object_display(st, date=True)}}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {%- endmacro %}
