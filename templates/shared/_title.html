@@ -25,13 +25,12 @@
                 <ul class="breadcrumbs" role="navigation">
                     {% for p in obj.geneology[::-1] %}
                     <li><a class='text-black' href="/{{p.path}}">{{p.name}}
-                            <small>({{p.title}})</small></a></li>
+                            {% if p.title %} <small>({{p.title}})</small>{%endif%}</a></li>
                     {% endfor %}
                 </ul>
             </nav>
         </div>
         {% endif %}
     </div>
-
 </div>
 {% endmacro %}

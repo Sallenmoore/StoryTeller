@@ -73,6 +73,10 @@ class Episode(AutoModel):
         return self.world.genre
 
     @property
+    def geneology(self):
+        return [self.campaign, self.world]
+
+    @property
     def items(self):
         return [a for a in self.associations if a.model_name() == "Item"]
 
