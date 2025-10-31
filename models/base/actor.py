@@ -21,7 +21,6 @@ from models.ttrpgobject.ttrpgobject import TTRPGObject
 class Actor(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     goal = StringAttr(default="")
-    is_player = BoolAttr(default=False)
     level = IntAttr(default=1)
     gender = StringAttr(default="")
     age = IntAttr(default=0)

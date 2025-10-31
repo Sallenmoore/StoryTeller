@@ -27,6 +27,58 @@
         </div>
     </a>
 </li>
+{% if obj.previous_episode %}
+<li>
+    <a href="/{{obj.previous_episode.path}}">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.previous(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Previous Episode</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
+{% if obj.next_episode %}
+<li>
+    <a href="/{{obj.next_episode.path}}">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.next(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Next Episode</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
+<li>
+    <a href="/{{obj.campaign.path}}">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.campaigns(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Campaign</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href="/{{obj.path}}/graphic">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.drama(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Graphic</span>
+            </div>
+        </div>
+    </a>
+</li>
 {% if user.world_user(obj) %}
 <li>
     <a href=""
@@ -44,30 +96,6 @@
     </a>
 </li>
 {% endif %}
-<li>
-    <a href="/{{obj.path}}/graphic">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.drama(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>Graphic</span>
-            </div>
-        </div>
-    </a>
-</li>
-<li>
-    <a href="/{{obj.campaign.path}}">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.campaigns(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>Campaign</span>
-            </div>
-        </div>
-    </a>
-</li>
 {%- endmacro %}
 
 {% macro details(user, obj) -%}

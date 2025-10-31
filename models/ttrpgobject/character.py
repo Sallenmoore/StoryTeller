@@ -2,6 +2,7 @@ import random
 
 import markdown
 from autonomous.model.autoattr import (
+    BoolAttr,
     ListAttr,
     ReferenceAttr,
     StringAttr,
@@ -13,6 +14,7 @@ from models.base.actor import Actor
 
 class Character(Actor):
     dnd_beyond_id = StringAttr(default="")
+    is_player = BoolAttr(default=False)
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))

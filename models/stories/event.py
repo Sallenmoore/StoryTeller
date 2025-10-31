@@ -123,6 +123,14 @@ class Event(AutoModel):
     def path(self):
         return f"event/{self.pk}"
 
+    @property
+    def players(self):
+        return [
+            p
+            for p in self.associations
+            if p.model_name() == "Character" and p.is_player
+        ]
+
     ############# CRUD #############
 
     def delete(self):
@@ -154,14 +162,18 @@ class Event(AutoModel):
                 prompt += f"\n\n{story.name}: {story.summary or story.backstory}. "
 
         if self.associations:
-            prompt += "\n\nHere are some existing elements related to this event: "
+            prompt += "\n\nHere are some world elements related to this event: "
             for assoc in self.associations:
-                prompt += f"\n\n{assoc.name}: {assoc.history}. "
+                prompt += f"\n\n{assoc.name}: {assoc.history or assoc.backstory}. "
 
         if self.impact or self.backstory or self.outcome:
-            prompt += f"\n\nUse the following prompt to create the event: {self.backstory} {self.outcome} {self.impact}. "
+            prompt += f"""\n\nUse the following information to create the event:
+            {f"BACKSTORY: {self.backstory}" if self.backstory else ""}
+            {f"OUTCOME: {self.outcome}" if self.outcome else ""}
+            {f"IMPACT: {self.impact}" if self.impact else ""}
+            """
 
-        log("Generating Event with prompt: " + prompt, __print=True)
+        log("Generating Event with prompt: " + prompt, _print=True)
         result = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Create a new event that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
@@ -176,10 +188,10 @@ class Event(AutoModel):
             result.get("outcome") and setattr(self, "outcome", result.get("outcome"))
             result.get("impact") and setattr(self, "impact", result.get("impact"))
             result.get("desc") and setattr(self, "desc", result.get("desc"))
-            log(f"Generated Event: {self.name}", __print=True)
+            log(f"Generated Event: {self.name}", _print=True)
             self.save()
         else:
-            log("Failed to generate Event", __print=True)
+            log("Failed to generate Event", _print=True)
         if not self.image and self.desc:
             self.generate_image()
 
@@ -191,10 +203,19 @@ class Event(AutoModel):
             if len(self.image.associations) == 0:
                 self.image.delete()
             self.image = None
+        party = [c.image for c in self.players if c.image]
+        prompt = f"{self.desc}\n\nUse the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description}' for c in self.players])}."
+        # log(
+        #     f"Generating image: {prompt} --- player images: {len(party)}",
+        #     _print=True,
+        # )
         if image := Image.generate(
-            prompt=self.desc, tags=["event", self.world.name, str(self.world.pk)]
+            prompt=prompt,
+            tags=["event", self.world.name, str(self.world.pk)],
+            files=party,
         ):
             self.image = image
+            self.image.associations += [self]
             self.image.save()
             self.save()
         else:

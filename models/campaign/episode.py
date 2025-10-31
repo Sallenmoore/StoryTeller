@@ -97,6 +97,13 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "City"]
 
     @property
+    def next_episode(self):
+        for ep in self.campaign.episodes:
+            if ep.episode_num == self.episode_num + 1:
+                return ep
+        return None
+
+    @property
     def path(self):
         return f"episode/{self.pk}"
 
@@ -248,7 +255,7 @@ class Episode(AutoModel):
             primer="Provide a vivid and detailed description for an AI-generated image that captures the essence of the episode, including key visual elements, atmosphere, and significant characters or locations.",
         )
         description = description.replace("```markdown", "").replace("```", "")
-        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description_summary}' for c in self.players])}."
+        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description}' for c in self.players])}."
         log(f"Graphic Description: {description}", _print=True)
         party = [c.image for c in self.players if c.image]
         if image := Image.generate(

@@ -24,7 +24,7 @@
             <nav>
                 <ul class="breadcrumbs" role="navigation">
                     {% for p in obj.geneology[::-1] %}
-                    <li><a class='text-muted' href="/{{p.path}}">{{p.name}}
+                    <li><a class='text-black' href="/{{p.path}}">{{p.name}}
                             <small>({{p.title}})</small></a></li>
                     {% endfor %}
                 </ul>

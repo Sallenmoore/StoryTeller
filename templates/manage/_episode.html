@@ -65,6 +65,16 @@
 
         <h3>Events</h3>
         <div class="grid-x align-spaced">
+            <div class="cell shrink">
+                <button class='button small'
+                        hx-post='/api/{{episode.path}}/event/generate'
+                        hx-target='#page-content'
+                        hx-confirm="Are you sure you want to generate a new event from this episode?">
+                    Generate Event From Episode
+                </button>
+            </div>
+        </div>
+        <div class="grid-x align-spaced">
             {% for event in episode.events %}
             <div class="cell medium-4 episode-event-entry"
                  style="position: relative; margin-bottom: 0.5rem;">
