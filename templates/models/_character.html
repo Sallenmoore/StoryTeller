@@ -269,7 +269,7 @@
                     {% for q in obj.quests %}
                     <li>
                         {{ q.summary | safe }}
-                        <hr class=''>
+                        <hr>
                         {{ q.hook | safe }}
                     </li>
                     {% endfor %}
@@ -396,8 +396,8 @@
 </div>
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <h4 class=''>MAX HP</h4>
-        <p class="">{{obj.hitpoints}}</p>
+        <h4>MAX HP</h4>
+        <p>{{obj.hitpoints}}</p>
     </div>
     <div class="cell shrink">
         <h4>Speed</h4>
@@ -405,35 +405,35 @@
     </div>
     <div class="cell shrink">
         <h4>Occupation</h4>
-        <p class="">{{obj.occupation}}</p>
+        <p>{{obj.occupation}}</p>
     </div>
     <div class="cell shrink">
-        <h4 class=''>Archetype (i.e. Class)</h4>
-        <p class="">{{obj.archetype}}</p>
+        <h4>Archetype (i.e. Class)</h4>
+        <p>{{obj.archetype}}</p>
     </div>
     <div class="cell shrink">
-        <h4 class=''>AC</h4>
-        <p class="">{{obj.ac}}</p>
+        <h4>AC</h4>
+        <p>{{obj.ac}}</p>
     </div>
 </div>
 <div class='row align-spaced'>
     <div class="cell">
         <div class="grid-x align-spaced">
             <div class="cell shrink">
-                <h4 class=''>Age</h4>
+                <h4>Age</h4>
                 {% if obj.age %}
-                <p class="">{{obj.age}}</p>
+                <p>{{obj.age}}</p>
                 {% else%}
-                <p class="">Unknown</p>
+                <p>Unknown</p>
                 {% endif %}
             </div>
             <div class="cell shrink">
-                <h4 class=''>Species</h4>
-                <p class="">{{obj.species}}</p>
+                <h4>Species</h4>
+                <p>{{obj.species}}</p>
             </div>
             <div class="cell shrink">
-                <h4 class=''>Gender</h4>
-                <p class="">{{obj.gender}}</p>
+                <h4>Gender</h4>
+                <p>{{obj.gender}}</p>
             </div>
         </div>
     </div>
@@ -443,7 +443,7 @@
     <div class="cell">
         <div class="callout">
             <h3 class='text-center'>Goals and Secrets</h3>
-            <p class=''>{{obj.goal | safe}}</p>
+            <p>{{obj.goal | safe}}</p>
         </div>
     </div>
     {% if obj.abilities %}
@@ -498,7 +498,7 @@
 {%- endmacro %}
 
 {% macro lineage(user, obj)%}
-<h2 class=''>Lineage</h2>
+<h2>Lineage</h2>
 {% if user.world_user(obj) %}
 <div class="callout ">
     <h4 class=' text-center'>Add Family Member</h4>
@@ -547,7 +547,7 @@
                        hx-post="/api/manage/character/removelineage/{{parent.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="" icon="mdi:remove"
+                        <iconify-icon icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
@@ -569,7 +569,7 @@
                        hx-post="/api/manage/character/removelineage/{{sibling.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="" icon="mdi:remove"
+                        <iconify-icon icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
@@ -590,7 +590,7 @@
                        hx-post="/api/manage/character/removelineage/{{child.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
-                        <iconify-icon class="" icon="mdi:remove"
+                        <iconify-icon icon="mdi:remove"
                                       width="1rem"></iconify-icon>
                     </a>
                 </div>
@@ -609,10 +609,10 @@
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="grid-x align-spaced">
             <div class="cell">
-                <h3 class=''>Quest Board</h3>
+                <h3>Quest Board</h3>
             </div>
             <div class="cell shrink">
-                <h5 class=''>Storyline</h5>
+                <h5>Storyline</h5>
             </div>
             <div class="cell medium-4">
                 <div class="is-select">
@@ -642,7 +642,7 @@
                     <h3>{{entry.name}}</h3>
                 </div>
                 <div class="cell shrink">
-                    <h5 class=''>({{entry.status}})</h5>
+                    <h5>({{entry.status}})</h5>
                 </div>
                 <div class="cell auto"></div>
                 <div class="cell shrink">
@@ -716,7 +716,7 @@
                     {% endif %}
                 </div>
             </div>
-            <hr class=''>
+            <hr>
         </div>
     </li>
     {% endfor %}

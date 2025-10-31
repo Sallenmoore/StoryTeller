@@ -145,24 +145,24 @@
     {% if user.world_user(obj)%}
     <div class="cell">
         <div class="callout ">
-            <h3 class="">Triggers</h3>
-            <span class="">
+            <h3>Triggers</h3>
+            <span>
                 {{obj.trigger_conditions | safe}}
             </span>
         </div>
         <hr>
     </div>
     <div class="cell medium-6">
-        <h3 class="">Player Contingencies</h3>
-        <ul class="">
+        <h3>Player Contingencies</h3>
+        <ul>
             {% for pc in obj.player_contingencies %}
             <li>{{ pc | safe }}</li>
             {% endfor %}
         </ul>
     </div>
     <div class="cell medium-6">
-        <h3 class="">Potential Outcomes</h3>
-        <ul class="">
+        <h3>Potential Outcomes</h3>
+        <ul>
             {% for pc in obj.potential_outcomes %}
             <li>{{ pc | safe }}</li>
             {% endfor %}
@@ -170,8 +170,8 @@
     </div>
     <div class="cell">
         <div class="callout ">
-            <h3 class="">Complications</h3>
-            <span class="">
+            <h3>Complications</h3>
+            <span>
                 {{obj.complications | safe}}
             </span>
         </div>

@@ -9,7 +9,7 @@
     <div class="grid-x">
         <div class="cell">
             <h3>Location Type</h3>
-            <input list="location_list" class="" type="text" id='location_type'
+            <input list="location_list" type="text" id='location_type'
                    name="location_type" value='{{obj.location_type}}'>
             <datalist id="location_list">
                 {% for ltype in obj.categories %}
@@ -22,7 +22,7 @@
     </div>
     <div class="cell shrink">
         <h4>Owner</h4>
-        <input class="" disabled id='owner' type="text" name="owner" value='TBD...'>
+        <input disabled id='owner' type="text" name="owner" value='TBD...'>
     </div>
 </form>
 {{manage_components.backstory(user, obj)}}

@@ -37,7 +37,7 @@
         </div>
         <div class="cell medium-6">
             <h5 class='text-center'>Status</h5>
-            <select class="" name="status">
+            <select name="status">
                 {% for i in ['available','active', 'failed', 'completed'] %}
                 <option value="{{i}}" {% if entry.status=='{{i}}' %}selected{% endif %}>
                     {{i | title}}

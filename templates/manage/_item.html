@@ -13,7 +13,7 @@
         <div class="cell shrink">
             <h4>Rarity</h4>
             <div class="is-select">
-                <select class="" name="rarity">
+                <select name="rarity">
                     <option></option>
                     {% for rarity in obj._rarity_list%}
                     <option {%if obj.rarity==rarity %}selected {% endif %}>{{rarity}}</option>
@@ -23,15 +23,15 @@
         </div>
         <div class="cell shrink">
             <h4>Weight</h4>
-            <input class="" type="text" value="{{obj.weight}}" name="weight">
+            <input type="text" value="{{obj.weight}}" name="weight">
         </div>
         <div class="cell auto">
             <h4>Cost</h4>
-            <textarea class="" name="cost">{{obj.cost}}</textarea>
+            <textarea name="cost">{{obj.cost}}</textarea>
         </div>
         <div class="cell auto">
             <h4>Duration</h4>
-            <textarea class="" name="duration">{{obj.duration}}</textarea>
+            <textarea name="duration">{{obj.duration}}</textarea>
         </div>
         <div class="cell">
             {{abilities_components.edit_abilities(user, obj, abilities=obj.features)}}

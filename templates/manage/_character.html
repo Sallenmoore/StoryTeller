@@ -100,7 +100,7 @@
         </div>
         {% endif %}
         <div class="cell medium-4">
-            <h4 class=''>Look-A-Like</h4>
+            <h4>Look-A-Like</h4>
             <input type="text" value="{{obj.lookalike}}" name="lookalike">
         </div>
     </div>
@@ -174,11 +174,11 @@
     </div>
     <div class="grid-x align-justify">
         <div class="cell medium-2">
-            <h4 class=''>Species</h4>
+            <h4>Species</h4>
             <input type="text" value="{{obj.species}}" name="species">
         </div>
         <div class="cell medium-2">
-            <h4 class=''>Gender</h4>
+            <h4>Gender</h4>
             <input type="text" value="{{obj.gender}}" name="gender">
         </div>
         <div class="cell shrink">
@@ -186,7 +186,7 @@
             <input class="text-center" type="number" value="{{obj.age}}" name="age">
         </div>
         <div class="cell shrink">
-            <h4 class=''>Archetype</h4>
+            <h4>Archetype</h4>
             <select name="archetype">
                 {%for a in obj.system.classes.keys() %}
                 <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
@@ -194,7 +194,7 @@
             </select>
         </div>
         <div class="cell shrink">
-            <h4 class=''>Occupation</h4>
+            <h4>Occupation</h4>
             <input name="occupation" list="character-occupations" value="{{obj.occupation}}">
             <datalist id="character-occupations">
                 {%for k, v in obj.system.backgrounds.items() %}
@@ -231,10 +231,10 @@
     <form hx-post="/api/manage/{{obj.pk}}/quest/create">
         <div class="grid-x align-spaced">
             <div class="cell">
-                <h3 class=''>Quest Board</h3>
+                <h3>Quest Board</h3>
             </div>
             <div class="cell shrink">
-                <h5 class=''>Storyline</h5>
+                <h5>Storyline</h5>
             </div>
             <div class="cell medium-4">
                 <div class="is-select">
@@ -262,8 +262,8 @@
                 <div class="grid-x align-justify">
                     <div class="cell align-center-middle journal-entry-title"
                          onclick='this.closest(".accordion__item").classList.toggle("is-active");'>
-                        <h3 class=''>{{entry.name}}</h3>
-                        <h5 class=''>{{entry.status}}</h5>
+                        <h3>{{entry.name}}</h3>
+                        <h5>{{entry.status}}</h5>
                     </div>
                     <div class="cell shrink align-center-middle">
                         <button class="button small"
@@ -284,7 +284,7 @@
                 </div>
             </a>
             <div class="accordion__content">
-                <hr class=''>
+                <hr>
                 <div class="callout">
                     <div class="grid-x">
                         <div class="cell medium-6">
@@ -384,7 +384,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <hr class=''>
+                <hr>
             </div>
         </li>
         {% endfor %}

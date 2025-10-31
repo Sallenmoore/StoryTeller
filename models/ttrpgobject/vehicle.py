@@ -10,10 +10,14 @@ from models.ttrpgobject.ability import Ability
 
 
 class Vehicle(Place):
-    type = StringAttr(default="")
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
+    type = StringAttr(
+        default="ground vehicle",
+        choices=["ground vehicle", "aircraft", "watercraft", "spacecraft"],
+    )
+    make = StringAttr(default="")
     speed = StringAttr(default="50 feet per round")
     hitpoints = IntAttr(default=lambda: random.randint(10, 250))
     armor = IntAttr(default=lambda: random.randint(1, 20))
@@ -42,7 +46,11 @@ class Vehicle(Place):
                 },
                 "type": {
                     "type": "string",
-                    "description": "The general category of vehicle, such as automobile, wagon, starship, etc.",
+                    "description": "The general category of vehicle. Must be one of the following: ground vehicle, aircraft, watercraft, spacecraft.",
+                },
+                "make": {
+                    "type": "string",
+                    "description": "The general type of vehicle, such as a car, truck, motorcycle, transport, assault, fighter, etc. This should be more specific than the type field.",
                 },
                 "size": {
                     "type": "string",
@@ -181,8 +189,9 @@ class Vehicle(Place):
         "ship" Actor document schema.
         """
         target_schema = {
-            "name": "Ship",
-            "type": "ship",
+            "name": self.name,
+            "type": self.type,
+            "make": self.make,
             "img": "systems/swnr/assets/icons/spaceship.png",
             "system": {
                 "health": {"value": 10, "max": 10},
@@ -305,10 +314,20 @@ class Vehicle(Place):
     ###############################################################
     ##                    VERIFICATION METHODS                   ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        # log("Auto Pre Save World")
+        super().auto_post_init(sender, document, **kwargs)
+
+        ############### MIGRATION ##################
+        if document.type not in [
+            "ground vehicle",
+            "aircraft",
+            "watercraft",
+            "spacecraft",
+        ]:
+            document.make = document.type
+            document.type = "ground vehicle"
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):

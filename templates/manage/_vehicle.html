@@ -9,20 +9,34 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="grid-x">
-        <div class="cell">
-            <h3>Vehicle Type</h3>
-            <input class="" type="text" id='type' name="type" value='{{obj.type}}'>
+    <div class="grid-x grid-margin-x align-center-middle">
+        <div class="cell auto">
+            <label>Type
+                <select id="type" name="type">
+                    {% for t in ["ground vehicle", "aircraft", "watercraft", "spacecraft"]%}
+                    <option value="{{t}}" {% if obj.type==t %} selected {% endif %}>{{t | title}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="cell auto">
+            <label>Make</label>
+            <input type="text" id='make' name="make" value='{{obj.make}}'>
+        </div>
+        <div class="cell shrink">
+            <label for="model-size" class="is-subheading">Size</label>
+            <input id="model-size" type="text" value="{{obj.size}}" name="size">
         </div>
     </div>
-    <div class="cell shrink">
-        <h4>Owner</h4>
-        <input class="" disabled id='owner' type="text" name="owner" value='TBD...'>
-    </div>
-    <div class="grid-x align-spaced">
+    <div class="grid-x grid-margin-x align-spaced">
+        <div class="cell auto">
+            <label>Owner</label>
+            <input disabled id='owner' type="text" name="owner" value='TBD...'>
+        </div>
         <div class="cell shrink">
             <label class="is-subheading">Crew Capacity</label>
-            <input class="" id="capacity" type="number" name="capacity"
+            <input id="capacity" type="number" name="capacity"
                    value='{{obj.capacity}}'>
         </div>
         <div class="cell shrink">
@@ -33,10 +47,6 @@
         <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">Armor</label>
             <input id="model-armor" type="number" value="{{obj.armor}}" name="armor">
-        </div>
-        <div class="cell shrink">
-            <label for="model-size" class="is-subheading">Size</label>
-            <input id="model-size" type="text" value="{{obj.size}}" name="size">
         </div>
     </div>
     <hr>

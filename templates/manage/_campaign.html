@@ -44,7 +44,7 @@
                         <h4>Name</h4>
                     </div>
                     <div class="cell align-center-middle">
-                        <input class="" type="text" name="name"
+                        <input type="text" name="name"
                                value="{{campaign.name}}">
                     </div>
                 </div>
@@ -58,7 +58,7 @@
             </div>
         </div>
     </form>
-    <hr class=''>
+    <hr>
     <div class="grid-x" id='campaign-players'>
         <div class="cell medium-4">
             <h5>Add Party</h5>
@@ -143,7 +143,7 @@
                             </div>
                         </div>
                     </a>
-                    <hr class=''>
+                    <hr>
                 </div>
                 {% endfor %}
             </div>
@@ -155,7 +155,7 @@
             {% for title in ['Locations', 'Characters', 'Creatures', 'Items', 'Factions'] %}
             {% set obj_key = title | lower %}
             {% if campaign[obj_key] %}
-            <hr class=''>
+            <hr>
             <h3 class='text-center'> {{title}} </h3>
             <div class="grid-x align-spaced" id="episode-encounters">
                 {% for a in campaign[obj_key] %}
@@ -172,7 +172,7 @@
             {% endfor %}
         </div>
     </div>
-    <hr class=''>
+    <hr>
     <div class="grid-x">
         <div class="cell shrink is-center">
             <a hx-post="/api/campaign/{{campaign.pk}}/delete"

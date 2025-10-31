@@ -60,7 +60,7 @@
             <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
             </div>
-            <div class="cell">
+            <div class="cell auto">
                 <span>Timeline</span>
             </div>
         </div>
@@ -181,40 +181,44 @@
 {% macro info(user, obj) -%}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <h5 class=''>Type</h5>
+        <h5>Type</h5>
         <p>{{obj.type}}</p>
     </div>
     <div class="cell shrink">
-        <h5 class=''>HP</h5>
+        <h5>Make</h5>
+        <p>{{obj.make}}</p>
+    </div>
+    <div class="cell shrink">
+        <h5>HP</h5>
         <p>{{obj.hitpoints}}</p>
     </div>
     <div class="cell shrink">
-        <h5 class=''>AC</h5>
+        <h5>AC</h5>
         <p>{{obj.ac}}</p>
     </div>
     <div class="cell shrink">
-        <h5 class=''>Armor</h5>
+        <h5>Armor</h5>
         <p>{{obj.armor}}</p>
     </div>
     <div class="cell shrink">
-        <h5 class=''>Size</h5>
+        <h5>Size</h5>
         <p>{{obj.size}}</p>
     </div>
     <div class="cell shrink">
-        <h5 class=''>Crew Capacity</h5>
+        <h5>Crew Capacity</h5>
         <p>{{obj.capacity}}</p>
     </div>
     {% if obj.owner %}
     <div class="cell medium-3">
         <div class="callout">
-            <h4 class="">Owner</h4>
+            <h4>Owner</h4>
             <a href="/{{obj.owner.path}}">
                 <div class="image is-large is-thumbnail is-margin-center">
                     {% if obj.owner.image %}
                     <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
                     {% endif %}
                 </div>
-                <h4 class="">
+                <h4>
                     {{obj.owner.name}}
                 </h4>
             </a>
@@ -223,7 +227,7 @@
     {% endif %}
     <div class="cell">
         <div class="callout">
-            <h4 class="">Crew</h4>
+            <h4>Crew</h4>
             <div class="grid-x align-spaced">
                 {% for member in obj.crew %}
                 <div class="cell shrink">

@@ -23,10 +23,10 @@
                 <div class="cell medium-4">
                     <div class="callout small">
                         <label>Epoch Name</label>
-                        <input class="" type="text" name="age"
+                        <input type="text" name="age"
                                value="{{obj.calendar.age}}">
                         <label>Number of Days / Year</label>
-                        <input class="" type="number"
+                        <input type="number"
                                name="num_days_per_year"
                                value="{{obj.calendar.days_per_year}}">
                         <hr>
@@ -39,7 +39,7 @@
                     <div id="calendar-label-lists-container" class="grid-x align-justify">
                         <div class="cell is-5" id="month-names">
                             <label>Number of Months / Year</label>
-                            <input class="" type="number"
+                            <input type="number"
                                    id="month-names" name="month_names"
                                    value="{{obj.calendar.months | length}}"
                                    oninput='updateEntries(this);'>
@@ -54,7 +54,7 @@
                         </div>
                         <div class="cell is-5">
                             <label>Number of Days / Week</label>
-                            <input class="" type="number"
+                            <input type="number"
                                    id="day-names" name="day_names"
                                    oninput='updateEntries(this);'
                                    value="{{obj.calendar.days | length}}">
@@ -104,7 +104,7 @@
                 <div class="cell">
                     <h4>Change System</h4>
                     <div class="select">
-                        <select class='' name="system">
+                        <select name="system">
                             {% for k, v in obj.SYSTEMS.items() %}
                             <option value="{{k}}" {% if v==obj.system.__class__ %} selected {% endif
                                     %}>
@@ -128,7 +128,7 @@
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
             <div class="grid-x is-vertical">
                 <div class="cell">
-                    <input class="" type="email" name="new_user" id="new_user"
+                    <input type="email" name="new_user" id="new_user"
                            placeholder="enter user email">
                 </div>
                 <div class="cell">

@@ -163,11 +163,11 @@
 {% macro info(user, obj) -%}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <h4 class=''>STR</h4>
+        <h4>STR</h4>
         <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})</p>
     </div>
     <div class="cell shrink">
-        <h4 class=''>DEX</h4>
+        <h4>DEX</h4>
         <p>{{obj.dexterity}} ({{(obj.dexterity|int-10)//2}})</p>
     </div>
     <div class="cell shrink">
@@ -179,11 +179,11 @@
         <p>{{obj.intelligence}} ({{(obj.intelligence|int-10)//2}})</p>
     </div>
     <div class="cell shrink">
-        <h4 class=''>WIS</h4>
+        <h4>WIS</h4>
         <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
     </div>
     <div class="cell shrink">
-        <h4 class=''>CHA</h4>
+        <h4>CHA</h4>
         <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})</p>
     </div>
 </div>
@@ -200,19 +200,19 @@
 </div>
 <div class="grid-x align-spaced">
     <div class="cell  shrink">
-        <h5 class=''>HP</h5>
+        <h5>HP</h5>
         <p>{{obj.hitpoints}}</p>
     </div>
     <div class="cell  shrink">
-        <h5 class=''>AC</h5>
+        <h5>AC</h5>
         <p>{{obj.ac}}</p>
     </div>
     <div class="cell  shrink">
-        <h5 class=''>Size</h5>
+        <h5>Size</h5>
         <p>{{obj.size}}</p>
     </div>
     <div class="cell  shrink">
-        <h5 class=''>Type</h5>
+        <h5>Type</h5>
         <p>{{obj.type}}</p>
         {%if not obj.group %}
         <small>unique</small>

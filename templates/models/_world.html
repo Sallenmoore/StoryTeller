@@ -333,7 +333,7 @@
 
 {% macro players(user, obj) -%}
 <title>{{obj.name}} - Players</title>
-<h2 class="">Players</h2>
+<h2>Players</h2>
 {% for player in obj.players %}
 <a href="/character/{{player.pk}}" style='text-decoration: none;'>
     <div class="callout ">
@@ -346,7 +346,7 @@
                 </div>
             </div>
             <div class="cell auto ">
-                <h4 class="" style='text-decoration:underline;'>
+                <h4 style='text-decoration:underline;'>
                     {% if player.name %}
                     {{player.name}}
                     {% else %}
@@ -447,7 +447,7 @@
         <div class="cell medium-4" hx-post="/api/world/lore/{{entry.pk}}/edit"
              hx-target="#lore-container">
             <div class="callout">
-                <h3 class="">{{entry.name}}</h3>
+                <h3>{{entry.name}}</h3>
                 <div class="generated-text-lightbg">
                     {{entry.summary | safe}}
                 </div>
@@ -482,7 +482,7 @@
             <div class="cell shrink">
                 <label class="label " for="scope">Scope</label>
                 <div class="select">
-                    <select class="" name="scope">
+                    <select name="scope">
                         <option value="" selected>=== Select Scope ===</option>
                         <option value="local" selected>Local</option>
                         <option value="regional" selected>Regional</option>
@@ -587,7 +587,7 @@
         {% endif%}
         {% if lore.potential_events %}
         <div class="cell medium-6">
-            <h3 class="">Potential Events</h3>
+            <h3>Potential Events</h3>
             <ul>
                 {% for event in lore.potential_events %}
                 <li>{{event | safe}}</li>
@@ -604,7 +604,7 @@
                 <h3 class=" text-centered">Party Members</h3>
             </div>
             <div class="cell medium-4">
-                <input class="" autocomplete="off" type="search" name="query"
+                <input autocomplete="off" type="search" name="query"
                        style="border-bottom: solid #000;"
                        hx-post="/api/world/lore/{{lore.pk}}/party/add/search"
                        hx-target="#lore-new-party-list"
@@ -622,7 +622,7 @@
                            hx-post="/api/world/lore/{{lore.pk}}/party/remove/{{o.pk}}"
                            hx-target="closest .cell" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this character from the party?">
-                            <iconify-icon class="" icon="mdi:remove"
+                            <iconify-icon icon="mdi:remove"
                                           width="1rem"></iconify-icon>
                         </a>
                     </div>
@@ -637,7 +637,7 @@
                 <h3 class=" text-centered">Associations</h3>
             </div>
             <div class="cell medium-4">
-                <input class="" autocomplete="off" type="search" name="query"
+                <input autocomplete="off" type="search" name="query"
                        style="border-bottom: solid #000;"
                        hx-post="/api/world/lore/{{lore.pk}}/association/add/search"
                        hx-target="#lore-new-association-list"
@@ -655,7 +655,7 @@
                            hx-post="/api/world/lore/{{lore.pk}}/association/remove/{{o.path}}"
                            hx-target="closest .cell" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this association from the lore?">
-                            <iconify-icon class="" icon="mdi:remove"
+                            <iconify-icon icon="mdi:remove"
                                           width="1rem"></iconify-icon>
                         </a>
                     </div>

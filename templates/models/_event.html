@@ -14,14 +14,14 @@
                 {% if event.start_date %}
                 <div class="cell">
                     <div class="callout has-bg-transparent">
-                        <span class=''>{{event.start_date}} - {{event.end_date}}</span>
+                        <span>{{event.start_date}} - {{event.end_date}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.backstory %}
                 <div class="cell">
                     <div class="callout  ">
-                        <h5 class=''
+                        <h5
                             style='text-decoration: underline; text-center'>
                             Description</h5>
                         {{event.backstory | safe}}
@@ -31,18 +31,18 @@
                 {% if event.impact %}
                 <div class="cell medium-6">
                     <div class="callout has-bg-transparent">
-                        <h5 class=''
+                        <h5
                             style='text-decoration: underline;'>Impact</h5>
-                        <span class=''>{{event.impact | safe}}</span>
+                        <span>{{event.impact | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
                 {% if event.outcome %}
                 <div class="cell medium-6">
                     <div class="callout has-bg-transparent">
-                        <h5 class=''
+                        <h5
                             style='text-decoration: underline;'>Outcome</h5>
-                        <span class=''>{{event.outcome | safe}}</span>
+                        <span>{{event.outcome | safe}}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -62,7 +62,7 @@
                 {% for story in event.stories %}
                 <div class="cell">
                     <div class="callout ">
-                        <a href='/{{ story.path }}' class=''>
+                        <a href='/{{ story.path }}'>
                             <h5 class='text-center'>Story: {{ story.name }}</h5>
                             <div>{{ story.situation | safe }}</div>
                         </a>

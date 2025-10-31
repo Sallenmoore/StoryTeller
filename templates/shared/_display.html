@@ -89,36 +89,36 @@
                          style='cursor: pointer;'>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">STR</h4>
+                            <h4>STR</h4>
                             <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})
                             </p>
                         </div>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">DEX</h4>
+                            <h4>DEX</h4>
                             <p>{{obj.dexterity}}
                                 ({{(obj.dexterity|int-10)//2}})</p>
                         </div>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">INT</h4>
+                            <h4>INT</h4>
                             <p>{{obj.intelligence}}
                                 ({{(obj.intelligence|int-10)//2}})</p>
                         </div>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">WIS</h4>
+                            <h4>WIS</h4>
                             <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
                         </div>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">CHA</h4>
+                            <h4>CHA</h4>
                             <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})
                             </p>
                         </div>
                         <div class="cell medium-4 is-mobile-3"
                              onclick='setbonus(this);'>
-                            <h4 class="">CON</h4>
+                            <h4>CON</h4>
                             <p>{{obj.constitution}}
                                 ({{(obj.constitution|int-10)//2}})</p>
                         </div>
@@ -128,7 +128,7 @@
                     <div class="cell shrink">
                         <h4 class=' text-center'>HP</h4>
                         <div class="cell shrink">
-                            <h5 class=''>/{{obj.hitpoints}}</h5>
+                            <h5>/{{obj.hitpoints}}</h5>
                         </div>
                     </div>
                     <div class="cell shrink">
@@ -210,7 +210,7 @@
                         <div class="cell shrink">
                             <h4 class=' text-center'>HP</h4>
                             <div class="cell shrink">
-                                <h5 class=''>/{{obj.hitpoints}}</h5>
+                                <h5>/{{obj.hitpoints}}</h5>
                             </div>
                         </div>
                         <div class="cell shrink">
@@ -223,31 +223,31 @@
                         <div class="grid-x align-spaced text-center"
                              style='cursor: pointer;'>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">STR</h4>
+                                <h4>STR</h4>
                                 <p>{{obj.strength}} ({{(obj.strength|int-10)//2}})
                                 </p>
                             </div>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">DEX</h4>
+                                <h4>DEX</h4>
                                 <p>{{obj.dexterity}}
                                     ({{(obj.dexterity|int-10)//2}})</p>
                             </div>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">INT</h4>
+                                <h4>INT</h4>
                                 <p>{{obj.intelligence}}
                                     ({{(obj.intelligence|int-10)//2}})</p>
                             </div>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">WIS</h4>
+                                <h4>WIS</h4>
                                 <p>{{obj.wisdom}} ({{(obj.wisdom|int-10)//2}})</p>
                             </div>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">CHA</h4>
+                                <h4>CHA</h4>
                                 <p>{{obj.charisma}} ({{(obj.charisma|int-10)//2}})
                                 </p>
                             </div>
                             <div class="cell medium-4 is-mobile-3">
-                                <h4 class="">CON</h4>
+                                <h4>CON</h4>
                                 <p>{{obj.constitution}}
                                     ({{(obj.constitution|int-10)//2}})</p>
                             </div>
@@ -287,13 +287,13 @@
             </div>
             <div class="cell">
                 <div class="callout">
-                    <h2 class=''>Backstory</h2>
+                    <h2>Backstory</h2>
                     {{obj.history | safe}}
                 </div>
             </div>
         </div>
         <div class="cell medium-6">
-            <h3 class=''>Features</h3>
+            <h3>Features</h3>
             {% if obj.abilities or obj.features %}
             <div class="callout "
                  style='border-top-right-radius: 0; border-top-left-radius:0;'>
@@ -307,7 +307,7 @@
                             {% if ability.description %}
                             <div class="cell">
                                 <div class="callout ">
-                                    <h5 class=''
+                                    <h5
                                         style='text-decoration: underline; text-center'>
                                         Description</h5>
                                     {{ability.description | safe}}
@@ -317,29 +317,29 @@
                             {% if ability.dice_roll %}
                             <div class="cell">
                                 <div class="callout has-bg-transparent">
-                                    <h5 class=''
+                                    <h5
                                         style='text-decoration: underline;'>Roll
                                         Mechanics</h5>
-                                    <span class=''>{{ability.dice_roll}}</span>
+                                    <span>{{ability.dice_roll}}</span>
                                 </div>
                             </div>
                             {% endif %}
                             {% if ability.effects %}
                             <div class="cell">
                                 <div class="callout has-bg-transparent">
-                                    <h5 class=''
+                                    <h5
                                         style='text-decoration: underline;'>Effects
                                     </h5>
-                                    <span class=''>{{ability.effects}}</span>
+                                    <span>{{ability.effects}}</span>
                                 </div>
                             </div>
                             {% endif %}
                             {% if ability.duration %}
                             <div class="cell">
                                 <div class="callout has-bg-transparent">
-                                    <h5 class=''
+                                    <h5
                                         style='text-decoration: underline;'>Duration</h5>
-                                    <span class=''>{{ability.duration}}</span>
+                                    <span>{{ability.duration}}</span>
                                 </div>
                             </div>
                             {% endif %}

@@ -9,7 +9,7 @@
         <h4>Owner</h4>
         <div class="grid-x align-spaced" id='owner-manager-container'>
             <div class="cell search">
-                <input class="" autocomplete=off type="search" name="query"
+                <input autocomplete=off type="search" name="query"
                        placeholder="Search to Add Owner..."
                        style="border-bottom: solid #000;" hx-target="#owner-search"
                        hx-post="/api/manage/owner/add/search"
@@ -22,14 +22,14 @@
             {% if obj.owner %}
             <div class="cell medium-6">
                 <div class="callout">
-                    <h4 class="">Owner</h4>
+                    <h4>Owner</h4>
                     <a href="/{{obj.owner.path}}">
                         <div class="image is-large is-thumbnail is-margin-center">
                             {% if obj.owner.image %}
                             <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
                             {% endif %}
                         </div>
-                        <h4 class="">
+                        <h4>
                             {{obj.owner.name}}
                         </h4>
                     </a>
@@ -43,7 +43,7 @@
               hx-swap="none" hx-trigger="input delay:1s, change">
             <h4>Inventory</h4>
             {%for i in obj.inventory %}
-            <input class="" type="text" name="inventory[]" value='{{i}}'>
+            <input type="text" name="inventory[]" value='{{i}}'>
             {% endfor%}
         </form>
     </div>

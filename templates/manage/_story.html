@@ -13,12 +13,12 @@
                     <h4>Name</h4>
                 </div>
                 <div class="cell medium-6 align-center-middle">
-                    <input class="" type="text" name="name"
+                    <input type="text" name="name"
                            value="{{story.name}}">
                 </div>
                 <div class="cell align-center-middle shrink">
                     <div class="is-select">
-                        <select class="" name='scope'>
+                        <select name='scope'>
                             <option value="local" {%if story.scope=="local" %}selected{%endif%}>
                                 Local</option>
                             <option value='regional' {%if story.scope=="regional"
@@ -112,13 +112,13 @@
         </div>
     </div>
 </form>
-<hr class=''>
+<hr>
 <div class="grid-x">
     <div id="story-bbeg" class="cell medium-2 ">
         <h3 class='text-center'>BBEG</h3>
         <div class="grid-x">
             <div class="cell">
-                <input class="" autocomplete="off" type="search" name="query"
+                <input autocomplete="off" type="search" name="query"
                        style="border-bottom: solid #000;"
                        hx-post="/api/story/{{story.pk}}/bbeg/add/search"
                        hx-target="#story-new-bbeg-list"
@@ -141,13 +141,13 @@
         </div>
     </div>
 </div>
-<hr class=''>
+<hr>
 <div id="story-events" class="section small">
     <div class="callout">
         <h2 class='text-center'> Events </h2>
         <div class="grid-x">
             <div class="cell search medium-6 align-center-middle">
-                <input class="" autocomplete=off type="search" name="query"
+                <input autocomplete=off type="search" name="query"
                        placeholder="Search to Add Events..."
                        style="border-bottom: solid #000;" hx-target="#event-search"
                        hx-post="/api/{{story.path}}/event/add/search"
@@ -191,12 +191,12 @@
         </div>
     </div>
 </div>
-<hr class=''>
+<hr>
 <div class="grid-x">
     <div class="cell shrink align-center-middle">
         <h4 class='text-center'>Merge Story</h4>
         <div class="is-select" style="width: 100%;">
-            <select class="" name="mergepk"
+            <select name="mergepk"
                     hx-post="/api/story/{{story.pk}}/merge"
                     hx-target="#page-content"
                     hx-push-url='false'

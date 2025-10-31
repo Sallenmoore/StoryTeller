@@ -161,7 +161,7 @@
                                    hx-trigger="click consume"
                                    hx-target="closest .episode-story-entry" hx-swap="delete"
                                    hx-confirm="Are you sure you want to remove this story from the episode?">
-                                    <iconify-icon class="" icon="mdi:remove"
+                                    <iconify-icon icon="mdi:remove"
                                                   width="1rem"></iconify-icon>
                                 </a>
                             </div>
@@ -205,7 +205,7 @@
                 <h3 class='text-center'>Planning</h3>
                 {{form_components.texteditor(user, episode, 'description')}}
             </div>
-            <div id="episode-report-container" class="">
+            <div id="episode-report-container">
                 <div class="grid-x has-centered">
                     <div class="cell shrink">
                         <h3 class='text-center'>Report</h3>
@@ -220,19 +220,19 @@
                 {{form_components.texteditor(user, episode, 'episode_report')}}
             </div>
             <div id="episode-loot-container" class="  is-hidden">
-                <hr class=''>
+                <hr>
                 <h3 class='text-center'>Loot</h3>
                 {{form_components.texteditor(user, episode, 'loot')}}
             </div>
             <div id="episode-hooks-container" class=" is-hidden">
-                <hr class=''>
+                <hr>
                 <h3 class='text-center'>Hooks</h3>
                 {{form_components.texteditor(user, episode, 'hooks')}}
             </div>
         </form>
     </div>
     <div id="episode-events" class="cell medium-4">
-        <hr class=''>
+        <hr>
         <h3 class='text-center'>Events</h3>
         <div class="grid-x align-spaced">
             {% for event in episode.events %}
@@ -243,7 +243,7 @@
         </div>
         <div class="grid-x">
             <div class="cell">
-                <input class="" autocomplete="off" type="search" name="query"
+                <input autocomplete="off" type="search" name="query"
                        placeholder='Search Events to Add'
                        style="border-bottom: solid #000;"
                        hx-post="/api/{{episode.path}}/events/add/search"
@@ -260,7 +260,7 @@
                 </button>
             </div>
         </div>
-        <hr class=''>
+        <hr>
         <h3 class='text-center'>Manage Associations</h3>
         {{associations(user, episode)}}
     </div>
@@ -271,7 +271,7 @@
 {% macro associations(user, episode) -%}
 <div id="episode-associations" class="grid-x">
     <div class="cell">
-        <h5 class=''>Add New...</h5>
+        <h5>Add New...</h5>
         <div class="grid-x align-spaced">
             {% for model in episode.world.all_models_str() %}
             <div class="cell shrink">
@@ -287,7 +287,7 @@
             </div>
             {% endfor %}
         </div>
-        <h5 class=''>...or Add Existing</h5>
+        <h5>...or Add Existing</h5>
         <div class="grid-x grid-margin-x align-spaced">
             <div class="cell shrink">
                 <button class='button small'
@@ -376,7 +376,7 @@
 
 {% macro association_display(user, episode, children, title) -%}
 <h3 class='text-center'> {{title}} </h3>
-<hr class=''>
+<hr>
 <div class="grid-x">
     {% for a in children %}
     <div class="cell medium-2 is-mobile-6 episode-association-entry"
@@ -386,7 +386,7 @@
            hx-post="/api/episode/{{episode.pk}}/association/{{a.path}}/delete"
            hx-target="closest .episode-association-entry" hx-swap="delete"
            hx-confirm="Are you sure you want to remove this association from the episode?">
-            <iconify-icon class="" icon="mdi:remove" width="1rem"></iconify-icon>
+            <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
         </a>
     </div>
     {% endfor %}

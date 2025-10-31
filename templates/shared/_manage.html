@@ -9,7 +9,7 @@
         <h2 class='text-center'>Details Editor</h2>
     </div>
     <div class="cell shrink float-right">
-        <a class='' href="/{{obj.path}}/details">
+        <a href="/{{obj.path}}/details">
             {{icon_components.close(size="3rem")}}
         </a>
     </div>
@@ -152,7 +152,7 @@
                 <img src="{{obj.image.url()}}" alt="{{obj.name}}" />
             </div>
             {% else %}
-            <h5 class=''>No Image</h5>
+            <h5>No Image</h5>
             {% endif %}
         </div>
         <div class="cell medium-4">
@@ -161,7 +161,7 @@
                     <h5 class='text-center'>Image Description (editable)
                     </h5>
                     <div class="callout">
-                        <p id="model-desc" class="" contentEditable="true"
+                        <p id="model-desc" contentEditable="true"
                            hx-post="/api/manage/update" hx-trigger="input delay:1s"
                            hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
                            hx-swap="none">
@@ -201,7 +201,7 @@
                         </button>
                     </div>
                     <div class="cell auto">
-                        <div class="">
+                        <div>
                             <input class=" " type="url" name="image"
                                    placeholder="enter url...">
                         </div>
