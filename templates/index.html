@@ -108,14 +108,12 @@
         {% endif %}
 
         {% if page_url %}
-        <section id="content-container">
-            <div class="callout container">
-                <div id="page-content"
-                     hx-get='/api{{page_url}}'
-                     hx-trigger='load'
-                     hx-indicator='#request-indicator'
-                     hx-push-url='{{page_url}}'>
-                </div>
+        <section class="container medium-width-75">
+            <div id="page-content"
+                 hx-get='/api{{page_url}}'
+                 hx-trigger='load'
+                 hx-indicator='#request-indicator'
+                 hx-push-url='{{page_url}}'>
             </div>
         </section>
         {% endif %}

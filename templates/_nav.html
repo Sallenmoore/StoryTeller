@@ -11,7 +11,7 @@
         <small class="show-for-medium text-white">ver. 0.3.0</small>
     </div>
     {% if user %}
-    <div class="cell small-12 medium-5 align-center-middle bg-primary align-self-stretch"
+    <div class="cell small-9 medium-5 align-center-middle bg-primary align-self-stretch"
          hx-indicator="#request-indicator" style='padding-top: 1rem;'>
         <div class="input-group">
             <input type="text" autocomplete="off" class="input-group-field"
@@ -28,12 +28,13 @@
         <ul id="nav-search" class="vertical dropdown menu" data-dropdown-menu
             style='z-index: 9999;'></ul>
     </div>
-    <div class="cell auto bg-primary"></div>
+    <div class="cell auto show-for-medium bg-primary"></div>
     <!-- login -->
-    <div class="cell shrink bg-primary">
+    {% endif %}
+    <div class="cell small-3 shrink bg-primary">
         {{dsp_auth(user)}}
     </div>
-    {% endif %}
+
 </div>
 {%- endmacro %}
 
