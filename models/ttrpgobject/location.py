@@ -18,6 +18,10 @@ class Location(Place):
                     "type": "string",
                     "description": "An intriguing, suggestive, and unique name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the location is in, such as thriving, in decline, recovering from a disaster, etc.",
+                },
                 "location_type": {
                     "type": "string",
                     "description": "The type of location",
@@ -85,7 +89,9 @@ class Location(Place):
             or f"Generate a {self.genre} TTRPG {self.location_type} {f'with the following description: {self.backstory}' if self.backstory else ''}. Add a backstory containing a {self.traits} history for players to discover."
         )
         if self.owner:
-            prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
+            prompt += (
+                f" The {self.title} is owned by {self.owner.name}. {self.owner.history}"
+            )
         results = super().generate(prompt=prompt)
         return results
 

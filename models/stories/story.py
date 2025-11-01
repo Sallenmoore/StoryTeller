@@ -43,7 +43,7 @@ class Story(AutoModel):
                 },
                 "scope": {
                     "type": "string",
-                    "description": "The scope of the story and how it fits into the larger world.",
+                    "description": "The scope of the story and how it fits into the larger world. Must be one of the following: Local, Regional, Global, or Epic.",
                 },
                 "situation": {
                     "type": "string",
@@ -145,8 +145,14 @@ class Story(AutoModel):
                 prompt += f"\n\n{assoc.name}: {assoc.backstory}."
             self.save()
 
+        if self.backstory:
+            prompt += f"\n\nHISTORY: {self.backstory}. "
+
         if self.situation:
             prompt += f"\n\nUse the following prompt to guide the storyline: {self.situation}. "
+
+        if self.current_status:
+            prompt += f"\n\nCURRENT STATUS: {self.current_status}. "
 
         result = self.world.system.generate_json(
             prompt=prompt,

@@ -24,6 +24,10 @@ class Region(Place):
                     "type": "string",
                     "description": "A unique and evocative name for the region",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the region is in, such as thriving, in decline, recovering from a disaster, etc.",
+                },
                 "desc": {
                     "type": "string",
                     "description": "A brief physical description that will be used to generate an image of the region",

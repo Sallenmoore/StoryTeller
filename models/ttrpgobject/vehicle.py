@@ -36,6 +36,10 @@ class Vehicle(Place):
                     "type": "string",
                     "description": "An intriguing, suggestive, and unique name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the vehicle is in, such as partially operational, damaged engine, marked as stolen, etc.",
+                },
                 "backstory": {
                     "type": "string",
                     "description": "A description of the history of the vehicle. Only include what would be publicly known information.",
@@ -147,7 +151,7 @@ class Vehicle(Place):
 
     @property
     def image_prompt(self):
-        return f"""A full color image of a {self.genre} {self.type or "vehicle"} with the following description:
+        return f"""A full color image of a {self.genre} {self.make} {self.type} with the following description:
 "- NAME: {self.name}
 {"- DESCRIPTION: " + self.description if self.description else ""}
 {"- SIZE: " + self.size if self.size else ""}

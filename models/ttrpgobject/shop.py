@@ -18,6 +18,10 @@ class Shop(Place):
                     "type": "string",
                     "description": "An intriguing, suggestive, and unique name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the shop is in, such as thriving, in decline, out of stock, etc.",
+                },
                 "location_type": {
                     "type": "string",
                     "description": "The type of shop",

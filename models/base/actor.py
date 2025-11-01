@@ -57,6 +57,10 @@ class Actor(TTRPGObject):
             "type": "string",
             "description": "preferred gender",
         },
+        "status": {
+            "type": "string",
+            "description": "current, immediate situation the actor is in, such as working as an artisan, exploring a location, resting at an safe house, etc.",
+        },
         "age": {
             "type": "integer",
             "description": "physical age in years",

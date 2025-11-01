@@ -149,7 +149,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         )
 
         prompt = f"""Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {occupation}. Use the following thematic motif: {self.traits}.
-Create, or if already present expand on, the NPC's detailed backstory.
 """
 
         result = super().generate(prompt=prompt)

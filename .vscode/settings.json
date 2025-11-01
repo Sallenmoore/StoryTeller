@@ -4,5 +4,15 @@
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "djlint.pythonPath": "python",
+    "djlint.useVenv": false,
+    "djlint.formatLanguages": [
+        "jinja",
+        "jinja-html",
+        "html"
+    ],
+    "djlint.preserveBlankLines": true,
+    "djlint.profile": "jinja",
+    "djlint.useGitignore": true
 }

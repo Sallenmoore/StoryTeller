@@ -35,6 +35,10 @@ class Faction(TTRPGObject):
                     "type": "string",
                     "description": "An evocative and unique name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the faction is in, such as thriving, in decline, recovering from a disaster, etc.",
+                },
                 "desc": {
                     "type": "string",
                     "description": "A brief description of the members of the faction. Only include publicly known information.",

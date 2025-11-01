@@ -24,6 +24,10 @@ class District(Place):
                     "type": "string",
                     "description": "A unique and evocative name for the district",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the district is in, such as thriving, in decline, recovering from a disaster, etc.",
+                },
                 "backstory": {
                     "type": "string",
                     "description": "A short history of the district in 750 words or less. Only include publicly known information about the district.",

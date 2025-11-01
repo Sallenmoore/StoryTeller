@@ -45,6 +45,10 @@ class Item(TTRPGObject):
                     "type": "string",
                     "description": "An descriptive, but unique name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the item is in, such as being used, in storage, destroyed, etc.",
+                },
                 "desc": {
                     "type": "string",
                     "description": "A brief physical description that will be used to generate an image of the item",

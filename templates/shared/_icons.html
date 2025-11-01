@@ -1,316 +1,791 @@
-{% macro add(size="2rem") -%}
-<iconify-icon icon="mdi:plus" width="{{size}}"></iconify-icon>
+{% macro add(size="2rem", label="") -%}
+<iconify-icon icon="mdi:plus" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro ai(size="2rem") -%}
-<iconify-icon icon="tabler:photo-ai" width="{{size}}"></iconify-icon>
+
+{% macro ai(size="2rem", label="") -%}
+<iconify-icon icon="tabler:photo-ai" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro alien(size="2rem") -%}
-<iconify-icon icon="mdi:alien" width="{{size}}"></iconify-icon>
+
+{% macro alien(size="2rem", label="") -%}
+<iconify-icon icon="mdi:alien" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro apple(size="2rem") -%}
-<iconify-icon icon="devicon:apple" width="{{size}}"></iconify-icon>
+
+{% macro apple(size="2rem", label="") -%}
+<iconify-icon icon="devicon:apple" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro associations(size="2rem") -%}
-<iconify-icon icon="hugeicons:chart-relationship" width="{{size}}"></iconify-icon>
+
+{% macro associations(size="2rem", label="") -%}
+<iconify-icon icon="hugeicons:chart-relationship" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
+
 
 {% macro backtotop(size=" 2rem") -%}
-<iconify-icon icon="bxs:to-top" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro character(size="2rem") -%}
-<iconify-icon icon="material-symbols:person" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro campaigns(size="2rem") -%}
-<iconify-icon icon="gis:bus-map" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro campaignmanage(size="2rem") -%}
-<iconify-icon icon="mdi:planner-multiple" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro chat(size="2rem") -%}
-<iconify-icon icon="gridicons:chat" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro city(size="2rem") -%}
-<iconify-icon icon="mdi:city" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro close(size="2rem") -%}
-<iconify-icon icon="mdi:remove" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro creature(size="2rem") -%}
-<iconify-icon icon="game-icons:frankenstein-creature" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro d1dice(size="2rem") -%}
-<iconify-icon icon="game-icons:dice-twenty-faces-one" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro d20dice(size="2rem") -%}
-<iconify-icon icon="game-icons:dice-twenty-faces-twenty" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro dash(size="2rem") -%}
-<iconify-icon icon="octicon:dash-16" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro delete(size="2rem") -%}
-<iconify-icon icon="mdi:delete" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro details(size="2rem") -%}
-<iconify-icon icon="ooui:view-details-ltr" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro discord(size="2rem") -%}
-<iconify-icon icon="devicon:discord" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro district(size="2rem") -%}
-<iconify-icon icon="fluent-emoji-high-contrast:cityscape-at-dusk" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro down(size="2rem") -%}
-<iconify-icon icon="material-symbols:move-down" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro drama(size="2rem") -%}
-<iconify-icon icon="game-icons:drama-masks" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro dropdownarrow(size="2rem") -%}
-<iconify-icon icon="mdi:arrow-drop-up" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro dropuparrow(size="2rem") -%}
-<iconify-icon icon="mdi:arrow-drop-down" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro dungeon(size="2rem") -%}
-<iconify-icon icon="game-icons:dungeon-light" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro encounter(size="2rem") -%}
-<iconify-icon icon="mdi:sword-fight" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro episode(size="2rem") -%}
-<iconify-icon icon="mdi:sword-fight" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro faction(size="2rem") -%}
-<iconify-icon icon="game-icons:organigram" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro file(size="2rem") -%}
-<iconify-icon icon="lucide:file" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro gamemaster(size="2rem") -%}
-<iconify-icon icon="arcticons:dicey-dungeons" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro gear(size="2rem") -%}
-<iconify-icon icon="mdi:gear" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro github(size="2rem") -%}
-<iconify-icon icon="devicon:github" width="{{size}}"></iconify-icon>
-{%- endmacro %}
-
-{% macro gmscreenmanage(size="2rem") -%}
-<iconify-icon icon="carbon:gui-management" width="{{size}}"></iconify-icon>
+<iconify-icon icon="bxs:to-top" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
 
-{% macro google(size="2rem") -%}
-<iconify-icon icon="devicon:google" width="{{size}}"></iconify-icon>
+{% macro character(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:person" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro graphic_novel(size="2rem") -%}
-<iconify-icon icon="arcticons:quicknovel" width="{{size}}"></iconify-icon>
+
+{% macro campaigns(size="2rem", label="") -%}
+<iconify-icon icon="gis:bus-map" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro heirarchy(size="2rem") -%}
-<iconify-icon icon="codicon:type-hierarchy-sub" width="{{size}}"></iconify-icon>
+
+{% macro campaignmanage(size="2rem", label="") -%}
+<iconify-icon icon="mdi:planner-multiple" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro history(size="2rem") -%}
-<iconify-icon icon="material-symbols:history-edu-outline-rounded" width="{{size}}"></iconify-icon>
+
+{% macro chat(size="2rem", label="") -%}
+<iconify-icon icon="gridicons:chat" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro item(size="2rem") -%}
-<iconify-icon icon="mdi:treasure-chest" width="{{size}}"></iconify-icon>
+
+{% macro city(size="2rem", label="") -%}
+<iconify-icon icon="mdi:city" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro jobs(size="2rem") -%}
-<iconify-icon icon="hugeicons:job-share" width="{{size}}"></iconify-icon>
+
+{% macro close(size="2rem", label="") -%}
+<iconify-icon icon="mdi:remove" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro journal(size="2rem") -%}
-<iconify-icon icon="game-icons:quill-ink" width="{{size}}"></iconify-icon>
+
+{% macro creature(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:frankenstein-creature" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro keyboard(size="2rem") -%}
+
+{% macro d1dice(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:dice-twenty-faces-one" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro d20dice(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:dice-twenty-faces-twenty" width="{{ size }}"></iconify-icon>
+{% if label
+%}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro dash(size="2rem", label="") -%}
+<iconify-icon icon="octicon:dash-16" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro delete(size="2rem", label="") -%}
+<iconify-icon icon="mdi:delete" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro details(size="2rem", label="") -%}
+<iconify-icon icon="ooui:view-details-ltr" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro discord(size="2rem", label="") -%}
+<iconify-icon icon="devicon:discord" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro district(size="2rem", label="") -%}
+<iconify-icon icon="fluent-emoji-high-contrast:cityscape-at-dusk" width="{{ size }}"></iconify-icon>
+{%
+if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro down(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:move-down" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro drama(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:drama-masks" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro dropdownarrow(size="2rem", label="") -%}
+<iconify-icon icon="mdi:arrow-drop-up" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro dropuparrow(size="2rem", label="") -%}
+<iconify-icon icon="mdi:arrow-drop-down" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro dungeon(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:dungeon-light" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro encounter(size="2rem", label="") -%}
+<iconify-icon icon="mdi:sword-fight" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro episode(size="2rem", label="") -%}
+<iconify-icon icon="mdi:sword-fight" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro faction(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:organigram" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro file(size="2rem", label="") -%}
+<iconify-icon icon="lucide:file" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro gamemaster(size="2rem", label="") -%}
+<iconify-icon icon="arcticons:dicey-dungeons" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro gear(size="2rem", label="") -%}
+<iconify-icon icon="mdi:gear" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro github(size="2rem", label="") -%}
+<iconify-icon icon="devicon:github" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro gmscreenmanage(size="2rem", label="") -%}
+<iconify-icon icon="carbon:gui-management" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro google(size="2rem", label="") -%}
+<iconify-icon icon="devicon:google" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro graphic_novel(size="2rem", label="") -%}
+<iconify-icon icon="arcticons:quicknovel" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro heirarchy(size="2rem", label="") -%}
+<iconify-icon icon="codicon:type-hierarchy-sub" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro history(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:history-edu-outline-rounded"
+              width="{{ size }}"></iconify-icon>{%
+if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro item(size="2rem", label="") -%}
+<iconify-icon icon="mdi:treasure-chest" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro jobs(size="2rem", label="") -%}
+<iconify-icon icon="hugeicons:job-share" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro journal(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:quill-ink" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+
+{% macro keyboard(size="2rem", label="") -%}
 <iconify-icon icon="material-symbols:keyboard-onscreen-outline-sharp"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro line(size="2rem") -%}
-<iconify-icon icon="ci:line-l" width="{{size}}"></iconify-icon>
+
+{% macro line(size="2rem", label="") -%}
+<iconify-icon icon="ci:line-l" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro lineage(size="2rem") -%}
-<iconify-icon icon="mdi:family-tree" width="{{size}}"></iconify-icon>
+
+{% macro lineage(size="2rem", label="") -%}
+<iconify-icon icon="mdi:family-tree" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro link(size="2rem") -%}
-<iconify-icon icon="lucide:link" width="{{size}}"></iconify-icon>
+
+{% macro link(size="2rem", label="") -%}
+<iconify-icon icon="lucide:link" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro location(size="2rem") -%}
-<iconify-icon icon="mdi:location" width="{{size}}"></iconify-icon>
+
+{% macro location(size="2rem", label="") -%}
+<iconify-icon icon="mdi:location" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro lore(size="2rem") -%}
-<iconify-icon icon="gis:story-map" width="{{size}}"></iconify-icon>
+
+{% macro lore(size="2rem", label="") -%}
+<iconify-icon icon="gis:story-map" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro menuburger(size="2rem") -%}
-<iconify-icon icon="ci:hamburger-lg" width="{{size}}"></iconify-icon>
+
+{% macro menuburger(size="2rem", label="") -%}
+<iconify-icon icon="ci:hamburger-lg" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro mic(size="2rem") -%}
-<iconify-icon icon="lucide:mic" width="{{size}}"></iconify-icon>
+
+{% macro mic(size="2rem", label="") -%}
+<iconify-icon icon="lucide:mic" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro map(size="2rem") -%}
-<iconify-icon icon="gis:hex-map" width="{{size}}"></iconify-icon>
+
+{% macro map(size="2rem", label="") -%}
+<iconify-icon icon="gis:hex-map" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro next(size="2rem") -%}
-<iconify-icon icon="tdesign:next" width="{{size}}"></iconify-icon>
+
+{% macro next(size="2rem", label="") -%}
+<iconify-icon icon="tdesign:next" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro outpost(size="2rem") -%}
-<iconify-icon icon="mdi:police-station" width="{{size}}"></iconify-icon>
+
+{% macro outpost(size="2rem", label="") -%}
+<iconify-icon icon="mdi:police-station" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro parent(size="2rem") -%}
-<iconify-icon icon="raphael:parent" width="{{size}}"></iconify-icon>
+
+{% macro parent(size="2rem", label="") -%}
+<iconify-icon icon="raphael:parent" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro planet(size="2rem") -%}
-<iconify-icon icon="material-symbols:planet" width="{{size}}"></iconify-icon>
+
+{% macro planet(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:planet" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro players(size="2rem") -%}
-<iconify-icon icon="game-icons:tabletop-players" width="{{size}}"></iconify-icon>
+
+{% macro players(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:tabletop-players" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro plus(size="2rem") -%}
-<iconify-icon icon="mdi:plus" width="{{size}}"></iconify-icon>
+
+{% macro plus(size="2rem", label="") -%}
+<iconify-icon icon="mdi:plus" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro previous(size="2rem") -%}
-<iconify-icon icon="tdesign:previous" width="{{size}}"></iconify-icon>
+
+{% macro previous(size="2rem", label="") -%}
+<iconify-icon icon="tdesign:previous" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro quest(size="2rem") -%}
-<iconify-icon icon="hugeicons:adventure" width="{{size}}"></iconify-icon>
+
+{% macro quest(size="2rem", label="") -%}
+<iconify-icon icon="hugeicons:adventure" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro question(size="2rem") -%}
-<iconify-icon icon="lets-icons:search-duotone" width="{{size}}"></iconify-icon>
+
+{% macro question(size="2rem", label="") -%}
+<iconify-icon icon="lets-icons:search-duotone" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro random(size="2rem") -%}
-<iconify-icon icon="game-icons:card-random" width="{{size}}"></iconify-icon>
+
+{% macro random(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:card-random" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro refresh(size="2rem") -%}
-<iconify-icon icon="tabler:refresh" width="{{size}}"></iconify-icon>
+
+{% macro refresh(size="2rem", label="") -%}
+<iconify-icon icon="tabler:refresh" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro regenerate(size="2rem") -%}
-<iconify-icon icon="game-icons:cycle" width="{{size}}"></iconify-icon>
+
+{% macro regenerate(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:cycle" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro region(size="2rem") -%}
-<iconify-icon icon="mdi:mountain" width="{{size}}"></iconify-icon>
+
+{% macro region(size="2rem", label="") -%}
+<iconify-icon icon="mdi:mountain" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro remove(size="2rem") -%}
-<iconify-icon icon="mdi:remove" width="{{size}}"></iconify-icon>
+
+{% macro remove(size="2rem", label="") -%}
+<iconify-icon icon="mdi:remove" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro search(size="2rem") -%}
-<iconify-icon icon="gala:search" width="{{size}}"></iconify-icon>
+
+{% macro search(size="2rem", label="") -%}
+<iconify-icon icon="gala:search" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro shop(size="2rem") -%}
-<iconify-icon icon="solar:shop-bold" width="{{size}}"></iconify-icon>
+
+{% macro shop(size="2rem", label="") -%}
+<iconify-icon icon="solar:shop-bold" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro sortascending(size="2rem") -%}
-<iconify-icon icon="mdi:sort-ascending" width="{{size}}"></iconify-icon>
+
+{% macro sortascending(size="2rem", label="") -%}
+<iconify-icon icon="mdi:sort-ascending" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro sortdescending(size="2rem") -%}
-<iconify-icon icon="mdi:sort-descending" width="{{size}}"></iconify-icon>
+
+{% macro sortdescending(size="2rem", label="") -%}
+<iconify-icon icon="mdi:sort-descending" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro star_system(size="2rem") -%}
-<iconify-icon icon="solar:sun-bold" width="{{size}}"></iconify-icon>
+
+{% macro star_system(size="2rem", label="") -%}
+<iconify-icon icon="solar:sun-bold" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro stop(size="2rem") -%}
-<iconify-icon icon="lucide:square" width="{{size}}"></iconify-icon>
+
+{% macro stop(size="2rem", label="") -%}
+<iconify-icon icon="lucide:square" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro story(size="2rem") -%}
-<iconify-icon icon="material-symbols:history-edu" width="{{size}}"></iconify-icon>
+
+{% macro story(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:history-edu" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro tech(size="2rem") -%}
-<iconify-icon icon="material-symbols:biotech" width="{{size}}"></iconify-icon>
+
+{% macro tech(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:biotech" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro text(size="2rem") -%}
-<iconify-icon icon="dashicons:text" width="{{size}}"></iconify-icon>
+
+{% macro text(size="2rem", label="") -%}
+<iconify-icon icon="dashicons:text" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro timeline(size="2rem") -%}
-<iconify-icon icon="mingcute:timeline-line" width="{{size}}"></iconify-icon>
+
+{% macro timeline(size="2rem", label="") -%}
+<iconify-icon icon="mingcute:timeline-line" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro top(size="2rem") -%}
-<iconify-icon icon="bxs:to-top" width="{{size}}"></iconify-icon>
+
+{% macro top(size="2rem", label="") -%}
+<iconify-icon icon="bxs:to-top" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro trash(size="2rem") -%}
-<iconify-icon icon="mdi:trash" width="{{size}}"></iconify-icon>
+
+{% macro trash(size="2rem", label="") -%}
+<iconify-icon icon="mdi:trash" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro unlink(size="2rem") -%}
-<iconify-icon icon="pixelarticons:unlink" width="{{size}}"></iconify-icon>
+
+{% macro unlink(size="2rem", label="") -%}
+<iconify-icon icon="pixelarticons:unlink" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro update(size="2rem") -%}
-<iconify-icon icon="grommet-icons:document-update" width="{{size}}"></iconify-icon>
+
+{% macro update(size="2rem", label="") -%}
+<iconify-icon icon="grommet-icons:document-update" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro vehicle(size="2rem") -%}
-<iconify-icon icon="fluent:vehicle-ship-16-filled" width="{{size}}"></iconify-icon>
+
+{% macro vehicle(size="2rem", label="") -%}
+<iconify-icon icon="fluent:vehicle-ship-16-filled" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}
 
-{% macro world(size="2rem") -%}
-<iconify-icon icon="mdi:world" width="{{size}}"></iconify-icon>
+
+{% macro world(size="2rem", label="") -%}
+<iconify-icon icon="mdi:world" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
 {%- endmacro %}

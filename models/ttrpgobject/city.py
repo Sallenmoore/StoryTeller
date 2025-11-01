@@ -28,6 +28,10 @@ class City(Place):
                     "type": "string",
                     "description": "A unique and evocative name",
                 },
+                "status": {
+                    "type": "string",
+                    "description": "current, immediate situation the city is in, such as thriving, in decline, recovering from a disaster, etc.",
+                },
                 "population": {
                     "type": "integer",
                     "description": "The population between 50 and 500000, with more weight on smaller populations",
@@ -71,7 +75,11 @@ class City(Place):
     def generate(self):
         self._funcobj["name"] = f"generate_{self.title.lower()}"
         self._funcobj["description"] = f"completes {self.title} data object"
-        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}."
+        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}. Inorporate the following details into the description:
+{f"- CULTURE: {self.culture}" if self.culture else ""}
+{f"- RELIGION: {self.religion}" if self.religion else ""}
+{f"- GOVERNMENT: {self.government}" if self.government else ""}
+"""
         obj_data = super().generate(prompt=prompt)
         self.save()
         return obj_data

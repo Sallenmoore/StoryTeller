@@ -338,7 +338,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 ===
 - Setting:
   - Genre: {self.genre}
-  - World Details: {self.world.backstory}
+  - World Details: {self.world.history}
   - Relevant World Events:
     - {"\n    - ".join([s.situation for s in self.world.stories]) if self.world.stories else "N/A"}
   - Geographic Details:
