@@ -1,9 +1,9 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro object_title(user, obj) -%}
-<div id="object-title" class="grid-container fluid bordered padding-bottom-1"
+<div id="object-title" class="grid-container fluid bordered"
      style='position:relative;'>
-    <div class="grid-x grid-padding-y align-middle">
+    <div class="grid-x grid-margin-y align-middle">
         <div class="cell text-center">
             <a href='/{{obj.path}}'>
                 <h1 id="object-name" class='text-primary'>
