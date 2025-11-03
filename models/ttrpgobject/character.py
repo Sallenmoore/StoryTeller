@@ -321,12 +321,31 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             score = get_attr_score(stat_key)
             target_schema["system"]["stats"][stat_key]["base"] = score
 
-        # 4. Map Narrative Fields (Biography and Goals)
-        skills_list = [
-            f"<li><strong>{k}:</strong> {v}</li>"
-            for k, v in source_data.get("skills", {}).items()
-            if v
-        ]
+        skill_items = []
+        SKILL_TYPES = ["combat", "noncombat", "psychic"]
+        for k, v in source_data.get("skills", {}).items():
+            # Determine the type. SWN system uses 'noncombat' for standard skills.
+            skill_type = "noncombat"
+
+            # The core requirement: A new Item document object for each skill.
+            skill_item = {
+                "name": k.trim(),
+                "type": "skill",  # Important: this must match the Item Type for SWN skills
+                "img": f"icons/svg/{skill_type}.svg",  # Default icon based on type
+                "system": {
+                    # SWN stores the score/level under 'level.value'
+                    "level": {
+                        "value": int(v)
+                        or 0,  # Convert string score ("-1", "0") to integer
+                        "max": 5,
+                    },
+                    # Other required fields for a minimal skill Item
+                    "description": "",
+                    "favorite": False,
+                },
+            }
+            skill_items += [skill_item]
+        target_schema["items"] = skill_items
 
         # Combine description fields into biography
         combined_biography = f"""
@@ -345,9 +364,6 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
             <h2>Detailed History</h2>
             {source_data.get("history", "")}
-
-            <h2>Skills (Reference Only)</h2>
-            <ul>{"".join(skills_list) if skills_list else "<li>No non-default skill values provided.</li>"}</ul>
         """
         target_schema["system"]["biography"] = combined_biography.strip()
         target_schema["system"]["goals"] = source_data.get("goal", "").strip()
