@@ -286,7 +286,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             # log(final_key, attr_key, source_data.get("attributes", {}))
             result = int(source_data.get("attributes", {}).get(final_key, 9))
             # log(result)
-            return result - 9
+            return result
 
         # 2. Map Core Fields (Name, Image, Health, AC, Speed)
         char_name = source_data.get("name", "Unknown Character").strip()
@@ -319,7 +319,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         # log(target_schema["system"]["stats"].keys())
         for stat_key in target_schema["system"]["stats"].keys():
             score = get_attr_score(stat_key)
-            target_schema["system"]["stats"][stat_key]["bonus"] = score
+            target_schema["system"]["stats"][stat_key]["base"] = score
 
         # 4. Map Narrative Fields (Biography and Goals)
         skills_list = [
