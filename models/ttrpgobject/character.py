@@ -182,6 +182,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
                 "intelligence": self.intelligence,
                 "charisma": self.charisma,
             },
+            "skills": self.skills,
             "abilities": [str(a) for a in self.abilities],
             "wealth": [w for w in self.wealth],
             "items": [{"name": r.name, "pk": str(r.pk)} for r in self.items],
@@ -329,7 +330,7 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 
             # The core requirement: A new Item document object for each skill.
             skill_item = {
-                "name": k.trim(),
+                "name": k,
                 "type": "skill",  # Important: this must match the Item Type for SWN skills
                 "img": f"icons/svg/{skill_type}.svg",  # Default icon based on type
                 "system": {
