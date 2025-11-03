@@ -24,10 +24,23 @@
                     </label>
                 </div>
             </div>
-            <h3>Report</h3>
-            {{form_components.richtexteditor(user, episode, 'episode_report')}}
-            <!-- display AI Generative buttons -->
         </form>
+
+        <div class="grid-x">
+            <div class="cell">
+                {{ manage_components.dates (user, episode) }}
+            </div>
+            <div class="cell">
+                <h3>Report</h3>
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{form_components.richtexteditor(user, episode, 'episode_report')}}
+                    <!-- display AI Generative buttons -->
+                </form>
+            </div>
+        </div>
+
+
         <div id="ai-buttons" class="grid-x grid-padding-x grid-padding-y align-right">
             <div class="cell small-shrink large-shrink">
                 <button class='button'
@@ -56,13 +69,7 @@
         </form>
 
     </div>
-    <div class="related-panel cell small-12 medium-4">
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
-              hx-trigger="input delay:1s, change">
-            <h3>Dates</h3>
-            {{ manage_components.dates (user, episode, stacked=True) }}
-        </form>
-
+    <div class="related-panel cell small-12 medium-4 bg-screen padding-1">
         <h3>Events</h3>
         <div class="grid-x align-spaced">
             <div class="cell shrink">
@@ -120,7 +127,7 @@
 </div>
 {%- endmacro %}
 
-{% macro episode_report(user, episode) -%}
+{# {% macro episode_report(user, episode) -%}
 <div class="grid-x">
     <div class="cell medium-8">
         <div class="grid-x align-spaced">
@@ -265,7 +272,7 @@
         {{associations(user, episode)}}
     </div>
 </div>
-{%- endmacro %}
+{%- endmacro %} #}
 
 
 {% macro associations(user, episode) -%}
@@ -334,42 +341,40 @@
             </div>
         </div>
         <hr>
-        <div class="callout">
-            {% if episode.encounters %}
-            {{ association_display(user, episode, episode.encounters, episode.world.get_title("Encounter")) }}
-            {% endif %}
-            {% if episode.locations %}
-            {{ association_display(user, episode, episode.locations, episode.world.get_title("Location")) }}
-            {% endif %}
-            {% if episode.shops %}
-            {{ association_display(user, episode, episode.shops, episode.world.get_title("Shop")) }}
-            {% endif %}
-            {% if episode.districts %}
-            {{ association_display(user, episode, episode.districts, episode.world.get_title("District")) }}
-            {% endif %}
-            {% if episode.characters %}
-            {{ association_display(user, episode, episode.characters, episode.world.get_title("Character")) }}
-            {% endif %}
-            {% if episode.creatures %}
-            {{ association_display(user, episode, episode.creatures, episode.world.get_title("Creature")) }}
-            {% endif %}
-            {% if episode.items %}
-            {{ association_display(user, episode, episode.items, episode.world.get_title("Item")) }}
-            {% endif %}
-            {% if episode.vehicles %}
-            {{ association_display(user, episode, episode.vehicles, episode.world.get_title("Vehicle")) }}
-            {% endif %}
-            {% if episode.factions %}
-            {{ association_display(user, episode, episode.factions, episode.world.get_title("Faction")) }}
-            {% endif %}
-            {% if episode.cities %}
-            {{ association_display(user, episode, episode.cities, episode.world.get_title("City")) }}
-            {% endif %}
-            {% if episode.regions %}
-            {{ association_display(user, episode, episode.regions, episode.world.get_title("Region")) }}
-            {% endif %}
+        {% if episode.encounters %}
+        {{ association_display(user, episode, episode.encounters, episode.world.get_title("Encounter")) }}
+        {% endif %}
+        {% if episode.locations %}
+        {{ association_display(user, episode, episode.locations, episode.world.get_title("Location")) }}
+        {% endif %}
+        {% if episode.shops %}
+        {{ association_display(user, episode, episode.shops, episode.world.get_title("Shop")) }}
+        {% endif %}
+        {% if episode.districts %}
+        {{ association_display(user, episode, episode.districts, episode.world.get_title("District")) }}
+        {% endif %}
+        {% if episode.characters %}
+        {{ association_display(user, episode, episode.characters, episode.world.get_title("Character")) }}
+        {% endif %}
+        {% if episode.creatures %}
+        {{ association_display(user, episode, episode.creatures, episode.world.get_title("Creature")) }}
+        {% endif %}
+        {% if episode.items %}
+        {{ association_display(user, episode, episode.items, episode.world.get_title("Item")) }}
+        {% endif %}
+        {% if episode.vehicles %}
+        {{ association_display(user, episode, episode.vehicles, episode.world.get_title("Vehicle")) }}
+        {% endif %}
+        {% if episode.factions %}
+        {{ association_display(user, episode, episode.factions, episode.world.get_title("Faction")) }}
+        {% endif %}
+        {% if episode.cities %}
+        {{ association_display(user, episode, episode.cities, episode.world.get_title("City")) }}
+        {% endif %}
+        {% if episode.regions %}
+        {{ association_display(user, episode, episode.regions, episode.world.get_title("Region")) }}
+        {% endif %}
 
-        </div>
     </div>
 </div>
 {%- endmacro %}
@@ -377,9 +382,9 @@
 {% macro association_display(user, episode, children, title) -%}
 <h3 class='text-center'> {{title}} </h3>
 <hr>
-<div class="grid-x">
+<div class="grid-x grid-margin-x align-spaced">
     {% for a in children %}
-    <div class="cell medium-2 is-mobile-6 episode-association-entry"
+    <div class="cell medium-4 small-6 episode-association-entry"
          style='position:relative;'>
         {{display_components.object_display(a, type=False, dim=250)}}
         <a style='position:absolute; top:0px; right:5px;'

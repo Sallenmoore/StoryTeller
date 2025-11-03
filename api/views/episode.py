@@ -160,15 +160,18 @@ def episodeassociationentry(pk, amodel, apk=None):
         for a in episode.campaign.associations:
             episode.add_association(a)
     elif amodel == "episodeassociations":
-        if len(episode.campaign.episodes) > 1:
-            for ep in episode.campaign.episodes:
-                if ep.episode_num == episode.episode_num - 1:
-                    for a in ep.associations:
-                        episode.add_association(a)
+        if pep := episode.previous_episode:
+            for a in pep.associations:
+                episode.add_association(a)
         else:
             log("no previous episodes")
     elif amodel == "players":
-        for p in episode.campaign.players:
+        players = (
+            episode.previous_episode.players
+            if episode.previous_episode
+            else episode.campaign.players
+        )
+        for p in players:
             episode.add_association(p)
     elif apk:
         obj = obj.world.get_model(amodel, apk)
@@ -181,7 +184,7 @@ def episodeassociationentry(pk, amodel, apk=None):
         new_ass = obj.world.get_model(amodel)(world=obj.world)
         new_ass.save()
         episode.add_association(new_ass)
-    return get_template_attribute("manage/_episode.html", "associations")(user, episode)
+    return get_template_attribute("manage/_episode.html", "manage")(user, episode)
 
 
 @episode_endpoint.route(
