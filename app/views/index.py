@@ -214,5 +214,5 @@ def obj_data(pk, model):
 )
 def foundry_export(pk, model):
     obj = World.get_model(model, pk)
-    log(obj)
+    log(obj.foundry_export())
     return obj.foundry_export()
