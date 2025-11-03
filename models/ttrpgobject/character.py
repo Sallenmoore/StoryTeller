@@ -273,15 +273,20 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         # Helper function to safely get attribute base score
         def get_attr_score(attr_key, default=9):
             # Source uses 'dexerity', target uses 'dex'
-            key_map = {"dexerity": "dex"}
-            final_key = key_map.get(attr_key, attr_key)
-
+            key_map = {
+                "dex": "dexerity",
+                "int": "intelligence",
+                "con": "constitution",
+                "wis": "wisdom",
+                "cha": "charisma",
+                "str": "strength",
+            }
+            final_key = key_map.get(attr_key)
             # We assume the source attribute scores are the Base scores
-            return int(
-                source_data.get("attributes", {}).get(
-                    final_key, source_data.get("attributes", {}).get(attr_key, default)
-                )
-            )
+            log(final_key, attr_key, source_data.get("attributes", {}))
+            result = int(source_data.get("attributes", {}).get(final_key, 9))
+            log(result)
+            return result - 9
 
         # 2. Map Core Fields (Name, Image, Health, AC, Speed)
         char_name = source_data.get("name", "Unknown Character").strip()
@@ -311,9 +316,10 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
         target_schema["system"]["level"]["value"] = int(source_data.get("level", 1))
 
         # 3. Map Attributes (Stats)
+        log(target_schema["system"]["stats"].keys())
         for stat_key in target_schema["system"]["stats"].keys():
             score = get_attr_score(stat_key)
-            target_schema["system"]["stats"][stat_key]["base"] = score
+            target_schema["system"]["stats"][stat_key]["bonus"] = score
 
         # 4. Map Narrative Fields (Biography and Goals)
         skills_list = [
