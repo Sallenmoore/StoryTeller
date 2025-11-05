@@ -15,9 +15,9 @@ from jinja2 import TemplateNotFound
 from autonomous import log
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
+from models.stories.encounter import Encounter
 from models.stories.quest import Quest  # for the importer
 from models.stories.story import Story
-from models.ttrpgobject.encounter import Encounter
 from models.world import World
 
 from ._utilities import loader as _loader

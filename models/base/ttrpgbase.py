@@ -295,19 +295,7 @@ class TTRPGBase(AutoModel):
 
     @property
     def traits_list(self):
-        return self.system._traits_list.get(
-            self.model_name().lower(),
-            [
-                "secretly evil",
-                "openly evil",
-                "openly neutral",
-                "secretly neutral",
-                "openly good",
-                "secretly good",
-                "dangerous",
-                "mysterious",
-            ],
-        )
+        return self.system._themes_list.get(self.model_name().lower())
 
     ########### CRUD Methods ###########
     def delete(self):
@@ -682,7 +670,7 @@ HISTORY
 
     def pre_save_traits(self):
         if not self.traits:
-            self.traits = random.choice(self.traits_list)
+            self.traits = f"{random.choice(self.traits_list['themes'])}; {random.choice(self.traits_list['motifs'])}"
 
     def post_save_journal(self):
         if not self.journal:

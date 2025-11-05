@@ -21,6 +21,7 @@ class Place(TTRPGObject):
     dungeon = StringAttr(default="")
     sensory_details = ListAttr(StringAttr(default=""))
     recent_events = ListAttr(StringAttr(default=""))
+    encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
 
     ################### Property Methods #####################
     @property

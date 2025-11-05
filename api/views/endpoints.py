@@ -2,16 +2,17 @@
 from datetime import datetime
 
 import requests
+from autonomous.auth.autoauth import AutoAuth
+from autonomous.tasks.autotask import AutoTasks
 
 # external Modules
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
-from autonomous.auth.autoauth import AutoAuth
-from autonomous.tasks.autotask import AutoTasks
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.images.image import Image
+from models.stories.encounter import Encounter
 from models.systems.fantasy import FantasySystem
 from models.systems.hardboiled import HardboiledSystem
 from models.systems.historical import HistoricalSystem
@@ -22,7 +23,6 @@ from models.systems.western import WesternSystem
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
-from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location

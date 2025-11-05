@@ -15,10 +15,10 @@ from flask import Blueprint, get_template_attribute, request
 from autonomous import log
 from models.campaign import Campaign
 from models.campaign.episode import Episode
+from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
-from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.vehicle import Vehicle

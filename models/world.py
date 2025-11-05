@@ -18,6 +18,7 @@ from models.campaign.campaign import Campaign
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
+from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.story import Story
 from models.systems import (
@@ -34,7 +35,6 @@ from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.district import District
-from models.ttrpgobject.encounter import Encounter
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
@@ -163,7 +163,6 @@ class World(TTRPGBase):
                 *self.factions,
                 *self.cities,
                 *self.locations,
-                *self.encounters,
                 *self.regions,
                 *self.vehicles,
                 *self.shops,

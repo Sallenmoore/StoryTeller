@@ -7,9 +7,9 @@ from autonomous.model.automodel import AutoModel
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.images.image import Image
+from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.quest import Quest
-from models.ttrpgobject.encounter import Encounter
 
 
 class Story(AutoModel):

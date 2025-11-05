@@ -194,7 +194,6 @@ class BaseSystem(AutoModel):
         "vehicle": "Vehicle",
         "district": "District",
         "item": "Item",
-        "encounter": "Encounter",
         "character": "Character",
     }
 
@@ -211,42 +210,6 @@ class BaseSystem(AutoModel):
 
     _currency = {
         "money": "gold pieces",
-    }
-
-    _music_lists = {
-        "social": ["themesong.mp3"],
-        "encounter": [
-            "skirmish4.mp3",
-            "skirmish3.mp3",
-            "skirmish2.mp3",
-            "skirmish1.mp3",
-        ],
-        "combat": [
-            "battle2.mp3",
-            "battle4.mp3",
-            "battle3.mp3",
-            "battle5.mp3",
-        ],
-        "exploration": ["relaxed1.mp3"],
-        "investigation": [
-            "creepy1.mp3",
-            "creepy2.mp3",
-            "creepy3.mp3",
-            "creepy4.mp3",
-            "creepy5.mp3",
-            "creepy6.mp3",
-            "creepy7.mp3",
-        ],
-        "puzzle": ["pursuit1.mp3", "puzzle2.mp3", "puzzle3.mp3", "puzzle4.mp3"],
-        "stealth": [
-            "suspense1.mp3",
-            "suspense2.mp3",
-            "suspense3.mp3",
-            "suspense4.mp3",
-            "suspense5.mp3",
-            "suspense6.mp3",
-            "suspense7.mp3",
-        ],
     }
 
     _map_prompts = {
@@ -283,189 +246,239 @@ class BaseSystem(AutoModel):
 {"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
     }
-    _traits_list = {
-        "city": [
-            "bohemian",
-            "rude",
-            "aggressive",
-            "proud",
-            "distrustful",
-            "anarchic",
-            "aristocratic",
-            "bureaucratic",
-            "theocratic",
-            "tribalist",
-        ],
-        "creature": [
-            "aggressive",
-            "cunning",
-            "deceptive",
-            "intelligent",
-            "loyal",
-            "savage",
-            "sneaky",
-            "vicious",
-        ],
-        "faction": [
-            "colonists",
-            "deep rooted",
-            "cult",
-            "suspicious",
-            "violent",
-            "sinister",
-            "fanatical",
-            "racist",
-            "egalitarian",
-            "ambitious",
-            "corrupt",
-            "charitable",
-            "greedy",
-            "generous",
-            "imperialist",
-            "isolationist",
-            "mercenary",
-        ],
-        "region": [
-            "coastal",
-            "mountainous",
-            "desert",
-            "forest",
-            "jungle",
-            "plains",
-            "swamp",
-            "frozen",
-            "underground",
-        ],
-        "world": [
-            "bohemian",
-            "rude",
-            "aggressive",
-            "proud",
-            "distrustful",
-            "anarchic",
-            "aristocratic",
-            "bureaucratic",
-            "theocratic",
-            "tribalist",
-        ],
-        "location": [
-            "bohemian",
-            "rude",
-            "aggressive",
-            "proud",
-            "distrustful",
-            "anarchic",
-            "aristocratic",
-            "bureaucratic",
-            "theocratic",
-            "tribalist",
-        ],
-        "shop": [
-            "bohemian",
-            "rude",
-            "aggressive",
-            "proud",
-            "distrustful",
-            "anarchic",
-            "aristocratic",
-            "bureaucratic",
-            "theocratic",
-            "tribalist",
-        ],
-        "vehicle": [
-            "fast",
-            "slow",
-            "stealthy",
-            "heavily armed",
-            "heavily armored",
-            "lightly armed",
-            "lightly armored",
-            "well designed",
-            "poorly designed",
-            "well maintained",
-            "poorly maintained",
-        ],
-        "district": [
-            "bohemian",
-            "rude",
-            "aggressive",
-            "proud",
-            "distrustful",
-            "anarchic",
-            "aristocratic",
-            "bureaucratic",
-            "theocratic",
-            "tribalist",
-        ],
-        "item": [
-            "common",
-            "uncommon",
-            "rare",
-            "very rare",
-            "legendary",
-            "artifacts",
-            "cursed",
-            "sentient",
-            "magical",
-            "mundane",
-            "unique",
-        ],
-        "encounter": [
-            "easy",
-            "difficult",
-            "deadly",
-            "ambush",
-            "puzzle",
-            "trap",
-            "combat",
-            "social",
-            "exploration",
-            "investigation",
-            "stealth",
-            "mystery",
-        ],
-        "character": [
-            "secretly evil",
-            "shy and gentle",
-            "outgoing and imaginative",
-            "unfriendly, but not unkind",
-            "cruel and sadistic",
-            "power-hungry and ambitious",
-            "kind and helpful",
-            "proud and self-absorbed",
-            "silly, a prankster",
-            "overly serious",
-            "incredibly greedy",
-            "extremely generous",
-            "hardworking",
-            "cowardly and insecure",
-            "practical to a fault",
-            "dangerously curious",
-            "cautious and occasionally paranoid",
-            "reckless, but heroic",
-            "Ambition",
-            "Avarice",
-            "Bitterness",
-            "Courage",
-            "Cowardice",
-            "Curiosity",
-            "Deceitfulness",
-            "Determination",
-            "Devotion to a cause",
-            "Filiality",
-            "Hatred",
-            "Honesty",
-            "Hopefulness",
-            "Love of a person",
-            "Nihilism",
-            "Paternalism",
-            "Pessimism",
-            "Protectiveness",
-            "Resentment",
-            "Shame",
-        ],
-    }
 
+    _themes_list = {
+        # -------------------------------------------------------------------------
+        # Character Themes & Motifs
+        # -------------------------------------------------------------------------
+        "character": {
+            "themes": [
+                "The Coward's Guilt (Shame, Resentment, Cowardice)",
+                "The Shadowed Heart (Secretly Evil, Cruel/Sadistic, Deceitfulness)",
+                "The Open Door (Outgoing/Imaginative, Kind/Helpful, Hopefulness)",
+                "The Iron Will (Determination, Proud/Self-Absorbed, Ambition)",
+                "The Generous Hand (Charitable, Extremely Generous, Love of a Person)",
+                "The Cautious Observer (Practical to a Fault, Paranoid, Unfriendly)",
+                "The Reckless Fire (Dangerously Curious, Reckless, Courage)",
+                "The Fading Light (Bitterness, Hatred, Nihilism, Pessimism)",
+                "The Unbroken Vow (Devotion to a Cause, Filiality, Honesty)",
+            ],
+            "motifs": [
+                "Hidden Scars, Flinching Eyes, Unfinished Work",
+                "Velvet Gloves, False Smiles, A Locket Containing Nothing",
+                "Bright Cloaks, A Hand-Drawn Map, Untroubled Laughter",
+                "Worn Armor, Measured Steps, The Mark of an Oath",
+                "Patched Clothes, Always Offering the Last Drink, A Shared Lullaby",
+                "Sealed Windows, Detailed Ledgers, Trust Only the Numbers",
+                "Singed Hair, A Broken Compass, A Challenge Accepted Instantly",
+                "Rust, Hollow Bells, A Graveyard of Personal Failures",
+                "Uniform Patches, Calloused Knees, The Same Prayer Repeated Daily",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # City, District, & Location Themes & Motifs
+        # -------------------------------------------------------------------------
+        "city": {
+            "themes": [
+                "The Gilded Cage (Aristocratic, Proud, Bureaucratic)",
+                "The Freehold of Bone (Anarchic, Aggressive, Tribalist)",
+                "The Sanctuary of the Word (Theocratic, Fanatical, Dogmatic)",
+                "The Melting Pot (Bohemian, Outgoing, Egalitarian)",
+                "The Walled Enclave (Distrustful, Insular, Isolationist)",
+                "The Unruly Markets (Rude & Greedy, Mercenary, Lawless)",
+            ],
+            "motifs": [
+                "Wrought-Iron Fences, Perfume and Rot, Monograms on Everything",
+                "Barricades, Graffiti Scrawled on Statues, Fires That Burn Unchecked",
+                "Stained Glass, Silent Bells, Books Chained to Pedestals",
+                "Street Food Stalls, Vibrant Flags, Music Heard from Every Doorway",
+                "Tall, Blank Walls, Locked Gates, Eyes Watching from Shadows",
+                "Unlicensed Vendors, Loud Haggling, Currency Exchange Bypassed",
+            ],
+        },
+        "district": {
+            "themes": [
+                "The Gilded Cage (Aristocratic, Proud, Bureaucratic)",
+                "The Freehold of Bone (Anarchic, Aggressive, Tribalist)",
+                "The Sanctuary of the Word (Theocratic, Fanatical, Dogmatic)",
+                "The Melting Pot (Bohemian, Outgoing, Egalitarian)",
+                "The Walled Enclave (Distrustful, Insular, Isolationist)",
+                "The Unruly Markets (Rude & Greedy, Mercenary, Lawless)",
+            ],
+            "motifs": [
+                "Wrought-Iron Fences, Perfume and Rot, Monograms on Everything",
+                "Barricades, Graffiti Scrawled on Statues, Fires That Burn Unchecked",
+                "Stained Glass, Silent Bells, Books Chained to Pedestals",
+                "Street Food Stalls, Vibrant Flags, Music Heard from Every Doorway",
+                "Tall, Blank Walls, Locked Gates, Eyes Watching from Shadows",
+                "Unlicensed Vendors, Loud Haggling, Currency Exchange Bypassed",
+            ],
+        },
+        "location": {
+            "themes": [
+                "The Gilded Cage (Aristocratic, Proud, Bureaucratic)",
+                "The Freehold of Bone (Anarchic, Aggressive, Tribalist)",
+                "The Sanctuary of the Word (Theocratic, Fanatical, Dogmatic)",
+                "The Melting Pot (Bohemian, Outgoing, Egalitarian)",
+                "The Walled Enclave (Distrustful, Insular, Isolationist)",
+                "The Unruly Markets (Rude & Greedy, Mercenary, Lawless)",
+            ],
+            "motifs": [
+                "Wrought-Iron Fences, Perfume and Rot, Monograms on Everything",
+                "Barricades, Graffiti Scrawled on Statues, Fires That Burn Unchecked",
+                "Stained Glass, Silent Bells, Books Chained to Pedestals",
+                "Street Food Stalls, Vibrant Flags, Music Heard from Every Doorway",
+                "Tall, Blank Walls, Locked Gates, Eyes Watching from Shadows",
+                "Unlicensed Vendors, Loud Haggling, Currency Exchange Bypassed",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # World Themes & Motifs
+        # -------------------------------------------------------------------------
+        "world": {
+            "themes": [
+                "The Age of Dogma (Theocratic, Fanatical, Bureaucratic)",
+                "The Age of Fiefdoms (Aristocratic, Tribalist, Proud)",
+                "The Age of Dust and Iron (Aggressive, Distrustful, Rude)",
+                "The Age of Discovery (Bohemian, Outgoing, Expansionist)",
+                "The Age of Whispers (Sinister, Deceptive, Corrupt)",
+            ],
+            "motifs": [
+                "Burnt Scrolls, Universal Curfew, Stone Tablets",
+                "Heraldry, Vassalage Oaths, Contempt for Outsiders",
+                "Scavenging, Rusty Weapons, Scars as Badges of Honor",
+                "Unmapped Coastlines, Exotic Cargo, The Smell of Adventure",
+                "Secret Societies, Hidden Traps, The Sound of a Footstep Behind You",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Creature Themes & Motifs
+        # -------------------------------------------------------------------------
+        "creature": {
+            "themes": [
+                "Unthinking Rage (Savage, Vicious, Aggressive)",
+                "Apex Predator Intellect (Intelligent, Cunning, Deceptive)",
+                "Silent Hunter (Sneaky, Ambusher, Cowardly)",
+                "Guardian Instinct (Loyal, Protective, Defensive)",
+            ],
+            "motifs": [
+                "Broken Teeth, Mindless Attack Patterns, A Trail of Shredded Flesh",
+                "Intricate Lairs, Traps Baited with Gold, Mimicking Human Speech",
+                "Rustling Leaves, Tracks That Vanish, Attacking from the High Ground",
+                "A Roar that Warns, A Barrier of Bone, Unwavering Gaze at the Protected Target",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Faction Themes & Motifs
+        # -------------------------------------------------------------------------
+        "faction": {
+            "themes": [
+                "The Gospel of Power (Ideology: Cult, Fanatical, Sinister)",
+                "The Golden Chain (Economic: Corrupt, Greedy, Imperialist)",
+                "The Earthbound Promise (Political: Deep Rooted, Isolationist, Racist)",
+                "The Open Hand (Economic: Charitable, Generous, Egalitarian)",
+                "The Iron Hand (Methodology: Suspicious, Violent, Mercenary)",
+                "The New Frontier (Political: Colonists, Ambitious, Expansionist)",
+            ],
+            "motifs": [
+                "Single Eye Symbols, Shaved Heads, Whispered Prophecies",
+                "Weighty Gold Coins, Debt Ledgers, Hidden Silk Pouches",
+                "Ancient Trees, Ancestral Marks, Unbroken Lineage Scrolls",
+                "Communal Baskets, Mended Tools, Simple Garb",
+                "Blood Money, Sharpened Blades, Scorn for Diplomacy",
+                "Fresh Paint, Claim Stakes, Seeds of New Crops",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Region Themes & Motifs
+        # -------------------------------------------------------------------------
+        "region": {
+            "themes": [
+                "The Spires of Stone (Terrain: Mountainous, Underground)",
+                "The Drowning Earth (Climate: Swamp, Coastal, Jungle)",
+                "The Sun-Blasted Wastes (Climate: Desert, Plains, Frozen)",
+                "The Emerald Shroud (Geography: Forest, Coastal)",
+                "The Heartlands (Terrain: Plains, Settlements)",
+            ],
+            "motifs": [
+                "Vertigo, Echoes, Deep Shadow, Stark Heights",
+                "Mist, Sticky Mud, Strange Bird Calls, Mold on Wood",
+                "Cracked Earth, White Snow, Silence, Relentless Horizon",
+                "Filtered Light, Unseen Paths, The Smell of Pine and Salt",
+                "Waving Wheat, Long, Flat Roads, Sense of Openness",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Shop Themes & Motifs
+        # -------------------------------------------------------------------------
+        "shop": {
+            "themes": [
+                "The Cozy Chaos (Atmosphere: Bohemian, Outgoing, Generous)",
+                "The Faint Hand of Law (Regulation: Anarchic, Distrustful)",
+                "The Bureaucratic Quagmire (Regulation: Bureaucratic, Overly Serious)",
+                "The Noble's Ledger (Governance: Aristocratic, Proud)",
+            ],
+            "motifs": [
+                "Messy Counter, Bartering Encouraged, Strong Coffee Smell",
+                "Back Room Deals, Barred Windows, No Visible Signage",
+                "Stamped Forms, Waiting Lines, Multiple Copies of Receipts",
+                "Velvet Ropes, High Prices, Only Deals in Silver",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Vehicle Themes & Motifs
+        # -------------------------------------------------------------------------
+        "vehicle": {
+            "themes": [
+                "The Silent Phantom (Performance: Stealthy, Fast, Lightly Armored)",
+                "The Mobile Fortress (Defense: Heavily Armored, Heavily Armed, Slow)",
+                "The Tinkerer's Dream (Quality: Well Designed, Well Maintained, Reliable)",
+                "The Rust Bucket (Quality: Poorly Designed, Poorly Maintained, Loud)",
+            ],
+            "motifs": [
+                "Dampening Fields, Sleek Black Hull, Invisible Wake",
+                "Rivets and Welds, Smoking Exhaust, Turret Guns",
+                "Polished Brass, Soft Suspension, Always Starts on the First Try",
+                "Squeaking Axles, Wire Repairs, Blue Smoke",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Item Themes & Motifs
+        # -------------------------------------------------------------------------
+        "item": {
+            "themes": [
+                "Echoes of Legend (Rarity: Legendary, Artifacts, Unique)",
+                "The Maddening Touch (Magic: Cursed, Sentient, Magical)",
+                "Simple Necessity (Value: Common, Mundane, Reliable)",
+                "The Collector's Prize (Rarity: Rare, Very Rare, Valuable)",
+            ],
+            "motifs": [
+                "Faint Humming, Runes That Shift, Warm to the Touch",
+                "Unwanted Whispers, A Shadow That Lingers, Causes Strange Dreams",
+                "Worn Leather, Consistent Function, No Stories Attached",
+                "Display Case, Security Wards, Written Appraisal",
+            ],
+        },
+        # -------------------------------------------------------------------------
+        # Encounter Themes & Motifs
+        # -------------------------------------------------------------------------
+        "encounter": {
+            "themes": [
+                "The Trial of Skill (Difficulty: Difficult, Deadly, Scenario: Combat)",
+                "The Fading Footprints (Conflict: Investigation, Scenario: Exploration, Mystery)",
+                "The Diplomatic Knot (Scenario: Social, Conflict: Ambush, Stealth)",
+                "The Test of Wits (Conflict: Puzzle, Trap, Difficulty: Easy/Difficult)",
+                "The Sudden Strike (Conflict: Ambush, Stealth, Scenario: Combat)",
+            ],
+            "motifs": [
+                "Bloodstains, Broken Weapons, The Ring of Steel",
+                "Old Maps, A Locked Journal, Dust Settling on a Desk",
+                "Cloaks and Daggers, A Poisoned Chalice, The Silence Before the Offer",
+                "Glyphs, Pressure Plates, A Riddle Engraved on a Door",
+                "Silence Followed by Chaos, Arrows from the Dark, Cries of Surprise",
+            ],
+        },
+    }
     ############# Class Methods #############
 
     @classmethod

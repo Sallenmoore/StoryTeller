@@ -77,7 +77,7 @@ class Region(Place):
         return [
             a
             for a in self.associations
-            if a.model_name() in ["Encounter", "Location", "City", "District"]
+            if a.model_name() in ["Location", "City", "District"]
         ]
 
     @property

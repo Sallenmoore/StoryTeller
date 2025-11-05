@@ -33,7 +33,6 @@ class Item(TTRPGObject):
         "City",
         "Region",
         "Character",
-        "Encounter",
     ]
     _funcobj = {
         "name": "generate_item",

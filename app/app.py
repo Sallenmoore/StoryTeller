@@ -74,16 +74,16 @@ def create_app():
 
     @app.errorhandler(HTTPException)
     def handle_exception(e):
-        log(
-            json.dumps(
-                {
-                    "code": e.code,
-                    "name": e.name,
-                    "description": e.description,
-                    # "trace": e.get_traceback(),
-                }
-            )
+        emsg = json.dumps(
+            {
+                "code": e.code,
+                "name": e.name,
+                "description": e.description,
+                "trace": e.get_traceback(),
+            }
         )
+        log(f"HTTP Exception: {emsg}")
+        # TODO: send email
         return render_template("error.html", url=request.url, error=e)
 
     # Register Blueprints

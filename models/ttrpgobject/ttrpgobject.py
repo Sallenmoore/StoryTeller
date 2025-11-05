@@ -54,10 +54,6 @@ class TTRPGObject(TTRPGBase):
         return [a for a in self.associations if a.model_name() == "District"]
 
     @property
-    def encounters(self):
-        return [a for a in self.associations if a.model_name() == "Encounter"]
-
-    @property
     def factions(self):
         return [a for a in self.associations if a.model_name() == "Faction"]
 
