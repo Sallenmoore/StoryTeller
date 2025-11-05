@@ -110,10 +110,6 @@
             </div>
         </div>
         <hr>
-        <h3>Associations</h3>
-        {{associations(user, episode)}}
-
-        <hr>
         <h3>Delete Episode</h3>
         <button class="button is-light has-text-dark"
                 hx-post="/api/campaign/episode/{{episode.pk}}/delete"
@@ -127,155 +123,8 @@
 </div>
 {%- endmacro %}
 
-{# {% macro episode_report(user, episode) -%}
-<div class="grid-x">
-    <div class="cell medium-8">
-        <div class="grid-x align-spaced">
-            <div class="cell shrink">
-                <div class="callout ">
-                    <div class="grid-x">
-                        <div class="cell shrink align-center-middle">
-                            <h4>Add Associated Stories</h4>
-                        </div>
-                        <div class="cell align-center-middle">
-                            <div class="select">
-                                <select class="has-bg-white" name='storypk'
-                                        hx-post="/api/{{episode.path}}/stories/add"
-                                        hx-target="#episode-stories-list"
-                                        hx-select="#episode-stories-list"
-                                        hx-swap="outerHTML"
-                                        hx-confirm="Are you sure you want to add this story to the episode?">>
-                                    <option value=""></option>
-                                    {%for story in episode.world.stories %}
-                                    {% if story not in episode.stories %}
-                                    <option value="{{story.pk}}">
-                                        {{story.name}}
-                                    </option>
-                                    {% endif %}
-                                    {%endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cell">
-                        <div id="episode-stories-list" class="grid-x">
-                            {% for story in episode.stories %}
-                            <div class="cell medium-2 episode-story-entry"
-                                 style="position: relative;">
-                                {{display_components.object_display(story, type=False)}}
-                                <a style='position:absolute; top:0px; right:5px;'
-                                   hx-post="/api/{{episode.path}}/stories/{{story.pk}}/delete"
-                                   hx-trigger="click consume"
-                                   hx-target="closest .episode-story-entry" hx-swap="delete"
-                                   hx-confirm="Are you sure you want to remove this story from the episode?">
-                                    <iconify-icon icon="mdi:remove"
-                                                  width="1rem"></iconify-icon>
-                                </a>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <form hx-post="/api/episode/{{episode.pk}}/update"
-              hx-swap='none'
-              hx-trigger='input delay:1s, change'>
-            <div class="tabs">
-                <ul class="tabs__list has-centered ">
-                    <li class='is-active'><a>Report</a></li>
-                    <li><a>Loot</a></li>
-                    <li><a>Hooks</a></li>
-                    <li><a>Planning</a></li>
-                </ul>
-            </div>
-            <hr>
-            <script>
-                const tabs = document.querySelectorAll('.tabs ul li a');
-                tabs.forEach((tab) => {
-                    tab.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const targetText = tab.textContent.trim().toLowerCase();
-                        document.querySelectorAll('#episode-report-container, #episode-loot-container, #episode-planning-container, #episode-hooks-container').forEach((container) => {
-                            if (container.id.includes(targetText)) {
-                                container.classList.remove('is-hidden');
-                                container.classList.add('is-active');
-                            } else {
-                                container.classList.add('is-hidden');
-                                container.classList.remove('is-active');
-                            }
-                        });
-                    });
-                });
-            </script>
-            <div id="episode-planning-container" class=" is-hidden">
-                <h3 class='text-center'>Planning</h3>
-                {{form_components.texteditor(user, episode, 'description')}}
-            </div>
-            <div id="episode-report-container">
-                <div class="grid-x has-centered">
-                    <div class="cell shrink">
-                        <h3 class='text-center'>Report</h3>
-                    </div>
-                    <div class="cell shrink">
-                        <button class='button small'
-                                hx-post='/task/generate/campaign/episode/{{episode.pk}}/report'>
-                            Punch Up Report
-                        </button>
-                    </div>
-                </div>
-                {{form_components.texteditor(user, episode, 'episode_report')}}
-            </div>
-            <div id="episode-loot-container" class="  is-hidden">
-                <hr>
-                <h3 class='text-center'>Loot</h3>
-                {{form_components.texteditor(user, episode, 'loot')}}
-            </div>
-            <div id="episode-hooks-container" class=" is-hidden">
-                <hr>
-                <h3 class='text-center'>Hooks</h3>
-                {{form_components.texteditor(user, episode, 'hooks')}}
-            </div>
-        </form>
-    </div>
-    <div id="episode-events" class="cell medium-4">
-        <hr>
-        <h3 class='text-center'>Events</h3>
-        <div class="grid-x align-spaced">
-            {% for event in episode.events %}
-            <div class="cell medium-4">
-                {{display_components.object_display(event, type=False)}}
-            </div>
-            {% endfor %}
-        </div>
-        <div class="grid-x">
-            <div class="cell">
-                <input autocomplete="off" type="search" name="query"
-                       placeholder='Search Events to Add'
-                       style="border-bottom: solid #000;"
-                       hx-post="/api/{{episode.path}}/events/add/search"
-                       hx-target="#episode-new-events-list"
-                       hx-trigger="input changed delay:500ms consume">
-                <ul class="dropdown menu" data-dropdown-menu id="episode-new-events-list">
-                </ul>
-            </div>
-            <div class="cell">
-                <button class='button smallwidth'
-                        hx-post='/api/{{episode.path}}/event/generate'
-                        hx-target='#page-content'>
-                    Generate Event From Episode
-                </button>
-            </div>
-        </div>
-        <hr>
-        <h3 class='text-center'>Manage Associations</h3>
-        {{associations(user, episode)}}
-    </div>
-</div>
-{%- endmacro %} #}
 
-
-{% macro associations(user, episode) -%}
+{# {% macro associations(user, episode) -%}
 <div id="episode-associations" class="grid-x">
     <div class="cell">
         <h5>Add New...</h5>
@@ -341,9 +190,6 @@
             </div>
         </div>
         <hr>
-        {% if episode.encounters %}
-        {{ association_display(user, episode, episode.encounters, episode.world.get_title("Encounter")) }}
-        {% endif %}
         {% if episode.locations %}
         {{ association_display(user, episode, episode.locations, episode.world.get_title("Location")) }}
         {% endif %}
@@ -374,7 +220,6 @@
         {% if episode.regions %}
         {{ association_display(user, episode, episode.regions, episode.world.get_title("Region")) }}
         {% endif %}
-
     </div>
 </div>
 {%- endmacro %}
@@ -418,4 +263,4 @@
     </a>
 </li>
 {% endfor %}
-{%- endmacro%}
+{%- endmacro%} #}

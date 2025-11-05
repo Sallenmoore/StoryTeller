@@ -9,6 +9,7 @@ import random
 
 import markdown
 import requests
+from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 from dmtoolkit import dmtools
 from flask import Blueprint, get_template_attribute, request
@@ -17,6 +18,7 @@ from slugify import slugify
 from autonomous import log
 from models.images.map import Map
 from models.journal import JournalEntry
+from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.quest import Quest
 from models.stories.story import Story
@@ -96,7 +98,7 @@ def addlistitem(attr):
 @manage_endpoint.route("/delete/<string:model>/<string:pk>", methods=("POST",))
 def delete(model, pk):
     user, obj, request_data = _loader()
-    obj = obj.world.get_model(model, pk)
+    obj = AutoModel.get_model(model, pk)
     world = obj.world
     obj.delete()
     return get_template_attribute("models/_world.html", "history")(user, world)
@@ -174,7 +176,7 @@ def map_prompt_reset(pmodel, ppk):
 )
 def map_pois(pmodel, ppk):
     user, obj, request_data = _loader()
-    obj = World.get_model(pmodel, ppk)
+    obj = AutoModel.get_model(pmodel, ppk)
     response = []
     for coord in obj.map.coordinates:
         response += [
@@ -196,8 +198,8 @@ def map_pois(pmodel, ppk):
 )
 def map_poi_add(pmodel, ppk, amodel, apk):
     user, obj, request_data = _loader()
-    obj = World.get_model(pmodel, ppk)
-    poi = World.get_model(amodel, apk)
+    obj = AutoModel.get_model(pmodel, ppk)
+    poi = AutoModel.get_model(amodel, apk)
     if poi not in obj.associations:
         raise ValueError(
             f"POI {poi} is not an association of {obj}. Please add it first."
@@ -213,8 +215,8 @@ def map_poi_add(pmodel, ppk, amodel, apk):
 )
 def map_poi_update(pmodel, ppk, amodel, apk):
     user, obj, request_data = _loader()
-    obj = World.get_model(pmodel, ppk)
-    poi = World.get_model(amodel, apk)
+    obj = AutoModel.get_model(pmodel, ppk)
+    poi = AutoModel.get_model(amodel, apk)
     if poi not in obj.associations:
         raise ValueError(
             f"POI {poi} is not an association of {obj}. Please add it first."
@@ -248,7 +250,7 @@ def update_journal_entry(entrypk=None):
     user, obj, request_data = _loader()
     associations = []
     for association in request.json.get("associations", []):
-        if obj := World.get_model(association.get("model"), association.get("pk")):
+        if obj := AutoModel.get_model(association.get("model"), association.get("pk")):
             associations.append(obj)
     kwargs = {
         "title": request.json.get("name"),
@@ -300,7 +302,7 @@ def journal_add_association(entrypk=None):
     user, obj, request_data = _loader()
     entrypk = request.json.get("entrypk")
     if entry := obj.journal.get_entry(entrypk):
-        if association := World.get_model(
+        if association := AutoModel.get_model(
             request.json.get("ass_model"), request.json.get("ass_pk")
         ):
             entry.associations.append(association)
@@ -335,9 +337,10 @@ def association_search():
 )
 def association_add(amodel, apk=None):
     user, obj, request_data = _loader()
-    child = World.get_model(amodel, apk)
-    if not child:
-        model = World.get_model(amodel)
+    child = AutoModel.get_model(amodel, apk)
+    log(child)
+    if not apk:
+        model = AutoModel.get_model(amodel)
         child = model(world=obj.world, name="New " + obj.get_title(model))
         child.save()
     if child:
@@ -728,6 +731,31 @@ def factionleader(leader_pk):
 ###########################################################
 ##                Encounter Routes                    ##
 ###########################################################
+@manage_endpoint.route("/<string:model>/<string:pk>/encounter/add", methods=("POST",))
+def encountercreate(model, pk):
+    user, obj, request_data = _loader()
+    if place := World.get_model(model, pk):
+        place.save()
+        if place.model_name() not in [
+            "Location",
+            "City",
+            "District",
+            "Shop",
+            "Vehicle",
+            "Region",
+        ]:
+            raise ValueError(
+                "Encounters can only be added to Locations, Cities, District, Shop, Vehicle, or Region"
+            )
+        encounter = Encounter(world=obj.world, parent=place, name="New Encounter")
+        encounter.associations = place.associations
+        encounter.associations += [place]
+        encounter.save()
+        place.encounters += [encounter]
+        place.save()
+    return get_template_attribute(f"models/_{model.lower()}.html", "gmnotes")(user, obj)
+
+
 @manage_endpoint.route("/encounter/toevent", methods=("POST",))
 def encountertoevent():
     user, obj, request_data = _loader()

@@ -22,7 +22,7 @@ class Image(AutoModel):
     prompt = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
     associations = ListAttr(
-        ReferenceAttr(choices=["TTRPGBase", "Story", "Event", "Episode"])
+        ReferenceAttr(choices=["TTRPGBase", "Story", "Event", "Episode", "Encounter"])
     )
 
     ################### Class Variables #####################

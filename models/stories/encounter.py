@@ -16,7 +16,6 @@ class Encounter(AutoModel):
     desc = StringAttr(default="")
     theme = StringAttr(default="")
     image = ReferenceAttr(choices=[Image])
-    journal = ReferenceAttr(choices=[Journal])
     world = ReferenceAttr(choices=["World"], required=True)
     associations = ListAttr(ReferenceAttr(choices=["TTRPGBase"]))
     parent = ReferenceAttr(choices=["Place"])
@@ -30,14 +29,15 @@ class Encounter(AutoModel):
     mechanics = StringAttr(default="")
     notes = StringAttr(default="")
 
-    parent_list = ["Location", "City", "District", "Region", "Shop"]
-    _encounter_type = {
+    parent_list = ["Location", "City", "District", "Region", "Shop", "Vehicle"]
+    _encounter_types = {
         "skill challenge": "Set up a scenario that players will need to roll 3 successful DC CHECKS to complete. A subset of primary skill s>=+1) will have advantage, secondary skills (+0) will be a straight rooll, and other skills (-1) will be at disadvantage. Describe the outcome on 3 fails and the outcome on 3 successes.",
         "combat": "Set up a combat encounter with enemies appropriate to the players' level and abilities. Describe the environment and any obstacles or hazards present. List the enemies present and any special abilities or tactics they may use. Describe the initiative order and any special rules or conditions that apply to the combat.",
         "social interaction": "Set up a social encounter with NPCs that have their own motivations and personalities. Describe the setting and any relevant background information about the NPCs. List the NPCs present and any special abilities or tactics they may use. Describe the goals and objectives of the NPCs and how they may interact with the players",
         "puzzle or trap": "Set up a puzzle or trap that players will need to solve or overcome describe the environment and any clues or hints that may be present list the mechanics of the puzzle or trap and any special rules or conditions that apply describe the consequences of failure and any rewards for success",
+        "stealth": "Set up a stealth encounter where players will need to avoid detection by enemies or obstacles describe the environment and any relevant background information about the enemies or obstacles list the enemies or obstacles present and any special abilities or tactics they may use describe the mechanics of stealth and any special rules or conditions that apply describe the consequences of failure and any rewards for success",
     }
-    _difficulty_list = [
+    difficulty_list = [
         "trivial",
         "easy",
         "medium",
@@ -134,7 +134,7 @@ class Encounter(AutoModel):
         return f"""
         A full color illustrated image of the following TTRPG encounter:
         {self.desc}
-        {f"with the following preparing for battle: \n{enemies_str}" if self.enemies else ""}
+        {f"with the following preparing: \n{enemies_str}" if self.enemies else ""}
         """
 
     @property
@@ -191,8 +191,20 @@ class Encounter(AutoModel):
         return self.world.genre.lower()
 
     @property
+    def geneology(self):
+        geneology = []
+        if self.parent:
+            geneology.append(self.parent)
+            geneology += self.parent.geneology
+        return geneology
+
+    @property
     def locations(self):
         return [a for a in self.associations if a.model_name() == "Location"]
+
+    @property
+    def path(self):
+        return f"encounter/{self.pk}"
 
     @property
     def regions(self):
@@ -212,16 +224,12 @@ class Encounter(AutoModel):
         return self.world.system
 
     @property
+    def title(self):
+        return self.model_name()
+
+    @property
     def themes_list(self):
         return self.system._themes_list.get(self.model_name().lower())
-
-    @property
-    def title(self):
-        return self.get_title(self)
-
-    @property
-    def titles(self):
-        return self.world.system._titles
 
     @property
     def user(self):
@@ -258,7 +266,7 @@ class Encounter(AutoModel):
         prompt = f"""Generate a {self.genre} TTRPG encounter scenario using the following guidelines:
 - CONTEXT: {context}
 - ENEMY TYPE: {enemy_type}
-- ENCOUNTER TYPE: {self.encounter_type}
+- ENCOUNTER TYPE: {self._encounter_types[self.encounter_type] if self.encounter_type in self._encounter_types else "a generic encounter appropriate to the setting and enemy type"}
 {f"- NAME: {self.name}" if self.name else ""}
 {f"- LOCATION: {desc}" if desc else ""}
 {f"- DESCRIPTION: {desc}" if desc else ""}
@@ -277,18 +285,83 @@ class Encounter(AutoModel):
 - Additional Associated World Elements:
 """
             for ass in associations:
-                if ass not in self.geneology and ass.name and ass.backstory:
+                if ass.name and ass.backstory:
                     prompt += f"""
   - Type: {ass.title}
     - Name: {ass.name}
-    - Backstory: {ass.backstory}
+    - Backstory: {ass.history or ass.backstory}
 """
-        if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
+        if results := self.system.generate(self, prompt=prompt, funcobj=self._funcobj):
             for k, v in results.items():
                 setattr(self, k, v)
             self.save()
+            self.generate_image()
         log(results, _print=True)
         return results
+
+    def generate_image(self):
+        # MARK: generate_image
+        if self.image and self in self.image.associations:
+            if len(self.image.associations) <= 1:
+                log("deleting image", self.image, _print=True)
+                self.image.delete()
+            else:
+                self.image.associations.remove(self)
+                self.image.save()
+        if image := Image.generate(
+            prompt=self.image_prompt, tags=["encounter", self.world.name]
+        ):
+            self.image = image
+            self.image.associations += [self]
+            self.image.save()
+            self.save()
+        else:
+            log(self.image_prompt, "Image generation failed.", _print=True)
+        return self.image
+
+    ############# Association Methods #############
+    # MARK: Associations
+    def add_association(self, obj):
+        # log(len(obj.associations), self in obj.associations)
+        if obj not in self.associations:
+            self.associations += [obj]
+            self.save()
+        # log(len(obj.associations), self in obj.associations)
+
+        # log(len(self.associations), obj in self.associations)
+        if self.parent and obj.model_name() in self.parent_list:
+            self.parent = obj
+            self.save()
+        return obj
+
+    def add_associations(self, objs):
+        for obj in objs:
+            self.add_association(obj)
+        return self.associations
+
+    def remove_association(self, obj):
+        log(
+            f"Association: {obj.name}, Removing association: {obj in self.associations}"
+        )
+        if obj in self.associations:
+            # log(f"Removing association: {obj.name} from {self.name}")
+            # log(f"Before removal: {len(self.associations)} associations")
+            self.associations.remove(obj)
+            self.save()
+            log(f"After reciprocal removal: {len(self.associations)} associations")
+        log(
+            f"Associations: {obj.name}, Removed association: {obj not in self.associations}"
+        )
+        return self.associations
+
+    def has_associations(self, model):
+        log(model)
+        if not isinstance(model, str):
+            model = model.__name__
+        for assoc in self.associations:
+            if assoc.model_name() == model:
+                return True
+        return False
 
     ################## Instance Methods ##################
 
@@ -330,10 +403,9 @@ class Encounter(AutoModel):
         document.pre_save_image()
         document.pre_save_traits()
 
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
-        document.post_save_journal()
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
@@ -365,9 +437,3 @@ class Encounter(AutoModel):
     def pre_save_traits(self):
         if not self.theme:
             self.theme = f"{random.choice(self.themes_list['themes'])}; {random.choice(self.themes_list['motifs'])}"
-
-    def post_save_journal(self):
-        if not self.journal:
-            self.journal = Journal(world=self.world, parent=self)
-            self.journal.save()
-            self.save()

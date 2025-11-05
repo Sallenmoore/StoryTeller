@@ -12,7 +12,7 @@
 
 
 {% macro index(user, obj) -%}
-{{history(user, obj)}}
+{{details(user, obj)}}
 {%- endmacro %}
 
 {% macro menu(user, obj) -%}
@@ -32,90 +32,21 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/history"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/history">
+    <a href="/{{obj.story.path}}">
         <div class="grid-x">
             <div class="cell shrink">
-                {{icon_components.history(size="1rem")}}
+                {{icon_components.details(size="1rem")}}
             </div>
             <div class="cell auto">
-                <span>History</span>
+                <span>Story</span>
             </div>
         </div>
     </a>
 </li>
-{% if user.world_user(obj) %}
-<li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/journal">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.journal(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>Journal</span>
-            </div>
-        </div>
-    </a>
-</li>
-{% endif %}
-{%- endmacro %}
-
-{% macro history(user, obj) -%}
-{{history_components.history(user, obj)}}
 {%- endmacro %}
 
 {% macro details(user, obj) -%}
-{{details_components.details(user, obj)}}
-{%- endmacro %}
-
-{% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="callout">
-    <h3 class='text-center'>GM Notes</h3>
-    <div class="grid-x">
-        <div class="cell medium-6">
-            <h5>Summary</h5>
-            <div class="callout">
-                {{obj.backstory_summary | safe}}
-            </div>
-        </div>
-        <div class="cell medium-6">
-            <h5>Notes</h5>
-            <div class="callout">
-                {{obj.notes | safe}}
-            </div>
-        </div>
-        <div class="cell">
-            <h5>Mechanics</h5>
-            <div class="callout">
-                {{obj.mechanics | safe}}
-            </div>
-        </div>
-        {% if obj.enemies %}
-        <div class="cell">
-            <h5>Antagonists</h5>
-            <div class="callout">
-                <div class="grid-x align-spaced">
-                    {% for sd in obj.enemies %}
-                    <div class="cell medium-2">
-                        {{display_components.object_display(sd)}}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro info(user, obj=None) -%}
-<div class="grid-x align-spaced">
+<div class="grid-x align-spaced grid-margin-x">
     <div class="cell shrink">
         <div class="callout">
             <div class="grid-x">
@@ -140,6 +71,25 @@
             </div>
         </div>
     </div>
+    <div class="cell auto">
+        <div class="callout">
+            <h5>Notes</h5>
+            {{obj.notes | safe}}
+        </div>
+    </div>
+</div>
+<div class="callout ">
+    <div class="grid-x grid-margin-x">
+        <div class="cell auto generated-text-lightbg">
+            <h3 class='text-center'>Backstory</h3>
+            {{obj.backstory | safe}}
+        </div>
+        {% if obj.image %}
+        <div class="cell medium-3 generated-text-lightbg">
+            <img src="{{obj.image.url()}}" alt="Image for {{obj.name}}">
+        </div>
+        {% endif %}
+    </div>
 </div>
 <div class="grid-x">
     {% if user.world_user(obj)%}
@@ -150,24 +100,27 @@
                 {{obj.trigger_conditions | safe}}
             </span>
         </div>
-        <hr>
     </div>
-    <div class="cell medium-6">
-        <h3>Player Contingencies</h3>
-        <ul>
-            {% for pc in obj.player_contingencies %}
-            <li>{{ pc | safe }}</li>
-            {% endfor %}
-        </ul>
+    <div class="cell">
+        <div class="callout">
+            <h3>Mechanics</h3>
+            {{obj.mechanics | safe}}
+        </div>
     </div>
-    <div class="cell medium-6">
-        <h3>Potential Outcomes</h3>
-        <ul>
-            {% for pc in obj.potential_outcomes %}
-            <li>{{ pc | safe }}</li>
-            {% endfor %}
-        </ul>
+    {% if obj.enemies %}
+    <div class="cell">
+        <h3>Antagonists</h3>
+        <div class="callout">
+            <div class="grid-x align-spaced">
+                {% for sd in obj.enemies %}
+                <div class="cell medium-2">
+                    {{display_components.object_display(sd, type=False)}}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
+    {% endif %}
     <div class="cell">
         <div class="callout ">
             <h3>Complications</h3>
@@ -176,12 +129,18 @@
             </span>
         </div>
     </div>
+    <div class="cell">
+        <div class="callout">
+            <h3>Potential Consequences</h3>
+            <ul>
+                {% for pc in obj.potential_consequences %}
+                <li>{{ pc | safe }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
     {% endif %}
 </div>
-{%- endmacro %}
-
-{% macro journal(user, obj)%}
-{{journal_components.journal(user, obj)}}
 {%- endmacro %}
 
 {% macro stories(user, obj)%}

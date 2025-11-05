@@ -144,6 +144,22 @@
         </div>
     </a>
 </li>
+{% if user.world_user(obj) %}
+<li>
+    <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML"
+       hx-push-url=" /{{obj.path}}/gmnotes">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.gamemaster(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>GM Notes</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
 {%- endmacro %}
 
 {% macro history(user, obj) -%}
@@ -155,44 +171,62 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" lass="callout">
+<div id="gmnotes">
     <h3 class='text-center'>GM Notes</h3>
-    <div class="grid-x">
-        <div class="cell medium-8">
-            <h5> Details</h5>
-            <div class="callout ">
-                <ul>
-                    <li>{{obj.description_summary | safe}}</li>
-                    {% for sd in obj.sensory_details %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
+    <div class="grid-x grid-margin-x">
+        <div class="cell auto">
+            <div class="grid-x">
+                <div class="cell">
+                    <div class="callout">
+                        <h5> Details</h5>
+                        <ul>
+                            <li>{{obj.description_summary | safe}}</li>
+                            {% for sd in obj.sensory_details %}
+                            <li>{{ sd | safe }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="cell">
+
+                    <div class="callout">
+                        <h5>Current Status</h5>
+                        {{obj.status | safe}}
+                    </div>
+                </div>
+                <div class="cell">
+
+                    <div class="callout ">
+                        <h5>Rumors</h5>
+                        <ul>
+                            {% for r in obj.rumors + obj.recent_events %}
+                            <li>
+                                {{ r | safe }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="cell">
-            <h5>Current Status</h5>
+        <div class="cell medium-4">
             <div class="callout">
-                {{obj.status | safe}}
-            </div>
-        </div>
-        <div class="cell">
-            <h5>Rumors</h5>
-            <div class="callout ">
-                <ul>
-                    {% for r in obj.rumors + obj.recent_events %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="cell">
-            <h5>Encounters</h5>
-            <div class="callout">
-                <div class="grid-x align-spaced">
+                <h5>Encounters</h5>
+                <div class="grid-x">
+                    <div class="cell shrink">
+                        <button class="button small"
+                                hx-post="/api/manage/{{obj.path}}/encounter/add"
+                                hx-target="#encounter-list"
+                                hx-select="#encounter-list"
+                                hx-swap="outerHTML"
+                                hx-indicator="#request-indicator">
+                            {{icon_components.add(size="1rem")}} Add Encounter
+                        </button>
+                    </div>
+                </div>
+                <div id="encounter-list" class="grid-x align-spaced">
                     {% for encounter in obj.encounters %}
-                    <div class="cell medium-2">
+                    <div class="cell medium-3">
                         {{ display_components.object_display(encounter, type=False) }}
                     </div>
                     {% endfor %}

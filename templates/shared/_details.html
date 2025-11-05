@@ -15,7 +15,7 @@
         </div>
         {% endif %}
     </div>
-    {%if obj.model_name() != "World" and not(obj.model_name() == "Creature" and obj.group) %}
+    {%if obj.model_name() not in ["World", "Creature", "Encounter"] %}
     <div class="grid-x align-center">
         {% if obj.start_date and obj.start_date.year > 0 %}
         <div class="cell shrink">
@@ -37,18 +37,16 @@
     </div>
     {%endif%}
     <hr>
-    <span hx-get="/api/{{obj.path}}/gmnotes" hx-trigger="load" hx-swap="outerHTML"></span>
-    <hr>
     <span hx-get="/api/{{obj.path}}/info" hx-trigger="load" hx-swap="outerHTML"></span>
-    <hr>
-    <div class="callout generated-text-lightbg">
-        <h3 class='text-center'>Description</h3>
-        {{obj.description | safe}}
-    </div>
     <hr>
     <div class="callout generated-text-lightbg">
         <h3 class='text-center'>Backstory</h3>
         {{obj.backstory | safe}}
+    </div>
+    <hr>
+    <div class="callout generated-text-lightbg">
+        <h3 class='text-center'>Description</h3>
+        {{obj.description | safe}}
     </div>
 </div>
 {%- endmacro %}

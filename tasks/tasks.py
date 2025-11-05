@@ -29,11 +29,8 @@ from models.world import World
 # Tasks
 ####################################################################################################
 def _generate_task(model, pk):
-    if obj := World.get_model(model, pk):
+    if obj := AutoModel.get_model(model, pk):
         obj.generate()
-        obj.resummarize()
-        if not obj.image:
-            obj.generate_image()
     return {"url": f"/api/{obj.path}/manage"}
 
 

@@ -12,18 +12,6 @@ class SciFiSystem(BaseSystem):
         "credits": "cc",
     }
 
-    _music_lists = BaseSystem._music_lists | {
-        "social": ["scifithemesong.mp3"],
-        "encounter": ["scifipursuit.mp3"],
-        "combat": [
-            "scifibattle.mp3",
-        ],
-        "exploration": ["scificreepy.mp3", "scifisuspense.mp3"],
-        "stealth": [
-            "scifisuspense.mp3",
-        ],
-    }
-
     _titles = {
         "city": "Planet",
         "creature": "Alien",

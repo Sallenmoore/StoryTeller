@@ -45,10 +45,6 @@ class Campaign(AutoModel):
         return [a for a in self.associations if a.model_name() == "Creature"]
 
     @property
-    def encounters(self):
-        return [a for a in self.associations if a.model_name() == "Encounter"]
-
-    @property
     def events(self):
         return [e for ep in self.episodes for e in ep.events]
 

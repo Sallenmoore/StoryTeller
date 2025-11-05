@@ -57,12 +57,15 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "Creature"]
 
     @property
-    def encounters(self):
-        return [a for a in self.associations if a.model_name() == "Encounter"]
-
-    @property
     def events(self):
         return [e for e in Event.search(world=self.world) if self in e.episodes]
+
+    @property
+    def encounters(self):
+        encs = []
+        for p in self.places:
+            encs += p.encounters
+        return encs
 
     @property
     def factions(self):
@@ -113,7 +116,14 @@ class Episode(AutoModel):
 
     @property
     def places(self):
-        return [a for a in [*self.scenes, *self.cities, *self.regions]]
+        return [
+            *self.locations,
+            *self.districts,
+            *self.vehicles,
+            *self.cities,
+            *self.regions,
+            *self.shops,
+        ]
 
     @property
     def previous_episode(self):
@@ -141,12 +151,6 @@ class Episode(AutoModel):
     @property
     def vehicles(self):
         return [a for a in self.associations if a.model_name() == "Vehicle"]
-
-    @property
-    def scenes(self):
-        return [
-            a for a in self.associations if a.model_name() in ["Location", "District"]
-        ]
 
     @property
     def start_date(self):
@@ -338,6 +342,12 @@ class Episode(AutoModel):
         if document.story and document.story not in document.stories:
             document.stories += [document.story]
             document.story = None
+
+        ##### MIGRATION: Encounters #######
+        document.associations = [
+            a for a in document.associations if a.model_name() != "Encounter"
+        ]
+
         #########################################
 
     # @classmethod

@@ -164,6 +164,22 @@
         </div>
     </a>
 </li>
+{% if user.world_user(obj) %}
+<li>
+    <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML"
+       hx-push-url=" /{{obj.path}}/gmnotes">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.gamemaster(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>GM Notes</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
 {%- endmacro %}
 
 <!-- display ability stats -->
@@ -228,70 +244,6 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-
-{# <div id="gmnotes" class="callout ">
-    <h3 class='text-center '>GM Notes</h3>
-    <div class="grid-x">
-        <div class="cell medium-6">
-            <div class="callout ">
-                <h5> Details</h5>
-                <ul>
-                    <li>{{obj.description_summary | safe}}</li>
-                    {% for sd in obj.sensory_details %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="cell medium-6">
-            <div class="callout ">
-                <h5>Current Status</h5>
-                {{obj.status | safe}}
-            </div>
-        </div>
-        <div class="cell">
-            <div class="callout ">
-                <h5>Look-A-Like</h5>
-                {{obj.lookalike | safe}}
-            </div>
-        </div>
-        <div class="cell">
-            <div class="callout ">
-                <h5>Voice</h5>
-                {{obj.voice_description | safe}}
-            </div>
-        </div>
-        {% if obj.quests %}
-        <div class="cell">
-            <div class="callout ">
-                <h5>Hooks</h5>
-                <ul>
-                    {% for q in obj.quests %}
-                    <li>
-                        {{ q.summary | safe }}
-                        <hr>
-                        {{ q.hook | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
-        <div class="cell">
-            <div class="callout ">
-                <h5>Rumors</h5>
-                <ul>
-                    {% for r in obj.rumors %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div> #}
-
 <h3>GM Notes</h3>
 <table id="gm-notes">
     <tr>

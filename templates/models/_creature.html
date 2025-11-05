@@ -130,6 +130,22 @@
         </div>
     </a>
 </li>
+{% if user.world_user(obj) %}
+<li>
+    <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML"
+       hx-push-url=" /{{obj.path}}/gmnotes">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.gamemaster(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>GM Notes</span>
+            </div>
+        </div>
+    </a>
+</li>
+{% endif %}
 {%- endmacro %}
 
 {% macro history(user, obj) -%}
