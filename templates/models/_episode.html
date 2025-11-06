@@ -218,6 +218,9 @@
             </div>
         </div>
         <div class="cell bg-light padding-vertical-2">
+            <div id='session-recorder'>
+                {{session_recorder(user, obj)}}
+            </div>
             <hr>
             <h2 class='text-center'>Planning Notes</h2>
             <form hx-post="/api/episode/{{obj.pk}}/update"
@@ -231,6 +234,337 @@
     <hr>
 </div>
 {% endif %}
+{%- endmacro %}
+
+{% macro session_recorder(user, obj) -%}
+<div class="card grid-container padding-x-2 padding-y-3">
+    <div class="card-section">
+        <h5 class="text-center font-weight-bold margin-bottom-2 secondary">GM Voice Input</h5>
+
+        <!-- Timer & Status Display -->
+        <div class="grid-x align-center margin-bottom-2">
+            <div class="cell shrink text-center">
+                <span id="recording-status" class="label secondary rounded">Ready</span>
+            </div>
+            <div class="cell shrink text-center">
+                <span id="recording-timer" class="h3 primary text-bold margin-left-1">00:00</span>
+            </div>
+        </div>
+
+        <!-- Volume Meter -->
+        <div class="grid-x align-center margin-bottom-2">
+            <div class="cell medium-8 small-10">
+                <div id="volume-meter" class="progress primary margin-bottom-0" role="progressbar"
+                     tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div id="volume-bar" class="progress-meter" style="width: 0%">
+                        <p id="meter-text" class="progress-meter-text text-center text-secondary">
+                            Speak Now</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons (Horizontal, in an Input-Group like structure for compactness) -->
+        <div class="grid-x grid-margin-x align-center">
+
+            <!-- Record Button -->
+            <div class="cell shrink">
+                <button id="record-btn" class="button primary margin-bottom-0" data-state="ready"
+                        onclick="startRecording()">
+                    <iconify-icon icon="lucide:mic" class="margin-right-1"></iconify-icon> Start
+                    Recording
+                </button>
+            </div>
+
+            <!-- Stop Button -->
+            <div class="cell shrink">
+                <button id="stop-btn" class="button alert margin-bottom-0" disabled
+                        onclick="stopRecording()">
+                    <iconify-icon icon="lucide:square" class="margin-right-1"></iconify-icon> Stop
+                </button>
+            </div>
+
+            <!-- Send Button -->
+            <div class="cell shrink">
+                <button id="send-btn" class="button success margin-bottom-0" disabled
+                        onclick="sendAudio()">
+                    <iconify-icon icon="lucide:send" class="margin-right-1"></iconify-icon>
+                    Transcribe
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Output/Feedback Area -->
+    <div id="output-area" class="card-section text-center callout secondary margin-top-2"
+         style="display:none;">
+        Audio is ready to process.
+    </div>
+</div>
+
+<script>
+    var recordBtn = document.getElementById('record-btn');
+    var stopBtn = document.getElementById('stop-btn');
+    var sendBtn = document.getElementById('send-btn');
+    var timerDisplay = document.getElementById('recording-timer');
+    var statusDisplay = document.getElementById('recording-status');
+    var outputArea = document.getElementById('output-area');
+    var volumeBar = document.getElementById('volume-bar');
+    var meterText = document.getElementById('meter-text');
+    var volumeMeterContainer = document.getElementById('volume-meter');
+    var audioBlob = null;
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let intervalId;
+    let startTime;
+    let mediaStream; // Store the media stream reference
+
+    // Web Audio API components for volume analysis
+    let audioContext;
+    let analyser;
+    let dataArray;
+    let volumeRequestId; // For requestAnimationFrame loop
+
+    // --- Utility Functions ---
+
+    function formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = seconds % 60;
+        return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        timerDisplay.textContent = formatTime(elapsed);
+    }
+
+    function startTimer() {
+        startTime = Date.now();
+        timerDisplay.textContent = '00:00';
+        intervalId = setInterval(updateTimer, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(intervalId);
+    }
+
+    function updateControls(isRecording, isRecorded) {
+        // Handle Button States
+        recordBtn.disabled = isRecording || isRecorded;
+        stopBtn.disabled = !isRecording;
+        sendBtn.disabled = !isRecorded;
+
+        // Apply visual disabled class (better for Foundation)
+        recordBtn.classList.toggle('disabled', isRecording || isRecorded);
+        stopBtn.classList.toggle('disabled', !isRecording);
+        sendBtn.classList.toggle('disabled', !isRecorded);
+
+        // Handle Status Label Colors and Text
+        statusDisplay.classList.remove('secondary', 'warning', 'success', 'alert', 'primary');
+        if (isRecording) {
+            statusDisplay.textContent = 'RECORDING';
+            statusDisplay.classList.add('warning');
+            meterText.textContent = 'Listening...';
+        } else if (isRecorded) {
+            statusDisplay.textContent = 'READY TO SEND';
+            statusDisplay.classList.add('success');
+            meterText.textContent = 'Audio Captured';
+        } else {
+            statusDisplay.textContent = 'READY';
+            statusDisplay.classList.add('secondary');
+            meterText.textContent = 'Speak Now';
+            volumeBar.style.width = '0%'; // Reset bar width
+        }
+
+        // Hide/Show Output Area
+        outputArea.style.display = (isRecorded || statusDisplay.textContent.includes('Error')) ? 'block' : 'none';
+    }
+
+    // --- Volume Analysis Functions ---
+    function startVolumeAnalyser() {
+        if (!mediaStream) return;
+
+        // Ensure context is running (required if user interaction happens after init)
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
+        // 1. Create source and connections
+        const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256; // Fast Fourier Transform size
+        dataArray = new Uint8Array(analyser.fftSize);
+
+        // Connect media source to analyser, and analyser to nothing (or destination if you needed output)
+        mediaStreamSource.connect(analyser);
+
+        // 2. Start volume loop
+        processVolume();
+    }
+
+    function stopVolumeAnalyser() {
+        if (volumeRequestId) {
+            cancelAnimationFrame(volumeRequestId);
+        }
+        // Disconnect nodes to free resources
+        if (analyser && analyser.context) {
+            analyser.disconnect();
+            // Source disconnection is more complex, but stopping the stream handles mic access
+        }
+        volumeBar.style.width = '0%';
+        volumeMeterContainer.classList.remove('success', 'warning', 'alert');
+    }
+
+    function processVolume() {
+        // Schedule next update
+        volumeRequestId = requestAnimationFrame(processVolume);
+
+        // Get volume data (time-domain data)
+        analyser.getByteTimeDomainData(dataArray);
+
+        let sumOfSquares = 0;
+        for (const amplitude of dataArray) {
+            // Normalize amplitude from 0-255 to -1 to 1 (approx)
+            const normalized = (amplitude / 128.0) - 1;
+            sumOfSquares += normalized * normalized;
+        }
+
+        // Calculate Root Mean Square (RMS)
+        const rms = Math.sqrt(sumOfSquares / dataArray.length);
+
+        // Scale RMS (0 to 1) to a percentage (0 to 100)
+        // Adjust the multiplier (e.g., *200) to make the bar more visible/sensitive
+        let volumePercentage = Math.min(100, rms * 200);
+
+        // Update the bar width
+        volumeBar.style.width = volumePercentage + '%';
+        volumeMeterContainer.setAttribute('aria-valuenow', Math.floor(volumePercentage));
+
+        // Visual feedback based on volume level
+        volumeMeterContainer.classList.remove('success', 'warning', 'alert', 'secondary');
+        if (volumePercentage > 50) {
+            volumeMeterContainer.classList.add('success'); // Good volume
+        } else if (volumePercentage > 10) {
+            volumeMeterContainer.classList.add('warning'); // Low volume
+        } else {
+            volumeMeterContainer.classList.add('secondary'); // Silent
+        }
+        meterText.textContent = volumePercentage > 5 ? 'Recording...' : 'Speak Up!';
+    }
+
+
+    // --- Core Recording Functions ---
+
+    async function startRecording() {
+        try {
+            // 1. Get media stream
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(mediaStream);
+            audioChunks = [];
+
+            // Initialize Audio Context after user interaction
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // 2. Set up data handling
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            // 3. Set up stop handler
+            mediaRecorder.onstop = () => {
+                stopVolumeAnalyser(); // STOP VOLUME ANALYSER
+                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                // Clean up the stream tracks to turn off the microphone light
+                mediaStream.getTracks().forEach(track => track.stop());
+
+                // Final state update (recording stopped, audio ready)
+                updateControls(false, true);
+                outputArea.innerHTML = `<p>Recording Complete (${timerDisplay.textContent}). Click 'Send' to transcribe.</p>`;
+            };
+
+            // 4. Start recording, timer, and analyser
+            mediaRecorder.start();
+            startTimer();
+            startVolumeAnalyser(); // START VOLUME ANALYSER
+            outputArea.style.display = 'none';
+            updateControls(true, false);
+
+        } catch (err) {
+            console.error('Microphone error:', err);
+            statusDisplay.textContent = 'Permission Denied';
+            statusDisplay.classList.add('alert');
+            updateControls(false, false);
+            outputArea.innerHTML = `<p>Microphone Access Required. Check browser settings.</p>`;
+            outputArea.style.display = 'block';
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            stopTimer(); // STOP CLOCK
+            mediaRecorder.stop();
+        }
+    }
+
+    async function sendAudio() {
+        if (!audioBlob) {
+            outputTarget.innerHTML = '<p>No audio data available to send.</p>';
+            return;
+        }
+
+        statusDisplay.textContent = 'SENDING...';
+        statusDisplay.classList.remove('success');
+        statusDisplay.classList.add('primary');
+        updateControls(false, false);
+
+        const episodePk = '{{obj.pk}}'; // Assume this Jinja2 variable is defined
+        const targetUrl = `/api/episode/${episodePk}/transcribe`;
+
+        outputTarget.innerHTML = `<p>Sending audio data to AI transcription service...</p>`;
+
+        const formData = new FormData();
+        formData.append('audio_file', audioBlob, 'gm_input.webm');
+
+        try {
+            const response = await fetch(targetUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            const responseText = await response.text();
+
+            if (response.ok) {
+                outputTarget.innerHTML = `<h4>Transcription Complete</h4> ${responseText}`;
+                statusDisplay.textContent = 'TRANSCRIBED';
+                statusDisplay.classList.add('success');
+            } else {
+                outputTarget.innerHTML = `<h4>Transcription Error (${response.status})</h4><p>${responseText}</p>`;
+                statusDisplay.textContent = 'TRANSCRIPTION FAILED';
+                statusDisplay.classList.add('alert');
+            }
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            outputTarget.innerHTML = `<h4>Network Error</h4><p>Failed to connect to the server.</p>`;
+            statusDisplay.textContent = 'NETWORK ERROR';
+            statusDisplay.classList.add('alert');
+        } finally {
+            updateControls(false, false);
+            audioBlob = null;
+        }
+    }
+
+    // --- Initialize ---
+    updateControls(false, false);
+
+    // Remove initial event listeners and rely on onclick handlers
+    recordBtn.removeEventListener('click', startRecording);
+    stopBtn.removeEventListener('click', stopRecording);
+    sendBtn.removeEventListener('click', sendAudio);
+</script>
 {%- endmacro %}
 
 {% macro graphic(user, obj) -%}

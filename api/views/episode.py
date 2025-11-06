@@ -4,6 +4,7 @@
 ## Components Endpoints
 """
 
+import base64
 import json
 import os
 import random
@@ -13,6 +14,7 @@ from autonomous.model.automodel import AutoModel
 from flask import Blueprint, get_template_attribute, request
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.campaign import Campaign
 from models.campaign.episode import Episode
 from models.stories.encounter import Encounter
@@ -265,4 +267,30 @@ def episodegenerategraphic(pk):
     episode = Episode.get(pk)
     return requests.post(
         f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{episode.path}/graphic"
+    ).text
+
+
+###########################################################
+##             Episode Recording Routes                  ##
+###########################################################
+
+
+@episode_endpoint.route(
+    "/<string:pk>/transcribe",
+    methods=("POST",),
+)
+def episodetranscribe(pk):
+    user, obj, request_data = _loader()
+    if "audio" not in request_data:
+        return {"error": "No audio file uploaded"}, 400
+    audio_file_str = request_data["audio"]
+    audio_file = base64.b64decode(audio_file_str)
+    if obj.audio:
+        obj.audio.delete()
+        obj.audio = None
+    obj.audio = Audio.from_file(audio_file)
+    obj.save()
+    return requests.post(
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/audio/transcribe",
+        json={"model": obj.model_name(), "pk": pk},
     ).text

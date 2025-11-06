@@ -17,6 +17,7 @@ from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
 from models.images.image import Image
@@ -41,6 +42,8 @@ class Episode(AutoModel):
     summary = StringAttr(default="")
     story = ReferenceAttr(choices=["Story"])
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
+    audio = ReferenceAttr(choices=["Audio"])
+    transcription = StringAttr(default="")
 
     ##################### PROPERTY METHODS ####################
 
@@ -201,6 +204,18 @@ class Episode(AutoModel):
     @property
     def world(self):
         return self.campaign.world if self.campaign else None
+
+    ##################### CRUD METHODS ####################
+    def delete(self):
+        if self.start_date_obj:
+            self.start_date_obj.delete()
+        if self.end_date_obj:
+            self.end_date_obj.delete()
+        if self.audio:
+            self.audio.delete()
+        if self.graphic:
+            self.graphic.delete()
+        return super().delete()
 
     ##################### INSTANCE METHODS ####################
 

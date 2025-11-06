@@ -8,6 +8,7 @@ from flask import Flask, get_template_attribute, request
 import tasks
 from autonomous import log
 from filters.utils import bonus, roll_dice
+from models.campaign.episode import Episode
 from models.ttrpgobject.faction import Faction
 from models.user import User
 from models.world import World
@@ -171,16 +172,12 @@ def create_app():
 
     @app.route("/generate/audio/transcribe", methods=("POST",))
     def create_audio_transcription():
-        log("Transcribing audio file", request.files.get("audio_file"), _print=True)
-
-        world = World.get(request.form.get("pk"))
-        world.gm.audio = request.files.get("audio_file").read()
-
         task = (
             AutoTasks()
             .task(
                 tasks._generate_audio_transcription_task,
-                pk=request.form.get("pk"),
+                model=request.json.get("model"),
+                pk=request.json.get("pk"),
             )
             .result
         )

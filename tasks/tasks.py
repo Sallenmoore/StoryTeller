@@ -1,10 +1,12 @@
 import json
+from datetime import datetime
 
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from dmtoolkit import dmtools
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
 from models.gmscreen.gmscreentable import GMScreenTable
@@ -49,6 +51,18 @@ def _generate_history_task(model, pk):
 def _generate_image_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         obj.generate_image()
+    return {"url": f"/api/{obj.path}/manage"}
+
+
+def _generate_audio_transcription_task(model, pk):
+    if obj := AutoModel.get_model(model, pk):
+        transcription = Audio.transcribe(obj.audio)
+        obj.transcription = f"""
+{"=" * 20} TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}
+
+{transcription}
+"""
+        obj.save()
     return {"url": f"/api/{obj.path}/manage"}
 
 
@@ -110,12 +124,6 @@ def _generate_story_summary_task(pk):
     if obj := Story.get(pk):
         obj.summarize()
     return {"url": f"/api/{obj.path}/history"}
-
-
-def _generate_event_task(pk):
-    event = Event.get(pk)
-    event.generate()
-    return {"url": f"/api/{event.path}/manage"}
 
 
 def _generate_event_task(pk):
