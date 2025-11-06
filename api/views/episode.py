@@ -85,7 +85,7 @@ def delete(episodepk):
 # /api/{{episode.path}}/stories/{{story.pk}}/delete
 
 
-@episode_endpoint.route("/<string:episodepk>/stories/add", methods=("POST",))
+@episode_endpoint.route("/<string:episodepk>/story/add", methods=("POST",))
 def addstory(episodepk):
     user, obj, request_data = _loader()
     episode = Episode.get(episodepk)
@@ -93,7 +93,7 @@ def addstory(episodepk):
     if story not in episode.stories:
         episode.stories += [story]
     episode.save()
-    return get_template_attribute("manage/_episode.html", "manage")(
+    return get_template_attribute("models/_episode.html", "gmnotes")(
         user,
         episode,
     )

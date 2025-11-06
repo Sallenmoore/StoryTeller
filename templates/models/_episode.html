@@ -151,15 +151,13 @@
 {% if user.world_user(obj) %}
 <div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
-        {% if obj.previous_episode and obj.previous_episode.summary %}
-        <div class="cell auto">
+        <div class="cell medium-6">
+            {% if obj.previous_episode and obj.previous_episode.summary %}
             <div class="callout">
                 <h4>Previous Episode</h4>
                 {{obj.previous_episode.summary | safe }}
             </div>
-        </div>
-        {% endif %}
-        <div class="cell medium-4">
+            {% endif %}
             <div class="callout ">
                 <h3 class='text-center'>Loot</h3>
                 {{obj.loot | safe}}
@@ -169,7 +167,44 @@
                 {{obj.hooks | safe}}
             </div>
         </div>
-        <div class="cell bg-screen padding-vertical-2">
+        <div class="cell medium-6 bg-screen padding-vertical-2">
+            <div class="callout">
+                <div id='episode-connected-stories' class="grid-x grid-margin-x">
+                    <div class="cell align-center-middle">k
+                        <h3 class='text-center'>Connected Stories</h3>
+                        <div class="grid-x">
+                            {%for s in obj.stories%}
+                            <div class="cell medium-3">
+                                {{ display_components.object_display(s, type=False) }}
+                            </div>
+                            {%endfor%}
+                        </div>
+                        <hr>;.
+                    </div>
+                    <div class="cell shrink align-center-middle">
+                        <h6>Add Story</h6>
+                    </div>
+                    <div class="cell auto align-center-middle">
+                        <div class="select">
+                            <select class="has-bg-white" name='storypk'
+                                    hx-post='/api/{{obj.path}}/story/add'
+                                    hx-target='#episode-connected-stories'
+                                    hx-select='#episode-connected-stories'
+                                    hx-swap='outerHTML'
+                                    hx-trigger="change">
+                                <option value="">---</option>
+                                {%for story in obj.world.stories %}
+                                {% if story not in obj.stories%}
+                                <option value="{{story.pk}}">
+                                    {{story.name}}
+                                </option>
+                                {% endif %}
+                                {%endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <h3 class='text-center'>Potential Encounters</h3>
             <div class="grid-x align-spaced">
                 {% for e in obj.encounters %}
@@ -183,6 +218,7 @@
             </div>
         </div>
         <div class="cell bg-light padding-vertical-2">
+            <hr>
             <h2 class='text-center'>Planning Notes</h2>
             <form hx-post="/api/episode/{{obj.pk}}/update"
                   hx-swap='none'

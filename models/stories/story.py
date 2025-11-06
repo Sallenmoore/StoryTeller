@@ -227,3 +227,24 @@ class Story(AutoModel):
             self.associated_stories += [story]
             self.save()
         return story
+
+    ## MARK: - Verification Methods
+    ###############################################################
+    ##                    VERIFICATION HOOKS                   ##
+    ###############################################################
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        ##### MIGRATION: Encounters ########
+        document.associations = [
+            a for a in document.associations if a and a.model_name() != "Encounter"
+        ]
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
+
+    ###############################################################
+    ##                    VERIFICATION HOOKS                     ##
+    ###############################################################
