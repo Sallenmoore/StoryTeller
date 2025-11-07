@@ -44,7 +44,7 @@ class Character(Actor):
             "Aspiring bourgeoise or upper class",
             "The elite of this society",
             "Minority or foreigner",
-            "Offworlders or exotic",
+            "Outsider or exotic",
         ],
         [
             "They have significant debt or money woes",
@@ -89,7 +89,12 @@ class Character(Actor):
                 "occupation": {
                     "type": "string",
                     "description": "The NPC's profession or daily occupation.",
-                }
+                },
+                "wealth": {
+                    "type": "array",
+                    "description": "A list of items the NPC possesses, with descriptions for each. There should be at least one mundane item and one valuable item at minimum.",
+                    "items": {"type": "string"},
+                },
             },
         },
     }
