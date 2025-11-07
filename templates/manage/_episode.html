@@ -6,7 +6,7 @@
 
 {% macro manage(user, episode) -%}
 <div id="episode-manage" class="grid-x grid-padding-x">
-    <div class="story cell small-12 medium-8">
+    <div class="story cell small-12 medium-7">
         <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <div class="grid-x">
@@ -39,8 +39,6 @@
                 </form>
             </div>
         </div>
-
-
         <div id="ai-buttons" class="grid-x grid-padding-x grid-padding-y align-right">
             <div class="cell small-shrink large-shrink">
                 <button class='button'
@@ -69,7 +67,7 @@
         </form>
 
     </div>
-    <div class="related-panel cell small-12 medium-4 bg-screen padding-1">
+    <div class="related-panel cell small-12 medium-5 bg-screen padding-1">
         <h3>Events</h3>
         <div class="grid-x align-spaced">
             <div class="cell shrink">
@@ -109,6 +107,26 @@
                 </ul>
             </div>
         </div>
+        {% if episode.transcription %}
+        <div class="callout ">
+            <h2 class='text-center'>Transcription</h2>
+            <button class="button"
+                    hx-post="/api/{{episode.path}}/transcription/summarize"
+                    hx-target="#report-container"
+                    hx-select="#report-container"
+                    hx-swap="outerHTML"
+                    hx-indicator="#request-indicator"
+                    hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
+                Summarize for Report
+            </button>
+            <div>
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{form_components.richtexteditor(user, episode, 'transcription')}}
+                </form>
+            </div>
+        </div>
+        {% endif %}
         <hr>
         <h3>Delete Episode</h3>
         <button class="button is-light has-text-dark"
@@ -122,145 +140,3 @@
     </div>
 </div>
 {%- endmacro %}
-
-
-{# {% macro associations(user, episode) -%}
-<div id="episode-associations" class="grid-x">
-    <div class="cell">
-        <h5>Add New...</h5>
-        <div class="grid-x align-spaced">
-            {% for model in episode.world.all_models_str() %}
-            <div class="cell shrink">
-                <button class='button small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/{{model | lower}}'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    {{episode.world.get_title(model)}}
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        <h5>...or Add Existing</h5>
-        <div class="grid-x grid-margin-x align-spaced">
-            <div class="cell shrink">
-                <button class='button small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/campaignassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    All Campaign Associations
-                </button>
-            </div>
-            <div class="cell shrink">
-                <button class='button small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/episodeassociations'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    Previous Episode Associations
-                </button>
-            </div>
-            <div class="cell shrink">
-                <button class='button small'
-                        hx-post='/api/episode/{{episode.pk}}/associations/add/players'
-                        hx-target="#episode-associations"
-                        hx-select="#episode-associations"
-                        hx-trigger='click consume'
-                        hx-vals='{"episodepk":"{{episode.pk}}"}'
-                        hx-swap='outerHTML'>
-                    players
-                </button>
-            </div>
-            <div class="cell">
-                <input autocomplete="off" type="search" name="query"
-                       style="margin-bottom: 0;padding-bottom: 0;border-bottom: solid #000;"
-                       hx-post="/api/{{episode.path}}/associations/add/search"
-                       hx-target="#episode-new-associations-list"
-                       hx-trigger="input changed delay:500ms consume">
-                <ul class="dropdown menu bg-white" data-dropdown-menu
-                    id="episode-new-associations-list">
-                </ul>
-            </div>
-        </div>
-        <hr>
-        {% if episode.locations %}
-        {{ association_display(user, episode, episode.locations, episode.world.get_title("Location")) }}
-        {% endif %}
-        {% if episode.shops %}
-        {{ association_display(user, episode, episode.shops, episode.world.get_title("Shop")) }}
-        {% endif %}
-        {% if episode.districts %}
-        {{ association_display(user, episode, episode.districts, episode.world.get_title("District")) }}
-        {% endif %}
-        {% if episode.characters %}
-        {{ association_display(user, episode, episode.characters, episode.world.get_title("Character")) }}
-        {% endif %}
-        {% if episode.creatures %}
-        {{ association_display(user, episode, episode.creatures, episode.world.get_title("Creature")) }}
-        {% endif %}
-        {% if episode.items %}
-        {{ association_display(user, episode, episode.items, episode.world.get_title("Item")) }}
-        {% endif %}
-        {% if episode.vehicles %}
-        {{ association_display(user, episode, episode.vehicles, episode.world.get_title("Vehicle")) }}
-        {% endif %}
-        {% if episode.factions %}
-        {{ association_display(user, episode, episode.factions, episode.world.get_title("Faction")) }}
-        {% endif %}
-        {% if episode.cities %}
-        {{ association_display(user, episode, episode.cities, episode.world.get_title("City")) }}
-        {% endif %}
-        {% if episode.regions %}
-        {{ association_display(user, episode, episode.regions, episode.world.get_title("Region")) }}
-        {% endif %}
-    </div>
-</div>
-{%- endmacro %}
-
-{% macro association_display(user, episode, children, title) -%}
-<h3 class='text-center'> {{title}} </h3>
-<hr>
-<div class="grid-x grid-margin-x align-spaced">
-    {% for a in children %}
-    <div class="cell medium-4 small-6 episode-association-entry"
-         style='position:relative;'>
-        {{display_components.object_display(a, type=False, dim=250)}}
-        <a style='position:absolute; top:0px; right:5px;'
-           hx-post="/api/episode/{{episode.pk}}/association/{{a.path}}/delete"
-           hx-target="closest .episode-association-entry" hx-swap="delete"
-           hx-confirm="Are you sure you want to remove this association from the episode?">
-            <iconify-icon icon="mdi:remove" width="1rem"></iconify-icon>
-        </a>
-    </div>
-    {% endfor %}
-</div>
-{%- endmacro %}
-
-{% macro association_dropdown(user, episode, objs=[]) -%}
-{% for o in objs %}
-<li class="dropdown__link ">
-    <a hx-post="/api/episode/{{episode.pk}}/associations/add/{{o.path}}"
-       hx-target='#episode-associations'
-       hx-select='#episode-associations' hx-swap='outerHTML'
-       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {% if o.image %}
-                <img src="{{o.image.url(size=50)}}" alt="{{o.name}}" style="cursor: pointer" />
-                {% endif %}
-            </div>
-            <div class="cell">
-                {{o.name}}
-            </div>
-        </div>
-    </a>
-</li>
-{% endfor %}
-{%- endmacro%} #}

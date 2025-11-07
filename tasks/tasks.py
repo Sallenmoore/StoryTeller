@@ -84,6 +84,12 @@ def _generate_session_report_task(pk):
     return {"url": f"/api/{obj.path}/manage"}
 
 
+def _generate_episode_transcription_summary_task(pk):
+    if obj := Episode.get(pk):
+        obj.summarize_transcription()
+    return {"url": f"/api/{obj.path}/details"}
+
+
 def _generate_episode_graphic_task(pk):
     if obj := Episode.get(pk):
         obj.generate_graphic()

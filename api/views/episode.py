@@ -61,6 +61,7 @@ def edit_episode(pk=None):
         )
         episode.loot = request.json.get("loot", episode.loot)
         episode.hooks = request.json.get("hooks", episode.hooks)
+        episode.transcription = request.json.get("transcription", episode.transcription)
         episode.save()
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
@@ -281,14 +282,28 @@ def episodegenerategraphic(pk):
 )
 def episodetranscribe(pk):
     user, obj, request_data = _loader()
-    if "audio" not in request_data:
+    if "audio_file" not in request_data:
         return {"error": "No audio file uploaded"}, 400
-    audio_file_str = request_data["audio"]
+    audio_file_str = request_data["audio_file"]
     audio_file = base64.b64decode(audio_file_str)
     if obj.audio:
         obj.audio.delete()
         obj.audio = None
     obj.audio = Audio.from_file(audio_file)
+    obj.save()
+    return requests.post(
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/audio/transcribe",
+        json={"model": obj.model_name(), "pk": pk},
+    ).text
+
+
+@episode_endpoint.route(
+    "/<string:pk>/transcription/summarize",
+    methods=("POST",),
+)
+def episodesummarizetranscription(pk):
+    user, obj, request_data = _loader()
+
     obj.save()
     return requests.post(
         f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/audio/transcribe",

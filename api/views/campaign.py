@@ -49,6 +49,7 @@ macro = "campaigns"
 def index(pk=None):
     user, obj, request_data = _loader()
     campaign = Campaign.get(pk or request_data.get("campaignpk"))
+    campaign.save()
     return get_template_attribute("models/_campaign.html", "index")(
         user,
         campaign,

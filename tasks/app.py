@@ -157,6 +157,18 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/episode/<string:pk>/transcription/summary", methods=("POST",))
+    def generate_episode_report(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_episode_transcription_summary_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/character/<string:pk>/chat", methods=("POST",))
     def generate_character_chat(pk):
         task = (

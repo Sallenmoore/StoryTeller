@@ -110,7 +110,7 @@
             </div>
         </div>
         <div class="cell">
-            <div class="callout ">
+            <div id="report-container" class="callout">
                 <h2 class='text-center'>Report</h2>
                 <div>
                     {{obj.report | safe}}
@@ -170,7 +170,7 @@
         <div class="cell medium-6 bg-screen padding-vertical-2">
             <div class="callout">
                 <div id='episode-connected-stories' class="grid-x grid-margin-x">
-                    <div class="cell align-center-middle">k
+                    <div class="cell align-center-middle">
                         <h3 class='text-center'>Connected Stories</h3>
                         <div class="grid-x">
                             {%for s in obj.stories%}
@@ -179,7 +179,7 @@
                             </div>
                             {%endfor%}
                         </div>
-                        <hr>;.
+                        <hr>
                     </div>
                     <div class="cell shrink align-center-middle">
                         <h6>Add Story</h6>
@@ -218,10 +218,12 @@
             </div>
         </div>
         <div class="cell bg-light padding-vertical-2">
-            <div id='session-recorder'>
+            <div id='session-recorder-container'>
                 {{session_recorder(user, obj)}}
             </div>
             <hr>
+        </div>
+        <div class="cell bg-light padding-vertical-2">
             <h2 class='text-center'>Planning Notes</h2>
             <form hx-post="/api/episode/{{obj.pk}}/update"
                   hx-swap='none'
@@ -236,7 +238,7 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro session_recorder(user, obj) -%}
+{% macro session_recorder(user, episode) -%}
 <div class="card grid-container padding-x-2 padding-y-3">
     <div class="card-section">
         <h5 class="text-center font-weight-bold margin-bottom-2 secondary">GM Voice Input</h5>
@@ -276,295 +278,386 @@
                 </button>
             </div>
 
-            <!-- Stop Button -->
+            <!-- Stop Button (Now triggers auto-send if > 15s) -->
             <div class="cell shrink">
                 <button id="stop-btn" class="button alert margin-bottom-0" disabled
-                        onclick="stopRecording()">
-                    <iconify-icon icon="lucide:square" class="margin-right-1"></iconify-icon> Stop
+                        onclick="manualStop()">
+                    <iconify-icon icon="lucide:square" class="margin-right-1"></iconify-icon> Stop &
+                    Send
                 </button>
             </div>
 
-            <!-- Send Button -->
-            <div class="cell shrink">
-                <button id="send-btn" class="button success margin-bottom-0" disabled
-                        onclick="sendAudio()">
-                    <iconify-icon icon="lucide:send" class="margin-right-1"></iconify-icon>
-                    Transcribe
-                </button>
-            </div>
+            <!-- Send Button Removed -->
 
         </div>
     </div>
-
-    <!-- Output/Feedback Area -->
-    <div id="output-area" class="card-section text-center callout secondary margin-top-2"
-         style="display:none;">
-        Audio is ready to process.
+    <!-- Output/Feedback Area Wrapper -->
+    <div id="recorder-output-wrapper">
+        <!-- 1. Dedicated Target (for the main component view) -->
+        <div id="session-recorder" class="card-section text-center callout secondary margin-top-2"
+             style="display:none;">
+            <p>Ready to begin transcription session.</p>
+        </div>
+        <!-- 2. Generic Fallback Target (always hidden by default) -->
+        <div id="output-area" class="card-section text-center callout secondary margin-top-2"
+             style="display:none;">
+            Audio is ready to process.
+        </div>
     </div>
-</div>
 
-<script>
-    var recordBtn = document.getElementById('record-btn');
-    var stopBtn = document.getElementById('stop-btn');
-    var sendBtn = document.getElementById('send-btn');
-    var timerDisplay = document.getElementById('recording-timer');
-    var statusDisplay = document.getElementById('recording-status');
-    var outputArea = document.getElementById('output-area');
-    var volumeBar = document.getElementById('volume-bar');
-    var meterText = document.getElementById('meter-text');
-    var volumeMeterContainer = document.getElementById('volume-meter');
-    var audioBlob = null;
+    <script>
+        (function () {
+            // --- Configuration ---
+            var MAX_RECORDING_SECONDS = 15 * 60; // Auto-send limit: 15 minutes = 900 seconds
+            var MIN_RECORDING_SECONDS = 15;      // Manual send threshold: 15 seconds
+            var TARGET_PK = '{{ episode.id }}'; // Database PK of the object this component serves
 
-    let mediaRecorder;
-    let audioChunks = [];
-    let intervalId;
-    let startTime;
-    let mediaStream; // Store the media stream reference
+            // --- State Variables (using var for isolation within the IIFE) ---
+            var recordBtn = document.getElementById('record-btn');
+            var stopBtn = document.getElementById('stop-btn');
+            // var sendBtn = document.getElementById('send-btn'); // Removed
+            var timerDisplay = document.getElementById('recording-timer');
+            var statusDisplay = document.getElementById('recording-status');
+            // We now fetch the target element dynamically based on the PK passed from the server.
+            var outputTarget = document.getElementById(TARGET_PK) || document.getElementById('output-area');
+            var volumeBar = document.getElementById('volume-bar');
+            var meterText = document.getElementById('meter-text');
+            var volumeMeterContainer = document.getElementById('volume-meter');
+            var sessionRecorderDiv = document.getElementById('session-recorder');
+            var outputAreaDiv = document.getElementById('output-area');
 
-    // Web Audio API components for volume analysis
-    let audioContext;
-    let analyser;
-    let dataArray;
-    let volumeRequestId; // For requestAnimationFrame loop
+            var mediaRecorder;
+            var audioChunks = [];
+            var intervalId;
+            var startTime;
+            var mediaStream;
+            var audioBlob;
+            var isSessionRunning = false;
+            var currentDuration = 0; // Tracks duration for manual stop check
 
-    // --- Utility Functions ---
+            // Web Audio API components for volume analysis
+            var audioContext;
+            var analyser;
+            var dataArray;
+            var volumeRequestId;
 
-    function formatTime(seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = seconds % 60;
-        return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    }
-
-    function updateTimer() {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        timerDisplay.textContent = formatTime(elapsed);
-    }
-
-    function startTimer() {
-        startTime = Date.now();
-        timerDisplay.textContent = '00:00';
-        intervalId = setInterval(updateTimer, 1000);
-    }
-
-    function stopTimer() {
-        clearInterval(intervalId);
-    }
-
-    function updateControls(isRecording, isRecorded) {
-        // Handle Button States
-        recordBtn.disabled = isRecording || isRecorded;
-        stopBtn.disabled = !isRecording;
-        sendBtn.disabled = !isRecorded;
-
-        // Apply visual disabled class (better for Foundation)
-        recordBtn.classList.toggle('disabled', isRecording || isRecorded);
-        stopBtn.classList.toggle('disabled', !isRecording);
-        sendBtn.classList.toggle('disabled', !isRecorded);
-
-        // Handle Status Label Colors and Text
-        statusDisplay.classList.remove('secondary', 'warning', 'success', 'alert', 'primary');
-        if (isRecording) {
-            statusDisplay.textContent = 'RECORDING';
-            statusDisplay.classList.add('warning');
-            meterText.textContent = 'Listening...';
-        } else if (isRecorded) {
-            statusDisplay.textContent = 'READY TO SEND';
-            statusDisplay.classList.add('success');
-            meterText.textContent = 'Audio Captured';
-        } else {
-            statusDisplay.textContent = 'READY';
-            statusDisplay.classList.add('secondary');
-            meterText.textContent = 'Speak Now';
-            volumeBar.style.width = '0%'; // Reset bar width
-        }
-
-        // Hide/Show Output Area
-        outputArea.style.display = (isRecorded || statusDisplay.textContent.includes('Error')) ? 'block' : 'none';
-    }
-
-    // --- Volume Analysis Functions ---
-    function startVolumeAnalyser() {
-        if (!mediaStream) return;
-
-        // Ensure context is running (required if user interaction happens after init)
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-
-        // 1. Create source and connections
-        const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256; // Fast Fourier Transform size
-        dataArray = new Uint8Array(analyser.fftSize);
-
-        // Connect media source to analyser, and analyser to nothing (or destination if you needed output)
-        mediaStreamSource.connect(analyser);
-
-        // 2. Start volume loop
-        processVolume();
-    }
-
-    function stopVolumeAnalyser() {
-        if (volumeRequestId) {
-            cancelAnimationFrame(volumeRequestId);
-        }
-        // Disconnect nodes to free resources
-        if (analyser && analyser.context) {
-            analyser.disconnect();
-            // Source disconnection is more complex, but stopping the stream handles mic access
-        }
-        volumeBar.style.width = '0%';
-        volumeMeterContainer.classList.remove('success', 'warning', 'alert');
-    }
-
-    function processVolume() {
-        // Schedule next update
-        volumeRequestId = requestAnimationFrame(processVolume);
-
-        // Get volume data (time-domain data)
-        analyser.getByteTimeDomainData(dataArray);
-
-        let sumOfSquares = 0;
-        for (const amplitude of dataArray) {
-            // Normalize amplitude from 0-255 to -1 to 1 (approx)
-            const normalized = (amplitude / 128.0) - 1;
-            sumOfSquares += normalized * normalized;
-        }
-
-        // Calculate Root Mean Square (RMS)
-        const rms = Math.sqrt(sumOfSquares / dataArray.length);
-
-        // Scale RMS (0 to 1) to a percentage (0 to 100)
-        // Adjust the multiplier (e.g., *200) to make the bar more visible/sensitive
-        let volumePercentage = Math.min(100, rms * 200);
-
-        // Update the bar width
-        volumeBar.style.width = volumePercentage + '%';
-        volumeMeterContainer.setAttribute('aria-valuenow', Math.floor(volumePercentage));
-
-        // Visual feedback based on volume level
-        volumeMeterContainer.classList.remove('success', 'warning', 'alert', 'secondary');
-        if (volumePercentage > 50) {
-            volumeMeterContainer.classList.add('success'); // Good volume
-        } else if (volumePercentage > 10) {
-            volumeMeterContainer.classList.add('warning'); // Low volume
-        } else {
-            volumeMeterContainer.classList.add('secondary'); // Silent
-        }
-        meterText.textContent = volumePercentage > 5 ? 'Recording...' : 'Speak Up!';
-    }
-
-
-    // --- Core Recording Functions ---
-
-    async function startRecording() {
-        try {
-            // 1. Get media stream
-            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(mediaStream);
-            audioChunks = [];
-
-            // Initialize Audio Context after user interaction
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            // --- Output Initialization ---
+            function initializeOutputTarget() {
+                if (TARGET_PK === "session-recorder" && sessionRecorderDiv) {
+                    outputTarget = sessionRecorderDiv;
+                    if (outputAreaDiv) outputAreaDiv.style.display = 'none';
+                    outputTarget.style.display = 'block';
+                } else if (outputAreaDiv) {
+                    outputTarget = outputAreaDiv;
+                    if (sessionRecorderDiv) sessionRecorderDiv.style.display = 'none';
+                    outputTarget.style.display = 'block';
+                    outputTarget.innerHTML = "<p>Ready to process audio for object: " + TARGET_PK + "</p>";
+                } else {
+                    outputTarget = document.getElementById('recorder-output-wrapper');
+                    outputTarget.innerHTML = "<p class='alert'>ERROR: Output container missing.</p>";
+                }
             }
 
-            // 2. Set up data handling
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
 
-            // 3. Set up stop handler
-            mediaRecorder.onstop = () => {
-                stopVolumeAnalyser(); // STOP VOLUME ANALYSER
-                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            // --- Utility Functions ---
+
+            function formatTime(seconds) {
+                var min = Math.floor(seconds / 60);
+                var sec = seconds % 60;
+                return "" + String(min).padStart(2, '0') + ":" + String(sec).padStart(2, '0');
+            }
+
+            function updateTimer() {
+                currentDuration = Math.floor((Date.now() - startTime) / 1000);
+                timerDisplay.textContent = formatTime(currentDuration);
+
+                // --- CHECK MAX LENGTH ---
+                if (currentDuration >= MAX_RECORDING_SECONDS) {
+                    stopAndSendSegment(false); // Stop, send, and immediately restart
+                }
+            }
+
+            function startTimer() {
+                startTime = Date.now();
+                currentDuration = 0;
+                timerDisplay.textContent = '00:00';
+                intervalId = setInterval(updateTimer, 1000);
+            }
+
+            function stopTimer() {
+                clearInterval(intervalId);
+            }
+
+            function updateControls(isRecording, isRecorded) {
+                // Handle Button States
+                recordBtn.disabled = isRecording || isRecorded;
+                stopBtn.disabled = !isRecording; // Stop is only active while recording
+
+                // Apply visual disabled class (Foundation)
+                recordBtn.classList.toggle('disabled', isRecording || isRecorded);
+                stopBtn.classList.toggle('disabled', !isRecording);
+
+                // Handle Status Label Colors and Text
+                statusDisplay.classList.remove('secondary', 'warning', 'success', 'alert', 'primary');
+                if (isRecording) {
+                    statusDisplay.textContent = 'RECORDING';
+                    statusDisplay.classList.add('warning');
+                    meterText.textContent = 'Listening...';
+                } else if (isRecorded) {
+                    statusDisplay.textContent = 'PROCESSING...'; // Temporary state before final confirmation
+                    statusDisplay.classList.add('success');
+                    meterText.textContent = 'Sending Segment';
+                } else {
+                    statusDisplay.textContent = 'READY';
+                    statusDisplay.classList.add('secondary');
+                    meterText.textContent = 'Speak Now';
+                    volumeBar.style.width = '0%'; // Reset bar width
+                }
+
+                // Handle Output Area visibility/initial state
+                if (outputTarget.id === 'session-recorder' && !isRecording && !isRecorded) {
+                    outputTarget.innerHTML = "<p>Ready to begin transcription session.</p>";
+                }
+            }
+
+            // --- Volume Analysis Functions ---
+            function startVolumeAnalyser() {
+                if (!mediaStream) return;
+
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                var mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.fftSize);
+
+                mediaStreamSource.connect(analyser);
+
+                processVolume();
+            }
+
+            function stopVolumeAnalyser() {
+                if (volumeRequestId) {
+                    cancelAnimationFrame(volumeRequestId);
+                }
+                if (analyser && analyser.context) {
+                    analyser.disconnect();
+                }
+                volumeBar.style.width = '0%';
+                volumeMeterContainer.classList.remove('success', 'warning', 'alert');
+            }
+
+            function processVolume() {
+                volumeRequestId = requestAnimationFrame(processVolume);
+
+                analyser.getByteTimeDomainData(dataArray);
+
+                var sumOfSquares = 0;
+                for (var i = 0; i < dataArray.length; i++) {
+                    var amplitude = dataArray[i];
+                    var normalized = (amplitude / 128.0) - 1;
+                    sumOfSquares += normalized * normalized;
+                }
+
+                var rms = Math.sqrt(sumOfSquares / dataArray.length);
+
+                var volumePercentage = Math.min(100, rms * 200);
+
+                volumeBar.style.width = volumePercentage + '%';
+                volumeMeterContainer.setAttribute('aria-valuenow', Math.floor(volumePercentage));
+
+                volumeMeterContainer.classList.remove('success', 'warning', 'alert', 'secondary');
+                if (volumePercentage > 50) {
+                    volumeMeterContainer.classList.add('success');
+                } else if (volumePercentage > 10) {
+                    volumeMeterContainer.classList.add('warning');
+                } else {
+                    volumeMeterContainer.classList.add('secondary');
+                }
+                meterText.textContent = volumePercentage > 5 ? 'Recording...' : 'Speak Up!';
+            }
+
+
+            // --- Session Management Functions ---
+
+            // Stops recording, sends the segment, and optionally restarts recording.
+            async function stopAndSendSegment(isManualStop) {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    // Stop the MediaRecorder, which triggers mediaRecorder.onstop
+                    mediaRecorder.stop();
+                }
+
+                // Stop all timers and analysers immediately
+                stopTimer();
+                stopVolumeAnalyser();
+
                 // Clean up the stream tracks to turn off the microphone light
-                mediaStream.getTracks().forEach(track => track.stop());
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(function (track) { return track.stop(); });
+                    mediaStream = null;
+                }
 
-                // Final state update (recording stopped, audio ready)
-                updateControls(false, true);
-                outputArea.innerHTML = `<p>Recording Complete (${timerDisplay.textContent}). Click 'Send' to transcribe.</p>`;
-            };
+                updateControls(false, true); // Set state to "processing/ready to send"
 
-            // 4. Start recording, timer, and analyser
-            mediaRecorder.start();
-            startTimer();
-            startVolumeAnalyser(); // START VOLUME ANALYSER
-            outputArea.style.display = 'none';
-            updateControls(true, false);
+                if (isManualStop) {
+                    isSessionRunning = false;
+                    outputTarget.innerHTML = "<p>Manual stop detected. Sending final segment...</p>";
+                } else {
+                    // Intermediate segment stop
+                    outputTarget.innerHTML = "<p>Segment limit reached (" + formatTime(MAX_RECORDING_SECONDS) + "). Preparing to send and restart...</p>";
+                }
 
-        } catch (err) {
-            console.error('Microphone error:', err);
-            statusDisplay.textContent = 'Permission Denied';
-            statusDisplay.classList.add('alert');
-            updateControls(false, false);
-            outputArea.innerHTML = `<p>Microphone Access Required. Check browser settings.</p>`;
-            outputArea.style.display = 'block';
-        }
-    }
+                // Send the segment now that the blob is ready (via mediaRecorder.onstop)
+                await sendAudio(isManualStop);
 
-    function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            stopTimer(); // STOP CLOCK
-            mediaRecorder.stop();
-        }
-    }
-
-    async function sendAudio() {
-        if (!audioBlob) {
-            outputTarget.innerHTML = '<p>No audio data available to send.</p>';
-            return;
-        }
-
-        statusDisplay.textContent = 'SENDING...';
-        statusDisplay.classList.remove('success');
-        statusDisplay.classList.add('primary');
-        updateControls(false, false);
-
-        const episodePk = '{{obj.pk}}'; // Assume this Jinja2 variable is defined
-        const targetUrl = `/api/episode/${episodePk}/transcribe`;
-
-        outputTarget.innerHTML = `<p>Sending audio data to AI transcription service...</p>`;
-
-        const formData = new FormData();
-        formData.append('audio_file', audioBlob, 'gm_input.webm');
-
-        try {
-            const response = await fetch(targetUrl, {
-                method: 'POST',
-                body: formData
-            });
-
-            const responseText = await response.text();
-
-            if (response.ok) {
-                outputTarget.innerHTML = `<h4>Transcription Complete</h4> ${responseText}`;
-                statusDisplay.textContent = 'TRANSCRIBED';
-                statusDisplay.classList.add('success');
-            } else {
-                outputTarget.innerHTML = `<h4>Transcription Error (${response.status})</h4><p>${responseText}</p>`;
-                statusDisplay.textContent = 'TRANSCRIPTION FAILED';
-                statusDisplay.classList.add('alert');
+                // If this was an automatic stop (not manual), restart the recording immediately
+                if (!isManualStop && isSessionRunning) {
+                    // Give a short delay to ensure the UI updates and the sendAudio promise resolves
+                    setTimeout(startRecording, 500);
+                }
             }
-        } catch (error) {
-            console.error('Fetch Error:', error);
-            outputTarget.innerHTML = `<h4>Network Error</h4><p>Failed to connect to the server.</p>`;
-            statusDisplay.textContent = 'NETWORK ERROR';
-            statusDisplay.classList.add('alert');
-        } finally {
+
+            // User clicked the 'Stop Session' button
+            function manualStop() {
+                if (!isSessionRunning) return;
+
+                // Discard the audio if it's too short
+                if (currentDuration < MIN_RECORDING_SECONDS) {
+                    // Stop recorder/streams immediately to clear resources
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(function (track) { return track.stop(); });
+                        mediaStream = null;
+                    }
+                    stopTimer();
+                    stopVolumeAnalyser();
+
+                    isSessionRunning = false;
+                    updateControls(false, false);
+                    outputTarget.insertAdjacentHTML('afterbegin', '<div class="callout alert margin-bottom-1 padding-1">Recording Discarded: Segment must be at least ' + MIN_RECORDING_SECONDS + ' seconds.</div>');
+                    return;
+                }
+
+                // If long enough, stop and send
+                stopAndSendSegment(true);
+            }
+
+            async function startRecording() {
+                if (mediaRecorder && mediaRecorder.state === 'recording') return;
+
+                try {
+                    // 1. Get media stream
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(mediaStream);
+                    audioChunks = []; // Start new segment chunks
+
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+
+                    // 2. Set up data handling
+                    mediaRecorder.ondataavailable = function (event) {
+                        audioChunks.push(event.data);
+                    };
+
+                    // 3. Set up stop handler
+                    mediaRecorder.onstop = function () {
+                        // The actual sending/restarting logic is in stopAndSendSegment.
+                        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    };
+
+                    // 4. Start recording, timer, and analyser
+                    mediaRecorder.start();
+                    startTimer();
+                    startVolumeAnalyser();
+                    isSessionRunning = true;
+                    updateControls(true, false);
+
+                } catch (err) {
+                    console.error('Microphone error:', err);
+                    statusDisplay.textContent = 'Permission Denied';
+                    statusDisplay.classList.add('alert');
+                    updateControls(false, false);
+                    outputTarget.innerHTML = "<p>Microphone Access Required. Check browser settings (Requires HTTPS/localhost).</p>";
+                }
+            }
+
+            // This function is now ONLY called after a segment is fully saved (via mediaRecorder.onstop)
+            async function sendAudio(isFinalSegment) {
+                if (!audioBlob) {
+                    outputTarget.innerHTML = '<p>No audio data available to send.</p>';
+                    return;
+                }
+
+                statusDisplay.textContent = 'SENDING...';
+                statusDisplay.classList.remove('success', 'warning');
+                statusDisplay.classList.add('primary');
+
+                // Note: {{episode.pk}} must be rendered by the server into this snippet
+                var episodePk = '{{episode.pk}}';
+                var targetUrl = "/api/episode/" + episodePk + "/transcribe";
+
+                var segmentType = isFinalSegment ? 'Manual Stop' : 'Auto Segment';
+                outputTarget.insertAdjacentHTML('afterbegin', "<p>Sending " + segmentType + " (Length: " + timerDisplay.textContent + ") to AI transcription service at <code>" + targetUrl + "</code>...</p>");
+
+                var formData = new FormData();
+                formData.append('audio_file', audioBlob, "gm_input_" + Date.now() + ".webm");
+                formData.append('is_final_segment', isFinalSegment ? 'true' : 'false'); // Indicate finality
+
+                try {
+                    var response = await fetch(targetUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    var responseText = await response.text();
+
+                    if (response.ok) {
+                        // Prepend the new transcription result to the output
+                        var newContent = "\n                    <div class=\"callout success margin-bottom-1 padding-1\">\n                        <h6>Segment Sent Successfully (" + segmentType + ")</h6>\n                        " + responseText + "\n                    </div>\n                ";
+                        if (outputTarget.id === 'session-recorder' && outputTarget.innerHTML.includes('Ready to begin')) {
+                            outputTarget.innerHTML = newContent;
+                        } else {
+                            outputTarget.insertAdjacentHTML('afterbegin', newContent);
+                        }
+                        statusDisplay.textContent = isFinalSegment ? 'SESSION ENDED' : 'SENT & RESTARTING...';
+                    } else {
+                        outputTarget.insertAdjacentHTML('afterbegin', '<p class="alert">Transcription Error (' + response.status + ')</p>');
+                        statusDisplay.textContent = 'TRANSCRIPTION FAILED';
+                        statusDisplay.classList.add('alert');
+                    }
+                } catch (error) {
+                    console.error('Fetch Error:', error);
+                    outputTarget.insertAdjacentHTML('afterbegin', "\n                <div class=\"callout alert margin-bottom-1 padding-1\">\n                    <h4>Network Error</h4>\n                    <p>Failed to connect to the server.</p>\n                </div>\n            ");
+                    statusDisplay.textContent = 'NETWORK ERROR';
+                    statusDisplay.classList.add('alert');
+                } finally {
+                    // Reset for next segment/session end
+                    audioBlob = null;
+                    if (isFinalSegment) {
+                        updateControls(false, false);
+                    }
+                }
+            }
+
+            // --- Initialize ---
+            initializeOutputTarget();
             updateControls(false, false);
-            audioBlob = null;
-        }
-    }
 
-    // --- Initialize ---
-    updateControls(false, false);
+            // Assign event handlers using the functions defined inside the IIFE
+            recordBtn.onclick = startRecording;
+            stopBtn.onclick = manualStop;
 
-    // Remove initial event listeners and rely on onclick handlers
-    recordBtn.removeEventListener('click', startRecording);
-    stopBtn.removeEventListener('click', stopRecording);
-    sendBtn.removeEventListener('click', sendAudio);
-</script>
+        })();
+    </script>
+</div>
 {%- endmacro %}
 
 {% macro graphic(user, obj) -%}
