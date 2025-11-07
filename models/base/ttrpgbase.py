@@ -421,6 +421,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
     # MARK: Associations
     def add_association(self, obj):
         # log(len(obj.associations), self in obj.associations)
+        if obj == self.world:
+            return obj
         if self not in obj.associations:
             obj.associations += [self]
             obj.save()

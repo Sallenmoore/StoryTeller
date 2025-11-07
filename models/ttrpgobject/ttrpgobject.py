@@ -70,6 +70,7 @@ class TTRPGObject(TTRPGBase):
             while ancestor.parent and ancestor.parent not in ancestry:
                 ancestry.append(ancestor.parent)
                 ancestor = ancestor.parent
+                self.add_association(ancestor)
         if self.world not in ancestry:
             ancestry.append(self.world)
         return ancestry
