@@ -60,10 +60,10 @@
         <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <h3>Loot</h3>
-            {{form_components.texteditor(user, episode, 'loot')}}
+            {{form_components.richtexteditor(user, episode, 'loot')}}
             <hr>
             <h3>Hooks</h3>
-            {{form_components.texteditor(user, episode, 'hooks')}}
+            {{form_components.richtexteditor(user, episode, 'hooks')}}
         </form>
 
     </div>
