@@ -3,6 +3,7 @@ from autonomous.model.autoattr import (
 )
 
 from models.base.place import Place
+from models.ttrpgobject.character import Character
 
 
 class Location(Place):
@@ -251,13 +252,29 @@ class Location(Place):
 
     ## MARK: - Verification Methods
     ###############################################################
-    ##                    VERIFICATION HOIOKS                    ##
+    ##                    VERIFICATION METHODS                   ##
     ###############################################################
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     log("Auto Pre Save World")
+    #     super().auto_post_init(sender, document, **kwargs)
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_owner()
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     # def clean(self):
-    #     if self.attrs:
-    #         self.verify_attr()
+    #     super().clean()
 
-    # ################### verify methods ###################
-    # def verify_attr(self):
-    #     pass
+    ################### verify associations ##################
+
+    def pre_save_owner(self):
+        if self.owner and not isinstance(self.owner, Character):
+            self.owner = Character.get(self.owner)
+
+        # log(self.features, _print=True)

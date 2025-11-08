@@ -129,14 +129,18 @@
         {% endif %}
         <hr>
         <h3>Delete Episode</h3>
-        <button class="button is-light has-text-dark"
-                hx-post="/api/campaign/episode/{{episode.pk}}/delete"
-                hx-target="#details-container"
-                hx-select="#details-container"
-                hx-swap="outerHTML"
-                hx-confirm='Are you sure you want to delete this Episode?'>
-            {{icon_components.trash(size="1rem")}}
-        </button>
+        <div class="grid-x align-spaced">
+            <div class="cell shrink">
+                <button class="button is-light has-text-dark"
+                        hx-post="/api/campaign/episode/{{episode.pk}}/delete"
+                        hx-target="#details-container"
+                        hx-select="#details-container"
+                        hx-swap="outerHTML"
+                        hx-confirm='Are you sure you want to delete this Episode?'>
+                    {{icon_components.trash(size="1rem")}}
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 {%- endmacro %}

@@ -19,10 +19,18 @@
                 {% endfor %}
             </datalist>
         </div>
-    </div>
-    <div class="cell shrink">
-        <h4>Owner</h4>
-        <input disabled id='owner' type="text" name="owner" value='TBD...'>
+        <div class="cell shrink">
+            <label>Owner
+                <select name="owner">
+                    <option value=""></option>
+                    {% for ch in obj.characters %}
+                    <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
+                        {{ch.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
     </div>
 </form>
 {{manage_components.backstory(user, obj)}}
