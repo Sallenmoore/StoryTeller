@@ -71,29 +71,24 @@
             </div>
         </div>
     </div>
-    <div class="cell auto">
-        <div class="callout">
-            <h5>Notes</h5>
-            {{obj.notes | safe}}
+</div>
+<div class="grid-x align-spaced grid-margin-x">
+    <div class="cell medium-6">
+        <div class="callout ">
+            <div class="grid-x grid-margin-x">
+                <div class="cell auto generated-text-lightbg">
+                    <h3 class='text-center'>Backstory</h3>
+                    {{obj.backstory | safe}}
+                </div>
+                {% if obj.image %}
+                <div class="cell medium-3 generated-text-lightbg">
+                    <img src="{{obj.image.url()}}" alt="Image for {{obj.name}}">
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
-<div class="callout ">
-    <div class="grid-x grid-margin-x">
-        <div class="cell auto generated-text-lightbg">
-            <h3 class='text-center'>Backstory</h3>
-            {{obj.backstory | safe}}
-        </div>
-        {% if obj.image %}
-        <div class="cell medium-3 generated-text-lightbg">
-            <img src="{{obj.image.url()}}" alt="Image for {{obj.name}}">
-        </div>
-        {% endif %}
-    </div>
-</div>
-<div class="grid-x">
-    {% if user.world_user(obj)%}
-    <div class="cell">
+    <div class="cell medium-6">
         <div class="callout ">
             <h3>Triggers</h3>
             <span>
@@ -101,6 +96,15 @@
             </span>
         </div>
     </div>
+    <div class="cell">
+        <div class="callout">
+            <h5>Notes</h5>
+            {{obj.notes | safe}}
+        </div>
+    </div>
+</div>
+<div class="grid-x">
+    {% if user.world_user(obj)%}
     <div class="cell">
         <div class="callout">
             <h3>Mechanics</h3>

@@ -238,19 +238,17 @@
 {%- endmacro %}
 
 {% macro info(user, obj) -%}
-<div class="grid-x">
+<div class="grid-x align-spaced grid-margin-x">
     <div class="cell shrink align-center-middle">
         <h3>{{obj.title}} Type:</h3>
-    </div>
-    <div class="cell shrink align-center-middle ">
         <h4>{{obj.location_type}}</h4>
     </div>
     {% if obj.owner %}
-    <div class="cell">
+    <div class="cell medium-3">
         <div class="callout">
             <h4>Owner</h4>
             <a href="/{{obj.owner.model_name()|lower}}/{{obj.owner.pk}}">
-                <div class="image is-large is-thumbnail is-margin-center">
+                <div class="image is-thumbnail is-margin-center">
                     {% if obj.owner.image %}
                     <img src="{{obj.owner.image.url()}}" alt="{{obj.owner.name}}" />
                     {% endif %}
