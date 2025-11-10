@@ -175,6 +175,14 @@ class Encounter(AutoModel):
         return [a for a in self.associations if a.model_name() == "District"]
 
     @property
+    def description(self):
+        return self.desc
+
+    @description.setter
+    def description(self, val):
+        self.desc = val
+
+    @property
     def encounters(self):
         return [a for a in self.associations if a.model_name() == "Encounter"]
 

@@ -56,14 +56,7 @@
             <div class="grid-x" id='ability-item-list'>
                 {% for ability in ability_list %}
                 <div class="cell medium-6" style='position:relative;'>
-                    <a class="-grey"
-                       style='position:absolute; top:5px; right:5px;'
-                       hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
-                       hx-target='closest .cell'
-                       hx-swap='delete' hx-trigger="click consume">
-                        {{icon_components.delete(size="1rem")}}
-                    </a>
-                    <div class="callout ">
+                    <div class="callout bg-secondary">
                         <h4 class=' text-center'
                             onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
                             {{ability.name}}
@@ -109,6 +102,13 @@
                             </div>
                         </div>
                     </div>
+                    <a
+                       style='position:absolute; top:5px; right:5px;'
+                       hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
+                       hx-target='closest .cell'
+                       hx-swap='delete' hx-trigger="click consume">
+                        {{icon_components.delete(size="1rem")}}
+                    </a>
                 </div>
                 <hr>
                 {% endfor %}
