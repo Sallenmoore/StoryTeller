@@ -32,14 +32,42 @@ event_endpoint = Blueprint("event", __name__)
 ###########################################################
 ##                    Event Routes                    ##
 ###########################################################
-@event_endpoint.route("/", methods=("POST",))
-@event_endpoint.route("/<string:pk>", methods=("POST",))
+@event_endpoint.route(
+    "/",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+@event_endpoint.route(
+    "/<string:pk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def index(pk=None):
     user, obj, request_data = _loader()
     event = Event.get(pk or request.json.get("eventpk"))
-    return get_template_attribute("shared/_event.html", "event")(
+    return get_template_attribute("models/_event.html", "index")(
         user,
         event,
+    )
+
+
+@event_endpoint.route(
+    "/<string:pk>/timeline",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def timeline(pk=None):
+    user, obj, request_data = _loader()
+    event = Event.get(pk or request.json.get("eventpk"))
+    return get_template_attribute("models/_event.html", "timeline")(
+        user,
+        event.world,
     )
 
 

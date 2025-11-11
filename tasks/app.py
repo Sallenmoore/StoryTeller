@@ -264,6 +264,18 @@ def create_app():
         task = AutoTasks().task(tasks._generate_event_task, pk=pk).result
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/event/from_events", methods=("POST",))
+    def generate_event_from_events():
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_event_from_events_task,
+                event_ids=request.json.get("event_ids"),
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/event/<string:pk>/summary", methods=("POST",))
     def generate_event_summary(pk):
         task = AutoTasks().task(tasks._generate_event_summary_task, pk=pk).result

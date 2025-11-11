@@ -4,6 +4,7 @@
 {% import "shared/_title.html" as title_components %}
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_associations.html" as associations_components %}
+{% import "shared/_timeline.html" as timeline_components %}
 
 {% macro index(user, event) -%}
 <div class="callout " style='border-top-right-radius: 0; border-top-left-radius:0;'>
@@ -11,7 +12,7 @@
         <div class="cell">
             <hr>
             <div class="grid-x">
-                {% if event.start_date %}
+                {% if event.start_date or event.end_date %}
                 <div class="cell">
                     <div class="callout has-bg-transparent">
                         <span>{{event.start_date}} - {{event.end_date}}</span>
@@ -21,9 +22,9 @@
                 {% if event.backstory %}
                 <div class="cell">
                     <div class="callout  ">
-                        <h5
-                            style='text-decoration: underline; text-center'>
-                            Description</h5>
+                        <h5 style='text-decoration: underline; text-center'>
+                            Description
+                        </h5>
                         {{event.backstory | safe}}
                     </div>
                 </div>
@@ -99,10 +100,29 @@
         </div>
     </a>
 </li>
+<li>
+    <a href=""
+       hx-get="/api/{{event.path}}/timeline#{{event.pk}}" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML"
+       hx-push-url="/{{event.path}}/timeline">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.timeline(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Timeline</span>
+            </div>
+        </div>
+    </a>
+</li>
 {%- endmacro %}
 
 {% macro associations(user, obj, associations)%}
 {{associations_components.associations(user, obj, associations)}}
+{%- endmacro %}
+
+{% macro timeline(user, obj) -%}
+{{ timeline_components.timeline(user, obj) }}
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}

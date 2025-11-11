@@ -138,6 +138,16 @@ def _generate_event_task(pk):
     return {"url": f"/api/{event.path}/manage"}
 
 
+def _generate_event_from_events_task(event_ids):
+    events = [Event.get(eid) for eid in event_ids if Event.get(eid)]
+    if not events:
+        return {"url": "#"}
+    world = events[0].world
+    new_event = Event(world=world)
+    new_event.generate_from_events(events)
+    return {"url": f"/api/{new_event.path}/timeline#{new_event.pk}"}
+
+
 def _generate_event_summary_task(pk):
     event = Event.get(pk)
     event.summarize()

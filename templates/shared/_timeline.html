@@ -135,7 +135,47 @@
         color: #000000;
     }
 </style>
-<div class="callout white">
+<div class="callout white" style='position:relative'>
+    <div id="generate-event-callout" class="callout bg-muted hide"
+         style='position:fixed; top: 10rem; right: 1rem; z-index: 1000;'>
+        <button id="select-events-button" class="button small bg-screen" onclick="selectEvents()">
+            Generate New Event
+        </button>
+        <script>
+            function selectEvents() {
+                var events = document.querySelectorAll('.new-event-checkbox');
+                events.forEach(function (event) {
+                    event.parentNode.classList.remove('hide');
+                });
+                document.getElementById('select-events-button').classList.add('hide');
+                document.getElementById('generate-event-button').classList.remove('hide');
+            }
+        </script>
+        <button id="generate-event-button" class="button small bg-screen hide"
+                onclick="generateEvent()">
+            Create from Select Events
+        </button>
+        <script>
+            function generateEvent() {
+                var checked_events = document.querySelectorAll('.new-event-checkbox:checked');
+                var event_ids = [];
+                checked_events.forEach(function (event) {
+                    event_ids.push(event.id.replace('event-', ''));
+                });
+                console.log(event_ids);
+                htmx.ajax('POST', '/task/generate/event/from_events', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    values: { event_ids: event_ids },
+                    target: '#generate-event-callout',
+                    swap: 'innerHTML'
+                });
+
+
+            }
+        </script>
+    </div>
     <div class="grid-x">
         <div class="cell">
             <h2 class="text-center">
@@ -149,7 +189,7 @@
                 {% if a.end_date and a.end_date.year and a.name and a.outcome %}
                 <div class='tentry {{ loop.cycle("right", "left" ) }}'>
                     <div class="date">{{a.end_date}}</div>
-                    <div class="content">
+                    <div id='{{a.pk}}' class="content">
                         <div class="grid-x grid-margin-x">
                             <div class="cell shrink medium-3">
                                 <a href="/{{a.path}}">
@@ -159,6 +199,11 @@
                                     </div>
                                     {% endif %}
                                 </a>
+                                <div class='callout hide'>
+                                    <label for="event-{{a.pk}}">Select</label>
+                                    <input class="new-event-checkbox" id="event-{{a.pk}}"
+                                           type="checkbox">
+                                </div>
                             </div>
                             <div class="cell auto">
                                 <a href="/{{a.path}}">

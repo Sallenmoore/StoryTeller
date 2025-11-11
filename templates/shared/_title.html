@@ -18,8 +18,8 @@
         {% endif %}
     </div>
     <div class="grid-x align-center-middle">
-        {% if obj.model_name() != "World" and obj.geneology %}
         <div class="cell shrink">
+            {% if obj.model_name() != "World" and obj.geneology %}
             <nav>
                 <ul class="breadcrumbs" role="navigation">
                     {% for p in obj.geneology[::-1] %}
@@ -28,8 +28,11 @@
                     {% endfor %}
                 </ul>
             </nav>
+            {% elif obj.model_name() == "Event" %}
+            <span class='secondary'>{{obj.start_date}}</span> - <span
+                  class='secondary'>{{obj.end_date}}</span>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
 {% endmacro %}

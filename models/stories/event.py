@@ -41,6 +41,14 @@ class Event(AutoModel):
                     "type": "string",
                     "description": "The scope of the story and how it fits into the larger world. One of the following: 'Local', 'Regional', 'Global', or 'Epic'",
                 },
+                "start_date": {
+                    "type": "string",
+                    "description": "The starting date of the event in the format 'Day Month Year'",
+                },
+                "end_date": {
+                    "type": "string",
+                    "description": "The ending date of the event in the format 'Day Month Year'",
+                },
                 "impact": {
                     "type": "string",
                     "description": "The overall impact the event had on the world. This should be a brief summary of the consequences of the event.",
@@ -148,10 +156,14 @@ class Event(AutoModel):
 
     ############# image generation #############
     def generate(self):
-        prompt = f"Your task is to create a new event for a {self.world.genre} TTRPG world. The event should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.history}. "
+        prompt = f"""
+Your task is to create a new event for a {self.world.genre} TTRPG world. The event should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.history}.
+The timeline of the world is as follows:
+{"".join([f"\n\n{e.start_date} - {e.end_date}: {e.name}: {e.summary or e.backstory}." for e in self.world.events[::-1]])}
+"""
 
         if self.start_date or self.end_date:
-            prompt += "\n\nThe event has the following dates: "
+            prompt += "\n\nThis event has the following dates: "
             if self.start_date:
                 prompt += f"\n\nThe event starts on {self.start_date}. "
             if self.end_date:
@@ -185,6 +197,58 @@ class Event(AutoModel):
             result.get("backstory") and setattr(
                 self, "backstory", result.get("backstory")
             )
+
+            if not self.end_date and result.get("end_date"):
+                self.backstory = f"{result.get('end_date')}<br>{self.backstory}"
+
+            if not self.start_date and result.get("start_date"):
+                self.backstory = f"{result.get('start_date')}<br>{self.backstory}"
+
+            result.get("outcome") and setattr(self, "outcome", result.get("outcome"))
+            result.get("impact") and setattr(self, "impact", result.get("impact"))
+            result.get("desc") and setattr(self, "desc", result.get("desc"))
+            log(f"Generated Event: {self.name}", _print=True)
+            self.save()
+        else:
+            log("Failed to generate Event", _print=True)
+        if not self.image and self.desc:
+            self.generate_image()
+
+    def generate_from_events(self, events):
+        prompt = f"""Your task is to create a new event for a {self.world.genre} TTRPG world. The event should provide a connecting thread for the following events:
+
+{"\n".join([f"{e.name} ({e.start_date} - {e.end_date}): {e.summary or e.backstory}" for e in events])}.
+
+Here is some context about the world: {self.world.name}, {self.world.history}.
+"""
+
+        prompt += "\n\nThe event is part of the following storylines: "
+        for e in events:
+            for story in e.stories:
+                prompt += f"\n\n{story.name}: {story.summary or story.backstory}."
+        prompt += "\n\nThe event is related to the following world elements: "
+        for e in events:
+            for assoc in e.associations:
+                if assoc not in self.associations:
+                    prompt += f"\n\n{assoc.name}: {assoc.backstory_summary}."
+                    self.add_association(assoc)
+
+        log("Generating Event with prompt: " + prompt, _print=True)
+        result = self.world.system.generate_json(
+            prompt=prompt,
+            primer=f"Create a new event that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
+            funcobj=self.funcobj,
+        )
+        if result:
+            result.get("name") and setattr(self, "name", result.get("name"))
+            result.get("scope") and setattr(self, "scope", result.get("scope"))
+            result.get("backstory") and setattr(
+                self, "backstory", result.get("backstory")
+            )
+            if end_date := result.get("end_date"):
+                self.backstory = f"{end_date}\n\n{self.backstory}"
+            if start_date := result.get("start_date"):
+                self.backstory = f"{start_date}\n\n{self.backstory}"
             result.get("outcome") and setattr(self, "outcome", result.get("outcome"))
             result.get("impact") and setattr(self, "impact", result.get("impact"))
             result.get("desc") and setattr(self, "desc", result.get("desc"))
