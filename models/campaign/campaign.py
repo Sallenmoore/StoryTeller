@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
+from models.utility.parse_attributes import parse_text
 
 from .episode import Episode
 
@@ -167,6 +168,7 @@ class Campaign(AutoModel):
                 .replace("h3>", "h4>")
                 .replace("h4>", "h5>")
             )
+            self.summary = parse_text(self, self.summary)
             self.save()
 
     def add_episode(
@@ -280,6 +282,7 @@ class Campaign(AutoModel):
         document.pre_save_current_episode()
         document.pre_save_episodes()
         document.pre_save_players()
+        document.description = parse_text(document, document.description)
         # document.pre_save_associations()
 
     # @classmethod

@@ -7,6 +7,7 @@ from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringA
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
+from models.utility.parse_attributes import parse_date
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -200,87 +201,16 @@ class TTRPGObject(TTRPGBase):
         if hasattr(self.end_date, "pk") and not self.end_date.pk:
             self.end_date = None
 
-        if self.pk and self.calendar:
-            # log(f"Pre-saving dates for {self}", self.start_date, self.end_date)
-            if isinstance(self.start_date, dict):
-                if dates := Date.search(obj=self, calendar=self.calendar):
-                    while len(dates):
-                        dates[-1].delete()
-                        dates.pop()
-                start_date = Date(obj=self, calendar=self.calendar)
-                start_date.day, start_date.month, start_date.year = (
-                    self.start_date["day"],
-                    self.start_date["month"],
-                    self.start_date["year"],
-                )
-                start_date.month = (
-                    self.calendar.months.index(start_date.month.title())
-                    if start_date.month
-                    else random.randrange(len(self.calendar.months))
-                )
-                start_date.day = (
-                    int(start_date.day) if start_date.day else random.randint(1, 28)
-                )
-                start_date.year = int(start_date.year) if start_date.year else -1
-                start_date.save()
-                self.start_date = start_date
-            elif not self.start_date or not isinstance(self.start_date, Date):
-                self.start_date = Date(
-                    obj=self,
-                    calendar=self.calendar,
-                    day=random.randint(1, 28),
-                    month=random.randrange(len(self.calendar.months) or 12),
-                    year=0,
-                )
-                self.start_date.save()
+        self.start_date = parse_date(self, self.start_date)
+        self.end_date = parse_date(self, self.end_date)
 
-            if isinstance(self.end_date, dict):
-                if dates := Date.search(obj=self, calendar=self.calendar):
-                    dates.sort(key=lambda x: (x.year, x.month, x.day))
-                    log(dates)
-                    while len(dates) > 1:
-                        dates[-1].delete()
-                        dates.pop()
-                    log(dates)
-                end_date = Date(obj=self, calendar=self.calendar)
-                end_date.day, end_date.month, end_date.year = (
-                    self.end_date["day"],
-                    self.end_date["month"],
-                    self.end_date["year"],
-                )
-                end_date.month = (
-                    self.calendar.months.index(end_date.month.title())
-                    if end_date.month
-                    else random.randrange(len(self.calendar.months))
-                )
-                end_date.day = (
-                    int(end_date.day) if end_date.day else random.randint(1, 28)
-                )
-                end_date.year = int(end_date.year) if end_date.year else -1
-                end_date.save()
-                self.end_date = end_date
-            elif not self.end_date or not isinstance(self.end_date, Date):
-                self.end_date = Date(
-                    obj=self,
-                    calendar=self.calendar,
-                    day=random.randint(1, 28),
-                    month=random.randrange(len(self.calendar.months) or 12),
-                    year=0,
-                )
-                self.end_date.save()
-
-        if self.start_date and self.start_date.day <= 0:
-            self.start_date.day = random.randint(1, 28)
-        if self.start_date and self.start_date.month <= 0:
-            self.start_date.month = random.randint(1, 12)
-        if self.end_date and self.end_date.day <= 0:
-            self.end_date.day = random.randint(1, 28)
-        if self.end_date and self.end_date.month <= 0:
-            self.end_date.month = random.randint(1, 12)
-
-        # log(
-        #     f"Pre-saved dates for {self}",
-        #     self.start_date,
-        #     self.end_date,
-        #     self.world.current_date,
-        # )
+        if self.start_date:
+            if self.start_date.day <= 0:
+                self.start_date.day = random.randint(1, 28)
+            if self.start_date.month <= 0:
+                self.start_date.month = random.randint(1, 12)
+        if self.end_date:
+            if self.end_date.day <= 0:
+                self.end_date.day = random.randint(1, 28)
+            if self.end_date.month <= 0:
+                self.end_date.month = random.randint(1, 12)

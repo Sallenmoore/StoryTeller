@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from autonomous import log
 from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
     DateTimeAttr,
@@ -10,6 +9,9 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+
+from autonomous import log
+from models.utility.parse_attributes import parse_text
 
 
 class JournalEntry(AutoModel):
@@ -135,7 +137,7 @@ class Journal(AutoModel):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_entries()
-        #document.pre_save_parent()
+        document.pre_save_text()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -150,5 +152,6 @@ class Journal(AutoModel):
             entry.save()
         self.entries = sorted(self.entries, key=lambda x: x.date, reverse=True)
 
-    # def pre_save_parent(self):
-    #     log(self.parent)
+    def pre_save_text(self):
+        if self.text:
+            self.text = parse_text(self, self.text)

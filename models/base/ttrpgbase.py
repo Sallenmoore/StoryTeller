@@ -14,6 +14,7 @@ from autonomous import log
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
+from models.utility.parse_attributes import parse_text
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -634,6 +635,7 @@ HISTORY
         document.pre_save_image()
         document.pre_save_backstory()
         document.pre_save_traits()
+        document.pre_save_text_fields()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -682,3 +684,17 @@ HISTORY
             self.journal = Journal(world=self.world, parent=self)
             self.journal.save()
             self.save()
+
+    def pre_save_text_fields(self):
+        if self.backstory:
+            self.backstory = parse_text(self, self.backstory)
+        if self.backstory_summary:
+            self.backstory_summary = parse_text(self, self.backstory_summary)
+        if self.desc:
+            self.desc = parse_text(self, self.desc)
+        if self.desc_summary:
+            self.desc_summary = parse_text(self, self.desc_summary)
+        if self.status:
+            self.status = parse_text(self, self.status)
+        if self.history:
+            self.history = parse_text(self, self.history)
