@@ -76,8 +76,9 @@
 {% endmacro %}
 
 {%macro dates(user, obj, stacked=False) -%}
-<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-    <div id="manage-obj-dates" class="grid-x grid-margin-x align-center" style='position:relative;'>
+<form id="manage-obj-dates" hx-post="/api/manage/update" hx-swap="none"
+      hx-trigger="input delay:1s, change">
+    <div class="grid-x grid-margin-x align-center" style='position:relative;'>
         <div class="cell small-12 {% if not stacked %} medium-6 {% endif %}  align-center-middle">
             <h5 class='text-center'>Start</h5>
             <div class="grid-x">

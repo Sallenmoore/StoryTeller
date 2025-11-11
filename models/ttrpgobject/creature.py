@@ -289,4 +289,8 @@ class Creature(Actor):
             self.size = "medium"
 
     def pre_save_legendary(self):
-        self.legendary = bool(self.legendary)
+        if isinstance(self.legendary, str):
+            if self.legendary.lower() in ["true", "1", "yes"]:
+                self.legendary = True
+            else:
+                self.legendary = False
