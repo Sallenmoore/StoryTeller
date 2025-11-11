@@ -50,28 +50,22 @@
     <hr>
     <div class="grid-x align-spaced">
         <div class="cell shrink">
-            <label class="is-subheading">Group</label>
+            <label class="is-subheading">Legendary</label>
             <div class="is-select">
-                <select name="group">
-                    {%for i in range(25) %}
-                    <option value='{{i}}'
-                            {%if obj.group==i %} selected {% endif %}>
-                        {%if not i %}
-                        Unique
-                        {% else %}
-                        {{i}}
-                        {% endif %}
-                    </option>
-                    {% endfor %}
+                <select name="legendary">
+                    <option value=1
+                            {%if obj.legendary %} selected {% endif %}>Yes</option>
+                    <option value=0
+                            {%if not obj.legendary %} selected {% endif %}>No</option>
                 </select>
             </div>
             <script>
                 // Function to show/hide the element based on the select value
 
                 function toggleVisibility() {
-                    let selectGroupElement = document.querySelector('select[name="group"]');
+                    let selectLegendaryElement = document.querySelector('select[name="legendary"]');
                     let objDatesElement = document.getElementById('manage-obj-dates');
-                    selectGroupElement.value !== '0' ?
+                    selectLegendaryElement.value !== '0' ?
                         objDatesElement.classList.add('is-hidden') :
                         objDatesElement.classList.remove('is-hidden');
                     //console.log("================  selectGroupElement.value  =================", selectGroupElement.value);
@@ -81,7 +75,7 @@
                 toggleVisibility();
 
                 // Add an event listener to the select element to run the function on change
-                document.querySelector('select[name="group"]').addEventListener('change', toggleVisibility);
+                document.querySelector('select[name="legendary"]').addEventListener('change', toggleVisibility);
             </script>
         </div>
         <div class="cell shrink">

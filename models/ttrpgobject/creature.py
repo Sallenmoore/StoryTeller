@@ -1,7 +1,7 @@
 import random
 
 import markdown
-from autonomous.model.autoattr import IntAttr, ListAttr, StringAttr
+from autonomous.model.autoattr import BoolAttr, IntAttr, StringAttr
 
 from autonomous import log
 from models.base.actor import Actor
@@ -12,7 +12,7 @@ class Creature(Actor):
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
-    group = IntAttr(default=False)
+    legendary = BoolAttr(default=False)
 
     start_date_label = "Born"
     end_date_label = "Died"
@@ -32,10 +32,6 @@ class Creature(Actor):
                     "type": "string",
                     "description": "huge, large, medium, small, or tiny",
                 },
-                "group": {
-                    "type": "integer",
-                    "description": "The average number of creatures of this kind that usually stay together, or 0 for a unique creature (i.e. BBEG)",
-                },
             },
         },
     }
@@ -49,19 +45,23 @@ class Creature(Actor):
     @property
     def image_prompt(self):
         return f"""A full-length color portrait of a {self.genre} {self.type or "creature"} with the following description:
-        {("- TYPE: " if self.group else "- NAME: ") + self.name}
+        {("- TYPE: " if not self.legendary else "- NAME: ") + self.name}
         {"- DESCRIPTION: " + self.description if self.description else ""}
         {"- SIZE: " + self.size if self.size else ""}
         """
 
     @property
     def unique(self):
-        return bool(self.group)
+        return self.legendary
 
     ################### CRUD Methods #####################
     def generate(self):
-        prompt = f"""Generate detailed data for a common antagonistic {self.type} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual.
+        if self.legendary:
+            prompt = f"""Generate detailed data for a unique named {self.type or "creature"} suitable for a {self.genre} TTRPG. Focus on their individual characteristics, abilities, backstory, and general disposition, suitable for a group of adventurers to encounter.
         """
+        else:
+            prompt = f"""Generate detailed data for a common {self.type or "creature"} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual. This is a classification of creature, not a specific creature.
+            """
         return super().generate(prompt=prompt)
 
     ################### Instance Methods #####################
@@ -265,6 +265,7 @@ class Creature(Actor):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_size()
+        document.pre_save_legendary()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -286,3 +287,6 @@ class Creature(Actor):
         else:
             log(f"Invalid size for creature: {self.size}", _print=True)
             self.size = "medium"
+
+    def pre_save_legendary(self):
+        self.legendary = bool(self.legendary)
