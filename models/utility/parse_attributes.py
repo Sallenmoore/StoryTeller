@@ -76,6 +76,7 @@ def parse_date(obj, date):
             new_date.day = int(new_date.day) if new_date.day else random.randint(1, 28)
             new_date.year = int(new_date.year) if new_date.year else -1
             new_date.save()
+            date = new_date
         elif not obj.start_date or not isinstance(obj.start_date, Date):
             new_date = Date(
                 obj=obj,
@@ -84,8 +85,7 @@ def parse_date(obj, date):
                 month=random.randrange(len(obj.calendar.months) or 12),
                 year=-1,
             )
-        return new_date
-
+            date = new_date
     return date
 
     # log(
