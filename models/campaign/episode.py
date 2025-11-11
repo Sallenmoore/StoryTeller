@@ -371,6 +371,7 @@ class Episode(AutoModel):
         document.pre_save_episode_num()
         document.pre_save_dates()
         document.pre_save_report()
+        document.pre_save_description()
 
         ##### MIGRATION: Encounters #######
         document.associations = [
@@ -479,3 +480,69 @@ class Episode(AutoModel):
                         link_template, self.episode_report
                     )
             # log(self.episode_report)
+
+    def pre_save_description(self):
+        """
+        Checks for a full name (obj.name) in a block of text and replaces it
+        with a link, while respecting existing anchor tags.
+
+        Args:
+            text (str): The block of text to search and modify.
+            obj (object): An object with 'name' and 'path' attributes
+                        (e.g., Character, City, etc.).
+
+        Returns:
+            str: The modified text with the name parts linked.
+        """
+        if self.description:
+            LINK_PATTERN = re.compile(r'href="/([a-zA-Z]+)/([a-fA-F0-9]+)"')
+            # Use re.findall to get all tuples of (model, pk) from the report string
+            found_links = LINK_PATTERN.findall(self.description)
+            # Use a set to store unique associations to prevent duplicates
+            unique_associations = set()
+
+            for model_name, pk_value in found_links:
+                # Check if this specific association has already been processed in this run
+                if (model_name, pk_value) in unique_associations:
+                    continue
+                try:
+                    # Attempt to retrieve the object using the custom function
+                    # Note: AutoModel and get_model must be defined/imported correctly in your environment.
+
+                    if linked_object := AutoModel.get_model(model_name, pk_value):
+                        if linked_object not in self.associations:
+                            self.associations += [linked_object]
+
+                        # Mark as processed to handle multiple links to the same object
+                        unique_associations.add((model_name, pk_value))
+
+                except Exception as e:
+                    # Log an error if the model/PK combination fails lookup (e.g., deleted object)
+                    log(f"Error retrieving linked object /{model_name}/{pk_value}: {e}")
+
+            if self.associations:
+                STRIP_ANCHOR_TAGS_PATTERN = re.compile(
+                    r"</?a[^>]*>", re.IGNORECASE | re.DOTALL
+                )
+                # --- 1. Strip all existing anchor tags from the text ---
+                # This ensures that any existing links are removed, allowing a clean, full-name match.
+                self.description = STRIP_ANCHOR_TAGS_PATTERN.sub(
+                    "", self.description.replace("@", "")
+                )
+                for obj in self.associations:
+                    if not obj or not obj.name or not obj.path:
+                        continue
+
+                    # --- 2. Define the exact, case-insensitive match pattern ---
+                    # We escape the name to handle special characters and enforce word boundaries (\b)
+                    # to ensure "John" matches but not "Johnston".
+                    full_name_pattern = re.compile(
+                        r"\b" + re.escape(obj.name) + r"\b", re.IGNORECASE
+                    )
+
+                    # --- 3. Replace all occurrences of the unwrapped full name ---
+                    link_template = f"<a href='/{obj.path}' style='a{{color: cadetblue; font-weight:bold;}}'>{obj.name}</a>"
+                    self.description = full_name_pattern.sub(
+                        link_template, self.description
+                    )
+            # log(self.description)
