@@ -543,6 +543,9 @@ class BaseSystem(AutoModel):
 
     ############# CRUD Methods #############
 
+    def foundry_export(self, obj):
+        return obj.page_data()
+
     def get_title(self, model):
         return self._titles.get(model, "Object")
 

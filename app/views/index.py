@@ -27,7 +27,7 @@ index_page = Blueprint("index", __name__)
 
 
 def _authenticate(user, obj):
-    if user in obj.world.users:
+    if obj and user in obj.world.users:
         return True
     return False
 
@@ -214,5 +214,4 @@ def obj_data(pk, model):
 )
 def foundry_export(pk, model):
     obj = World.get_model(model, pk)
-    log(obj.foundry_export())
-    return obj.foundry_export()
+    return obj.system.foundry_export(obj)
