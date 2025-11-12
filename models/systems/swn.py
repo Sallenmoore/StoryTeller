@@ -929,4 +929,3 @@ class StarsWithoutNumber(SciFiSystem):
         # Add the note to the scene's notes array
         target_schema["notes"].append(embedded_note)
         return target_schema
-

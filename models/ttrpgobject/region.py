@@ -109,11 +109,6 @@ class Region(Place):
             "religion": self.religion,
         }
 
-    # def foundry_export(self):
-    #     source_data = self.page_data()
-
-    #     return source_data
-
     ###############################################################
     ##                    VERIFICATION METHODS                   ##
     ###############################################################

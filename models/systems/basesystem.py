@@ -543,6 +543,9 @@ class BaseSystem(AutoModel):
 
     ############# CRUD Methods #############
 
+    def foundry_export(self, obj):
+        return obj.page_data()
+
     def get_title(self, model):
         return self._titles.get(model, "Object")
 
@@ -598,10 +601,6 @@ class BaseSystem(AutoModel):
             self.text_client.delete()
         if self.json_client:
             self.json_client.delete()
-        return super().delete()
-
-    def foundry_export(self, obj):
-        return obj.page_data()
 
     ############# Generation Methods #############
 
