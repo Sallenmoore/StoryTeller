@@ -97,7 +97,7 @@ def parse_date(obj, date):
     # )
 
 
-def sanitize(cls, data):
+def sanitize(data):
     if isinstance(data, str):
         data = BeautifulSoup(data, "html.parser").get_text()
     return data

@@ -513,6 +513,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
         # generate history
 
         prompt = f"""
+Generate a narrative history of the {self.title}'s story, incorporating the given backstory and events, ensuring a consistent timeline with the given dates.
 {self.start_date_label} {self.start_date if hasattr(self, "start_date") and self.start_date else "Unknown"} - {self.end_date if hasattr(self, "end_date") and hasattr(self, "end_date") else ""} {self.end_date_label}
 
 Backstory
