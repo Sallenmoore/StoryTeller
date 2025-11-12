@@ -600,6 +600,9 @@ class BaseSystem(AutoModel):
             self.json_client.delete()
         return super().delete()
 
+    def foundry_export(self, obj):
+        return obj.page_data()
+
     ############# Generation Methods #############
 
     def generate(self, obj, prompt, funcobj):
