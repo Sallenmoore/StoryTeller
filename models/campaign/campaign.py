@@ -49,6 +49,12 @@ class Campaign(AutoModel):
     def events(self):
         return [e for ep in self.episodes for e in ep.events]
 
+    def encounters(self):
+        encounters = []
+        for a in self.episodes:
+            encounters += a.encounters
+        return list(set(encounters))
+
     @property
     def factions(self):
         return [a for a in self.associations if a.model_name() == "Faction"]
