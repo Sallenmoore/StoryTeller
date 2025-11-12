@@ -71,10 +71,6 @@ class Faction(TTRPGObject):
     ################### Instance Properties #####################
 
     @property
-    def gm(self):
-        return self.world.gm
-
-    @property
     def image_prompt(self):
         return f"A full color poster for a group named {self.name} and described as {self.desc}. The poster should feature symbolic imagery that represents the faction's ideals and goals, with a dramatic and epic style."
 

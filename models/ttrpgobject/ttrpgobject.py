@@ -7,6 +7,7 @@ from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringA
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
+from models.stories.encounter import Encounter
 from models.utility.parse_attributes import parse_date
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
@@ -50,6 +51,11 @@ class TTRPGObject(TTRPGBase):
     @property
     def districts(self):
         return [a for a in self.associations if a.model_name() == "District"]
+
+    @property
+    def encounters(self):
+        encounters = Encounter.search(world=self.world)
+        return [a for a in encounters if self in a.associations]
 
     @property
     def factions(self):
