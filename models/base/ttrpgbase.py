@@ -330,9 +330,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
 ===
 - Setting:
   - Genre: {self.genre}
-  - World Details: {self.world.history}
+  - World Details: {self.world.backstory}
   - Relevant World Events:
-    - {"\n    - ".join([s.situation for s in self.world.stories]) if self.world.stories else "N/A"}
+    - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
   - Geographic Details:
 """
 
@@ -359,7 +359,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
                     prompt += f"""
   - Type: {ass.title}
   - Name: {ass.name}
-  - Backstory: {ass.backstory}
+  - Backstory: {ass.history or ass.backstory}
 """
         name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
