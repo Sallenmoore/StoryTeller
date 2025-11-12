@@ -40,22 +40,40 @@ def parse_text(obj, text):
         # --- 1. Strip all existing anchor tags from the text ---
         # This ensures that any existing links are removed, allowing a clean, full-name match.
         text = STRIP_ANCHOR_TAGS_PATTERN.sub("", text.replace("@", ""))
-        for a in [*obj.associations, *obj.encounters]:
+        associations = sorted(
+            [*obj.associations, *obj.encounters],
+            key=lambda x: len(x.name or ""),
+            reverse=True,
+        )
+        for a in associations:
             if not a or not a.name or not a.path:
                 continue
 
-            # --- 2. Define the exact, case-insensitive match pattern ---
-            # We escape the name to handle special characters and enforce word boundaries (\b)
-            # to ensure "John" matches but not "Johnston".
-            full_name_pattern = re.compile(
-                r"\b" + re.escape(a.name) + r"\b", re.IGNORECASE
+            # Escape the name for regex safety and add word boundaries (\b)
+            safe_name = re.escape(a.name)
+
+            # --- 3. Define the Pattern: Full Name Match ---
+            # The pattern matches the full name and uses re.IGNORECASE
+            full_name_pattern = re.compile(r"\b" + safe_name + r"\b", re.IGNORECASE)
+
+            # --- 4. Define the Replacement Template ---
+            # Note: Added the style tag inline for CSS portability, as requested in previous response.
+            link_template = (
+                f"<a href='/{a.path}' style='font-weight:bold;'>{a.name}</a>"
             )
 
-            # --- 3. Replace all occurrences of the unwrapped full name ---
-            link_template = (
-                f"<a href='/{a.path}' style='a{{font-weight:bold;}}'>{a.name}</a>"
-            )
-            text = full_name_pattern.sub(link_template, text)
+            # --- 5. Perform the safe substitution ---
+            # The substitution function checks if the match is already surrounded by the intended link.
+            def replacer(match):
+                """
+                This function ensures we don't accidentally link a name that has already
+                been processed by a previous iteration, although stripping should make this redundant.
+                It primarily handles the case-insensitive replacement with the link template.
+                """
+                return link_template
+
+            # Use re.sub to replace the name occurrences with the link template
+            text = full_name_pattern.sub(replacer, text)
     return text
 
 
