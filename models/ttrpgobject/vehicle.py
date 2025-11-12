@@ -25,6 +25,9 @@ class Vehicle(Place):
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     capacity = IntAttr(default=1)
 
+    start_date_label = "Built"
+    end_date_label = "Destroyed"
+
     parent_list = ["Location", "District", "City", "Region"]
     _funcobj = {
         "name": "generate_vehicle",

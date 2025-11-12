@@ -17,7 +17,6 @@ from models.utility.parse_attributes import parse_text
 class JournalEntry(AutoModel):
     title = StringAttr(default="")
     text = StringAttr(default="")
-    summary = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
     date = DateTimeAttr(default=lambda: datetime.now())
     importance = IntAttr(default=0)
@@ -60,10 +59,8 @@ class JournalEntry(AutoModel):
             self.date = datetime.now()
 
     def pre_save_text(self):
-        if self.pk:
-            db_instance = self.__class__.objects(id=self.id).first()
-            if db_instance and getattr(db_instance, "text") != self.text:
-                self.summary = ""
+        if self.text:
+            self.text = parse_text(self, self.text)
 
     def pre_save_importance(self):
         self.importance = int(self.importance)
@@ -108,8 +105,6 @@ class Journal(AutoModel):
             entry.title = title or entry.title
             if text and entry.text != text:
                 entry.text = text
-                entry.summary = ""
-                self.summary = ""
                 self.save()
             entry.importance = (
                 int(importance) if importance is not None else entry.importance
@@ -137,7 +132,6 @@ class Journal(AutoModel):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_entries()
-        document.pre_save_text()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -151,7 +145,3 @@ class Journal(AutoModel):
         for entry in self.entries:
             entry.save()
         self.entries = sorted(self.entries, key=lambda x: x.date, reverse=True)
-
-    def pre_save_text(self):
-        if self.text:
-            self.text = parse_text(self, self.text)

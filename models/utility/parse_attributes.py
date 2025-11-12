@@ -2,6 +2,7 @@ import random
 import re
 
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from models.calendar.date import Date
@@ -94,3 +95,9 @@ def parse_date(obj, date):
     #     obj.end_date,
     #     obj.world.current_date,
     # )
+
+
+def sanitize(cls, data):
+    if isinstance(data, str):
+        data = BeautifulSoup(data, "html.parser").get_text()
+    return data

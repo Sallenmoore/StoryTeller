@@ -23,9 +23,6 @@ class TTRPGObject(TTRPGBase):
     end_date = ReferenceAttr(choices=["Date"])
     parent_list = []
 
-    start_date_label = "Founded"
-    end_date_label = "Abandoned"
-
     @property
     def calendar(self):
         return self.world.calendar
@@ -201,8 +198,17 @@ class TTRPGObject(TTRPGBase):
         if hasattr(self.end_date, "pk") and not self.end_date.pk:
             self.end_date = None
 
-        self.start_date = parse_date(self, self.start_date)
-        self.end_date = parse_date(self, self.end_date)
+        if start_date := parse_date(self, self.start_date):
+            if self.start_date:
+                self.start_date.delete()
+            self.start_date = start_date
+            self.start_date.save()
+
+        if end_date := parse_date(self, self.end_date):
+            if self.end_date:
+                self.end_date.delete()
+            self.end_date = end_date
+            self.end_date.save()
 
         if self.start_date:
             if self.start_date.day <= 0:

@@ -14,7 +14,7 @@ from autonomous import log
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
-from models.utility.parse_attributes import parse_text
+from models.utility.parse_attributes import parse_text, sanitize
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -37,6 +37,9 @@ class TTRPGBase(AutoModel):
     history = StringAttr(default="")
     status = StringAttr(default="")
     journal = ReferenceAttr(choices=[Journal])
+
+    start_date_label = "Founded"
+    end_date_label = "Abandoned"
 
     story_types = [
         "tragic",
@@ -510,7 +513,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
         # generate history
 
         prompt = f"""
-HISTORY
+{self.start_date_label} {self.start_date if hasattr(self, "start_date") and self.start_date else "Unknown"} - {self.end_date if hasattr(self, "end_date") and hasattr(self, "end_date") else ""} {self.end_date_label}
+
+Backstory
 ---
 {self.backstory}
 
@@ -520,7 +525,7 @@ HISTORY
 ## Associated Events
 """
             prompt += "\n\n".join(
-                f"- {e.name} [{e.end_date}]: {e.backstory} {e.outcome}"
+                f"- {e.name} [{e.end_date}]: {e.summary or f'{e.backstory} {e.outcome}'}"
                 for e in sorted(self.events, key=lambda e: e.end_date)
                 if e.backstory and e.outcome
             )
@@ -531,8 +536,10 @@ HISTORY
 
 {self.status}
 """
+        prompt = sanitize(prompt)
         log(f"Generating history...\n{prompt}", _print=True)
-        history_primer = f"Incorporate the given information into the {self.title}'s HISTORY to generate a narrative summary of the {self.title}'s story. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
+        history_primer = f"Generate a narrative history of the {self.title}'s story, incorporating the given backstory and events, ensuring a consistent timeline with the given dates. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
+
         history = self.system.generate_summary(prompt, history_primer)
         history = history.replace("```markdown", "").replace("```", "")
         self.history = (
