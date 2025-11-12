@@ -358,22 +358,18 @@ def association_add(amodel, apk=None):
 )
 def unassociate(childmodel, childpk):
     user, obj, request_data = _loader()
-    associations = obj.associations
     if child := World.get_model(childmodel).get(childpk):
         # log(f"Removing association: {child.name} from {obj.name}", _print=True)
-        associations = obj.remove_association(child)
+        obj.remove_association(child)
         # log(f"Remaining associations: {', '.join(f'{association.name}' for association in associations)}")
     else:
         for association in obj.associations:
             if str(association.pk) == childpk:
-                associations = obj.remove_association(association)
-                log(
-                    f"Remaining associations: {', '.join(f'{association.name}' for association in associations)}"
-                )
+                obj.remove_association(association)
                 break
 
     return get_template_attribute("shared/_associations.html", "associations")(
-        user, obj, associations=associations
+        user, obj, associations=obj.associations
     )
 
 
