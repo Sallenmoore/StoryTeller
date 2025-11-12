@@ -79,7 +79,7 @@ def create_app():
                 "code": e.code,
                 "name": e.name,
                 "description": e.description,
-                "trace": e.__traceback__,
+                "trace": str(e.__traceback__),
             }
         )
         log(f"HTTP Exception: {emsg}")
