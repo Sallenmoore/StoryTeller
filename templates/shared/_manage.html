@@ -60,7 +60,7 @@
     <div class="grid-x">
         <div id="model-goal" class="cell">
             <h4 class='text-center'>Status</h4>
-            {{form_components.textarea(user, obj, name="status")}}
+            {{form_components.richtexteditor(user, obj, name="status")}}
         </div>
     </div>
 </form>
@@ -70,7 +70,7 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <h4 class='text-center'>Backstory</h4>
-    {{form_components.texteditor(user, obj, 'backstory')}}
+    {{form_components.richtexteditor(user, obj, 'backstory')}}
 </form>
 <hr>
 {% endmacro %}
