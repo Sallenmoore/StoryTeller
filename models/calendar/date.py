@@ -110,5 +110,5 @@ class Date(AutoModel):
             self.month = self.calendar.months.index(self.month)
 
     def pre_save_calendar(self):
-        if not self.calendar:
+        if not self.calendar and self.obj:
             self.calendar = self.obj.world.calendar
