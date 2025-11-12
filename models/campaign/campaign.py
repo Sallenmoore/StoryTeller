@@ -49,6 +49,7 @@ class Campaign(AutoModel):
     def events(self):
         return [e for ep in self.episodes for e in ep.events]
 
+    @property
     def encounters(self):
         encounters = []
         for a in self.episodes:
