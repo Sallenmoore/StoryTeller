@@ -538,7 +538,7 @@ Backstory
 """
         prompt = sanitize(prompt)
         log(f"Generating history...\n{prompt}", _print=True)
-        history_primer = f"Generate a narrative history of the {self.title}'s story, incorporating the given backstory and events, ensuring a consistent timeline with the given dates. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
+        history_primer = f"Generate a chronological history of the {self.title}, incorporating the given backstory and event list, ensuring a consistent chonology based on the provided dates. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
 
         history = self.system.generate_summary(prompt, history_primer)
         history = history.replace("```markdown", "").replace("```", "")
