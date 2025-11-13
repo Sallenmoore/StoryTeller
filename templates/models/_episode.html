@@ -231,26 +231,7 @@
         </div>
         <div class="cell bg-light padding-vertical-2">
             <h2 class='text-center'>Planning Notes</h2>
-            <div id='gm_planning_display'>
-                <div class="grid-x align-spaced">
-                    <div class="cell shrink">
-                        <button class="button small"
-                                onclick='htmx.find("#gm_planning_display").classList.toggle("hide"); htmx.find("#gm_planning_form").classList.toggle("hide");'>
-                            Edit
-                        </button>
-                    </div>
-                </div>
-                {{obj.description | safe}}
-            </div>
-            <div id="gm_planning_form" class="margin-top-2 hide">
-                <div class="grid-x align-spaced">
-                    <div class="cell shrink">
-                        <button class="button small"
-                                onclick='htmx.find("#gm_planning_display").classList.toggle("hide"); htmx.find("#gm_planning_form").classList.toggle("hide");'>
-                            Done Editing
-                        </button>
-                    </div>
-                </div>
+            <div id="gm_planning_form" class="margin-top-2">
                 <form
                       hx-post="/api/episode/{{obj.pk}}/update"
                       hx-swap='none'
@@ -320,44 +301,47 @@
                 </button>
             </div>
 
-            <!-- Send Button Removed -->
+            <!-- Clear Button -->
+            <div class="cell shrink">
+                <button id="clear-btn" class="button warning margin-bottom-0"
+                        hx-post="/api/{{ episode.path }}/transcription/clear"
+                        hx-target="#output-area" hx-select="#output-area" hx-swap="outerHTML"
+                        hx-confirm='Are you sure you want to clear the current transcription?'>
+                    Clear Transcription
+                </button>
+            </div>
 
         </div>
     </div>
     <!-- Output/Feedback Area Wrapper -->
-    <div id="recorder-output-wrapper">
+    <div id="recorder-output-wrapper" class='callout'>
         <!-- 1. Dedicated Target (for the main component view) -->
-        <div id="session-recorder"
-             class="card-section text-center callout secondary margin-top-2"
-             style="display:none;">
-            <p>Ready to begin transcription session.</p>
-        </div>
-        <!-- 2. Generic Fallback Target (always hidden by default) -->
-        <div id="output-area" class="card-section text-center callout secondary margin-top-2"
-             style="display:none;">
-            Audio is ready to process.
+        <div id="output-area" class="text-justified secondary margin-top-2"
+             hx-get="/api/{{ episode.path }}/gmnotes" hx-trigger="every 5s"
+             hx-select="#output-area" hx-indicator="none">
+            <h6>Transcription</h6>
+            {% if episode.transcription %}
+            {{ episode.transcription | safe }}
+            {% endif %}
         </div>
     </div>
 
     <script>
         (function () {
             // --- Configuration ---
-            var MAX_RECORDING_SECONDS = 15 * 60; // Auto-send limit: 15 minutes = 900 seconds
-            var MIN_RECORDING_SECONDS = 15;      // Manual send threshold: 15 seconds
-            var TARGET_PK = '{{ episode.id }}'; // Database PK of the object this component serves
+            var MAX_RECORDING_SECONDS = 10 * 60; // Auto-send limit: 15 minutes = 900 seconds
+            var MIN_RECORDING_SECONDS = 5;      // Manual send threshold: 5 seconds
+            var TARGET_PK = '{{ episode.pk }}'; // NOTE: Corrected to {{ episode.pk }} in JS
 
             // --- State Variables (using var for isolation within the IIFE) ---
             var recordBtn = document.getElementById('record-btn');
             var stopBtn = document.getElementById('stop-btn');
-            // var sendBtn = document.getElementById('send-btn'); // Removed
             var timerDisplay = document.getElementById('recording-timer');
             var statusDisplay = document.getElementById('recording-status');
-            // We now fetch the target element dynamically based on the PK passed from the server.
             var outputTarget = document.getElementById(TARGET_PK) || document.getElementById('output-area');
             var volumeBar = document.getElementById('volume-bar');
             var meterText = document.getElementById('meter-text');
             var volumeMeterContainer = document.getElementById('volume-meter');
-            var sessionRecorderDiv = document.getElementById('session-recorder');
             var outputAreaDiv = document.getElementById('output-area');
 
             var mediaRecorder;
@@ -365,32 +349,15 @@
             var intervalId;
             var startTime;
             var mediaStream;
-            var audioBlob;
+            var audioBlob; // This is the variable that was previously accessed too early
             var isSessionRunning = false;
-            var currentDuration = 0; // Tracks duration for manual stop check
+            var currentDuration = 0;
 
             // Web Audio API components for volume analysis
             var audioContext;
             var analyser;
             var dataArray;
             var volumeRequestId;
-
-            // --- Output Initialization ---
-            function initializeOutputTarget() {
-                if (TARGET_PK === "session-recorder" && sessionRecorderDiv) {
-                    outputTarget = sessionRecorderDiv;
-                    if (outputAreaDiv) outputAreaDiv.style.display = 'none';
-                    outputTarget.style.display = 'block';
-                } else if (outputAreaDiv) {
-                    outputTarget = outputAreaDiv;
-                    if (sessionRecorderDiv) sessionRecorderDiv.style.display = 'none';
-                    outputTarget.style.display = 'block';
-                    outputTarget.innerHTML = "<p>Ready to process audio for object: " + TARGET_PK + "</p>";
-                } else {
-                    outputTarget = document.getElementById('recorder-output-wrapper');
-                    outputTarget.innerHTML = "<p class='alert'>ERROR: Output container missing.</p>";
-                }
-            }
 
 
             // --- Utility Functions ---
@@ -405,9 +372,8 @@
                 currentDuration = Math.floor((Date.now() - startTime) / 1000);
                 timerDisplay.textContent = formatTime(currentDuration);
 
-                // --- CHECK MAX LENGTH ---
                 if (currentDuration >= MAX_RECORDING_SECONDS) {
-                    stopAndSendSegment(false); // Stop, send, and immediately restart
+                    stopAndSendSegment(false);
                 }
             }
 
@@ -423,38 +389,29 @@
             }
 
             function updateControls(isRecording, isRecorded) {
-                // Handle Button States
+                // ... (control update logic is unchanged)
                 recordBtn.disabled = isRecording || isRecorded;
-                stopBtn.disabled = !isRecording; // Stop is only active while recording
-
-                // Apply visual disabled class (Foundation)
+                stopBtn.disabled = !isRecording;
                 recordBtn.classList.toggle('disabled', isRecording || isRecorded);
                 stopBtn.classList.toggle('disabled', !isRecording);
-
-                // Handle Status Label Colors and Text
                 statusDisplay.classList.remove('secondary', 'warning', 'success', 'alert', 'primary');
                 if (isRecording) {
                     statusDisplay.textContent = 'RECORDING';
                     statusDisplay.classList.add('warning');
                     meterText.textContent = 'Listening...';
                 } else if (isRecorded) {
-                    statusDisplay.textContent = 'PROCESSING...'; // Temporary state before final confirmation
+                    statusDisplay.textContent = 'PROCESSING...';
                     statusDisplay.classList.add('success');
                     meterText.textContent = 'Sending Segment';
                 } else {
                     statusDisplay.textContent = 'READY';
                     statusDisplay.classList.add('secondary');
                     meterText.textContent = 'Speak Now';
-                    volumeBar.style.width = '0%'; // Reset bar width
-                }
-
-                // Handle Output Area visibility/initial state
-                if (outputTarget.id === 'session-recorder' && !isRecording && !isRecorded) {
-                    outputTarget.innerHTML = "<p>Ready to begin transcription session.</p>";
+                    volumeBar.style.width = '0%';
                 }
             }
 
-            // --- Volume Analysis Functions ---
+            // --- Volume Analysis Functions (omitted for brevity) ---
             function startVolumeAnalyser() {
                 if (!mediaStream) return;
 
@@ -516,55 +473,67 @@
                 meterText.textContent = volumePercentage > 5 ? 'Recording...' : 'Speak Up!';
             }
 
+            // --- Synchronization Helper ---
+            function waitForAudioBlob() {
+                return new Promise(function (resolve) {
+                    // Check if audioBlob is already set (unlikely, but safe)
+                    if (audioBlob) {
+                        resolve();
+                        return;
+                    }
+                    // Temporarily replace the onstop handler to resolve the promise
+                    mediaRecorder.onstop = function () {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        // Now that blob is ready, continue to the original onstop logic (if any)
+                        resolve();
+                    };
+                });
+            }
 
             // --- Session Management Functions ---
 
-            // Stops recording, sends the segment, and optionally restarts recording.
             async function stopAndSendSegment(isManualStop) {
+
+                // 1. Stop the MediaRecorder, which will trigger the promise resolution
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    // Stop the MediaRecorder, which triggers mediaRecorder.onstop
                     mediaRecorder.stop();
                 }
 
-                // Stop all timers and analysers immediately
+                // 2. WAIT for the audioBlob to be created by mediaRecorder.onstop
+                await waitForAudioBlob();
+
+                // 3. Stop all remaining resources
                 stopTimer();
                 stopVolumeAnalyser();
-
-                // Clean up the stream tracks to turn off the microphone light
                 if (mediaStream) {
                     mediaStream.getTracks().forEach(function (track) { return track.stop(); });
                     mediaStream = null;
                 }
 
-                updateControls(false, true); // Set state to "processing/ready to send"
+                // 4. Update UI state
+                updateControls(false, true);
 
                 if (isManualStop) {
                     isSessionRunning = false;
-                    outputTarget.innerHTML = "<p>Manual stop detected. Sending final segment...</p>";
-                } else {
-                    // Intermediate segment stop
-                    outputTarget.innerHTML = "<p>Segment limit reached (" + formatTime(MAX_RECORDING_SECONDS) + "). Preparing to send and restart...</p>";
                 }
 
-                // Send the segment now that the blob is ready (via mediaRecorder.onstop)
+                // 5. Send the audio now that we GUARANTEE audioBlob is defined
                 await sendAudio(isManualStop);
 
-                // If this was an automatic stop (not manual), restart the recording immediately
+                // 6. Restart if necessary
                 if (!isManualStop && isSessionRunning) {
-                    // Give a short delay to ensure the UI updates and the sendAudio promise resolves
                     setTimeout(startRecording, 500);
                 }
             }
 
-            // User clicked the 'Stop Session' button
             function manualStop() {
                 if (!isSessionRunning) return;
 
                 // Discard the audio if it's too short
                 if (currentDuration < MIN_RECORDING_SECONDS) {
-                    // Stop recorder/streams immediately to clear resources
+                    // Discard logic is correct and does not need synchronization
                     if (mediaRecorder && mediaRecorder.state === 'recording') {
-                        mediaRecorder.stop();
+                        mediaRecorder.stop(); // Stops, but the blob is discarded later
                     }
                     if (mediaStream) {
                         mediaStream.getTracks().forEach(function (track) { return track.stop(); });
@@ -579,7 +548,7 @@
                     return;
                 }
 
-                // If long enough, stop and send
+                // If long enough, stop and send (now synchronized)
                 stopAndSendSegment(true);
             }
 
@@ -587,27 +556,20 @@
                 if (mediaRecorder && mediaRecorder.state === 'recording') return;
 
                 try {
-                    // 1. Get media stream
                     mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     mediaRecorder = new MediaRecorder(mediaStream);
-                    audioChunks = []; // Start new segment chunks
+                    audioChunks = [];
+                    audioBlob = null; // Reset blob at start
 
                     if (!audioContext) {
                         audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     }
 
-                    // 2. Set up data handling
+                    // Set up data handling - simplified now that onstop handles blob creation
                     mediaRecorder.ondataavailable = function (event) {
                         audioChunks.push(event.data);
                     };
 
-                    // 3. Set up stop handler
-                    mediaRecorder.onstop = function () {
-                        // The actual sending/restarting logic is in stopAndSendSegment.
-                        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    };
-
-                    // 4. Start recording, timer, and analyser
                     mediaRecorder.start();
                     startTimer();
                     startVolumeAnalyser();
@@ -615,6 +577,7 @@
                     updateControls(true, false);
 
                 } catch (err) {
+                    // ... (error handling logic is unchanged)
                     console.error('Microphone error:', err);
                     statusDisplay.textContent = 'Permission Denied';
                     statusDisplay.classList.add('alert');
@@ -623,10 +586,9 @@
                 }
             }
 
-            // This function is now ONLY called after a segment is fully saved (via mediaRecorder.onstop)
             async function sendAudio(isFinalSegment) {
                 if (!audioBlob) {
-                    outputTarget.innerHTML = '<p>No audio data available to send.</p>';
+                    outputTarget.innerHTML = '<p>Internal Error: Audio blob is missing.</p>';
                     return;
                 }
 
@@ -634,7 +596,6 @@
                 statusDisplay.classList.remove('success', 'warning');
                 statusDisplay.classList.add('primary');
 
-                // Note: {{episode.pk}} must be rendered by the server into this snippet
                 var episodePk = '{{episode.pk}}';
                 var targetUrl = "/api/episode/" + episodePk + "/transcribe";
 
@@ -643,7 +604,7 @@
 
                 var formData = new FormData();
                 formData.append('audio_file', audioBlob, "gm_input_" + Date.now() + ".webm");
-                formData.append('is_final_segment', isFinalSegment ? 'true' : 'false'); // Indicate finality
+                formData.append('is_final_segment', isFinalSegment ? 'true' : 'false');
 
                 try {
                     var response = await fetch(targetUrl, {
@@ -651,16 +612,9 @@
                         body: formData
                     });
 
-                    var responseText = await response.text();
-
                     if (response.ok) {
-                        // Prepend the new transcription result to the output
-                        var newContent = "\n                    <div class=\"callout success margin-bottom-1 padding-1\">\n                        <h6>Segment Sent Successfully (" + segmentType + ")</h6>\n                        " + responseText + "\n                    </div>\n                ";
-                        if (outputTarget.id === 'session-recorder' && outputTarget.innerHTML.includes('Ready to begin')) {
-                            outputTarget.innerHTML = newContent;
-                        } else {
-                            outputTarget.insertAdjacentHTML('afterbegin', newContent);
-                        }
+                        var newContent = "\n                    <div class=\"callout success margin-bottom-1 padding-1\">\n                        <h6>Segment Sent Successfully (" + segmentType + ")</h6></div>\n                ";
+                        outputTarget.insertAdjacentHTML('afterbegin', newContent);
                         statusDisplay.textContent = isFinalSegment ? 'SESSION ENDED' : 'SENT & RESTARTING...';
                     } else {
                         outputTarget.insertAdjacentHTML('afterbegin', '<p class="alert">Transcription Error (' + response.status + ')</p>');
@@ -673,7 +627,6 @@
                     statusDisplay.textContent = 'NETWORK ERROR';
                     statusDisplay.classList.add('alert');
                 } finally {
-                    // Reset for next segment/session end
                     audioBlob = null;
                     if (isFinalSegment) {
                         updateControls(false, false);
@@ -681,8 +634,6 @@
                 }
             }
 
-            // --- Initialize ---
-            initializeOutputTarget();
             updateControls(false, false);
 
             // Assign event handlers using the functions defined inside the IIFE

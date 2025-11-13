@@ -281,7 +281,8 @@ def episodegenerategraphic(pk):
     methods=("POST",),
 )
 def episodetranscribe(pk):
-    user, obj, request_data = _loader()
+    user, _, request_data = _loader()
+    obj = Episode.get(pk)
     if "audio_file" not in request_data:
         return {"error": "No audio file uploaded"}, 400
     audio_file_str = request_data["audio_file"]
@@ -298,14 +299,25 @@ def episodetranscribe(pk):
 
 
 @episode_endpoint.route(
+    "/<string:pk>/transcription/clear",
+    methods=("POST",),
+)
+def episodetranscribeclear(pk):
+    user, _, request_data = _loader()
+    obj = Episode.get(pk)
+    obj.transcription = ""
+    obj.save()
+    return get_template_attribute("models/_episode.html", "gmnotes")(
+        user,
+        obj,
+    )
+
+
+@episode_endpoint.route(
     "/<string:pk>/transcription/summarize",
     methods=("POST",),
 )
 def episodesummarizetranscription(pk):
-    user, obj, request_data = _loader()
-
-    obj.save()
     return requests.post(
-        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/audio/transcribe",
-        json={"model": obj.model_name(), "pk": pk},
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/episode/{pk}/transcription/summary",
     ).text

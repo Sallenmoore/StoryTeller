@@ -39,6 +39,7 @@ from config import Config
 from flask import Flask, json, render_template, request, url_for
 from views.admin import admin_page
 from views.auth import auth_page
+from views.foundry import foundry_page
 from views.index import index_page
 from werkzeug.exceptions import HTTPException
 
@@ -89,6 +90,7 @@ def create_app():
     # Register Blueprints
     app.register_blueprint(auth_page, url_prefix="/auth")
     app.register_blueprint(admin_page, url_prefix="/admin")
+    app.register_blueprint(foundry_page, url_prefix="/foundry")
     app.register_blueprint(index_page)
 
     return app

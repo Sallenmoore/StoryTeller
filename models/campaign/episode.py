@@ -237,6 +237,14 @@ class Episode(AutoModel):
 
     def summarize_transcription(self):
         if self.transcription:
+            # Remove all lines starting with "TRANSCRIPTION:"
+            self.transcription = "\n".join(
+                [
+                    line.strip()
+                    for line in self.transcription.split("\n")
+                    if not line.strip().startswith("TRANSCRIPTION:")
+                ]
+            )
             prompt = f"Summarize the following transcription for a {self.world.genre} TTRPG world using a snarky and observational tone. The summary should be concise and engaging, highlighting the key elements of the transcription and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the transcription: {self.transcription}."
             transcription_summary = self.world.system.generate_summary(
                 prompt,
@@ -251,7 +259,7 @@ class Episode(AutoModel):
                 .replace("h1>", "h3>")
                 .replace("h2>", "h3>")
             )
-            self.episode_report = f"\n\n## Transcription Summary\n\n{transcription_summary} {f'\n\n === Previous Notes === \n{self.episode_report}' if self.episode_report else ''}"
+            self.episode_report = f"## Transcription Summary <br><br> {transcription_summary} {f'<br><br> === Previous Notes === <br><br>{self.episode_report}' if self.episode_report else ''}"
             self.save()
         return self.episode_report
 

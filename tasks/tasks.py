@@ -57,13 +57,14 @@ def _generate_image_task(model, pk):
 def _generate_audio_transcription_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         transcription = Audio.transcribe(obj.audio)
-        obj.transcription = f"""
-{"=" * 20} TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}
-
+        obj.transcription += f"""
+<br><br>
+TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}
+<br><br>
 {transcription}
 """
         obj.save()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f""}
 
 
 def _generate_campaign_summary_task(pk):
@@ -87,7 +88,7 @@ def _generate_session_report_task(pk):
 def _generate_episode_transcription_summary_task(pk):
     if obj := Episode.get(pk):
         obj.summarize_transcription()
-    return {"url": f"/api/{obj.path}/details"}
+    return {"url": f"/api/{obj.path}/manage"}
 
 
 def _generate_episode_graphic_task(pk):
