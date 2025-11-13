@@ -205,13 +205,9 @@ class TTRPGObject(TTRPGBase):
             self.end_date = None
 
         if start_date := parse_date(self, self.start_date):
-            if self.start_date:
-                self.start_date.delete()
             self.start_date = start_date
 
         if end_date := parse_date(self, self.end_date):
-            if self.end_date:
-                self.end_date.delete()
             self.end_date = end_date
 
         if self.start_date:
@@ -228,3 +224,10 @@ class TTRPGObject(TTRPGBase):
             if self.end_date.month <= 0:
                 self.end_date.month = random.randint(1, 12)
             self.end_date.save()
+
+        for date in Date.search(world=self.world, obj=self):
+            if self.start_date and date.pk == self.start_date.pk:
+                continue
+            if self.end_date and date.pk == self.end_date.pk:
+                continue
+            date.delete()
