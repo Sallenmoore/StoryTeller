@@ -140,6 +140,13 @@ IMPORTANT: The image MUST NOT contain any TEXT.
             self.data.delete()
         return super().delete()
 
+    def remove_association(self, assoc):
+        if assoc in self.associations:
+            self.associations.remove(assoc)
+            self.save()
+        if len(self.associations) == 0:
+            self.delete()
+
     ################### Instance Methods #####################
 
     def url(self, size="orig"):

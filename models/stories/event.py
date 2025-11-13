@@ -83,10 +83,17 @@ class Event(AutoModel):
             if encounter.potential_outcomes
             else "Unknown"
         )
-        event.start_date = encounter.start_date
+        if start_date := encounter.start_date:
+            start_date.obj = event
+            start_date.save()
+            event.start_date = start_date
         encounter.start_date = None
-        event.end_date = encounter.end_date
+        if end_date := encounter.end_date:
+            end_date.obj = event
+            end_date.save()
+            event.end_date = end_date
         encounter.end_date = None
+        encounter.save()
         if encounter.image:
             event.image = encounter.image
             event.image.associations += [event] if event.image else []
@@ -143,11 +150,7 @@ class Event(AutoModel):
 
     def delete(self):
         if self.image:
-            if self in self.image.associations:
-                self.image.associations.remove(self)
-                self.image.save()
-            if len(self.image.associations) == 0:
-                self.image.delete()
+            self.image.remove_association(self)
         if self.start_date:
             self.start_date.delete()
         if self.end_date:
@@ -261,12 +264,7 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
 
     def generate_image(self):
         if self.image:
-            if self in self.image.associations:
-                self.image.associations.remove(self)
-                self.image.save()
-            if len(self.image.associations) == 0:
-                self.image.delete()
-            self.image = None
+            self.image = self.image.remove_association(self)
         party = [c.image for c in self.players if c.image]
         prompt = f"{self.desc}\n\nUse the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description}' for c in self.players])}."
         # log(

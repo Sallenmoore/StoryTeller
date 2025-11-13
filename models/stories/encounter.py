@@ -309,13 +309,8 @@ class Encounter(AutoModel):
 
     def generate_image(self):
         # MARK: generate_image
-        if self.image and self in self.image.associations:
-            if len(self.image.associations) <= 1:
-                log("deleting image", self.image, _print=True)
-                self.image.delete()
-            else:
-                self.image.associations.remove(self)
-                self.image.save()
+        if self.image:
+            self.image.remove_association(self)
         if image := Image.generate(
             prompt=self.image_prompt, tags=["encounter", self.world.name]
         ):

@@ -306,11 +306,7 @@ class TTRPGBase(AutoModel):
         if self.journal:
             self.journal.delete()
         if self.image:
-            if self in self.image.associations:
-                self.image.associations.remove(self)
-                self.image.save()
-            if len(self.image.associations) == 0:
-                self.image.delete()
+            self.image.remove_association(self)
         if self.map:
             self.map.delete()
         return super().delete()
@@ -405,13 +401,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_image
     def generate_image(self):
-        if self.image and self in self.image.associations:
-            if len(self.image.associations) <= 1:
-                log("deleting image", self.image, _print=True)
-                self.image.delete()
-            else:
-                self.image.associations.remove(self)
-                self.image.save()
+        if self.image:
+            self.image.remove_association(self)
         if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
             self.image = image
             self.image.associations += [self]

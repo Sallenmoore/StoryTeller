@@ -120,7 +120,7 @@ class Story(AutoModel):
     ################ Crud ################
     def delete(self):
         if self.image:
-            self.image.delete()
+            self.image.remove_association(self)
         super().delete()
 
     def generate(self):
@@ -185,6 +185,7 @@ class Story(AutoModel):
         prompt = f"Summarize the following storyline for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the story and its significance within the larger world. Here is some context about the world: {self.world.name}, {self.world.description}. Here is the storyline: {self.situation}, {self.backstory}, {self.current_status}. The storyline includes the following tasks: {', '.join(self.tasks)}. There are also the following rumors associated with the storyline: {', '.join(self.rumors)}. Finally, here is some reliable information about the storyline: {', '.join(self.information)}. Here are the events that have occurred related to this storyline: {', '.join([f'{e.end_date}: {e.outcome}' for e in self.events])}"
         primer = "Provide an engaging, narrative summary of the storyline, highlighting its key elements and significance within the larger world."
         log(f"Generating summary...\n{prompt}", _print=True)
+
         self.summary = self.world.system.generate_summary(prompt, primer)
         self.summary = self.summary.replace("```markdown", "").replace("```", "")
         self.summary = (
@@ -196,13 +197,8 @@ class Story(AutoModel):
         )
         self.save()
 
-        if self.image and self in self.image.associations:
-            if len(self.image.associations) <= 1:
-                log("deleting image", self.image, _print=True)
-                self.image.delete()
-            else:
-                self.image.associations.remove(self)
-                self.image.save()
+        if self.image:
+            self.image.remove_association(self)
         if image := Image.generate(
             prompt=self.history, tags=[self.world.name, "story"]
         ):
