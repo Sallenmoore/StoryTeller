@@ -225,7 +225,7 @@ class TTRPGObject(TTRPGBase):
                 self.end_date.month = random.randint(1, 12)
             self.end_date.save()
 
-        for date in Date.search(world=self.world, obj=self):
+        for date in Date.search(obj=self):
             if self.start_date and date.pk == self.start_date.pk:
                 continue
             if self.end_date and date.pk == self.end_date.pk:
