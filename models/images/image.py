@@ -55,7 +55,9 @@ IMPORTANT: The image MUST NOT contain any TEXT.
         try:
             if files := [f.to_file() for f in files if f]:
                 random.shuffle(files)
-            image = ImageAgent().generate(prompt=temp_prompt, files=files)
+            image = ImageAgent().generate(
+                prompt=temp_prompt, aspect_ratio=aspect_ratio, files=files
+            )
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
