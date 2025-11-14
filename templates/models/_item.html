@@ -10,6 +10,7 @@
 {% import "shared/_associations.html" as associations_components %}
 {% import "manage/_item.html" as manage_item_components %}
 {% import "shared/_title.html" as title_components %}
+{% import "shared/_gmnotes.html" as gmnotes_components %}
 
 {% macro index(user, obj) -%}
 {{history(user, obj)}}
@@ -144,6 +145,8 @@
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
+
+    {{gmnotes_components.foundry_buttons(user, obj)}}
     <div class="grid-x">
         <div class="cell medium-8">
             <h5> Details</h5>

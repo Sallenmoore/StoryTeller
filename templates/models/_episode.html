@@ -318,7 +318,7 @@
         <!-- 1. Dedicated Target (for the main component view) -->
         <div id="output-area" class="text-justified secondary margin-top-2"
              hx-get="/api/{{ episode.path }}/gmnotes" hx-trigger="every 5s"
-             hx-select="#output-area" hx-indicator="none">
+             hx-select="#output-area" hx-indicator="">
             <h6>Transcription</h6>
             {% if episode.transcription %}
             {{ episode.transcription | safe }}

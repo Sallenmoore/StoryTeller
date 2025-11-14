@@ -36,8 +36,7 @@ class Image(AutoModel):
         cls,
         prompt,
         tags=None,
-        img_quality="standard",
-        img_size="1024x1024",
+        aspect_ratio="3:4",
         text=False,
         files=None,
     ):

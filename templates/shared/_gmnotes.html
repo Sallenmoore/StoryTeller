@@ -1,0 +1,18 @@
+{% macro foundry_buttons(user, obj) -%}
+<div class="grid-x align-spaced">
+    {% if user.world_user(obj) %}
+    <div class="cell shrink">
+        <button class="button small" hx-get="/foundry/push/{{obj.path}}"
+                hx-target='#page-content'>Push to
+            Foundry</button>
+    </div>
+    {% if obj.foundry_id %}
+    <div class="cell shrink">
+        <button class="button small" hx-get="/foundry/get/{{obj.path}}"
+                hx-target='#page-content'>Pull
+            from Foundry</button>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{%- endmacro %}

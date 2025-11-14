@@ -1,15 +1,18 @@
+import base64
 import json
 import os
+from urllib.parse import urlparse
 
 import requests
+import slugify
 
 from autonomous import log
 
 # --- Configuration Example ---
 #  set these environment variables in your .env file or Docker Compose
 # TODO:  fix this later
-FOUNDRY_VTT_URL = "https://foundryvtt-rest-api-relay.fly.dev"
-FOUNDRY_API_TOKEN = "e774d9f03f8f7d668fe04d79fe66eda7"
+FOUNDRY_VTT_URL = "https://foundryrelay.stevenamoore.dev/"
+FOUNDRY_API_TOKEN = "9b15932c1dc081fb96a8f69341ce32e7"
 # Initialize the client globally or within your app context
 # foundry_client = FoundryClient()
 
@@ -50,15 +53,20 @@ class FoundryClient:
 
     def _request(self, method, endpoint, **kwargs):
         """Internal method to handle requests and error processing."""
-        if self.client_id:
-            url = f"{self.base_url}/{endpoint}?clientId={self.client_id}"
-        else:
-            url = f"{self.base_url}/{endpoint}"
-        log(url, self.headers)
+        url = f"{self.base_url}/{endpoint}"
+        # log(url, self.headers)
 
         try:
-            response = requests.request(method, url, headers=self.headers, **kwargs)
-            log(response.status_code, response.text)
+            if method.upper() in ["POST", "PATCH", "PUT"]:
+                # log(kwargs)
+                response = requests.request(
+                    method, url, headers=self.headers, json=kwargs
+                )
+            else:
+                response = requests.request(
+                    method, url, headers=self.headers, params=kwargs
+                )
+            # log(response.status_code, response.text, response.url)
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
 
             # Foundry API may return text or empty content, handle JSON decoding gracefully
@@ -67,7 +75,7 @@ class FoundryClient:
             return {}
 
         except requests.exceptions.HTTPError as e:
-            print(
+            log(
                 f"HTTP Error {e.response.status_code} on {method} {url}: {e.response.text}"
             )
             return {
@@ -75,7 +83,7 @@ class FoundryClient:
                 "detail": e.response.text,
             }
         except requests.exceptions.RequestException as e:
-            print(f"Network or Connection Error: {e}")
+            log(f"Network or Connection Error: {e}")
             return {"error": "Connection Error", "detail": str(e)}
 
     # --- API Methods ---
@@ -86,62 +94,156 @@ class FoundryClient:
         response = self._request("GET", "clients")
         return response.get("clients", [])
 
-    def get_world_scenes(self):
-        """Retrieves all scenes within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/scenes
-        return self._request("GET", f"search&documentType=Scene")
-
-    def get_world_actors(self):
-        """Retrieves all actors within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/actors
-        return self._request("GET", f"search&documentType=Actor")
-
-    def get_world_items(self):
-        """Retrieves all items within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/items
-        return self._request("GET", f"search&documentType=Item")
-
-    def update_actor(self, actor_id, update_data):
-        """Updates a Foundry actor (character)."""
-        # Endpoint example: PATCH /api/relay/worlds/world_id/actors/actor_id
-        return self._request(
-            "PATCH",
-            f"worlds/{self.client_id}/actors/{actor_id}",
-            data=json.dumps(update_data),
+    def upload_image(self, image_url, image_path):
+        """Uploads an image to Foundry's assets."""
+        MIME_TYPE = "image/webp"
+        DATA_URL_HEADER = f"data:{MIME_TYPE};base64,"
+        if "http" not in image_url:
+            image_url = f"{os.environ['APP_BASE_URL']}{image_url}"
+        # log("Uploading image to Foundry:", image_path, image_url)
+        file_content_bytes = requests.get(image_url).content
+        encoded_bytes = base64.b64encode(file_content_bytes)
+        fileData_data_url = DATA_URL_HEADER + encoded_bytes.decode("utf-8")
+        response = self._request(
+            "POST",
+            f"upload?clientId={self.client_id}",
+            path=os.path.dirname(image_path),
+            filename=os.path.basename(image_path),
+            fileData=fileData_data_url,
+            overwrite=True,
         )
+        # log(response)
+        return image_path
 
-    def update_item(self, world_id, item_id, update_data):
-        """Updates a Foundry item."""
-        # Endpoint example: PATCH /api/relay/worlds/world_id/items/item_id
-        return self._request(
-            "PATCH",
-            f"worlds/{world_id}/items/{item_id}",
-            data=json.dumps(update_data),
-        )
+    def get_scene(self, scene_id):
+        """Retrieves a specific scene within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/scenes/scene_id
+        return self._request("GET", f"get?clientId={self.client_id}", uuid=scene_id)
 
-    def create_actor(self, world_id, actor_data):
+    def get_actor(self, actor_id):
+        """Retrieves a specific actor within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/actors/actor_id
+        return self._request("GET", f"get?clientId={self.client_id}", uuid=actor_id)
+
+    def get_item(self, item_id):
+        """Retrieves a specific item within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/items/item_id
+        return self._request("GET", f"get?clientId={self.client_id}", uuid=item_id)
+
+    def push_actor(self, obj):
         """Creates a new Foundry actor (character)."""
         # Endpoint example: POST /api/relay/worlds/world_id/actors
-        return self._request(
-            "POST",
-            f"worlds/{world_id}/actors",
-            data=json.dumps(actor_data),
-        )
+        actor_data = {
+            "entityType": "Actor",
+            "data": obj.to_foundry(),
+        }
 
-    def create_item(self, world_id, item_data):
+        if obj.image:
+            actor_data["data"]["img"] = self.upload_image(
+                obj.image.url(), f"/assets/images/characters/{obj.pk}.webp"
+            )
+            actor_data["data"]["prototypeToken"]["texture"]["src"] = actor_data["data"][
+                "img"
+            ]
+
+        try:
+            response = self._request(
+                "PUT",
+                f"update?clientId={self.client_id}&uuid={obj.foundry_id}",
+                **actor_data,
+            )
+            log(response)
+        except Exception as e:
+            log("Error updating actor:", e)
+            response = self._request(
+                "POST", f"create?clientId={self.client_id}", **actor_data
+            )
+            obj.foundry_id = response.get("uuid")
+            obj.save()
+        return response
+
+    def push_item(self, obj):
         """Creates a new Foundry item."""
-        # Endpoint example: POST /api/relay/worlds/world_id/items
-        return self._request(
-            "POST",
-            f"worlds/{world_id}/items",
-            data=json.dumps(item_data),
-        )
+        item_data = {
+            "entityType": "Item",
+            "data": obj.to_foundry(),
+        }
+        if obj.image:
+            item_data["data"]["img"] = self.upload_image(
+                obj.image.url(), f"/assets/images/items/{obj.pk}.webp"
+            )
 
-    def create_scene(self, world_id, scene_data):
+        if obj.foundry_id:
+            response = self._request(
+                "PUT",
+                f"update?clientId={self.client_id}&uuid={obj.foundry_id}",
+                **item_data,
+            )
+        else:
+            response = self._request(
+                "POST", f"create?clientId={self.client_id}", **item_data
+            )
+            obj.foundry_id = response.get("uuid")
+            obj.save()
+        return response
+
+    def push_scene(self, obj):
         """Creates a new Foundry scene."""
         # Endpoint example: POST /api/relay/worlds/world_id/scenes
+        scene_data = {
+            "entityType": "Scene",
+            "data": obj.to_foundry(),
+        }
+        # Scene Background Image (maps to background.src)
+        # The source is null, so we explicitly set it to null or a default path if needed.
+        if obj.map:
+            scene_data["data"]["background"]["src"] = self.upload_image(
+                obj.map.url(), f"/assets/images/scenes/{obj.pk}.webp"
+            )
+            scene_data["data"]["thumb"] = scene_data["data"]["background"]["src"]
+
+        foundry_updated = False
+        if obj.foundry_id:
+            response = self._request(
+                "PUT",
+                f"update?clientId={self.client_id}&uuid={obj.foundry_id}",
+                **scene_data,
+            )
+
+            foundry_updated = True if not response.get("error") else False
+
+        if not foundry_updated:
+            response = self._request(
+                "POST", f"create?clientId={self.client_id}", **scene_data
+            )
+            obj.foundry_id = response.get("uuid")
+            obj.save()
+        log(response)
+        return response
+
+    def get_scenes(self):
+        """Retrieves all scenes within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/scenes
         return self._request(
-            "POST",
-            f"worlds/{world_id}/scenes",
-            data=json.dumps(scene_data),
+            "GET", f"search?clientId={self.client_id}", query="", filter="Scene"
+        )
+
+    def get_actors(self):
+        """Retrieves all actors within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/actors
+        results = self._request(
+            "GET", f"search?clientId={self.client_id}", query="", filter="actor"
+        )
+        results = [
+            r
+            for r in results.get("results", [])
+            if "compendium" not in r.get("resultType", "").lower()
+        ]
+        return results
+
+    def get_items(self):
+        """Retrieves all items within a specific world."""
+        # Endpoint example: GET /api/relay/worlds/world_id/items
+        return self._request(
+            "GET", f"search?clientId={self.client_id}", query="", filter="Item"
         )

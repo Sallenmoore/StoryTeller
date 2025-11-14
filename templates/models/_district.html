@@ -11,7 +11,7 @@
 {% import "manage/_district.html" as manage_district_components %}
 {% import "shared/_title.html" as title_components %}
 {% import "shared/_display.html" as display_components %}
-
+{% import "shared/_gmnotes.html" as gmnotes_components %}
 {% macro index(user, obj) -%}
 {{history(user, obj)}}
 {%- endmacro %}
@@ -174,6 +174,8 @@
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" class="callout ">
     <h3 class='text-center '>GM Notes</h3>
+
+    {{gmnotes_components.foundry_buttons(user, obj)}}
     <div class="grid-x">
         <div class="cell medium-6">
             <div class="callout ">

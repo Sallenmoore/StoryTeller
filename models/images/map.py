@@ -2,10 +2,6 @@ import io
 import random
 
 import requests
-from bs4 import BeautifulSoup
-from PIL import Image as ImageTools
-
-from autonomous import log
 from autonomous.ai.imageagent import ImageAgent
 from autonomous.model.autoattr import (
     ListAttr,
@@ -13,6 +9,10 @@ from autonomous.model.autoattr import (
     StringAttr,
 )
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
+from PIL import Image as ImageTools
+
+from autonomous import log
 
 from .image import Image
 
@@ -25,6 +25,19 @@ class Coordinates(AutoModel):
 
 class Map(Image):
     coordinates = ListAttr(ReferenceAttr(choices=[Coordinates]))
+
+    @classmethod
+    def generate(
+        cls,
+        prompt,
+        tags=None,
+        aspect_ratio="16:9",
+        text=False,
+        files=None,
+    ):
+        return super().generate(
+            prompt, tags=tags, aspect_ratio=aspect_ratio, text=text, files=files
+        )
 
     @classmethod
     def from_image(self, image):

@@ -1,5 +1,7 @@
+import os
 import re
 
+from autonomous import log
 from models.systems.basesystem import BaseSystem
 
 
@@ -33,18 +35,36 @@ class FantasySystem(BaseSystem):
         "character": "Character",
     }
 
+    SKILL_MAP_ABBREV = {
+        "Acrobatics": "acr",
+        "Animal Handling": "ani",
+        "Arcana": "arc",
+        "Athletics": "ath",
+        "Deception": "dec",
+        "History": "his",
+        "Insight": "ins",
+        "Intimidation": "itm",
+        "Investigation": "inv",
+        "Medicine": "med",
+        "Nature": "nat",
+        "Perception": "prc",  # Note: Foundry D&D 5e often uses 'prc' for Perception
+        "Performance": "prf",
+        "Persuasion": "per",
+        "Religion": "rel",
+        "Sleight of Hand": "slt",
+        "Stealth": "ste",
+        "Survival": "sur",
+    }
+
     def foundry_export(self, obj):
         data = obj.page_data()
-        if obj.model_name() == "Character":
-            return self.foundry_character_export(data)
-        if obj.model_name() == "Creature":
-            return self.foundry_creature_export(data)
+        if obj.model_name() in ["Character", "Creature"]:
+            return self.foundry_actor_export(data)
         elif obj.model_name() == "Vehicle":
             return self.foundry_vehicle_export(data)
         elif obj.model_name() == "Item":
             return self.foundry_item_export(data)
         elif obj.model_name() in [
-            "Faction",
             "City",
             "Region",
             "World",
@@ -57,339 +77,77 @@ class FantasySystem(BaseSystem):
 
         return data
 
-    def foundry_creature_export(source_data):
-        """
-        Transforms a generic 'mech' (or similar NPC) JSON object into the specific
-        Systems Without Number (SWN) "character" Actor document schema.
-        """
-        # 1. Define the target schema structure with required defaults
-        target_schema = {
-            "name": "Character",
-            "type": "character",
-            "img": "icons/svg/mystery-man.svg",
-            "system": {
-                "health": {"value": 10, "max": 10},
-                "biography": "",
-                "species": "",
-                "access": {"value": 1, "max": 1},
-                "traumaTarget": 6,
-                "baseAc": 10,
-                "meleeAc": 10,
-                "ab": 1,
-                "meleeAb": 1,
-                "systemStrain": {"value": 0, "permanent": 0},
-                "pools": {},
-                "effortCommitments": {},
-                "speed": 10,
-                "cyberdecks": [],
-                "health_max_modified": 0,
-                "stats": {
-                    "str": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "dex": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "con": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "int": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "wis": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "cha": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                },
-                "hitDie": "d6",
-                "level": {"value": 1, "exp": 0, "expToLevel": 3},
-                "goals": "",
-                "class": "",
-                "homeworld": "",
-                "background": "",
-                "employer": "",
-                "languages": [],
-                "credits": {"debt": 0, "balance": 0, "owed": 0},
-                "unspentSkillPoints": 0,
-                "unspentPsySkillPoints": 0,
-                "extra": {"value": 0, "max": 10},
-                "tweak": {
-                    "advInit": False,
-                    "showResourceList": False,
-                    "showCyberware": True,
-                    "showPsychic": True,
-                    "showArts": False,
-                    "showSpells": False,
-                    "showAdept": False,
-                    "showMutation": False,
-                    "showPoolsInHeader": False,
-                    "showPoolsInPowers": True,
-                    "showPoolsInCombat": True,
-                    "resourceList": [],
-                    "debtDisplay": "Debt",
-                    "owedDisplay": "Owed",
-                    "balanceDisplay": "Balance",
-                    "initiative": {},
-                },
-            },
-            "prototypeToken": {
-                "name": "Character",
-                "displayName": 0,
-                "actorLink": False,
-                "width": 1,
-                "height": 1,
-                "texture": {"src": "icons/svg/mystery-man.svg"},
-                "bar1": {"attribute": "health"},
-                "bar2": {"attribute": "power"},
-            },
-            "items": [],
-            "effects": [],
-            "flags": {},
-            "ownership": {"default": 0},
-            "_stats": {},
-        }
-
-        # Helper function to safely get attribute base score
-        def get_attr_score(attr_key, default=9):
-            # Source uses 'dexerity', target uses 'dex'
-            key_map = {"dexerity": "dex"}
-            final_key = key_map.get(attr_key, attr_key)
-
-            # We assume the source attribute scores are the Base scores
-            return int(
-                source_data.get("attributes", {}).get(
-                    final_key, source_data.get("attributes", {}).get(attr_key, default)
-                )
-            )
-
-        # 2. Map Core Fields (Name, Image, Health, AC, Speed)
-        char_name = source_data.get("name", "Unknown Character").strip()
-        target_schema["name"] = char_name
-        target_schema["prototypeToken"]["name"] = char_name
-
-        if url := source_data.get("image", "").strip():
-            target_schema["img"] = f"https://storyteller.stevenamoore.dev{url}"
-
-        # Health (Hit Points)
-        hp = int(source_data.get("hit points", 10))
-        target_schema["system"]["health"]["value"] = hp
-        target_schema["system"]["health"]["max"] = hp
-
-        # AC
-        target_schema["system"]["baseAc"] = int(source_data.get("ac", 10))
-        target_schema["system"]["meleeAc"] = int(source_data.get("ac", 10))
-
-        # Speed
-        target_schema["system"]["speed"] = int(source_data.get("speed", 10))
-
-        # Archetype -> Class and Species
-        target_schema["system"]["class"] = source_data.get("archetype", "").strip()
-        target_schema["system"]["species"] = source_data.get("species", "").strip()
-
-        # Level
-        target_schema["system"]["level"]["value"] = int(source_data.get("level", 1))
-
-        # 3. Map Attributes (Stats)
-        for stat_key in target_schema["system"]["stats"].keys():
-            score = get_attr_score(stat_key)
-            target_schema["system"]["stats"][stat_key]["base"] = score
-
-        # 4. Map Narrative Fields (Biography and Goals)
-        skills_list = [
-            f"<li><strong>{k}:</strong> {v}</li>"
-            for k, v in source_data.get("skills", {}).items()
-            if v
-        ]
-
-        # Combine description fields into biography
-        combined_biography = f"""
-            <h2>Physical Description & Archetype</h2>
-            <p><strong>Archetype:</strong> {source_data.get("archetype", "N/A")}</p>
-            <p><strong>Species:</strong> {source_data.get("species", "N/A")}</p>
-            <p>{source_data.get("desc", "No physical description provided.")}</p>
-
-            <h2>History</h2>
-            {source_data.get("history", "")}
-
-            <h2>Skills (Reference Only)</h2>
-            <ul>{"".join(skills_list) if skills_list else "<li>No non-default skill values provided.</li>"}</ul>
-        """
-        target_schema["system"]["biography"] = combined_biography.strip()
-        target_schema["system"]["goals"] = source_data.get("goal", "").strip()
-
-        return target_schema
-
-    def foundry_character_export(self, source_data):
-        """
-        Transforms a generic 'mech' or 'human' JSON object into the specific
-        Systems Without Number (SWN) "character" Actor document schema.
-        """
-        # 1. Define the target schema structure with required defaults
-        target_schema = {
-            "name": "Character",
-            "type": "character",
-            "img": "icons/svg/mystery-man.svg",
-            "system": {
-                "health": {"value": 10, "max": 10},
-                "biography": "",
-                "species": "",
-                "access": {"value": 1, "max": 1},
-                "traumaTarget": 6,
-                "baseAc": 10,
-                "meleeAc": 10,
-                "ab": 1,
-                "meleeAb": 1,
-                "systemStrain": {"value": 0, "permanent": 0},
-                "pools": {},
-                "effortCommitments": {},
-                "speed": 10,
-                "cyberdecks": [],
-                "health_max_modified": 0,
-                "stats": {
-                    "str": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "dex": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "con": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "int": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "wis": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                    "cha": {"base": 9, "bonus": 0, "boost": 0, "temp": 0},
-                },
-                "hitDie": "d6",
-                "level": {"value": 1, "exp": 0, "expToLevel": 3},
-                "goals": "",
-                "class": "",
-                "homeworld": "",
-                "background": "",
-                "employer": "",
-                "languages": [],
-                "credits": {"debt": 0, "balance": 0, "owed": 0},
-                "unspentSkillPoints": 0,
-                "unspentPsySkillPoints": 0,
-                "extra": {"value": 0, "max": 10},
-                "tweak": {
-                    "advInit": False,
-                    "showResourceList": False,
-                    "showCyberware": True,
-                    "showPsychic": True,
-                    "showArts": False,
-                    "showSpells": False,
-                    "showAdept": False,
-                    "showMutation": False,
-                    "showPoolsInHeader": False,
-                    "showPoolsInPowers": True,
-                    "showPoolsInCombat": True,
-                    "resourceList": [],
-                    "debtDisplay": "Debt",
-                    "owedDisplay": "Owed",
-                    "balanceDisplay": "Balance",
-                    "initiative": {},
-                },
-            },
-            "prototypeToken": {
-                "name": "Character",
-                "displayName": 0,
-                "actorLink": False,
-                "width": 1,
-                "height": 1,
-                "texture": {"src": "icons/svg/mystery-man.svg"},
-                "bar1": {"attribute": "health"},
-                "bar2": {"attribute": "power"},
-            },
-            "items": [],
-            "effects": [],
-            "flags": {},
-            "ownership": {"default": 0},
-            "_stats": {},
-        }
-
-        # Helper function to safely get attribute base score
-        def get_attr_score(attr_key, default=9):
-            # Source uses 'dexerity', target uses 'dex'
-            key_map = {
-                "dex": "dexerity",
-                "int": "intelligence",
-                "con": "constitution",
-                "wis": "wisdom",
-                "cha": "charisma",
-                "str": "strength",
+    def foundry_actor_export(self, source_data):
+        # --- 1. Map Abilities (Attributes) ---
+        foundry_abilities = {}
+        for name, value in source_data["attributes"].items():
+            # D&D 5e uses str, dex, con, int, wis, cha.
+            # Assuming your source keys are correct:
+            code = name[:3].lower()  # Simple mapping (str, dex, con...)
+            foundry_abilities[code] = {
+                "value": value,
+                "proficient": 0,  # Assume no proficiency here, based on source data
+                "check": {},
+                "save": {},
+                "bonuses": {},
             }
-            final_key = key_map.get(attr_key)
-            # We assume the source attribute scores are the Base scores
-            # log(final_key, attr_key, source_data.get("attributes", {}))
-            result = int(source_data.get("attributes", {}).get(final_key, 9))
-            # log(result)
-            return result
 
-        # 2. Map Core Fields (Name, Image, Health, AC, Speed)
-        char_name = source_data.get("name", "Unknown Character").strip()
-        target_schema["name"] = char_name
-        target_schema["prototypeToken"]["name"] = char_name
-
-        if url := source_data.get("image", "").strip():
-            target_schema["img"] = f"https://storyteller.stevenamoore.dev{url}"
-
-        # Health (Hit Points)
-        hp = int(source_data.get("hitpoints", 10))
-        target_schema["system"]["health"]["value"] = hp
-        target_schema["system"]["health"]["max"] = hp
-
-        # AC
-        target_schema["system"]["baseAc"] = int(source_data.get("ac", 10))
-        target_schema["system"]["meleeAc"] = int(source_data.get("ac", 10))
-
-        # Speed
-        target_schema["system"]["speed"] = int(source_data.get("speed", 10))
-
-        # Occupation -> Class and Species
-        target_schema["system"]["class"] = source_data.get("occupation", "").strip()
-        target_schema["system"]["species"] = source_data.get("species", "").strip()
-
-        # Level (default to 1 since source JSON doesn't provide it)
-        target_schema["system"]["level"]["value"] = int(source_data.get("level", 1))
-
-        # 3. Map Attributes (Stats)
-        # log(target_schema["system"]["stats"].keys())
-        for stat_key in target_schema["system"]["stats"].keys():
-            score = get_attr_score(stat_key)
-            target_schema["system"]["stats"][stat_key]["base"] = score
-
-        skill_items = []
-        SKILL_TYPES = ["combat", "noncombat", "psychic"]
-        for k, v in source_data.get("skills", {}).items():
-            # Determine the type. SWN system uses 'noncombat' for standard skills.
-            skill_type = "noncombat"
-
-            # The core requirement: A new Item document object for each skill.
-            skill_item = {
-                "name": k,
-                "type": "skill",  # Important: this must match the Item Type for SWN skills
-                "img": f"icons/svg/{skill_type}.svg",  # Default icon based on type
-                "system": {
-                    # SWN stores the score/level under 'level.value'
-                    "level": {
-                        "value": int(v)
-                        or 0,  # Convert string score ("-1", "0") to integer
-                        "max": 5,
+        # --- 3. Build the Core System Payload ---
+        foundry_payload = {
+            # --- Root Level ---
+            "name": source_data["name"],
+            "type": "npc" if source_data.get("type", False) else "character",
+            "system": {
+                "abilities": foundry_abilities,
+                "attributes": {
+                    "hp": {
+                        "value": source_data["hitpoints"],
+                        "max": source_data["hitpoints"],
+                        "temp": None,
+                        "tempmax": None,
                     },
-                    # Other required fields for a minimal skill Item
-                    "description": "",
-                    "favorite": False,
+                    "movement": {
+                        "walk": source_data["speed"],
+                        "units": source_data["speed_units"].lower()
+                        if source_data.get("speed_units")
+                        else "ft",
+                    },
+                    "ac": {
+                        "value": source_data["ac"],
+                    },  # Placeholder AC, calculated by D&D 5e system
                 },
-            }
-            skill_items += [skill_item]
-        target_schema["items"] = skill_items
-
-        # Combine description fields into biography
-        combined_biography = f"""
-            <h2>Character Details</h2>
-            <p><strong>Species:</strong> {source_data.get("species", "N/A")}</p>
-            <p><strong>Class/Occupation:</strong> {source_data.get("occupation", "N/A")}</p>
-            <p><strong>Gender:</strong> {source_data.get("gender", "Unknown")}</p>
-            <p><strong>Age:</strong> {source_data.get("age", "Unknown")}</p>
-            <hr/>
-
-            <h2>Physical Description</h2>
-            <p>{source_data.get("desc", "No physical description provided.")}</p>
-
-            <h2>Backstory Snippets</h2>
-            {source_data.get("backstory", "")}
-
-            <h2>Detailed History</h2>
-            {source_data.get("history", "")}
-        """
-        target_schema["system"]["biography"] = combined_biography.strip()
-        target_schema["system"]["goals"] = source_data.get("goal", "").strip()
-
-        return target_schema
+                "details": {
+                    "race": source_data.get("species", ""),
+                    "level": 1,  # Default level for character sync
+                    "occupation": source_data.get("archetype", ""),
+                    "biography": {
+                        "value": source_data[
+                            "history"
+                        ],  # Detailed history/backstory HTML
+                        "public": f"<h1>{source_data['archetype']}</h1>",
+                    },
+                    "appearance": source_data.get("desc", ""),
+                },
+            },
+            ##--- Token Prototype Data ---
+            "prototypeToken": {
+                "name": source_data["name"],
+                "actorLink": True,
+                "bar1": {"attribute": "attributes.hp"},
+                "displayBars": 0,
+                "displayName": 0,
+                "disposition": 1,  # Neutral disposition (Hostile= -1, Friendly= 1)
+                "texture": {"src": ""},
+                "sight": {
+                    "enabled": True,
+                    "range": 5,
+                    "angle": 360,
+                    "visionMode": "basic",
+                },
+            },
+        }
+        log(foundry_payload)
+        return foundry_payload
 
     def foundry_vehicle_export(self, source_data):
         """
@@ -518,7 +276,7 @@ class FantasySystem(BaseSystem):
 
         return target_schema
 
-    def foundry_item_export(source_data):
+    def foundry_item_export(self, source_data):
         """
         Transforms a generic item JSON object into the specific Systems Without Number (SWN)
         "item" Item document schema.
@@ -645,7 +403,7 @@ class FantasySystem(BaseSystem):
 
         return target_schema
 
-    def foundry_place_export(source_data):
+    def foundry_place_export(self, source_data):
         """
         Transforms a generic location JSON object into the standard Foundry VTT Scene document schema.
 
@@ -654,18 +412,18 @@ class FantasySystem(BaseSystem):
         """
         # 1. Define the target schema structure (using a known SWN base template)
         target_schema = {
-            "name": "Scene",
-            "navigation": True,
+            "name": source_data.get("name", "New Scene").strip(),
+            "navigation": False,
             "navOrder": 0,
             "background": {
-                "src": None,
+                "src": "",
                 "anchorX": 0,
                 "anchorY": 0,
                 "offsetX": 0,
                 "offsetY": 0,
                 "fit": "fill",
-                "scaleX": 1,
-                "scaleY": 1,
+                "scaleX": 1.5,
+                "scaleY": 1.5,
                 "rotation": 0,
                 "tint": "#ffffff",
                 "alphaThreshold": 0,
@@ -673,18 +431,16 @@ class FantasySystem(BaseSystem):
             "foreground": None,
             "foregroundElevation": None,
             "thumb": None,
-            "width": 1792,
-            "height": 1792,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
-            "backgroundColor": "#999999",
+            "backgroundColor": "#292828",
             "grid": {
-                "type": 1,
-                "size": 100,
+                "type": 2,
+                "size": 50,
                 "style": "solidLines",
                 "thickness": 1,
                 "color": "#000000",
-                "alpha": 0.2,
+                "alpha": 0.3,
                 "distance": 5,
                 "units": "ft",
             },
@@ -698,7 +454,7 @@ class FantasySystem(BaseSystem):
                 "darknessLevel": 0,
                 "darknessLock": False,
                 "globalLight": {
-                    "enabled": False,
+                    "enabled": True,
                     "alpha": 0.5,
                     "bright": False,
                     "color": None,
@@ -732,6 +488,8 @@ class FantasySystem(BaseSystem):
             "sounds": [],
             "regions": [],
             "templates": [],
+            "width": 1344 * 1.5,
+            "height": 768 * 1.5,
             "tiles": [],
             "walls": [],
             "playlist": None,
@@ -745,18 +503,6 @@ class FantasySystem(BaseSystem):
             "ownership": {"default": 0},
         }
 
-        # 2. Map Core Fields
-        scene_name = source_data.get("name", "Unknown Scene").strip()
-        target_schema["name"] = scene_name
-
-        # Scene Background Image (maps to background.src)
-        # The source is null, so we explicitly set it to null or a default path if needed.
-        # Use 'image' for image path
-        if url := source_data.get("image", "").strip():
-            target_schema["background"]["src"] = (
-                f"https://storyteller.stevenamoore.dev{url}"
-            )
-
         # 3. Combine description fields into a Note document
         desc_text = source_data.get("desc", "")
         history_html = source_data.get("history", "")
@@ -767,18 +513,19 @@ class FantasySystem(BaseSystem):
             <p>{desc_text}</p>
             <h2>History</h2>
             {history_html}
+
         """
 
         # Create the embedded Note document structure
         embedded_note = {
-            "name": f"{scene_name} Description",
+            "name": f"{source_data.get('name', 'New Scene').strip()} Description",
             "text": combined_notes_content.strip(),
             "fontFamily": None,
             "fontSize": 48,
             "textAnchor": 1,
             "textColor": None,
-            "x": 0,  # Placeholder coordinates
-            "y": 0,  # Placeholder coordinates
+            "x": 25,  # Placeholder coordinates
+            "y": 25,  # Placeholder coordinates
             "visibility": 1,  # Visible to GM
             "flags": {},
         }

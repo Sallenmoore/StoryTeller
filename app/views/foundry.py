@@ -5,17 +5,23 @@ import os
 from urllib.parse import urlparse
 
 import requests
+from autonomous.auth.autoauth import AutoAuth
 from autonomous.model.automodel import AutoModel
 from flask import (
     Blueprint,
     Response,
+    get_template_attribute,
     render_template,
     request,
     session,
 )
 
 from autonomous import log
+from models.base.actor import Actor
+from models.base.place import Place
 from models.images.image import Image
+from models.ttrpgobject.item import Item
+from models.utility import foundry_client
 from models.utility.foundry_client import FoundryClient
 from models.world import World
 
@@ -29,17 +35,68 @@ def index(world_name):
 
 
 @foundry_page.route(
-    "/<string:world_name>/get/<string:category_name>", methods=("GET", "POST")
+    "/<string:world_name>/<string:category_name>", methods=("GET", "POST")
 )
-def get(world_name, category_name):
+def listobjects(world_name, category_name):
     foundry_client = FoundryClient(world_name=world_name)
     # /get?clientId=$clientId&selected=true&actor=true
     if category_name == "scenes":
-        response = foundry_client.get_world_scenes()
+        response = foundry_client.get_scenes()
     elif category_name == "actors":
-        response = foundry_client.get_world_actors()
+        response = foundry_client.get_actors()
     elif category_name == "items":
-        response = foundry_client.get_world_items()
+        response = foundry_client.get_items()
     else:
         response = {"error": "Invalid category"}
     return response
+
+
+@foundry_page.route(
+    "/push/<string:model_name>/<string:pk>",
+    methods=("GET", "POST"),
+)
+def pushobject(model_name, pk):
+    if obj := AutoModel.get_model(model_name, pk):
+        foundry_client = FoundryClient(world_name=obj.world.name)
+        if not obj.foundry_client_id:
+            obj.foundry_client_id = foundry_client.client_id
+            obj.save()
+        if isinstance(obj, (World, Place)):
+            response = foundry_client.push_scene(obj)
+        elif isinstance(obj, Actor):
+            response = foundry_client.push_actor(obj)
+        elif isinstance(obj, Item):
+            response = foundry_client.push_item(obj)
+        else:
+            response = {"error": "Invalid category"}
+        log(response)
+        user = AutoAuth.current_user()
+        return get_template_attribute(
+            f"models/_{obj.model_name().lower()}.html", "gmnotes"
+        )(user, obj)
+    return {"error": "Object not found"}
+
+
+@foundry_page.route(
+    "/pull/<string:model_name>/<string:pk>",
+    methods=("GET", "POST"),
+)
+def pullobject(model_name, pk):
+    if obj := AutoModel.get_model(model_name, pk):
+        foundry_client = FoundryClient(world_name=obj.world.name)
+        if not obj.foundry_id:
+            return {"error": "Object does not have a Foundry ID"}
+        if isinstance(obj, (World, Place)):
+            response = foundry_client.get_scene(obj.foundry_id)
+        elif isinstance(obj, Actor):
+            response = foundry_client.get_actor(obj.foundry_id)
+        elif isinstance(obj, Item):
+            response = foundry_client.get_item(obj.foundry_id)
+        else:
+            response = {"error": "Invalid category"}
+        log(response)
+        user = AutoAuth.current_user()
+        return get_template_attribute(
+            f"models/_{obj.model_name().lower()}.html", "gmnotes"
+        )(user, obj)
+    return {"error": "Object not found"}

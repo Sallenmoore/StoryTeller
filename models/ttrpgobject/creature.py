@@ -83,7 +83,7 @@ class Creature(Actor):
             "goal": self.goal,
             "type": self.type,
             "size": self.size,
-            "hit points": self.hitpoints,
+            "hitpoints": self.hitpoints,
             "ac": self.ac,
             "archetype": self.archetype,
             "skills": self.skills,

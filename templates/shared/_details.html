@@ -5,16 +5,6 @@
 {% macro details(user, obj) -%}
 <title>{{obj.name or obj.title}} - Details</title>
 <div class="callout white">
-    <div class="grid-x align-center">
-        <div class="cell align-center-middle">
-            <h2>Details</h2>
-        </div>
-        {% if obj.traits %}
-        <div class="cell shrink">
-            <span class="label">{{obj.traits}}</span>
-        </div>
-        {% endif %}
-    </div>
     {%if obj.model_name() not in ["World", "Creature", "Encounter"] %}
     <div class="grid-x align-center">
         {% if obj.start_date and obj.start_date.year > 0 %}

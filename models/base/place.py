@@ -63,8 +63,6 @@ class Place(TTRPGObject):
             self.map = Map.generate(
                 prompt=self.map_prompt,
                 tags=["map", *self.image_tags],
-                img_quality="hd",
-                img_size="1792x1024",
             )
             self.map.save()
             self.save()

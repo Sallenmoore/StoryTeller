@@ -177,8 +177,11 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             "speed_units": self.speed_units,
             "age": self.age,
             "occupation": self.occupation,
+            "archetype": self.archetype,
             "species": self.species,
             "hitpoints": self.hitpoints,
+            "ac": self.ac,
+            "is_player": self.is_player,
             "attributes": {
                 "strength": self.strength,
                 "dexerity": self.dexterity,

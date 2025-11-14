@@ -37,6 +37,8 @@ class TTRPGBase(AutoModel):
     history = StringAttr(default="")
     status = StringAttr(default="")
     journal = ReferenceAttr(choices=[Journal])
+    foundry_id = StringAttr(default="")
+    foundry_client_id = StringAttr(default="")
 
     start_date_label = "Founded"
     end_date_label = "Abandoned"
@@ -565,6 +567,9 @@ Backstory
 
     def page_data(self):
         return {}
+
+    def to_foundry(self):
+        return self.system.foundry_export(self)
 
     def add_journal_entry(
         self,
