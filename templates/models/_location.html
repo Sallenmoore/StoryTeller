@@ -176,7 +176,7 @@
     <h3 class='text-center'>GM Notes</h3>
     {{gmnotes_components.foundry_buttons(user, obj)}}
     <div class="grid-x grid-margin-x">
-        <div class="cell auto">
+        <div class="cell medium-8">
             <div class="grid-x">
                 <div class="cell">
                     <div class="callout">
@@ -189,17 +189,16 @@
                         </ul>
                     </div>
                 </div>
-                <div class="cell auto">
+                <div class="cell">
                     {{gmnotes_components.display_hooks(user, obj)}}
                 </div>
-                <div class="cell auto">
+                <div class="cell">
                     <div class="callout">
                         <h5>Current Status</h5>
                         {{obj.status | safe}}
                     </div>
                 </div>
                 <div class="cell">
-
                     <div class="callout ">
                         <h5>Rumors</h5>
                         <ul>
