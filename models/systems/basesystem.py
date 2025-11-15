@@ -216,14 +216,17 @@ class BaseSystem(AutoModel):
         "city": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image.<br>
 - MAP TYPE: A top-down atlas of the {obj.title} <br>
 - SCALE: 1 inch == 500 feet <br>
+{"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
         "region": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title}  that fills the entire image.<br>
 - MAP TYPE: A top-down atlas of the {obj.title} <br>
 - SCALE: 1 inch == 50 miles <br>
+{"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
         "world": lambda obj: f"""Generate a top-down atlas style map of a {obj.title} suitable for a {obj.genre} tabletop RPG. The map should be a general overview of the {obj.title} that fills the entire image.<br>
 - MAP TYPE: A top-down atlas of the {obj.title} <br>
 - SCALE: 1 inch == 500 miles <br>
+{"- DESCRIPTION: " + obj.description if obj.description else ""}
 """,
         "location": lambda obj: f"""Generate a top-down navigable Table Top RPG battle map suitable for a {obj.genre} encounter in a {obj.location_type}. The map should fill the entire image and be detailed enough for players to clearly understand how to navigate the environment.<br>
 - MAP TYPE: directly overhead, top-down, no grid <br>
