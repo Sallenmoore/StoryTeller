@@ -188,7 +188,10 @@
                 </ul>
             </div>
         </div>
-        <div class="cell">
+        <div class="cell auto">
+            {{gminfo_components.display_hooks(user, obj)}}
+        </div>
+        <div class="cell auto">
             <div class="callout ">
                 <h5>Current Status</h5>
                 {{obj.status | safe}}

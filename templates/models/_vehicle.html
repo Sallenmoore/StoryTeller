@@ -14,6 +14,7 @@
 {% import "shared/_gmnotes.html" as gmnotes_components %}
 {% import "manage/_vehicle.html" as manage_vehicle_components %}
 {% import "shared/_title.html" as title_components %}
+{% import "shared/_gminfo.html" as gminfo_components %}
 
 {% macro index(user, obj) -%}
 {{history(user, obj)}}
@@ -173,7 +174,10 @@
                 </ul>
             </div>
         </div>
-        <div class="cell">
+        <div class="cell auto">
+            {{gminfo_components.display_hooks(user, obj)}}
+        </div>
+        <div class="cell auto">
             <h5>Current Status</h5>
             <div class="callout">
                 {{obj.status | safe}}

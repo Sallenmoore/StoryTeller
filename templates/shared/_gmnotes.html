@@ -16,3 +16,13 @@
     {% endif %}
 </div>
 {%- endmacro %}
+
+{% macro display_hooks(user, obj) -%}
+<div class="grid-x align-spaced">
+    {% for e in obj.encounters %}
+    <div class="cell">
+        {{ e.hook | safe }}
+    </div>
+    {% endfor %}
+</div>
+{%- endmacro %}

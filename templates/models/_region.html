@@ -187,111 +187,113 @@
                     {% endfor %}
                 </ul>
             </div>
+            <div class="cell auto">
+                {{gminfo_components.display_hooks(user, obj)}}
+            </div>
+            <div class="cell auto">
+                <h5>Current Status</h5>
+                <div class="callout">
+                    {{obj.status | safe}}
+                </div>
+            </div>
+            <div class="cell">
+                <h5>Rumors</h5>
+                <div class="callout ">
+                    <ul>
+                        {% for r in obj.rumors + obj.recent_events %}
+                        <li>
+                            {{ r | safe }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%- endmacro %}
+
+    {% macro info(user, obj) -%}
+    <div class="grid-x">
+        {% if obj.ruling_faction %}
+        <div class="cell">
+            <div class="callout small">
+                <h4 class='text-center '>Ruling Faction</h4>
+                <h5>{{obj.ruling_faction.name}}</h5>
+                {{obj.ruling_faction.backstory_summary | safe}}
+            </div>
+        </div>
+        {% elif obj.factions %}
+        <div class="cell">
+            <h4 class='text-center'>Local Factions</h4>
+            {% for faction in obj.factions %}
+            <div class="callout small ">
+                <h5>{{faction.name}}</h5>
+                {{faction.backstory_summary | safe}}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="cell">
+            <div class="card">
+                <div class="card__header align-center-middle">
+                    <h3>Culture</h3>
+                </div>
+                <div class="card__content">
+                    <p>{{obj.culture | safe}}</p>
+                </div>
+            </div>
         </div>
         <div class="cell">
-            <h5>Current Status</h5>
-            <div class="callout">
-                {{obj.status | safe}}
+            <div class="card">
+                <div class="card__header align-center-middle">
+                    <h3>Government</h3>
+                </div>
+                <div class="card__content">
+                    <p>{{obj.government | safe}}</p>
+                </div>
             </div>
         </div>
         <div class="cell">
-            <h5>Rumors</h5>
-            <div class="callout ">
-                <ul>
-                    {% for r in obj.rumors + obj.recent_events %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
+            <div class="card">
+                <div class="card__header align-center-middle">
+                    <h3>Religion</h3>
+                </div>
+                <div class="card__content">
+                    <p>{{obj.religion | safe}}</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{%- endmacro %}
+    {%- endmacro %}
 
-{% macro info(user, obj) -%}
-<div class="grid-x">
-    {% if obj.ruling_faction %}
-    <div class="cell">
-        <div class="callout small">
-            <h4 class='text-center '>Ruling Faction</h4>
-            <h5>{{obj.ruling_faction.name}}</h5>
-            {{obj.ruling_faction.backstory_summary | safe}}
-        </div>
-    </div>
-    {% elif obj.factions %}
-    <div class="cell">
-        <h4 class='text-center'>Local Factions</h4>
-        {% for faction in obj.factions %}
-        <div class="callout small ">
-            <h5>{{faction.name}}</h5>
-            {{faction.backstory_summary | safe}}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    <div class="cell">
-        <div class="card">
-            <div class="card__header align-center-middle">
-                <h3>Culture</h3>
-            </div>
-            <div class="card__content">
-                <p>{{obj.culture | safe}}</p>
-            </div>
-        </div>
-    </div>
-    <div class="cell">
-        <div class="card">
-            <div class="card__header align-center-middle">
-                <h3>Government</h3>
-            </div>
-            <div class="card__content">
-                <p>{{obj.government | safe}}</p>
-            </div>
-        </div>
-    </div>
-    <div class="cell">
-        <div class="card">
-            <div class="card__header align-center-middle">
-                <h3>Religion</h3>
-            </div>
-            <div class="card__content">
-                <p>{{obj.religion | safe}}</p>
-            </div>
-        </div>
-    </div>
-</div>
-{%- endmacro %}
+    {% macro timeline(user, obj)%}
+    {{timeline_components.timeline(user, obj)}}
+    {%- endmacro %}
 
-{% macro timeline(user, obj)%}
-{{timeline_components.timeline(user, obj)}}
-{%- endmacro %}
+    {% macro journal(user, obj)%}
+    {{journal_components.journal(user, obj)}}
+    {%- endmacro %}
 
-{% macro journal(user, obj)%}
-{{journal_components.journal(user, obj)}}
-{%- endmacro %}
+    {% macro stories(user, obj)%}
+    {{story_components.stories(user, obj)}}
+    {%- endmacro %}
 
-{% macro stories(user, obj)%}
-{{story_components.stories(user, obj)}}
-{%- endmacro %}
+    {% macro campaigns(user, obj)%}
+    {{campaigns_components.campaigns(user, obj)}}
+    {%- endmacro %}
 
-{% macro campaigns(user, obj)%}
-{{campaigns_components.campaigns(user, obj)}}
-{%- endmacro %}
+    {% macro associations(user, obj, associations)%}
+    {{associations_components.associations(user, obj, associations)}}
+    {%- endmacro %}
 
-{% macro associations(user, obj, associations)%}
-{{associations_components.associations(user, obj, associations)}}
-{%- endmacro %}
+    {% macro map(user, obj)%}
+    {{map_components.map(user, obj)}}
+    {%- endmacro %}
 
-{% macro map(user, obj)%}
-{{map_components.map(user, obj)}}
-{%- endmacro %}
+    {% macro jobs(user, obj)%}
+    {{jobs_components.jobs(user, obj)}}
+    {%- endmacro %}
 
-{% macro jobs(user, obj)%}
-{{jobs_components.jobs(user, obj)}}
-{%- endmacro %}
-
-{% macro manage(user, obj) -%}
-{{ manage_region_components.manage(user, obj) }}
-{%- endmacro %}
+    {% macro manage(user, obj) -%}
+    {{ manage_region_components.manage(user, obj) }}
+    {%- endmacro %}
