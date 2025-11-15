@@ -317,18 +317,18 @@
         </button>
     </div>
 </div> #}
-<div style='position:absolute; top:2rem; right:2rem;'>
-    <button class="button small" hx-post="/api/world/campaign/new"
-            hx-target="#campaigns-list"
-            hx-selector="#campaigns-list"
-            hx-swap="outerHTML">
-        {{icon_components.plus(size="1rem")}}
-        New Campaign
-    </button>
-</div>
 {% endif %}
-<div id='campaigns-list'>
+<div id='campaigns-list' style='position:relative;'>
     {{campaigns_components.campaigns(user, obj)}}
+    <div style='position:absolute; top:1rem; right:1rem;'>
+        <button class="button small" hx-post="/api/world/campaign/new"
+                hx-target="#campaigns-list"
+                hx-selector="#campaigns-list"
+                hx-swap="outerHTML">
+            {{icon_components.plus(size="1rem")}}
+            New Campaign
+        </button>
+    </div>
 </div>
 {%- endmacro %}
 

@@ -27,7 +27,7 @@ from ._utilities import loader as _loader
 world_endpoint = Blueprint("world", __name__)
 
 
-@world_endpoint.route("/new", methods=("POST",))
+@world_endpoint.route("/campaign/new", methods=("POST",))
 def campaignnew():
     user, obj, request_data = _loader()
     campaign = Campaign(world=obj.world, name="New Campaign")

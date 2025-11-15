@@ -90,7 +90,7 @@ def campaignupdate(pk):
         campaign.name = request.json.get("name") or campaign.name
         campaign.description = request.json.get("description") or campaign.description
         campaign.save()
-    return get_template_attribute(module, macro)(
+    return get_template_attribute("models/_campaign.html", "manage")(
         user, obj, campaign_list=obj.world.campaigns, campaign=campaign
     )
 
@@ -101,7 +101,7 @@ def addparty(pk):
     campaign = Campaign.get(pk)
     campaign.party = Faction.get(request.json.get("party"))
     campaign.save()
-    return get_template_attribute("manage/_campaign.html", "campaign_details")(
+    return get_template_attribute("models/_campaign.html", "manage")(
         user, obj, campaign=campaign
     )
 
@@ -112,7 +112,7 @@ def removeparty(pk, partypk):
     campaign = Campaign.get(pk)
     campaign.party = None
     campaign.save()
-    return get_template_attribute(module, macro)(
+    return get_template_attribute("models/_campaign.html", "manage")(
         user, obj, campaign_list=obj.world.campaigns, campaign=campaign
     )
 
@@ -128,7 +128,7 @@ def episodenew(pk):
     campaign = Campaign.get(pk)
     episode = campaign.add_episode()
     campaign.current_episode = episode
-    return get_template_attribute("manage/_campaign.html", "manage")(
+    return get_template_attribute("models/_campaign.html", "manage")(
         user,
         campaign,
     )

@@ -99,6 +99,10 @@ class Episode(AutoModel):
         return [a for a in self.characters if a.is_player]
 
     @property
+    def party(self):
+        return self.campaign.party
+
+    @property
     def locations(self):
         return [a for a in self.associations if a.model_name() == "Location"]
 
@@ -398,10 +402,9 @@ class Episode(AutoModel):
 
     ################### verify methods ##################
     def pre_save_campaign(self):
-        if self not in self.campaign.episodes:
+        if self.pk and self not in self.campaign.episodes:
             self.campaign.episodes += [self]
-            if self.pk:
-                self.campaign.save()
+            self.campaign.save()
 
     def pre_save_associations(self):
         self.associations = list(set([a for a in self.associations if a]))
@@ -410,9 +413,10 @@ class Episode(AutoModel):
     ################### verify current_scene ##################
     def pre_save_episode_num(self):
         if not self.episode_num:
-            num = re.search(r"\b\d+\b", self.name).group(0)
-            if num.isdigit():
-                self.episode_num = int(num)
+            if num_group := re.search(r"\b\d+\b", self.name):
+                num = num_group.group(0)
+                if num.isdigit():
+                    self.episode_num = int(num)
 
     def pre_save_dates(self):
         if not self.world.current_date:

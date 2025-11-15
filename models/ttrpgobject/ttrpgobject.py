@@ -199,35 +199,36 @@ class TTRPGObject(TTRPGBase):
             raise ValidationError("Must be associated with a World object")
 
     def pre_save_dates(self):
-        if hasattr(self.start_date, "pk") and not self.start_date.pk:
-            self.start_date = None
-        if hasattr(self.end_date, "pk") and not self.end_date.pk:
-            self.end_date = None
+        if self.pk:
+            if hasattr(self.start_date, "pk") and not self.start_date.pk:
+                self.start_date = None
+            if hasattr(self.end_date, "pk") and not self.end_date.pk:
+                self.end_date = None
 
-        if start_date := parse_date(self, self.start_date):
-            self.start_date = start_date
+            if start_date := parse_date(self, self.start_date):
+                self.start_date = start_date
 
-        if end_date := parse_date(self, self.end_date):
-            self.end_date = end_date
+            if end_date := parse_date(self, self.end_date):
+                self.end_date = end_date
 
-        if self.start_date:
-            self.start_date.obj = self
-            if self.start_date.day <= 0:
-                self.start_date.day = random.randint(1, 28)
-            if self.start_date.month <= 0:
-                self.start_date.month = random.randint(1, 12)
-            self.start_date.save()
-        if self.end_date:
-            self.end_date.obj = self
-            if self.end_date.day <= 0:
-                self.end_date.day = random.randint(1, 28)
-            if self.end_date.month <= 0:
-                self.end_date.month = random.randint(1, 12)
-            self.end_date.save()
+            if self.start_date:
+                self.start_date.obj = self
+                if self.start_date.day <= 0:
+                    self.start_date.day = random.randint(1, 28)
+                if self.start_date.month <= 0:
+                    self.start_date.month = random.randint(1, 12)
+                self.start_date.save()
+            if self.end_date:
+                self.end_date.obj = self
+                if self.end_date.day <= 0:
+                    self.end_date.day = random.randint(1, 28)
+                if self.end_date.month <= 0:
+                    self.end_date.month = random.randint(1, 12)
+                self.end_date.save()
 
-        for date in Date.search(obj=self):
-            if self.start_date and date.pk == self.start_date.pk:
-                continue
-            if self.end_date and date.pk == self.end_date.pk:
-                continue
-            date.delete()
+            for date in Date.search(obj=self):
+                if self.start_date and date.pk == self.start_date.pk:
+                    continue
+                if self.end_date and date.pk == self.end_date.pk:
+                    continue
+                date.delete()

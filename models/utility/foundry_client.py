@@ -92,6 +92,7 @@ class FoundryClient:
         """Retrieves a list of available worlds."""
         # Endpoint example: GET /api/relay/worlds
         response = self._request("GET", "clients")
+        log(response)
         return response.get("clients", [])
 
     def upload_image(self, image_url, image_path):
