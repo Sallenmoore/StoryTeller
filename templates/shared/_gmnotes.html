@@ -21,7 +21,7 @@
 <div class="grid-x align-spaced">
     {% for e in obj.encounters %}
     <div class="cell">
-        {{ e.hook | safe }}
+        {{ e.trigger_conditions | safe }}
     </div>
     {% endfor %}
 </div>
