@@ -27,17 +27,8 @@ class Map(Image):
     coordinates = ListAttr(ReferenceAttr(choices=[Coordinates]))
 
     @classmethod
-    def generate(
-        cls,
-        prompt,
-        tags=None,
-        aspect_ratio="16:9",
-        text=False,
-        files=None,
-    ):
-        return super().generate(
-            prompt, tags=tags, aspect_ratio=aspect_ratio, text=text, files=files
-        )
+    def generate(cls, prompt, **kwargs):
+        return super().generate(prompt, **kwargs)
 
     @classmethod
     def from_image(self, image):
