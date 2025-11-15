@@ -18,11 +18,15 @@
 {%- endmacro %}
 
 {% macro display_hooks(user, obj) -%}
-<div class="grid-x align-spaced">
-    {% for e in obj.encounters %}
-    <div class="cell">
-        {{ e.trigger_conditions | safe }}
+<div class="callout">
+    <h5 class="text-center">Encounter Triggers</h5>
+    <div class="grid-x align-spaced">
+        {% for e in obj.encounters %}
+        <div class="cell">
+            {{ e.trigger_conditions | safe }}
+            <hr>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {%- endmacro %}
