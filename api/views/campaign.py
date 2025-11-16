@@ -59,10 +59,8 @@ def index(pk=None):
 @campaign_endpoint.route("/manage", methods=("POST",))
 @campaign_endpoint.route("/<string:pk>/manage", methods=("POST",))
 def manage(pk=None):
-    user, obj, request_data = _loader()
-    pk = pk or request_data.get("campaignpk")
+    user, *_ = _loader()
     campaign = Campaign.get(pk or request.json.get("campaignpk"))
-
     return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
@@ -75,10 +73,8 @@ def campaigndelete(pk):
         ) if campaign in obj.world.campaigns else None
         obj.world.save()
         campaign.delete()
-    return get_template_attribute(module, macro)(
+    return get_template_attribute("models/_campaign.html")(
         user,
-        obj,
-        campaign_list=obj.world.campaigns,
         campaign=obj.world.current_campaign,
     )
 
@@ -89,10 +85,9 @@ def campaignupdate(pk):
     if campaign := Campaign.get(pk):
         campaign.name = request.json.get("name") or campaign.name
         campaign.description = request.json.get("description") or campaign.description
+        campaign.one_shot = request.json.get("one_shot") or campaign.one_shot
         campaign.save()
-    return get_template_attribute("models/_campaign.html", "manage")(
-        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
-    )
+    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
 @campaign_endpoint.route("/<string:pk>/add/party", methods=("POST",))
@@ -101,20 +96,16 @@ def addparty(pk):
     campaign = Campaign.get(pk)
     campaign.party = Faction.get(request.json.get("party"))
     campaign.save()
-    return get_template_attribute("models/_campaign.html", "manage")(
-        user, obj, campaign=campaign
-    )
+    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
 @campaign_endpoint.route("/<string:pk>/removeplayer", methods=("POST",))
-def removeparty(pk, partypk):
+def removeparty(pk):
     user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     campaign.party = None
     campaign.save()
-    return get_template_attribute("models/_campaign.html", "manage")(
-        user, obj, campaign_list=obj.world.campaigns, campaign=campaign
-    )
+    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
 ###########################################################

@@ -56,7 +56,10 @@ def _generate_image_task(model, pk):
 
 def _generate_audio_transcription_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
-        transcription = Audio.transcribe(obj.audio)
+        transcription = Audio.transcribe(
+            obj.audio,
+            prompt="Please provide a detailed transcription of the audio content. Seperate different speakers if applicable.",
+        )
         obj.transcription += f"""
 <br><br>
 TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}

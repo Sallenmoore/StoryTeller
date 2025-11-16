@@ -7,23 +7,54 @@
 <h3 class='text-center '>Not yet associated with any campaigns
 </h3>
 {% else %}
-<div id="object-campaigns" class='callout '>
+<div id="object-campaigns" class='callout'>
     <h2>Campaigns</h2>
+    <select id="campaign-filter-select"
+            onchange="filterCampaigns()"
+            class="mb-2">
+        <option value="main">Main Campaigns</option>
+        <option value="one-shots">One-Shot Campaigns</option>
+        <option value="all">All Campaigns</option>
+    </select>
+    <script>
+        function filterCampaigns() {
+            var filter = document.getElementById("campaign-filter-select").value;
+            var campaigns = document.getElementsByClassName("campaign-container");
+            for (var i = 0; i < campaigns.length; i++) {
+                var campaign = campaigns[i];
+                if (filter === "all") {
+                    campaign.classList.remove("hide");
+                } else if (filter === "main") {
+                    campaign.classList.remove("hide");
+                    if (campaign.classList.contains("one-shot")) {
+                        campaign.classList.add("hide");
+                    }
+                } else if (filter === "one-shots") {
+                    campaign.classList.add("hide");
+                    if (campaign.classList.contains("one-shot")) {
+                        campaign.classList.remove("hide");
+                    }
+                }
+            }
+        }
+        filterCampaigns();
+    </script>
     <div class="grid-x grid-margin-x align-spaced">
         {% for campaign in obj.campaigns %}
-        <div class="cell medium-4">
+        <div
+             class="cell medium-4 {% if campaign.one_shot %} one-shot {% endif %} campaign-container">
             <div class="callout">
-                <a href="/campaign/{{campaign.pk}}">
+                <a href="/{{campaign.path}}">
                     <h3 class=' text-center'>{{campaign.name}}</h3>
                 </a>
                 <div class="grid-x">
                     <div class="cell medium-6">
-                        <h6 class="-grey text-center">
+                        <h6 class="text-center">
                             Started: {{campaign.start_date if campaign.start_date else 'TBD'}}
                         </h6>
                     </div>
                     <div class="cell medium-6">
-                        <h6 class="-grey text-center">
+                        <h6 class="text-center">
                             Ended: {{campaign.end_date if campaign.end_date else 'TBD'}}
                         </h6>
                     </div>
@@ -34,10 +65,10 @@
                     </div>
                 </div>
                 <h5 class='text-center'
-                    onclick='this.nextElementSibling.classList.toggle("is-hidden");'>
+                    onclick='this.nextElementSibling.classList.toggle("hide");'>
                     View Episodes
                 </h5>
-                <div class="grid-x grid-margin-y is-hidden">
+                <div class="grid-x grid-margin-y hide">
                     {% for entry in campaign.episodes %}
                     {% if obj.model_name() == 'World' or obj in entry.associations %}
                     <div class="cell align-center-middle">
