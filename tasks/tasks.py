@@ -58,7 +58,7 @@ def _generate_audio_transcription_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         transcription = Audio.transcribe(
             obj.audio,
-            prompt="Please provide a detailed overview of the audio recording from a TTRPG session. Seperate different speakers as much as possible. Focus on the content of the discussion, including key events, character actions, and narrative developments. Leave out game mechanics, focusing on the narrative result. Ignore any 'umms' or 'ahs' or similar filler words. ",
+            prompt="Please provide an overview of the audio recording from a TTRPG session. Identify and separate distinct speakers as much as possible. Focus on the content of the discussion, including key events, character actions, and narrative developments. Leave out any game mechanics, focusing on the narrative result. Ignore any 'umms' or 'ahs' or similar filler words. ",
         )
         obj.transcription += f"""
 <br><br>
