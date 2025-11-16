@@ -4,7 +4,7 @@ import random
 
 import markdown
 import requests
-from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import BoolAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
 
@@ -23,6 +23,7 @@ class Campaign(AutoModel):
     party = ReferenceAttr(choices=["Faction"])
     summary = StringAttr(default="")
     current_episode = ReferenceAttr(choices=[Episode])
+    one_shot = BoolAttr(default="False")
 
     def delete(self):
         all(e.delete() for e in self.episodes)
@@ -120,7 +121,7 @@ class Campaign(AutoModel):
 
     @property
     def stories(self):
-        return list(set([ep.story for ep in self.episodes if ep.story]))
+        return list(set([s for ep in self.episodes for s in ep.stories]))
 
     @property
     def episode_reports(self):
@@ -128,20 +129,6 @@ class Campaign(AutoModel):
         for episode in self.episodes:
             reports.append(episode.episode_report)
         return reports
-
-    def page_data(self):
-        data = {
-            "name": self.name,
-            "pk": str(self.pk),
-            "description": self.description,
-            "summary": self.summary,
-        }
-        data["start_date"] = str(self.start_date) if self.start_date else "Unknown"
-        data["end_date"] = str(self.end_date) if self.end_date else "Ongoing"
-        data["episodes"] = [
-            e.page_data() for e in sorted(self.episodes, key=lambda x: x.episode_num)
-        ]
-        return data
 
     ## MARK: INSTANCE METHODS
     ################################################################
@@ -289,6 +276,7 @@ class Campaign(AutoModel):
         document.pre_save_current_episode()
         document.pre_save_episodes()
         document.pre_save_players()
+        document.pre_save_one_shot()
         document.description = parse_text(document, document.description)
         # document.pre_save_associations()
 
@@ -316,6 +304,15 @@ class Campaign(AutoModel):
             if not p.pk:
                 # log(f"{p} is unsaved. Saving....")
                 p.save()
+
+    def pre_save_one_shot(self):
+        if len(self.episodes) <= 1:
+            self.one_shot = True
+        elif isinstance(self.one_shot, str):
+            if self.one_shot.lower() in ["true", "1", "yes"]:
+                self.one_shot = True
+            else:
+                self.one_shot = False
 
     # def pre_save_associations(self):
     #     self.associations = []
