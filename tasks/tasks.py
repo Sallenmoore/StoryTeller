@@ -58,7 +58,7 @@ def _generate_audio_transcription_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         transcription = Audio.transcribe(
             obj.audio,
-            prompt="Please provide a detailed transcription of the audio content. Seperate different speakers if applicable.",
+            prompt="Please provide a detailed transcription of the audio recording from a TTRPG Session. Seperate different speakers if applicable. Leave out any 'umms' or 'ahs' or similar filler words.",
         )
         obj.transcription += f"""
 <br><br>
