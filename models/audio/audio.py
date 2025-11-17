@@ -63,6 +63,18 @@ class Audio(AutoModel):
             return self.data.read()
         return None
 
+    def add_to_file(self, file):
+        if self.data:
+            current_data = self.data.read()
+            new_data = current_data + file
+            log(self.data.size)
+            self.data.replace(new_data, content_type="audio/mpeg")
+            log(self.data.size)
+        else:
+            self.data.put(file, content_type="audio/mpeg")
+        self.save()
+        return self
+
     def delete(self):
         if self.data:
             self.data.delete()

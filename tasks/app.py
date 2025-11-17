@@ -157,6 +157,18 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/episode/<string:pk>/transcribe", methods=("POST",))
+    def create_episode_transcription(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_episode_transcription_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/episode/<string:pk>/transcription/summary", methods=("POST",))
     def generate_episode_report(pk):
         task = (
@@ -177,19 +189,6 @@ def create_app():
                 tasks._generate_character_chat_task,
                 pk=pk,
                 chat=request.json.get("chat"),
-            )
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
-
-    @app.route("/generate/audio/transcribe", methods=("POST",))
-    def create_audio_transcription():
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_audio_transcription_task,
-                model=request.json.get("model"),
-                pk=request.json.get("pk"),
             )
             .result
         )

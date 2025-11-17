@@ -274,13 +274,11 @@ def episodegenerategraphic(pk):
 ###########################################################
 ##             Episode Recording Routes                  ##
 ###########################################################
-
-
 @episode_endpoint.route(
-    "/<string:pk>/transcribe",
+    "/<string:pk>/audio",
     methods=("POST",),
 )
-def episodetranscribe(pk):
+def episodeaudio(pk):
     user, _, request_data = _loader()
     obj = Episode.get(pk)
     if "audio_file" not in request_data:
@@ -288,13 +286,24 @@ def episodetranscribe(pk):
     audio_file_str = request_data["audio_file"]
     audio_file = base64.b64decode(audio_file_str)
     if obj.audio:
-        obj.audio.delete()
-        obj.audio = None
-    obj.audio = Audio.from_file(audio_file)
+        log("adding to file")
+        obj.audio.add_to_file(audio_file)
+    else:
+        obj.audio = Audio.from_file(audio_file)
     obj.save()
+    return "success"
+
+
+@episode_endpoint.route(
+    "/<string:pk>/transcribe",
+    methods=("POST",),
+)
+def episodetranscribe(pk):
+    obj = Episode.get(pk)
+    if not obj.audio:
+        return {"error": "No audio file"}, 400
     return requests.post(
-        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/audio/transcribe",
-        json={"model": obj.model_name(), "pk": pk},
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/episode/{pk}/transcribe",
     ).text
 
 

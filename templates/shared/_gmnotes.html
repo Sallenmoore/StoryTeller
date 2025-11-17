@@ -30,3 +30,375 @@
     </div>
 </div>
 {%- endmacro %}
+
+{% macro session_recorder(user, episode) -%}
+<div class="card grid-container padding-x-2 padding-y-3">
+    <div class="card-section">
+        <h5 class="text-center font-weight-bold margin-bottom-2 secondary">GM Voice Input</h5>
+
+        <!-- Timer & Status Display -->
+        <div class="grid-x align-center margin-bottom-2">
+            <div class="cell shrink text-center">
+                <span id="recording-status" class="label secondary rounded">Ready</span>
+            </div>
+            <div class="cell shrink text-center">
+                <span id="recording-timer"
+                      class="h3 primary text-bold margin-left-1">00:00</span>
+            </div>
+        </div>
+
+        <!-- Volume Meter -->
+        <div class="grid-x align-center margin-bottom-2">
+            <div class="cell medium-8 small-10">
+                <div id="volume-meter" class="progress primary margin-bottom-0"
+                     role="progressbar"
+                     tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div id="volume-bar" class="progress-meter" style="width: 0%">
+                        <p id="meter-text"
+                           class="progress-meter-text text-center text-secondary">
+                            Speak Now</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="grid-x grid-margin-x align-center">
+
+            <!-- 1. Start Button -->
+            <div class="cell shrink">
+                <button id="record-btn" class="button primary margin-bottom-0"
+                        onclick="startRecording()">
+                    <iconify-icon icon="lucide:mic" class="margin-right-1"></iconify-icon> Start
+                </button>
+            </div>
+
+            <!-- 2. Stop & Save Audio Button -->
+            <div class="cell shrink">
+                <button id="stop-btn" class="button alert margin-bottom-0" disabled
+                        onclick="manualStopAndSave()">
+                    <iconify-icon icon="lucide:square" class="margin-right-1"></iconify-icon>
+                    Stop & Save
+                </button>
+            </div>
+
+            <!-- 3. Transcribe Button -->
+            <div class="cell shrink">
+                <button id="transcribe-btn" class="button success margin-bottom-0"
+                        hx-post="/api/{{episode.path}}/transcribe"
+                        hx-confirm='Are you sure you want to transcribe and clear the current audio?'
+                        hx-target="#output-area">
+                    <iconify-icon icon="lucide:send" class="margin-right-1"></iconify-icon>
+                    Transcribe
+                </button>
+            </div>
+
+            <!-- 4. Clear Button -->
+            <div class="cell shrink">
+                <button id="clear-btn" class="button warning margin-bottom-0"
+                        {% if not episode.transcription %} disabled {% endif %}
+                        hx-post="/api/{{episode.path}}/transcription/clear"
+                        hx-target="#output-area" hx-select="#output-area"
+                        hx-swap="outerHTML"
+                        hx-confirm='Are you sure you want to clear the current transcription?'>
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Output/Feedback Area Wrapper -->
+    <div id="recorder-output-wrapper" class='callout'>
+        <h6>Transcription</h6>
+        <div id="output-area" class="text-justified secondary margin-top-2">
+            {% if episode.transcription %}
+            {{ episode.transcription | safe }}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // --- Configuration ---
+            var MAX_RECORDING_SECONDS = 60; // Auto-send limit: 1 minute (60 seconds)
+            var MIN_RECORDING_SECONDS = 5;      // Manual send threshold: 5 seconds
+            var TARGET_PK = '{{ episode.pk }}';
+
+            // --- State Variables ---
+            var recordBtn = document.getElementById('record-btn');
+            var stopBtn = document.getElementById('stop-btn');
+            var timerDisplay = document.getElementById('recording-timer');
+            var statusDisplay = document.getElementById('recording-status');
+            var volumeBar = document.getElementById('volume-bar');
+            var meterText = document.getElementById('meter-text');
+            var volumeMeterContainer = document.getElementById('volume-meter');
+            var outputTarget = document.getElementById('output-area');
+
+            var mediaRecorder;
+            var audioChunks = [];
+            var intervalId;
+            var startTime;
+            var mediaStream;
+            var audioBlob;
+            var isSessionRunning = false; // Tracks if the user intends to keep recording
+            var currentDuration = 0;
+
+            // Web Audio API components for volume analysis
+            var audioContext;
+            var analyser;
+            var dataArray;
+            var volumeRequestId;
+
+
+            // --- Utility Functions ---
+
+            function formatTime(seconds) {
+                var min = Math.floor(seconds / 60);
+                var sec = seconds % 60;
+                return "" + String(min).padStart(2, '0') + ":" + String(sec).padStart(2, '0');
+            }
+
+            function updateTimer() {
+                currentDuration = Math.floor((Date.now() - startTime) / 1000);
+                timerDisplay.textContent = formatTime(currentDuration);
+
+                // --- CHECK AUTO-LIMIT ---
+                if (currentDuration % MAX_RECORDING_SECONDS == 0 && currentDuration !== 0) {
+                    // Stop, send, and immediately restart (seamless chunking)
+                    stopAndSendAutoSegment();
+                }
+            }
+
+            function startTimer() {
+                if (!intervalId) {
+                    startTime = Date.now();
+                    currentDuration = 0;
+                    timerDisplay.textContent = '00:00';
+                    intervalId = setInterval(updateTimer, 1000);
+                }
+            }
+
+            function stopTimer() {
+                clearInterval(intervalId);
+                intervalId = null;
+                currentDuration = 0;
+                timerDisplay.textContent = '00:00';
+            }
+
+            function updateControls(isRecording) {
+                recordBtn.disabled = isRecording;
+                stopBtn.disabled = !isRecording;
+
+                statusDisplay.classList.remove('secondary', 'warning', 'success', 'alert', 'primary');
+                if (isRecording) {
+                    statusDisplay.textContent = 'RECORDING';
+                    statusDisplay.classList.add('warning');
+                    meterText.textContent = 'Listening...';
+                } else {
+                    statusDisplay.textContent = 'READY';
+                    statusDisplay.classList.add('secondary');
+                    meterText.textContent = 'Speak Now';
+                    volumeBar.style.width = '0%';
+                }
+            }
+
+            // --- Volume Analysis Functions ---
+            function startVolumeAnalyser() {
+                if (!mediaStream) return;
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                var mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.fftSize);
+                mediaStreamSource.connect(analyser);
+                processVolume();
+            }
+
+            function stopVolumeAnalyser() {
+                if (volumeRequestId) {
+                    cancelAnimationFrame(volumeRequestId);
+                }
+                if (analyser && analyser.context) {
+                    analyser.disconnect();
+                }
+                volumeBar.style.width = '0%';
+                volumeMeterContainer.classList.remove('success', 'warning', 'alert');
+            }
+
+            function processVolume() {
+                volumeRequestId = requestAnimationFrame(processVolume);
+                analyser.getByteTimeDomainData(dataArray);
+                var sumOfSquares = 0;
+                for (var i = 0; i < dataArray.length; i++) {
+                    var amplitude = dataArray[i];
+                    var normalized = (amplitude / 128.0) - 1;
+                    sumOfSquares += normalized * normalized;
+                }
+
+                var rms = Math.sqrt(sumOfSquares / dataArray.length);
+                var volumePercentage = Math.min(100, rms * 200);
+
+                volumeBar.style.width = volumePercentage + '%';
+                volumeMeterContainer.setAttribute('aria-valuenow', Math.floor(volumePercentage));
+
+                volumeMeterContainer.classList.remove('success', 'warning', 'alert', 'secondary');
+                if (volumePercentage > 50) {
+                    volumeMeterContainer.classList.add('success');
+                } else if (volumePercentage > 10) {
+                    volumeMeterContainer.classList.add('warning');
+                } else {
+                    volumeMeterContainer.classList.add('secondary');
+                }
+                meterText.textContent = volumePercentage > 5 ? 'Recording...' : 'Speak Up!';
+            }
+
+            // --- Synchronization Helper ---
+            function waitForAudioBlob() {
+                return new Promise(function (resolve) {
+                    if (audioBlob) {
+                        resolve();
+                        return;
+                    }
+                    mediaRecorder.onstop = function () {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        resolve();
+                    };
+                });
+            }
+
+            // --- Core Action Functions ---
+
+            // 1. Automatic Stop, Send, and Restart (Seamless Chunking)
+            async function stopAndSendAutoSegment() {
+                if (!isSessionRunning) return; // Should only run if session is active
+
+                // 1. Stop MediaRecorder (triggers onstop promise)
+                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+
+                // 2. WAIT for audioBlob creation and save resources
+                await waitForAudioBlob();
+                if (mediaStream) mediaStream.getTracks().forEach(function (track) { return track.stop(); });
+                // 4. Send raw audio to /api/episode/<pk>/audio
+                await sendRawAudioForStorage();
+                // 3. Update UI to processing state
+                updateControls(false);
+                setTimeout(startRecording, 500);
+
+            }
+
+            // 2. Manual Stop (Ends the entire session)
+            async function manualStopAndSave() {
+                if (!isSessionRunning) return;
+
+                // 1. Check Duration and Discard if too short
+                if (currentDuration < MIN_RECORDING_SECONDS) {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+                    if (mediaStream) mediaStream.getTracks().forEach(function (track) { return track.stop(); });
+                    stopTimer(); stopVolumeAnalyser();
+                    isSessionRunning = false;
+                    updateControls(false);
+                    outputTarget.innerHTML = '<div class="callout alert margin-bottom-1 padding-1">Recording Discarded: Too short (' + formatTime(currentDuration) + 's). Must be at least ' + MIN_RECORDING_SECONDS + ' seconds.</div>';
+                    return;
+                }
+
+                // 2. Stop MediaRecorder
+                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+
+                // 3. WAIT for audioBlob creation and save resources
+                await waitForAudioBlob();
+                stopTimer();
+                stopVolumeAnalyser();
+                if (mediaStream) mediaStream.getTracks().forEach(function (track) { return track.stop(); });
+                mediaStream = null;
+
+                // 4. Update UI to processing state (Final Stop)
+                updateControls(false);
+                outputTarget.innerHTML = '<p>Sending segment...</p>';
+
+                // 5. Send raw audio to /api/episode/<pk>/audio
+                await sendRawAudioForStorage();
+
+                // 6. Final state reset (Session Ends)
+                isSessionRunning = false;
+                updateControls(false); // Stays in "AudioReady" state for Transcribe button
+            }
+
+
+            // Sends the audio blob to /api/episode/<pk>/audio (Raw Storage)
+            async function sendRawAudioForStorage() {
+                if (!audioBlob) return;
+
+                var episodePk = '{{episode.pk}}';
+                var targetUrl = "/api/episode/" + episodePk + "/audio";
+
+                var formData = new FormData();
+                formData.append('audio_file', audioBlob, "gm_input_" + Date.now() + ".webm");
+
+                try {
+                    var response = await fetch(targetUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        outputTarget.innerHTML = '<p class="alert">Storage Error (' + response.status + ')</p>';
+                    }
+                } catch (error) {
+                    outputTarget.innerHTML = '<p class="alert">Network Error during storage.</p>';
+                }
+            }
+
+            async function startRecording() {
+                if (mediaRecorder && mediaRecorder.state === 'recording') return;
+
+                // --- Session Restart Logic ---
+                if (isSessionRunning) {
+                    // This is the beginning of a new auto-chunk, clear old state immediately
+                    audioBlob = null;
+                    audioChunks = [];
+                } else {
+                    isSessionRunning = true; // Start a brand new session
+                }
+
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(mediaStream);
+
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+
+                    mediaRecorder.ondataavailable = function (event) {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.start();
+                    startTimer();
+                    startVolumeAnalyser();
+                    updateControls(true);
+
+                } catch (err) {
+                    console.error('Microphone error:', err);
+                    statusDisplay.textContent = 'Permission Denied';
+                    statusDisplay.classList.add('alert');
+                    updateControls(false);
+                    outputTarget.innerHTML = "<p>Microphone Access Required. Check browser settings (Requires HTTPS/localhost).</p>";
+                }
+            }
+
+            updateControls(false);
+
+            // Assign event handlers using the functions defined inside the IIFE
+            recordBtn.onclick = startRecording;
+            stopBtn.onclick = manualStopAndSave;
+
+        })();
+    </script>
+</div>
+{%- endmacro %}

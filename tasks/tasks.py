@@ -54,8 +54,8 @@ def _generate_image_task(model, pk):
     return {"url": f"/api/{obj.path}/manage"}
 
 
-def _generate_audio_transcription_task(model, pk):
-    if obj := AutoModel.get_model(model, pk):
+def _generate_episode_transcription_task(pk):
+    if obj := Episode.get(pk):
         transcription = Audio.transcribe(
             obj.audio,
             prompt="Please provide an overview of the audio recording from a TTRPG session. Identify and separate distinct speakers as much as possible. Focus on the content of the discussion, including key events, character actions, and narrative developments. Leave out any game mechanics, focusing on the narrative result. Ignore any 'umms' or 'ahs' or similar filler words. ",
@@ -66,8 +66,15 @@ TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}
 <br><br>
 {transcription}
 """
+        obj.audio.delete()
+        obj.audio = None
         obj.save()
-    return {"url": f""}
+    return {
+        "url": f"/api/{obj.path}/gmnotes",
+        "target": "output-area",
+        "select": "output-area",
+        "swap": "outerHTML",
+    }
 
 
 def _generate_campaign_summary_task(pk):
