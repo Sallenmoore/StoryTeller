@@ -1,3 +1,6 @@
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_display.html" as display_components %}
+
 {% macro foundry_buttons(user, obj) -%}
 <div class="grid-x align-spaced">
     {% if user.world_user(obj) %}
@@ -17,14 +20,49 @@
 </div>
 {%- endmacro %}
 
-{% macro display_hooks(user, obj) -%}
+{% macro display_encounters(user, obj) -%}
 <div class="callout">
-    <h5 class="text-center">Encounter Triggers</h5>
-    <div class="grid-x align-spaced">
-        {% for e in obj.encounters %}
-        <div class="cell">
-            {{ e.trigger_conditions | safe }}
-            <hr>
+    <h5>Encounters</h5>
+    <div class="grid-x grid-margin-x align-justify margin-bottom-2">
+        <div class="cell shrink">
+            <button class="button small"
+                    hx-post="/api/manage/{{obj.path}}/encounter/add"
+                    hx-target="#encounter-list"
+                    hx-select="#encounter-list"
+                    hx-swap="outerHTML"
+                    hx-indicator="#request-indicator">
+                {{icon_components.add(size="1rem")}} Add Encounter
+            </button>
+        </div>
+        <div class="cell auto">
+            <input autocomplete="off"
+                   type="search"
+                   name="query"
+                   placeholder="Search to Add Encounters..."
+                   style="border-bottom: solid #000"
+                   hx-target="#association-search"
+                   hx-post="/api/manage/encounter/search"
+                   hx-trigger="input delay:750ms, search">
+            <ul class="vertical dropdown menu"
+                data-dropdown-menu
+                id="association-search"
+                style='background-color: white;
+                                           position: absolute;
+                                           z-index:9999'>
+            </ul>
+        </div>
+    </div>
+    <div id="encounter-list" class="grid-x align-justify">
+        {% for encounter in obj.encounters %}
+        <div class="cell medium-6">
+            <div class="grid-x grid-padding-x align-middle">
+                <div class="cell medium-2">
+                    {{ display_components.object_display(encounter, type=False) }}
+                </div>
+                <div class="cell medium-10">
+                    {{ encounter.trigger_conditions | safe }}
+                </div>
+            </div>
         </div>
         {% endfor %}
     </div>

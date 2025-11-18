@@ -175,12 +175,11 @@
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
-
     {{gmnotes_components.foundry_buttons(user, obj)}}
-    <div class="grid-x">
+    <div class="grid-x grid-margin-x">
         <div class="cell medium-6">
-            <h5> Details</h5>
             <div class="callout">
+                <h5> Details</h5>
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
                     {% for sd in obj.sensory_details %}
@@ -189,18 +188,20 @@
                 </ul>
             </div>
         </div>
-        <div class="cell">
-            {{gmnotes_components.display_hooks(user, obj)}}
+        <div class="cell auto">
+            {{gmnotes_components.display_encounters(user, obj)}}
         </div>
         <div class="cell">
-            <h5>Current Status</h5>
+
             <div class="callout">
+                <h5>Current Status</h5>
                 {{obj.status | safe}}
             </div>
         </div>
         <div class="cell">
-            <h5>Rumors</h5>
+
             <div class="callout">
+                <h5>Rumors</h5>
                 <ul>
                     {% for r in obj.rumors + obj.recent_events %}
                     <li>

@@ -728,9 +728,13 @@ def factionleader(leader_pk):
 ##                Encounter Routes                    ##
 ###########################################################
 @manage_endpoint.route("/<string:model>/<string:pk>/encounter/add", methods=("POST",))
-def encountercreate(model, pk):
+@manage_endpoint.route(
+    "/<string:model>/<string:pk>/encounter/add/<string:emodel>/<string:epk>",
+    methods=("POST",),
+)
+def encountercreate(model, pk, emodel=None, epk=None):
     user, obj, request_data = _loader()
-    if place := World.get_model(model, pk):
+    if place := AutoModel.get_model(model, pk):
         place.save()
         if place.model_name() not in [
             "Location",
@@ -743,13 +747,30 @@ def encountercreate(model, pk):
             raise ValueError(
                 "Encounters can only be added to Locations, Cities, District, Shop, Vehicle, or Region"
             )
-        encounter = Encounter(world=obj.world, parent=place, name="New Encounter")
-        encounter.associations = place.associations
-        encounter.associations += [place]
-        encounter.save()
+        encounter = AutoModel.get_model(emodel, epk)
+        if not encounter:
+            encounter = Encounter(world=obj.world, parent=place, name="New Encounter")
         place.encounters += [encounter]
+        encounter.associations += [place]
+        encounter.associations = place.associations
+        encounter.save()
         place.save()
     return get_template_attribute(f"models/_{model.lower()}.html", "gmnotes")(user, obj)
+
+
+@manage_endpoint.route("/encounter/search", methods=("POST",))
+def encountersearch():
+    user, obj, request_data = _loader()
+    query = request.json.get("query")
+    encounters = (
+        obj.world.search_autocomplete(query, model="Encounter")
+        if query and len(query) > 2
+        else []
+    )
+    url = f"manage/{obj.model_name().lower()}/{obj.pk}/encounter/add"
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, obj, url, encounters
+    )
 
 
 @manage_endpoint.route("/encounter/toevent", methods=("POST",))

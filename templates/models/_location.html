@@ -176,64 +176,36 @@
     <h3 class='text-center'>GM Notes</h3>
     {{gmnotes_components.foundry_buttons(user, obj)}}
     <div class="grid-x grid-margin-x">
-        <div class="cell medium-8">
-            <div class="grid-x">
-                <div class="cell">
-                    <div class="callout">
-                        <h5> Details</h5>
-                        <ul>
-                            <li>{{obj.description_summary | safe}}</li>
-                            {% for sd in obj.sensory_details %}
-                            <li>{{ sd | safe }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                <div class="cell">
-                    {{gmnotes_components.display_hooks(user, obj)}}
-                </div>
-                <div class="cell">
-                    <div class="callout">
-                        <h5>Current Status</h5>
-                        {{obj.status | safe}}
-                    </div>
-                </div>
-                <div class="cell">
-                    <div class="callout ">
-                        <h5>Rumors</h5>
-                        <ul>
-                            {% for r in obj.rumors + obj.recent_events %}
-                            <li>
-                                {{ r | safe }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+        <div class="cell">
+            <div class="callout">
+                <h5> Details</h5>
+                <ul>
+                    <li>{{obj.description_summary | safe}}</li>
+                    {% for sd in obj.sensory_details %}
+                    <li>{{ sd | safe }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        <div class="cell medium-4">
+        <div class="cell">
+            {{gmnotes_components.display_encounters(user, obj)}}
+        </div>
+        <div class="cell">
             <div class="callout">
-                <h5>Encounters</h5>
-                <div class="grid-x">
-                    <div class="cell shrink">
-                        <button class="button small"
-                                hx-post="/api/manage/{{obj.path}}/encounter/add"
-                                hx-target="#encounter-list"
-                                hx-select="#encounter-list"
-                                hx-swap="outerHTML"
-                                hx-indicator="#request-indicator">
-                            {{icon_components.add(size="1rem")}} Add Encounter
-                        </button>
-                    </div>
-                </div>
-                <div id="encounter-list" class="grid-x align-spaced">
-                    {% for encounter in obj.encounters %}
-                    <div class="cell medium-3">
-                        {{ display_components.object_display(encounter, type=False) }}
-                    </div>
+                <h5>Current Status</h5>
+                {{obj.status | safe}}
+            </div>
+        </div>
+        <div class="cell">
+            <div class="callout ">
+                <h5>Rumors</h5>
+                <ul>
+                    {% for r in obj.rumors + obj.recent_events %}
+                    <li>
+                        {{ r | safe }}
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
             </div>
         </div>
     </div>
