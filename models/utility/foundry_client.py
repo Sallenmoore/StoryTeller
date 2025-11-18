@@ -12,7 +12,7 @@ from autonomous import log
 #  set these environment variables in your .env file or Docker Compose
 # TODO:  fix this later
 FOUNDRY_VTT_URL = "https://foundryrelay.stevenamoore.dev/"
-FOUNDRY_API_TOKEN = "9b15932c1dc081fb96a8f69341ce32e7"
+FOUNDRY_API_TOKEN = "c3ea164b9da6a985e89eadb40d758d3b"
 # Initialize the client globally or within your app context
 # foundry_client = FoundryClient()
 
@@ -41,7 +41,7 @@ class FoundryClient:
         }
         for client in self.get_worlds():
             print(client)
-            if client["customName"].lower() == world_name.lower():
+            if client["customName"].lower() in world_name.lower():
                 self.client_id = client["id"]
                 break
         if not self.client_id:
@@ -54,7 +54,7 @@ class FoundryClient:
     def _request(self, method, endpoint, **kwargs):
         """Internal method to handle requests and error processing."""
         url = f"{self.base_url}/{endpoint}"
-        # log(url, self.headers)
+        log(url, self.headers)
 
         try:
             if method.upper() in ["POST", "PATCH", "PUT"]:

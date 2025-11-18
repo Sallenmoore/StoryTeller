@@ -661,7 +661,7 @@ class StarsWithoutNumber(SciFiSystem):
 
         return target_schema
 
-    def foundry_item_export(source_data):
+    def foundry_item_export(self, source_data):
         """
         Transforms a generic item JSON object into the specific Systems Without Number (SWN)
         "item" Item document schema.
@@ -788,7 +788,7 @@ class StarsWithoutNumber(SciFiSystem):
 
         return target_schema
 
-    def foundry_place_export(source_data):
+    def foundry_place_export(self, source_data):
         """
         Transforms a generic location JSON object into the standard Foundry VTT Scene document schema.
 
@@ -816,8 +816,8 @@ class StarsWithoutNumber(SciFiSystem):
             "foreground": None,
             "foregroundElevation": None,
             "thumb": None,
-            "width": 1792,
-            "height": 1792,
+            "width": 1344,
+            "height": 768,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
             "backgroundColor": "#999999",
