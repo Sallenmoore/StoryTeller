@@ -728,12 +728,12 @@ def factionleader(leader_pk):
 ###########################################################
 @manage_endpoint.route("/<string:model>/<string:pk>/encounter/add", methods=("POST",))
 @manage_endpoint.route(
-    "/<string:model>/<string:pk>/encounter/add/<string:emodel>/<string:epk>",
+    "/<string:model>/<string:pk>/add/encounter/<string:epk>",
     methods=("POST",),
 )
-def encountercreate(model, pk, emodel=None, epk=None):
-    user, obj, request_data = _loader()
-    if place := AutoModel.get_model(model, pk):
+def encountercreate(model, pk, epk=None):
+    user, place, request_data = _loader()
+    if place:
         place.save()
         if place.model_name() not in [
             "Location",
@@ -746,15 +746,19 @@ def encountercreate(model, pk, emodel=None, epk=None):
             raise ValueError(
                 "Encounters can only be added to Locations, Cities, District, Shop, Vehicle, or Region"
             )
-        encounter = AutoModel.get_model(emodel, epk)
+        encounter = Encounter.get(epk)
         if not encounter:
-            encounter = Encounter(world=obj.world, parent=place, name="New Encounter")
+            encounter = Encounter(world=place.world, parent=place, name="New Encounter")
+        encounter.parent = place
+        encounter.world = place.world
         place.encounters += [encounter]
-        encounter.associations += [place]
-        encounter.associations = place.associations
+        encounter.associations = [place]
+        encounter.associations += place.associations
         encounter.save()
         place.save()
-    return get_template_attribute(f"models/_{model.lower()}.html", "gmnotes")(user, obj)
+    return get_template_attribute(f"models/_{model.lower()}.html", "gmnotes")(
+        user, place
+    )
 
 
 @manage_endpoint.route("/encounter/search", methods=("POST",))
