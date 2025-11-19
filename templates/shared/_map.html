@@ -12,7 +12,8 @@
             <div class="cell auto">
                 <div class="callout">
                     <h5 class='text-center'>Map Prompt</h5>
-                    <form hx-post="/api/manage/update" hx-trigger="input delay:1s" hx-swap='none'>
+                    <form hx-post="/api/manage/update" hx-trigger="change"
+                          hx-swap='none'>
                         {{form_components.richtexteditor(user, obj, 'map_prompt')}}
                     </form>
                 </div>
