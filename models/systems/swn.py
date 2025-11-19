@@ -661,7 +661,7 @@ class StarsWithoutNumber(SciFiSystem):
 
         return target_schema
 
-    def foundry_item_export(source_data):
+    def foundry_item_export(self, source_data):
         """
         Transforms a generic item JSON object into the specific Systems Without Number (SWN)
         "item" Item document schema.
@@ -788,7 +788,7 @@ class StarsWithoutNumber(SciFiSystem):
 
         return target_schema
 
-    def foundry_place_export(source_data):
+    def foundry_place_export(self, source_data):
         """
         Transforms a generic location JSON object into the standard Foundry VTT Scene document schema.
 
@@ -807,8 +807,8 @@ class StarsWithoutNumber(SciFiSystem):
                 "offsetX": 0,
                 "offsetY": 0,
                 "fit": "fill",
-                "scaleX": 1,
-                "scaleY": 1,
+                "scaleX": 2,
+                "scaleY": 2,
                 "rotation": 0,
                 "tint": "#ffffff",
                 "alphaThreshold": 0,
@@ -816,18 +816,18 @@ class StarsWithoutNumber(SciFiSystem):
             "foreground": None,
             "foregroundElevation": None,
             "thumb": None,
-            "width": 1792,
-            "height": 1792,
+            "width": 1344,
+            "height": 768,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
-            "backgroundColor": "#999999",
+            "backgroundColor": "#000000",
             "grid": {
-                "type": 1,
-                "size": 100,
+                "type": 2,
+                "size": 50,
                 "style": "solidLines",
                 "thickness": 1,
                 "color": "#000000",
-                "alpha": 0.2,
+                "alpha": 0.5,
                 "distance": 5,
                 "units": "ft",
             },
@@ -916,10 +916,10 @@ class StarsWithoutNumber(SciFiSystem):
         embedded_note = {
             "name": f"{scene_name} Description",
             "text": combined_notes_content.strip(),
-            "fontFamily": None,
+            "fontFamily": "Signika",
             "fontSize": 48,
             "textAnchor": 1,
-            "textColor": None,
+            "textColor": "#000000",
             "x": 0,  # Placeholder coordinates
             "y": 0,  # Placeholder coordinates
             "visibility": 1,  # Visible to GM

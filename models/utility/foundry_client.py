@@ -12,9 +12,7 @@ from autonomous import log
 #  set these environment variables in your .env file or Docker Compose
 # TODO:  fix this later
 FOUNDRY_VTT_URL = "https://foundryrelay.stevenamoore.dev/"
-FOUNDRY_API_TOKEN = "9b15932c1dc081fb96a8f69341ce32e7"
-# Initialize the client globally or within your app context
-# foundry_client = FoundryClient()
+FOUNDRY_API_TOKEN = "855afa2a8e8f574046cda3d2c5155074"
 
 
 class FoundryClient:
