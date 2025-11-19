@@ -726,13 +726,14 @@ def factionleader(leader_pk):
 ###########################################################
 ##                Encounter Routes                    ##
 ###########################################################
-@manage_endpoint.route("/<string:model>/<string:pk>/encounter/add", methods=("POST",))
+@manage_endpoint.route("/<string:model>/<string:pk>/add/encounter", methods=("POST",))
 @manage_endpoint.route(
     "/<string:model>/<string:pk>/add/encounter/<string:epk>",
     methods=("POST",),
 )
 def encountercreate(model, pk, epk=None):
     user, place, request_data = _loader()
+
     if place:
         place.save()
         if place.model_name() not in [
@@ -751,11 +752,14 @@ def encountercreate(model, pk, epk=None):
             encounter = Encounter(world=place.world, parent=place, name="New Encounter")
         encounter.parent = place
         encounter.world = place.world
-        place.encounters += [encounter]
+        if encounter not in place.encounters:
+            place.encounters += [encounter]
         encounter.associations = [place]
         encounter.associations += place.associations
         encounter.save()
+        log(place.encounters)
         place.save()
+        log(place.encounters)
     return get_template_attribute(f"models/_{model.lower()}.html", "gmnotes")(
         user, place
     )
@@ -770,7 +774,7 @@ def encountersearch():
         if query and len(query) > 2
         else []
     )
-    url = f"manage/{obj.model_name().lower()}/{obj.pk}/encounter/add"
+    url = f"manage/{obj.model_name().lower()}/{obj.pk}/add"
     return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
         user, obj, url, encounters
     )

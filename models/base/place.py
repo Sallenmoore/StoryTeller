@@ -201,8 +201,10 @@ DUNGEON BACKSTORY
 
     def pre_save_encounters(self):
         self.encounters = list(set(self.encounters))
-        for encounter in set(self.encounters):
+        log(self.encounters, [e.parent for e in self.encounters])
+        for encounter in self.encounters:
             if not encounter.parent:
-                encounter.parent = self.parent
-            elif encounter.parent != self.parent and encounter in self.encounters:
+                encounter.parent = self
+                encounter.save()
+            elif encounter.parent != self and encounter in self.encounters:
                 self.encounters.remove(encounter)
