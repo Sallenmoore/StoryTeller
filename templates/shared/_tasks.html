@@ -10,7 +10,7 @@
         <div class="cell text-center  shrink">
             <h3>Working...</h3>
         </div>
-        <div class="cell shrink">
+        <div class="cell shrink bg-screen">
             <img src="/static/images/grid.svg" width="50px"
                  height="50px" alt="loading">
         </div>
@@ -35,7 +35,9 @@
      {%endif%}
      {%if swap%}
      hx-swap="{{swap}}"
-     {% endif %}>
-    <h5 class="-grey">Complete</h5>
+     {% endif %}
+     hx-indicator=""
+     hx-confirm=''>
+    <h5>Complete</h5>
 </div>
 {%- endmacro %}

@@ -33,6 +33,7 @@
                     <button class="button"
                             hx-post="/task/generate/map/{{obj.path}}"
                             hx-target="closest .cell"
+                            hx-indicator=''
                             hx-confirm="Are you sure you want to generate and overwrite the current map?">
                         {{icon_components.ai()}}
                         AI Generated Image
