@@ -138,20 +138,20 @@
             {{form_components.richtexteditor(user, obj, "notes")}}
         </div>
         <div class="cell" id="model-outcomes">
-            <h4 class="text-center">Potential Consequences</h4>
+            <h4 class="text-center">Potential Post Scenes</h4>
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
                     <button type="button" class="button small"
-                            hx-post='/api/manage/add/listitem/potential_consequences'
-                            hx-target='#potential_consequences-item-list'
-                            hx-select='#potential_consequences-item-list'
+                            hx-post='/api/manage/add/listitem/post_scenes'
+                            hx-target='#post_scenes-item-list'
+                            hx-select='#post_scenes-item-list'
                             hx-swap='outerHTML' hx-trigger="click consume">
                         {{icon_components.plus(size="1rem")}}
-                        New Outcome
+                        New Post Scene
                     </button>
                 </div>
             </div>
-            {{form_components.listeditor(user, obj, "potential_consequences")}}
+            {{form_components.listeditor(user, obj, "post_scenes")}}
         </div>
         <div class="cell" id="model-complications">
             <h4 class="text-center">Complications</h4>

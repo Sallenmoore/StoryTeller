@@ -24,7 +24,7 @@ class Encounter(AutoModel):
     encounter_type = StringAttr(default="")
     trigger_conditions = StringAttr(default="")
     complications = StringAttr(default="")
-    potential_consequences = ListAttr(StringAttr(default=""))
+    post_scenes = ListAttr(StringAttr(default=""))
     story = ReferenceAttr(choices=["Story"])
     mechanics = StringAttr(default="")
     notes = StringAttr(default="")
@@ -87,10 +87,10 @@ class Encounter(AutoModel):
                     "type": "string",
                     "description": "Additional environmental effects, unforeseen circumstances, or unexpected events that complicate the encounter",
                 },
-                "potential_consequences": {
+                "post_scenes": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "What are the possible consequences of the encounter given various outcomes? How will it affect the associated storyline?",
+                    "description": "Possible scenes or events that could occur immediately following the encounter, depending on the outcome",
                 },
                 "trigger_conditions": {
                     "type": "string",
@@ -284,7 +284,6 @@ class Encounter(AutoModel):
 {f"- DIFFICULTY: {self.difficulty}" if self.difficulty else ""}
 {f"- TRIGGER CONDITION: {self.trigger_conditions}" if self.trigger_conditions else ""}
 {f"- COMPLICATIONS: {self.complications}" if self.complications else ""}
-{f"- POTENTIAL CONSEQUENCES: {'; '.join(self.potential_consequences)}" if self.potential_consequences else ""}
 """
         # log(prompt, _print=True)
         if associations := self.associations:
@@ -384,7 +383,7 @@ class Encounter(AutoModel):
             "encounter_type": self.encounter_type,
             "trigger_conditions": self.trigger_conditions,
             "complications": self.complications,
-            "potential_consequences": ListAttr(StringAttr(default="")),
+            "post_scenes": self.post_scenes,
             "story": {"name": self.story.name, "pk": str(self.story.pk)}
             if self.story
             else None,
