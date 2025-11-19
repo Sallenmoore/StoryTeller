@@ -807,8 +807,8 @@ class StarsWithoutNumber(SciFiSystem):
                 "offsetX": 0,
                 "offsetY": 0,
                 "fit": "fill",
-                "scaleX": 2,
-                "scaleY": 2,
+                "scaleX": 1,
+                "scaleY": 1,
                 "rotation": 0,
                 "tint": "#ffffff",
                 "alphaThreshold": 0,
@@ -820,14 +820,14 @@ class StarsWithoutNumber(SciFiSystem):
             "height": 768,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
-            "backgroundColor": "#000000",
+            "backgroundColor": "#999999",
             "grid": {
-                "type": 2,
-                "size": 50,
+                "type": 1,
+                "size": 100,
                 "style": "solidLines",
                 "thickness": 1,
                 "color": "#000000",
-                "alpha": 0.5,
+                "alpha": 0.2,
                 "distance": 5,
                 "units": "ft",
             },
@@ -916,10 +916,10 @@ class StarsWithoutNumber(SciFiSystem):
         embedded_note = {
             "name": f"{scene_name} Description",
             "text": combined_notes_content.strip(),
-            "fontFamily": "Signika",
+            "fontFamily": None,
             "fontSize": 48,
             "textAnchor": 1,
-            "textColor": "#000000",
+            "textColor": None,
             "x": 0,  # Placeholder coordinates
             "y": 0,  # Placeholder coordinates
             "visibility": 1,  # Visible to GM

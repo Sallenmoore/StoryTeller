@@ -97,7 +97,9 @@ class City(Place):
 
     @property
     def map_pois(self):
-        return [a for a in self.children if a.model_name() in ["Location", "District"]]
+        return [
+            a for a in self.associations if a.model_name() in ["Location", "District"]
+        ]
 
     @property
     def ruler(self):

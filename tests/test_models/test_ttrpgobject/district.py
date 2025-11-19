@@ -75,7 +75,7 @@ class District(Place):
 
     @property
     def map_pois(self):
-        return [a for a in self.children if a.model_name() in ["Location"]]
+        return [a for a in self.associations if a.model_name() in ["Location"]]
 
     @property
     def ruler(self):
