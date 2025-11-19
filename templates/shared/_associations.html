@@ -132,33 +132,40 @@
         </div>
     </div>
 </div>
-<hr>
 <div id="associations-container">
-    <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-        {% if obj.model_name() != "World" and obj.children%}
-        {% for a in obj.children %}
-        <div class="cell medium-2 small-4">
-            <div class="callout bg-secondary" style='height:100%;'>
-                {{ display_components.object_display(a, type=False) }}
-                {% if 'World' != obj.model_name() %}
-                <div class="grid-x align-spaced">
-                    <div class="cell medium-3 text-center">
-                        <button class="button small"
-                                hx-post="/api/manage/unassociate/{{ a.path }}"
-                                hx-target="#associations-container"
-                                hx-select="#associations-container"
-                                hx-indicator='#request-indicator'>
-                            {{ icon_components.unlink(size="1rem") }}
-                            <span style="font-size:0.5rem">Unlink</span>
-                        </button>
+    <div class="callout">
+        <h3 class="text-center">
+            Direct Associations
+        </h3>
+        <div class="grid-x grid-margin-x grid-margin-y align-spaced">
+            {% if obj.model_name() != "World" and obj.children%}
+            {% for a in obj.children %}
+            <div class="cell medium-2 small-4">
+                <div class="callout bg-secondary" style='height:100%;'>
+                    {{ display_components.object_display(a, type=False) }}
+                    {% if 'World' != obj.model_name() %}
+                    <div class="grid-x align-spaced">
+                        <div class="cell medium-3 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/unassociate/{{ a.path }}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-indicator='#request-indicator'>
+                                {{ icon_components.unlink(size="1rem") }}
+                                <span style="font-size:0.5rem">Unlink</span>
+                            </button>
+                        </div>
                     </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
+            {% endfor %}
+            {% endif %}
         </div>
-        {% endfor %}
-        {% endif %}
     </div>
+    <h3 class="text-center">
+        Extended Associations
+    </h3>
     <div class="grid-x grid-margin-x grid-margin-y align-spaced">
         {% for a in associations %}
         {% if obj.model_name() == "World" or (a != obj.world and a not in

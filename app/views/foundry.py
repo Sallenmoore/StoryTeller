@@ -1,27 +1,14 @@
-import base64
-import io
-import json
-import os
-from urllib.parse import urlparse
-
-import requests
 from autonomous.auth.autoauth import AutoAuth
 from autonomous.model.automodel import AutoModel
 from flask import (
     Blueprint,
-    Response,
     get_template_attribute,
-    render_template,
-    request,
-    session,
 )
 
 from autonomous import log
 from models.base.actor import Actor
 from models.base.place import Place
-from models.images.image import Image
 from models.ttrpgobject.item import Item
-from models.utility import foundry_client
 from models.utility.foundry_client import FoundryClient
 from models.world import World
 
@@ -30,7 +17,11 @@ foundry_page = Blueprint("foundry", __name__)
 
 @foundry_page.route("/<string:world_name>", methods=("GET", "POST"))
 def index(world_name):
-    foundry_client = FoundryClient(world_name=world_name)
+    try:
+        foundry_client = FoundryClient(world_name=world_name)
+    except Exception as e:
+        log(f"Error initializing FoundryClient: {e}")
+        return f"Error: {e}", 500
     return foundry_client.client_id
 
 
@@ -38,8 +29,11 @@ def index(world_name):
     "/<string:world_name>/<string:category_name>", methods=("GET", "POST")
 )
 def listobjects(world_name, category_name):
-    foundry_client = FoundryClient(world_name=world_name)
-    # /get?clientId=$clientId&selected=true&actor=true
+    try:
+        foundry_client = FoundryClient(world_name=world_name)
+    except Exception as e:
+        log(f"Error initializing FoundryClient: {e}")
+        return f"Error: {e}", 500
     if category_name == "scenes":
         response = foundry_client.get_scenes()
     elif category_name == "actors":
@@ -57,7 +51,11 @@ def listobjects(world_name, category_name):
 )
 def pushobject(model_name, pk):
     if obj := AutoModel.get_model(model_name, pk):
-        foundry_client = FoundryClient(world_name=obj.world.name)
+        try:
+            foundry_client = FoundryClient(world_name=obj.world.name)
+        except Exception as e:
+            log(f"Error initializing FoundryClient: {e}")
+            return f"Error: {e}", 500
         if not obj.foundry_client_id:
             obj.foundry_client_id = foundry_client.client_id
             obj.save()
@@ -83,7 +81,11 @@ def pushobject(model_name, pk):
 )
 def pullobject(model_name, pk):
     if obj := AutoModel.get_model(model_name, pk):
-        foundry_client = FoundryClient(world_name=obj.world.name)
+        try:
+            foundry_client = FoundryClient(world_name=obj.world.name)
+        except Exception as e:
+            log(f"Error initializing FoundryClient: {e}")
+            return f"Error: {e}", 500
         if not obj.foundry_id:
             return {"error": "Object does not have a Foundry ID"}
         if isinstance(obj, (World, Place)):

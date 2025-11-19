@@ -76,7 +76,7 @@ class Region(Place):
     def map_pois(self):
         return [
             a
-            for a in self.children
+            for a in self.associations
             if a.model_name() in ["Location", "City", "District"]
         ]
 
