@@ -20,6 +20,17 @@
 </div>
 {%- endmacro %}
 
+{% macro display_map(user, obj) -%}
+<div class="callout">
+    <h5>Map</h5>
+    {% if obj.map %}
+    <img src="{{obj.map.url()}}" alt="{{obj.name}} Map Image">
+    {% else %}
+    <p>No map set.</p>
+    {% endif %}
+</div>
+{%- endmacro %}
+
 {% macro display_encounters(user, obj) -%}
 <div class="callout">
     <h5>Encounters</h5>
