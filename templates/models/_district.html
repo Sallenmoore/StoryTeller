@@ -176,8 +176,8 @@
     <h3 class='text-center '>GM Notes</h3>
     {{gmnotes_components.foundry_buttons(user, obj)}}
     <div class="grid-x grid-margin-x">
-        <div class="cell medium-6">
-            <div class="callout ">
+        <div class="cell medium-8">
+            <div class="callout">
                 <h5> Details</h5>
                 <ul>
                     <li>{{obj.description_summary | safe}}</li>
@@ -186,6 +186,9 @@
                     {% endfor %}
                 </ul>
             </div>
+        </div>
+        <div class="cell medium-4">
+            {{gmnotes_components.display_map(user, obj)}}
         </div>
         <div class="cell auto">
             {{gmnotes_components.display_encounters(user, obj)}}
