@@ -35,13 +35,13 @@ def parse_text(obj, text):
             # Log an error if the model/PK combination fails lookup (e.g., deleted object)
             log(f"Error retrieving linked object /{model_name}/{pk_value}: {e}")
 
-    if obj.associations or obj.encounters:
+    if obj.associations:
         STRIP_ANCHOR_TAGS_PATTERN = re.compile(r"</?a[^>]*>", re.IGNORECASE | re.DOTALL)
         # --- 1. Strip all existing anchor tags from the text ---
         # This ensures that any existing links are removed, allowing a clean, full-name match.
         text = STRIP_ANCHOR_TAGS_PATTERN.sub("", text.replace("@", ""))
         associations = sorted(
-            [*obj.associations, *obj.encounters],
+            [*obj.associations],
             key=lambda x: len(x.name or ""),
             reverse=True,
         )

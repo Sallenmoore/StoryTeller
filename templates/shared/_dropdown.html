@@ -3,7 +3,8 @@
 <li>
     <a hx-post='/api/{{url}}/{{o.path}}'
        hx-target='#page-content'
-       hx-indicator='#request-indicator'>
+       hx-indicator='#request-indicator'
+       hx-push-url='false'>
         <div class="grid-x grid-margin-x">
             <div class="cell align-center-middle shrink">
                 {% if o.image %}

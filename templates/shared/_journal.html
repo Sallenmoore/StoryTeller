@@ -61,7 +61,8 @@
                 <div class="cell shrink align-center-middle">
                     <button class="button small"
                             hx-post="/api/manage/journal/entry/edit/{{entry.pk}}"
-                            hx-target="#page-content">
+                            hx-target="#page-content"
+                            hx-push-url='false'>
                         Edit
                     </button>
                 </div>
@@ -116,7 +117,8 @@
 <form id="journal-entry-form" hx-post="/api/manage/journal/entry/update/{{entry.pk}}"
       hx-target="#page-content"
       hx-indicator='#request-indicator' hx-swap='none'
-      hx-trigger='input delay:750ms, change'>
+      hx-trigger='input delay:750ms, change'
+      hx-push-url='false'>
 
     <div class="grid-x align-justify">
         <div class="cell medium-6">
@@ -155,18 +157,16 @@
     <div class="cell">
         <h3 class="text-center">Add Associations</h3>
         <input autocomplete="off" type="search" name="query"
-               hx-post="/api/manage/journal/search"
+               hx-post="/api/manage/journal/entry/{{entry.pk}}/search"
                hx-target="#journal-entry-association-search"
                hx-trigger="input delay:750ms consume, change consume, search"
                hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-        <ul class="dropdown menu" data-dropdown-menu id="journal-entry-association-search"
-            hx-vals='{"entrypk":"{{entry.pk}}"}'>
+        <ul class="dropdown menu" data-dropdown-menu id="journal-entry-association-search">
         </ul>
-        <hr>
         <div class="callout small">
-            <div class="grid-x align-spaced" id="journal-entry-associations">
+            <div class="grid-x grid-margin-x align-spaced" id="journal-entry-associations">
                 {% for a in entry.associations %}
-                <div class="cell shrink ">
+                <div class="cell medium-2">
                     {{element.object_display(a)}}
                 </div>
                 {% endfor %}
@@ -175,30 +175,3 @@
     </div>
 </div>
 {%- endmacro %}
-
-{% macro journal_dropdown(user, obj, objs=[]) -%}
-{% for o in objs %}
-<li class="dropdown__link">
-    <form hx-post='/api/manage/journal/entry/association/add'
-          hx-target='#page-content'
-          hx-trigger='click'
-          hx-indicator='#request-indicator'>
-        <input type="hidden" name="ass_model" value="{{o.model_name()}}">
-        <input type="hidden" name="ass_pk" value="{{o.pk}}">
-        <div class="grid-x">
-            <div class="cell shrink">
-                <div class="image is-tiny is-thumbnail">
-                    {% if o.image %}
-                    <img class="thumbnail" src="{{o.image.url(size=50)}}" alt="{{o.name}}"
-                         style="cursor: pointer" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="cell">
-                {{o.name}}
-            </div>
-        </div>
-    </form>
-</li>
-{% endfor %}
-{%- endmacro%}

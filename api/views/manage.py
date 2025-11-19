@@ -281,32 +281,31 @@ def delete_journal_entry(entrypk):
     return "Not found"
 
 
-@manage_endpoint.route("/journal/search", methods=("POST",))
-def journal_search():
-    """
-    ## Description
-    Deletes the world object's journal entry based on the provided primary keys.
-    """
+@manage_endpoint.route("/journal/entry/<string:epk>/search", methods=("POST",))
+def journal_search(epk):
     user, obj, request_data = _loader()
+    entry = JournalEntry.get(epk)
     query = request.json.get("query")
     associations = (
         obj.world.search_autocomplete(query) if query and len(query) > 2 else []
     )
-    return get_template_attribute("shared/_journal.html", "journal_dropdown")(
-        user, obj, associations
+    associations = [a for a in associations if a not in entry.associations and a != obj]
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user, obj, f"manage/journal/entry/{entry.pk}/association/add", associations
     )
 
 
-@manage_endpoint.route("/journal/entry/association/add", methods=("POST",))
-def journal_add_association(entrypk=None):
+@manage_endpoint.route(
+    "/journal/entry/<string:entrypk>/association/add/<string:amodel>/<string:apk>",
+    methods=("POST",),
+)
+def journal_add_association(entrypk, amodel, apk):
     user, obj, request_data = _loader()
-    entrypk = request.json.get("entrypk")
     if entry := obj.journal.get_entry(entrypk):
-        if association := AutoModel.get_model(
-            request.json.get("ass_model"), request.json.get("ass_pk")
-        ):
-            entry.associations.append(association)
-            entry.save()
+        if association := AutoModel.get_model(amodel, apk):
+            if association not in entry.associations:
+                entry.associations += [association]
+                entry.save()
     return get_template_attribute("shared/_journal.html", "journal_entry")(
         user, obj, entry
     )
