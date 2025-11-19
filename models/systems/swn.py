@@ -816,8 +816,8 @@ class StarsWithoutNumber(SciFiSystem):
             "foreground": None,
             "foregroundElevation": None,
             "thumb": None,
-            "width": 1344,
-            "height": 768,
+            "width": 2688,
+            "height": 1536,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
             "backgroundColor": "#000000",
@@ -901,31 +901,31 @@ class StarsWithoutNumber(SciFiSystem):
             )
 
         # 3. Combine description fields into a Note document
-        desc_text = source_data.get("desc", "")
-        history_html = source_data.get("history", "")
+        # desc_text = source_data.get("desc", "")
+        # history_html = source_data.get("history", "")
 
         # Combine all narratives into a single HTML block
-        combined_notes_content = f"""
-            <h2>Description</h2>
-            <p>{desc_text}</p>
-            <h2>History</h2>
-            {history_html}
-        """
+        # combined_notes_content = f"""
+        #     <h2>Description</h2>
+        #     <p>{desc_text}</p>
+        #     <h2>History</h2>
+        #     {history_html}
+        # """
 
         # Create the embedded Note document structure
-        embedded_note = {
-            "name": f"{scene_name} Description",
-            "text": combined_notes_content.strip(),
-            "fontFamily": "Signika",
-            "fontSize": 48,
-            "textAnchor": 1,
-            "textColor": "#000000",
-            "x": 0,  # Placeholder coordinates
-            "y": 0,  # Placeholder coordinates
-            "visibility": 1,  # Visible to GM
-            "flags": {},
-        }
+        # embedded_note = {
+        #     "name": f"{scene_name} Description",
+        #     "text": combined_notes_content.strip(),
+        #     "fontFamily": "Signika",
+        #     "fontSize": 48,
+        #     "textAnchor": 1,
+        #     "textColor": "#FFFFFF",
+        #     "x": 0,  # Placeholder coordinates
+        #     "y": 0,  # Placeholder coordinates
+        #     "visibility": 1,  # Visible to GM
+        #     "flags": {},
+        # }
 
         # Add the note to the scene's notes array
-        target_schema["notes"].append(embedded_note)
+        # target_schema["notes"].append(embedded_note)
         return target_schema
