@@ -150,6 +150,7 @@ DUNGEON BACKSTORY
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_map()
+        document.pre_save_enconters()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -197,3 +198,11 @@ DUNGEON BACKSTORY
             self.map.save()
 
         # log(self.map)
+
+    def pre_save_enconters(self):
+        self.encounters = list(set(self.encounters))
+        for encounter in set(self.encounters):
+            if not encounter.parent:
+                encounter.parent = self.parent
+            elif encounter.parent != self.parent and encounter in self.encounters:
+                self.encounters.remove(encounter)
