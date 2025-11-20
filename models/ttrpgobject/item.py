@@ -19,6 +19,7 @@ class Item(TTRPGObject):
     duration = StringAttr(default="")
     weight = StringAttr(default="")
     type = StringAttr(default="mundane")
+    artifact = BoolAttr(default=False)
     features = ListAttr(ReferenceAttr(choices=["Ability"]))
 
     start_date_label = "Created"
@@ -43,6 +44,10 @@ class Item(TTRPGObject):
                 "name": {
                     "type": "string",
                     "description": "An descriptive, but unique name",
+                },
+                "artifact": {
+                    "type": "boolean",
+                    "description": "Whether the item is a one-of-a-kind or a mass-produced item",
                 },
                 "status": {
                     "type": "string",
@@ -119,6 +124,11 @@ class Item(TTRPGObject):
                 "duration": {
                     "type": "string",
                     "description": "How long will the item last before it breaks or is used up",
+                },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the item to life",
                 },
             },
         },

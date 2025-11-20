@@ -24,6 +24,15 @@
             Generate Details
         </button>
     </div>
+    {% if obj.model_name() == "Character" and obj.is_player and obj.dnd_beyond_id%}
+    <div class="cell shrink align-center-middle">
+        <button class="button" hx-post="/task/generate/{{obj.path}}/dndbeyond"
+                hx-target="closest .cell">
+            {{icon_components.update(size="1rem")}}
+            Update from D&DBeyond
+        </button>
+    </div>
+    {% endif %}
     <div class="cell shrink align-center-middle">
         <button class="button" hx-post="/task/generate/history/{{obj.path}}"
                 hx-target="closest .cell">

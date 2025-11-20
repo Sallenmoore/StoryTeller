@@ -6,6 +6,7 @@ import base64
 import json
 import os
 import random
+import re
 
 import markdown
 import requests
@@ -353,6 +354,35 @@ def association_add(amodel, apk=None):
 
 
 @manage_endpoint.route(
+    "/subassociations/<string:amodel>/<string:apk>", methods=("POST",)
+)
+def subassociations_add(amodel, apk=None):
+    user, obj, request_data = _loader()
+    child = AutoModel.get_model(amodel, apk)
+    if child not in obj.children:
+        obj.add_association(child)
+        child.parent = obj
+        child.save()
+
+    def add_children_recursive(child):
+        for grandchild in child.children:
+            if grandchild not in obj.associations:
+                obj.add_association(grandchild)
+            if hasattr(grandchild, "children"):
+                add_children_recursive(grandchild)
+
+    if hasattr(child, "children"):
+        add_children_recursive(child)
+
+    params = {
+        "user": user,
+        "obj": obj,
+        "associations": obj.associations,
+    }
+    return get_template_attribute("shared/_associations.html", "associations")(**params)
+
+
+@manage_endpoint.route(
     "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
 )
 def unassociate(childmodel, childpk):
@@ -524,93 +554,6 @@ def removelineage(character):
         character.save()
         obj.save()
     return get_template_attribute("models/_character.html", "lineage")(user, obj)
-
-
-@manage_endpoint.route("/character/<string:pk>/dndbeyond", methods=("POST",))
-def dndbeyondapi(pk):
-    # log(request.json)
-    user = User.get(request.json.pop("user"))
-    obj = Character.get(pk)
-    results = dmtools.get_dndbeyond_character(obj.dnd_beyond_id)
-    log(json.dumps(results, indent=4))
-    if results:
-        obj.name = results.get("name") or obj.name
-        obj.age = results.get("age") or obj.age
-        obj.gender = results.get("gender") or obj.gender
-
-        if results.get("inventory"):
-            inventory_list = "\n- ".join([i["name"] for i in results.get("inventory")])
-            overwritten = False
-            for entry in obj.journal.entries:
-                if "DnD Beyond Inventory Import" in entry.title:
-                    entry.text = inventory_list
-                    overwritten = True
-                    break
-            if not overwritten:
-                obj.journal.add_entry(
-                    title="DnD Beyond Inventory Import", text=inventory_list
-                )
-            for item in results.get("inventory"):
-                itemobj = Item.find(name=item["name"])
-                if not itemobj:
-                    itemobj = Item(world=obj.world, name=item["name"], parent=obj)
-                    itemobj.save()
-                if not itemobj.image:
-                    requests.post(
-                        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{itemobj.path}"
-                    )
-                if itemobj not in obj.associations:
-                    obj.add_association(itemobj)
-        if features := results.get("features"):
-            log(features)
-            for feature in features:
-                abilityobj = Ability.find(name=feature)
-                if not abilityobj:
-                    abilityobj = Ability(name=feature)
-                    abilityobj.save()
-                if abilityobj not in obj.abilities:
-                    obj.abilities += [abilityobj]
-        obj.archetype = results.get("class_name") or obj.occupation
-        obj.hitpoints = results.get("hp") or obj.hitpoints
-        obj.strength = results.get("str") or obj.strength
-        obj.dexterity = results.get("dex") or obj.dexterity
-        obj.constitution = results.get("con") or obj.constitution
-        obj.intelligence = results.get("int") or obj.intelligence
-        obj.wisdom = results.get("wis") or obj.wisdom
-        obj.charisma = results.get("cha") or obj.charisma
-        obj.ac = max(int(results.get("ac", 0)) + 10, int(obj.ac))
-
-        # if results.get("wealth"):
-        #     for currency, amount in results.get("wealth").items():
-        #         currency = f"<h4>{currency.upper()}</h4>"
-        #         text = f"{currency}<p>{amount}</p>"
-        #         found = False
-        #         for idx, w in enumerate(obj.wealth):
-        #             if w.strip().startswith(currency):
-        #                 found = True
-        #                 obj.wealth[idx] = text
-        #                 break
-        #         if not found:
-        #             obj.wealth.append(text)
-        # obj.abilities = []
-        # features_list = [i for i in results.get("features", [])]
-        # for idx, feature in enumerate(features_list):
-        #     feature_entry = f"<h5>Feature: {feature.upper()}</h5>"
-        #     if feature_desc := dmtools.search_feature(slugify(feature)):
-        #         feature_entry += "</p><p>".join(
-        #             random.choice(feature_desc).get("desc", "")
-        #         )
-        #     if feature_entry not in obj.abilities:
-        #         obj.abilities.append(feature_entry)
-        # spells_list = [i for i in results.get("spells", [])]
-        # for idx, spell in enumerate(spells_list):
-        #     spell_entry = f"<h5>Feature: {spell.upper()}</h5>"
-        #     if spell_desc := dmtools.search_spell(slugify(spell)):
-        #         spell_entry += "</p><p>".join(random.choice(spell_desc).get("desc", ""))
-        #     if spell_entry not in obj.abilities:
-        #         obj.abilities.append(spell_entry)
-        obj.save()
-    return get_template_attribute("manage/_details.html", "details")(user, obj)
 
 
 # MARK: quest route

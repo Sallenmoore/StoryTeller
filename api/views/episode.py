@@ -55,7 +55,6 @@ def edit_episode(pk=None):
         end_date = request.json.get("end_date", episode.end_date)
         if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
             episode.end_date = end_date
-        episode.description = request.json.get("description", episode.description)
         episode.episode_report = request.json.get(
             "episode_report", episode.episode_report
         )
@@ -64,6 +63,19 @@ def edit_episode(pk=None):
         episode.transcription = request.json.get("transcription", episode.transcription)
         episode.save()
     return get_template_attribute("manage/_episode.html", "manage")(
+        user,
+        episode,
+    )
+
+
+@episode_endpoint.route("/<string:pk>/update/planning", methods=("POST",))
+def plan_episode(pk=None):
+    user, obj, request_data = _loader()
+    pk = pk or request.json.get("episodepk")
+    if episode := Episode.get(pk):
+        episode.description = request.json.get("description", episode.description)
+        episode.save()
+    return get_template_attribute("models/_episode.html", "gmnotes")(
         user,
         episode,
     )

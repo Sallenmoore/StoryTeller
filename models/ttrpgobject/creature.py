@@ -32,6 +32,11 @@ class Creature(Actor):
                     "type": "string",
                     "description": "huge, large, medium, small, or tiny",
                 },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the creature to life",
+                },
             },
         },
     }

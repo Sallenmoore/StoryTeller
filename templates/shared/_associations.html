@@ -80,13 +80,13 @@
                                 Filter by Relationship
                             </option>
                             <option value='parent'>
-                                Parent
+                                Located In / Belongs To
                             </option>
                             <option value='child'>
-                                Child
+                                Includes / Possesses
                             </option>
                             <option value='no_parent'>
-                                Orphan
+                                Unassigned
                             </option>
                             {% if obj.model_name() == "Character" %}
                             <option value='lineage'>
@@ -155,6 +155,18 @@
                                 <span style="font-size:0.5rem">Unlink</span>
                             </button>
                         </div>
+                        {% if a.children %}
+                        <div class="cell medium-4 text-center">
+                            <button class="button small"
+                                    hx-post="/api/manage/subassociations/{{ a.path }}"
+                                    hx-target="#associations-container"
+                                    hx-select="#associations-container"
+                                    hx-indicator='#request-indicator'>
+                                {{ icon_components.lineage(size="1rem") }}
+                                <span style="font-size:0.5rem">Add Subelements</span>
+                            </button>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>

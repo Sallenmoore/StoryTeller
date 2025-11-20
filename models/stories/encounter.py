@@ -236,6 +236,14 @@ class Encounter(AutoModel):
         return self.model_name()
 
     @property
+    def triggers(self):
+        return self.trigger_conditions
+
+    @triggers.setter
+    def triggers(self, val):
+        self.trigger_conditions = val
+
+    @property
     def themes_list(self):
         return self.system._themes_list.get(self.model_name().lower())
 

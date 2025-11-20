@@ -55,14 +55,15 @@ class Faction(TTRPGObject):
                     "type": "string",
                     "description": "The faction's goals and secrets",
                 },
-                "status": {
-                    "type": "string",
-                    "description": "The faction's current status",
-                },
                 "rumors": {
                     "type": "array",
                     "items": {"type": "string"},
                     "description": "A list of rumors about the faction",
+                },
+                "sensory_details": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the faction to life",
                 },
             },
         },

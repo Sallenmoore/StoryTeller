@@ -81,23 +81,23 @@
 {%- endmacro %}
 
 {% macro session_recorder(user, episode) -%}
-<div class="card grid-container padding-x-2 padding-y-3">
+<div class="card grid-container padding-x-1">
     <div class="card-section">
-        <h5 class="text-center font-weight-bold margin-bottom-2 secondary">GM Voice Input</h5>
+        <h5 class="text-center font-weight-bold secondary padding-y-1">GM Voice Input</h5>
 
         <!-- Timer & Status Display -->
-        <div class="grid-x align-center margin-bottom-2">
+        <div class="grid-x align-center">
             <div class="cell shrink text-center">
                 <span id="recording-status" class="label secondary rounded">Ready</span>
             </div>
-            <div class="cell shrink text-center">
+            <div class="cell shrink text-center align-center-middle">
                 <span id="recording-timer"
                       class="h3 primary text-bold margin-left-1">00:00</span>
             </div>
         </div>
 
         <!-- Volume Meter -->
-        <div class="grid-x align-center margin-bottom-2">
+        <div class="grid-x align-center">
             <div class="cell medium-8 small-10">
                 <div id="volume-meter" class="progress primary margin-bottom-0"
                      role="progressbar"
@@ -112,8 +112,7 @@
         </div>
 
         <!-- Control Buttons -->
-        <div class="grid-x grid-margin-x align-center">
-
+        <div class="grid-x grid-margin-x align-center-middle grid-padding-y">
             <!-- 1. Start Button -->
             <div class="cell shrink">
                 <button id="record-btn" class="button primary margin-bottom-0"
@@ -157,9 +156,9 @@
     </div>
 
     <!-- Output/Feedback Area Wrapper -->
-    <div id="recorder-output-wrapper" class='callout'>
-        <h6>Transcription</h6>
-        <div id="output-area" class="text-justified secondary margin-top-2">
+    <div id="transcription-output-wrapper">
+        <h5 class='separator-center'>Transcription</h5>
+        <div id="output-area" class="text-justified secondary margin-top-1">
             {% if episode.transcription %}
             {{ episode.transcription | safe }}
             {% endif %}
@@ -338,7 +337,6 @@
                 // 3. Update UI to processing state
                 updateControls(false);
                 setTimeout(startRecording, 500);
-
             }
 
             // 2. Manual Stop (Ends the entire session)
@@ -368,7 +366,7 @@
 
                 // 4. Update UI to processing state (Final Stop)
                 updateControls(false);
-                outputTarget.innerHTML = '<p>Sending segment...</p>';
+                outputTarget.innerHTML = '<p>Audio saved!</p>';
 
                 // 5. Send raw audio to /api/episode/<pk>/audio
                 await sendRawAudioForStorage();
@@ -376,6 +374,8 @@
                 // 6. Final state reset (Session Ends)
                 isSessionRunning = false;
                 updateControls(false); // Stays in "AudioReady" state for Transcribe button
+                document.getElementById('session-recorder-container').classList.remove('position-fixed-top');
+                document.getElementById('transcription-output-wrapper').classList.remove('hide');
             }
 
 
@@ -404,6 +404,8 @@
             }
 
             async function startRecording() {
+                document.getElementById('session-recorder-container').classList.add('position-fixed-top');
+                document.getElementById('transcription-output-wrapper').classList.add('hide');
                 if (mediaRecorder && mediaRecorder.state === 'recording') return;
 
                 // --- Session Restart Logic ---

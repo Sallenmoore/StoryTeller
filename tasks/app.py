@@ -70,6 +70,18 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    @app.route("/generate/character/<string:pk>/dndbeyond", methods=("POST",))
+    def pulldnbeyonddata(pk):
+        task = (
+            AutoTasks()
+            .task(
+                tasks._generate_character_from_dndbeyond_task,
+                pk=pk,
+            )
+            .result
+        )
+        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
     @app.route("/generate/image/<string:model>/<string:pk>", methods=("POST",))
     def image_generate_task(model, pk):
         task = (

@@ -59,12 +59,12 @@ class City(Place):
                 "sensory_details": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the location to life",
+                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the city to life",
                 },
                 "recent_events": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "A concise list of significant events that have recently occurred in this location, even if they aren't ongoing situations. Only include publicly known information.",
+                    "description": "A concise list of significant events that have recently occurred in this city, even if they aren't ongoing situations. Only include publicly known information.",
                 },
             },
         },

@@ -56,6 +56,10 @@ class Episode(AutoModel):
         return [a for a in self.associations if a.model_name() == "Character"]
 
     @property
+    def children(self):
+        return self.associations
+
+    @property
     def creatures(self):
         return [a for a in self.associations if a.model_name() == "Creature"]
 
