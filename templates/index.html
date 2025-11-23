@@ -25,6 +25,10 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap"
               rel="stylesheet">
+        <!-- Insert this within your head tag and after foundation.css -->
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/motion-ui@1.2.3/dist/motion-ui.min.css" />
+
 
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
@@ -108,7 +112,7 @@
         {% endif %}
 
         {% if page_url %}
-        <section class="container medium-width-85 padding-2">
+        <section class="container medium-width-85 medium-padding-2">
             <div id="page-content"
                  hx-get='/api{{page_url}}'
                  hx-trigger='load'

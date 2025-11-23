@@ -41,29 +41,26 @@ class Image(AutoModel):
         **kwargs,
     ):
         tags = tags or []
-        files = files or []
+        files = files or {}
         # Clean the prompt to remove any HTML tags
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
         # log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         temp_prompt = (
-            f"""{prompt}
+            prompt
+            if text
+            else f"""{prompt}
 IMPORTANT: The image MUST NOT contain any TEXT.
 """
-            if not text
-            else prompt
         )
+        log(f"=== generation prompt ===\n\n{temp_prompt}", _print=True)
         try:
-            if files := [f.to_file() for f in files if f]:
-                random.shuffle(files)
+            files = {fn: f.to_file() for fn, f in files.items() if f}
             image = ImageAgent().generate(prompt=temp_prompt, files=files, **kwargs)
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
         else:
-            image_obj = cls(
-                prompt=prompt,
-                tags=tags,
-            )
+            image_obj = cls(prompt=prompt, tags=tags)
             image_obj.data.put(io.BytesIO(image), content_type="image/webp")
             image_obj.save()
         return image_obj

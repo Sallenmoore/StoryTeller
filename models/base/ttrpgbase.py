@@ -402,10 +402,14 @@ Use and expand on the existing object data listed below for the {self.title} obj
         return images
 
     # MARK: generate_image
-    def generate_image(self):
-        if self.image:
-            self.image.remove_association(self)
-        if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
+    def generate_image(self, **kwargs):
+        prompt = f"""{self.image_prompt}
+
+The image should be in a {self.world.image_style} style.
+"""
+        if image := Image.generate(prompt=prompt, tags=self.image_tags, **kwargs):
+            if self.image:
+                self.image.remove_association(self)
             self.image = image
             self.image.associations += [self]
             self.image.save()

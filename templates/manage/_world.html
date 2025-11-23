@@ -151,5 +151,45 @@
     </div>
 </div>
 {{manage_components.backstory(user, obj)}}
+<div class="callout">
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            <label for="image_style">Image Style
+                <input list="image_styles" type="text" name="image_style"
+                       value="{{obj.image_style}}"
+                       hx-post="/api/manage/update"
+                       hx-trigger="change"
+                       hx-swap="none"
+                       placeholder="Image Style (e.g., illustrated, realistic, cartoon)">
+                <datalist id="image_styles">
+                    <option value="illustrated"></option>
+                    <option value="realistic"></option>
+                    <option value="cartoon"></option>
+                    <option value="watercolor"></option>
+                    <option value="oil painting"></option>
+                    <option value="pixel art"></option>
+                    <option value="sketch"></option>
+                </datalist>
+            </label>
+        </div>
+        <div class="cell medium-6">
+            <label for="map_style">Map Style
+                <input list="map_styles" type="text" name="map_style" value="{{obj.map_style}}"
+                       hx-post="/api/manage/update"
+                       hx-trigger="change"
+                       hx-swap="none"
+                       placeholder="Map Style (e.g., isometric, top-down, hand-drawn)">
+                <datalist id="map_styles">
+                    <option value="isometric"></option>
+                    <option value="top-down"></option>
+                    <option value="hand-drawn"></option>
+                    <option value="satellite"></option>
+                    <option value="detailed"></option>
+                    <option value="minimalist"></option>
+                </datalist>
+            </label>
+        </div>
+    </div>
+</div>
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

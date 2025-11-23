@@ -263,19 +263,19 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
             self.generate_image()
 
     def generate_image(self):
-        if self.image:
-            self.image = self.image.remove_association(self)
-        party = [c.image for c in self.players if c.image]
-        prompt = f"{self.desc}\n\nUse the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description}' for c in self.players])}."
-        # log(
-        #     f"Generating image: {prompt} --- player images: {len(party)}",
-        #     _print=True,
-        # )
+        prompt = f"{self.desc}\n\nUse the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
+        prompt = f"""{prompt}
+
+The image should be in a {self.world.image_style} style.
+"""
+        party = {f"{c.name}.webp": c.image for c in self.players if c.image}
         if image := Image.generate(
             prompt=prompt,
             tags=["event", self.world.name, str(self.world.pk)],
             files=party,
         ):
+            if self.image:
+                self.image = self.image.remove_association(self)
             self.image = image
             self.image.associations += [self]
             self.image.save()

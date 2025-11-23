@@ -59,8 +59,12 @@ class Place(TTRPGObject):
             if not self.map_prompt:
                 self.map_prompt = self.system.map_prompt(self)
             # log(map_prompt)
+            prompt = f"""{self.map_prompt}
+
+The map should be in a {self.world.map_style} style.
+"""
             self.map = Map.generate(
-                prompt=self.map_prompt,
+                prompt=prompt,
                 tags=["map", *self.image_tags],
                 aspect_ratio="16:9",
                 image_size="4K",

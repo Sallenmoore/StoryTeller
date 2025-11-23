@@ -41,6 +41,7 @@ class Episode(AutoModel):
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
     summary = StringAttr(default="")
+    campaign_summary = StringAttr(default="")
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
     audio = ReferenceAttr(choices=["Audio"])
     transcription = StringAttr(default="")
@@ -224,9 +225,19 @@ class Episode(AutoModel):
     ##################### INSTANCE METHODS ####################
 
     def resummarize(self):
+        campaign_summary = ""
+        for e in self.campaign.episodes:
+            if e.episode_num < self.episode_num and e.summary:
+                campaign_summary += (
+                    f"<br><br>### Episode {e.episode_num}: {e.name}<br>{e.summary}"
+                )
+        self.campaign_summary = self.world.system.generate_summary(
+            campaign_summary,
+            primer="Provide an engaging, narrative summary of the campaign, highlighting its key elements and significance within the larger story.",
+        )
         if not self.episode_report:
             return ""
-        prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode report: {self.episode_report}."
+        prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode report: {self.episode_report}."
         self.summary = self.world.system.generate_summary(
             prompt,
             primer="Provide an engaging, narrative summary of the episode, highlighting its key elements and significance within the larger story.",
@@ -303,7 +314,8 @@ class Episode(AutoModel):
         return self.episode_report
 
     def generate_graphic(self):
-        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
+        self.resummarize()
+        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.description}. Here is some context about the campaign up to this point: {self.campaign.name}, {self.campaign_summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
         log(f"Graphic Prompt: {prompt}", _print=True)
         description = self.world.system.generate_text(
             prompt,

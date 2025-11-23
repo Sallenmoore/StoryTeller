@@ -199,9 +199,12 @@ class Story(AutoModel):
 
         if self.image:
             self.image.remove_association(self)
-        if image := Image.generate(
-            prompt=self.history, tags=[self.world.name, "story"]
-        ):
+
+        prompt = f"""{self.history}
+
+The image should be in a {self.world.image_style} style.
+"""
+        if image := Image.generate(prompt=prompt, tags=[self.world.name, "story"]):
             self.image = image
             self.image.associations += [self]
             self.image.save()

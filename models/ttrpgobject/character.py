@@ -116,7 +116,7 @@ class Character(Actor):
             self.age = random.randint(15, 50)
             self.save()
         prompt = f"""
-A full-body color portrait of a {self.gender} {self.genre} {self.species} aged {self.age} {f"who is a {self.occupation}" if self.occupation and self.occupation != "General" else ""}, looks like {self.lookalike}, and is described as: {self.description}
+A full-body color portrait of a {self.gender} {self.genre} {self.species} aged {self.age} {f"who is a {self.occupation}" if self.occupation and self.occupation != "General" else ""}, looks a faintly similar to {self.lookalike} (changed enough to not be identical), and described as: {self.description}
 
 PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
 """

@@ -3,9 +3,9 @@
 {% macro site_header(user) -%}
 <div id="top-nav" class="grid-x grid-padding-x">
     <!-- logo -->
-    <div class="cell shrink bg-primary" style='padding-top: 1rem;'>
-        <a id="logo" class="align-middle text-white"
-           href="/">{{icon_components.dungeon(size="2.5rem")}}Storyteller</a>
+    <div class="cell shrink bg-primary align-bottom " style='padding-top: 1rem;'>
+        <a id="logo" class="text-white"
+           href="/">{{icon_components.dungeon(size="3rem")}}Storyteller</a>
     </div>
     <div class="cell shrink bg-primary" style='padding-top: 1rem;'>
         <small class="show-for-medium text-white">ver. 0.3.0</small>
@@ -30,7 +30,7 @@
     </div>
     <div class="cell auto show-for-medium bg-primary"></div>
     <!-- login -->
-    <div class="cell small-3 shrink bg-primary">
+    <div class="cell shrink bg-primary">
         {{dsp_auth(user)}}
     </div>
     {% endif %}

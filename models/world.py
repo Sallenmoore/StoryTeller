@@ -51,6 +51,8 @@ class World(TTRPGBase):
     start_date = ReferenceAttr(choices=["Date"])
     map = ReferenceAttr(choices=["Map"])
     map_prompt = StringAttr(default="")
+    image_style = StringAttr(default="illustrated")
+    map_style = StringAttr(default="isometric")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
     lore_entries = ListAttr(ReferenceAttr(choices=["Lore"]))
@@ -380,8 +382,12 @@ class World(TTRPGBase):
                 self.map.save()
         if not self.map_prompt:
             self.map_prompt = self.system.map_prompt(self)
+        prompt = f"""{self.map_prompt}
+
+The map should be in a {self.world.map_style} style.
+"""
         self.map = Map.generate(
-            prompt=self.map_prompt,
+            prompt=prompt,
             tags=["map", self.model_name().lower(), self.genre],
             img_quality="hd",
             img_size="1792x1024",

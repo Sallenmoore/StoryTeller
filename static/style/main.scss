@@ -3,7 +3,7 @@
 // 2. Import Foundation itself (includes all modules and mixes in defaults)
 @import '../../node_modules/foundation-sites/scss/foundation';
 @include foundation-everything($prototype: true);
-
+//@include motion-ui-transitions;
 
 .container
 {

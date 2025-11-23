@@ -310,6 +310,7 @@ class Encounter(AutoModel):
         # MARK: generate_image
         if self.image:
             self.image.remove_association(self)
+        party = {f"{c.name}.webp": c.image for c in self.players if c.image}
         if image := Image.generate(
             prompt=self.image_prompt, tags=["encounter", self.world.name]
         ):

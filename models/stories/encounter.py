@@ -316,11 +316,16 @@ class Encounter(AutoModel):
 
     def generate_image(self):
         # MARK: generate_image
-        if self.image:
-            self.image.remove_association(self)
+        enemies = {f"{c.name}.webp": c.image for c in self.enemies if c.image}
+        prompt = f"""{self.image_prompt}
+
+The image should be in a {self.world.image_style} style.
+"""
         if image := Image.generate(
-            prompt=self.image_prompt, tags=["encounter", self.world.name]
+            prompt=prompt, tags=["encounter", self.world.name], files=enemies
         ):
+            if self.image:
+                self.image.remove_association(self)
             self.image = image
             self.image.associations += [self]
             self.image.save()
