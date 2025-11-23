@@ -91,6 +91,10 @@ class Faction(TTRPGObject):
         return [c for c in self.characters if c.is_player]
 
     @property
+    def members(self):
+        return self.characters
+
+    @property
     def owner(self):
         return self.leader
 
