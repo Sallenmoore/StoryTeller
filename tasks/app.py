@@ -7,6 +7,7 @@ from flask import Flask, get_template_attribute, request
 
 import tasks
 from autonomous import log
+from filters.forms import label_style
 from filters.utils import bonus, roll_dice
 from models.campaign.episode import Episode
 from models.ttrpgobject.faction import Faction
@@ -32,6 +33,7 @@ def create_app():
 
     app.jinja_env.filters["bonus"] = bonus
     app.jinja_env.filters["roll_dice"] = roll_dice
+    app.jinja_env.filters["label_style"] = label_style
 
     # Configure Routes
     @app.route(
@@ -57,248 +59,175 @@ def create_app():
         else:
             return "No task found"
 
-    @app.route("/generate/<string:model>/<string:pk>", methods=("POST",))
-    def generate(model, pk):
+    def _generate_task(func, **kwargs):
         task = (
             AutoTasks()
             .task(
-                tasks._generate_task,
-                model=model,
-                pk=pk,
+                func,
+                **kwargs,
             )
             .result
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/<string:model>/<string:pk>", methods=("POST",))
+    def generate(model, pk):
+        return _generate_task(
+            tasks._generate_task,
+            model=model,
+            pk=pk,
+        )
 
     @app.route("/generate/character/<string:pk>/dndbeyond", methods=("POST",))
     def pulldnbeyonddata(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_character_from_dndbeyond_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_character_from_dndbeyond_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/image/<string:model>/<string:pk>", methods=("POST",))
     def image_generate_task(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_image_task,
-                model=model,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_image_task,
+            model=model,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/map/<string:model>/<string:pk>", methods=("POST",))
     def create_map(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_map_task,
-                model=model,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_map_task,
+            model=model,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/history/<string:model>/<string:pk>", methods=("POST",))
     def generate_history(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_history_task,
-                model=model,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_history_task,
+            model=model,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/campaign/<string:pk>/summary", methods=("POST",))
     def generate_campaign_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_campaign_summary_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_campaign_summary_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/campaign/episode/<string:pk>/summary", methods=("POST",))
     def generate_session_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_session_summary_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_session_summary_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/campaign/episode/<string:pk>/report", methods=("POST",))
     def generate_session_report(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_session_report_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_session_report_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/episode/<string:pk>/graphic", methods=("POST",))
     def generate_episode_graphic(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_episode_graphic_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_episode_graphic_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/episode/<string:pk>/transcribe", methods=("POST",))
     def create_episode_transcription(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_episode_transcription_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_episode_transcription_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/episode/<string:pk>/transcription/summary", methods=("POST",))
     def generate_episode_report(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_episode_transcription_summary_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_episode_transcription_summary_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/character/<string:pk>/chat", methods=("POST",))
     def generate_character_chat(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_character_chat_task,
-                pk=pk,
-                chat=request.json.get("chat"),
-            )
-            .result
+        return _generate_task(
+            tasks._generate_character_chat_task,
+            pk=pk,
+            chat=request.json.get("chat"),
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+
+    @app.route("/generate/ability/<string:pk>", methods=("POST",))
+    def generate_ability(pk):
+        return _generate_task(
+            tasks._generate_ability_task,
+            pk=pk,
+        )
 
     @app.route("/generate/audio/<string:model>/<string:pk>", methods=("POST",))
     def create_audio(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_audio_task,
-                model=model,
-                pk=pk,
-                pre_text=request.json.get("pre_text", ""),
-                post_text=request.json.get("post_text", ""),
-            )
-            .result
+        return _generate_task(
+            tasks._generate_audio_task,
+            model=model,
+            pk=pk,
+            pre_text=request.json.get("pre_text", ""),
+            post_text=request.json.get("post_text", ""),
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/gmscreen/table/<string:pk>", methods=("POST",))
     def create_table(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_table_items_task,
-                pk=pk,
-                worldpk=request.json.get("worldpk"),
-                prompt=request.json.get("prompt"),
-            )
-            .result
+        return _generate_task(
+            tasks._generate_table_items_task,
+            pk=pk,
+            worldpk=request.json.get("worldpk"),
+            prompt=request.json.get("prompt"),
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/<string:model>/<string:pk>/dungeon", methods=("POST",))
     def create_dungeon(model, pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_dungeon_task,
-                model=model,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_dungeon_task,
+            model=model,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/<string:pk>/quest/create", methods=("POST",))
     def create_quest(pk):
-        task = AutoTasks().task(tasks._generate_quest_task, pk=pk).result
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return _generate_task(tasks._generate_quest_task, pk=pk)
 
     @app.route("/generate/story/<string:pk>", methods=("POST",))
     def create_story(pk):
-        task = AutoTasks().task(tasks._generate_story_task, pk=pk).result
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return _generate_task(tasks._generate_story_task, pk=pk)
 
     @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
     def generate_story_summary(pk):
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_story_summary_task,
-                pk=pk,
-            )
-            .result
+        return _generate_task(
+            tasks._generate_story_summary_task,
+            pk=pk,
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/event/<string:pk>", methods=("POST",))
     def generate_event(pk):
-        task = AutoTasks().task(tasks._generate_event_task, pk=pk).result
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return _generate_task(
+            tasks._generate_event_task,
+            pk=pk,
+        )
 
     @app.route("/generate/event/from_events", methods=("POST",))
     def generate_event_from_events():
-        task = (
-            AutoTasks()
-            .task(
-                tasks._generate_event_from_events_task,
-                event_ids=request.json.get("event_ids"),
-            )
-            .result
+        return _generate_task(
+            tasks._generate_event_from_events_task,
+            event_ids=request.json.get("event_ids"),
         )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
     @app.route("/generate/event/<string:pk>/summary", methods=("POST",))
     def generate_event_summary(pk):
-        task = AutoTasks().task(tasks._generate_event_summary_task, pk=pk).result
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return _generate_task(tasks._generate_event_summary_task, pk=pk)
 
     @app.route("/generate/lore/<string:pk>", methods=("POST",))
     def generate_lore(pk):
-        task = (
-            AutoTasks()
-            .task(tasks._generate_lore_task, pk, request.json.get("prompt"))
-            .result
-        )
-        return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
+        return _generate_task(tasks._generate_lore_task, pk, request.json.get("prompt"))
 
     return app

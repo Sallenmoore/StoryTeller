@@ -1,6 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "models/_ability.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_details.html" as details_components %}
@@ -402,7 +402,7 @@
     </div>
     {% if obj.abilities %}
     <div id="model-abilities" class="cell medium-6">
-        {{abilities_components.abilities(user, obj)}}
+        {{abilities_components.info(user, obj)}}
     </div>
     {% endif %}
     {% if obj.wealth or obj.items %}

@@ -115,12 +115,26 @@ def _generate_character_from_dndbeyond_task(pk):
 def _generate_map_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate_map()
+    return {"url": f"/api/{obj.path}/map"}
 
 
 def _generate_history_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.resummarize()
     return {"url": f"/api/{obj.path}/history"}
+
+
+def _generate_ability_task(pk):
+    if obj := Ability.get(pk):
+        obj.generate()
+    else:
+        log("Ability not found", _print=True)
+    return {
+        "url": f"/api/ability/{obj.pk}/manage",
+        "target": f"ability_{obj.pk}",
+        "select": f"ability_{obj.pk}",
+        "swap": "outerHTML",
+    }
 
 
 def _generate_image_task(model, pk):

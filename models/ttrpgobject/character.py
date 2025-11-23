@@ -95,11 +95,6 @@ class Character(Actor):
                     "description": "A list of items the NPC possesses, with descriptions for each. There should be at least one mundane item and one valuable item at minimum.",
                     "items": {"type": "string"},
                 },
-                "sensory_details": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the character to life",
-                },
             },
         },
     }

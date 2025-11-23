@@ -5,6 +5,7 @@ from autonomous.model.autoattr import BoolAttr, IntAttr, StringAttr
 
 from autonomous import log
 from models.base.actor import Actor
+from models.ttrpgobject.ability import Ability
 
 
 class Creature(Actor):
@@ -31,11 +32,6 @@ class Creature(Actor):
                 "size": {
                     "type": "string",
                     "description": "huge, large, medium, small, or tiny",
-                },
-                "sensory_details": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the creature to life",
                 },
             },
         },
@@ -67,7 +63,7 @@ class Creature(Actor):
         else:
             prompt = f"""Generate detailed data for a common {self.type or "creature"} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual. This is a classification of creature, not a specific creature.
             """
-        return super().generate(prompt=prompt)
+        super().generate(prompt=prompt)
 
     ################### Instance Methods #####################
 

@@ -1,6 +1,6 @@
-{% macro text_input(name, label="", value="", placeholder="")%}
+{% macro text_input(name, label="", value="", placeholder="", style="")%}
 {% if label %}
-<label for="{{name}}" class="label">{{label}}</label>
+<label for="{{name}}" style="{{style | label_style}}">{{label}}</label>
 {% endif %}
 <input type="text"
        class="input has-bg-white"
@@ -11,17 +11,23 @@
 {%- endmacro %}
 
 
-{% macro richtexteditor(user, obj, attr) -%}
-<textarea id="edit-{{obj.pk}}-{{attr}}"
-          name="{{name or attr}}"
-          data-model="{{obj.__class__.__name__.lower()}}"
-          data-user="{{user.pk}}"
-          data-pk="{{obj.pk}}"
-          class="rich-text">
+{% macro richtexteditor(user, obj, attr, name="", label=True) -%}
+{% if label %}
+<label style="{{obj.genre | label_style}}">{{attr | replace("_", " ") | title}}
+    {% endif %}
+    <textarea id="edit-{{obj.pk}}-{{attr}}"
+              name="{{name or attr}}"
+              data-model="{{obj.__class__.__name__.lower()}}"
+              data-user="{{user.pk}}"
+              data-pk="{{obj.pk}}"
+              class="rich-text">
         {% if obj %}
             {{obj[attr] | string | safe}}
         {% endif %}
     </textarea>
+    {% if label %}
+</label>
+{% endif %}
 <script>
     $(function () {
         createCK('edit-{{obj.pk}}-{{attr}}');

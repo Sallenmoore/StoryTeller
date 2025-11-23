@@ -44,6 +44,7 @@ from views.index import index_page
 from werkzeug.exceptions import HTTPException
 
 from autonomous import log
+from filters.forms import label_style
 from filters.utils import bonus, roll_dice
 from models.user import User
 
@@ -66,6 +67,7 @@ def create_app():
     # Configure Filters
     app.jinja_env.filters["roll_dice"] = roll_dice
     app.jinja_env.filters["bonus"] = bonus
+    app.jinja_env.filters["label_style"] = label_style
 
     # Configure Routes
     @app.route("/favicon.ico")

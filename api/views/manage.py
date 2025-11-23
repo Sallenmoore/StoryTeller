@@ -436,7 +436,7 @@ def child(childmodel, childpk):
     )
 
 
-# MARK: details route
+# MARK: Abilities route
 ###########################################################
 ##                    Abilities Routes                   ##
 ###########################################################
@@ -450,6 +450,16 @@ def addability():
     obj.abilities += [ab]
     obj.save()
     return get_template_attribute("manage/_details.html", "details")(user, obj)
+
+
+@manage_endpoint.route("/ability/<string:pk>/generate", methods=("POST",))
+def generateability(pk):
+    user, obj, *_ = _loader()
+    response = requests.post(
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/ability/{pk}",
+    ).text
+    log(response)
+    return response
 
 
 @manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))

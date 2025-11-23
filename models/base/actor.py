@@ -93,54 +93,6 @@ class Actor(TTRPGObject):
             "type": "string",
             "description": "The character's public and private goals. The public goal is what the character tells others, while the private goal is what the character truly desires. The character goials should be at least tangentially related to an existing world story",
         },
-        "abilities": {
-            "type": "array",
-            "description": "Generate 2 offensive combat, 2 defensive combat, AND 2 roleplay special ability objects. Each ability object should have attributes for the name, type of action, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
-            "items": {
-                "type": "object",
-                "required": [
-                    "name",
-                    "action",
-                    "description",
-                    "effects",
-                    "duration",
-                    "dice_roll",
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Unique name for the Ability.",
-                    },
-                    "action": {
-                        "type": "string",
-                        "enum": [
-                            "main action",
-                            "bonus action",
-                            "reaction",
-                            "free action",
-                            "passive",
-                        ],
-                        "description": "type of action required.",
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Detailed description of the ability and how the Character aquired the ability in MARKDOWN.",
-                    },
-                    "effects": {
-                        "type": "string",
-                        "description": "Description of the ability's effects.",
-                    },
-                    "duration": {
-                        "type": "string",
-                        "description": "The duration of the ability's effects.",
-                    },
-                    "dice_roll": {
-                        "type": "string",
-                        "description": "The dice roll mechanics for determining the success or failure of the ability.",
-                    },
-                },
-            },
-        },
         "archetype": {
             "type": "string",
             "description": "archetype or role in the world, such as Rogue, Wizard, Soldier, etc.",
@@ -180,6 +132,11 @@ class Actor(TTRPGObject):
         "charisma": {
             "type": "integer",
             "description": "The amount of Charisma from 1-20",
+        },
+        "sensory_details": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the character to life",
         },
     }
 
@@ -228,6 +185,11 @@ class Actor(TTRPGObject):
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj
         super().generate(prompt)
+        for _ in range(random.randint(1, 6)):
+            ability = Ability(
+                world=self.world,
+            )
+            ability.generate(self)
 
     def chat(self, message=""):
         # summarize conversation
@@ -299,6 +261,11 @@ class Actor(TTRPGObject):
         document.pre_save_ability()
         document.pre_save_skills()
 
+        ###### MIGRATION CODE ######
+        for ability in document.abilities:
+            ability.world = document.world
+            ability.save()
+
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
     #     super().auto_post_save(sender, document, **kwargs)
@@ -322,22 +289,12 @@ class Actor(TTRPGObject):
     def pre_save_ability(self):
         for idx, ability in enumerate(self.abilities):
             if isinstance(ability, str):
-                a = Ability(description=ability)
+                a = Ability(world=self.world, description=ability)
                 a.save()
                 self.abilities[idx] = a
             elif isinstance(ability, dict):
-                a = Ability(**ability)
+                a = Ability(world=self.world, **ability)
                 a.save()
                 self.abilities[idx] = a
-            else:
-                ability.description = (
-                    markdown.markdown(
-                        ability.description.replace("```markdown", "").replace(
-                            "```", ""
-                        )
-                    )
-                    .replace("h1>", "h3>")
-                    .replace("h2>", "h3>")
-                )
 
-        self.abilities = [a for a in self.abilities if a.name]
+        self.abilities = [a for a in self.abilities if a]

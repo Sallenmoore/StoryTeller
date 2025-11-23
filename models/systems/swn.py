@@ -9,8 +9,6 @@ class StarsWithoutNumber(SciFiSystem):
 
     _system_name = "Stars Without Number"
 
-    _genre = "Hard Sci-Fi"
-
     _classes = {
         "Warrior": ["Soldier", "Mercenary", "Gladiator", "Bodyguard", "Martial Artist"],
         "Expert": ["Engineer", "Scout", "Spy", "Trader", "Technician"],

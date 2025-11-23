@@ -1,5 +1,5 @@
 {% import "shared/_form.html" as form_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "models/_ability.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_manage.html" as manage_components %}
 
@@ -34,7 +34,7 @@
             <textarea name="duration">{{obj.duration}}</textarea>
         </div>
         <div class="cell">
-            {{abilities_components.edit_abilities(user, obj, abilities=obj.features)}}
+            {{abilities_components.manage(user, obj, abilities=obj.features)}}
         </div>
     </div>
 </form>

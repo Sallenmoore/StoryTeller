@@ -1,5 +1,3 @@
-{% import "shared/_abilities.html" as abilities_components %}
-
 {% macro dsp_object_image(obj, dim="400") -%}
 {% if obj.image %}
 <img src="{{obj.image.url(size=dim)}}" loading="lazy" alt="{{obj.name}}" />

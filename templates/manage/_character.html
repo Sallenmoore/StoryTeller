@@ -1,6 +1,6 @@
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "models/_ability.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_manage.html" as manage_components %}
 
@@ -28,7 +28,7 @@
     </div>
     <div class="side-panel cell small-12 medium-9">
         {{update_stats(user, obj)}}
-        {{abilities.edit_abilities(user, obj)}}
+        {{abilities.manage(user, obj)}}
     </div>
 </div>
 {%- endmacro %}
@@ -218,7 +218,7 @@
             <hr>
         </div>
         <div class="cell">
-            {{abilities_components.edit_abilities(user, obj)}}
+            {{abilities_components.manage(user, obj)}}
         </div>
     </div>
 </form>

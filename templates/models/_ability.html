@@ -1,0 +1,174 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_title.html" as title_components %}
+
+
+{% macro index(user, obj) -%}
+{{details(user, obj)}}
+{%- endmacro %}
+
+
+{% macro menu(user, obj) -%}
+{# <li>
+    <a href=""
+       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/details">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.details(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Details</span>
+            </div>
+        </div>
+    </a>
+</li> #}
+{%- endmacro %}
+
+
+{% macro details(user, obj) -%}
+{{details_components.details(user, obj)}}
+{%- endmacro %}
+
+{% macro info(user, obj, abilities=None) -%}
+<div class="callout">
+    <h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
+    {% set ability_list = abilities or obj.abilities %}
+    <ul class="accordion abilities" data-accordion data-multi-expand="true"
+        data-allow-all-closed="true">
+        {%for ability in ability_list%}
+        <li class="accordion-item" data-accordion-item>
+            <a href="#" class="accordion-title">{{ability.name}}</a>
+            <div class="accordion-content" data-tab-content>
+                <table class="ability">
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ability.description | safe}}</td>
+                    </tr>
+                    <tr>
+                        <th>Roll</th>
+                        <td>{{ability.dice_roll | safe}}</td>
+                    </tr>
+                    <tr>
+                        <th>Mechanics</th>
+                        <td>{{ability.mechanics | safe}}</td>
+                    </tr>
+                    <tr>
+                        <th>Effects</th>
+                        <td>{{ability.effects | safe}}</td>
+                    </tr>
+                    <tr>
+                        <th>Duration</th>
+                        <td>{{ability.duration | safe}}</td>
+                    </tr>
+                </table>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{%- endmacro %}
+
+{% macro manage(user, obj, abilities=None) -%}
+{% set ability_list = abilities or obj.abilities %}
+<div class="callout">
+    <div class="grid-x">
+        <div id="model-abilities-container" class="cell">
+            <h3 class='text-center'>Abilities</h3>
+            <div class="cell shrink">
+                <button type="button" class="button small"
+                        hx-post='/api/manage/details/add/listitem/ability'
+                        hx-target='#ability-item-list'
+                        hx-select='#ability-item-list'
+                        hx-swap='outerHTML' hx-trigger="click consume">
+                    {{icon_components.plus(size="1rem")}}
+                    New Ability
+                </button>
+            </div>
+            <div class="grid-x" id='ability-item-list'>
+                {% for ability in ability_list %}
+                <div class="cell" style='position:relative;'>
+                    <div id="ability_{{ability.pk}}" class="callout bg-secondary position-relative">
+                        <div class='position-absolute' style='top:0.5rem;left:0.5rem;'
+                             hx-post='/api/manage/ability/{{ability.pk}}/generate'
+                             hx-trigger="click consume"
+                             hx-target='#ability_{{ability.pk}}'
+                             hx-swap='innerHTML'
+                             {% if ability.description %}
+                             hx-prompt='Regenerate ability "{{ability.name}}"? This will replace all of the existing information.'
+                             {% endif %}>
+                            {{icon_components.regenerate(size="1rem")}}
+                        </div>
+                        <h4 class='text-center'
+                            onclick='this.nextElementSibling.classList.toggle("is-hidden")'>
+                            {{ability.name}}
+                        </h4>
+                        <div id="model-abilities"
+                             class="grid-x grid-margin-x align-spaced is-hidden">
+                            <div class="cell medium-3">
+                                {{form_components.text_input("abilities[].name", label="Name", value=ability.name, style=ability.genre)}}
+                                <label for="ability-name">Action Type</label>
+                                <div class="select">
+                                    <select name='abilities[].action'
+                                            value="{{ability.action}}">
+                                        {%for a in ["main action", "bonus action", "reaction",
+                                        "free action",
+                                        "passive"] %}
+                                        <option value="{{a}}" {% if ability.action==a %} selected {%
+                                                endif %}>{{a}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <label for="ability-name">Action Category</label>
+                                <div class="select">
+                                    <select name='abilities[].category'
+                                            value="{{ability.category}}">
+                                        {%for a in [
+                                        "offensive",
+                                        "defensive",
+                                        "social",
+                                        "support",
+                                        "control",
+                                        "movement",
+                                        "utility",
+                                        ] %}
+                                        <option value="{{a}}" {% if ability.category==a %} selected
+                                                {% endif %}>{{a}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cell medium-6">
+                                {{form_components.richtexteditor(user, ability, "description", name="abilities[].description")}}
+                            </div>
+                            <div class="cell medium-6">
+                                {{form_components.richtexteditor(user, ability, "duration", name="abilities[].duration")}}
+                            </div>
+                            <div class="cell medium-6">
+                                {{form_components.richtexteditor(user, ability, "dice_roll", name="abilities[].dice_roll")}}
+                            </div>
+                            <div class="cell medium-6">
+                                {{form_components.richtexteditor(user, ability, "mechanics", name="abilities[].mechanics")}}
+                            </div>
+                            <div class="cell medium-6">
+                                {{form_components.richtexteditor(user, ability, "effects", name="abilities[].effects")}}
+                            </div>
+                        </div>
+                    </div>
+                    <a
+                       style='position:absolute; top:5px; right:5px;'
+                       hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
+                       hx-target='closest .cell'
+                       hx-swap='delete' hx-trigger="click consume">
+                        {{icon_components.delete(size="1rem")}}
+                    </a>
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro %}

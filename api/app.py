@@ -1,5 +1,6 @@
 import os
 
+from autonomous.auth import AutoAuth
 from config import Config
 from flask import Flask, url_for
 from views import (
@@ -17,7 +18,7 @@ from views import (
 )
 
 from autonomous import log
-from autonomous.auth import AutoAuth
+from filters.forms import label_style
 from filters.utils import bonus, roll_dice
 from models.user import User
 
@@ -34,6 +35,7 @@ def create_app():
     # Configure Filters
     app.jinja_env.filters["roll_dice"] = roll_dice
     app.jinja_env.filters["bonus"] = bonus
+    app.jinja_env.filters["label_style"] = label_style
     if app.config["DEBUG"]:
         app.jinja_env.add_extension("jinja2.ext.debug")
 

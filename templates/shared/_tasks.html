@@ -5,6 +5,7 @@
 <div id="task-loader" class="callout" hx-post="/task/checktask/{{task_id}}"
      hx-target="#task-loader" hx-select="#task-loader" hx-swap="outerHTML" hx-indicator=""
      hx-confirm=''
+     hx-params='model, pk'
      hx-trigger="every 3s">
     <div class="grid-x has-centered">
         <div class="cell text-center  shrink">

@@ -331,7 +331,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
   - World Details: {self.world.backstory}
   - Relevant World Events:
     - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
-  - Geographic Details:
+  - Location Details:
 """
 
         if self.geneology and len(self.geneology) > 1:

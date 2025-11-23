@@ -61,54 +61,6 @@ class Item(TTRPGObject):
                     "type": "string",
                     "description": "The history of the item",
                 },
-                "features": {
-                    "type": "array",
-                    "description": "Generate at least 3 combat abilities AND 3 special ability objects for the array. Each object in the array should have attributes for the ability name, detailed description in MARKDOWN, effects, duration, and the dice roll mechanics involved in using the ability.",
-                    "items": {
-                        "type": "object",
-                        "required": [
-                            "name",
-                            "action",
-                            "description",
-                            "effects",
-                            "duration",
-                            "dice_roll",
-                        ],
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "Unique name for the Feature.",
-                            },
-                            "action": {
-                                "type": "string",
-                                "enum": [
-                                    "main action",
-                                    "bonus action",
-                                    "reaction",
-                                    "free action",
-                                    "passive",
-                                ],
-                                "description": "Type of action required.",
-                            },
-                            "description": {
-                                "type": "string",
-                                "description": "Detailed description of the feature and how it is activated in MARKDOWN.",
-                            },
-                            "effects": {
-                                "type": "string",
-                                "description": "Description of the features's effects.",
-                            },
-                            "duration": {
-                                "type": "string",
-                                "description": "The duration of the features's effects.",
-                            },
-                            "dice_roll": {
-                                "type": "string",
-                                "description": "The dice roll mechanics for determining the success or failure of the feature.",
-                            },
-                        },
-                    },
-                },
                 "weight": {
                     "type": "string",
                     "description": "The weight of the item",
@@ -147,6 +99,12 @@ class Item(TTRPGObject):
         results = super().generate(
             prompt=prompt,
         )
+        log(results)
+        for _ in range(random.randint(1, 2)):
+            ability = Ability(
+                world=self.world,
+            )
+            ability.generate(self)
 
         return results
 
