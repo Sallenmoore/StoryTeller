@@ -308,7 +308,7 @@ class Episode(AutoModel):
         return self.episode_report
 
     def generate_graphic(self):
-        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
+        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
         log(f"Graphic Prompt: {prompt}", _print=True)
         description = self.world.system.generate_text(
             prompt,
