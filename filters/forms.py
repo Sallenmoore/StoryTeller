@@ -71,7 +71,7 @@ def label_style(style):
     }
     # log(f"Applying label style: {styles.get(style.lower())}", _print=True)
     return (
-        f"""border: 1px solid #e0e0e0; border-radius:.05rem; transition: border-color 0.2s ease; {styles.get(style.lower())}
+        f"""{styles.get(style.lower())}
         """
         if styles.get(style.lower())
         else ""

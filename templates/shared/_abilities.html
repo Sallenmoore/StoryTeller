@@ -1,0 +1,72 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_title.html" as title_components %}
+{% import "models/_ability.html" as ability_model %}
+
+{% macro details(user, obj, abilities=None) -%}
+<div class="callout">
+    <h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
+    {% set ability_list = abilities or obj.abilities %}
+    <ul class="accordion abilities" data-accordion data-multi-expand="true"
+        data-allow-all-closed="true">
+        {%for ability in ability_list%}
+        <li class="accordion-item" data-accordion-item>
+            {{ability_model.ability_display(ability)}}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{%- endmacro %}
+
+{% macro manage(user, obj, abilities=None) -%}
+{% set ability_list = abilities or obj.abilities %}
+{% if obj.model_name() != "World" %}
+<div class="grid-x align-spaced">
+    <div class="cell shrink">
+        <button type="button" class="button small"
+                hx-post='/api/manage/details/add/listitem/ability'
+                hx-target='#ability-item-list'
+                hx-select='#ability-item-list'
+                hx-swap='outerHTML' hx-trigger="click consume">
+            {{icon_components.plus(size="1rem")}}
+            New Ability
+        </button>
+    </div>
+    <div class="cell shrink">
+        <label for="ability-search-input">Add Existing Abilities
+            <select id="ability-search-input"
+                    name="apk"
+                    hx-post='/api/manage/add/listitem/ability'
+                    hx-target='#ability-item-list'
+                    hx-select='#ability-item-list'
+                    hx-swap='outerHTML'
+                    hx-trigger="change consume, click consume, input consume">
+                <option value="">-- --</option>
+                {% for ability in obj.world.abilities %}
+                <option value="{{ ability.pk }}">{{ ability.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+</div>
+{% endif %}
+
+<div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
+    {% for category in ["offensive", "defensive", "social", "support", "control", "movement",
+    "none"]%}
+    <div class="cell medium-6">
+        <h4> {{category | title}} </h4>
+        <ul class="accordion abilities" data-accordion data-multi-expand="true"
+            data-allow-all-closed="true">
+            {%for ability in ability_list | selectattr('category', 'equalto',
+            category)%}
+            <li id="ability_{{ability.pk}}" class="accordion-item" data-accordion-item>
+                {{ability_model.ability_edit(user, ability)}}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {%endfor %}
+</div>
+{%- endmacro %}

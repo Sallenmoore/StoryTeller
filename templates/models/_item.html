@@ -1,5 +1,5 @@
 {% import "shared/_form.html" as form_components %}
-{% import "models/_ability.html" as abilities_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_history.html" as history_components %}
 {% import "shared/_details.html" as details_components %}
@@ -206,7 +206,7 @@
 {% if obj.features %}
 <div class="grid-x">
     <div id="model-abilities" class="cell">
-        {{abilities_components.abilities(user, obj, abilities=obj.features)}}
+        {{abilities_components.details(user, obj)}}
     </div>
 </div>
 {% endif %}

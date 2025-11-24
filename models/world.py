@@ -31,6 +31,7 @@ from models.systems import (
     WesternSystem,
 )
 from models.systems.swn import StarsWithoutNumber
+from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.city import City
 from models.ttrpgobject.creature import Creature
@@ -182,6 +183,12 @@ class World(TTRPGBase):
         if obj.world != self:
             obj.world = self
             obj.save()
+
+    @property
+    def abilities(self):
+        return sorted(
+            Ability.search(world=self) if self.pk else [], key=lambda x: x.name
+        )
 
     @property
     def characters(self):

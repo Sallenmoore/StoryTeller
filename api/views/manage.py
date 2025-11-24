@@ -442,14 +442,40 @@ def child(childmodel, childpk):
 ###########################################################
 
 
+@manage_endpoint.route("/ability/<string:pk>/edit", methods=("GET",))
+def getability(pk):
+    user, obj, request_data = _loader()
+    a = Ability.get(pk)
+    return get_template_attribute("models/_ability.html", "ability_edit")(user, a)
+
+
 @manage_endpoint.route("/add/listitem/ability", methods=("POST",))
 def addability():
     user, obj, request_data = _loader()
-    ab = Ability(name="New Ability")
+    apk = request.json.get("apk")
+    ab = Ability.get(apk) if apk else Ability(world=obj.world)
+    log(ab.name)
     ab.save()
-    obj.abilities += [ab]
-    obj.save()
-    return get_template_attribute("manage/_details.html", "details")(user, obj)
+    if ab not in obj.abilities:
+        obj.abilities += [ab]
+        obj.save()
+    return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
+
+
+@manage_endpoint.route("/ability/<string:pk>/update", methods=("POST",))
+def updateability(pk):
+    user, obj, request_data = _loader()
+    if a := Ability.get(pk):
+        a.name = request.json.get("name", a.name)
+        a.action = request.json.get("action", a.action)
+        a.category = request.json.get("category", a.category)
+        a.description = request.json.get("description", a.description)
+        a.effects = request.json.get("effects", a.effects)
+        a.duration = request.json.get("duration", a.duration)
+        a.dice_roll = request.json.get("dice_roll", a.dice_roll)
+        a.mechanics = request.json.get("mechanics", a.mechanics)
+        a.save()
+    return get_template_attribute("models/_ability.html", "ability_edit")(user, a)
 
 
 @manage_endpoint.route("/ability/<string:pk>/generate", methods=("POST",))
@@ -464,6 +490,18 @@ def generateability(pk):
 
 @manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))
 def removeability(pk):
+    user, obj, *_ = _loader()
+    if a := Ability.get(pk):
+        if a in obj.abilities:
+            obj.abilities.remove(a)
+            obj.save()
+        a.world = obj.world
+        a.save()
+    return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
+
+
+@manage_endpoint.route("/details/ability/<string:pk>/delete", methods=("POST",))
+def deletebility(pk):
     if a := Ability.get(pk):
         a.delete()
     return "success"

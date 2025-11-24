@@ -9,7 +9,7 @@ from tests.test_models.test_ttrpgobject import ability
 
 
 class Ability(AutoModel):
-    world = ReferenceAttr(choices=["World"])
+    world = ReferenceAttr(choices=["World"], required=True)
     name = StringAttr(default="")
     description = StringAttr(default="")
     action = StringAttr(

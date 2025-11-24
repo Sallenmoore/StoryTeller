@@ -11,10 +11,55 @@
 {% import "shared/_map.html" as map_components %}
 {% import "shared/_jobs.html" as jobs_components %}
 {% import "shared/_manage.html" as manage_components %}
+{% import "shared/_abilities.html" as abilities_components %}
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
-<div class="grid-x">
+{{manage_components.backstory(user, obj)}}
+<div class="callout">
+    <h3 class='text-center'>World Visual Styles</h3>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            <label for="image_style">Image Style
+                <input list="image_styles" type="text" name="image_style"
+                       value="{{obj.image_style}}"
+                       hx-post="/api/manage/update"
+                       hx-trigger="change"
+                       hx-swap="none"
+                       placeholder="Image Style (e.g., illustrated, realistic, cartoon)">
+                <datalist id="image_styles">
+                    <option value="illustrated"></option>
+                    <option value="realistic"></option>
+                    <option value="cartoon"></option>
+                    <option value="watercolor"></option>
+                    <option value="oil painting"></option>
+                    <option value="pixel art"></option>
+                    <option value="sketch"></option>
+                </datalist>
+            </label>
+        </div>
+        <div class="cell medium-6">
+            <label for="map_style">Map Style
+                <input list="map_styles" type="text" name="map_style" value="{{obj.map_style}}"
+                       hx-post="/api/manage/update"
+                       hx-trigger="change"
+                       hx-swap="none"
+                       placeholder="Map Style (e.g., isometric, top-down, hand-drawn)">
+                <datalist id="map_styles">
+                    <option value="isometric"></option>
+                    <option value="top-down"></option>
+                    <option value="hand-drawn"></option>
+                    <option value="satellite"></option>
+                    <option value="detailed"></option>
+                    <option value="minimalist"></option>
+                </datalist>
+            </label>
+        </div>
+    </div>
+</div>
+{{manage_components.image(user, obj)}}
+<h3 class='text-center'>World Calendar Settings</h3>
+<div class="grid-x grid-padding-x">
     <div class="cell">
         <form hx-post="/api/{{obj.path}}/calendar/update"
               hx-swap="none"
@@ -35,9 +80,9 @@
                         <p>{{obj.current_date}}</p>
                     </div>
                 </div>
-                <div class="cell">
+                <div class="cell auto">
                     <div id="calendar-label-lists-container" class="grid-x align-justify">
-                        <div class="cell is-5" id="month-names">
+                        <div class="cell medium-5" id="month-names">
                             <label>Number of Months / Year</label>
                             <input type="number"
                                    id="month-names" name="month_names"
@@ -52,7 +97,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <div class="cell is-5">
+                        <div class="cell medium-5">
                             <label>Number of Days / Week</label>
                             <input type="number"
                                    id="day-names" name="day_names"
@@ -94,6 +139,12 @@
         </form>
         <hr>
     </div>
+</div>
+<div class="callout">
+    <h3 class='text-center'>Manage World Abilities and Features</h3>
+    {{abilities_components.manage(user, obj)}}
+</div>
+<div class="grid-x align-spaced">
     <div class="cell medium-4">
         <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"
               hx-target="#change_system_form"
@@ -120,7 +171,9 @@
             </div>
         </form>
     </div>
-    <div class="cell">
+</div>
+<div class="grid-x">
+    <div class="cell auto">
         <h4>Add Users</h4>
         <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
               hx-target="closest .row"
@@ -150,46 +203,4 @@
         </div>
     </div>
 </div>
-{{manage_components.backstory(user, obj)}}
-<div class="callout">
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-6">
-            <label for="image_style">Image Style
-                <input list="image_styles" type="text" name="image_style"
-                       value="{{obj.image_style}}"
-                       hx-post="/api/manage/update"
-                       hx-trigger="change"
-                       hx-swap="none"
-                       placeholder="Image Style (e.g., illustrated, realistic, cartoon)">
-                <datalist id="image_styles">
-                    <option value="illustrated"></option>
-                    <option value="realistic"></option>
-                    <option value="cartoon"></option>
-                    <option value="watercolor"></option>
-                    <option value="oil painting"></option>
-                    <option value="pixel art"></option>
-                    <option value="sketch"></option>
-                </datalist>
-            </label>
-        </div>
-        <div class="cell medium-6">
-            <label for="map_style">Map Style
-                <input list="map_styles" type="text" name="map_style" value="{{obj.map_style}}"
-                       hx-post="/api/manage/update"
-                       hx-trigger="change"
-                       hx-swap="none"
-                       placeholder="Map Style (e.g., isometric, top-down, hand-drawn)">
-                <datalist id="map_styles">
-                    <option value="isometric"></option>
-                    <option value="top-down"></option>
-                    <option value="hand-drawn"></option>
-                    <option value="satellite"></option>
-                    <option value="detailed"></option>
-                    <option value="minimalist"></option>
-                </datalist>
-            </label>
-        </div>
-    </div>
-</div>
-{{manage_components.image(user, obj)}}
 {%- endmacro %}

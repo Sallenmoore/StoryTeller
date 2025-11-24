@@ -7,8 +7,15 @@ from autonomous.tasks.autotask import AutoTasks
 from flask import Blueprint, get_template_attribute, render_template, request
 
 from autonomous import log
+from models.base.actor import Actor
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
+from models.stories.lore import Lore
+from models.ttrpgobject.ability import Ability
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.vehicle import Vehicle
 from models.world import World
 
 admin_page = Blueprint("admin", __name__)
@@ -27,46 +34,26 @@ def index():
 @admin_page.route("/manage/migrate", methods=("POST",))
 # @auth_required(admin=True)
 def migrate():
-    # task = (
-    #     AutoTasks()
-    #     .task(
-    #         migrate_task,
+    # worlds = World.all()
+    # for world in worlds:
+    #     objs = [
+    #         *Character.search(world=world),
+    #         *Creature.search(world=world),
+    #         *Item.search(world=world),
+    #         *Vehicle.search(world=world),
+    #     ]
+    #     for obj in objs:
+    #         for a in obj.abilities:
+    #             if not a.world or a.world != world:
+    #                 a.world = world
+    #                 a.save()
+    #                 log(f"Updated Ability {a.name} for {world.name}")
+
+    # orphan_abilities = Ability.search(world=None)
+    # log(f"Found {len(orphan_abilities)} orphan abilities")
+    # for a in orphan_abilities:
+    #     log(
+    #         f"Deleted orphan ability {a.name} with world {a.world.name if a.world else 'None'} and description: \n{a.description}"
     #     )
-    #     .result
-    # )
+    #     a.delete()
     return "success"
-
-
-# def migrate_task():
-#     results = requests.get(
-#         f"https://storyteller.stevenamoore.dev/data/world/6764552d82587e6d53d86794",
-#     ).json()
-#     log(results["campaigns"])
-#     for campaign_data in results["campaigns"]:
-#         campaign = Campaign.get(campaign_data["pk"])
-#         campaign.description = campaign_data["description"]
-#         if campaign.name == "The Unholy Trinity":
-#             for episode_data in campaign_data["episodes"]:
-#                 try:
-#                     if episode := Episode.get(episode_data["pk"]) or Episode.search(
-#                         campaign=campaign, name=episode_data["name"]
-#                     ).pop(0):
-#                         episode.name = episode_data["name"] or episode.name
-#                         episode.loot = episode_data["loot"] or episode.loot
-#                         episode.hooks = episode_data["hooks"] or episode.hooks
-#                         episode.episode_report = (
-#                             episode_data["episode_report"] or episode.episode_report
-#                         )
-#                         episode.associations = []
-#                         for model_name, pk in episode_data["associations"]:
-#                             if obj := World.get_model(model_name, pk):
-#                                 episode.add_association(obj)
-#                         episode.save()
-#                         log(
-#                             f"Saved Episode: {campaign.name, episode.episode_num, episode.name}",
-#                             _print=True,
-#                         )
-#                 except IndexError as e:
-#                     log(f"Error with episode: {episode_data['name']}, {e}", _print=True)
-#             campaign.save()
-#     return "Migration complete"
