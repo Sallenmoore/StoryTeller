@@ -66,7 +66,7 @@
               crossorigin="anonymous"> #}
         <link rel="stylesheet"
               href="{{ url_for('static', filename='style/main.css') }}">
-        <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.css" />
+        <link rel="stylesheet" href="/static/js/ckeditor/ckeditor5.css" />
 
         <!-- Compressed JavaScript -->
         <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
@@ -154,7 +154,7 @@
         });
     </script>
 
-    <script src="https://cdn.ckeditor.com/ckeditor5/46.0.0/ckeditor5.umd.js"></script>
+    <script src="/static/js/ckeditor/ckeditor5.umd.js"></script>
     <script>
         const {
             ClassicEditor,
@@ -201,7 +201,7 @@
         function createCK(el, str = '') {
             ClassicEditor
                 .create(document.querySelector('#' + el), {
-                    licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODU5NzQzOTksImp0aSI6ImY1ZjExZWJiLWU3MWYtNGNhMi04MjJhLWQwZjRkMTJjMTI4OCIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkUyUCIsIkUyVyJdLCJ2YyI6IjNmOTRmYmZjIn0.4szH1PGZZgl2efP6ziWvlpEpwNnQ3LzxiLsULUvK4xreT579LSmEr7_9u5Lxoo-UkT5ezSHQqvJ3kPqqKYUJMg',
+                    licenseKey: 'GPL',
                     plugins: [Autosave, Essentials, Bold, Italic, Font, Paragraph, Mention, MentionCustomization],
                     toolbar: [
                         'undo', 'redo', '|', 'bold', 'italic', '|',
