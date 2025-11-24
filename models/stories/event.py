@@ -135,6 +135,10 @@ class Event(AutoModel):
         self.desc = value
 
     @property
+    def genre(self):
+        return self.world.genre
+
+    @property
     def path(self):
         return f"event/{self.pk}"
 
