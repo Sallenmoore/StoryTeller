@@ -94,6 +94,8 @@ class Date(AutoModel):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_month()
+        document.pre_save_day()
+        document.pre_save_year()
         document.pre_save_calendar()
 
     # @classmethod
@@ -105,9 +107,23 @@ class Date(AutoModel):
 
     ################### verify methods ##################
 
+    def pre_save_day(self):
+        if self.day and isinstance(self.day, str):
+            self.day = int(self.day)
+        if not self.day or self.day < 1:
+            self.day = random.randint(1, 28)
+
+    def pre_save_year(self):
+        if self.year and isinstance(self.year, str):
+            self.year = int(self.year)
+        if not self.year:
+            self.year = 0
+
     def pre_save_month(self):
-        if isinstance(self.month, str):
+        if self.month and isinstance(self.month, str):
             self.month = self.calendar.months.index(self.month)
+        if not self.month or self.month < 0:
+            self.month = random.randint(0, 11)
 
     def pre_save_calendar(self):
         if not self.calendar and self.obj:

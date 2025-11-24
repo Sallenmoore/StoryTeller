@@ -118,7 +118,12 @@ def episodenew(pk):
     user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
     episode = campaign.add_episode()
+    # log(
+    #     "Episode Created",
+    #     f"Episode {episode.name} ({episode.pk}) created in campaign {episode.campaign.name}",
+    # )
     campaign.current_episode = episode
+    campaign.save()
     return get_template_attribute("models/_campaign.html", "manage")(
         user,
         campaign,

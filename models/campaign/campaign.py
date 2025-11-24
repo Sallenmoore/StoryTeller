@@ -184,12 +184,13 @@ class Campaign(AutoModel):
             episode.associations = episode.previous_episode.associations
             if not start_date and episode.previous_episode.end_date:
                 start_date = episode.previous_episode.end_date
+            episode.episode_num = episode.previous_episode.episode_num + 1
         else:
             episode.loot = ""
             episode.hooks = ""
             episode.associations = episode.party.members if episode.party else []
         episode.save()
-        self.episodes += [episode]
+        self.episodes = [episode] + self.episodes
         self.save()
         return self.update_episode(
             pk=episode.pk,

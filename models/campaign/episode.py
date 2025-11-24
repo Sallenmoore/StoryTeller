@@ -197,17 +197,18 @@ class Episode(AutoModel):
                 if self.end_date_obj:
                     self.end_date_obj.delete()
                 self.end_date_obj = value
+                self.end_date_obj.save()
         elif isinstance(value, dict):
             if self.end_date_obj:
                 self.end_date_obj.delete()
             self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
+            self.end_date_obj.save()
         elif not value:
             self.end_date_obj = None
             return
         else:
             log(f"Invalid start_date value: {value}")
             raise ValueError("start_date must be a Date instance or dict")
-        self.end_date_obj.save()
 
     @property
     def world(self):
