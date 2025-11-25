@@ -86,36 +86,6 @@
                 </div>
             </div>
         </div>
-        {% if episode.transcription %}
-        <div class="callout bg-muted">
-            <h2 class='text-center'>Transcription</h2>
-            <div class="grid-x align-spaced">
-                <div class="cell shrink">
-                    <button class="button"
-                            hx-post="/api/{{episode.path}}/transcription/summarize"
-                            hx-target="closest .callout"
-                            hx-indicator="None"
-                            hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
-                        Summarize for Report
-                    </button>
-                </div>
-                <div class="cell shrink">
-                    <button id="clear-btn" class="button warning margin-bottom-0"
-                            hx-post="/api/{{ episode.path }}/transcription/clear"
-                            hx-target="#output-area" hx-swap="delete"
-                            hx-confirm='Are you sure you want to clear the current transcription?'>
-                        Clear Transcription
-                    </button>
-                </div>
-            </div>
-            <div id='output-area'>
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
-                      hx-trigger="input delay:1s, change">
-                    {{form_components.richtexteditor(user, episode, 'transcription')}}
-                </form>
-            </div>
-        </div>
-        {% endif %}
         <hr>
         <h3>Delete Episode</h3>
         <div class="grid-x align-spaced">

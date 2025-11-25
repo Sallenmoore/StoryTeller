@@ -1,6 +1,5 @@
 import os
 
-
 #################################################################
 #                         CONFIGURATION                         #
 #################################################################
@@ -14,3 +13,4 @@ class Config:
     DEBUG = os.environ.get("DEBUG", False)
     TESTING = os.environ.get("TESTING", False)
     TRAP_HTTP_EXCEPTIONS = os.environ.get("TRAP_HTTP_EXCEPTIONS", False)
+    MAX_CONTENT_LENGTH = 300 * 1024 * 1024  # 300 MB upload limit

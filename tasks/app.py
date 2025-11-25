@@ -31,6 +31,8 @@ def create_app():
     app = Flask(os.getenv("APP_NAME", __name__))
     app.config.from_object(Config)
 
+    app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024  # 300 MB upload limit
+
     app.jinja_env.filters["bonus"] = bonus
     app.jinja_env.filters["roll_dice"] = roll_dice
     app.jinja_env.filters["label_style"] = label_style

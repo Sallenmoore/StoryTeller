@@ -138,8 +138,9 @@
             Direct Associations
         </h3>
         <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-            {% if obj.model_name() != "World" and obj.children%}
-            {% for a in obj.children %}
+            {% if obj.model_name() != "World"%}
+            {% for relationship in [obj.geneology, obj.children] %}
+            {% for a in relationship %}
             <div class="cell medium-2 small-4">
                 <div class="callout bg-secondary" style='height:100%;'>
                     {{ display_components.object_display(a, type=False) }}
@@ -155,15 +156,19 @@
                                 <span style="font-size:0.5rem">Unlink</span>
                             </button>
                         </div>
-                        {% if a.children %}
+                        {% if a.model_name() in ['District', 'Location', 'Shop', 'Vehicle'] and
+                        a.children %}
                         <div class="cell medium-4 text-center">
-                            <button class="button small"
+                            <button data-tooltip tabindex="1"
+                                    title="Add all subelements from {{ a.name }} to {{ obj.name }}"
+                                    class="button small"
                                     hx-post="/api/manage/subassociations/{{ a.path }}"
                                     hx-target="#associations-container"
                                     hx-select="#associations-container"
-                                    hx-indicator='#request-indicator'>
+                                    hx-indicator='#request-indicator'
+                                    hx-confirm="Are you sure you want to add subelements from {{ a.name }} to {{ obj.name }}? This will add all children and related associations.">
+                                {{ icon_components.add(size="1rem") }}
                                 {{ icon_components.lineage(size="1rem") }}
-                                <span style="font-size:0.5rem">Add Subelements</span>
                             </button>
                         </div>
                         {% endif %}
@@ -171,6 +176,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endfor %}
             {% endfor %}
             {% endif %}
         </div>
@@ -180,8 +186,8 @@
     </h3>
     <div class="grid-x grid-margin-x grid-margin-y align-spaced">
         {% for a in associations %}
-        {% if obj.model_name() == "World" or (a != obj.world and a not in
-        obj.children) %}
+        {% if obj.model_name() == "World" and a != obj.world and a not in
+        obj.children and a not in obj.geneology %}
         <div class="cell medium-2 small-4">
             <div class="callout" style='height:100%;'>
                 {{ display_components.object_display(a, type=False) }}

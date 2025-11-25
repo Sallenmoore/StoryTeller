@@ -121,6 +121,7 @@ def api(rest_path):
         response = requests.get(url).text
     elif not user.is_guest:
         params = {}
+        # log(request.files)
         if request.files:
             params = dict(request.form)
             for key, file in request.files.items():
@@ -129,7 +130,7 @@ def api(rest_path):
             params = dict(request.json)
         params["response_path"] = response_url
         params |= {"user": str(AutoAuth.current_user().pk)}
-        log(url, params)
+        # log(url, params)
         if params.get("model") and params.get("pk"):
             obj = AutoModel.get_model(params.get("model"), params.get("pk"))
             if _authenticate(user, obj.world):

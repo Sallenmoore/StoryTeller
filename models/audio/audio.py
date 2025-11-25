@@ -42,13 +42,15 @@ class Audio(AutoModel):
 
     @classmethod
     def transcribe(
-        cls, audio_file, prompt="Transcribe the following audio accurately."
+        cls, audio_file, prompt="Transcribe the following audio accurately.", **kwargs
     ):
         from models.world import World
 
         if not isinstance(audio_file, cls):
             raise ValueError("audio_file must be an instance of Audio class.")
-        transcription = AudioAgent().transcribe(audio_file.to_file(), prompt=prompt)
+        transcription = AudioAgent().transcribe(
+            audio_file.to_file(), prompt=prompt, **kwargs
+        )
         return transcription
 
     ################### Crud Methods #####################

@@ -327,8 +327,12 @@ def episodetranscribeclear(pk):
     user, _, request_data = _loader()
     obj = Episode.get(pk)
     obj.transcription = ""
+    if obj.audio:
+        obj.audio.delete()
+        obj.audio = None
     obj.save()
-    return get_template_attribute("models/_episode.html", "gmnotes")(
+    # log(obj.transcription, obj.audio)
+    return get_template_attribute("models/_episode.html", "transcribe")(
         user,
         obj,
     )

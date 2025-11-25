@@ -36,8 +36,11 @@ def create_app():
     app.jinja_env.filters["roll_dice"] = roll_dice
     app.jinja_env.filters["bonus"] = bonus
     app.jinja_env.filters["label_style"] = label_style
+
     if app.config["DEBUG"]:
         app.jinja_env.add_extension("jinja2.ext.debug")
+
+    app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024  # 300 MB upload limit
 
     ######################################
     #              Routes                #

@@ -61,6 +61,7 @@ def create_app():
     AutoAuth.user_class = User
 
     # Configure Extensions
+    app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024  # 300 MB upload limit
     if app.config["DEBUG"]:
         app.jinja_env.add_extension("jinja2.ext.debug")
 

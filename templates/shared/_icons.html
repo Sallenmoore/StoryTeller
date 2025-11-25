@@ -740,6 +740,14 @@ if label %}
 {% endif %}
 {%- endmacro %}
 
+{% macro transcribe(size="2rem", label="") -%}
+<iconify-icon icon="mdi:transcribe" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
 
 {% macro trash(size="2rem", label="") -%}
 <iconify-icon icon="mdi:trash" width="{{ size }}"></iconify-icon>

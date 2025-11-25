@@ -14,3 +14,4 @@ class Config:
     TESTING = os.environ.get("TESTING", False)
     TRAP_HTTP_EXCEPTIONS = os.environ.get("TRAP_HTTP_EXCEPTIONS", False)
     RQ_DASHBOARD_REDIS_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:{os.environ.get('REDIS_PORT', '6379')}"
+    MAX_CONTENT_LENGTH = 300 * 1024 * 1024  # 300 MB upload limit

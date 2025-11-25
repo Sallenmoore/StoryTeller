@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 
+import markdown
 from autonomous.model.automodel import AutoModel
 from autonomous.tasks import AutoTasks
 from dmtoolkit import dmtools
@@ -147,19 +148,22 @@ def _generate_episode_transcription_task(pk):
     if obj := Episode.get(pk):
         transcription = Audio.transcribe(
             obj.audio,
-            prompt="Please provide an overview of the audio recording from a TTRPG session. Identify and separate distinct speakers as much as possible. Focus on the content of the discussion, including key events, character actions, and narrative developments. Leave out any game mechanics, focusing on the narrative result. Ignore any 'umms' or 'ahs' or similar filler words. ",
+            prompt=f"""Reinterpret the audio recording of a live TTRPG session as a screenplay-style transcript for an episodic adventure. Leave out any discussion of game mechanics, or side conversations not relevant to the narrative. Ignore any 'umms' or 'ahs' or similar filler words. Identify and separate distinct speakers as much as possible using the provided information. The party characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in obj.players])}.
+
+            Keep the narrative consistent with the following setting: {obj.world.backstory}.
+
+            Format the transcription in Markdown.
+""",
+            display_name=f"episode-{obj.episode_num}-transcription.mp3",
         )
-        obj.transcription += f"""
+        obj.transcription = f"""
+<h2>TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}</h2>
 <br><br>
-TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}
-<br><br>
-{transcription}
+{markdown.markdown(transcription)}
 """
-        obj.audio.delete()
-        obj.audio = None
         obj.save()
     return {
-        "url": f"/api/{obj.path}/gmnotes",
+        "url": f"/api/{obj.path}/transcribe",
         "target": "output-area",
         "select": "output-area",
         "swap": "outerHTML",
@@ -187,7 +191,7 @@ def _generate_session_report_task(pk):
 def _generate_episode_transcription_summary_task(pk):
     if obj := Episode.get(pk):
         obj.summarize_transcription()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/api/{obj.path}/details"}
 
 
 def _generate_episode_graphic_task(pk):
