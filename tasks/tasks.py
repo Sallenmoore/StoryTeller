@@ -158,6 +158,7 @@ def _generate_episode_transcription_task(pk):
 """,
             display_name=f"episode-{obj.episode_num}-transcription.mp3",
         )
+        log(transcription, _print=True)
         if not transcription:
             transcription = "Transcription failed or was empty."
         else:
