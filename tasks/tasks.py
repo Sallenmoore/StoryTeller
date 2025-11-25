@@ -160,7 +160,7 @@ def _generate_episode_transcription_task(pk):
         )
         log(transcription, _print=True)
         if not transcription:
-            transcription = "Transcription failed or was empty."
+            obj.transcription = "Transcription failed or was empty."
         else:
             obj.transcription = f"""
 <h2>TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}</h2>
