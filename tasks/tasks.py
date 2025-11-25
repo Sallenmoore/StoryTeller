@@ -156,7 +156,7 @@ def _generate_episode_transcription_task(pk):
 
             Format the transcription in Markdown.
 """,
-            display_name=f"episode-{obj.episode_num}-transcription.mp3",
+            display_name="episode.mp3",
         )
         log(transcription, _print=True)
         if not transcription:
