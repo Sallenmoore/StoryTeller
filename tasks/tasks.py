@@ -150,13 +150,18 @@ def _generate_episode_transcription_task(pk):
             obj.audio,
             prompt=f"""Reinterpret the audio recording of a live TTRPG session as a screenplay-style transcript for an episodic adventure. Leave out any discussion of game mechanics, or side conversations not relevant to the narrative. Ignore any 'umms' or 'ahs' or similar filler words. Identify and separate distinct speakers as much as possible using the provided information. The party characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in obj.players])}.
 
+            Additonal associations that may appear in the transcription include: {", ".join([f"{a.name}:{a.backstory_summary}" for a in obj.associations if a not in obj.players])}.
+
             Keep the narrative consistent with the following setting: {obj.world.backstory}.
 
             Format the transcription in Markdown.
 """,
             display_name=f"episode-{obj.episode_num}-transcription.mp3",
         )
-        obj.transcription = f"""
+        if not transcription:
+            transcription = "Transcription failed or was empty."
+        else:
+            obj.transcription = f"""
 <h2>TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}</h2>
 <br><br>
 {markdown.markdown(transcription)}
