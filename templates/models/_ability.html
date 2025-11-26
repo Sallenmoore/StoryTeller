@@ -146,7 +146,14 @@
                        hx-post='/api/manage/details/ability/{{ability.pk}}/remove'
                        hx-target='#ability_{{ability.pk}}'
                        hx-swap='delete' hx-trigger="click consume"
-                       hx-confirm='Are you sure you want to delete ability "{{ability.name}}"? This action cannot be undone.'>
+                       hx-confirm='Are you sure you want to remove ability "{{ability.name}}"? This will NOT delete the ability from the world.'>
+                        {{icon_components.remove(size="1.5rem")}}
+                    </a>
+                    <a
+                       hx-post='/api/manage/details/ability/{{ability.pk}}/delete'
+                       hx-target='#ability_{{ability.pk}}'
+                       hx-swap='delete' hx-trigger="click consume"
+                       hx-confirm='Are you sure you want to permanently delete ability"{{ability.name}}"? This will remove it from all associated objects and cannot be undone.'>
                         {{icon_components.delete(size="1.5rem")}}
                     </a>
                 </th>
