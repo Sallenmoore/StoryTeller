@@ -37,6 +37,7 @@ class Episode(AutoModel):
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     graphic = ReferenceAttr(choices=["Image"])
+    graphic_description = StringAttr(default="")
     episode_report = StringAttr(default="")
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
@@ -316,6 +317,8 @@ class Episode(AutoModel):
         )
         description = description.replace("```markdown", "").replace("```", "")
         description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\nPlayer character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
+        self.graphic_description = description
+        self.save()
         # log(f"Graphic Description: {description}", _print=True)
         chars = {f"{c.name}.webp": c.image for c in self.characters if c.image}
         if image := Image.generate(
