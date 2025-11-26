@@ -216,9 +216,20 @@
             {%for ability in obj.abilities | selectattr('category', 'equalto',
             category)%}
             <li id="ability_{{ability.pk}}" class="accordion-item" data-accordion-item>
-                <span hx-target="#ability_{{ability.pk}}"
-                      hx-swap="outerHTML">
-                    {{ability_model.ability_display(ability)}}
+                {{ability_model.ability_display(ability)}}
+                {% if user.is_authenticated %}
+                <div class="grid-x align-spaced">
+                    <div class="cell shrink text-center">
+                        <a
+                           hx-post='/api/manage/details/ability/{{ability.pk}}/delete'
+                           hx-target='#ability_{{ability.pk}}'
+                           hx-swap='delete' hx-trigger="click consume"
+                           hx-confirm='Are you sure you want to permanently delete ability"{{ability.name}}"? This will remove it from all associated objects and cannot be undone.'>
+                            {{icon_components.delete(size="1.5rem")}}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
                 </span>
             </li>
             {% endfor %}
