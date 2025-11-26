@@ -42,7 +42,7 @@
                     hx-select='#ability-item-list'
                     hx-swap='outerHTML'
                     hx-trigger="change consume, click consume, input consume">
-                <option value="">-- --</option>
+                <option value="none">-- --</option>
                 {% for ability in obj.world.abilities %}
                 <option value="{{ ability.pk }}">{{ ability.name }}</option>
                 {% endfor %}
