@@ -79,7 +79,7 @@ def _generate_character_from_dndbeyond_task(pk):
             for item in results.get("inventory"):
                 # remove any +%d from item names
                 name = re.sub(r"\+\d+", "", item["name"]).strip(", ")
-                itemobj = Item.find(name=name)
+                itemobj = Item.find(name=name, world=obj.world)
                 if not itemobj:
                     itemobj = Item(
                         world=obj.world,
@@ -89,6 +89,12 @@ def _generate_character_from_dndbeyond_task(pk):
                     )
                     itemobj.save()
                     itemobj.generate()
+                    itemobj.description = itemobj.description.replace(
+                        itemobj.name, name
+                    )
+                    itemobj.backstory = itemobj.backstory.replace(itemobj.name, name)
+                    itemobj.name = name
+                    itemobj.save()
                 if not itemobj.image:
                     itemobj.generate_image()
                 obj.add_association(itemobj)
