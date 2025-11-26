@@ -15,12 +15,17 @@ from models.utility.parse_attributes import parse_text
 
 
 class JournalEntry(AutoModel):
+    world = ReferenceAttr(choices=["World"], required=True)
     title = StringAttr(default="")
     text = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
     date = DateTimeAttr(default=lambda: datetime.now())
     importance = IntAttr(default=0)
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+
+    @property
+    def genre(self):
+        return self.world.genre if self.world else "default"
 
     ############## Instance Methods ##############
 
@@ -143,5 +148,6 @@ class Journal(AutoModel):
     ################### verify methods ##################
     def pre_save_entries(self):
         for entry in self.entries:
+            entry.world = self.world
             entry.save()
         self.entries = sorted(self.entries, key=lambda x: x.date, reverse=True)
