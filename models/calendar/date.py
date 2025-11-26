@@ -16,6 +16,8 @@ class Date(AutoModel):
     calendar = ReferenceAttr(choices=["Calendar"], required=True)
 
     def __str__(self):
+        if self.year <= 0:
+            return "Unknown Date"
         try:
             month = (
                 self.calendar.months[self.month] if self.calendar.months else "Unknown"
