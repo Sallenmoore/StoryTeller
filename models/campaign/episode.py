@@ -57,10 +57,11 @@ class Episode(AutoModel):
     def campaign_summary(self):
         if not self._campaign_summary and self.previous_episode:
             summary = ""
-            ep = self.previous_episode
-            while ep:
-                summary += ep.summary
-                ep = ep.previous_episode
+            for ep in self.campaign.episodes[::-1]:
+                if ep.summary:
+                    summary += f"\n\nEpisode {ep.episode_num}: {ep.summary}"
+                if ep == self.previous_episode:
+                    break
             self._campaign_summary = self.world.system.generate_summary(
                 f"Summarize the following notes for TTRPG sessions for a {self.world.genre} world. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}]. Here are the notes: {summary}.",
                 primer="Provide an engaging, narrative summary of the provided TTRPG session summaries, highlighting the key elements and significance within the larger story.",
@@ -248,6 +249,7 @@ class Episode(AutoModel):
     def resummarize(self):
         if not self.episode_report:
             return ""
+        self._campaign_summary = ""
         prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode report: {self.episode_report}."
         self.summary = self.world.system.generate_summary(
             prompt,
