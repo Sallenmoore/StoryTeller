@@ -11,7 +11,7 @@
 {% import "shared/_map.html" as map_components %}
 {% import "shared/_jobs.html" as jobs_components %}
 {% import "shared/_manage.html" as manage_components %}
-{% import "shared/_abilities.html" as abilities_components %}
+{% import "models/_ability.html" as ability_model %}
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
@@ -142,7 +142,7 @@
 </div>
 <div class="callout">
     <h3 class='text-center'>Manage World Abilities and Features</h3>
-    {{abilities_components.manage(user, obj)}}
+    {{abilities(user, obj)}}
 </div>
 <div class="grid-x align-spaced">
     <div class="cell medium-4">
@@ -204,3 +204,25 @@
     </div>
 </div>
 {%- endmacro %}
+
+{% macro abilities(user, obj)%}
+<div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
+    {% for category in ["offensive", "defensive", "social", "support", "control", "movement",
+    "none"]%}
+    <div class="cell">
+        <h4> {{category | title}} </h4>
+        <ul class="accordion abilities" data-accordion data-multi-expand="true"
+            data-allow-all-closed="true">
+            {%for ability in obj.abilities | selectattr('category', 'equalto',
+            category)%}
+            <li id="ability_{{ability.pk}}" class="accordion-item" data-accordion-item>
+                <span hx-target="#ability_{{ability.pk}}"
+                      hx-swap="outerHTML">
+                    {{ability_model.ability_display(ability)}}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {%endfor %}
+</div>
