@@ -53,8 +53,7 @@
 {% endif %}
 
 <div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
-    {% for category in ["offensive", "defensive", "social", "support", "control", "movement",
-    "none"]%}
+    {% for category in ["offensive", "defensive", "social", "support", "control", "movement"]%}
     <div class="cell">
         <h4> {{category | title}} </h4>
         <ul class="accordion abilities" data-accordion data-multi-expand="true"
