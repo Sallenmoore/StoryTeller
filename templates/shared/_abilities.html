@@ -4,7 +4,7 @@
 {% import "shared/_title.html" as title_components %}
 {% import "models/_ability.html" as ability_model %}
 
-{% macro details(user, obj, abilities=None) -%}
+{% macro details(user, obj) -%}
 <div class="callout">
     <h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
     {% set ability_list = abilities or obj.abilities %}
@@ -19,7 +19,7 @@
 </div>
 {%- endmacro %}
 
-{% macro manage(user, obj, abilities=None) -%}
+{% macro manage(user, obj) -%}
 {% set ability_list = abilities or obj.abilities %}
 {% if obj.model_name() != "World" %}
 <div class="grid-x align-spaced">
@@ -55,7 +55,7 @@
 <div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
     {% for category in ["offensive", "defensive", "social", "support", "control", "movement",
     "none"]%}
-    <div class="cell medium-6">
+    <div class="cell">
         <h4> {{category | title}} </h4>
         <ul class="accordion abilities" data-accordion data-multi-expand="true"
             data-allow-all-closed="true">

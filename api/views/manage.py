@@ -509,7 +509,7 @@ def removeability(apk):
 
 
 @manage_endpoint.route("/ability/<string:apk>/delete", methods=("POST",))
-def deletebility(apk):
+def deleteability(apk):
     if a := Ability.get(apk):
         a.delete()
     return "success"
