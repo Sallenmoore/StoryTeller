@@ -284,7 +284,7 @@
 <div class="callout">
     <div id="episode-graphic" class="grid-x align-spaced">
         {% if user.world_user(obj) %}
-        <div class="cell shrink ">
+        <div class="cell shrink">
             <button class="button"
                     hx-post="/api/{{obj.path}}/graphic/generate"
                     hx-indicator="#request-indicator"
@@ -293,7 +293,7 @@
             </button>
         </div>
         {% endif %}
-        <div class=" cell medium-10">
+        <div class=" cell">
             <div class="callout ">
                 {% if obj.graphic %}
                 <div class="image">

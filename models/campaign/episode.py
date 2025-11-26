@@ -37,6 +37,7 @@ class Episode(AutoModel):
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     graphic = ReferenceAttr(choices=["Image"])
+    graphic_description = StringAttr(default="")
     episode_report = StringAttr(default="")
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
@@ -254,10 +255,10 @@ class Episode(AutoModel):
                     if line.strip() and not line.strip().startswith("TRANSCRIPTION:")
                 ]
             )
-            prompt = f"Summarize the following transcription of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. The summary should focus on story and narrative rather than game mechanics, highlighting the key elements of the transcription and its significance within the larger world, while leaving out any irrelevant remarks or conversation. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign.summary}. Here is the transcription: {self.transcription}."
+            prompt = f"Summarize the following transcription of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. The summary should focus on story and narrative rather than game mechanics, highlighting the key elements of the transcription and its significance within the larger world, while leaving out any irrelevant remarks or conversation. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign.summary}. When possible, use full names for characters, places, and things in the world. Here is the transcription: {self.transcription}."
             transcription_summary = self.world.system.generate_summary(
                 prompt,
-                primer="Provide an engaging, narrative summary of the transcription, highlighting its key elements and significance within the larger story.",
+                primer="Provide an engaging, narrative summary of the TTRPG session transcription, highlighting its key elements and significance within the larger story.",
             )
 
             transcription_summary = transcription_summary.replace(
@@ -315,11 +316,13 @@ class Episode(AutoModel):
             primer="Provide a vivid and detailed description for an AI-generated image that captures the essence of the episode, including key visual elements, atmosphere, and significant characters or locations.",
         )
         description = description.replace("```markdown", "").replace("```", "")
-        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
-        log(f"Graphic Description: {description}", _print=True)
-        party = {f"{c.name}.webp": c.image for c in self.players if c.image}
+        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\nPlayer character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
+        self.graphic_description = description
+        self.save()
+        # log(f"Graphic Description: {description}", _print=True)
+        chars = {f"{c.name}.webp": c.image for c in self.characters if c.image}
         if image := Image.generate(
-            prompt=description, tags=["episode", "graphic"], text=True, files=party
+            prompt=description, tags=["episode", "graphic"], text=True, files=chars
         ):
             if self.graphic:
                 self.graphic.delete()
