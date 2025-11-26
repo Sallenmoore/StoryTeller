@@ -3,7 +3,7 @@ from glob import glob
 
 # Non logging stuff
 bind = f"{os.environ.get('APP_HOST', '0.0.0.0')}:{os.environ.get('COMM_PORT', 80)}"
-timeout = 120
+timeout = 300
 workers = 2
 capture_output = True  # Whether to send output to the error log
 

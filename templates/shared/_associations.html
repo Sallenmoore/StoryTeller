@@ -139,12 +139,12 @@
         </h3>
         <div class="grid-x grid-margin-x grid-margin-y align-spaced">
             {% if obj.model_name() != "World"%}
-            {% for relationship in [obj.geneology, obj.children] %}
+            {% for relationship in [obj.geneology | default([]), obj.children | default([])] %}
             {% for a in relationship %}
+            {% if 'World' != a.model_name() %}
             <div class="cell medium-2 small-4">
                 <div class="callout bg-secondary" style='height:100%;'>
                     {{ display_components.object_display(a, type=False) }}
-                    {% if 'World' != obj.model_name() %}
                     <div class="grid-x align-spaced">
                         <div class="cell medium-3 text-center">
                             <button class="button small"
@@ -173,9 +173,9 @@
                         </div>
                         {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
             {% endfor %}
             {% endif %}
@@ -186,8 +186,7 @@
     </h3>
     <div class="grid-x grid-margin-x grid-margin-y align-spaced">
         {% for a in associations %}
-        {% if obj.model_name() == "World" and a != obj.world and a not in
-        obj.children and a not in obj.geneology %}
+        {% if a.model_name() != "World" and a not in obj.children and a not in obj.geneology %}
         <div class="cell medium-2 small-4">
             <div class="callout" style='height:100%;'>
                 {{ display_components.object_display(a, type=False) }}

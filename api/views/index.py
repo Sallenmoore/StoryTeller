@@ -151,6 +151,7 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
+    log(associations)
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, associations
     )
