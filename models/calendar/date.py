@@ -17,7 +17,7 @@ class Date(AutoModel):
 
     def __str__(self):
         if self.year <= 0:
-            return "Unknown Date"
+            return "Unknown"
         try:
             month = (
                 self.calendar.months[self.month] if self.calendar.months else "Unknown"
