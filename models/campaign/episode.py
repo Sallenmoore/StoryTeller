@@ -35,6 +35,7 @@ class Episode(AutoModel):
     start_date_obj = ReferenceAttr(choices=["Date"])
     end_date_obj = ReferenceAttr(choices=["Date"])
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
+    _campaign_summary = StringAttr(default="")
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
     graphic = ReferenceAttr(choices=["Image"])
     graphic_description = StringAttr(default="")
@@ -51,6 +52,21 @@ class Episode(AutoModel):
     @property
     def actors(self):
         return [*self.characters, *self.creatures]
+
+    @property
+    def campaign_summary(self):
+        if not self._campaign_summary and self.previous_episode:
+            summary = ""
+            ep = self.previous_episode
+            while ep:
+                summary += ep.summary
+                ep = ep.previous_episode
+            self._campaign_summary = self.world.system.generate_summary(
+                f"Summarize the following notes for TTRPG sessions for a {self.world.genre} world. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}]. Here are the notes: {summary}.",
+                primer="Provide an engaging, narrative summary of the provided TTRPG session summaries, highlighting the key elements and significance within the larger story.",
+            )
+            self.save()
+        return self._campaign_summary
 
     @property
     def characters(self):
@@ -232,7 +248,7 @@ class Episode(AutoModel):
     def resummarize(self):
         if not self.episode_report:
             return ""
-        prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode report: {self.episode_report}."
+        prompt = f"Summarize the following episode report for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the episode and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode report: {self.episode_report}."
         self.summary = self.world.system.generate_summary(
             prompt,
             primer="Provide an engaging, narrative summary of the episode, highlighting its key elements and significance within the larger story.",
@@ -255,7 +271,7 @@ class Episode(AutoModel):
                     if line.strip() and not line.strip().startswith("TRANSCRIPTION:")
                 ]
             )
-            prompt = f"Summarize the following transcription of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. The summary should focus on story and narrative rather than game mechanics, highlighting the key elements of the transcription and its significance within the larger world, while leaving out any irrelevant remarks or conversation. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign.summary}. When possible, use full names for characters, places, and things in the world. Here is the transcription: {self.transcription}."
+            prompt = f"Summarize the following transcription of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. The summary should focus on story and narrative rather than game mechanics, highlighting the key elements of the transcription and its significance within the larger world, while leaving out any irrelevant remarks or conversation. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign_summary}. When possible, use full names for characters, places, and things in the world. Here is the transcription: {self.transcription}."
             transcription_summary = self.world.system.generate_summary(
                 prompt,
                 primer="Provide an engaging, narrative summary of the TTRPG session transcription, highlighting its key elements and significance within the larger story.",
@@ -276,7 +292,7 @@ class Episode(AutoModel):
     def regenerate_report(self):
         if not self.episode_report:
             return ""
-        prompt = f"Rewrite and expand on the following session notes for a {self.world.genre} TTRPG in MARKDOWN to be an engaging and exciting narrative, highlighting the key elements of the session and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}."
+        prompt = f"Rewrite and expand on the following session notes for a {self.world.genre} TTRPG in MARKDOWN to be an engaging and exciting narrative, highlighting the key elements of the session and its significance within the larger story. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}."
 
         if self.stories:
             prompt += "\n\nHere is some context about the story arcs involved in the episode:\n\n"
@@ -309,7 +325,7 @@ class Episode(AutoModel):
         return self.episode_report
 
     def generate_graphic(self):
-        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign.summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
+        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
         log(f"Graphic Prompt: {prompt}", _print=True)
         description = self.world.system.generate_text(
             prompt,
