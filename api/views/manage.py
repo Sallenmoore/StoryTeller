@@ -496,10 +496,10 @@ def generateability(pk):
     return response
 
 
-@manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))
-def removeability(pk):
+@manage_endpoint.route("/ability/<string:apk>/remove", methods=("POST",))
+def removeability(apk):
     user, obj, *_ = _loader()
-    if a := Ability.get(pk):
+    if a := Ability.get(apk):
         if a in obj.abilities:
             obj.abilities.remove(a)
             obj.save()
@@ -508,9 +508,9 @@ def removeability(pk):
     return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
 
 
-@manage_endpoint.route("/details/ability/<string:pk>/delete", methods=("POST",))
-def deletebility(pk):
-    if a := Ability.get(pk):
+@manage_endpoint.route("/ability/<string:apk>/delete", methods=("POST",))
+def deletebility(apk):
+    if a := Ability.get(apk):
         a.delete()
     return "success"
 
