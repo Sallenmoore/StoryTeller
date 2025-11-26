@@ -112,6 +112,13 @@ def _generate_character_from_dndbeyond_task(pk):
                     )
                     if response.get("name"):
                         abilityobj = Ability(**response)
+                        abilityobj.description = abilityobj.description.replace(
+                            abilityobj.name, name
+                        )
+                        abilityobj.mechanics = abilityobj.mechanics.replace(
+                            abilityobj.name, name
+                        )
+                        abilityobj.name = name
                         abilityobj.save()
                 if abilityobj and abilityobj not in obj.abilities:
                     obj.abilities += [abilityobj]
