@@ -156,19 +156,16 @@
                                 <span style="font-size:0.5rem">Unlink</span>
                             </button>
                         </div>
-                        {% if a.model_name() in ['District', 'Location', 'Shop', 'Vehicle'] and
-                        a.children %}
+                        {% if a.model_name() in ['Location'] %}
                         <div class="cell medium-4 text-center">
                             <button data-tooltip tabindex="1"
-                                    title="Add all subelements from {{ a.name }} to {{ obj.name }}"
+                                    title="Convert to Dungeon Room"
                                     class="button small"
-                                    hx-post="/api/manage/subassociations/{{ a.path }}"
-                                    hx-target="#associations-container"
-                                    hx-select="#associations-container"
+                                    hx-post="/api/dungeon/create/room/from/{{ a.pk }}"
+                                    hx-target="#page-content"
                                     hx-indicator='#request-indicator'
-                                    hx-confirm="Are you sure you want to add subelements from {{ a.name }} to {{ obj.name }}? This will add all children and related associations.">
-                                {{ icon_components.add(size="1rem") }}
-                                {{ icon_components.lineage(size="1rem") }}
+                                    hx-confirm="Are you sure you want to add this Location to {{obj.name}}'s Dungeon?">
+                                {{ icon_components.dungeon(size="1rem") }}
                             </button>
                         </div>
                         {% endif %}
@@ -231,6 +228,19 @@
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>
+                    {% if a.model_name() in ['Location'] %}
+                    <div class="cell medium-4 text-center">
+                        <button data-tooltip tabindex="1"
+                                title="Convert to Dungeon Room"
+                                class="button small"
+                                hx-post="/api/dungeon/create/room/from/{{ a.pk }}"
+                                hx-target="#page-content"
+                                hx-indicator='#request-indicator'
+                                hx-confirm="Are you sure you want to add this Location to {{obj.name}}'s Dungeon?">
+                            {{ icon_components.dungeon(size="1rem") }}
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>

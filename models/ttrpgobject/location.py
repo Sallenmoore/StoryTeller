@@ -1,13 +1,24 @@
 from autonomous.model.autoattr import (
+    ReferenceAttr,
     StringAttr,
 )
 
+from autonomous import log
 from models.base.place import Place
 from models.ttrpgobject.character import Character
 
 
 class Location(Place):
-    location_type = StringAttr()
+    location_type = StringAttr(default="")
+    dungeon = ReferenceAttr(choices=["Dungeon"])
+
+    parent_list = [
+        "Location",
+        "District",
+        "City",
+        "Region",
+        "Vehicle",
+    ]
 
     _funcobj = {
         "name": "generate_location",
@@ -75,26 +86,31 @@ class Location(Place):
         ]
     )
 
-    parent_list = [
-        "Location",
-        "District",
-        "City",
-        "Region",
-        "Vehicle",
-    ]
-
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
-        prompt = (
-            prompt
-            or f"Generate a {self.genre} TTRPG {self.location_type} {f'with the following description: {self.backstory}' if self.backstory else ''}. Add a backstory containing a {self.traits} history for players to discover."
-        )
+        prompt = f"Generate a {self.genre} TTRPG {self.location_type} {f'with the following description: {self.backstory}' if self.backstory else f'Generate a backstory containing a history for players to discover that follow the theme: {self.traits}'}. {prompt}"
+
+        if self.parent and self.parent.model_name() in [
+            "City",
+            "Region",
+        ]:
+            prompt += f"""
+{f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
+{f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}
+{f"- GOVERNMENT: {self.parent.government}" if self.parent and self.parent.government else ""}
+"""
+
         if self.owner:
             prompt += (
                 f" The {self.title} is owned by {self.owner.name}. {self.owner.history}"
             )
         results = super().generate(prompt=prompt)
         return results
+
+    def delete(self):
+        if self.dungeon:
+            self.dungeon.delete()
+        return super().delete()
 
     def page_data(self):
         return {
@@ -119,6 +135,7 @@ class Location(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+
         document.pre_save_owner()
 
     # @classmethod

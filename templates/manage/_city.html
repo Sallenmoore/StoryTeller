@@ -11,27 +11,27 @@
         <div class="cell medium-4">
             <div class="card">
                 <div class="card__header align-center-middle">
-                    <h3>Population</h3>
+                    <h4>Population</h4>
                 </div>
                 <div class="card__content">
                     <input class="text-center" type="number"
                            value="{{obj.population}}"
-                           name="population" style='font-size: 3rem;'>
+                           name="population" style='font-size: 2rem;'>
                 </div>
             </div>
         </div>
     </div>
     <div class="cell">
-        <h3>Culture</h3>
-        {{form_components.richtexteditor(user, obj, "culture")}}
+        <h4>Culture</h4>
+        {{form_components.richtexteditor(user, obj, "culture", label=False)}}
     </div>
     <div class="cell">
-        <h3>Government</h3>
-        {{form_components.richtexteditor(user, obj, "government")}}
+        <h4>Government</h4>
+        {{form_components.richtexteditor(user, obj, "government", label=False)}}
     </div>
     <div class="cell">
-        <h3>Religion</h3>
-        {{form_components.richtexteditor(user, obj, "religion")}}
+        <h4>Religion</h4>
+        {{form_components.richtexteditor(user, obj, "religion", label=False)}}
     </div>
 </form>
 {{manage_components.backstory(user, obj)}}

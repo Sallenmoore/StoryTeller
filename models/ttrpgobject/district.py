@@ -1,11 +1,7 @@
 import random
 
-from autonomous.db import ValidationError
 from autonomous.model.autoattr import (
-    IntAttr,
-    ListAttr,
     ReferenceAttr,
-    StringAttr,
 )
 
 from autonomous import log
@@ -13,7 +9,10 @@ from models.base.place import Place
 
 
 class District(Place):
+    dungeon = ReferenceAttr(choices=["Dungeon"])
+
     parent_list = ["City", "Region"]
+
     _funcobj = {
         "name": "generate_district",
         "description": "completes District data object",
@@ -52,17 +51,6 @@ class District(Place):
 
     ################### Class Methods #####################
 
-    def generate(self):
-        parent_str = (
-            f" located in the {self.parent.title}, {self.parent.name}"
-            if self.parent
-            else ""
-        )
-        prompt = f"Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title} universe. Write a detailed description appropriate for a {self.title}{parent_str}. The {self.title} should contain up to 3 {random.choice(['mysterious', 'sinister', 'boring'])} secrets hidden within the {self.title} for the players to discover."
-        obj_data = super().generate(prompt=prompt)
-        self.save()
-        return obj_data
-
     ################### INSTANCE PROPERTIES #####################
 
     @property
@@ -80,6 +68,30 @@ class District(Place):
     @property
     def ruler(self):
         return self.owner
+
+    ####################### CRUD Methods #######################
+    def generate(self):
+        parent_str = (
+            f" located in the {self.parent.title}, {self.parent.name}"
+            if self.parent
+            else ""
+        )
+        prompt = f"""
+Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title} universe. Write a detailed description appropriate for a {self.title}{parent_str}. The {self.title} should contain up to 3 {random.choice(["mysterious", "sinister", "boring"])} secrets hidden within the {self.title} for the players to discover.
+
+{f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
+{f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}
+{f"- GOVERNMENT: {self.parent.government}" if self.parent and self.parent.government else ""}
+"""
+
+        obj_data = super().generate(prompt=prompt)
+        self.save()
+        return obj_data
+
+    def delete(self):
+        if self.dungeon:
+            self.dungeon.delete()
+        return super().delete()
 
     ####################### Instance Methods #######################
 

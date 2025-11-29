@@ -1,0 +1,141 @@
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_map.html" as map_components %}
+{% import "shared/_title.html" as title_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_associations.html" as associations_components %}
+
+{% macro index(user, dungeonroom) -%}
+<div class="grid-x align-spaced grid-margin-x">
+    <div class="cell shrink">
+        <a class="button"
+           hx-get="/api/dungeon/room/{{dungeonroom.pk}}/manage"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML show:#page-content:top"
+           hx-push-url="false">
+            Manage Room
+        </a>
+    </div>
+    <div class="cell">
+        <h3>{{dungeonroom.name}}</h3>
+        <h4>{{dungeonroom.theme}}</h4>
+        <p>{{dungeonroom.desc|safe}}</p>
+        <hr>
+        <p><strong>Puzzle:</strong> {{dungeonroom.puzzle|safe}}</p>
+        <p><strong>Traps:</strong>
+            {% if dungeonroom.traps %}
+        <ul>
+            {% for trap in dungeonroom.traps %}
+            <li>{{trap}}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        None
+        {% endif %}
+        </p>
+        <p><strong>Features</strong>
+            {% if dungeonroom.features %}
+        <ul>
+            {% for feature in dungeonroom.features %}
+            <li>{{feature}}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        None
+        {% endif %}
+        </p>
+    </div>
+    <div class="cell">
+        {{map_components.map(user, dungeonroom)}}
+    </div>
+    <div class="cell medium-3">
+        <h5 class="text-center">Encounters</h5>
+        <div class="grid-x">
+            {% for encounter in dungeonroom.encounters %}
+            <div class="cell medium-6">
+                {{display_components.object_display(encounter, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-3">
+        <h5 class="text-center">Creatures</h5>
+        <div class="grid-x">
+            {% for creature in dungeonroom.creatures %}
+            <div class="cell medium-6">
+                {{display_components.object_display(creature, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-3">
+        <h5 class="text-center">Characters</h5>
+        <div class="grid-x">
+            {% for character in dungeonroom.characters %}
+            <div class="cell medium-6">
+                {{display_components.object_display(character, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-3">
+        <h5 class="text-center">Loot</h5>
+        <div class="grid-x">
+            {% for loot in dungeonroom.loot %}
+            <div class="cell medium-6">
+                {{display_components.object_display(loot, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manage(user, obj) -%}
+<div class="grid-x align-spaced">
+    <div class="cell shrink align-center-middle">
+        <button class="button  has-text-white"
+                hx-post="/task/generate/{{obj.path}}"
+                hx-target="closest .cell"
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
+            {{icon_components.ai(size="1rem")}}
+            Generate Details
+        </button>
+    </div>
+    <div class="cell shrink align-center-middle">
+        <button class="button "
+                hx-post="/api/manage/delete/{{obj.path}}"
+                hx-target="#page-content"
+                hx-confirm='Are you sure? This cannot be undone'>
+            {{icon_components.delete(size="1rem")}}
+            Delete
+        </button>
+    </div>
+</div>
+<hr>
+<form hx-post="/api/manage/dungeonroom/update" hx-swap="none" hx-trigger="input delay:1s, change"
+      hx-request-indicator="">
+    <div class="grid-x align-spaced grid-margin-x">
+        <div class="cell auto">
+            <h5 class='text-center'>Theme</h5>
+            <input class="text-center" type="text" name="theme"
+                   value="{{obj.theme}}" maxlength="64">
+        </div>
+        <div class="cell">
+            {{form_components.richtexteditor(user, obj, "desc")}}
+        </div>
+        <div class="cell">
+            {{form_components.richtexteditor(user, obj, "puzzle")}}
+        </div>
+    </div>
+</form>
+{%- endmacro %}
+
+{% macro associations(user, obj, associations)%}
+{{associations_components.associations(user, obj, associations)}}
+{%- endmacro %}
+
+{% macro map(user, obj)%}
+{{map_components.map(user, obj)}}
+{%- endmacro %}

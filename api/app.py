@@ -6,6 +6,7 @@ from flask import Flask, url_for
 from views import (
     admin,
     campaign,
+    dungeon,
     endpoints,
     episode,
     event,
@@ -63,4 +64,5 @@ def create_app():
     app.register_blueprint(episode.episode_endpoint, url_prefix="/episode")
     app.register_blueprint(endpoints.endpoints_endpoint, url_prefix="/endpoints")
     app.register_blueprint(world.world_endpoint, url_prefix="/world")
+    app.register_blueprint(dungeon.dungeon_endpoint, url_prefix="/dungeon")
     return app

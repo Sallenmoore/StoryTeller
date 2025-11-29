@@ -134,6 +134,13 @@ class TTRPGObject(TTRPGBase):
         return obj.model_name() in self.parent_list
 
     ########## Object Data ######################
+    def delete(self):
+        if self.start_date:
+            self.start_date.delete()
+        if self.end_date:
+            self.end_date.delete()
+        return super().delete()
+
     def get_world(self):
         # IMPORTANT: this is here to register the model
         # without it, the model may not have been registered yet and it will fail

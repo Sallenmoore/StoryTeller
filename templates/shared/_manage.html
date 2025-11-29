@@ -51,7 +51,8 @@
     </div>
 </div>
 <hr>
-<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change"
+      hx-request-indicator="">
     <div class="grid-x grid-margin-x">
         <div class="cell auto">
             <h5 class='text-center'>Name</h5>
@@ -65,11 +66,9 @@
             <input class=" text-center" type="text" name="traits"
                    value="{{obj.traits}}" maxlength="64">
         </div>
-    </div>
-    <div class="grid-x">
-        <div id="model-goal" class="cell">
+        <div id="model-status" class="cell">
             <h4 class='text-center'>Status</h4>
-            {{form_components.richtexteditor(user, obj, "status")}}
+            {{form_components.richtexteditor(user, obj, "status", label=False)}}
         </div>
     </div>
 </form>
@@ -79,7 +78,7 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <h4 class='text-center'>Backstory</h4>
-    {{form_components.richtexteditor(user, obj, 'backstory')}}
+    {{form_components.richtexteditor(user, obj, 'backstory', label=False)}}
 </form>
 <hr>
 {% endmacro %}

@@ -25,6 +25,18 @@ class Coordinates(AutoModel):
 
 class Map(Image):
     coordinates = ListAttr(ReferenceAttr(choices=[Coordinates]))
+    associations = ListAttr(
+        ReferenceAttr(
+            choices=[
+                "TTRPGBase",
+                "Story",
+                "Event",
+                "Episode",
+                "Encounter",
+                "DungeonRoom",
+            ]
+        )
+    )
 
     @classmethod
     def generate(cls, prompt, **kwargs):

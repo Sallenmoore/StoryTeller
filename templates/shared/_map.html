@@ -14,7 +14,7 @@
                     <h5 class='text-center'>Map Prompt</h5>
                     <form hx-post="/api/manage/update" hx-trigger="change"
                           hx-swap='none'>
-                        {{form_components.richtexteditor(user, obj, 'map_prompt')}}
+                        {{form_components.richtexteditor(user, obj, 'map_prompt', label=False)}}
                     </form>
                 </div>
             </div>

@@ -8,6 +8,7 @@ from autonomous.model.autoattr import (
 )
 
 from autonomous import log
+from models.dungeon.dungeon import Dungeon
 from models.images.image import Image
 from models.images.map import Map
 from models.ttrpgobject.ttrpgobject import TTRPGObject
@@ -16,9 +17,8 @@ from models.ttrpgobject.ttrpgobject import TTRPGObject
 class Place(TTRPGObject):
     meta = {"abstract": True, "allow_inheritance": True, "strict": False}
     owner = ReferenceAttr(choices=["Character", "Creature", "Faction"])
-    map = ReferenceAttr(choices=["Image"])
+    map = ReferenceAttr(choices=["Map"])
     map_prompt = StringAttr(default="")
-    dungeon = StringAttr(default="")
     recent_events = ListAttr(StringAttr(default=""))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
 
@@ -87,33 +87,6 @@ The map should be in a {self.world.map_style} style.
                 maps.append(img)
         return maps
 
-    def generate_dungeon(self):
-        primer = f"""As an expert AI tabletop RPG GM assistant, you will assist in creating a encounters, traps, and puzzles in a location for a {self.genre.title()} rpg game in MARKDOWN. You will be given a description of the location, as well as a backstory. You will then generate a list of at least 10 possible enemy encounters, traps, or puzzles that player characters will encounter in the location. Each item should have an explanation of the encounter, trap, or puzzle, any associated mechanics, as well as the outcome if the players fail or succeed.
-"""
-        prompt = f"""Generate a list of 10 possible enemy encounters, traps, or puzzles in MARKDOWN that player characters will encounter in the location described below and is appropriate to a {self.genre.title()} setting. Each item should have a detailed explanation of the scenario, specific game mechanics for how to interact with the scenario, as well as the specific details of the outcome if the players fail or succeed. The list should use the following structure:
----
-### Encounter/Trap/Puzzle Name
-- Explanation:
-- Mechanics:
-- on Failure:
-- on Success:
----
-
-DUNGEON DESCRIPTION
-
-{self.description}
-
-DUNGEON BACKSTORY
-
-{self.backstory}
-"""
-        self.dungeon = self.system.generate_text(prompt, primer)
-        self.dungeon = self.dungeon.replace("```markdown", "").replace("```", "")
-        self.dungeon = (
-            markdown.markdown(self.dungeon).replace("h1>", "h3>").replace("h2>", "h3>")
-        )
-        self.save()
-
     ################### Crud Methods #####################
 
     def generate(self, prompt=""):
@@ -126,6 +99,17 @@ DUNGEON BACKSTORY
             prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
         results = super().generate(prompt=prompt)
         return results
+
+    def delete(self):
+        if self.map and self in self.map.associations:
+            if len(self.map.associations) <= 1:
+                self.map.delete()
+            else:
+                self.map.associations.remove(self)
+                self.map.save()
+        for encounter in self.encounters:
+            encounter.delete()
+        return super().delete()
 
     def page_data(self):
         return {

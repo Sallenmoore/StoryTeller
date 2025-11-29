@@ -309,8 +309,6 @@ class TTRPGBase(AutoModel):
             self.journal.delete()
         if self.image:
             self.image.remove_association(self)
-        if self.map:
-            self.map.delete()
         return super().delete()
 
     # MARK: Generate

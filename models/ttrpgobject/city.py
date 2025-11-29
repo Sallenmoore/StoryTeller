@@ -74,11 +74,13 @@ class City(Place):
 
     def generate(self):
         self._funcobj["name"] = f"generate_{self.title.lower()}"
-        self._funcobj["description"] = f"completes {self.title} data object"
-        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title} with a residence of {self.population}. Inorporate the following details into the description:
-{f"- CULTURE: {self.culture}" if self.culture else ""}
-{f"- RELIGION: {self.religion}" if self.religion else ""}
-{f"- GOVERNMENT: {self.government}" if self.government else ""}
+        self._funcobj["description"] = f"completes the {self.title} data object"
+        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title}, and incorporate the following details into the description:
+{f"- BACKSTORY: {self.backstory}" if self.backstory else ""}
+{f"- DESCRIPTION: {self.desc}" if self.desc else ""}
+{f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
+{f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}
+{f"- GOVERNMENT: {self.parent.government}" if self.parent and self.parent.government else ""}
 """
         obj_data = super().generate(prompt=prompt)
         self.save()
