@@ -449,12 +449,20 @@ def getability(pk):
     return get_template_attribute("models/_ability.html", "ability_edit")(user, a)
 
 
-@manage_endpoint.route("/add/listitem/ability", methods=("POST",))
+@manage_endpoint.route("/add/ability", methods=("POST",))
 def addability():
     user, obj, request_data = _loader()
-    apk = request.json.get("apk")
-    ab = Ability.get(apk) if apk else Ability(world=obj.world)
-    log(ab.name)
+    ab = Ability.get(request.json.get("apk"))
+    if ab not in obj.abilities:
+        obj.abilities += [ab]
+        obj.save()
+    return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
+
+
+@manage_endpoint.route("/add/new/ability", methods=("POST",))
+def addnewability():
+    user, obj, request_data = _loader()
+    ab = Ability(world=obj.world)
     ab.save()
     if ab not in obj.abilities:
         obj.abilities += [ab]
@@ -488,10 +496,10 @@ def generateability(pk):
     return response
 
 
-@manage_endpoint.route("/details/ability/<string:pk>/remove", methods=("POST",))
-def removeability(pk):
+@manage_endpoint.route("/ability/<string:apk>/remove", methods=("POST",))
+def removeability(apk):
     user, obj, *_ = _loader()
-    if a := Ability.get(pk):
+    if a := Ability.get(apk):
         if a in obj.abilities:
             obj.abilities.remove(a)
             obj.save()
@@ -500,9 +508,9 @@ def removeability(pk):
     return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
 
 
-@manage_endpoint.route("/details/ability/<string:pk>/delete", methods=("POST",))
-def deletebility(pk):
-    if a := Ability.get(pk):
+@manage_endpoint.route("/ability/<string:apk>/delete", methods=("POST",))
+def deleteability(apk):
+    if a := Ability.get(apk):
         a.delete()
     return "success"
 
