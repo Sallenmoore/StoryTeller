@@ -177,7 +177,7 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
 
 {self.layout}
 
-The map should be navigable and in a {self.world.map_style} style.
+The map should be navigable by players characters and in a {self.world.map_style} style.
 
 !!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS, NO GRID, NO UI, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, IMAGE EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST, DETAILED TEXTURE AND SHADING
 """
