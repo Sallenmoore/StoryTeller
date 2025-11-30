@@ -113,9 +113,9 @@ class DungeonRoom(AutoModel):
         prompt = f"""
 Generate a {self.genre} TTRPG {self.location.location_type} room located in {self.location.name}. {f"The situation is described as: {self.dungeon.desc}" if self.dungeon.desc else ""} {f"The locations relevant history: {self.location.history or self.location.backstory}"}.
 
-{f"The location currently has the following rooms: {', '.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self])}." if len(self.dungeon.rooms) > 1 else ""}
+{f"The location currently has the following rooms: \n\n{'\n\n'.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
 
-{f"This room is connected to the following rooms: {', '.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
+{f"This room is connected to the following rooms: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
 {f"This specific room is described as: {self.desc}." if self.desc else ""}
 
