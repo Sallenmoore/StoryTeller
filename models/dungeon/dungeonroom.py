@@ -170,14 +170,22 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
         style = f"{self.world.map_style} RPG map style, vivid, high contrast. The layout should be more complex than a simple open room as described below."
 
         # Logic to handle long corridors vs rooms
-        if self.structure_type in ["Hallway", "Corridor", "Tunnel"]:
+        if any(
+            st in self.structure_type.lower()
+            for st in [
+                "hallway",
+                "corridor",
+                "tunnel",
+                "passage",
+                "pathway",
+                "walkway",
+                "shaft",
+                "channel",
+            ]
+        ):
             structure_desc = f"A long {self.shape} segment of {self.structure_type}, approx dimensions for scale: {self.dimensions}. Open ends for tiling."
-        elif self.structure_type in ["Chamber", "Cavern", "Gallery", "Vault"]:
-            structure_desc = f"A detailed layout of a vast open {self.structure_type}, approx dimensions for scale: {self.dimensions}."
         else:
-            structure_desc = (
-                f"A complete layout of {self.structure_type}, approx {self.dimensions}."
-            )
+            structure_desc = f"A detailed layout of a {self.shape} shaped {self.structure_type}, approx dimensions for scale: {self.dimensions}."
 
         details = f"{self.map_prompt} Features: {', '.join(self.features)}."
 
