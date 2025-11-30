@@ -165,25 +165,36 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
             self.save()
         return self
 
+    def build_map_prompt(self):
+        base_prompt = f"Top-down 2D battlemap of a {self.theme} {self.structure_type} named {self.name}."
+        style = f"{self.world.map_style} RPG map style, vivid, high contrast."
+        dimensions = self.dimensions  # e.g. "10ft wide by 100ft long"
+
+        # Logic to handle long corridors vs rooms
+        if self.structure_type in ["Hallway", "Corridor", "Tunnel"]:
+            structure_desc = f"A long {self.shape} segment of {self.structure_type}, approx {dimensions}. Open ends for tiling."
+        elif self.structure_type in ["Chamber", "Cavern", "Gallery", "Vault"]:
+            structure_desc = f"A detailed layout of a vast open {self.structure_type}, approx {dimensions}."
+        else:
+            structure_desc = (
+                f"A complete layout of {self.structure_type}, approx {dimensions}."
+            )
+
+        details = f"Features: {', '.join(self.features)}. Texture: {self.map_prompt}"
+
+        constraints = "NO 3D perspective, NO isometric view, NO characters, NO text, NO UI. Top-down orthographic projection. NO CHARACTERS, NO GRID, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, MAP SPANS EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST"
+
+        prompt = f"{base_prompt} {style} {structure_desc} {details} {constraints}"
+        log(f"Map Prompt:\n{prompt}", _print=True)
+        return prompt
+
     def generate_map(self):
         # log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
-        prompt = f"""{self.map_prompt}
+        if self.map:
+            self.map.delete()
 
-Design and scale the map according this layout description:
-{self.layout}
-
-The map of the {self.structure_type} should be in a {self.world.map_style} style and navigable by players characters.
-
-!!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS, NO GRID, NO UI, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST, DETAILED TEXTURE AND SHADING
-"""
         self.map = Map.generate(
-            prompt=prompt,
+            prompt=self.build_map_prompt(),
             tags=["map", "dungeonroom", self.genre],
             aspect_ratio="16:9",
             image_size="4K",
