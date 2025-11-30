@@ -138,9 +138,9 @@ A {self.shape} shaped {self.structure_type} that is {self.dimensions}
         prompt = f"""
 Generate a {self.genre} TTRPG {self.structure_type or self.location.location_type} located in {self.location.name}. {f"The locations relevant history: {self.location.history or self.location.backstory}"}. {f"The area is described as: {self.dungeon.desc}" if self.dungeon.desc else ""}
 
-{f"The location currently has the following areas: \n\n{'\n\n'.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
+{f"The location currently has the following areas: \n\n{'\n\n'.join([f'{room.name} [{room.structure_type}]: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
 
-{f"This area has {len(self.connected_rooms)} entrances/exits and is connected to the following areas: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
+{f"This area has {len(self.connected_rooms)} entrances/exits and is connected to the following areas: {','.join([room.name for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
 {f"This specific area is described as: {self.layout}, {self.theme}, {self.desc}." if self.desc or self.theme or self.layout else ""}
 
