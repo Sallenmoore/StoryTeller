@@ -8,7 +8,7 @@
     {% if not obj.dungeon %}
     <div class="cell shrink">
         <button class="button primary"
-                hx-get="/api/dungeon/create"
+                hx-post="/api/dungeon/create"
                 hx-target="#page-content"
                 hx-indicator="#request-indicator"
                 hx-swap="innerHTML show:#page-content:top"
