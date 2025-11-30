@@ -111,7 +111,7 @@ class DungeonRoom(AutoModel):
     def generate(self):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = f"""
-Generate a {self.genre} TTRPG {self.location.location_type} room located in {self.location.name}. {f"The dungeon is described as: {self.dungeon.desc}" if self.dungeon.desc else ""} {f"Relevant history: {self.location.history or self.location.backstory}"}. {f"This specific room is described as: {self.desc}." if self.desc else ""}
+Generate a {self.genre} TTRPG {self.location.location_type} room located in {self.location.name}. {f"The situation is described as: {self.dungeon.desc}" if self.dungeon.desc else ""} {f" Relevant history: {self.location.history or self.location.backstory}"}. {f"This specific room is described as: {self.desc}." if self.desc else ""}
 
 {f"This room is connected to the following rooms: {', '.join([f'{room.name}: {room.desc}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
@@ -123,6 +123,7 @@ Sensory Details: Specific sounds, smells, or tactile sensations present in the r
 
 Notable Features: List a few interesting objects, architectural details, or points of interest in the room that players might investigate.
 """
+        log(f"Prompt:\n{prompt}", _print=True)
         results = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Generate a dungeon room, ensuring all generated content fits the {self.genre} genre and the specific tone of the dungeon.",
