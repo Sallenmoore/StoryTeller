@@ -166,23 +166,22 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
         return self
 
     def build_map_prompt(self):
-        base_prompt = f"Top-down 2D battlemap of a {self.theme} {self.structure_type} named {self.name}."
-        style = f"{self.world.map_style} RPG map style, vivid, high contrast."
-        dimensions = self.dimensions  # e.g. "10ft wide by 100ft long"
+        base_prompt = f"Top-down 2D battlemap of a {self.theme} {self.structure_type} named {self.name}. "
+        style = f"{self.world.map_style} RPG map style, vivid, high contrast. The layout should be more complex than a simple open room as described below."
 
         # Logic to handle long corridors vs rooms
         if self.structure_type in ["Hallway", "Corridor", "Tunnel"]:
-            structure_desc = f"A long {self.shape} segment of {self.structure_type}, approx {dimensions}. Open ends for tiling."
+            structure_desc = f"A long {self.shape} segment of {self.structure_type}, approx dimensions for scale: {self.dimensions}. Open ends for tiling."
         elif self.structure_type in ["Chamber", "Cavern", "Gallery", "Vault"]:
-            structure_desc = f"A detailed layout of a vast open {self.structure_type}, approx {dimensions}."
+            structure_desc = f"A detailed layout of a vast open {self.structure_type}, approx dimensions for scale: {self.dimensions}."
         else:
             structure_desc = (
-                f"A complete layout of {self.structure_type}, approx {dimensions}."
+                f"A complete layout of {self.structure_type}, approx {self.dimensions}."
             )
 
-        details = f"Features: {', '.join(self.features)}. Texture: {self.map_prompt}"
+        details = f"{self.map_prompt} Features: {', '.join(self.features)}."
 
-        constraints = "NO 3D perspective, NO isometric view, NO characters, NO text, NO UI. Top-down orthographic projection. NO CHARACTERS, NO GRID, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, MAP SPANS EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST"
+        constraints = "NO 3D perspective, NO isometric view, NO characters, NO text, NO UI. Top-down orthographic projection. NO GRID, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, MAP SPANS EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST"
 
         prompt = f"{base_prompt} {style} {structure_desc} {details} {constraints}"
         log(f"Map Prompt:\n{prompt}", _print=True)
