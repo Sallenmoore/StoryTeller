@@ -21,6 +21,7 @@ from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
+from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.district import District
 from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
@@ -68,6 +69,17 @@ def edit_dungeon(dpk=None):
     )(user, obj)
 
 
+@dungeon_endpoint.route("/room/<string:dpk>/entrance", methods=("POST",))
+def dungeon_entrance(dpk):
+    user, obj, request_data = _loader()
+    dr = DungeonRoom.get(dpk)
+    dr.is_entrance = not dr.is_entrance
+    dr.save()
+    return get_template_attribute(
+        f"models/_{obj.model_name().lower()}.html", "dungeon"
+    )(user, obj)
+
+
 ###########################################################
 ##               dungeonroom CRUD Routes                 ##
 ###########################################################
@@ -78,7 +90,7 @@ def edit_dungeon(dpk=None):
 def create_dungeonroom(lpk=None):
     user, obj, request_data = _loader()
     log(request.json)
-    if not obj.dungeon:
+    if not obj.dungeon or isinstance(obj.dungeon, str):
         dungeon = Dungeon(location=obj)
         dungeon.theme = obj.traits
         dungeon.desc = obj.desc
@@ -112,13 +124,126 @@ def room(roompk):
     )
 
 
-@dungeon_endpoint.route("/room/<string:roompk>/update", methods=("POST",))
+@dungeon_endpoint.route("/room/<string:roompk>/manage", methods=("POST",))
 def edit_room(roompk=None):
+    user, obj, request_data = _loader()
+    log(request_data)
+    room = DungeonRoom.get(roompk)
+    room.name = request_data.get("name", room.name)
+    room.desc = request_data.get("desc", room.desc)
+    room.theme = request_data.get("theme", room.theme)
+    room.sensory_details = request_data.get("sensory_details", room.sensory_details)
+    room.features = request_data.get("features", room.features)
+    room.save()
+    return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
+
+
+@dungeon_endpoint.route("/room/<string:roompk>/association/search", methods=("POST",))
+def search_association(roompk):
     user, obj, request_data = _loader()
     log(request.json)
     room = DungeonRoom.get(roompk)
-    room.desc = request.json.get("desc", room.desc)
-    room.theme = request.json.get("theme", room.theme)
-    room.sensory_details = request.json.get("sensory_details", room.sensory_details)
+    search_term = request.json.get("query", "")
+    associations = []
+    for model in [Character, Creature, Item]:
+        results = model.search(name=search_term)
+        associations.extend(results)
+    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
+        user,
+        room,
+        f"dungeon/room/{roompk}/association/add",
+        associations,
+    )
+
+
+@dungeon_endpoint.route(
+    "/room/<string:roompk>/add/<string:associationmodel>",
+    methods=("POST",),
+)
+def new_association(roompk, associationmodel):
+    user, obj, request_data = _loader()
+    log(request_data)
+    room = DungeonRoom.get(roompk)
+    if associationmodel == "character":
+        association = Character(world=room.world, parent=room.location)
+        room.characters += [association]
+    elif associationmodel == "creature":
+        association = Creature(world=room.world, parent=room.location)
+        room.creatures += [association]
+    elif associationmodel == "item":
+        association = Item(world=room.world, parent=room.location)
+        room.loot += [association]
+    elif associationmodel == "encounter":
+        association = Encounter(world=room.world, parent=room)
+        room.encounters += [association]
+    association.save()
+    room.save()
+    room.location.add_association(association)
+    return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
+
+
+@dungeon_endpoint.route(
+    "/room/<string:roompk>/association/add/<string:associationmodel>/<string:associationpk>",
+    methods=("POST",),
+)
+def add_association(roompk, associationmodel, associationpk):
+    user, obj, request_data = _loader()
+    log(request_data)
+    room = DungeonRoom.get(roompk)
+    if associationmodel == "character":
+        if association := Character.get(associationpk):
+            room.characters += [association]
+    elif associationmodel == "creature":
+        if association := Creature.get(associationpk):
+            room.creatures += [association]
+    elif associationmodel == "item":
+        if association := Item.get(associationpk):
+            room.items += [association]
     room.save()
     return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
+
+
+@dungeon_endpoint.route(
+    "/room/<string:roompk>/association/remove/<string:associationmodel>/<string:associationpk>",
+    methods=("POST",),
+)
+def remove_association(roompk, associationmodel, associationpk):
+    user, obj, request_data = _loader()
+    log(request_data)
+    room = DungeonRoom.get(roompk)
+    if associationmodel == "character":
+        if association := Character.get(associationpk):
+            room.characters = [a for a in room.characters if a.pk != association.pk]
+    elif associationmodel == "creature":
+        if association := Creature.get(associationpk):
+            room.creatures = [a for a in room.creatures if a.pk != association.pk]
+    elif associationmodel == "item":
+        if association := Item.get(associationpk):
+            room.items = [a for a in room.items if a.pk != association.pk]
+    room.save()
+    return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
+
+
+@dungeon_endpoint.route(
+    "/room/<string:roompk>/connect/<string:connected_roompk>", methods=("POST",)
+)
+def connect_room(roompk=None, connected_roompk=None):
+    user, obj, request_data = _loader()
+    log(request.json)
+    room = DungeonRoom.get(roompk)
+    connected_room = DungeonRoom.get(connected_roompk)
+    room.disconnect(connected_room) if room.is_connected(
+        connected_room
+    ) else room.connect(connected_room)
+    return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
+
+
+@dungeon_endpoint.route("/room/<string:roompk>/delete", methods=("POST",))
+def delete_room(roompk=None):
+    user, obj, request_data = _loader()
+    log(request.json)
+    room = DungeonRoom.get(roompk)
+    room.delete()
+    return get_template_attribute(
+        f"models/_{obj.model_name().lower()}.html", "dungeon"
+    )(user, room)

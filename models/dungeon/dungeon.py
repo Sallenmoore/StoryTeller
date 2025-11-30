@@ -15,12 +15,16 @@ class Dungeon(AutoModel):
     location = ReferenceAttr(choices=["Location", "District"], required=True)
     theme = StringAttr(default="")
     desc = StringAttr(default="")
+    map = ReferenceAttr(choices=["Map"])
     rooms = ListAttr(ReferenceAttr(choices=["DungeonRoom"]))
-    entrances = ListAttr(ReferenceAttr(choices=["DungeonRoom"]))
 
     @property
     def associations(self):
         return [a for r in self.rooms for a in r.associations]
+
+    @property
+    def entrances(self):
+        return [e for e in self.rooms if e.is_entrance]
 
     @property
     def genre(self):
@@ -33,6 +37,29 @@ class Dungeon(AutoModel):
     @property
     def world(self):
         return self.location.world
+
+    def generate_map(self):
+        if self.map:
+            self.map.delete()
+        prompt = f"""Create a top-down, black and white line art map of a TTRPG dungeon. The style should be reminiscent of old-school 1970s/80s RPG modules: clean lines, high contrast, and minimal shading. Focus purely on the layout and connectivity of the rooms. Avoid any complex furniture, rubble, or detailed textures—this map is about clarity and function.
+
+The layout must include the following distinct areas connected by corridors:
+
+{"\n\n".join([f"{room.name} [{room.is_entrance and "Entrance"}]\n  - connected rooms: {[cr.name for cr in room.connected_rooms]}" for room in self.rooms])}
+
+Ensure logical connections between these rooms with clear doorways. Entrances are noted above. The goal is a clear, valid layout.
+"""
+        log(prompt, _print=True)
+        self.map = Map.generate(
+            prompt=prompt,
+            tags=["map", "dungeonroom", self.genre],
+            aspect_ratio="16:9",
+            image_size="4K",
+            text=True,
+        )
+        self.map.save()
+        self.save()
+        return self.map
 
     def create_room(self):
         room = DungeonRoom(dungeon=self)

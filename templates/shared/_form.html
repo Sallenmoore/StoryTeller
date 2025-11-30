@@ -10,24 +10,21 @@
        placeholder='{{placeholder}}' />
 {%- endmacro %}
 
-
 {% macro richtexteditor(user, obj, attr, name="", label=True) -%}
 {% if label %}
 <label style="{{obj.genre | label_style}}">{{attr | replace("_", " ") | title}}
-    {% endif %}
-    <textarea id="edit-{{obj.pk}}-{{attr}}"
-              name="{{name or attr}}"
-              data-model="{{obj.__class__.__name__.lower()}}"
-              data-user="{{user.pk}}"
-              data-pk="{{obj.pk}}"
-              class="rich-text">
+</label>
+{% endif %}
+<textarea id="edit-{{obj.pk}}-{{attr}}"
+          name="{{name or attr}}"
+          data-model="{{obj.__class__.__name__.lower()}}"
+          data-user="{{user.pk}}"
+          data-pk="{{obj.pk}}"
+          class="rich-text">
         {% if obj %}
             {{obj[attr] | string | safe}}
         {% endif %}
     </textarea>
-    {% if label %}
-</label>
-{% endif %}
 <script>
     $(function () {
         createCK('edit-{{obj.pk}}-{{attr}}');
@@ -66,7 +63,7 @@
     {% for item in obj[name] %}
     <div class="cell">
         <textarea id="{{name}}-{{ loop.index }}" name='{{name}}[]'
-                  class="auto-resize-text has-bg-white" rows="3"
+                  class="auto-resize-text has-bg-white" rows="1"
                   placeholder="Start typing...">{{ item }}</textarea>
         <hr>
     </div>

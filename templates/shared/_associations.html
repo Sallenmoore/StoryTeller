@@ -133,12 +133,12 @@
     </div>
 </div>
 <div id="associations-container">
+    {% if obj.model_name() != "World"%}
     <div class="callout">
         <h3 class="text-center">
             Direct Associations
         </h3>
         <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-            {% if obj.model_name() != "World"%}
             {% for relationship in [obj.geneology | default([]), obj.children | default([])] %}
             {% for a in relationship %}
             {% if 'World' != a.model_name() %}
@@ -175,18 +175,18 @@
             {% endif %}
             {% endfor %}
             {% endfor %}
-            {% endif %}
         </div>
     </div>
     <h3 class="text-center">
         Extended Associations
     </h3>
+    {% endif %}
     <div class="grid-x grid-margin-x grid-margin-y align-spaced">
         {% for a in associations %}
-        {% if a.model_name() != "World" and a not in obj.children and a not in obj.geneology %}
+        {% if a.model_name() != "World" %}
         <div class="cell medium-2 small-4">
             <div class="callout" style='height:100%;'>
-                {{ display_components.object_display(a, type=False) }}
+                {{ display_components.object_display(a) }}
                 {% if 'World' not in [obj.model_name(), a.model_name()] %}
                 <div class="grid-x grid-margin-x align-spaced">
                     {% if obj.model_name() in a.parent_list|default([]) and obj !=
@@ -228,7 +228,8 @@
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>
-                    {% if a.model_name() in ['Location'] %}
+                    {% if obj.model_name() in ['Location', 'District'] and a.model_name() in
+                    ['Location'] %}
                     <div class="cell medium-4 text-center">
                         <button data-tooltip tabindex="1"
                                 title="Convert to Dungeon Room"

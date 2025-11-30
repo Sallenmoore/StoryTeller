@@ -21,54 +21,121 @@
         <div class="callout">
             <h4>{{obj.name}}'s Dungeon</h4>
             <p>{{obj.dungeon.desc}}</p>
-            <a class="button"
-               hx-get="/api/dungeon/create/room"
-               hx-target="#page-content"
-               hx-indicator="#request-indicator"
-               hx-swap="innerHTML show:#page-content:top"
-               hx-push-url="false">
-                Create Room
-            </a>
         </div>
         <hr>
-        <h4>Dungeon Details</h4>
-        <p><strong>Theme:</strong> {{obj.dungeon.theme}}</p>
-        <p><strong>Description:</strong> {{obj.dungeon.desc}}</p>
         <h5>Entrances</h5>
         {% if obj.dungeon.entrances %}
-        {% for room in obj.dungeon.entrances %}
-        <div class="callout secondary">
-            <h6>{{room.name}}</h6>
-            <a class="button small"
-               hx-get="/api/dungeon/room/{{room.pk}}"
-               hx-target="#page-content"
-               hx-indicator="false"
-               hx-push-url="false">
-                View Room
-            </a>
+        <div class="grid-x align-spaced grid-margin-x">
+            {% for room in obj.dungeon.entrances %}
+            <div class="cell medium-4">
+                <div class="callout secondary">
+                    <h6>{{room.name}}</h6>
+                    <div class="grid-x align-center">
+                        <div class="cell shrink">
+                            <a class="button small"
+                               hx-get="/api/dungeon/room/{{room.pk}}"
+                               hx-target="#page-content"
+                               hx-indicator=""
+                               hx-push-url="false">
+                                View Entrance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
         {% else %}
         <p>No entrances have been created yet.</p>
         {% endif %}
         <hr>
-        <h4>All Rooms</h4>
-        {% if obj.dungeon.rooms %}
-        {% for room in obj.dungeon.rooms %}
-        <div class="callout secondary">
-            <h6>{{room.name}}</h6>
-            <a class="button small"
-               hx-get="/api/dungeon/room/{{room.pk}}"
-               hx-target="#page-content"
-               hx-indicator="false"
-               hx-push-url="false">
-                View Room
-            </a>
+        <div class="callout bg-screen">
+            <div class="grid-x align-spaced">
+                <div class="cell shrink">
+                    <h4>Manage Rooms</h4>
+                </div>
+                <div class="cell shrink">
+                    <a class="button"
+                       hx-post="/api/dungeon/create/room"
+                       hx-target="#page-content"
+                       hx-indicator="#request-indicator"
+                       hx-swap="innerHTML show:#page-content:top"
+                       hx-push-url="false">
+                        New Room
+                    </a>
+                </div>
+            </div>
+
+            {% if obj.dungeon.rooms %}
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for room in obj.dungeon.rooms %}
+                <div class="cell medium-4">
+                    <div class="callout secondary">
+                        <h6>{{room.name}}</h6>
+                        <div class="grid-x align-spaced">
+                            <div class="cell shrink">
+                                <a class="button small"
+                                   hx-get="/api/dungeon/room/{{room.pk}}"
+                                   hx-target="#page-content"
+                                   hx-indicator=""
+                                   hx-push-url="false">
+                                    View Room
+                                </a>
+                            </div>
+                            <div class="cell shrink">
+                                <a class="button small"
+                                   hx-post="/api/dungeon/room/{{room.pk}}/entrance"
+                                   hx-target="#page-content"
+                                   hx-indicator=""
+                                   hx-push-url="false">
+                                    Toggle Entrance
+                                </a>
+                            </div>
+                            <div class="cell shrink">
+                                <a class="button small"
+                                   hx-post="/api/dungeon/room/{{room.pk}}/delete"
+                                   hx-target="#page-content"
+                                   hx-indicator=""
+                                   hx-push-url="false"
+                                   hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
+                                    Delete Room
+                                </a>
+                            </div>
+                            <div class="cell">
+                                {% for cr in room.connected_rooms %}
+                                <span class="badge secondary">{{cr.name}}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="callout bg-muted">
+                <h5>Dungeon Layout</h5>
+                <div class="grid-x align-center">
+                    <div class="cell shrink">
+                        <a class="button"
+                           hx-post="/task/generate/dungeon/{{obj.dungeon.pk}}/map"
+                           hx-target="closest .cell"
+                           hx-indicator=""
+                           hx-push-url="false">
+                            Generate Layout
+                        </a>
+                    </div>
+                </div>
+                {% if obj.dungeon.map %}
+                <div id="map-container" class="cell">
+                    <div id="map" style="width:100%;height:100%;">
+                        <img src="{{obj.dungeon.map.url()}}" alt="{{obj.dungeon.name}} map" />
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <p>No rooms have been created yet.</p>
+            {% endif %}
         </div>
-        {% endfor %}
-        {% else %}
-        <p>No rooms have been created yet.</p>
-        {% endif %}
     </div>
     {% endif %}
 </div>

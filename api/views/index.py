@@ -114,7 +114,7 @@ def model(model, pk, page=""):
 def associations(model, pk):
     user, obj, request_data = _loader()
     associations = obj.associations
-    log(model, pk, request_data)
+    # log(model, pk, request_data)
     if filter_str := request_data.get("filter"):
         if len(filter_str) > 2:
             associations = [
@@ -150,7 +150,7 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
-    log(associations)
+    # log(associations)
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, associations
     )

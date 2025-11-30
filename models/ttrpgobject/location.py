@@ -108,7 +108,7 @@ class Location(Place):
         return results
 
     def delete(self):
-        if self.dungeon:
+        if self.dungeon and not isinstance(self.dungeon, str):
             self.dungeon.delete()
         return super().delete()
 
@@ -134,6 +134,11 @@ class Location(Place):
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
+        ##### MIGRATION: old dungeon str to reference #####
+        log(document.dungeon)
+        if isinstance(document.dungeon, str):
+            document.dungeon = None
+
         super().auto_pre_save(sender, document, **kwargs)
 
         document.pre_save_owner()

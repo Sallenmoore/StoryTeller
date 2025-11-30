@@ -113,19 +113,7 @@
             {% endif %}
         </div>
     </div>
-    {% if obj.model_name() in ['Location'] and obj.map %}
-    <div class="cell">
-        <button class='button'
-                hx-post="/task/generate/{{obj.path}}/dungeon"
-                hx-target='closest .cell'>
-            {{icon_components.ai()}}
-            Build Dungeon
-        </button>
-        <div class="callout ">
-            {{obj.dungeon | safe }}
-        </div>
-    </div>
-    {% elif obj.model_name() in ['City', 'Region', 'District'] and obj.map %}
+    {% if obj.model_name() in ['City', 'Region', 'District'] and obj.map %}
     <div class="cell">
         {{mappois(user, obj)}}
         <script>

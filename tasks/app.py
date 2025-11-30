@@ -187,11 +187,24 @@ def create_app():
             prompt=request.json.get("prompt"),
         )
 
-    @app.route("/generate/<string:model>/<string:pk>/dungeon", methods=("POST",))
-    def create_dungeon(model, pk):
+    @app.route("/generate/dungeon/<string:pk>/map", methods=("POST",))
+    def create_dungeon_map(pk):
         return _generate_task(
-            tasks._generate_dungeon_task,
-            model=model,
+            tasks._generate_dungeon_map_task,
+            pk=pk,
+        )
+
+    @app.route("/generate/dungeon/room/<string:pk>", methods=("POST",))
+    def create_dungeon_room(pk):
+        return _generate_task(
+            tasks._generate_dungeon_room_task,
+            pk=pk,
+        )
+
+    @app.route("/generate/dungeon/room/<string:pk>/map", methods=("POST",))
+    def create_dungeon_room_map(pk):
+        return _generate_task(
+            tasks._generate_dungeon_room_map_task,
             pk=pk,
         )
 

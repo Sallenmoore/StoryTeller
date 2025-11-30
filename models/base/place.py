@@ -190,8 +190,6 @@ The map should be in a {self.world.map_style} style.
         self.encounters = list(set(self.encounters))
         log(self.encounters, [e.parent for e in self.encounters])
         for encounter in self.encounters:
-            if not encounter.parent:
+            if encounter.parent != self:
                 encounter.parent = self
                 encounter.save()
-            elif encounter.parent != self and encounter in self.encounters:
-                self.encounters.remove(encounter)

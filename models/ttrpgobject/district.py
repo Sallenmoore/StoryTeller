@@ -62,6 +62,10 @@ class District(Place):
         return msg
 
     @property
+    def location_type(self):
+        return self.title
+
+    @property
     def map_pois(self):
         return [a for a in self.children if a.model_name() in ["Location"]]
 
@@ -115,9 +119,16 @@ Generate a fictional {self.genre} {self.title} within the {self.world.name} {sel
 #     log("Auto Pre Save World")
 #     super().auto_post_init(sender, document, **kwargs)
 
-# @classmethod
-# def auto_pre_save(cls, sender, document, **kwargs):
-#     super().auto_pre_save(sender, document, **kwargs)
+
+@classmethod
+def auto_pre_save(cls, sender, document, **kwargs):
+    ##### MIGRATION: old dungeon str to reference #####
+    log(document.dungeon)
+    if isinstance(document.dungeon, str):
+        document.dungeon = None
+
+    super().auto_pre_save(sender, document, **kwargs)
+
 
 # @classmethod
 # def auto_post_save(cls, sender, document, **kwargs):

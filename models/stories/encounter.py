@@ -18,7 +18,7 @@ class Encounter(AutoModel):
     image = ReferenceAttr(choices=[Image])
     world = ReferenceAttr(choices=["World"], required=True)
     associations = ListAttr(ReferenceAttr(choices=["TTRPGBase"]))
-    parent = ReferenceAttr(choices=["Place"])
+    parent = ReferenceAttr(choices=["Place", "DungeonRoom"])
     difficulty = StringAttr(default="")
     enemy_type = StringAttr(default="")
     encounter_type = StringAttr(default="")

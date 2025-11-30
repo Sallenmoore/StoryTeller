@@ -11,6 +11,8 @@ from autonomous import log
 from models.audio.audio import Audio
 from models.campaign.campaign import Campaign
 from models.campaign.episode import Episode
+from models.dungeon.dungeon import Dungeon
+from models.dungeon.dungeonroom import DungeonRoom
 from models.gmscreen.gmscreentable import GMScreenTable
 from models.stories.event import Event
 from models.stories.lore import Lore
@@ -234,10 +236,22 @@ def _generate_table_items_task(pk, worldpk, prompt):
     return {"url": f"/world/{worldpk}/manage_screens"}
 
 
-def _generate_dungeon_task(model, pk):
-    obj = World.get_model(model, pk)
-    obj.generate_dungeon()
-    return {"url": f"/api/{obj.path}/map"}
+def _generate_dungeon_map_task(pk):
+    obj = Dungeon.get(pk)
+    obj.generate_map()
+    return {"url": f"/api/{obj.location.path}/dungeon"}
+
+
+def _generate_dungeon_room_task(pk):
+    obj = DungeonRoom.get(pk)
+    obj.generate()
+    return {"url": f"/api/dungeon/room/{obj.pk}/manage"}
+
+
+def _generate_dungeon_room_map_task(pk):
+    obj = DungeonRoom.get(pk)
+    obj.generate_map()
+    return {"url": f"/api/dungeon/room/{obj.pk}/manage"}
 
 
 def _generate_quest_task(pk):

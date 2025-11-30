@@ -1,4 +1,5 @@
 from autonomous.model.autoattr import (
+    BoolAttr,
     ListAttr,
     ReferenceAttr,
     StringAttr,
@@ -13,10 +14,9 @@ from models.ttrpgobject.character import Character
 class DungeonRoom(AutoModel):
     dungeon = ReferenceAttr(choices=["Dungeon"], required=True)
     name = StringAttr(default="")
+    is_entrance = BoolAttr(default=False)
     theme = StringAttr(default="")
     desc = StringAttr(default="")
-    traps = ListAttr(StringAttr(default=""))
-    puzzle = StringAttr(default="")
     sensory_details = ListAttr(StringAttr(default=""))
     features = ListAttr(StringAttr(default=""))
     connected_rooms = ListAttr(ReferenceAttr(choices=["DungeonRoom"]))
@@ -55,18 +55,9 @@ class DungeonRoom(AutoModel):
                     "items": {"type": "string"},
                     "description": "A list of notable features or points of interest in the room that players might investigate",
                 },
-                "traps": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "A list of traps or hazards that players may encounter in this room",
-                },
-                "puzzle": {
-                    "type": "string",
-                    "description": "A puzzle or challenge that players may encounter in this room",
-                },
                 "map_prompt": {
                     "type": "string",
-                    "description": "A prompt to generate a map image for this room",
+                    "description": "A prompt to generate a map image for this room using AI]",
                 },
             },
         },
@@ -106,6 +97,10 @@ class DungeonRoom(AutoModel):
         return self.dungeon.genre
 
     @property
+    def location(self):
+        return self.dungeon.location
+
+    @property
     def path(self):
         return f"dungeonroom/{self.pk}"
 
@@ -113,23 +108,12 @@ class DungeonRoom(AutoModel):
     def world(self):
         return self.dungeon.world
 
-    def delete(self, *args, **kwargs):
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
-        for encounter in self.encounters:
-            encounter.delete()
-        super().delete(*args, **kwargs)
-
-    def generate(self, prompt=""):
+    def generate(self):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = f"""
-Generate a {self.genre} TTRPG {self.dungeon.location_type} room located in {self.dungeon.name}. {f"The dungeon is described as: {self.dungeon.description}" if self.dungeon.description else ""} {f"Relevant history: {self.dungeon.history or self.dungeon.backstory}"}. {f"This specific room is described as: {self.desc}." if self.desc else ""}
+Generate a {self.genre} TTRPG {self.location.location_type} room located in {self.location.name}. {f"The dungeon is described as: {self.dungeon.desc}" if self.dungeon.desc else ""} {f"Relevant history: {self.location.history or self.location.backstory}"}. {f"This specific room is described as: {self.desc}." if self.desc else ""}
 
-{f"This room is connected to the following rooms: {', '.join([room.desc for room in self.connected_rooms])}." if self.connected_rooms else ""}
+{f"This room is connected to the following rooms: {', '.join([f'{room.name}: {room.desc}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
 Provide the following details for the room:
 
@@ -138,10 +122,6 @@ Visual Description: A detailed sensory description of the room's appearance, lig
 Sensory Details: Specific sounds, smells, or tactile sensations present in the room (e.g., dripping water, smell of burning, cold draft).
 
 Notable Features: List a few interesting objects, architectural details, or points of interest in the room that players might investigate.
-
-Traps (if any): Describe any traps, including their trigger, effect, and how to detect/disarm them. If none, suggest where one might fit.
-
-Puzzle (if any): Describe a puzzle or riddle relevant to the room's theme or function.
 """
         results = self.world.system.generate_json(
             prompt=prompt,
@@ -151,12 +131,11 @@ Puzzle (if any): Describe a puzzle or riddle relevant to the room's theme or fun
         log(results)
         if results:
             self.name = results.get("name", self.name)
-            self.theme = (results.get("theme", self.theme),)
+            self.theme = results.get("theme", self.theme)
             self.desc = results.get("desc", self.desc)
             self.sensory_details = results.get("sensory_details", self.sensory_details)
             self.features = results.get("features", self.features)
-            self.traps = results.get("traps", self.traps)
-            self.puzzle = results.get("puzzle", self.puzzle)
+            self.map_prompt = results.get("map_prompt", self.map_prompt)
             self.save()
         return self
 
@@ -171,16 +150,52 @@ Puzzle (if any): Describe a puzzle or riddle relevant to the room's theme or fun
         prompt = f"""{self.map_prompt}
 
 The map should be in a {self.world.map_style} style.
+
+- GENRE: {self.genre}
+- SCALE: 1 inch == 5 feet
+- DESCRIPTION: A foreboding, expansive complex of interlinked metallic structures set within a barren, desolate landscape, perpetually shrouded in fog and mystery.
+
+!!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS, NO GRID, NO UI, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, IMAGE EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST, DETAILED TEXTURE AND SHADING
 """
         self.map = Map.generate(
             prompt=prompt,
-            tags=["map", "dungeon room", self.genre],
+            tags=["map", "dungeonroom", self.genre],
             aspect_ratio="16:9",
             image_size="4K",
         )
         self.map.save()
         self.save()
         return self.map
+
+    def is_connected(self, other_room):
+        return other_room in self.connected_rooms or self in other_room.connected_rooms
+
+    def connect(self, other_room):
+        if other_room not in self.connected_rooms:
+            self.connected_rooms += [other_room]
+            self.save()
+        if self not in other_room.connected_rooms:
+            other_room.connected_rooms += [self]
+            other_room.save()
+
+    def disconnect(self, other_room):
+        if other_room in self.connected_rooms:
+            self.connected_rooms.remove(other_room)
+            self.save()
+        if self in other_room.connected_rooms:
+            other_room.connected_rooms.remove(self)
+            other_room.save()
+
+    def delete(self, *args, **kwargs):
+        if self.map and self in self.map.associations:
+            if len(self.map.associations) <= 1:
+                self.map.delete()
+            else:
+                self.map.associations.remove(self)
+                self.map.save()
+        for encounter in self.encounters:
+            encounter.delete()
+        super().delete(*args, **kwargs)
 
     def page_data(self):
         return {
