@@ -108,14 +108,14 @@ class DungeonRoom(AutoModel):
         return self.loot + self.creatures + self.characters + self.encounters
 
     @property
-    def description(self):
-        description = self.desc
-        description += self.dimensions
-        description += self.structure_type
-        description += self.shape
-        return f"""
-A {self.shape} shaped {self.structure_type} that is {self.dimensions} and has the following description: {self.desc}
+    def layout(self):
+        return (
+            f"""
+A {self.shape} shaped {self.structure_type} that is {self.dimensions}
 """
+            if self.shape and self.structure_type and self.dimensions
+            else ""
+        )
 
     @property
     def genre(self):
@@ -142,7 +142,7 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
 
 {f"This room has {len(self.connected_rooms)} entrances/exits and is connected to the following rooms: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
-{f"This specific room is described as: {self.desc}." if self.desc else ""}
+{f"This specific room is described as: {self.layout} {self.desc}." if self.desc else ""}
 
 """
         log(f"Prompt:\n{prompt}", _print=True)
@@ -175,12 +175,11 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
                 self.map.save()
         prompt = f"""{self.map_prompt}
 
-{self.description}
+{self.layout}
 
 The map should be in a {self.world.map_style} style.
 
 - GENRE: {self.genre}
-- SCALE: 1 inch == 10 feet
 
 !!IMPORTANT!!: DIRECTLY OVERHEAD TOP DOWN VIEW, NO TEXT, NO CREATURES, NO CHARACTERS, NO GRID, NO UI, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, IMAGE EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST, DETAILED TEXTURE AND SHADING
 """

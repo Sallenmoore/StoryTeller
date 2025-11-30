@@ -24,7 +24,7 @@
     </div>
     <div class="cell">
         <h4>{{dungeonroom.theme}}</h4>
-        <p>{{dungeonroom.description|safe}}</p>
+        <p>{{dungeonroom.desc|safe}}</p>
         <div class="callout">
             <h4>Sensory Details</h4>
             <ul>
@@ -40,6 +40,10 @@
                 <li>{{feature}}</li>
                 {% endfor %}
             </ul>
+        </div>
+        <div class="callout">
+            <h4>Layout</h4>
+            <p>{{dungeonroom.layout}}</p>
         </div>
     </div>
     {% if dungeonroom.map %}
@@ -155,6 +159,15 @@
                 {{form_components.text_input("theme", "Theme", obj.theme)}}
             </div>
             <div class="cell">
+                {{form_components.text_input("structure_type", "Structure Type", obj.structure_type)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("dimensions", "Dimensions", obj.dimensions)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("shape", "Shape", obj.shape)}}
+            </div>
+            <div class="cell">
                 {{form_components.richtexteditor(user, obj, "desc")}}
             </div>
             <div class="cell">
@@ -176,7 +189,6 @@
     <h4>Map</h4>
     <div class="grid-x grid-margin-x" hx-push-url="false" id='object-map-view'>
         <div class="cell medium-9">
-
             <h5 class='text-center'>Map Prompt</h5>
             <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
                   hx-swap='none'>
