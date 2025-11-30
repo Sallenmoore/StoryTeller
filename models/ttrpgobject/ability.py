@@ -34,7 +34,7 @@ class Ability(AutoModel):
 
     _funcobj = {
         "name": "generate_ability",
-        "description": "Generates a new Ability for a TTRPG Character.",
+        "description": "Generates a new acquirable Ability for a TTRPG object.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -68,7 +68,7 @@ class Ability(AutoModel):
                 },
                 "description": {
                     "type": "string",
-                    "description": "Detailed description of the ability and how the Character aquired the ability in MARKDOWN.",
+                    "description": "Detailed description of the ability",
                 },
                 "effects": {
                     "type": "string",
@@ -112,16 +112,19 @@ class Ability(AutoModel):
         return None
 
     def generate(self, obj=None):
-        obj = (obj or self.world) or (
-            lambda: (_ for _ in ()).throw(
-                ValueError(
-                    "World or parent object must be provided to generate Ability."
-                )
-            )
-        )()
+        if obj:
+            prompt = f"""
+Generate a unique {obj.genre} TTRPG ability or feature for a {obj.title}. Ensure conistency with the {obj.title}'s tone, but do not make the ability specific to the {obj.title}: {obj.backstory}.
+"""
+        else:
+            prompt = f"""
+Generate a unique ability or feature for a {obj.genre} TTRPG . Ensure conistency with the {self.world.title}'s tone: {self.world.backstory}
+"""
+        prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
+
         response = self.system.generate_json(
-            f"Generate a unique {obj.genre} TTRPG ability for the following {obj.title} named {obj.name}. Ensure conistency with the {obj.title}'s tone: {obj.backstory} {f'Use the following notes as a guideline: {self}' if str(self) else ''}",
-            f"Given a description of an element in a {obj.genre} TTRPG world, generate a new ability that is consistent with the description {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
+            prompt,
+            f"Given an element in a {self.world.genre} TTRPG {self.world.title}, generate a new ability that is consistent with the tone and themes {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
             Ability._funcobj,
         )
 

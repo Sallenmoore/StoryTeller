@@ -24,40 +24,55 @@ class DungeonRoom(AutoModel):
     creatures = ListAttr(ReferenceAttr(choices=["Creature"]))
     characters = ListAttr(ReferenceAttr(choices=["Character"]))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
+    structure_type = StringAttr(default="")
+    dimensions = StringAttr(default="")
+    shape = StringAttr(default="")
     map = ReferenceAttr(choices=["Map"])
     map_prompt = StringAttr(default="")
 
     _funcobj = {
-        "name": "generate_room",
-        "description": "builds a Room model object that is a part of an explorable, connected location, such as a dungeon, large building, or cave system",
+        "name": "generate_sub_location",
+        "description": "builds a location object that is a part of an explorable, connected location, such as a dungeon, large building, or cave system",
         "parameters": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string",
-                    "description": "The name of the room. It should be more descriptive than decorative, e.g., 'Armory' instead of 'The Old Armory' ",
+                    "description": "The name of the location. It should be more descriptive than decorative, e.g., 'Armory' instead of 'The Old Armory' ",
+                },
+                "structure_type": {
+                    "type": "string",
+                    "description": "The structural category of this area, such as Room, Hallway, Crypt, Chamber, Vault, Corridor, Gallery, Tunnel, Cavern, etc. 'Hallway' implies length and connectivity; 'Chamber' implies size and height; 'Room' implies a standard enclosure; etc.",
+                },
+                "dimensions": {
+                    "type": "string",
+                    "description": "The approximate size and shape (e.g., '10ft wide by 60ft long', '40ft diameter circle', 'Irregular cavern approx 100ft across').",
                 },
                 "theme": {
                     "type": "string",
-                    "description": "The overall theme or mood of the room, such as eerie, grand, or dilapadated",
+                    "description": "The overall theme or mood of the location, such as eerie, grand, or dilapadated",
+                },
+                "shape": {
+                    "type": "string",
+                    "description": "The general shape of the room, such as rectangular, circular, or irregular",
                 },
                 "desc": {
                     "type": "string",
-                    "description": "A physical description that will be used to generate an evocative image of the location with AI",
+                    "description": "A vivid physical description of the area, focusing on its specific structural type (e.g., describing the length of a hallway or the height of a chamber).",
                 },
                 "sensory_details": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "A list of sensory details, such as sight, sound, smell, and touch, that a GM can use to bring the room to life",
+                    "description": "Distinct sensory inputs (smell, sound, temperature) that characterize the area.",
                 },
                 "features": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "A list of notable features or points of interest in the room that players might investigate",
+                    "description": "Notable structural or decorative features (e.g., 'A collapsed ceiling', 'A row of statues', 'A deep chasm').",
                 },
                 "map_prompt": {
                     "type": "string",
-                    "description": "A prompt to generate a map image for this room using AI]",
+                    "description": "A precise prompt for an AI image generator to create a top-down battlemap. It MUST include the structure type and dimensions (e.g., 'A long, narrow stone corridor, 10ft wide, 60ft long, top-down battlemap, black and white line art').",
                 },
             },
         },
@@ -93,6 +108,16 @@ class DungeonRoom(AutoModel):
         return self.loot + self.creatures + self.characters + self.encounters
 
     @property
+    def description(self):
+        description = self.desc
+        description += self.dimensions
+        description += self.structure_type
+        description += self.shape
+        return f"""
+A {self.shape} shaped {self.structure_type} that is {self.dimensions} and has the following description: {self.desc}
+"""
+
+    @property
     def genre(self):
         return self.dungeon.genre
 
@@ -115,17 +140,10 @@ Generate a {self.genre} TTRPG {self.location.location_type} room located in {sel
 
 {f"The location currently has the following rooms: \n\n{'\n\n'.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
 
-{f"This room is connected to the following rooms: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
+{f"This room has {len(self.connected_rooms)} entrances/exits and is connected to the following rooms: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
 {f"This specific room is described as: {self.desc}." if self.desc else ""}
 
-Provide the following details for the room:
-
-Visual Description: A detailed sensory description of the room's appearance, lighting, and atmosphere. Include logical connections to other rooms (e.g., 'north door leads to armory', 'hidden passage behind tapestry').
-
-Sensory Details: Specific sounds, smells, or tactile sensations present in the room (e.g., dripping water, smell of burning, cold draft).
-
-Notable Features: List a few interesting objects, architectural details, or points of interest in the room that players might investigate.
 """
         log(f"Prompt:\n{prompt}", _print=True)
         results = self.world.system.generate_json(
@@ -141,6 +159,9 @@ Notable Features: List a few interesting objects, architectural details, or poin
             self.sensory_details = results.get("sensory_details", self.sensory_details)
             self.features = results.get("features", self.features)
             self.map_prompt = results.get("map_prompt", self.map_prompt)
+            self.structure_type = results.get("structure_type", self.structure_type)
+            self.dimensions = results.get("dimensions", self.dimensions)
+            self.shape = results.get("shape", self.shape)
             self.save()
         return self
 
@@ -153,6 +174,8 @@ Notable Features: List a few interesting objects, architectural details, or poin
                 self.map.associations.remove(self)
                 self.map.save()
         prompt = f"""{self.map_prompt}
+
+{self.description}
 
 The map should be in a {self.world.map_style} style.
 
