@@ -113,7 +113,7 @@ class DungeonRoom(AutoModel):
             f"""
 A {self.shape} shaped {self.structure_type} that is {self.dimensions}
 """
-            if self.shape and self.structure_type and self.dimensions
+            if self.shape or self.structure_type or self.dimensions
             else ""
         )
 
@@ -136,13 +136,15 @@ A {self.shape} shaped {self.structure_type} that is {self.dimensions}
     def generate(self):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         prompt = f"""
-Generate a {self.genre} TTRPG {self.location.location_type} room located in {self.location.name}. {f"The situation is described as: {self.dungeon.desc}" if self.dungeon.desc else ""} {f"The locations relevant history: {self.location.history or self.location.backstory}"}.
+Generate a {self.genre} TTRPG {self.structure_type or self.location.location_type} located in {self.location.name}. {f"The locations relevant history: {self.location.history or self.location.backstory}"}. {f"The area is described as: {self.dungeon.desc}" if self.dungeon.desc else ""}
 
-{f"The location currently has the following rooms: \n\n{'\n\n'.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
+{f"The location currently has the following areas: \n\n{'\n\n'.join([f'{room.name}: {room.desc}' for room in self.dungeon.rooms if room != self and room.desc])}." if len(self.dungeon.rooms) > 1 else ""}
 
-{f"This room has {len(self.connected_rooms)} entrances/exits and is connected to the following rooms: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
+{f"This area has {len(self.connected_rooms)} entrances/exits and is connected to the following areas: {','.join([f'{room.name}' for room in self.connected_rooms])}." if self.connected_rooms else ""}
 
-{f"This specific room is described as: {self.layout} {self.desc}." if self.desc else ""}
+{f"This specific area is described as: {self.layout}, {self.theme}, {self.desc}." if self.desc or self.theme or self.layout else ""}
+
+{"and has the following features:" + ", ".join(self.features) if self.features else ""}
 
 """
         log(f"Prompt:\n{prompt}", _print=True)
