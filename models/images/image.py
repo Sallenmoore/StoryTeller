@@ -44,7 +44,6 @@ class Image(AutoModel):
         cls,
         prompt,
         tags=None,
-        text=False,
         files=None,
         **kwargs,
     ):
@@ -53,17 +52,10 @@ class Image(AutoModel):
         # Clean the prompt to remove any HTML tags
         prompt = BeautifulSoup(prompt, "html.parser").get_text()
         # log(f"=== generation prompt ===\n\n{prompt}", _print=True)
-        temp_prompt = (
-            prompt
-            if text
-            else f"""{prompt}
-IMPORTANT: The image MUST NOT contain any TEXT.
-"""
-        )
-        log(f"=== generation prompt ===\n\n{temp_prompt}", _print=True)
+        log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         try:
             files = {fn: f.to_file() for fn, f in files.items() if f}
-            image = ImageAgent().generate(prompt=temp_prompt, files=files, **kwargs)
+            image = ImageAgent().generate(prompt=prompt, files=files, **kwargs)
         except Exception as e:
             log(f"==== Error: Unable to create image ====\n\n{e}", _print=True)
             return None
