@@ -36,21 +36,6 @@
 </li>
 <li>
     <a href=""
-       hx-get="/api/{{obj.path}}/dungeon" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/dungeon">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.dungeon(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>Dungeon</span>
-            </div>
-        </div>
-    </a>
-</li>
-<li>
-    <a href=""
        hx-get="/api/{{obj.path}}/history"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
@@ -172,6 +157,21 @@
             </div>
             <div class="cell auto">
                 <span>GM Notes</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href=""
+       hx-get="/api/{{obj.path}}/dungeon" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/dungeon">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.dungeon(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Dungeon</span>
             </div>
         </div>
     </a>
