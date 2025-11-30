@@ -178,7 +178,7 @@
         <div class="cell medium-9">
 
             <h5 class='text-center'>Map Prompt</h5>
-            <form hx-post="/api/manage/update" hx-trigger="change"
+            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
                   hx-swap='none'>
                 {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
             </form>

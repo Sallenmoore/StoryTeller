@@ -134,6 +134,7 @@ def edit_room(roompk=None):
     room.theme = request_data.get("theme", room.theme)
     room.sensory_details = request_data.get("sensory_details", room.sensory_details)
     room.features = request_data.get("features", room.features)
+    room.map_prompt = request_data.get("map_prompt", room.map_prompt)
     room.save()
     return get_template_attribute("models/_dungeonroom.html", "manage")(user, room)
 
