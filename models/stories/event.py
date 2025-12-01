@@ -77,7 +77,7 @@ class Event(AutoModel):
         event.impact = (
             f"A {encounter.enemy_type} encounter of {encounter.difficulty} difficulty."
         )
-        event.backstory = encounter.history or encounter.backstory
+        event.backstory = encounter.backstory
         event.outcome = (
             encounter.potential_outcomes[0]
             if encounter.potential_outcomes
