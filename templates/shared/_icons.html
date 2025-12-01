@@ -159,6 +159,15 @@
 {%- endmacro %}
 
 
+{% macro default(size="2rem", label="") -%}
+<iconify-icon icon="game-icons:dice-twenty-faces-one" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
 {% macro delete(size="2rem", label="") -%}
 <iconify-icon icon="mdi:delete" width="{{ size }}"></iconify-icon>
 {% if label %}
@@ -282,6 +291,15 @@ if label %}
 
 {% macro file(size="2rem", label="") -%}
 <iconify-icon icon="lucide:file" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
+{% macro galacticsector(size="2rem", label="") -%}
+<iconify-icon icon="mdi:world" width="{{ size }}"></iconify-icon>
 {% if label %}
 <label>
     {{ label }}
@@ -671,7 +689,7 @@ if label %}
 {%- endmacro %}
 
 
-{% macro star_system(size="2rem", label="") -%}
+{% macro starsystem(size="2rem", label="") -%}
 <iconify-icon icon="solar:sun-bold" width="{{ size }}"></iconify-icon>
 {% if label %}
 <label>

@@ -247,8 +247,15 @@ class TTRPGBase(AutoModel):
 
     @property
     def geneology(self):
-        # TBD: Implement geneology
-        return [self]
+        ancestors = []
+        obj = self
+        while obj.parent and obj.parent not in ancestors:
+            ancestors.append(obj.parent)
+            obj = obj.parent
+            self.add_association(obj)
+        if self.world not in ancestors:
+            ancestors.append(self.world)
+        return ancestors[::-1]
 
     @property
     def genres(self):

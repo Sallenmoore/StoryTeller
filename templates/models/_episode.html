@@ -234,45 +234,10 @@
             </div>
         </div>
         <div class="cell bg-screen padding-vertical-2">
-            <h3 class='text-center'>Quick Reference</h3>
-            {% for a in obj.associations|sort(attribute='name') %}
-            <div class="grid-x grid-padding-x {{ loop.cycle('bg-screen', 'bg-muted') }}"
-                 style='padding-top: .25rem; padding-bottom: .25rem;'>
-                <div class="cell medium-3">
-                    <a href="/{{a.path}}" target='_blank'>{{a.name}}</a>
-                </div>
-                <div class="cell medium-6">
-                    {{ a.sensory_details | random | safe }}
-                </div>
-                <div class="cell medium-3">
-                    {% for e in a.encounters %}
-                    <a href="/{{e.path}}">{{e.name}}</a>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
+            {{gmnotes_components.reference(user, obj)}}
         </div>
         <div class="cell padding-vertical-2">
-            <div class="callout bg-secondary">
-                <h3 class='text-center'>Potential Encounters</h3>
-                <div class="grid-x grid-margin-x grid-padding-y">
-                    {% for e in obj.encounters %}
-                    <div class="cell medium-4">
-                        <div class="callout text-center" style='height:100%;'>
-                            <a href="/{{e.parent.path}}"><span>{{e.parent.name}}</span></a>
-                            <hr>
-                            <a href="/{{e.path}}">
-
-                                <h4 class='text-center'>{{e.name}}</h4>
-                                <div class='text-justify'>
-                                    {{e.triggers | safe}}
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+            {{gmnotes_components.display_encounters(user, obj, manage=False)}}
         </div>
     </div>
 </div>

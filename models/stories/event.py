@@ -139,6 +139,10 @@ class Event(AutoModel):
         return self.world.genre
 
     @property
+    def geneology(self):
+        return [self.world]
+
+    @property
     def path(self):
         return f"event/{self.pk}"
 

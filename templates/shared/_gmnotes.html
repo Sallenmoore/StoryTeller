@@ -31,9 +31,30 @@
 </div>
 {%- endmacro %}
 
-{% macro display_encounters(user, obj) -%}
+{% macro reference(user, obj) -%}
+<h3 class='text-center'>Quick Reference</h3>
+{% for a in obj.associations|sort(attribute='name') %}
+<div class="grid-x grid-padding-x {{ loop.cycle('bg-screen', 'bg-muted') }}"
+     style='padding-top: .25rem; padding-bottom: .25rem;'>
+    <div class="cell medium-3">
+        <a href="/{{a.path}}" target='_blank'>{{a.name}}</a>
+    </div>
+    <div class="cell medium-6">
+        {{ a.sensory_details | random | safe }}
+    </div>
+    <div class="cell medium-3">
+        {% for e in a.encounters %}
+        <a href="/{{e.path}}">{{e.name}}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{%- endmacro %}
+
+{% macro display_encounters(user, obj, manage=True) -%}
 <div class="callout">
     <h5>Encounters</h5>
+    {% if manage %}
     <div class="grid-x grid-margin-x align-justify margin-bottom-2">
         <div class="cell shrink">
             <button class="button small"
@@ -63,6 +84,7 @@
             </ul>
         </div>
     </div>
+    {% endif %}
     <div id="encounter-list" class="grid-x align-justify">
         {% for encounter in obj.encounters %}
         <div class="cell medium-6">

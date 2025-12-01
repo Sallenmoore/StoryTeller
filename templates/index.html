@@ -90,15 +90,6 @@
         {% endblock %}
 
         {% if obj %}
-        <!-- display the current world -->
-        <div class="title-bar align-center-middle padding-0">
-            <a class="text-secondary margin-top-1"
-               style="display: flex; font-size: 1.5rem;"
-               href="/{{obj.world.path}}">
-                <span>{{icon_components.world(size="2rem")}} </span>
-                <span class="title-bar-title ">{{obj.world.name}}</span>
-            </a>
-        </div>
 
         <!-- display the object title  -->
         {{title.object_title(user, obj)}}

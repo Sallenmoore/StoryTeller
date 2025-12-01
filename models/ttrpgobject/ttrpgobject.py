@@ -67,20 +67,6 @@ class TTRPGObject(TTRPGBase):
         return self.world.genre.lower()
 
     @property
-    def geneology(self):
-        ancestry = []
-        if self.parent:
-            ancestry.append(self.parent)
-            ancestor = self.parent
-            while ancestor.parent and ancestor.parent not in ancestry:
-                ancestry.append(ancestor.parent)
-                ancestor = ancestor.parent
-                self.add_association(ancestor)
-        if self.world not in ancestry:
-            ancestry.append(self.world)
-        return ancestry
-
-    @property
     def items(self):
         return [a for a in self.associations if a.model_name() == "Item"]
 

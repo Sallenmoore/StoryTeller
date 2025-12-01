@@ -1,36 +1,34 @@
 {% import "shared/_icons.html" as icon_components %}
 
 {% macro object_title(user, obj) -%}
-<div id="object-title" class="grid-container fluid bordered padding-top-1"
-     style='position:relative;'>
-    <div class="grid-x grid-margin-y align-middle">
+<div class="grid-container fluid padding-1 bg-black" style='position:relative;'>
+    <div class="grid-x grid-padding-x align-center-middle">
+        {% if obj.geneology %}
         <div class="cell text-center">
-            <a href='/{{obj.path}}'>
-                <h1 id="object-name" class='text-primary'>
-                    {{obj.name or obj.title or obj.model_name()|title}}
-                </h1>
+            {% for p in obj.geneology %}
+            <a class='text-muted' href=" /{{p.path}}" style='font-size: 1rem;'>
+                <span>{{p | get_icon('1em')}}</span>
+                <span>{{p.name}}</span>
             </a>
+            {% if not loop.last %}
+            <span class="text-primary text-center"
+                  style="margin: 0 0.5rem; font-size: 1rem; font-weight: bolder;"> / </span>
+            {% endif %}
+            {% endfor %}
         </div>
-        {% if user.world_user(obj) %}
-        <a href="/{{obj.path}}/manage" style='position:absolute;top:1rem;right:1rem;'>
-            {{icon_components.gear('1.5rem')}}
-        </a>
         {% endif %}
-    </div>
-    <div class="grid-x align-center-middle">
-        <div class="cell shrink">
-            {% if obj.model_name() != "World" and obj.geneology %}
-            <nav>
-                <ul class="breadcrumbs" role="navigation">
-                    {% for p in obj.geneology[::-1] %}
-                    <li><a class='text-black' href="/{{p.path}}">{{p.name}}
-                            {% if p.title %} <small>({{p.title}})</small>{%endif%}</a></li>
-                    {% endfor %}
-                </ul>
-            </nav>
-            {% elif obj.model_name() == "Event" %}
-            <span class='secondary'>{{obj.start_date}}</span> - <span
-                  class='secondary'>{{obj.end_date}}</span>
+        <div class="cell text-center">
+            <a class='text-secondary' href="/{{obj.path}}" style='font-size: 2rem;'>
+                {% if obj.image %}
+                <img src="{{obj.image.thumbnail()}}" style='height:2.5rem'>
+                {% endif %}
+                <span>{{obj.name}}</span>
+            </a>
+            {% if user.world_user(obj) %}
+            <a class="text-white" href="/{{obj.path}}/manage"
+               style='position:absolute;top:0.5rem;right:0.5rem;'>
+                {{icon_components.gear('1.5rem')}}
+            </a>
             {% endif %}
         </div>
     </div>

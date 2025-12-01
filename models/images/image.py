@@ -148,6 +148,9 @@ class Image(AutoModel):
     def url(self, size="orig"):
         return f"/image/{self.pk}/{size}"
 
+    def thumbnail(self):
+        return f"/image/{self.pk}/100"
+
     def add_tag(self, tag):
         if tag not in self.tags:
             self.tags.append(tag)

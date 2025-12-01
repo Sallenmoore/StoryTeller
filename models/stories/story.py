@@ -90,6 +90,10 @@ class Story(AutoModel):
         return events
 
     @property
+    def geneology(self):
+        return [self.world]
+
+    @property
     def quests(self):
         return Quest.search(storyline=self)
 

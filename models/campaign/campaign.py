@@ -62,6 +62,10 @@ class Campaign(AutoModel):
         return [a for a in self.associations if a.model_name() == "Faction"]
 
     @property
+    def geneology(self):
+        return [self.world]
+
+    @property
     def genre(self):
         return self.world.genre
 
