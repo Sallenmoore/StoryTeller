@@ -120,7 +120,7 @@ def episodenew(pk):
     episode = campaign.add_episode()
     log(
         "Episode Created",
-        f"Episode {episode.name} ({episode.pk}) created in campaign {episode.campaign.name}",
+        f"Episode {episode.name} ({episode.episode_num}) created in campaign {episode.campaign.name}",
     )
     campaign.current_episode = episode
     campaign.save()
