@@ -79,25 +79,24 @@ class Event(AutoModel):
         )
         event.backstory = encounter.backstory
         event.outcome = "\n---\n".join(encounter.post_scenes)
-        if start_date := encounter.start_date:
-            start_date.obj = event
-            start_date.save()
-            event.start_date = start_date
-        encounter.start_date = None
-        if end_date := encounter.end_date:
-            end_date.obj = event
-            end_date.save()
-            event.end_date = end_date
-        encounter.end_date = None
-        encounter.save()
-        if encounter.image:
-            event.image = encounter.image
-            event.image.associations += [event] if event.image else []
         event.desc = encounter.description
         event.associations = encounter.associations
         event.episodes = encounter.episodes
         event.story = encounter.story
         event.world = encounter.world
+        if encounter.image:
+            event.image = encounter.image
+            encounter.image = None
+            encounter.save()
+        event.save()
+        if start_date := encounter.world.current_date:
+            event.start_date = start_date.copy()
+            event.start_date.day -= random.randint(0, 3)
+            event.start_date.obj = event
+            event.start_date.save()
+            event.end_date = start_date.copy()
+            event.end_date.obj = event
+            event.end_date.save()
         event.save()
         return event
 
