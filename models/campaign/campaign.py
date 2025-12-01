@@ -182,6 +182,8 @@ class Campaign(AutoModel):
             name=f"[Title]",
         )
         episode.save()
+        self.episodes = [episode] + self.episodes
+        self.save()
         if episode.previous_episode:
             episode.loot = episode.previous_episode.loot
             episode.hooks = episode.previous_episode.hooks
@@ -207,8 +209,6 @@ class Campaign(AutoModel):
             episode.start_date.save()
             episode.episode_num = 1
         episode.save()
-        self.episodes = [episode] + self.episodes
-        self.save()
         return self.update_episode(
             pk=episode.pk,
             name=name,
