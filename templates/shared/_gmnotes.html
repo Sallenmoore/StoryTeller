@@ -87,13 +87,19 @@
     {% endif %}
     <div id="encounter-list" class="grid-x align-spaced grid-margin-x">
         {% for encounter in obj.encounters %}
-        <div class="cell medium-3 align-middle">
+        <div class="cell medium-6 align-middle">
             <div class="callout">
-                {{ display_components.object_display(encounter, type=False) }}
-                <h5 class='text-center'>
-                    <a href="/{{encounter.parent.path}}">{{encounter.parent.name}}</a>
-                </h5>
-                {{ encounter.trigger_conditions | safe }}
+                <div class="gridx">
+                    <div class="cell shrink">
+                        {{ display_components.object_display(encounter, type=False) }}
+                    </div>
+                    <div class="cell auto">
+                        <h5 class='text-center'>
+                            <a href="/{{encounter.parent.path}}">{{encounter.parent.name}}</a>
+                        </h5>
+                        {{ encounter.trigger_conditions | safe }}
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
