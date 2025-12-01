@@ -102,7 +102,7 @@ class Episode(AutoModel):
 
     @property
     def geneology(self):
-        return [self.campaign, self.world]
+        return [self.world, self.campaign]
 
     @property
     def items(self):
