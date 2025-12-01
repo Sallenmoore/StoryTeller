@@ -121,42 +121,6 @@
             </div>
         </div>
     </div>
-    <div id="episode-list" class="section small">
-        <div class="callout">
-            <h2 class='text-center'> Episodes </h2>
-            <div class="grid-x">
-                <div class="cell shrink">
-                    <button class="button small"
-                            hx-post="/api/campaign/{{campaign.pk}}/episode/new"
-                            hx-target="#episode-list"
-                            hx-select="#episode-list"
-                            hx-swap="outerHTML">
-                        {{icon_components.plus(size="1rem")}}
-                        New Episode
-                    </button>
-                </div>
-                {% for e in campaign.episodes %}
-                <div class="cell episode-association-entry">
-                    <a href='/episode/{{e.pk}}/manage' target='_blank'>
-                        <div class="grid-x">
-                            <div class="cell medium-2">
-                                <h5 class='text-center '>{{e.name}}: {{e.num}}
-                                </h5>
-                                <h6 class='text-center '>{{e.start_date}} -
-                                    {{e.end_date}}
-                                </h6>
-                            </div>
-                            <div class="cell" class=' generated-text-lightbg'>
-                                {{e.summary | safe}}
-                            </div>
-                        </div>
-                    </a>
-                    <hr>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
     <div class="section small">
         <div class="callout">
             <h2 class='text-center'> Associations </h2>

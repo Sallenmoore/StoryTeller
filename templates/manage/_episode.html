@@ -3,6 +3,7 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_manage.html" as manage_components %}
 {% import "shared/_associations.html" as associations_components%}
+{% import "shared/_gmnotes.html" as gmnotes_components %}
 
 {% macro manage(user, episode) -%}
 <div id="episode-manage" class="grid-x grid-padding-x">
@@ -13,7 +14,7 @@
                     <h3 class='text-center'>Connected Stories</h3>
                     <div class="grid-x align-spaced grid-margin-x">
                         {%for s in episode.stories%}
-                        <div class="cell medium-3">
+                        <div class="cell medium-4">
                             {{ display_components.object_display(s, type=False) }}
                         </div>
                         {%endfor%}
@@ -85,6 +86,9 @@
                     </ul>
                 </div>
             </div>
+        </div>
+        <div class="callout">
+            {{ gmnotes_components.reference(user, episode) }}
         </div>
         <hr>
         <h3>Delete Episode</h3>
