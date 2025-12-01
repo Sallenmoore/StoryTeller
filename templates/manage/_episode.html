@@ -127,7 +127,7 @@
 
         <div class="grid-x">
             <div class="cell">
-                {{ manage_components.dates (user, episode, url="episode/{{episode.pk}}/update") }}
+                {{ manage_components.dates (user, episode, url="episode/"+episode.pk|string+"/update") }}
             </div>
             <div class="cell">
                 <h3>Report</h3>

@@ -40,29 +40,25 @@ episode_endpoint = Blueprint("episode", __name__)
 @episode_endpoint.route("/<string:pk>/update", methods=("POST",))
 def edit_episode(pk=None):
     user, obj, request_data = _loader()
-    pk = pk or request.json.get("episodepk")
+    pk = pk or request_data.get("episodepk")
+    log(request_data)
     if episode := Episode.get(pk):
-        episode.name = request.json.get("name", episode.name)
-        episode.episode_num = request.json.get("episode_num", episode.episode_num)
-        start_date = request.json.get("start_date", episode.start_date)
-        if (
-            start_date
-            and start_date["day"]
-            and start_date["month"]
-            and start_date["year"]
-        ):
+        episode.name = request_data.get("name", episode.name)
+        episode.episode_num = request_data.get("episode_num", episode.episode_num)
+        start_date = request_data.get("start_date", episode.start_date)
+        if start_date and start_date["year"]:
             episode.start_date = start_date
-        end_date = request.json.get("end_date", episode.end_date)
-        if end_date and end_date["day"] and end_date["month"] and end_date["year"]:
+        end_date = request_data.get("end_date", episode.end_date)
+        if end_date and end_date["year"]:
             episode.end_date = end_date
-        episode.episode_report = request.json.get(
+        episode.episode_report = request_data.get(
             "episode_report", episode.episode_report
         )
-        episode.loot = request.json.get("loot", episode.loot)
-        episode.hooks = request.json.get("hooks", episode.hooks)
-        episode.transcription = request.json.get("transcription", episode.transcription)
+        episode.loot = request_data.get("loot", episode.loot)
+        episode.hooks = request_data.get("hooks", episode.hooks)
+        episode.transcription = request_data.get("transcription", episode.transcription)
         episode.save()
-    log(episode)
+    log(episode.start_date)
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
         episode,
