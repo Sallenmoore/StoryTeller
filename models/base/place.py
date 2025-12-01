@@ -56,8 +56,12 @@ class Place(TTRPGObject):
             # log(map_prompt)
             prompt = f"""{self.map_prompt}
 
+The map has the following features:
+- {"\n- ".join(f"{loc.name}:{loc.location_type}" for loc in self.locations)}
+
 The map should be in a {self.world.map_style} style.
 """
+            log(prompt, _print=True)
             map = Map.generate(
                 prompt=prompt,
                 tags=["map", *self.image_tags],

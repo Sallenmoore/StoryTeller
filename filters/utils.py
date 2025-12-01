@@ -8,7 +8,8 @@ from autonomous import log
 
 def get_icon(obj, size="2rem"):
     try:
-        icon_func = obj.title.lower().replace(" ", "").replace("-", "")
+        icon_func = obj.title if hasattr(obj, "title") else obj.model_name()
+        icon_func = icon_func.lower().replace(" ", "").replace("-", "")
         return get_template_attribute("shared/_icons.html", icon_func)(size)
     except Exception as e:
         log(e, obj, "No icon found for object")
