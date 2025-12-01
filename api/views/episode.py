@@ -105,7 +105,7 @@ def addstory(episodepk):
     if story not in episode.stories:
         episode.stories += [story]
     episode.save()
-    return get_template_attribute("models/_episode.html", "gmnotes")(
+    return get_template_attribute("models/_episode.html", "manage")(
         user,
         episode,
     )
