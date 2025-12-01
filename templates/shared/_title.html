@@ -3,7 +3,7 @@
 {% macro object_title(user, obj) -%}
 <div class="grid-container fluid padding-1 bg-black" style='position:relative;'>
     <div class="grid-x grid-padding-x align-center-middle">
-        {% if obj.geneology %}
+        {% if obj.world != obj and obj.geneology %}
         <div class="cell text-center">
             {% for p in obj.geneology %}
             <a class='text-muted' href=" /{{p.path}}" style='font-size: 1rem;'>
