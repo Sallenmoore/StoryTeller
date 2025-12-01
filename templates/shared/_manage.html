@@ -83,8 +83,8 @@
 <hr>
 {% endmacro %}
 
-{%macro dates(user, obj, stacked=False) -%}
-<form id="manage-obj-dates" hx-post="/api/manage/update" hx-swap="none"
+{%macro dates(user, obj, stacked=False, url="manage/update") -%}
+<form id="manage-obj-dates" hx-post="/api/{{url}}" hx-swap="none"
       hx-trigger="input delay:1s, change">
     <div class="grid-x grid-margin-x align-center" style='position:relative;'>
         <div class="cell small-12 {% if not stacked %} medium-6 {% endif %}  align-center-middle">

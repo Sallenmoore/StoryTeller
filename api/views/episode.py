@@ -62,6 +62,7 @@ def edit_episode(pk=None):
         episode.hooks = request.json.get("hooks", episode.hooks)
         episode.transcription = request.json.get("transcription", episode.transcription)
         episode.save()
+    log(episode)
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
         episode,
