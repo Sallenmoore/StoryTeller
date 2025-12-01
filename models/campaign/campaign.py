@@ -181,7 +181,7 @@ class Campaign(AutoModel):
             campaign=self,
             name=f"[Title]",
         )
-
+        episode.save()
         if episode.previous_episode:
             episode.loot = episode.previous_episode.loot
             episode.hooks = episode.previous_episode.hooks
