@@ -45,7 +45,7 @@ class Dungeon(AutoModel):
 
 The layout must include the following distinct areas connected by corridors:
 
-{"\n\n".join([f"{room.name} [{room.is_entrance and "Entrance"}]\n  - connected rooms: {[cr.name for cr in room.connected_rooms]}" for room in self.rooms])}
+{"\n\n".join([f"{room.name} {"[Area Entrance/Exit]" if room.is_entrance else ""}\n  - connected rooms: {[cr.name for cr in room.connected_rooms]}" for room in self.rooms])}
 
 Ensure logical connections between these rooms with clear doorways. Entrances are noted above. The goal is a clear, valid layout.
 """
