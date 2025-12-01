@@ -102,7 +102,7 @@ class Episode(AutoModel):
 
     @property
     def geneology(self):
-        return [self.campaign, self.world]
+        return [self.world, self.campaign]
 
     @property
     def items(self):
@@ -157,7 +157,7 @@ class Episode(AutoModel):
     @property
     def previous_episode(self):
         for ep in self.campaign.episodes:
-            if ep.episode_num == self.episode_num - 1:
+            if ep.episode_num and ep.episode_num == self.episode_num - 1:
                 return ep
         return None
 

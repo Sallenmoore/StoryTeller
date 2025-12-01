@@ -3,6 +3,7 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_manage.html" as manage_components %}
 {% import "shared/_associations.html" as associations_components%}
+{% import "shared/_gmnotes.html" as gmnotes_components %}
 
 {% macro manage(user, episode) -%}
 <div id="episode-manage" class="grid-x grid-padding-x">
@@ -13,7 +14,7 @@
                     <h3 class='text-center'>Connected Stories</h3>
                     <div class="grid-x align-spaced grid-margin-x">
                         {%for s in episode.stories%}
-                        <div class="cell medium-3">
+                        <div class="cell medium-4">
                             {{ display_components.object_display(s, type=False) }}
                         </div>
                         {%endfor%}
@@ -86,14 +87,17 @@
                 </div>
             </div>
         </div>
+        <div class="callout">
+            {{ gmnotes_components.reference(user, episode) }}
+        </div>
         <hr>
         <h3>Delete Episode</h3>
         <div class="grid-x align-spaced">
             <div class="cell shrink">
                 <button class="button is-light has-text-dark"
-                        hx-post="/api/campaign/episode/{{episode.pk}}/delete"
-                        hx-target="#details-container"
-                        hx-select="#details-container"
+                        hx-post="/api/episode/{{episode.pk}}/delete"
+                        hx-target="#page-content"
+                        hx-select="#page-content"
                         hx-swap="outerHTML"
                         hx-confirm='Are you sure you want to delete this Episode?'>
                     {{icon_components.trash(size="1rem")}}
@@ -123,7 +127,7 @@
 
         <div class="grid-x">
             <div class="cell">
-                {{ manage_components.dates (user, episode) }}
+                {{ manage_components.dates (user, episode, url="episode/{{episode.pk}}/update") }}
             </div>
             <div class="cell">
                 <h3>Report</h3>

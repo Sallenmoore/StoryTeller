@@ -178,24 +178,35 @@ class Campaign(AutoModel):
         report=None,
     ):
         episode = Episode(
-            campaign=self,
-            name=f"[Title]",
+            campaign=self, name="[Title]", episode_num=len(self.episodes) + 1
         )
-        episode.start_date = episode.world.current_date
+        episode.save()
+        self.episodes = [episode] + self.episodes
+        self.save()
         if episode.previous_episode:
             episode.loot = episode.previous_episode.loot
             episode.hooks = episode.previous_episode.hooks
             episode.associations = episode.previous_episode.associations
-            if not start_date and episode.previous_episode.end_date:
-                start_date = episode.previous_episode.end_date
+            if (
+                episode.previous_episode.end_date
+                and episode.previous_episode.end_date.year > 0
+            ):
+                episode.start_date = episode.previous_episode.end_date.copy()
+                episode.start_date.obj = episode
+                episode.start_date.save()
             episode.episode_num = episode.previous_episode.episode_num + 1
         else:
             episode.loot = ""
             episode.hooks = ""
             episode.associations = episode.party.members if episode.party else []
+            episode.start_date = (
+                self.end_date.copy()
+                if self.end_date.year > 0
+                else episode.world.current_date.copy()
+            )
+            episode.start_date.obj = episode
+            episode.start_date.save()
         episode.save()
-        self.episodes = [episode] + self.episodes
-        self.save()
         return self.update_episode(
             pk=episode.pk,
             name=name,
@@ -227,7 +238,7 @@ class Campaign(AutoModel):
                 episode.episode_report = report
             episode.save()
             self.episodes = list(set(self.episodes))
-            self.episodes.sort(key=lambda x: x.episode_num, reverse=False)
+            self.episodes.sort(key=lambda x: x.episode_num, reverse=True)
             self.save()
         else:
             raise ValueError("Episode not found in campaign")

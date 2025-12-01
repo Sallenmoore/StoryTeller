@@ -155,45 +155,59 @@
 {%- endmacro %}
 
 {% macro episodes(user, campaign) -%}
-<h3 class='text-center'>Episodes</h3>
-<div class="grid-x">
-    {% for entry in campaign.episodes %}
-    <div class="cell">
-        <div class="callout ">
-            <div class="grid-x">
-                <div class="cell align-center-middle">
-                    <a href='/episode/{{entry.pk}}'>
-                        <h4>{{entry.name}}</h4>
-                    </a>
-                </div>
-                <div class="cell shrink">
-                    {% if entry.start_date %}
-                    <span class='label has-text-white'>
-                        {{entry.start_date}}
-                    </span>
-                    {% endif %}
-                </div>
-                <div class="cell shrink">
-                    {{icon_components.line()}}
-                </div>
-                <div class="cell shrink">
-                    {% if entry.end_date %}
-                    <span class='label has-text-white'>
-                        {{entry.end_date}}
-                    </span>
-                    {% endif %}
-                </div>
-                <div class="cell align-center-middle generated-text-lightbg"
-                     style='font-size: 0.75rem;'>
-                    <div class="callout ">
-                        {{entry.summary | safe}}
+{% if user.world_user(campaign)%}
+<div id="episode-list" class="section small">
+    <div class="callout">
+        <h2 class='text-center'> Episodes </h2>
+        <div class="grid-x">
+            <div class="cell shrink">
+                <button class="button small"
+                        hx-post="/api/campaign/{{campaign.pk}}/episode/new"
+                        hx-target="#episode-list"
+                        hx-select="#episode-list"
+                        hx-swap="outerHTML">
+                    {{icon_components.plus(size="1rem")}}
+                    New Episode
+                </button>
+            </div>
+            {% for entry in campaign.episodes %}
+            <div class="cell episode-association-entry">
+                <div class="callout ">
+                    <div class="grid-x">
+                        <div class="cell align-center-middle">
+                            <a href='/episode/{{entry.pk}}'>
+                                <h4>{{entry.name}}</h4>
+                            </a>
+                        </div>
+                        <div class="cell shrink">
+                            {% if entry.start_date %}
+                            <span class='label has-text-white'>
+                                {{entry.start_date}}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="cell shrink">
+                            {{icon_components.line()}}
+                        </div>
+                        <div class="cell shrink">
+                            {% if entry.end_date %}
+                            <span class='label has-text-white'>
+                                {{entry.end_date}}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="cell align-center-middle generated-text-lightbg"
+                             style='font-size: 0.75rem;'>
+                            {{entry.summary | safe}}
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endfor %}
 </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}
