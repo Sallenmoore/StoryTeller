@@ -169,7 +169,9 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
 
     def build_map_prompt(self):
         base_prompt = f"Top-down 2D battlemap of a {self.theme} {self.structure_type} named {self.name}. "
-        style = f"{self.world.map_style} RPG map style, vivid, high contrast. The layout should be more complex than a simple open room as described below."
+        style = (
+            f"Use a {self.world.map_style} RPG battlemap style, vivid, high contrast."
+        )
 
         # Logic to handle long corridors vs rooms
         if any(
