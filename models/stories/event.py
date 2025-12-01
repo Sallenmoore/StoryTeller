@@ -78,11 +78,7 @@ class Event(AutoModel):
             f"A {encounter.enemy_type} encounter of {encounter.difficulty} difficulty."
         )
         event.backstory = encounter.backstory
-        event.outcome = (
-            encounter.potential_outcomes[0]
-            if encounter.potential_outcomes
-            else "Unknown"
-        )
+        event.outcome = "\n---\n".join(encounter.post_scenes)
         if start_date := encounter.start_date:
             start_date.obj = event
             start_date.save()
