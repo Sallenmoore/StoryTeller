@@ -178,8 +178,7 @@ class Campaign(AutoModel):
         report=None,
     ):
         episode = Episode(
-            campaign=self,
-            name=f"[Title]",
+            campaign=self, name="[Title]", episode_num=len(self.episodes) + 1
         )
         episode.save()
         self.episodes = [episode] + self.episodes
@@ -207,7 +206,6 @@ class Campaign(AutoModel):
             )
             episode.start_date.obj = episode
             episode.start_date.save()
-            episode.episode_num = 1
         episode.save()
         return self.update_episode(
             pk=episode.pk,
