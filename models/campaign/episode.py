@@ -345,7 +345,6 @@ class Episode(AutoModel):
             if self.graphic:
                 self.graphic.delete()
             self.graphic = image
-            self.graphic.associations += [self]
             self.graphic.save()
             self.save()
         else:
