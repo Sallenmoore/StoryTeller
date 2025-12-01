@@ -84,6 +84,15 @@ class Date(AutoModel):
         year = int(parts[2])
         return cls(obj=obj, calendar=calendar, day=day, month=month, year=year)
 
+    def copy(self):
+        return Date(
+            obj=self.obj,
+            calendar=self.calendar,
+            day=self.day,
+            month=self.month,
+            year=self.year,
+        )
+
     ## MARK: - Verification Hooks
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
