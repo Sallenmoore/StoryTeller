@@ -58,7 +58,8 @@ class Lore(AutoModel):
 
     def delete(self):
         if self.image:
-            self.image.remove_association(self)
+            self.image.delete()
+            self.image = None
         if self.start_date:
             self.start_date.delete()
         if self.end_date:

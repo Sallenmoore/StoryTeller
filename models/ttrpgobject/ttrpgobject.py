@@ -134,8 +134,15 @@ class TTRPGObject(TTRPGBase):
 
         return self.world
 
-    def get_episodes(self, campaign):
-        return [c for c in campaign.episodes if self in c.associations]
+    def get_episodes(self, campaign=None):
+        episodes = []
+        if campaign:
+            episodes = [c for c in campaign.episodes if self in c.associations]
+        else:
+            for campaign in self.world.campaigns:
+                if self in campaign.associations:
+                    episodes += [c for c in campaign.episodes if self in c.associations]
+        return episodes
 
     ## MARK: - Verification Methods
     ###############################################################

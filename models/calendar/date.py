@@ -11,7 +11,7 @@ class Date(AutoModel):
         choices=["TTRPGBase", "Episode", "Event", "Lore"], required=True
     )
     year = IntAttr(default=0)
-    day = IntAttr(default=0)
+    day = IntAttr(default=-1)
     month = IntAttr(default=-1)
     calendar = ReferenceAttr(choices=["Calendar"], required=True)
 
@@ -132,9 +132,9 @@ class Date(AutoModel):
             self.year = 0
 
     def pre_save_month(self):
-        if self.month and isinstance(self.month, str):
+        if isinstance(self.month, str):
             self.month = self.calendar.months.index(self.month)
-        if not self.month or self.month < 0:
+        if self.month < 0:
             self.month = random.randint(0, 11)
 
     def pre_save_calendar(self):

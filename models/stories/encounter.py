@@ -325,9 +325,8 @@ The image should be in a {self.world.image_style} style.
             prompt=prompt, tags=["encounter", self.world.name], files=enemies
         ):
             if self.image:
-                self.image.remove_association(self)
+                self.image.delete()
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:
@@ -443,10 +442,6 @@ The image should be in a {self.world.image_style} style.
                 )
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
-            self.image.save()
-
-        if self.image and self not in self.image.associations:
-            self.image.associations += [self]
             self.image.save()
 
     def pre_save_traits(self):

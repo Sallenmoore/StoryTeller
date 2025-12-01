@@ -120,7 +120,8 @@ class Story(AutoModel):
     ################ Crud ################
     def delete(self):
         if self.image:
-            self.image.remove_association(self)
+            self.image.delete()
+            self.image = None
         super().delete()
 
     def generate(self):
@@ -197,13 +198,12 @@ class Story(AutoModel):
         )
         self.save()
 
-        if self.image:
-            self.image.remove_association(self)
         if image := Image.generate(
             prompt=self.history, tags=[self.world.name, "story"]
         ):
+            if self.image:
+                self.image.delete()
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:

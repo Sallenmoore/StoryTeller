@@ -308,14 +308,13 @@ class Encounter(AutoModel):
 
     def generate_image(self):
         # MARK: generate_image
-        if self.image:
-            self.image.remove_association(self)
         party = {f"{c.name}.webp": c.image for c in self.players if c.image}
         if image := Image.generate(
-            prompt=self.image_prompt, tags=["encounter", self.world.name]
+            prompt=self.image_prompt, tags=["encounter", self.world.name], files=party
         ):
+            if self.image:
+                self.image.delete()
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:
@@ -431,10 +430,6 @@ class Encounter(AutoModel):
                 )
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
-            self.image.save()
-
-        if self.image and self not in self.image.associations:
-            self.image.associations += [self]
             self.image.save()
 
     def pre_save_traits(self):

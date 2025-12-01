@@ -90,7 +90,7 @@ def edit_event(pk=None):
     event.end_date = request.json.get("end_date", event.end_date)
     event.save()
 
-    return get_template_attribute("manage/_event.html", "event")(
+    return get_template_attribute("manage/_event.html", "manage")(
         user,
         event,
     )

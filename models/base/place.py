@@ -49,12 +49,7 @@ class Place(TTRPGObject):
     # MARK: generate_map
     def generate_map(self):
         # log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
+
         if self.backstory and self.backstory_summary:
             if not self.map_prompt:
                 self.map_prompt = self.system.map_prompt(self)
@@ -63,12 +58,15 @@ class Place(TTRPGObject):
 
 The map should be in a {self.world.map_style} style.
 """
-            self.map = Map.generate(
+            map = Map.generate(
                 prompt=prompt,
                 tags=["map", *self.image_tags],
                 aspect_ratio="16:9",
                 image_size="4K",
             )
+            if self.map and map:
+                self.map.delete()
+            self.map = map
             self.map.save()
             self.save()
         else:
@@ -101,12 +99,8 @@ The map should be in a {self.world.map_style} style.
         return results
 
     def delete(self):
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
+        if self.map:
+            self.map.delete()
         for encounter in self.encounters:
             encounter.delete()
         return super().delete()
@@ -178,10 +172,6 @@ The map should be in a {self.world.map_style} style.
 
         if self.map and not self.map.tags:
             self.map.tags = [*self.image_tags, "map"]
-            self.map.save()
-
-        if self.map and self not in self.map.associations:
-            self.map.associations += [self]
             self.map.save()
 
         # log(self.map)

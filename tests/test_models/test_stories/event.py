@@ -96,7 +96,7 @@ class Event(AutoModel):
         encounter.save()
         if encounter.image:
             event.image = encounter.image
-            event.image.associations += [event] if event.image else []
+            encounter.image = None
         event.desc = encounter.description
         event.associations = encounter.associations
         event.episodes = encounter.episodes
@@ -150,7 +150,8 @@ class Event(AutoModel):
 
     def delete(self):
         if self.image:
-            self.image.remove_association(self)
+            self.image.delete()
+            self.image = None
         if self.start_date:
             self.start_date.delete()
         if self.end_date:
@@ -263,8 +264,6 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
             self.generate_image()
 
     def generate_image(self):
-        if self.image:
-            self.image = self.image.remove_association(self)
         party = [c.image for c in self.players if c.image]
         prompt = f"{self.desc}\n\nUse the attached image files as a reference for character appearances.\n\nMain character descriptions:\n\n{'\n\n'.join([f'{c.name}: ({c.lookalike}){c.description}' for c in self.players])}."
         # log(
@@ -276,8 +275,9 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
             tags=["event", self.world.name, str(self.world.pk)],
             files=party,
         ):
+            if self.image:
+                self.image.delete()
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:
@@ -438,8 +438,4 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
                 )
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
-            self.image.save()
-
-        if self.image and self not in self.image.associations:
-            self.image.associations += [self]
             self.image.save()

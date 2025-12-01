@@ -52,11 +52,7 @@ class Map(Image):
             raise ValueError("Image must be an instance of Image class.")
         # Check if the image is a map
         # Generate a map from the image
-        map_obj = Map(
-            prompt=image.prompt,
-            tags=image.tags,
-            associations=image.associations,
-        )
+        map_obj = Map(prompt=image.prompt, tags=image.tags)
         map_obj.data.put(image.data.read(), content_type="image/webp")
         return map_obj
 

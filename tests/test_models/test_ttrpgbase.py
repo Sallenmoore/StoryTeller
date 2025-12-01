@@ -403,11 +403,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
     # MARK: generate_image
     def generate_image(self):
-        if self.image:
-            self.image.remove_association(self)
         if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:

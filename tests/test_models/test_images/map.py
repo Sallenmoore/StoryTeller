@@ -43,7 +43,6 @@ class Map(Image):
         map_obj = Map(
             prompt=image.prompt,
             tags=image.tags,
-            associations=image.associations,
         )
         map_obj.data.put(image.data.read(), content_type="image/webp")
         return map_obj

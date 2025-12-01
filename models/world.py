@@ -380,25 +380,21 @@ class World(TTRPGBase):
 
     # MARK: generate_map
     def generate_map(self):
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                log("deleting map", self.map, _print=True)
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
         if not self.map_prompt:
             self.map_prompt = self.system.map_prompt(self)
         prompt = f"""{self.map_prompt}
 
 The map should be in a {self.world.map_style} style.
 """
-        self.map = Map.generate(
+        map = Map.generate(
             prompt=prompt,
             tags=["map", self.model_name().lower(), self.genre],
             img_quality="hd",
             img_size="1792x1024",
         )
+        if map and self.map:
+            self.map.delete()
+        self.map = map
         self.map.save()
         self.save()
         return self.map
@@ -520,10 +516,6 @@ The map should be in a {self.world.map_style} style.
 
         if self.map and not self.map.tags:
             self.map.tags = self.map_tags
-            self.map.save()
-
-        if self.map and self not in self.map.associations:
-            self.map.associations += [self]
             self.map.save()
 
     def pre_save_system(self):

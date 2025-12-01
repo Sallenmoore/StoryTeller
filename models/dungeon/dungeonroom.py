@@ -96,9 +96,6 @@ class DungeonRoom(AutoModel):
             ass.parent = location
             ass.save()
         room.map = location.map
-        if room.map and room not in room.map.associations:
-            room.map.associations.append(room)
-            room.map.save()
         room.map_prompt = location.map_prompt
         room.save()
         return room
@@ -234,12 +231,8 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             other_room.save()
 
     def delete(self, *args, **kwargs):
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
+        if self.map:
+            self.map.delete()
         for encounter in self.encounters:
             encounter.delete()
         super().delete(*args, **kwargs)

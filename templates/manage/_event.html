@@ -37,7 +37,7 @@
         </div>
     </div>
 </form>
-{{manage_components.dates(user, event)}}
+{{manage_components.dates(user, event, url="event/"+event.pk | string+"/update")}}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
         <div class="callout ">

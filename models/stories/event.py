@@ -23,7 +23,6 @@ class Event(AutoModel):
     desc = StringAttr(default="")
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
-    episode = ReferenceAttr(choices=["Episode"])
     episodes = ListAttr(ReferenceAttr(choices=["Episode"]))
     world = ReferenceAttr(choices=["World"], required=True)
 
@@ -81,7 +80,9 @@ class Event(AutoModel):
         event.outcome = "\n---\n".join(encounter.post_scenes)
         event.desc = encounter.description
         event.associations = encounter.associations
-        event.episodes = encounter.episodes
+        event.episodes = [
+            ep for ep in encounter.parent.get_episodes() if encounter in ep.encounters
+        ]
         event.story = encounter.story
         event.world = encounter.world
         if encounter.image:
@@ -153,7 +154,8 @@ class Event(AutoModel):
 
     def delete(self):
         if self.image:
-            self.image.remove_association(self)
+            self.image.delete()
+            self.image = None
         if self.start_date:
             self.start_date.delete()
         if self.end_date:
@@ -278,9 +280,8 @@ The image should be in a {self.world.image_style} style.
             files=party,
         ):
             if self.image:
-                self.image = self.image.remove_association(self)
+                self.image = self.image.delete()
             self.image = image
-            self.image.associations += [self]
             self.image.save()
             self.save()
         else:
@@ -314,6 +315,13 @@ The image should be in a {self.world.image_style} style.
             self.save()
         return obj
 
+    def remove_association(self, obj):
+        # log(len(self.associations), obj in self.associations)
+        if obj in self.associations:
+            self.associations.remove(obj)
+            self.save()
+        return obj
+
     ## MARK: - Verification Methods
     ###############################################################
     ##                    VERIFICATION HOOKS                   ##
@@ -321,15 +329,6 @@ The image should be in a {self.world.image_style} style.
     @classmethod
     def auto_post_init(cls, sender, document, **kwargs):
         super().auto_post_init(sender, document, **kwargs)
-        # MIGRATION: old Date to new Date
-        if document.start_date and not isinstance(document.start_date, Date):
-            document.start_date = None
-        if document.end_date and not isinstance(document.end_date, Date):
-            document.end_date = None
-        ##### MIGRATION HOOKS #####
-        if document.episode and not document.episodes:
-            document.episodes = [document.episode]
-            document.episode = None
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -360,20 +359,17 @@ The image should be in a {self.world.image_style} style.
                         dates.pop()
                 start_date = Date(obj=self, calendar=self.calendar)
                 start_date.day, start_date.month, start_date.year = (
-                    self.start_date["day"],
+                    int(self.start_date["day"]),
                     self.start_date["month"],
-                    self.start_date["year"],
+                    int(self.start_date["year"]),
                 )
-                start_date.month = (
-                    self.calendar.months.index(start_date.month.title())
-                    if start_date.month
-                    else random.randrange(len(self.calendar.months))
-                )
+                start_date.month = self.calendar.months.index(start_date.month.title())
                 start_date.day = (
                     int(start_date.day) if start_date.day else random.randint(1, 28)
                 )
                 start_date.year = int(start_date.year) if start_date.year else -1
                 self.start_date = start_date
+                log(start_date.month)
             elif not self.start_date:
                 self.start_date = Date(
                     obj=self,
@@ -382,7 +378,9 @@ The image should be in a {self.world.image_style} style.
                     month=random.randrange(len(self.calendar.months) or 12),
                     year=0,
                 )
+            log(start_date.month)
             self.start_date.save()
+            log(self.start_date, self.end_date)
 
             if isinstance(self.end_date, dict):
                 if dates := Date.search(obj=self, calendar=self.calendar):
@@ -395,11 +393,7 @@ The image should be in a {self.world.image_style} style.
                     self.end_date["month"],
                     self.end_date["year"],
                 )
-                end_date.month = (
-                    self.calendar.months.index(end_date.month.title())
-                    if end_date.month
-                    else random.randrange(len(self.calendar.months))
-                )
+                end_date.month = self.calendar.months.index(end_date.month.title())
                 end_date.day = (
                     int(end_date.day) if end_date.day else random.randint(1, 28)
                 )
@@ -414,15 +408,17 @@ The image should be in a {self.world.image_style} style.
                     year=0,
                 )
             self.end_date.save()
-
+        log(self.start_date, self.end_date)
         if self.start_date and self.start_date.day <= 0:
             self.start_date.day = random.randint(1, 28)
-        if self.start_date and self.start_date.month <= 0:
+        if self.start_date and self.start_date.month < 0:
             self.start_date.month = random.randint(1, 12)
         if self.end_date and self.end_date.day <= 0:
             self.end_date.day = random.randint(1, 28)
-        if self.end_date and self.end_date.month <= 0:
+        if self.end_date and self.end_date.month < 0:
             self.end_date.month = random.randint(1, 12)
+
+        log(self.start_date, self.end_date)
 
     def pre_save_image(self):
         if isinstance(self.image, str):
@@ -441,8 +437,4 @@ The image should be in a {self.world.image_style} style.
                 )
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
-            self.image.save()
-
-        if self.image and self not in self.image.associations:
-            self.image.associations += [self]
             self.image.save()

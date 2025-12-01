@@ -21,17 +21,6 @@ class Image(AutoModel):
     data = FileAttr(default="")
     prompt = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
-    associations = ListAttr(
-        ReferenceAttr(
-            choices=[
-                "TTRPGBase",
-                "Story",
-                "Event",
-                "Episode",
-                "Encounter",
-            ]
-        )
-    )
 
     ################### Class Variables #####################
 
@@ -136,13 +125,6 @@ class Image(AutoModel):
             self.data.delete()
         return super().delete()
 
-    def remove_association(self, assoc):
-        if assoc in self.associations:
-            self.associations.remove(assoc)
-            self.save()
-        if len(self.associations) == 0:
-            self.delete()
-
     ################### Instance Methods #####################
 
     def url(self, size="orig"):
@@ -216,7 +198,6 @@ class Image(AutoModel):
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_tags()
-        document.pre_save_associations()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -225,11 +206,7 @@ class Image(AutoModel):
     # def clean(self):
     #     super().clean()
 
-    ################### verify associations ##################
+    ################### verify ##################
     def pre_save_tags(self):
         # log("=== Pre Save Tags ===", self.tags)
         self.tags = [t.lower() for t in self.tags if t]
-
-    def pre_save_associations(self):
-        # log("=== Pre Save Associations ===", self.associations)
-        self.associations = list(set(self.associations))
