@@ -240,7 +240,7 @@ class Campaign(AutoModel):
                 episode.episode_report = report
             episode.save()
             self.episodes = list(set(self.episodes))
-            self.episodes.sort(key=lambda x: x.episode_num, reverse=False)
+            self.episodes.sort(key=lambda x: x.episode_num, reverse=True)
             self.save()
         else:
             raise ValueError("Episode not found in campaign")
