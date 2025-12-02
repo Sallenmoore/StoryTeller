@@ -156,7 +156,6 @@ HISTORY: {self.world.history or self.world.backstory}.
             ]:
                 setattr(self, field, process_markdown_field(field))
             self.save()
-        log(f"Generating ability for {obj.name}")
-        if hasattr(obj, "abilities") and self not in obj.abilities:
+        if obj and hasattr(obj, "abilities") and self not in obj.abilities:
             obj.abilities += [self]
             obj.save()
