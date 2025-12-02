@@ -110,51 +110,54 @@
                 </div>
             </div>
 
+
             {% if obj.dungeon.rooms %}
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for room in obj.dungeon.rooms %}
-                <div class="cell medium-4">
-                    <div class="callout secondary">
-                        <h6>{{room.name}}</h6>
-                        <div class="grid-x align-spaced">
-                            <div class="cell shrink">
-                                <a class="button small"
-                                   hx-get="/api/dungeon/room/{{room.pk}}"
-                                   hx-target="#page-content"
-                                   hx-indicator=""
-                                   hx-push-url="false">
-                                    View Room
-                                </a>
-                            </div>
-                            <div class="cell shrink">
-                                <a class="button small"
-                                   hx-post="/api/dungeon/room/{{room.pk}}/entrance"
-                                   hx-target="#page-content"
-                                   hx-indicator=""
-                                   hx-push-url="false">
-                                    Toggle Entrance
-                                </a>
-                            </div>
-                            <div class="cell shrink">
-                                <a class="button small"
-                                   hx-post="/api/dungeon/room/{{room.pk}}/delete"
-                                   hx-target="#page-content"
-                                   hx-indicator=""
-                                   hx-push-url="false"
-                                   hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
-                                    Delete Room
-                                </a>
-                            </div>
-                            <div class="cell">
-                                {% for cr in room.connected_rooms %}
-                                <span class="badge secondary">{{cr.name}}</span>
-                                {% endfor %}
+            <section id="rooms" class="divider">
+                <div class="grid-x align-spaced grid-margin-x">
+                    {% for room in obj.dungeon.rooms %}
+                    <div class="cell medium-4">
+                        <div class="callout secondary">
+                            <h6>{{room.name}}</h6>
+                            <div class="grid-x align-spaced">
+                                <div class="cell shrink">
+                                    <a class="button small"
+                                       hx-get="/api/dungeon/room/{{room.pk}}"
+                                       hx-target="#rooms"
+                                       hx-indicator=""
+                                       hx-push-url="false">
+                                        View Room
+                                    </a>
+                                </div>
+                                <div class="cell shrink">
+                                    <a class="button small"
+                                       hx-post="/api/dungeon/room/{{room.pk}}/entrance"
+                                       hx-target="#rooms"
+                                       hx-indicator=""
+                                       hx-push-url="false">
+                                        Toggle Entrance
+                                    </a>
+                                </div>
+                                <div class="cell shrink">
+                                    <a class="button small"
+                                       hx-post="/api/dungeon/room/{{room.pk}}/delete"
+                                       hx-target="#rooms"
+                                       hx-indicator=""
+                                       hx-push-url="false"
+                                       hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
+                                        Delete Room
+                                    </a>
+                                </div>
+                                <div class="cell">
+                                    {% for cr in room.connected_rooms %}
+                                    <span class="badge secondary">{{cr.name}}</span>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+            </section>
             {% else %}
             <p>No rooms have been created yet.</p>
             {% endif %}
