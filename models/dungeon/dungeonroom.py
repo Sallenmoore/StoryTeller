@@ -81,28 +81,6 @@ class DungeonRoom(AutoModel):
         },
     }
 
-    @classmethod
-    def create_from_location(cls, dungeon, location):
-        if location.model_name() != "Location":
-            raise ValueError("location must be a Place instance")
-        room = cls(dungeon=dungeon)
-        room.name = location.name
-        room.theme = location.traits
-        room.desc = location.desc
-        room.sensory_details = location.sensory_details
-        room.loot = location.items
-        room.creatures = location.creatures
-        room.characters = location.characters
-        room.encounters = location.encounters
-        room.save()
-        for ass in room.associations:
-            ass.parent = location
-            ass.save()
-        room.map = location.map
-        room.map_prompt = location.map_prompt
-        room.save()
-        return room
-
     @property
     def associations(self):
         return self.loot + self.creatures + self.characters + self.encounters
@@ -168,7 +146,7 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
                 if not self.map:
                     self.generate_map()
                 if not self.encounters:
-                    enc = Encounter(self.world, parent=self.location)
+                    enc = Encounter(world=self.world, parent=self.location)
                     enc.them = self.theme
                     enc.story = (
                         random.choice(self.location.stories)
