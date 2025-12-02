@@ -143,7 +143,7 @@
 {{history_components.history(user, obj)}}
 {%- endmacro %}
 
-{% macro associations(user, obj, associations) -%}
+{% macro associations(user, obj, extended_associations, direct_associations) -%}
 <h2 class="text-center">Associations</h2>
 <div class="grid-x">
     {% for o in associations %}

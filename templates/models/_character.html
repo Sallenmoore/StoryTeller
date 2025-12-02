@@ -447,8 +447,8 @@
 {{campaigns_components.campaigns(user, obj)}}
 {%- endmacro %}
 
-{% macro associations(user, obj, associations)%}
-{{associations_components.associations(user, obj, associations)}}
+{% macro associations(user, obj, extended_associations, direct_associations=None)%}
+{{associations_components.associations(user, obj, extended_associations, direct_associations)}}
 {%- endmacro %}
 
 {% macro lineage(user, obj)%}

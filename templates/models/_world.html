@@ -320,8 +320,8 @@
 </div>
 {%- endmacro %}
 
-{% macro associations(user, obj, associations)%}
-{{associations_components.associations(user, obj, associations)}}
+{% macro associations(user, obj, extended_associations, direct_associations=None)%}
+{{associations_components.associations(user, obj, extended_associations, direct_associations)}}
 {%- endmacro %}
 
 {% macro map(user, obj)%}
@@ -376,7 +376,6 @@
 {%- endmacro %}
 
 {% macro lore(user, obj) -%}
-
 <div id="lore-container" class="callout ">
     <h2 class=" text-centered">Lore Builder</h2>
     <hr>
