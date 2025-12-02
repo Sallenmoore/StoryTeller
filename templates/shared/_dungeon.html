@@ -1,6 +1,12 @@
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_form.html" as form_components %}
 {% import "shared/_display.html" as display_components %}
+{% import "shared/_map.html" as map_components %}
+{% import "shared/_title.html" as title_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_associations.html" as associations_components %}
+{% import "shared/_gmnotes.html" as gm_notes %}
 
 <!-- consistent code to update a start or end date -->
 {%- macro dungeon(user, obj) -%}
@@ -43,6 +49,11 @@
         <div class="callout">
             <h4>{{obj.name}}'s Dungeon</h4>
             <p>{{obj.dungeon.desc | safe}}</p>
+            {% if obj.dungeon.map %}
+            <div id="map" style="width:100%;height:100%;">
+                <img src="{{obj.dungeon.map.url()}}" alt="{{obj.dungeon.name}} map" />
+            </div>
+            {% endif %}
         </div>
         <hr>
         <h5>Entrances</h5>
@@ -146,13 +157,6 @@
                         </a>
                     </div>
                 </div>
-                {% if obj.dungeon.map %}
-                <div id="map-container" class="cell">
-                    <div id="map" style="width:100%;height:100%;">
-                        <img src="{{obj.dungeon.map.url()}}" alt="{{obj.dungeon.name}} map" />
-                    </div>
-                </div>
-                {% endif %}
             </div>
             {% else %}
             <p>No rooms have been created yet.</p>
@@ -160,5 +164,358 @@
         </div>
     </div>
     {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro room(user, dungeonroom) -%}
+<div id="dungeonroom" class="grid-x align-spaced grid-margin-x">
+    <div class="cell">
+        <h3 class='separator-center'>Dungeon Room</h3>
+        <h3>{{dungeonroom.name}}</h3>
+    </div>
+    <div class="cell shrink">
+        <a class="button"
+           hx-post="/api/dungeon/room/{{dungeonroom.pk}}/manage"
+           hx-target="#page-content"
+           hx-indicator="#request-indicator"
+           hx-swap="innerHTML"
+           hx-push-url="false">
+            Manage Room
+        </a>
+    </div>
+    <div class="cell">
+        <h4>{{dungeonroom.theme}}</h4>
+        <p>{{dungeonroom.desc|safe}}</p>
+        <div class="callout">
+            <h4>Sensory Details</h4>
+            <ul>
+                {% for sd in dungeonroom.sensory_details %}
+                <li>{{sd}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="callout">
+            <h4>Notable Features</h4>
+            <ul>
+                {% for feature in dungeonroom.features %}
+                <li>{{feature}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="callout">
+            <h4>Layout</h4>
+            <p>{{dungeonroom.layout}}</p>
+        </div>
+    </div>
+    {% if dungeonroom.map %}
+    <div id="map-container" class="cell">
+        <div id="map" style="width:100%;height:100%;">
+            <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
+        </div>
+    </div>
+    {% endif %}
+    <div class="cell medium-6">
+        <h5 class="text-center">Characters</h5>
+        <div class="grid-x grid-margin-x">
+            {% for character in dungeonroom.characters %}
+            <div class="cell medium-3">
+                {{display_components.object_display(character, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-6">
+        <h5 class="text-center">Creatures</h5>
+        <div class="grid-x grid-margin-x">
+            {% for creature in dungeonroom.creatures %}
+            <div class="cell medium-3">
+                <div class="callout">
+                    {{display_components.object_display(creature, type=False)}}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-6">
+        <h5 class="text-center">Encounters</h5>
+        <div class="grid-x grid-margin-x">
+            {% for encounter in dungeonroom.encounters %}
+            <div class="cell medium-3">
+                {{display_components.object_display(encounter, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-6">
+        <h5 class="text-center">Loot</h5>
+        <div class="grid-x grid-margin-x">
+            {% for loot in dungeonroom.loot %}
+            <div class="cell medium-3">
+                {{display_components.object_display(loot, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="cell">
+        <div class="callout">
+            <h5 class="text-center">Connected Rooms</h5>
+            <div class="grid-x align-spaced">
+                {% for connected_room in dungeonroom.connected_rooms %}
+                <div class="cell medium-3">
+                    <a class="button small"
+                       hx-get="/api/dungeon/room/{{connected_room.pk}}"
+                       hx-target="#page-content"
+                       hx-indicator=""
+                       hx-push-url="false">
+                        <div class="callout secondary">
+                            <h5>{{connected_room.name}}</h5>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro manageroom(user, obj) -%}
+<div class="grid-x align-justify">
+    <div class="cell shrink align-center-middle">
+        <button class="button  has-text-white"
+                hx-post="/task/generate/dungeon/room/{{obj.pk}}"
+                hx-target="closest .cell"
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the room first, such as name, brief description, or associations'>
+            {{icon_components.ai(size="1rem")}}
+            Generate Details
+        </button>
+    </div>
+    <div class="cell shrink align-center-middle">
+        <a hx-post="/api/dungeon/room/{{obj.pk}}"
+           hx-target="#page-content">
+            {{icon_components.remove(size="2rem")}} Done Editing
+        </a>
+    </div>
+    <div class="cell shrink align-center-middle">
+        <button class="button "
+                hx-post="/api/dungeon/room/{{obj.pk}}/delete"
+                hx-target="#page-content"
+                hx-confirm='Are you sure? This cannot be undone'>
+            {{icon_components.delete(size="1rem")}}
+            Delete
+        </button>
+    </div>
+</div>
+<div class="calllout">
+    <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-swap="none"
+          hx-trigger="input delay:1s, change"
+          hx-request-indicator="">
+        <div class="grid-x align-spaced grid-margin-x grid-margin-y">
+            <div class="cell">
+                {{form_components.text_input("name", "Name", obj.name)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("theme", "Theme", obj.theme)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("structure_type", "Structure Type", obj.structure_type)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("dimensions", "Dimensions", obj.dimensions)}}
+            </div>
+            <div class="cell">
+                {{form_components.text_input("shape", "Shape", obj.shape)}}
+            </div>
+            <div class="cell">
+                {{form_components.richtexteditor(user, obj, "desc")}}
+            </div>
+            <div class="cell">
+                <div class="callout">
+                    <label>Sensory Details</label>
+                    {{form_components.listarea(user, obj, "sensory_details")}}
+                </div>
+            </div>
+            <div class="cell">
+                <div class="callout">
+                    <label>Features</label>
+                    {{form_components.listarea(user, obj, "features")}}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="callout">
+    <h4>Map</h4>
+    <div class="grid-x grid-margin-x" hx-push-url="false" id='object-map-view'>
+        <div class="cell medium-9">
+            <h5 class='text-center'>Map Prompt</h5>
+            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
+                  hx-swap='none'>
+                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
+            </form>
+
+        </div>
+        <div class="cell auto">
+            <button class="button"
+                    hx-post="/task/generate/dungeon/room/{{obj.pk}}/map"
+                    hx-target="closest .cell"
+                    hx-indicator='false'
+                    hx-confirm="Are you sure you want to generate and overwrite the current map?">
+                {{icon_components.ai()}}
+                AI Generated Map
+            </button>
+            {#
+            <hr>
+            <form hx-post="/api/manage/update" hx-select='#map-container'
+                  hx-target="#map-container"
+                  hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                <div class="grid-x">
+                    <div class="cell shrink">
+                        <button class="button small" type="submit">
+                            {{icon_components.link(size="1rem")}}
+                            Upload from URL
+                        </button>
+                    </div>
+                    <div class="cell auto">
+                        <div>
+                            <input class=" "
+                                   type="url" name="map"
+                                   placeholder="enter url....">
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <hr>
+            <form hx-post="/api/manage/map/file/upload"
+                  hx-ext="ignore:json-enc"
+                  hx-encoding='multipart/form-data'
+                  hx-select='#map-container'
+                  hx-target="#map-container"
+                  hx-swap="outerHTML show:#map-container:bottom"
+                  {% if obj.map %}
+                  hx-confirm="Are you sure you want to upload and overwrite the current map?"
+                  {% endif %}>
+                <div class="grid-x">
+                    <div class="cell shrink">
+                        <button class="button small" type="submit">
+                            {{icon_components.file(size="1rem")}}
+                            Upload from File
+                        </button>
+                    </div>
+                    <div class="cell auto">
+                        <input class=" " type="file"
+                               name="map" required>
+                    </div>
+                </div>
+            </form>
+            #}
+        </div>
+        <div id="map-container" class="cell">
+            {{gm_notes.foundry_buttons(user, obj)}}
+            <div id="map" style="width:100%;height:100%;">
+                {% if obj.map %}
+                <img src="{{obj.map.url()}}" alt="{{obj.name}} map" />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="callout">
+    <h2>Associations</h2>
+    <div class="grid-x align-justify" id='association-manager-container'>
+        <div class="cell medium-3 align-center-middle">
+            <input autocomplete="off"
+                   type="search"
+                   name="query"
+                   placeholder="Search to Add Associations..."
+                   style="border-bottom: solid #000"
+                   hx-target="#association-room-search"
+                   hx-post="/api/dungeon/room/{{obj.pk}}/association/search"
+                   hx-trigger="input delay:750ms, search">
+            <ul class="vertical dropdown menu"
+                data-dropdown-menu
+                id="association-room-search"
+                style='background-color: white;position: absolute; z-index:9999'>
+            </ul>
+        </div>
+        <div class="cell shrink">
+            <div class="callout">
+                <div class="grid-x align-center">
+                    <div class="cell shrink" style='margin-right: 2rem;'>
+                        <h6>
+                            Add new...
+                        </h6>
+                    </div>
+                    {% for child in ['creature', 'character', 'item', 'encounter'] %}
+                    <div class="cell shrink">
+                        <button class="button small"
+                                hx-post="/api/dungeon/room/{{obj.pk}}/add/{{ child }}"
+                                hx-target="#page-content"
+                                hx-indicator='#request-indicator'>
+                            {{ obj.world.get_title(child) }}
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid-x grid-margin-x grid-margin-y align-spaced">
+        {% for a in obj.associations %}
+        <div class="cell medium-2 small-4">
+            <div class="callout" style='height:100%;'>
+                {{ display_components.object_display(a) }}
+                <div class="grid-x align-center">
+                    <div class="cell shrink">
+                        <button class="button small"
+                                hx-post="/api/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
+                                hx-target="#page-content"
+                                hx-indicator='#request-indicator'>
+                            {{ icon_components.unlink(size="1rem") }}
+                            <span style="font-size:0.5rem">Unlink</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="callout">
+    <h4>All Rooms</h4>
+    <div class="grid-x align-spaced grid-margin-x">
+        {% for room in obj.dungeon.rooms %}
+        {%if room != obj%}
+        <div class="cell medium-4">
+            <div class="callout secondary">
+                <h6>{{room.name}}</h6>
+                <div class="grid-x align-spaced">
+                    <div class="cell shrink">
+                        <a class="button small"
+                           hx-get="/api/dungeon/room/{{room.pk}}"
+                           hx-target="#page-content"
+                           hx-indicator=""
+                           hx-push-url="false">
+                            View Room
+                        </a>
+                    </div>
+                    <div class="cell shrink">
+                        <a class="button small"
+                           hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
+                           hx-target="#page-content"
+                           hx-indicator=""
+                           hx-push-url="false">
+                            {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
 </div>
 {%- endmacro %}
