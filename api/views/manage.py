@@ -358,6 +358,7 @@ def association_add(amodel, apk=None):
     }
     return get_template_attribute("shared/_associations.html", "associations")(**params)
 
+
 @manage_endpoint.route(
     "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
 )
@@ -440,9 +441,8 @@ def addnewability():
     user, obj, request_data = _loader()
     ab = Ability(world=obj.world)
     ab.save()
-    if ab not in obj.abilities:
-        obj.abilities += [ab]
-        obj.save()
+    obj.abilities += [ab]
+    obj.save()
     return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
 
 

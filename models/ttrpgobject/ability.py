@@ -126,6 +126,8 @@ HISTORY: {self.world.history or self.world.backstory}.
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
 
+        log(prompt, _print=True)
+
         response = self.system.generate_json(
             prompt,
             f"Given an element in a {self.world.genre} TTRPG {self.world.title}, generate a new ability that is consistent with the tone and themes {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
