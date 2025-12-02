@@ -1,4 +1,4 @@
-from random import random
+import random
 
 from autonomous.model.autoattr import (
     BoolAttr,
