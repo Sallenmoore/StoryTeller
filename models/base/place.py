@@ -57,7 +57,7 @@ class Place(TTRPGObject):
             prompt = f"""{self.map_prompt}
 
 The map has the following features:
-- {"\n- ".join(f"{loc.name}:{loc.location_type}" for loc in self.locations)}
+- {"\n- ".join(f"{loc.name}:{loc.location_type}" for loc in self.locations if loc in self.children)}
 
 The map should be in a {self.world.map_style} style.
 """

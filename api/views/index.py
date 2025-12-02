@@ -150,7 +150,11 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
-    # log(associations)
+    relations = [a for a in associations if a in obj.children]
+    relations += [
+        a for a in obj.geneology if a.model_name() not in ["World", "Campaign"]
+    ]
+    associations = [a for a in associations if a not in relations]
     return get_template_attribute(f"models/_{model}.html", "associations")(
-        user, obj, associations
+        user, obj, extended_associations=associations, direct_associations=relations
     )

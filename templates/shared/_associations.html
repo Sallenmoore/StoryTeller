@@ -1,6 +1,6 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
-{% macro associations(user, obj, associations) -%}
+{% macro associations(user, obj, extended_associations, direct_associations=[]) -%}
 <title>{{ obj.name }} - Associations</title>
 <div class="callout">
     <h2>
@@ -133,15 +133,14 @@
     </div>
 </div>
 <div id="associations-container">
-    {% if obj.model_name() != "World"%}
+    {% if direct_associations %}
     <div class="callout">
         <h3 class="text-center">
             Direct Associations
         </h3>
         <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-            {% for relationship in [obj.geneology | default([]), obj.children | default([])] %}
-            {% for a in relationship %}
-            {% if 'World' != a.model_name() %}
+            {% for a in direct_associations %}
+            {% if a.model_name() not in ['World', 'Campaign'] %}
             <div class="cell medium-2 small-4">
                 <div class="callout bg-secondary" style='height:100%;'>
                     {{ display_components.object_display(a, type=False) }}
@@ -173,8 +172,6 @@
                 </div>
             </div>
             {% endif %}
-            {% endfor %}
-            {% endfor %}
         </div>
     </div>
     <h3 class="text-center">
@@ -182,8 +179,7 @@
     </h3>
     {% endif %}
     <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-        {% for a in associations %}
-        {% if a.model_name() != "World" %}
+        {% for a in extended_associations %}
         <div class="cell medium-2 small-4">
             <div class="callout" style='height:100%;'>
                 {{ display_components.object_display(a) }}
@@ -196,7 +192,6 @@
                                 hx-post="/api/manage/parent/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.down(size="1rem") }}
                             <span style="font-size:0.5rem">is child</span>
@@ -210,7 +205,6 @@
                                 hx-post="/api/manage/child/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.heirarchy(size="1rem") }}
                             <span style="font-size:0.5rem">is parent</span>
@@ -222,31 +216,15 @@
                                 hx-post="/api/manage/unassociate/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
-                                hx-vals='{"module":"_pages.html", "macro":"associations"}'
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.unlink(size="1rem") }}
                             <span style="font-size:0.5rem">Unlink</span>
                         </button>
                     </div>
-                    {% if obj.model_name() in ['Location', 'District'] and a.model_name() in
-                    ['Location'] %}
-                    <div class="cell medium-4 text-center">
-                        <button data-tooltip tabindex="1"
-                                title="Convert to Dungeon Room"
-                                class="button small"
-                                hx-post="/api/dungeon/create/room/from/{{ a.pk }}"
-                                hx-target="#page-content"
-                                hx-indicator='#request-indicator'
-                                hx-confirm="Are you sure you want to add this Location to {{obj.name}}'s Dungeon?">
-                            {{ icon_components.dungeon(size="1rem") }}
-                        </button>
-                    </div>
-                    {% endif %}
                 </div>
                 {% endif %}
             </div>
         </div>
-        {% endif %}
         {% endfor %}
     </div>
 </div>
