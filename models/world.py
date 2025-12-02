@@ -536,6 +536,13 @@ The map should be in a {self.world.map_style} style.
         # log(f"Verifying system for {self.name}: self.system={self.system}")
 
     def pre_save_current_date(self):
+        if not self.calendar:
+            self.calendar = Calendar()
+            self.calendar.save()
+        if self.pk and self.calendar.world != self:
+            self.calendar.world = self
+            self.calendar.save()
+
         if not self.start_date:
             self.start_date = self.calendar.date(1, 1, 1, self)
 
@@ -558,9 +565,6 @@ The map should be in a {self.world.map_style} style.
             else None
         )
         self.current_date = episode_date if episode_date > event_date else event_date
-        if not self.calendar:
-            self.calendar = Calendar()
-            self.calendar.save()
 
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")

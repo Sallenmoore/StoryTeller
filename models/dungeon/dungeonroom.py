@@ -190,7 +190,7 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
 
         details = f"{self.map_prompt} Features: {', '.join(self.features)}."
 
-        constraints = "DIRECT OVERHEAD, TOP-DOWN ORTHOGRAPHIC PROJECTION. NO 3D perspective, NO isometric view, NO characters, NO text, NO UI. NO GRID, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, MAP SPANS EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST"
+        constraints = "DIRECT OVERHEAD, TOP-DOWN ORTHOGRAPHIC 2D PROJECTION. NO 3D perspective, NO isometric view, NO characters, NO text, NO UI. NO GRID, NO ICONS, NO SYMBOLS, NO SCALE BAR, NO LEGEND, NO WATERMARK, NO BORDER, MAP SPANS EDGE TO EDGE, NO TITLE, NO COMPASS ROSE, HIGH DETAIL LEVEL, VIVID COLORS, HIGH CONTRAST"
 
         prompt = f"{base_prompt} {style} {structure_desc} {details} \n\n !!IMPORTANT: {constraints}"
         log(f"Map Prompt:\n{prompt}", _print=True)
