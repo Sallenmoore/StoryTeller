@@ -16,6 +16,28 @@
             Create Dungeon
         </button>
     </div>
+    <div class="cell shrink">
+        <button class="button primary"
+                hx-post="/api/dungeon/create/fiveroom"
+                hx-target="#page-content"
+                hx-indicator="#request-indicator"
+                hx-swap="innerHTML show:#page-content:top"
+                hx-push-url="/{{obj.path}}/dungeon"
+                hx-confirm="This will create a simple dungeon with 5 connected rooms, encounters, creatures, and items. This can take a long time. Are you sure?">
+            Create 5 Room Dungeon
+        </button>
+    </div>
+    <div class="cell shrink">
+        <button class="button primary"
+                hx-post="/api/dungeon/create/random"
+                hx-target="#page-content"
+                hx-indicator="#request-indicator"
+                hx-swap="innerHTML show:#page-content:top"
+                hx-push-url="/{{obj.path}}/dungeon"
+                hx-confirm="This will create a random dungeon with connected rooms, encounters, creatures, and items. This can take a long time. Are you sure?">
+            Create Random Dungeon
+        </button>
+    </div>
     {% else %}
     <div class="cell">
         <div class="callout">

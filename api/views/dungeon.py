@@ -39,6 +39,8 @@ dungeon_endpoint = Blueprint("dungeon", __name__)
 ###########################################################
 
 
+@dungeon_endpoint.route("/create/fiveroom", methods=("POST",))
+@dungeon_endpoint.route("/create/random", methods=("POST",))
 @dungeon_endpoint.route("/create", methods=("POST",))
 def create_dungeon():
     user, obj, request_data = _loader()
@@ -51,6 +53,13 @@ def create_dungeon():
     dungeon.save()
     obj.dungeon = dungeon
     obj.save()
+    if request.path.endswith("fiveroom"):
+        for _ in range(5):
+            print("creating room")
+    elif request.path.endswith("random"):
+        num_rooms = random.randint(2, 7)
+        for _ in range(num_rooms):
+            print("creating room")
     return get_template_attribute(
         f"models/_{obj.model_name().lower()}.html", "dungeon"
     )(user, obj)
