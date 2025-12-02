@@ -84,9 +84,12 @@ def create_dungeonroom():
         dungeon.save()
         obj.dungeon = dungeon
         obj.save()
-    obj.dungeon.create_room()
+    room = obj.dungeon.create_room()
 
-    return get_template_attribute("shared/_dungeon.html", "dungeon")(user, obj)
+    return get_template_attribute("shared/_dungeon.html", "room")(
+        user,
+        room,
+    )
 
 
 ###########################################################
