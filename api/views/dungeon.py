@@ -116,9 +116,9 @@ def dungeon_entrance(dpk):
     dr = DungeonRoom.get(dpk)
     dr.is_entrance = not dr.is_entrance
     dr.save()
-    return get_template_attribute("shared/_dungeon.html", "room")(
+    return get_template_attribute("shared/_dungeon.html", "dungeon")(
         user,
-        dr,
+        obj,
     )
 
 

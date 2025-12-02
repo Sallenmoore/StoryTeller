@@ -94,18 +94,27 @@
         {% endif %}
         <hr>
         <div class="callout bg-screen">
-            <div class="grid-x align-spaced">
+            <div class="grid-x align-justify">
                 <div class="cell shrink">
-                    <h4>Manage Rooms</h4>
+                    <a class="button"
+                       hx-post="/api/{{obj.path}}/dungeon"
+                       hx-target="#dungeon-container"
+                       hx-select='#dungeon-container'
+                       hx-indicator="#request-indicator"
+                       hx-swap="outerHTML"
+                       hx-push-url="false">
+                        Manage Rooms
+                    </a>
                 </div>
                 <div class="cell shrink">
                     <a class="button"
                        hx-post="/api/dungeon/create/room"
-                       hx-target="#page-content"
+                       hx-target="#dungeon-container"
+                       hx-select='#dungeon-container'
                        hx-indicator="#request-indicator"
-                       hx-swap="innerHTML show:#page-content:top"
+                       hx-swap="outerHTML"
                        hx-push-url="false">
-                        New Room
+                        +New Room
                     </a>
                 </div>
             </div>
@@ -131,7 +140,7 @@
                                 <div class="cell shrink">
                                     <a class="button small"
                                        hx-post="/api/dungeon/room/{{room.pk}}/entrance"
-                                       hx-target="#dungeon-container"
+                                       hx-target="#page-content"
                                        hx-indicator=""
                                        hx-push-url="false">
                                         Toggle Entrance
@@ -172,8 +181,7 @@
 {% macro room(user, dungeonroom) -%}
 <div id="dungeonroom" class="grid-x align-spaced grid-margin-x">
     <div class="cell">
-        <h3 class='separator-center'>Dungeon Room</h3>
-        <h3>{{dungeonroom.name}}</h3>
+        <h3 class='separator-center'>{{dungeonroom.name}}</h3>
     </div>
     <div class="cell shrink">
         <a class="button"
