@@ -51,12 +51,25 @@ class World(TTRPGBase):
     current_date = ReferenceAttr(choices=["Date"])
     start_date = ReferenceAttr(choices=["Date"])
     map = ReferenceAttr(choices=["Map"])
+    tone = StringAttr(default="")
     map_prompt = StringAttr(default="")
     image_style = StringAttr(default="illustrated")
     map_style = StringAttr(default="isometric")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
     lore_entries = ListAttr(ReferenceAttr(choices=["Lore"]))
+
+    TONES = {
+        "Grimdark": "Dystopian, amoral, and violent, where hope is rare and the setting is generally brutal and bleak.",
+        "Noblebright": "Features characters actively fighting for positive change, kindness, and communal responses to challenges, often in a world that may still have serious issues.",
+        "Dark Fantasy": "Incorporates elements of horror into a fantasy setting, focusing on dark atmospheres, moral ambiguity, and gothic elements without necessarily being completely without hope.",
+        "High Fantasy": "Clear distinction between good and evil, with powerful heroes, high levels of magic, and large-scale, epic stories, sometimes involving direct intervention from gods.",
+        "Low Fantasy": "Grounded in a more realistic world with limited magic, where characters are often anti-heroes struggling to get by in a harsh environment.",
+        "Heroic Fantasy": "Focuses on 'shiny good guys' and straightforward heroic narratives, often involving powerful heroes (e.g., Conan-style 'sword and sorcery').",
+        "Cozy Fantasy": "Features low stakes, minimal violence, and focuses on comfort and positive interactions,  slice-of-life.",
+        "Urban Fantasy": "Sets the narrative in the modern world with hidden or overt magical elements.",
+        "Whimsical/Zany": "Light-hearted, sometimes manic or ridiculous surface tone, which can sometimes have deeper, more melancholy undertones.",
+    }
 
     SYSTEMS = {
         "fantasy": FantasySystem,
@@ -90,6 +103,18 @@ class World(TTRPGBase):
                     "type": "string",
                     "description": "A brief history of the world and its people. Only include publicly known information.",
                 },
+                "image_style": {
+                    "type": "string",
+                    "description": "The artistic style of the world's character, creature, item, ands location images",
+                },
+                "map_style": {
+                    "type": "string",
+                    "description": "The artistic style of the world's geographic and battlemap images",
+                },
+                "map_prompt": {
+                    "type": "string",
+                    "description": "A text prompt describing the world's map to be used for image generation",
+                },
             },
         },
     }
@@ -98,7 +123,7 @@ class World(TTRPGBase):
     ########################## Class Methods #############################
 
     @classmethod
-    def build(cls, system, user, name="", desc="", backstory=""):
+    def build(cls, system, user, name="", tone="", backstory=""):
         # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
         System = {
             "fantasy": FantasySystem,
@@ -115,27 +140,20 @@ class World(TTRPGBase):
             system = System()
             system.save()
         # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
-        ### set attributes ###
-        if not name.strip():
-            name = f"{system._genre} Setting"
-        if not desc.strip():
-            desc = f"An expansive, complex, and mysterious {system._genre} setting suitable for a {system._genre} {system.get_title(cls)}."
-        if not backstory.strip():
-            backstory = f"{name} is filled with curious and dangerous points of interest filled with various creatures and characters. The complex and mysterious history of this world is known only to a few reclusive individuals. Currently, there are several factions vying for power through poltical machinations, subterfuge, and open warfare."
-
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
 
         world = cls(
-            name=name,
-            desc=desc,
+            name=name.strip(),
+            tone=tone.strip(),
             backstory=backstory,
             system=system,
             users=[user],
         )
         system.world = world
-        world.users += [user]
+        if user not in world.users:
+            world.users += [user]
         world.save()
         system.save()
+
         f = Faction(world=world, is_player_faction=True)
         f.save()
         world.add_association(f)
@@ -144,6 +162,10 @@ class World(TTRPGBase):
         c.add_association(f)
         world.add_association(c)
         f.add_association(c)
+        s = Story(world=world, name="Main Story")
+        s.save()
+        world.stories += [s]
+        world.save()
         requests.post(
             f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{world.path}"
         )
@@ -153,30 +175,26 @@ class World(TTRPGBase):
         requests.post(
             f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{c.path}"
         )
+        requests.post(
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/story/{s.pk}"
+        )
         return world
 
     ############################ PROPERTIES ############################
     @property
     def associations(self):
-        return sorted(
-            [
-                *self.items,
-                *self.characters,
-                *self.creatures,
-                *self.factions,
-                *self.cities,
-                *self.locations,
-                *self.regions,
-                *self.vehicles,
-                *self.shops,
-                *self.districts,
-            ],
-            key=lambda x: (
-                x.name.startswith("_"),
-                "",
-                x.name,
-            ),
-        )
+        return [
+            *self.characters,
+            *self.items,
+            *self.creatures,
+            *self.factions,
+            *self.locations,
+            *self.vehicles,
+            *self.shops,
+            *self.cities,
+            *self.districts,
+            *self.regions,
+        ]
 
     @associations.setter
     def associations(self, obj):
@@ -539,12 +557,12 @@ The map should be in a {self.world.map_style} style.
         if not self.calendar:
             self.calendar = Calendar()
             self.calendar.save()
-        if self.pk and self.calendar.world != self:
-            self.calendar.world = self
-            self.calendar.save()
-
+        if self.pk:
+            if self.calendar.world != self:
+                self.calendar.world = self
+                self.calendar.save()
         if not self.start_date:
-            self.start_date = self.calendar.date(1, 1, 1, self)
+            self.start_date = self.calendar.date(1, 1, 1)
 
         event_date = (
             sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
@@ -564,7 +582,17 @@ The map should be in a {self.world.map_style} style.
             if self.campaigns
             else None
         )
-        self.current_date = episode_date if episode_date > event_date else event_date
+        if event_date and episode_date:
+            self.current_date = (
+                episode_date if episode_date > event_date else event_date
+            )
+        elif event_date:
+            self.current_date = event_date.copy()
+        elif episode_date:
+            self.current_date = episode_date.copy()
+        else:
+            self.current_date = self.start_date.copy()
+        self.current_date.save()
 
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")

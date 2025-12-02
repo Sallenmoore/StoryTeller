@@ -7,7 +7,8 @@
         Associations
     </h2>
     <div class="grid-x align-justify" id='association-manager-container'>
-        {% if obj.model_name() != "World" and user.world_user(obj) %}
+        {% if user.world_user(obj) %}
+        {% if obj.model_name() != "World" %}
         <div class="cell medium-3 align-center-middle">
             <input autocomplete="off"
                    type="search"
@@ -25,9 +26,10 @@
                                z-index:9999'>
             </ul>
         </div>
+        {% endif %}
         <div class="cell shrink">
             <div class="callout">
-                <div class="grid-x align-center">
+                <div class="grid-x grid-margin-x align-center">
                     <div class="cell shrink" style='margin-right: 2rem;'>
                         <h6>
                             Add new...

@@ -299,6 +299,10 @@ class TTRPGBase(AutoModel):
         return slugify(self.name)
 
     @property
+    def theme(self):
+        return self.traits.strip() if self.traits else ""
+
+    @property
     def title(self):
         return self.get_title(self)
 
@@ -334,6 +338,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
 ===
 - Setting:
   - Genre: {self.genre}
+  - World Tone: {self.world.tone}
+  - World Theme: {self.world.theme}
   - World Details: {self.world.backstory}
   - Relevant World Events:
     - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
@@ -354,6 +360,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
      {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
         if associations := self.associations:
+            associations = random.sample(associations, k=min(20, len(associations)))
             prompt += """
 ===
 - Additional Associated Objects:
@@ -365,15 +372,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
   - Name: {ass.name}
   - Backstory: {ass.history or ass.backstory}
 """
-        name = self.name
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
             log(results, _print=True)
             for k, v in results.items():
                 setattr(self, k, v)
-            if name:
-                self.backstory = self.backstory.replace(self.name, name)
-                self.desc = self.desc.replace(self.name, name)
-                self.name = name
             self.save()
             self.resummarize()
             if not self.image:
