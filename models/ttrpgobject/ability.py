@@ -119,7 +119,7 @@ Do not make the ability specific to the {obj.title}, but use the following backs
 """
         else:
             prompt = f"""
-Generate a unique ability or feature for a {obj.genre} TTRPG . Ensure conistency with the {self.world.title}:
+Generate a unique ability or feature for a {self.world.genre} TTRPG . Ensure conistency with the {self.world.title}:
 TONE: {self.world.tone}.
 HISTORY: {self.world.history or self.world.backstory}.
 """
