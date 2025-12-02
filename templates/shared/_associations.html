@@ -140,7 +140,6 @@
         </h3>
         <div class="grid-x grid-margin-x grid-margin-y align-spaced">
             {% for a in direct_associations %}
-            {% if a.model_name() not in ['World', 'Campaign'] %}
             <div class="cell medium-2 small-4">
                 <div class="callout bg-secondary" style='height:100%;'>
                     {{ display_components.object_display(a, type=False) }}
@@ -171,7 +170,7 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
+            {% endfor %}
         </div>
     </div>
     <h3 class="text-center">
