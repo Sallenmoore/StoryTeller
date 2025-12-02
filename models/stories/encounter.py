@@ -254,9 +254,28 @@ class Encounter(AutoModel):
     ################## Crud Methods ##################
 
     def generate(self):
-        enemy_type = self.enemy_type or random.choice(["humanoid", "monster", "animal"])
-        if story := self.story or random.choice(self.world.stories):
-            context = f"An encounter directly or tengentially related to the following storyline: {story.situation} {story.current_status}"
+        enemy_type = self.enemy_type or random.choice(
+            [
+                "human",
+                "helpless",
+                "humanoid",
+                "monster",
+                "creature",
+                "animal",
+                "plant",
+                "swarm",
+                "mechanical construct",
+                "shadowy figure",
+                "mutated creature",
+                "aquatic monster",
+                "aerial predator",
+            ]
+        )
+        if story := self.story:
+            context = f"An encounter directly or tengentially related to the following storyline: {story.summary or story.situation} {story.current_status}"
+        elif self.world.stories:
+            story = random.choice(self.world.stories)
+            context = f"An encounter very subtly related to the following storyline: {story.summary or story.situation} {story.current_status}"
         else:
             context = f"Trouble is brewing in {self.world.name}."
 

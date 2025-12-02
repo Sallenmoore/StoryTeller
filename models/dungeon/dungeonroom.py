@@ -1,3 +1,5 @@
+from random import random
+
 from autonomous.model.autoattr import (
     BoolAttr,
     ListAttr,
@@ -8,6 +10,7 @@ from autonomous.model.automodel import AutoModel
 
 from autonomous import log
 from models.images.map import Map
+from models.stories.encounter import Encounter
 from models.ttrpgobject.character import Character
 
 
@@ -161,7 +164,33 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             self.structure_type = results.get("structure_type", self.structure_type)
             self.dimensions = results.get("dimensions", self.dimensions)
             self.shape = results.get("shape", self.shape)
-            self.save()
+            if self.save():
+                if not self.map:
+                    self.generate_map()
+                if not self.encounters:
+                    enc = Encounter(self.world, parent=self.location)
+                    enc.them = self.theme
+                    enc.story = (
+                        random.choice(self.location.stories)
+                        if self.location.stories
+                        else None
+                    )
+                    enc.backstory = f"""
+An encounter set in {self.name}, a {self.dimensions} {self.shape} {self.structure_type} in the {self.location.location_type} known as {self.location.name}.
+The area is described as: {self.desc}.
+
+{"The area has the following features: " + ", ".join(self.features) if self.features else "No specific features are noted."}
+
+{f"This area is an entrance/exit to the {self.location.location_type} known as {self.location.name}." if self.is_entrance else ""}
+"""
+                    enc.encounter_type = random.choice(
+                        list(Encounter._encounter_types.keys())
+                    )
+                    enc.save()
+                    self.encounters += [enc]
+                    self.save()
+                    enc.generate()
+                    enc.save()
         return self
 
     def build_map_prompt(self):
@@ -244,8 +273,6 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             "name": self.name,
             "theme": self.theme,
             "desc": self.description,
-            "traps": self.traps,
-            "puzzle": self.puzzle,
             "sensory_details": self.sensory_details,
             "features": self.features,
             "connected_rooms": [

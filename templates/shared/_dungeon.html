@@ -78,7 +78,7 @@
                         <div class="cell shrink">
                             <a class="button small"
                                hx-get="/api/dungeon/room/{{room.pk}}"
-                               hx-target="#page-content"
+                               hx-target="#dungeon-container"
                                hx-indicator=""
                                hx-push-url="false">
                                 View Entrance
@@ -112,7 +112,7 @@
 
 
             {% if obj.dungeon.rooms %}
-            <section id="rooms" class="divider">
+            <section id="dungeon-container" class="divider">
                 <div class="grid-x align-spaced grid-margin-x">
                     {% for room in obj.dungeon.rooms %}
                     <div class="cell medium-4">
@@ -122,7 +122,7 @@
                                 <div class="cell shrink">
                                     <a class="button small"
                                        hx-get="/api/dungeon/room/{{room.pk}}"
-                                       hx-target="#rooms"
+                                       hx-target="#dungeon-container"
                                        hx-indicator=""
                                        hx-push-url="false">
                                         View Room
@@ -131,7 +131,7 @@
                                 <div class="cell shrink">
                                     <a class="button small"
                                        hx-post="/api/dungeon/room/{{room.pk}}/entrance"
-                                       hx-target="#rooms"
+                                       hx-target="#dungeon-container"
                                        hx-indicator=""
                                        hx-push-url="false">
                                         Toggle Entrance
@@ -140,7 +140,7 @@
                                 <div class="cell shrink">
                                     <a class="button small"
                                        hx-post="/api/dungeon/room/{{room.pk}}/delete"
-                                       hx-target="#rooms"
+                                       hx-target="#dungeon-container"
                                        hx-indicator=""
                                        hx-push-url="false"
                                        hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
@@ -149,7 +149,9 @@
                                 </div>
                                 <div class="cell">
                                     {% for cr in room.connected_rooms %}
-                                    <span class="badge secondary">{{cr.name}}</span>
+                                    <span class="badge secondary">
+                                        {{cr.name}}
+                                    </span>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -176,7 +178,7 @@
     <div class="cell shrink">
         <a class="button"
            hx-post="/api/dungeon/room/{{dungeonroom.pk}}/manage"
-           hx-target="#page-content"
+           hx-target="#dungeon-container"
            hx-indicator="#request-indicator"
            hx-swap="innerHTML"
            hx-push-url="false">
@@ -264,7 +266,7 @@
                 <div class="cell medium-3">
                     <a class="button small"
                        hx-get="/api/dungeon/room/{{connected_room.pk}}"
-                       hx-target="#page-content"
+                       hx-target="#dungeon-container"
                        hx-indicator=""
                        hx-push-url="false">
                         <div class="callout secondary">
@@ -294,7 +296,7 @@
     </div>
     <div class="cell shrink align-center-middle">
         <a hx-post="/api/dungeon/room/{{obj.pk}}"
-           hx-target="#page-content">
+           hx-target="#dungeon-container">
             {{icon_components.remove(size="2rem")}} Done Editing
         </a>
     </div>
@@ -349,68 +351,23 @@
 <div class="callout">
     <h4>Map</h4>
     <div class="grid-x grid-margin-x" hx-push-url="false" id='object-map-view'>
-        <div class="cell medium-9">
-            <h5 class='text-center'>Map Prompt</h5>
-            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
-                  hx-swap='none'>
-                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
-            </form>
-
-        </div>
-        <div class="cell auto">
+        <div class="cell shrink">
             <button class="button"
                     hx-post="/task/generate/dungeon/room/{{obj.pk}}/map"
                     hx-target="closest .cell"
                     hx-indicator='false'
                     hx-confirm="Are you sure you want to generate and overwrite the current map?">
                 {{icon_components.ai()}}
-                AI Generated Map
+                Generate New Map
             </button>
-            {#
-            <hr>
-            <form hx-post="/api/manage/update" hx-select='#map-container'
-                  hx-target="#map-container"
-                  hx-confirm="Are you sure you want to upload and overwrite the current map?">
-                <div class="grid-x">
-                    <div class="cell shrink">
-                        <button class="button small" type="submit">
-                            {{icon_components.link(size="1rem")}}
-                            Upload from URL
-                        </button>
-                    </div>
-                    <div class="cell auto">
-                        <div>
-                            <input class=" "
-                                   type="url" name="map"
-                                   placeholder="enter url....">
-                        </div>
-                    </div>
-                </div>
+        </div>
+        <div class="cell">
+            <h5 class='text-center'>Map Prompt</h5>
+            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
+                  hx-swap='none'>
+                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
             </form>
-            <hr>
-            <form hx-post="/api/manage/map/file/upload"
-                  hx-ext="ignore:json-enc"
-                  hx-encoding='multipart/form-data'
-                  hx-select='#map-container'
-                  hx-target="#map-container"
-                  hx-swap="outerHTML show:#map-container:bottom"
-                  {% if obj.map %}
-                  hx-confirm="Are you sure you want to upload and overwrite the current map?"
-                  {% endif %}>
-                <div class="grid-x">
-                    <div class="cell shrink">
-                        <button class="button small" type="submit">
-                            {{icon_components.file(size="1rem")}}
-                            Upload from File
-                        </button>
-                    </div>
-                    <div class="cell auto">
-                        <input class=" " type="file"
-                               name="map" required>
-                    </div>
-                </div>
-            </form>
-            #}
+
         </div>
         <div id="map-container" class="cell">
             {{gm_notes.foundry_buttons(user, obj)}}
