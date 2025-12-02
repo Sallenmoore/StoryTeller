@@ -182,7 +182,8 @@ class World(TTRPGBase):
     ############################ PROPERTIES ############################
     @property
     def associations(self):
-        return [
+        log("Getting associations for world...", _print=True)
+        result = [
             *self.characters,
             *self.items,
             *self.creatures,
@@ -194,6 +195,8 @@ class World(TTRPGBase):
             *self.districts,
             *self.regions,
         ]
+        log(f"Found {len(result)} associations", _print=True)
+        return result
 
     @associations.setter
     def associations(self, obj):
