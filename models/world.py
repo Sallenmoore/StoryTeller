@@ -139,7 +139,6 @@ class World(TTRPGBase):
         else:
             system = System()
             system.save()
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
 
         world = cls(
             name=name.strip(),
