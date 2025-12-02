@@ -8,7 +8,7 @@ from flask import Flask, get_template_attribute, request
 import tasks
 from autonomous import log
 from filters.forms import label_style
-from filters.utils import bonus, roll_dice, get_icon
+from filters.utils import bonus, get_icon, roll_dice
 from models.campaign.episode import Episode
 from models.ttrpgobject.faction import Faction
 from models.user import User
@@ -213,17 +213,6 @@ def create_app():
     def create_quest(pk):
         return _generate_task(tasks._generate_quest_task, pk=pk)
 
-    @app.route("/generate/story/<string:pk>", methods=("POST",))
-    def create_story(pk):
-        return _generate_task(tasks._generate_story_task, pk=pk)
-
-    @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
-    def generate_story_summary(pk):
-        return _generate_task(
-            tasks._generate_story_summary_task,
-            pk=pk,
-        )
-
     @app.route("/generate/event/<string:pk>", methods=("POST",))
     def generate_event(pk):
         return _generate_task(
@@ -245,5 +234,16 @@ def create_app():
     @app.route("/generate/lore/<string:pk>", methods=("POST",))
     def generate_lore(pk):
         return _generate_task(tasks._generate_lore_task, pk, request.json.get("prompt"))
+
+    @app.route("/generate/story/<string:pk>", methods=("POST",))
+    def create_story(pk):
+        return _generate_task(tasks._generate_story_task, pk=pk)
+
+    @app.route("/generate/story/<string:pk>/summary", methods=("POST",))
+    def generate_story_summary(pk):
+        return _generate_task(
+            tasks._generate_story_summary_task,
+            pk=pk,
+        )
 
     return app

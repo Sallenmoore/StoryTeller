@@ -53,29 +53,6 @@ def home():
     return get_template_attribute("home.html", "home")(user)
 
 
-@index_endpoint.route(
-    "/build",
-    methods=("POST",),
-)
-def build():
-    user, obj, request_data = _loader()
-    World.build(
-        system=request.json.get("system"),
-        user=user,
-        name=request.json.get("name"),
-        desc=request.json.get("desc"),
-        backstory=request.json.get("backstory"),
-    )
-
-    return get_template_attribute("home.html", "home")(user)
-
-
-@index_endpoint.route("/build/form", methods=("POST",))
-def buildform():
-    user, obj, request_data = _loader()
-    return get_template_attribute("home.html", "worldbuild")(user=user)
-
-
 ###########################################################
 ##                    Model Routes                       ##
 ###########################################################

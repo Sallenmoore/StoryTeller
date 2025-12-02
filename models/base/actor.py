@@ -189,6 +189,8 @@ class Actor(TTRPGObject):
             ability = Ability(
                 world=self.world,
             )
+            ability.save()
+            self.abilities.append(ability)
             ability.generate(self)
 
     def chat(self, message=""):

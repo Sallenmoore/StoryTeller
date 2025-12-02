@@ -114,11 +114,14 @@ class Ability(AutoModel):
     def generate(self, obj=None):
         if obj:
             prompt = f"""
-Generate a unique {obj.genre} TTRPG ability or feature for a {obj.title}. Ensure conistency with the {obj.title}'s tone, but do not make the ability specific to the {obj.title}: {obj.backstory}.
+Generate a unique {obj.genre} TTRPG ability or feature for a {obj.title}. Ensure conistency with the world's tone: {obj.world.tone}
+Do not make the ability specific to the {obj.title}, but use the following backstory for guidance: {obj.backstory}.
 """
         else:
             prompt = f"""
-Generate a unique ability or feature for a {obj.genre} TTRPG . Ensure conistency with the {self.world.title}'s tone: {self.world.backstory}
+Generate a unique ability or feature for a {obj.genre} TTRPG . Ensure conistency with the {self.world.title}:
+TONE: {self.world.tone}.
+HISTORY: {self.world.history or self.world.backstory}.
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
 

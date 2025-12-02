@@ -1,18 +1,21 @@
 import traceback
 
-from autonomous import log
 from autonomous.auth.user import AutoUser
 from autonomous.model.autoattr import (
     BoolAttr,
     ListAttr,
     ReferenceAttr,
 )
+
+from autonomous import log
 from models.world import World
 
 
 class User(AutoUser):
     current_screen = ReferenceAttr("Screen", default=None)
     screens = ListAttr(ReferenceAttr("Screen"), default=[])
+
+    WORLD_TONES = World.TONES
 
     @property
     def worlds(self):

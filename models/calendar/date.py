@@ -7,9 +7,7 @@ from autonomous import log
 
 
 class Date(AutoModel):
-    obj = ReferenceAttr(
-        choices=["TTRPGBase", "Episode", "Event", "Lore"], required=True
-    )
+    obj = ReferenceAttr(choices=["TTRPGBase", "Episode", "Event", "Lore"])
     year = IntAttr(default=0)
     day = IntAttr(default=-1)
     month = IntAttr(default=-1)
@@ -82,11 +80,14 @@ class Date(AutoModel):
         day = int(parts[0])
         month = int(parts[1])
         year = int(parts[2])
-        return cls(obj=obj, calendar=calendar, day=day, month=month, year=year)
+        return cls(calendar=calendar, day=day, month=month, year=year)
+
+    @property
+    def world(self):
+        return self.calendar.world if self.calendar else None
 
     def copy(self):
         return Date(
-            obj=self.obj,
             calendar=self.calendar,
             day=self.day,
             month=self.month,

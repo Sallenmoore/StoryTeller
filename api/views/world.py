@@ -27,6 +27,29 @@ from ._utilities import loader as _loader
 world_endpoint = Blueprint("world", __name__)
 
 
+@world_endpoint.route(
+    "/build",
+    methods=("POST",),
+)
+def build():
+    user, obj, request_data = _loader()
+    World.build(
+        system=request_data.get("system"),
+        user=user,
+        name=request_data.get("name"),
+        tone=request_data.get("tone") or random.choice(list(World.TONES.keys())),
+        backstory=request_data.get("backstory"),
+    )
+
+    return get_template_attribute("home.html", "home")(user)
+
+
+@world_endpoint.route("/build/form", methods=("POST",))
+def buildform():
+    user, obj, request_data = _loader()
+    return get_template_attribute("home.html", "worldbuild")(user=user)
+
+
 @world_endpoint.route("/campaign/new", methods=("POST",))
 def campaignnew():
     user, obj, request_data = _loader()

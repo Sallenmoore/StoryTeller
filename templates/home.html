@@ -7,7 +7,7 @@
             <div class="text-center">
                 <h2 class="subheader">A place to create and explore your worlds</h2>
                 <button class="button large"
-                        hx-post="/api/build/form" hx-target="#create-world"
+                        hx-post="/api/world/build/form" hx-target="#create-world"
                         hx-swap='outerHTML show:#world-model:top'>
                     Create a World to Explore
                 </button>
@@ -60,15 +60,16 @@
         {{icon_components.close(size="3rem")}}
     </a>
     <hr>
-    <form id="world-build-form" hx-post="/api/build" hx-target="#page-content"
+    <form id="world-build-form" hx-post="/api/world/build" hx-target="#page-content"
           hx-indicator="#request-indicator">
         <input type="hidden" name="user" value="{{user.pk}}">
-        <div class="grid-x">
-            <div class="cell auto">
+        <div class="grid-x grid-margin-x">
+            <div class="cell">
                 <input type="text" name="name" placeholder="World Name">
             </div>
             <div class="cell shrink">
                 <select name="system">
+                    <option value="" selected>-- Random --</option>
                     <option value="fantasy">Fantasy</option>
                     <option value="sci-fi">Sci-Fi</option>
                     <option value="horror">Horror</option>
@@ -78,13 +79,17 @@
                     <option value="post-apocalyptic">Post-Apocalyptic</option>
                 </select>
             </div>
-            <div class="cell">
-                <input type="text" name="desc"
-                       placeholder="Brief World Description...">
+            <div class="cell auto">
+                <select name="tone">
+                    <option value="" disabled selected>Select Tone</option>
+                    {% for tone, description in user.WORLD_TONES.items() %}
+                    <option value="{{tone}}">{{tone}}: {{description}}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="cell">
                 <input type="text" name="backstory"
-                       placeholder="Brief World History...">
+                       placeholder="(Optional) Brief description...">
             </div>
             <div class="cell">
                 <input class="button expanded" type="submit"
