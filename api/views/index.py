@@ -127,12 +127,17 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
-    children = obj.children
-    ancestry = obj.geneology
-    relations = [
-        a for a in [*children, *ancestry] if a.model_name() not in ["World", "Campaign"]
-    ]
-    associations = [a for a in associations if a not in relations]
+    if hasattr(obj, "children") and hasattr(obj, "geneology"):
+        children = obj.children
+        ancestry = obj.geneology
+        relations = [
+            a
+            for a in [*children, *ancestry]
+            if a.model_name() not in ["World", "Campaign"]
+        ]
+        associations = [a for a in associations if a not in relations]
+    else:
+        relations = []
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, extended_associations=associations, direct_associations=relations
     )
