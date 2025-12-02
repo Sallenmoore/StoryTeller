@@ -1,5 +1,6 @@
 {% import "shared/_display.html" as display_components %}
 {% import "shared/_icons.html" as icon_components %}
+
 {% macro associations(user, obj, extended_associations, direct_associations=[]) -%}
 <title>{{ obj.name }} - Associations</title>
 <div class="callout">
@@ -156,19 +157,6 @@
                                 <span style="font-size:0.5rem">Unlink</span>
                             </button>
                         </div>
-                        {% if a.model_name() in ['Location'] %}
-                        <div class="cell medium-4 text-center">
-                            <button data-tooltip tabindex="1"
-                                    title="Convert to Dungeon Room"
-                                    class="button small"
-                                    hx-post="/api/dungeon/create/room/from/{{ a.pk }}"
-                                    hx-target="#page-content"
-                                    hx-indicator='#request-indicator'
-                                    hx-confirm="Are you sure you want to add this Location to {{obj.name}}'s Dungeon?">
-                                {{ icon_components.dungeon(size="1rem") }}
-                            </button>
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>

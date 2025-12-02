@@ -91,7 +91,7 @@ def model(model, pk, page=""):
 def associations(model, pk):
     user, obj, request_data = _loader()
     associations = obj.associations
-    # log(model, pk, request_data)
+    log(model, pk, request_data)
     if filter_str := request_data.get("filter"):
         if len(filter_str) > 2:
             associations = [
@@ -127,9 +127,10 @@ def associations(model, pk):
             ) if order == "descending" else associations.sort(
                 key=lambda x: x.model_name()
             )
-    relations = [a for a in associations if a in obj.children]
-    relations += [
-        a for a in obj.geneology if a.model_name() not in ["World", "Campaign"]
+    children = obj.children
+    ancestry = obj.geneology
+    relations = [
+        a for a in [*children, *ancestry] if a.model_name() not in ["World", "Campaign"]
     ]
     associations = [a for a in associations if a not in relations]
     return get_template_attribute(f"models/_{model}.html", "associations")(

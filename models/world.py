@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import traceback
 
 import requests
 import validators
@@ -182,7 +183,11 @@ class World(TTRPGBase):
     ############################ PROPERTIES ############################
     @property
     def associations(self):
-        log("Getting associations for world...", _print=True)
+        # import traceback
+
+        # traceback.print_stack()
+        # log(traceback.format_exc())
+        # log("Getting associations for world...", _print=True)
         result = [
             *self.characters,
             *self.items,
@@ -195,7 +200,7 @@ class World(TTRPGBase):
             *self.districts,
             *self.regions,
         ]
-        log(f"Found {len(result)} associations", _print=True)
+        # log(f"Found {len(result)} associations", _print=True)
         return result
 
     @associations.setter

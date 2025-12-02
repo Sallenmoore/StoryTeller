@@ -49,8 +49,14 @@ def add(model):
     new_obj.save()
     # log(new_obj.pk)
     obj.add_association(new_obj)
-    return get_template_attribute("shared/_associations.html", "associations")(
-        user, obj, obj.associations
+    associations = obj.associations
+    relations = [a for a in associations if a in obj.children]
+    relations += [
+        a for a in obj.geneology if a.model_name() not in ["World", "Campaign"]
+    ]
+    associations = [a for a in associations if a not in relations]
+    return get_template_attribute(f"models/_{model}.html", "associations")(
+        user, obj, extended_associations=associations, direct_associations=relations
     )
 
 
@@ -351,36 +357,6 @@ def association_add(amodel, apk=None):
         "associations": obj.associations,
     }
     return get_template_attribute("shared/_associations.html", "associations")(**params)
-
-
-@manage_endpoint.route(
-    "/subassociations/<string:amodel>/<string:apk>", methods=("POST",)
-)
-def subassociations_add(amodel, apk=None):
-    user, obj, request_data = _loader()
-    child = AutoModel.get_model(amodel, apk)
-    if child not in obj.children:
-        obj.add_association(child)
-        child.parent = obj
-        child.save()
-
-    def add_children_recursive(child):
-        for grandchild in child.children:
-            if grandchild not in obj.associations:
-                obj.add_association(grandchild)
-            if hasattr(grandchild, "children"):
-                add_children_recursive(grandchild)
-
-    if hasattr(child, "children"):
-        add_children_recursive(child)
-
-    params = {
-        "user": user,
-        "obj": obj,
-        "associations": obj.associations,
-    }
-    return get_template_attribute("shared/_associations.html", "associations")(**params)
-
 
 @manage_endpoint.route(
     "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
