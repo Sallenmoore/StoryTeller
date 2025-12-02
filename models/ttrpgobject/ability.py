@@ -113,6 +113,7 @@ class Ability(AutoModel):
 
     def generate(self, obj=None):
         if obj:
+            self.world = obj.world
             prompt = f"""
 Generate a unique {obj.genre} TTRPG ability or feature for a {obj.title}. Ensure conistency with the world's tone: {obj.world.tone}
 Do not make the ability specific to the {obj.title}, but use the following backstory for guidance: {obj.backstory}.
@@ -143,7 +144,6 @@ HISTORY: {self.world.history or self.world.backstory}.
             )
 
         if response:
-            self.world = obj.world
             self.name = self.name or response.get("name", "")
             self.action = response.get("action", self.action)
             self.category = response.get("category", self.category)
