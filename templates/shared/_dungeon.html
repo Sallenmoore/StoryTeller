@@ -198,6 +198,10 @@
         <h4>{{dungeonroom.theme}}</h4>
         <p>{{dungeonroom.desc|safe}}</p>
         <div class="callout">
+            <h4>Layout</h4>
+            <p>{{dungeonroom.layout}}</p>
+        </div>
+        <div class="callout">
             <h4>Sensory Details</h4>
             <ul>
                 {% for sd in dungeonroom.sensory_details %}
@@ -213,11 +217,8 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="callout">
-            <h4>Layout</h4>
-            <p>{{dungeonroom.layout}}</p>
-        </div>
     </div>
+    {% if self.characters %}
     <div class="cell medium-6">
         <div class="callout bg-screen">
             <h5 class="text-center">Character</h5>
@@ -230,6 +231,8 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    {% if self.creatures %}
     <div class="cell medium-6">
         <div class="callout bg-screen">
             <h5 class="text-center">Creatures</h5>
@@ -244,6 +247,8 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    {% if self.encounters %}
     <div class="cell medium-6">
         <div class="callout bg-screen">
             <h5 class="text-center">Encounters</h5>
@@ -256,6 +261,8 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    {% if self.loot %}
     <div class="cell medium-6">
         <div class="callout bg-screen">
             <h5 class="text-center">Loot</h5>
@@ -268,6 +275,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
     {% if dungeonroom.map %}
     <div id="map-container" class="cell">
         <div id="map" style="width:100%;height:100%;">

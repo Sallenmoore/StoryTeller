@@ -8,6 +8,7 @@ from flask import (
 from autonomous import log
 from models.base.actor import Actor
 from models.base.place import Place
+from models.dungeon.dungeonroom import DungeonRoom
 from models.ttrpgobject.item import Item
 from models.utility.foundry_client import FoundryClient
 from models.world import World
@@ -51,6 +52,8 @@ def listobjects(world_name, category_name):
 )
 def pushobject(model_name, pk):
     if obj := AutoModel.get_model(model_name, pk):
+        user = AutoAuth.current_user()
+        log(f"Pushing object {obj} to Foundry", isinstance(obj, DungeonRoom))
         try:
             foundry_client = FoundryClient(world_name=obj.world.name)
         except Exception as e:
@@ -61,14 +64,18 @@ def pushobject(model_name, pk):
             obj.save()
         if isinstance(obj, (World, Place)):
             response = foundry_client.push_scene(obj)
+        elif isinstance(obj, DungeonRoom):
+            response = foundry_client.push_scene(obj)
+            return get_template_attribute("models/_location.html", "dungeon")(
+                user, obj.location
+            )
         elif isinstance(obj, Actor):
             response = foundry_client.push_actor(obj)
         elif isinstance(obj, Item):
             response = foundry_client.push_item(obj)
         else:
             response = {"error": "Invalid category"}
-        log(response)
-        user = AutoAuth.current_user()
+
         return get_template_attribute(
             f"models/_{obj.model_name().lower()}.html", "gmnotes"
         )(user, obj)

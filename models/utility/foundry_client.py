@@ -76,13 +76,10 @@ class FoundryClient:
             log(
                 f"HTTP Error {e.response.status_code} on {method} {url}: {e.response.text}"
             )
-            return {
-                "error": f"HTTP Error: {e.response.status_code}",
-                "detail": e.response.text,
-            }
+            raise e
         except requests.exceptions.RequestException as e:
             log(f"Network or Connection Error: {e}")
-            return {"error": "Connection Error", "detail": str(e)}
+            raise e
 
     # --- API Methods ---
 

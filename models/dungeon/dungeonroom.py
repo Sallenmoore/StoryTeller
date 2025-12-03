@@ -17,6 +17,8 @@ from models.ttrpgobject.character import Character
 class DungeonRoom(AutoModel):
     dungeon = ReferenceAttr(choices=["Dungeon"], required=True)
     name = StringAttr(default="")
+    foundry_client_id = StringAttr(default="")
+    foundry_id = StringAttr(default="")
     is_entrance = BoolAttr(default=False)
     theme = StringAttr(default="")
     desc = StringAttr(default="")
@@ -84,6 +86,10 @@ class DungeonRoom(AutoModel):
     @property
     def associations(self):
         return self.loot + self.creatures + self.characters + self.encounters
+
+    @property
+    def description(self):
+        return self.desc
 
     @property
     def layout(self):
@@ -271,6 +277,9 @@ The area is described as: {self.desc}.
                 {"pk": str(enc.pk), "name": enc.name} for enc in self.encounters
             ],
         }
+
+    def to_foundry(self):
+        return self.location.system.foundry_export(self)
 
     ## MARK: - Verification Methods
     ###############################################################

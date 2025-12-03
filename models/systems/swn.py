@@ -192,13 +192,15 @@ class StarsWithoutNumber(SciFiSystem):
             "Location",
             "District",
             "Shop",
-            "Vehicle",
+            "DungeonRoom",
         ]:
             return self.foundry_place_export(data)
+        else:
+            raise Exception("Unsupported model for SWN foundry export")
 
         return data
 
-    def foundry_creature_export(source_data):
+    def foundry_creature_export(self, source_data):
         """
         Transforms a generic 'mech' (or similar NPC) JSON object into the specific
         Systems Without Number (SWN) "character" Actor document schema.
@@ -795,18 +797,18 @@ class StarsWithoutNumber(SciFiSystem):
         """
         # 1. Define the target schema structure (using a known SWN base template)
         target_schema = {
-            "name": "Scene",
-            "navigation": True,
+            "name": source_data.get("name", "New Scene").strip(),
+            "navigation": False,
             "navOrder": 0,
             "background": {
-                "src": None,
+                "src": "",
                 "anchorX": 0,
                 "anchorY": 0,
                 "offsetX": 0,
                 "offsetY": 0,
                 "fit": "fill",
-                "scaleX": 2,
-                "scaleY": 2,
+                "scaleX": 1.5,
+                "scaleY": 1.5,
                 "rotation": 0,
                 "tint": "#ffffff",
                 "alphaThreshold": 0,
@@ -814,8 +816,8 @@ class StarsWithoutNumber(SciFiSystem):
             "foreground": None,
             "foregroundElevation": None,
             "thumb": None,
-            "width": 2688,
-            "height": 1536,
+            "width": 1344 * 1.5,
+            "height": 768 * 1.5,
             "padding": 0,
             "initial": {"x": None, "y": None, "scale": None},
             "backgroundColor": "#000000",
@@ -825,13 +827,13 @@ class StarsWithoutNumber(SciFiSystem):
                 "style": "solidLines",
                 "thickness": 1,
                 "color": "#000000",
-                "alpha": 0.5,
+                "alpha": 0.3,
                 "distance": 5,
                 "units": "ft",
             },
             "tokenVision": True,
             "fog": {
-                "exploration": True,
+                "exploration": False,
                 "overlay": None,
                 "colors": {"explored": None, "unexplored": None},
             },
@@ -839,7 +841,7 @@ class StarsWithoutNumber(SciFiSystem):
                 "darknessLevel": 0,
                 "darknessLock": False,
                 "globalLight": {
-                    "enabled": False,
+                    "enabled": True,
                     "alpha": 0.5,
                     "bright": False,
                     "color": None,
@@ -897,33 +899,4 @@ class StarsWithoutNumber(SciFiSystem):
             target_schema["background"]["src"] = (
                 f"https://storyteller.stevenamoore.dev{url}"
             )
-
-        # 3. Combine description fields into a Note document
-        # desc_text = source_data.get("desc", "")
-        # history_html = source_data.get("history", "")
-
-        # Combine all narratives into a single HTML block
-        # combined_notes_content = f"""
-        #     <h2>Description</h2>
-        #     <p>{desc_text}</p>
-        #     <h2>History</h2>
-        #     {history_html}
-        # """
-
-        # Create the embedded Note document structure
-        # embedded_note = {
-        #     "name": f"{scene_name} Description",
-        #     "text": combined_notes_content.strip(),
-        #     "fontFamily": "Signika",
-        #     "fontSize": 48,
-        #     "textAnchor": 1,
-        #     "textColor": "#FFFFFF",
-        #     "x": 0,  # Placeholder coordinates
-        #     "y": 0,  # Placeholder coordinates
-        #     "visibility": 1,  # Visible to GM
-        #     "flags": {},
-        # }
-
-        # Add the note to the scene's notes array
-        # target_schema["notes"].append(embedded_note)
         return target_schema
