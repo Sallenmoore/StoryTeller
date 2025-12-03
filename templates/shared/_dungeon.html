@@ -339,7 +339,7 @@
 </div>
 <div class="grid-x align-justify">
     <div class="cell shrink align-center-middle">
-        <button class="button  has-text-white"
+        <button class="button small text-white"
                 hx-post="/task/generate/dungeon/room/{{obj.pk}}"
                 hx-target="closest .cell"
                 hx-confirm='Details can be generated from scratch, but works best if you add any required details to the room first, such as name, brief description, or associations'>
@@ -349,17 +349,14 @@
     </div>
     <div class="cell shrink align-center-middle">
         <button class="button small" hx-post="/api/dungeon/room/{{obj.pk}}"
-                hx-target="#dungeon-container">
-            {{icon_components.remove(size="2rem")}} Done Editing
-        </button>
+                hx-target="#dungeon-container">{{icon_components.remove(size="1rem")}} Done
+            Editing</button>
     </div>
     <div class="cell shrink align-center-middle">
-        <button class="button danger small"
+        <button class="button alert tiny"
                 hx-post="/api/dungeon/room/{{obj.pk}}/delete"
                 hx-target="#page-content"
-                hx-confirm='Are you sure? This cannot be undone'>
-            {{icon_components.delete(size="1rem")}}
-            Delete
+                hx-confirm='Are you sure? This cannot be undone'>{{icon_components.delete(size="1rem")}}Delete
         </button>
     </div>
 </div>
