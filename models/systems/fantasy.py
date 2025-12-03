@@ -71,7 +71,7 @@ class FantasySystem(BaseSystem):
             "Location",
             "District",
             "Shop",
-            "Vehicle",
+            "DungeonRoom",
         ]:
             return self.foundry_place_export(data)
 
