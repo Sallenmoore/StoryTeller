@@ -348,13 +348,13 @@
         </button>
     </div>
     <div class="cell shrink align-center-middle">
-        <a class="button" hx-post="/api/dungeon/room/{{obj.pk}}"
-           hx-target="#dungeon-container">
+        <button class="button small" hx-post="/api/dungeon/room/{{obj.pk}}"
+                hx-target="#dungeon-container">
             {{icon_components.remove(size="2rem")}} Done Editing
-        </a>
+        </button>
     </div>
     <div class="cell shrink align-center-middle">
-        <button class="button secondary"
+        <button class="button danger small"
                 hx-post="/api/dungeon/room/{{obj.pk}}/delete"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>
