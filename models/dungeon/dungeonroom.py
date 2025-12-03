@@ -222,7 +222,7 @@ The area is described as: {self.desc}.
             tags=["map", "dungeonroom", self.genre],
             aspect_ratio="16:9",
             image_size="4K",
-        )
+        ):
             self.map = map
             self.map.save()
             self.save()
