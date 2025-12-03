@@ -296,16 +296,15 @@
 <h3 class='separator-center'>{{obj.name}}</h3>
 <div class="callout bg-screen position-relative">
     <h4>All Rooms</h4>
-    <span class="position-absolute" style="top:.5rem; right:.5rem;"
-          onclick='this.classList.add("hide"); this.nextElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.add("hide");'>
+    <span class="position-absolute hide" style="top:.5rem; right:.5rem;"
+          onclick='this.classList.add("hide");this.nextElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.add("hide");'>
         {{icon_components.dropuparrow(size="3rem")}}
     </span>
-    <span class="position-absolute hide" style="top:.5rem; right:.5rem;"
-          onclick='this.classList.add("hide");this.previousElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.remove("hide");'>
+    <span class="position-absolute" style="top:.5rem; right:.5rem;"
+          onclick='this.classList.add("hide"); this.previousElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.remove("hide");'>
         {{icon_components.dropdownarrow(size="3rem")}}
-
     </span>
-    <div id="all-rooms" class="grid-x align-spaced grid-margin-x">
+    <div id="all-rooms" class="grid-x align-spaced grid-margin-x hide">
         {% for room in obj.dungeon.rooms %}
         {%if room != obj%}
         <div class="cell medium-4">
@@ -315,7 +314,7 @@
                     <div class="cell shrink">
                         <a class="button small"
                            hx-get="/api/dungeon/room/{{room.pk}}"
-                           hx-target="#page-content"
+                           hx-target="#dungeon-container"
                            hx-indicator=""
                            hx-push-url="false">
                             View Room
@@ -324,7 +323,7 @@
                     <div class="cell shrink">
                         <a class="button small"
                            hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
-                           hx-target="#page-content"
+                           hx-target="#dungeon-container"
                            hx-indicator=""
                            hx-push-url="false">
                             {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
@@ -408,7 +407,8 @@
                         hx-target="#dungeon-container"
                         hx-indicator='#request-indicator'>
                     <option value="">== Add Association ==</option>
-                    {% for child in obj.location.associations %}
+                    {% for child in obj.location.characters + obj.location.creatures +
+                    obj.location.items + obj.location.encounters %}
                     <option value="{{child.path}}">{{child.name}} [{{child.title}}]</option>
                     {% endfor %}
                 </select>

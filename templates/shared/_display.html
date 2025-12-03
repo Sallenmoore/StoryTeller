@@ -26,7 +26,7 @@
         {{dsp_object_image(obj,dim)}}
         {% if name %}
         <div class="card-divider text-center align-center-middle">
-            {{obj.name}}
+            {{obj.name | safe}}
             {% if obj.canon|default(false) %} <sup>(c)</sup> {% endif %}
         </div>
         {% endif %}
