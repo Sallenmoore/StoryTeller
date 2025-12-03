@@ -192,13 +192,15 @@ class StarsWithoutNumber(SciFiSystem):
             "Location",
             "District",
             "Shop",
-            "Vehicle",
+            "DungeonRoom",
         ]:
             return self.foundry_place_export(data)
+        else:
+            raise Exception("Unsupported model for SWN foundry export")
 
         return data
 
-    def foundry_creature_export(source_data):
+    def foundry_creature_export(self, source_data):
         """
         Transforms a generic 'mech' (or similar NPC) JSON object into the specific
         Systems Without Number (SWN) "character" Actor document schema.
