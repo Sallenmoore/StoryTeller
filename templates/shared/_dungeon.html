@@ -225,7 +225,7 @@
                 {% for encounter in dungeonroom.encounters %}
                 <div class="cell medium-6">
                     <div class="callout bg-muted">
-                        <h6 class="text-center">{{encounter.name}}</h6>
+                        <h6 class="text-center">{{encounter.name | striptags}}</h6>
                         {{encounter.trigger_conditions | safe}}
                     </div>
                 </div>
