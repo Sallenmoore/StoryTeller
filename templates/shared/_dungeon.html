@@ -224,10 +224,13 @@
             <div class="grid-x align-spaced grid-margin-x">
                 {% for encounter in dungeonroom.encounters %}
                 <div class="cell medium-6">
-                    <div class="callout bg-muted">
-                        <h6 class="text-center">{{encounter.name | striptags}}</h6>
-                        {{encounter.trigger_conditions | safe}}
-                    </div>
+                    <a href='/{{encounter.path}}' target='_blank'>
+                        {{display_components.object_display(encounter, type=False)}}
+                        <div class="callout bg-muted">
+                            <h6 class="text-center">{{encounter.name | striptags}}</h6>
+                            {{encounter.trigger_conditions | safe}}
+                        </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
