@@ -293,6 +293,49 @@
 {%- endmacro %}
 
 {% macro manageroom(user, obj) -%}
+<h3 class='separator-center'>{{dungeonroom.name}}</h3>
+<div class="callout bg-screen position-relative">
+    <h4>All Rooms</h4>
+    <span class="position-absolute" style="top:.5rem; right:.5rem;"
+          onclick='this.classList.add("hide");this.nextElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.remove("hide");'>
+        {{icon_components.dropdownarrow(size="1rem")}}
+    </span>
+    <span class="position-absolute hide" style="top:.5rem; right:.5rem;"
+          onclick='this.classList.remove("hide");this.previousElementSibling.classList.add("hide"); htmx.find("#all-rooms").classList.add("hide");'>
+        {{icon_components.dropuparrow(size="1rem")}}
+    </span>
+    <div id="all-rooms" class="grid-x align-spaced grid-margin-x">
+        {% for room in obj.dungeon.rooms %}
+        {%if room != obj%}
+        <div class="cell medium-4">
+            <div class="callout secondary">
+                <h6>{{room.name}}</h6>
+                <div class="grid-x align-spaced">
+                    <div class="cell shrink">
+                        <a class="button small"
+                           hx-get="/api/dungeon/room/{{room.pk}}"
+                           hx-target="#page-content"
+                           hx-indicator=""
+                           hx-push-url="false">
+                            View Room
+                        </a>
+                    </div>
+                    <div class="cell shrink">
+                        <a class="button small"
+                           hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
+                           hx-target="#page-content"
+                           hx-indicator=""
+                           hx-push-url="false">
+                            {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
 <div class="grid-x align-justify">
     <div class="cell shrink align-center-middle">
         <button class="button  has-text-white"
@@ -304,13 +347,13 @@
         </button>
     </div>
     <div class="cell shrink align-center-middle">
-        <a hx-post="/api/dungeon/room/{{obj.pk}}"
+        <a class="button" hx-post="/api/dungeon/room/{{obj.pk}}"
            hx-target="#dungeon-container">
             {{icon_components.remove(size="2rem")}} Done Editing
         </a>
     </div>
     <div class="cell shrink align-center-middle">
-        <button class="button "
+        <button class="button secondary"
                 hx-post="/api/dungeon/room/{{obj.pk}}/delete"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>
@@ -447,40 +490,6 @@
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
-</div>
-<div class="callout">
-    <h4>All Rooms</h4>
-    <div class="grid-x align-spaced grid-margin-x">
-        {% for room in obj.dungeon.rooms %}
-        {%if room != obj%}
-        <div class="cell medium-4">
-            <div class="callout secondary">
-                <h6>{{room.name}}</h6>
-                <div class="grid-x align-spaced">
-                    <div class="cell shrink">
-                        <a class="button small"
-                           hx-get="/api/dungeon/room/{{room.pk}}"
-                           hx-target="#page-content"
-                           hx-indicator=""
-                           hx-push-url="false">
-                            View Room
-                        </a>
-                    </div>
-                    <div class="cell shrink">
-                        <a class="button small"
-                           hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
-                           hx-target="#page-content"
-                           hx-indicator=""
-                           hx-push-url="false">
-                            {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         {% endfor %}
     </div>
 </div>
