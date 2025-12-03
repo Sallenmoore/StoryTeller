@@ -297,11 +297,11 @@
 <div class="callout bg-screen position-relative">
     <h4>All Rooms</h4>
     <span class="position-absolute" style="top:.5rem; right:.5rem;"
-          onclick='this.classList.add("hide");this.nextElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.add("hide");'>
+          onclick='this.classList.add("hide"); this.nextElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.add("hide");'>
         {{icon_components.dropuparrow(size="3rem")}}
     </span>
     <span class="position-absolute hide" style="top:.5rem; right:.5rem;"
-          onclick='this.classList.remove("hide");this.previousElementSibling.classList.add("hide"); htmx.find("#all-rooms").classList.remove("hide");'>
+          onclick='this.classList.add("hide");this.previousElementSibling.classList.remove("hide"); htmx.find("#all-rooms").classList.remove("hide");'>
         {{icon_components.dropdownarrow(size="3rem")}}
 
     </span>
