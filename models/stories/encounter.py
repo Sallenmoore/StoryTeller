@@ -1,5 +1,6 @@
 import random
 
+import markdown
 import validators
 from autonomous.model.autoattr import IntAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
@@ -70,6 +71,10 @@ class Encounter(AutoModel):
                 "backstory": {
                     "type": "string",
                     "description": "The backstory of the encounter from the antagonists' perspective",
+                },
+                "theme": {
+                    "type": "string",
+                    "description": "The theme of the encounter, capturing the overall mood or atmosphere",
                 },
                 "desc": {
                     "type": "string",
@@ -325,8 +330,20 @@ class Encounter(AutoModel):
     - Name: {ass.name}
     - Backstory: {ass.history or ass.backstory}
 """
+
+        def process_markdown_field(data_str):
+            return (
+                markdown.markdown(
+                    data_str.replace("```markdown", "").replace("```", "")
+                )
+                .replace("h1>", "h3>")
+                .replace("h2>", "h3>")
+            )
+
         if results := self.system.generate(self, prompt=prompt, funcobj=self._funcobj):
             for k, v in results.items():
+                if isinstance(v, str):
+                    v = process_markdown_field(v)
                 setattr(self, k, v)
             self.save()
             self.generate_image()
