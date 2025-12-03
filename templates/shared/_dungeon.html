@@ -217,6 +217,23 @@
             </ul>
         </div>
     </div>
+    {% if self.encounters %}
+    <div class="cell medium-6">
+        <div class="callout bg-screen">
+            <h5 class="text-center">Encounters</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for encounter in dungeonroom.encounters %}
+                <div class="cell medium-6">
+                    <div class="callout bg-muted">
+                        <h6 class="text-center">{{encounter.name}}</h6>
+                        {{encounter.trigger_conditions | safe}}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% if self.characters %}
     <div class="cell medium-6">
         <div class="callout bg-screen">
@@ -241,20 +258,6 @@
                     <div class="callout">
                         {{display_components.object_display(creature, type=False)}}
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if self.encounters %}
-    <div class="cell medium-6">
-        <div class="callout bg-screen">
-            <h5 class="text-center">Encounters</h5>
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for encounter in dungeonroom.encounters %}
-                <div class="cell medium-3">
-                    {{display_components.object_display(encounter, type=False)}}
                 </div>
                 {% endfor %}
             </div>
