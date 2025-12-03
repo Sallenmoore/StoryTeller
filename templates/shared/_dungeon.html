@@ -219,45 +219,53 @@
         </div>
     </div>
     <div class="cell medium-6">
-        <h5 class="text-center">Characters</h5>
-        <div class="grid-x grid-margin-x">
-            {% for character in dungeonroom.characters %}
-            <div class="cell medium-3">
-                {{display_components.object_display(character, type=False)}}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="cell medium-6">
-        <h5 class="text-center">Creatures</h5>
-        <div class="grid-x grid-margin-x">
-            {% for creature in dungeonroom.creatures %}
-            <div class="cell medium-3">
-                <div class="callout">
-                    {{display_components.object_display(creature, type=False)}}
+        <div class="callout bg-screen">
+            <h5 class="text-center">Character</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for character in dungeonroom.characters %}
+                <div class="cell medium-3">
+                    {{display_components.object_display(character, type=False)}}
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
     <div class="cell medium-6">
-        <h5 class="text-center">Encounters</h5>
-        <div class="grid-x grid-margin-x">
-            {% for encounter in dungeonroom.encounters %}
-            <div class="cell medium-3">
-                {{display_components.object_display(encounter, type=False)}}
+        <div class="callout bg-screen">
+            <h5 class="text-center">Creatures</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for creature in dungeonroom.creatures %}
+                <div class="cell medium-3">
+                    <div class="callout">
+                        {{display_components.object_display(creature, type=False)}}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
     <div class="cell medium-6">
-        <h5 class="text-center">Loot</h5>
-        <div class="grid-x grid-margin-x">
-            {% for loot in dungeonroom.loot %}
-            <div class="cell medium-3">
-                {{display_components.object_display(loot, type=False)}}
+        <div class="callout bg-screen">
+            <h5 class="text-center">Encounters</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for encounter in dungeonroom.encounters %}
+                <div class="cell medium-3">
+                    {{display_components.object_display(encounter, type=False)}}
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+    </div>
+    <div class="cell medium-6">
+        <div class="callout bg-screen">
+            <h5 class="text-center">Loot</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for loot in dungeonroom.loot %}
+                <div class="cell medium-3">
+                    {{display_components.object_display(loot, type=False)}}
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% if dungeonroom.map %}
