@@ -119,10 +119,9 @@
                 </div>
             </div>
 
-
-            {% if obj.dungeon.rooms %}
             <hr class='bg-screen'>
             <section id="dungeon-container">
+                {% if obj.dungeon.rooms %}
                 <div class="grid-x align-spaced grid-margin-x">
                     {% for room in obj.dungeon.rooms %}
                     <div class="cell medium-4">
@@ -169,10 +168,10 @@
                     </div>
                     {% endfor %}
                 </div>
+                {% else %}
+                <p>No rooms have been created yet.</p>
+                {% endif %}
             </section>
-            {% else %}
-            <p>No rooms have been created yet.</p>
-            {% endif %}
         </div>
     </div>
     {% endif %}
