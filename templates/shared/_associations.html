@@ -177,31 +177,31 @@
                     {% if obj.model_name() in a.parent_list|default([]) and obj !=
                     a.parent|default(false) %}
                     <div class="cell small-6 medium-6 text-center">
-                        <button class="button small"
+                        <button class="button small align-center-middle"
                                 hx-post="/api/manage/parent/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.down(size="1rem") }}
-                            <span style="font-size:0.5rem">is child</span>
+                            <span style="font-size:0.5rem">make direct</span>
                         </button>
                     </div>
                     {% endif %}
                     {% if a.model_name() in obj.parent_list|default([]) and a !=
                     obj.parent|default(false) %}
                     <div class="cell small-6 medium-6 text-center">
-                        <button class="button small"
+                        <button class="button small align-center-middle"
                                 hx-post="/api/manage/child/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.heirarchy(size="1rem") }}
-                            <span style="font-size:0.5rem">is parent</span>
+                            <span style="font-size:0.5rem">make extended</span>
                         </button>
                     </div>
                     {% endif %}
                     <div class="cell small-12 medium-6 text-center">
-                        <button class="button small"
+                        <button class="button small align-center-middle"
                                 hx-post="/api/manage/unassociate/{{ a.path }}"
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"

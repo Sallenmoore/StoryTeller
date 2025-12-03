@@ -146,47 +146,27 @@ def edit_room(roompk=None):
     )
 
 
-@dungeon_endpoint.route("/room/<string:roompk>/association/search", methods=("POST",))
-def search_association(roompk):
-    user, obj, request_data = _loader()
-    log(request.json)
-    room = DungeonRoom.get(roompk)
-    search_term = request.json.get("query", "")
-    associations = []
-    for model in [Character, Creature, Item]:
-        results = model.search(name=search_term)
-        associations.extend(results)
-    return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
-        user,
-        room,
-        f"dungeon/room/{roompk}/association/add",
-        associations,
-    )
-
-
 @dungeon_endpoint.route(
-    "/room/<string:roompk>/add/<string:associationmodel>",
+    "/room/<string:roompk>/add/association",
     methods=("POST",),
 )
-def new_association(roompk, associationmodel):
+def new_association(roompk):
     user, obj, request_data = _loader()
     log(request_data)
     room = DungeonRoom.get(roompk)
-    if associationmodel == "character":
-        association = Character(world=room.world, parent=room.location)
+    model_path = request_data.get("apath")
+    model_name = model_path.split("/")[0]
+    pk = model_path.split("/")[1]
+    association = AutoModel.get_model(model_name, pk)
+    if model_name.lower() == "character":
         room.characters += [association]
-    elif associationmodel == "creature":
-        association = Creature(world=room.world, parent=room.location)
+    elif model_name.lower() == "creature":
         room.creatures += [association]
-    elif associationmodel == "item":
-        association = Item(world=room.world, parent=room.location)
-        room.loot += [association]
-    elif associationmodel == "encounter":
-        association = Encounter(world=room.world, parent=room)
+    elif model_name.lower() == "item":
+        room.items += [association]
+    elif model_name.lower() == "encounter":
         room.encounters += [association]
-    association.save()
     room.save()
-    room.location.add_association(association)
     return get_template_attribute("shared/_dungeon.html", "manageroom")(
         user,
         room,
@@ -194,24 +174,14 @@ def new_association(roompk, associationmodel):
 
 
 @dungeon_endpoint.route(
-    "/room/<string:roompk>/association/add/<string:associationmodel>/<string:associationpk>",
+    "/room/<string:roompk>/add/encounter",
     methods=("POST",),
 )
-def add_association(roompk, associationmodel, associationpk):
+def new_encounter(roompk):
     user, obj, request_data = _loader()
-    log(request_data)
-    room = DungeonRoom.get(roompk)
-    if associationmodel == "character":
-        if association := Character.get(associationpk):
-            room.characters += [association]
-    elif associationmodel == "creature":
-        if association := Creature.get(associationpk):
-            room.creatures += [association]
-    elif associationmodel == "item":
-        if association := Item.get(associationpk):
-            room.items += [association]
-    room.save()
-    return get_template_attribute("shared/_dungeon.html", "manageroom")(user, room)
+    return requests.post(
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/dungeon/room/{roompk}/encounter"
+    ).text
 
 
 @dungeon_endpoint.route(

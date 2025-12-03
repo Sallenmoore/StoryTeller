@@ -209,6 +209,13 @@ def create_app():
             pk=pk,
         )
 
+    @app.route("/generate/dungeon/room/<string:pk>/encounter", methods=("POST",))
+    def create_dungeon_room_encounter(pk):
+        return _generate_task(
+            tasks._generate_dungeon_room_encounter_task,
+            pk=pk,
+        )
+
     @app.route("/generate/<string:pk>/quest/create", methods=("POST",))
     def create_quest(pk):
         return _generate_task(tasks._generate_quest_task, pk=pk)

@@ -254,6 +254,17 @@ def _generate_dungeon_room_map_task(pk):
     return {"url": f"/api/dungeon/room/{obj.pk}/manage"}
 
 
+def _generate_dungeon_room_encounter_task(pk):
+    obj = DungeonRoom.get(pk)
+    obj.generate_encounter()
+    return {
+        "url": f"/api/dungeon/room/{obj.pk}/manage",
+        "target": "room-associations-container",
+        "select": "room-associations-container",
+        "swap": "outerHTML",
+    }
+
+
 def _generate_quest_task(pk):
     obj = Quest.get(pk)
     obj.generate_quest()

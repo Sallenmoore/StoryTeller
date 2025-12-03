@@ -441,9 +441,9 @@ The image should be in a {self.world.image_style} style.
             self.associations += [obj]
             self.save()
         # log(len(self.associations), obj in self.associations)
-        if not obj.parent and obj.in_parent_list(self):
-            obj.parent = self
-            obj.save()
+        # if not obj.parent and obj.in_parent_list(self):
+        #     obj.parent = self
+        #     obj.save()
         return obj
 
     def add_associations(self, objs):

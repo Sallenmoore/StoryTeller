@@ -144,6 +144,23 @@ class TTRPGObject(TTRPGBase):
                     episodes += [c for c in campaign.episodes if self in c.associations]
         return episodes
 
+    def split_associations(self, associations=None):
+        if not associations:
+            associations = self.associations
+        if hasattr(self, "children") and hasattr(self, "geneology"):
+            children = self.children
+            ancestry = self.geneology
+            relations = [
+                a
+                for a in [*children, *ancestry]
+                if a.model_name() not in ["World", "Campaign"]
+            ]
+            associations = [a for a in self.associations if a not in relations]
+        else:
+            relations = []
+
+        return relations, associations
+
     ## MARK: - Verification Methods
     ###############################################################
     ##                    VERIFICATION HOOKS                   ##

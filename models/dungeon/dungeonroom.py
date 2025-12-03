@@ -145,31 +145,34 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             if self.save():
                 if not self.map:
                     self.generate_map()
-                if not self.encounters:
-                    enc = Encounter(world=self.world, parent=self.location)
-                    enc.them = self.theme
-                    enc.story = (
-                        random.choice(self.location.stories)
-                        if self.location.stories
-                        else None
-                    )
-                    enc.backstory = f"""
+        return self
+
+    def generate_encounter(self):
+        enc = Encounter(world=self.world, parent=self.location)
+        enc.theme = self.theme
+        enc.story = (
+            random.choice(self.location.stories) if self.location.stories else None
+        )
+        enc.backstory = f"""
 An encounter set in {self.name}, a {self.dimensions} {self.shape} {self.structure_type} in the {self.location.location_type} known as {self.location.name}.
 The area is described as: {self.desc}.
 
 {"The area has the following features: " + ", ".join(self.features) if self.features else "No specific features are noted."}
 
+{"The area has the following characters/creatures: " + ", ".join([f"{a.name}: {a.backstory}" for a in self.characters + self.creatures]) if self.characters or self.creatures else "The challenge should be environmental, not an antagonist."}
+
 {f"This area is an entrance/exit to the {self.location.location_type} known as {self.location.name}." if self.is_entrance else ""}
 """
-                    enc.encounter_type = random.choice(
-                        list(Encounter._encounter_types.keys())
-                    )
-                    enc.save()
-                    self.encounters += [enc]
-                    self.save()
-                    enc.generate()
-                    enc.save()
-        return self
+        enc.encounter_type = (
+            random.choice(list(Encounter._encounter_types.keys()))
+            if self.associations
+            else "puzzle or trap"
+        )
+        enc.save()
+        self.encounters += [enc]
+        self.save()
+        enc.generate()
+        enc.save()
 
     def build_map_prompt(self):
         base_prompt = f"Top-down 2D battlemap of a {self.theme} {self.structure_type} named {self.name}. "

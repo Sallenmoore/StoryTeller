@@ -218,13 +218,6 @@
             <p>{{dungeonroom.layout}}</p>
         </div>
     </div>
-    {% if dungeonroom.map %}
-    <div id="map-container" class="cell">
-        <div id="map" style="width:100%;height:100%;">
-            <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
-        </div>
-    </div>
-    {% endif %}
     <div class="cell medium-6">
         <h5 class="text-center">Characters</h5>
         <div class="grid-x grid-margin-x">
@@ -267,6 +260,13 @@
             {% endfor %}
         </div>
     </div>
+    {% if dungeonroom.map %}
+    <div id="map-container" class="cell">
+        <div id="map" style="width:100%;height:100%;">
+            <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
+        </div>
+    </div>
+    {% endif %}
     <div class="cell">
         <div class="callout">
             <h5 class="text-center">Connected Rooms</h5>
@@ -399,31 +399,24 @@
         </div>
     </form>
 </div>
-<div class="callout">
+<div id="room-associations-container" class="callout">
     <h2>Associations</h2>
     <div class="callout">
-        <div class="grid-x grid-margin-x align-center">
+        <div class="grid-x grid-margin-x align-spaced">
             <div class="cell shrink">
-                <h5>Available Associations</h5>
-                <select hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
+                <select name="apath" hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
                         hx-target="#dungeon-container"
                         hx-indicator='#request-indicator'>
+                    <option value="">== Add Association ==</option>
                     {% for child in obj.location.associations %}
                     <option value="{{child.path}}">{{child.name}} [{{child.title}}]</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="cell shrink">
-                <select hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
-                        hx-target="#dungeon-container"
-                        hx-indicator='#request-indicator'>
-                    {% for child in obj.location.associations %}
-                    <option value="{{child.path}}">{{child.name}} [{{child.title}}]</option>
-                    {% endfor %}
-                </select>
                 <button class="button small"
-                        hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
-                        hx-target="#dungeon-container"
+                        hx-post="/api/dungeon/room/{{obj.pk}}/add/encounter"
+                        hx-target="closest .cell"
                         hx-indicator='#request-indicator'>
                     {{ icon_components.link(size="1rem") }}
                     Generate New Encounter
@@ -454,7 +447,14 @@
 </div>
 <div class="callout">
     <h4>Map</h4>
-    <div class="grid-x grid-margin-x" hx-push-url="false" id='object-map-view'>
+    <div class="grid-x grid-margin-x align-spaced" hx-push-url="false" id='object-map-view'>
+        <div class="cell">
+            <h5 class='text-center'>Map Prompt</h5>
+            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
+                  hx-swap='none'>
+                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
+            </form>
+        </div>
         <div class="cell shrink">
             <button class="button"
                     hx-post="/task/generate/dungeon/room/{{obj.pk}}/map"
@@ -464,14 +464,6 @@
                 {{icon_components.ai()}}
                 Generate New Map
             </button>
-        </div>
-        <div class="cell">
-            <h5 class='text-center'>Map Prompt</h5>
-            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
-                  hx-swap='none'>
-                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
-            </form>
-
         </div>
         <div id="map-container" class="cell">
             {{gm_notes.foundry_buttons(user, obj)}}
