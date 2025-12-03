@@ -240,7 +240,7 @@
             <h5 class="text-center">Character</h5>
             <div class="grid-x align-spaced grid-margin-x">
                 {% for character in dungeonroom.characters %}
-                <div class="cell medium-3">
+                <div class="cell medium-4">
                     {{display_components.object_display(character, type=False)}}
                 </div>
                 {% endfor %}
@@ -254,7 +254,7 @@
             <h5 class="text-center">Creatures</h5>
             <div class="grid-x align-spaced grid-margin-x">
                 {% for creature in dungeonroom.creatures %}
-                <div class="cell medium-3">
+                <div class="cell medium-4">
                     <div class="callout">
                         {{display_components.object_display(creature, type=False)}}
                     </div>
@@ -270,7 +270,7 @@
             <h5 class="text-center">Loot</h5>
             <div class="grid-x align-spaced grid-margin-x">
                 {% for loot in dungeonroom.loot %}
-                <div class="cell medium-3">
+                <div class="cell medium-4">
                     {{display_components.object_display(loot, type=False)}}
                 </div>
                 {% endfor %}
