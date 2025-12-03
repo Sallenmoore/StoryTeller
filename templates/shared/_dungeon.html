@@ -349,8 +349,9 @@
     </div>
     <div class="cell shrink align-center-middle">
         <button class="button small" hx-post="/api/dungeon/room/{{obj.pk}}"
-                hx-target="#dungeon-container">{{icon_components.remove(size="1rem")}} Done
-            Editing</button>
+                hx-target="#dungeon-container">{{icon_components.remove(size="1rem")}}
+            Done Editing
+        </button>
     </div>
     <div class="cell shrink align-center-middle">
         <button class="button alert tiny"
@@ -360,7 +361,7 @@
         </button>
     </div>
 </div>
-<div class="calllout">
+<div class="callout">
     <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-swap="none"
           hx-trigger="input delay:1s, change"
           hx-request-indicator="">
@@ -399,6 +400,59 @@
     </form>
 </div>
 <div class="callout">
+    <h2>Associations</h2>
+    <div class="callout">
+        <div class="grid-x grid-margin-x align-center">
+            <div class="cell shrink">
+                <h5>Available Associations</h5>
+                <select hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
+                        hx-target="#dungeon-container"
+                        hx-indicator='#request-indicator'>
+                    {% for child in obj.location.associations %}
+                    <option value="{{child.path}}">{{child.name}} [{{child.title}}]</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cell shrink">
+                <select hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
+                        hx-target="#dungeon-container"
+                        hx-indicator='#request-indicator'>
+                    {% for child in obj.location.associations %}
+                    <option value="{{child.path}}">{{child.name}} [{{child.title}}]</option>
+                    {% endfor %}
+                </select>
+                <button class="button small"
+                        hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
+                        hx-target="#dungeon-container"
+                        hx-indicator='#request-indicator'>
+                    {{ icon_components.link(size="1rem") }}
+                    Generate New Encounter
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="grid-x grid-margin-x grid-margin-y align-spaced">
+        {% for a in obj.associations %}
+        <div class="cell medium-2 small-4">
+            <div class="callout" style='height:100%;'>
+                {{ display_components.object_display(a) }}
+                <div class="grid-x align-center">
+                    <div class="cell shrink">
+                        <button class="button small"
+                                hx-post="/api/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
+                                hx-target="#page-content"
+                                hx-indicator='#request-indicator'>
+                            {{ icon_components.unlink(size="1rem") }}
+                            <span style="font-size:0.5rem">Unlink</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="callout">
     <h4>Map</h4>
     <div class="grid-x grid-margin-x" hx-push-url="false" id='object-map-view'>
         <div class="cell shrink">
@@ -427,68 +481,6 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-</div>
-
-<div class="callout">
-    <h2>Associations</h2>
-    <div class="grid-x align-justify" id='association-manager-container'>
-        <div class="cell medium-3 align-center-middle">
-            <input autocomplete="off"
-                   type="search"
-                   name="query"
-                   placeholder="Search to Add Associations..."
-                   style="border-bottom: solid #000"
-                   hx-target="#association-room-search"
-                   hx-post="/api/dungeon/room/{{obj.pk}}/association/search"
-                   hx-trigger="input delay:750ms, search">
-            <ul class="vertical dropdown menu"
-                data-dropdown-menu
-                id="association-room-search"
-                style='background-color: white;position: absolute; z-index:9999'>
-            </ul>
-        </div>
-        <div class="cell shrink">
-            <div class="callout">
-                <div class="grid-x align-center">
-                    <div class="cell shrink" style='margin-right: 2rem;'>
-                        <h6>
-                            Add new...
-                        </h6>
-                    </div>
-                    {% for child in ['creature', 'character', 'item', 'encounter'] %}
-                    <div class="cell shrink">
-                        <button class="button small"
-                                hx-post="/api/dungeon/room/{{obj.pk}}/add/{{ child }}"
-                                hx-target="#page-content"
-                                hx-indicator='#request-indicator'>
-                            {{ obj.world.get_title(child) }}
-                        </button>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="grid-x grid-margin-x grid-margin-y align-spaced">
-        {% for a in obj.associations %}
-        <div class="cell medium-2 small-4">
-            <div class="callout" style='height:100%;'>
-                {{ display_components.object_display(a) }}
-                <div class="grid-x align-center">
-                    <div class="cell shrink">
-                        <button class="button small"
-                                hx-post="/api/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
-                                hx-target="#page-content"
-                                hx-indicator='#request-indicator'>
-                            {{ icon_components.unlink(size="1rem") }}
-                            <span style="font-size:0.5rem">Unlink</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 </div>
 {%- endmacro %}
