@@ -34,21 +34,24 @@
 {% macro reference(user, obj) -%}
 <h3 class='text-center'>Quick Reference</h3>
 {% for a in obj.associations|sort(attribute='name') %}
+<table class="stack">
+    <tr>
+        <th><a href="{{ a.path }}" target='_blank'>{{ a.name }}</a></th>
+        <td>
+            {{ a.sensory_details | random | safe }}
+        </td>
+        <td>
+            {% for e in a.encounters %}
+            <a href="/{{e.path}}">{{e.name}}</a>{% if not loop.last %} <br> {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+{% endfor %}
 <div class="grid-x grid-padding-x {{ loop.cycle('bg-screen', 'bg-muted') }}"
      style='padding-top: .25rem; padding-bottom: .25rem;'>
-    <div class="cell medium-3">
-        <a href="/{{a.path}}" target='_blank'>{{a.name}}</a>
-    </div>
-    <div class="cell medium-6">
-        {{ a.sensory_details | random | safe }}
-    </div>
-    <div class="cell medium-3">
-        {% for e in a.encounters %}
-        <a href="/{{e.path}}">{{e.name}}</a>{% if not loop.last %}, {% endif %}
-        {% endfor %}
-    </div>
+
 </div>
-{% endfor %}
 {%- endmacro %}
 
 {% macro display_encounters(user, obj, manage=True) -%}

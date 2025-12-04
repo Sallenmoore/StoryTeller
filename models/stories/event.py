@@ -4,6 +4,7 @@ import markdown
 import validators
 from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
+from bs4 import BeautifulSoup
 
 from autonomous import log
 from models.calendar.date import Date
@@ -190,6 +191,7 @@ The timeline of the world is as follows:
             """
 
         log("Generating Event with prompt: " + prompt, _print=True)
+        prompt = BeautifulSoup(prompt, "html.parser").get_text()
         result = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Create a new event that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
