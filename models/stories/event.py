@@ -36,17 +36,13 @@ class Event(AutoModel):
                     "type": "string",
                     "description": "A name for the event.",
                 },
+                "summary": {
+                    "type": "string",
+                    "description": "A brief summary of the event.",
+                },
                 "scope": {
                     "type": "string",
                     "description": "The scope of the story and how it fits into the larger world. One of the following: 'Local', 'Regional', 'Global', or 'Epic'",
-                },
-                "start_date": {
-                    "type": "string",
-                    "description": "The starting date of the event in the format 'Day Month Year'",
-                },
-                "end_date": {
-                    "type": "string",
-                    "description": "The ending date of the event in the format 'Day Month Year'",
                 },
                 "impact": {
                     "type": "string",
@@ -165,7 +161,7 @@ class Event(AutoModel):
     ############# image generation #############
     def generate(self):
         prompt = f"""
-Your task is to create a new event for a {self.world.genre} TTRPG world. The event should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.history}.
+Your task is to create a new event for a {self.world.genre} TTRPG world. The event should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.backstory}.
 The timeline of the world is as follows:
 {"".join([f"\n\n{e.start_date} - {e.end_date}: {e.name}: {e.summary or e.backstory}." for e in self.world.events[::-1]])}
 """
