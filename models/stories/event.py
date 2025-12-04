@@ -367,7 +367,6 @@ The image should be in a {self.world.image_style} style.
                     month=random.randrange(len(self.calendar.months) or 12),
                     year=0,
                 )
-            log(start_date.month)
             self.start_date.save()
             log(self.start_date, self.end_date)
 
