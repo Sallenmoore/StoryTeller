@@ -388,19 +388,23 @@ class World(TTRPGBase):
             if self.events
             else None
         )
-        episode_date = (
-            sorted(
-                [
-                    c.episodes[0].start_date
-                    for c in self.campaigns
-                    if c.episodes and c.episodes[0].start_date
-                ],
+        if episode_dates := [
+            e.start_date
+            for c in self.campaigns
+            for e in c.episodes
+            if e.start_date and e.start_date.year
+        ]:
+            episode_date = sorted(
+                episode_dates,
                 reverse=True,
             )[0]
-            if self.campaigns
-            else None
-        )
-        self.current_date = event_date if event_date > episode_date else episode_date
+            self.current_date = (
+                event_date if event_date > episode_date else episode_date
+            )
+        elif event_date:
+            self.current_date = event_date
+        else:
+            self.current_date = self.start_date
         self.save()
 
     def set_system(self, System):
