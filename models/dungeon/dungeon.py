@@ -1,3 +1,5 @@
+import random
+
 from autonomous.model.autoattr import (
     ListAttr,
     ReferenceAttr,
@@ -41,7 +43,7 @@ class Dungeon(AutoModel):
     def generate_map(self):
         if self.map:
             self.map.delete()
-        prompt = f"""Create a top-down, black and white line art map of a TTRPG dungeon. The style should be reminiscent of old-school 1970s/80s RPG modules: clean lines, high contrast, and minimal shading. Focus purely on the layout and connectivity of the rooms. Avoid any complex furniture, rubble, or detailed textures—this map is about clarity and function.
+        prompt = f"""Create a top-down, black and white line art map of a TTRPG dungeon. The style should be reminiscent of {random.choice(["a hand drawn map by an individual planning something", "old parchment paper weathered by time, adorned with hand written notes along the sides in a mysterious script", "old-school 1970s/80s RPG modules: clean lines, high contrast, and minimal shading"])}. Focus purely on the layout and connectivity of the rooms. Avoid any complex furniture, rubble, or detailed textures—this map is about clarity and function.
 
 The layout must include the following distinct areas connected by corridors:
 
@@ -54,7 +56,7 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
             prompt=prompt,
             tags=["map", "dungeonroom", self.genre],
             aspect_ratio="16:9",
-            image_size="4K",
+            image_size="2K",
             text=True,
         )
         self.map.save()
