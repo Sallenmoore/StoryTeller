@@ -368,7 +368,7 @@ The image should be in a {self.world.image_style} style.
                     year=0,
                 )
             self.start_date.save()
-            log(self.start_date, self.end_date)
+            # log(self.start_date, self.end_date)
 
             if isinstance(self.end_date, dict):
                 if dates := Date.search(obj=self, calendar=self.calendar):
@@ -396,7 +396,7 @@ The image should be in a {self.world.image_style} style.
                     year=0,
                 )
             self.end_date.save()
-        log(self.start_date, self.end_date)
+        # log(self.start_date, self.end_date)
         if self.start_date and self.start_date.day <= 0:
             self.start_date.day = random.randint(1, 28)
         if self.start_date and self.start_date.month < 0:
@@ -405,7 +405,7 @@ The image should be in a {self.world.image_style} style.
             self.end_date.day = random.randint(1, 28)
         if self.end_date and self.end_date.month < 0:
             self.end_date.month = random.randint(0, 11)
-        log(self.start_date, self.end_date)
+        # log(self.start_date, self.end_date)
 
     def pre_save_image(self):
         if isinstance(self.image, str):

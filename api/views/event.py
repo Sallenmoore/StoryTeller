@@ -79,7 +79,7 @@ def timeline(pk=None):
 @event_endpoint.route("/<string:pk>/update", methods=("POST",))
 def edit_event(pk=None):
     user, obj, request_data = _loader()
-    log(request.json)
+    # log(request.json)
     event = Event.get(pk)
     event.name = request.json.get("name", event.name)
     event.scope = request.json.get("scope", event.scope)
