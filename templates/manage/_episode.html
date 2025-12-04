@@ -87,6 +87,9 @@
                 </div>
             </div>
         </div>
+        <div class="callout primary">
+            {{ gmnotes_components.reference(user, episode) }}
+        </div>
         <hr>
         <h3>Delete Episode</h3>
         <div class="grid-x align-spaced">
@@ -162,9 +165,6 @@
             {{form_components.richtexteditor(user, episode, 'hooks', label=False)}}
         </form>
     </div>
-</div>
-<div class="callout primary margin-1">
-    {{ gmnotes_components.reference(user, episode) }}
 </div>
 
 {%- endmacro %}

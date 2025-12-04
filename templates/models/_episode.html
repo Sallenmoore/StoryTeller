@@ -386,29 +386,47 @@
                     Clear
                 </button>
             </div>
-            <div class="cell shrink align-self-middle">
-                <button class="button"
-                        {% if not episode.transcription and not episode.audio %} disabled {% endif
-                        %}
-                        hx-post="/api/{{episode.path}}/transcription/summarize"
-                        hx-swap="outerHTML"
-                        hx-indicator=""
-                        hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
-                    Summarize for Report
-                </button>
-            </div>
+        </div>
+        <div class="cell shrink align-self-middle">
+            <button class="button"
+                    {% if not episode.transcription %} disabled {%endif%}
+                    hx-post="/api/{{episode.path}}/transcription/summarize"
+                    hx-swap="outerHTML"
+                    hx-indicator=""
+                    hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
+                Summarize for Report
+            </button>
         </div>
         <div class="cell">
-            <hr>
-            <div id="transcription-output-wrapper">
-                <h6 class='separator-center'>Transcription</h6>
-                <div id="output-area" class="text-justified secondary margin-top-1">
-                    {% if episode.transcription %}
-                    {{ episode.transcription | safe }}
-                    {% else %}
-                    No transcription available Yet.
-                    {% endif %}
+            <div class="grid-x align-center">
+                <div class="cell shrink">
+                    <div class="primary button-group no-gaps">
+                        <a class="button primary" style='border-radius: 0;'
+                           onclick='this.classList.remove("primary");this.classList.add("secondary");this.nextElementSibling.classList.remove("secondary");this.nextElementSibling.classList.add("primary");htmx.find("#interpreted-transcription").classList.remove("hide");htmx.find("#audio-transcription").classList.add("hide");'>Interpreted</a>
+                        <a class="button secondary" style='border-radius: 0;'
+                           onclick='this.classList.remove("primary");this.classList.add("secondary");this.previousElementSibling.classList.remove("secondary");this.previousElementSibling.classList.add("primary");htmx.find("#interpreted-transcription").classList.add("hide");htmx.find("#audio-transcription").classList.remove("hide");'>Raw</a>
+                    </div>
                 </div>
+            </div>
+            <div id="interpreted-transcription">
+                {% if episode.interpreted_transcription %}
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{form_components.richtexteditor(user, episode, 'interpreted_transcription', label=False)}}
+                </form>
+                {% else %}
+                No interpretation available Yet.
+                {% endif %}
+            </div>
+            <div id="audio-transcription" class="hide">
+                {% if episode.transcription %}
+                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:1s, change">
+                    {{form_components.richtexteditor(user, episode, 'transcription', label=False)}}
+                </form>
+                {% else %}
+                No transcription available Yet.
+                {% endif %}
             </div>
         </div>
     </div>

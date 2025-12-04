@@ -57,8 +57,10 @@ def edit_episode(pk=None):
         episode.loot = request_data.get("loot", episode.loot)
         episode.hooks = request_data.get("hooks", episode.hooks)
         episode.transcription = request_data.get("transcription", episode.transcription)
+        episode.interpreted_transcription = request_data.get(
+            "interpreted_transcription", episode.interpreted_transcription
+        )
         episode.save()
-    log(episode.start_date)
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
         episode,

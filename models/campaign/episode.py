@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import random
@@ -46,6 +47,7 @@ class Episode(AutoModel):
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
     audio = ReferenceAttr(choices=["Audio"])
     transcription = StringAttr(default="")
+    interpreted_transcription = StringAttr(default="")
 
     ##################### PROPERTY METHODS ####################
 
@@ -264,16 +266,8 @@ class Episode(AutoModel):
         return self.summary
 
     def summarize_transcription(self):
-        if self.transcription:
-            # Remove all lines starting with "TRANSCRIPTION:"
-            self.transcription = "\n".join(
-                [
-                    line.strip()
-                    for line in self.transcription.split("\n")
-                    if line.strip() and not line.strip().startswith("TRANSCRIPTION:")
-                ]
-            )
-            prompt = f"Summarize the following transcription of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. The summary should focus on story and narrative rather than game mechanics, highlighting the key elements of the transcription and its significance within the larger world, while leaving out any irrelevant remarks or conversation. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign_summary}. When possible, use full names for characters, places, and things in the world. Here is the transcription: {self.transcription}."
+        if self.interpreted_transcription:
+            prompt = f"Summarize the following screenplay style write up of a TTRPG session for a {self.world.genre} world using a snarky and observational tone. Here is some context about the world: {self.world.name}, {self.world.history}. Here is some context about the campaign: {self.campaign.name} [{self.campaign.start_date} - {self.campaign.end_date}], {self.campaign_summary}. When possible, use full names for characters, places, and things in the world. \n\n {self.interpreted_transcription}."
             transcription_summary = self.world.system.generate_summary(
                 prompt,
                 primer="Provide an engaging, narrative summary of the TTRPG session transcription, highlighting its key elements and significance within the larger story.",
@@ -380,6 +374,54 @@ class Episode(AutoModel):
     def remove_association(self, obj):
         self.associations = [a for a in self.associations if a != obj]
         self.save()
+
+    def transcribe(self):
+        if not self.audio:
+            raise ValueError("No audio file to transcribe.")
+        prompt = f"""Transcribe the following audio from a TTRPG session set in a {self.world.genre} world. Focus on capturing the dialogue, narration, and significant sound cues relevant to the gameplay and story, while omitting any irrelevant background noise, verbal ticks such as 'umms' or 'ahs', or off-topic conversations. When possible, use full names for characters, places, and things in the world. Provide the transcription in MARKDOWN format.
+Here is some context about the campaign: {self.campaign.name} {self.campaign_summary}. Identify and separate distinct speakers as much as possible. The player characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in self.players])}.
+"""
+        transcription = Audio.transcribe(
+            self.audio,
+            prompt=prompt,
+            display_name="episode.mp3",
+        )
+
+        self.transcription = (
+            markdown.markdown(transcription)
+            if transcription
+            else "Transcription failed or was empty."
+        )
+
+        self.save()
+
+        if self.transcription:
+            prompt = f"""Reinterpret the following trabnscript of a live TTRPG session as a screenplay for a fictional episodic adventure. Feel free to embellish events, conversations, and details for the sake of the narrative, but maintain the same sequence of events. Leave out any discussion of game mechanics, substituting a narrative interpretation instead.
+
+The player characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in self.players])}.
+
+Additonal associations that may appear in the transcript include: {", ".join([f"{a.name} [{a.title}]:{a.backstory_summary}" for a in self.associations if a not in self.players])}.
+
+Keep the narrative consistent with the following setting: {self.world.backstory}.
+
+- Context about the campaign: {self.campaign.name}, {self.campaign_summary}.
+- Context from the previous session: {self.previous_episode.summary if self.previous_episode else "N/A"}.
+
+Format in MARKDOWN.
+
+TRANSCRIPT:
+{self.transcription}
+"""
+            interpreted_transcription = self.world.system.generate_text(
+                prompt=prompt,
+                primer="Provide a narrative reinterpretation of the TTRPG session transcript in screenplay style.",
+            )
+            self.interpreted_transcription = (
+                markdown.markdown(interpreted_transcription)
+                if interpreted_transcription
+                else "Interpreted transcription failed or was empty."
+            )
+            self.save()
 
     def page_data(self):
         data = {

@@ -162,36 +162,8 @@ def _generate_image_task(model, pk):
 
 def _generate_episode_transcription_task(pk):
     if obj := Episode.get(pk):
-        transcription = Audio.transcribe(
-            obj.audio,
-            prompt=f"""Reinterpret the audio recording of a live TTRPG session as a screenplay for a fictional episodic adventure. Feel free to condense or embellish events for the sake of the narrative. Leave out any discussion of game mechanics, subtituting a narrative interpretation instead. Ignore any 'umms' or 'ahs', filler words, or side conversations not relevant to the narrative.
-
-            Identify and separate distinct speakers as much as possible. The party characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in obj.players])}.
-
-            Additonal associations that may appear in the audio include: {", ".join([f"{a.name}:{a.backstory_summary}" for a in obj.associations if a not in obj.players])}.
-
-            Keep the narrative consistent with the following setting: {obj.world.backstory}.
-
-            Format in Markdown.
-""",
-            display_name="episode.mp3",
-        )
-        log(transcription, _print=True)
-        if not transcription:
-            obj.transcription = "Transcription failed or was empty."
-        else:
-            obj.transcription = f"""
-<h2>TRANSCRIPTION: {datetime.now().strftime("%B %d, %Y - %I:%M %p")} {"=" * 20}</h2>
-<br><br>
-{markdown.markdown(transcription)}
-"""
-        obj.save()
-    return {
-        "url": f"/api/{obj.path}/transcribe",
-        "target": "output-area",
-        "select": "output-area",
-        "swap": "outerHTML",
-    }
+        obj.transcribe()
+    return {"url": f"/api/{obj.path}/transcribe"}
 
 
 def _generate_campaign_summary_task(pk):
