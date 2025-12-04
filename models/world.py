@@ -512,7 +512,6 @@ The map should be in a {self.world.map_style} style.
         document.pre_save_users()
         document.pre_save_system()
         document.pre_save_map()
-        document.pre_save_current_date()
 
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
@@ -578,47 +577,6 @@ The map should be in a {self.world.map_style} style.
                 )
 
         # log(f"Verifying system for {self.name}: self.system={self.system}")
-
-    def pre_save_current_date(self):
-        if not self.calendar:
-            self.calendar = Calendar()
-            self.calendar.save()
-        if self.pk:
-            if self.calendar.world != self:
-                self.calendar.world = self
-                self.calendar.save()
-        if not self.start_date:
-            self.start_date = self.calendar.date(1, 1, 1)
-
-        event_date = (
-            sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
-            if self.events
-            else None
-        )
-        episode_date = (
-            sorted(
-                [
-                    c.episodes[0].start_date
-                    for c in self.campaigns
-                    if c.episodes and c.episodes[0].start_date
-                ],
-                key=lambda x: x,
-                reverse=True,
-            )[0]
-            if self.campaigns
-            else None
-        )
-        if event_date and episode_date:
-            self.current_date = (
-                episode_date if episode_date > event_date else event_date
-            )
-        elif event_date:
-            self.current_date = event_date.copy()
-        elif episode_date:
-            self.current_date = episode_date.copy()
-        else:
-            self.current_date = self.start_date.copy()
-        self.current_date.save()
 
     def post_save_system(self):
         # log(f"Verifying system for {self.name}: self.system={self.system}")
