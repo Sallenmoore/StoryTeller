@@ -391,9 +391,9 @@ class World(TTRPGBase):
         episode_date = (
             sorted(
                 [
-                    c.episodes[0].end_date
+                    c.episodes[0].start_date
                     for c in self.campaigns
-                    if c.episodes and c.episodes[0].end_date
+                    if c.episodes and c.episodes[0].start_date
                 ],
                 reverse=True,
             )[0]
