@@ -375,6 +375,8 @@ Use and expand on the existing object data listed below for the {self.title} obj
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
             log(results, _print=True)
             for k, v in results.items():
+                if isinstance(v, str) and "#" in v:
+                    v = self.system.htmlize(v)
                 setattr(self, k, v)
             self.save()
             self.resummarize()

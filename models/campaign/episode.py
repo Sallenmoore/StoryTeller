@@ -418,9 +418,10 @@ class Episode(AutoModel):
 
         #########################################
 
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
+    @classmethod
+    def auto_post_save(cls, sender, document, **kwargs):
+        super().auto_post_save(sender, document, **kwargs)
+        document.world.set_current_date()
 
     # def clean(self):
     #     super().clean()

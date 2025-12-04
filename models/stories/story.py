@@ -165,22 +165,10 @@ class Story(AutoModel):
             funcobj=self.funcobj,
         )
         if result:
-            result.get("name") and setattr(self, "name", result.get("name"))
-            result.get("scope") and setattr(self, "scope", result.get("scope"))
-            result.get("situation") and setattr(
-                self, "situation", result.get("situation")
-            )
-            result.get("current_status") and setattr(
-                self, "current_status", result.get("current_status")
-            )
-            result.get("backstory") and setattr(
-                self, "backstory", result.get("backstory")
-            )
-            result.get("tasks") and setattr(self, "tasks", result.get("tasks"))
-            result.get("rumors") and setattr(self, "rumors", result.get("rumors"))
-            result.get("information") and setattr(
-                self, "information", result.get("information")
-            )
+            for k, v in result.items():
+                if isinstance(v, str) and "#" in v:
+                    v = self.world.system.htmlize(v)
+                setattr(self, k, v)
             self.save()
             log(f"Generated Story: {self.name}", __print=True)
         else:

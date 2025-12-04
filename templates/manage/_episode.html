@@ -87,14 +87,11 @@
                 </div>
             </div>
         </div>
-        <div class="callout">
-            {{ gmnotes_components.reference(user, episode) }}
-        </div>
         <hr>
         <h3>Delete Episode</h3>
         <div class="grid-x align-spaced">
             <div class="cell shrink">
-                <button class="button is-light has-text-dark"
+                <button class="button alert small"
                         hx-post="/api/episode/{{episode.pk}}/delete"
                         hx-target="#page-content"
                         hx-select="#page-content"
@@ -166,4 +163,8 @@
         </form>
     </div>
 </div>
+<div class="callout primary margin-1">
+    {{ gmnotes_components.reference(user, episode) }}
+</div>
+
 {%- endmacro %}

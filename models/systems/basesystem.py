@@ -1,6 +1,7 @@
 import random
 import re
 
+import markdown
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.ai.textagent import TextAgent
 from autonomous.model.autoattr import (
@@ -491,6 +492,20 @@ class BaseSystem(AutoModel):
         return data
 
     @classmethod
+    def htmlize(cls, text):
+        if isinstance(text, str):
+            text = (
+                markdown.markdown(text.replace("```markdown", "").replace("```", ""))
+                .replace("h1>", "h3>")
+                .replace("h2>", "h4>")
+                .replace("h3>", "h5>")
+                .replace("h4>", "h6>")
+            )
+        if len(text) < 100:
+            text = cls.sanitize(text)
+        return text
+
+    @classmethod
     def map_prompt(cls, obj):
         return f"""{cls._map_prompts[obj.model_name().lower()](obj)}
 
@@ -616,6 +631,7 @@ class BaseSystem(AutoModel):
             prompt, function=funcobj, additional_instructions=additional
         )
         log(f"=== generation response ===\n\n{response}", _print=True)
+
         return response
 
     def generate_text(self, prompt, primer=""):

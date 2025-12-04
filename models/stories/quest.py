@@ -118,7 +118,9 @@ The situation should be tangentially related in some way to the following global
         primer = "You are an expert AI Table Top RPG Situation Generator. You will be provided with a character and a location, as well as additional details. Generate a situation that is connected to the character's backstory, world events, provided storyline, and has a clearly defined goal."
         log(prompt, _print=True)
         results = self.contact.system.generate_json(prompt, primer, self.funcobj)
-        # log(results, _print=True)
+        for k, v in results.items():
+            if isinstance(v, str) and "#" in v:
+                results[k] = self.system.htmlize(v)
         self.update_quest(**results)
 
     def update_quest(

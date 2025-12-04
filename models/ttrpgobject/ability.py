@@ -134,17 +134,6 @@ HISTORY: {self.world.history or self.world.backstory}.
             Ability._funcobj,
         )
 
-        def process_markdown_field(field_name):
-            return (
-                markdown.markdown(
-                    response.get(field_name, getattr(self, field_name))
-                    .replace("```markdown", "")
-                    .replace("```", "")
-                )
-                .replace("h1>", "h3>")
-                .replace("h2>", "h3>")
-            )
-
         if response:
             self.name = self.name or response.get("name", "")
             self.action = response.get("action", self.action)
@@ -156,7 +145,11 @@ HISTORY: {self.world.history or self.world.backstory}.
                 "dice_roll",
                 "mechanics",
             ]:
-                setattr(self, field, process_markdown_field(field))
+                setattr(
+                    self,
+                    field,
+                    self.system.htmlize(response.get(field, getattr(self, field))),
+                )
             self.save()
         if obj and hasattr(obj, "abilities") and self not in obj.abilities:
             obj.abilities += [self]

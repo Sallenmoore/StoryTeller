@@ -366,16 +366,19 @@ def association_add(amodel, apk=None):
 )
 def unassociate(childmodel, childpk):
     user, obj, request_data = _loader()
-    if child := World.get_model(childmodel).get(childpk):
+    associations = []
+    if child := World.get_model(childmodel, childpk):
         # log(f"Removing association: {child.name} from {obj.name}", _print=True)
         obj.remove_association(child)
         # log(f"Remaining associations: {', '.join(f'{association.name}' for association in associations)}")
+        associations = obj.associations
     else:
         for association in obj.associations:
             if str(association.pk) == childpk:
                 obj.remove_association(association)
-                break
-    associations = obj.associations
+            else:
+                associations += [association]
+
     if hasattr(obj, "split_associations"):
         relations, associations = obj.split_associations(associations=associations)
     else:

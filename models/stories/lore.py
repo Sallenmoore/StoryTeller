@@ -115,16 +115,10 @@ class Lore(AutoModel):
         )
         if result:
             log(f"Generated Lore: {result}", __print=True)
-            result.get("summary") and setattr(self, "summary", result.get("summary"))
-            result.get("backstory") and setattr(
-                self, "backstory", result.get("backstory")
-            )
-            result.get("situation") and setattr(
-                self, "situation", result.get("situation")
-            )
-            result.get("potential_events") and setattr(
-                self, "potential_events", result.get("potential_events")
-            )
+            for k, v in result.items():
+                if isinstance(v, str) and "#" in v:
+                    result[k] = self.system.htmlize(v)
+                setattr(self, k, result[k])
             self.save()
         else:
             log("Failed to generate Lore", __print=True)
@@ -201,5 +195,5 @@ class Lore(AutoModel):
 
             if self.start_date and self.start_date.day <= 0:
                 self.start_date.day = random.randint(1, 28)
-            if self.start_date and self.start_date.month <= 0:
-                self.start_date.month = random.randint(1, 12)
+            if self.start_date and self.start_date.month < 0:
+                self.start_date.month = random.randint(0, 11)

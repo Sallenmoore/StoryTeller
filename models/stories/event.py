@@ -200,22 +200,10 @@ The timeline of the world is as follows:
             funcobj=self.funcobj,
         )
         if result:
-            result.get("name") and setattr(self, "name", result.get("name"))
-            result.get("scope") and setattr(self, "scope", result.get("scope"))
-            result.get("backstory") and setattr(
-                self, "backstory", result.get("backstory")
-            )
-
-            if not self.end_date and result.get("end_date"):
-                self.backstory = f"{result.get('end_date')}<br>{self.backstory}"
-
-            if not self.start_date and result.get("start_date"):
-                self.backstory = f"{result.get('start_date')}<br>{self.backstory}"
-
-            result.get("outcome") and setattr(self, "outcome", result.get("outcome"))
-            result.get("impact") and setattr(self, "impact", result.get("impact"))
-            result.get("desc") and setattr(self, "desc", result.get("desc"))
-            log(f"Generated Event: {self.name}", _print=True)
+            for k, v in result.items():
+                if isinstance(v, str) and "#" in v:
+                    result[k] = self.system.htmlize(v)
+                setattr(self, k, result[k])
             self.save()
         else:
             log("Failed to generate Event", _print=True)
@@ -337,9 +325,10 @@ The image should be in a {self.world.image_style} style.
         document.pre_save_dates()
         document.pre_save_image()
 
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
+    @classmethod
+    def auto_post_save(cls, sender, document, **kwargs):
+        super().auto_post_save(sender, document, **kwargs)
+        document.world.set_current_date()
 
     # def clean(self):
     #     super().clean()
@@ -412,12 +401,11 @@ The image should be in a {self.world.image_style} style.
         if self.start_date and self.start_date.day <= 0:
             self.start_date.day = random.randint(1, 28)
         if self.start_date and self.start_date.month < 0:
-            self.start_date.month = random.randint(1, 12)
+            self.start_date.month = random.randint(0, 11)
         if self.end_date and self.end_date.day <= 0:
             self.end_date.day = random.randint(1, 28)
         if self.end_date and self.end_date.month < 0:
-            self.end_date.month = random.randint(1, 12)
-
+            self.end_date.month = random.randint(0, 11)
         log(self.start_date, self.end_date)
 
     def pre_save_image(self):

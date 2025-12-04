@@ -382,6 +382,27 @@ class World(TTRPGBase):
         obj.save()
         return self.associations
 
+    def set_current_date(self):
+        event_date = (
+            sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
+            if self.events
+            else None
+        )
+        episode_date = (
+            sorted(
+                [
+                    c.episodes[0].end_date
+                    for c in self.campaigns
+                    if c.episodes and c.episodes[0].end_date
+                ],
+                reverse=True,
+            )[0]
+            if self.campaigns
+            else None
+        )
+        self.current_date = event_date if event_date > episode_date else episode_date
+        self.save()
+
     def set_system(self, System):
         if System:
             self.system.delete()
@@ -405,9 +426,7 @@ class World(TTRPGBase):
 
     # MARK: generate_map
     def generate_map(self):
-        if not self.map_prompt:
-            self.map_prompt = self.system.map_prompt(self)
-        prompt = f"""{self.map_prompt}
+        prompt = f"""{self.system.map_prompt(self)}
 
 The map should be in a {self.world.map_style} style.
 """

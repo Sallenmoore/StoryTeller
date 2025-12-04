@@ -414,12 +414,12 @@ Here is some context about the world: {self.world.name}, {self.world.history}.
 
         if self.start_date and self.start_date.day <= 0:
             self.start_date.day = random.randint(1, 28)
-        if self.start_date and self.start_date.month <= 0:
-            self.start_date.month = random.randint(1, 12)
+        if self.start_date and self.start_date.month < 0:
+            self.start_date.month = random.randint(0, 11)
         if self.end_date and self.end_date.day <= 0:
             self.end_date.day = random.randint(1, 28)
-        if self.end_date and self.end_date.month <= 0:
-            self.end_date.month = random.randint(1, 12)
+        if self.end_date and self.end_date.month < 0:
+            self.end_date.month = random.randint(0, 11)
 
     def pre_save_image(self):
         if isinstance(self.image, str):

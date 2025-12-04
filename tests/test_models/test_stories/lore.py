@@ -201,5 +201,5 @@ class Lore(AutoModel):
 
             if self.start_date and self.start_date.day <= 0:
                 self.start_date.day = random.randint(1, 28)
-            if self.start_date and self.start_date.month <= 0:
-                self.start_date.month = random.randint(1, 12)
+            if self.start_date and self.start_date.month < 0:
+                self.start_date.month = random.randint(0, 11)

@@ -17,13 +17,12 @@ class Date(AutoModel):
         if self.year <= 0:
             return "Unknown"
         try:
-            month = (
-                self.calendar.months[self.month] if self.calendar.months else "Unknown"
-            )
-        except IndexError:
+            month = self.calendar.months[self.month]
+        except Exception as e:
+            log(e)
             return "Unknown"
 
-        return f"{self.day:02d} {month} {self.year}" if self.year > 0 else "Unknown"
+        return f"{self.day:02d} {month} {self.year}"
 
     def __repr__(self):
         return f"Date(day={self.day:02d}, month={self.month}, year={self.year})"
