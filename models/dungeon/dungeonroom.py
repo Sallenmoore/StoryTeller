@@ -217,14 +217,15 @@ The area is described as: {self.desc}.
         if self.map:
             self.map.delete()
 
-        self.map = Map.generate(
+        if map := Map.generate(
             prompt=self.build_map_prompt(),
             tags=["map", "dungeonroom", self.genre],
             aspect_ratio="16:9",
             image_size="4K",
-        )
-        self.map.save()
-        self.save()
+        ):
+            self.map = map
+            self.map.save()
+            self.save()
         return self.map
 
     def is_connected(self, other_room):
