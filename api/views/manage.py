@@ -388,12 +388,12 @@ def unassociate(childmodel, childpk):
 @manage_endpoint.route(
     "/parent/<string:childmodel>/<string:childpk>", methods=("POST",)
 )
-def parent(childmodel, childpk):
+def makeparentof(childmodel, childpk):
     user, obj, request_data = _loader()
     child = World.get_model(childmodel).get(childpk)
     child.parent = obj
     if obj.parent == child:
-        obj.parent = None
+        obj.parent = child.parent
         obj.save()
     child.save()
     if hasattr(obj, "split_associations"):
@@ -406,21 +406,23 @@ def parent(childmodel, childpk):
 
 
 @manage_endpoint.route("/child/<string:childmodel>/<string:childpk>", methods=("POST",))
-def child(childmodel, childpk):
+def makechildof(childmodel, childpk):
     user, child, request_data = _loader()
-    obj = World.get_model(childmodel).get(childpk)
-    child.parent = obj
-    if obj.parent == child:
-        obj.parent = None
-        obj.save()
+    parent = World.get_model(childmodel).get(childpk)
+    child.parent = parent
+    if parent.parent == child:
+        parent.parent = child.parent
+        parent.save()
     child.save()
-    if hasattr(obj, "split_associations"):
-        relations, associations = obj.split_associations(associations=obj.associations)
+    if hasattr(child, "split_associations"):
+        relations, associations = child.split_associations(
+            associations=child.associations
+        )
     else:
         relations = []
     return get_template_attribute(
-        f"models/_{obj.model_name().lower()}.html", "associations"
-    )(user, obj, extended_associations=associations, direct_associations=relations)
+        f"models/_{child.model_name().lower()}.html", "associations"
+    )(user, child, extended_associations=associations, direct_associations=relations)
 
 
 # MARK: Abilities route
