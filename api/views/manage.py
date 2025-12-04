@@ -343,7 +343,6 @@ def association_search():
 )
 def association_add(amodel, apk=None):
     user, obj, request_data = _loader()
-    associations = obj.associations
     child = AutoModel.get_model(amodel, apk)
     log(child)
     if not apk:
@@ -353,9 +352,10 @@ def association_add(amodel, apk=None):
     if child:
         obj.add_association(child)
     if hasattr(obj, "split_associations"):
-        relations, associations = obj.split_associations(associations=associations)
+        relations, associations = obj.split_associations(associations=obj.associations)
     else:
         relations = []
+        associations = obj.associations
     return get_template_attribute(
         f"models/_{obj.model_name().lower()}.html", "associations"
     )(user, obj, extended_associations=associations, direct_associations=relations)
@@ -365,11 +365,9 @@ def association_add(amodel, apk=None):
     "/unassociate/<string:childmodel>/<string:childpk>", methods=("POST",)
 )
 def unassociate(childmodel, childpk):
-    user, obj, request_data = _loader()
-    if child := World.get_model(childmodel).get(childpk):
-        # log(f"Removing association: {child.name} from {obj.name}", _print=True)
+    user, obj, _ = _loader()
+    if child := World.get_model(childmodel, childpk):
         obj.remove_association(child)
-        # log(f"Remaining associations: {', '.join(f'{association.name}' for association in associations)}")
     else:
         for association in obj.associations:
             if str(association.pk) == childpk:
@@ -389,7 +387,7 @@ def unassociate(childmodel, childpk):
     "/parent/<string:childmodel>/<string:childpk>", methods=("POST",)
 )
 def makeparentof(childmodel, childpk):
-    user, obj, request_data = _loader()
+    user, obj, _ = _loader()
     child = World.get_model(childmodel).get(childpk)
     child.parent = obj
     if obj.parent == child:
@@ -397,7 +395,7 @@ def makeparentof(childmodel, childpk):
         obj.save()
     child.save()
     if hasattr(obj, "split_associations"):
-        relations, associations = obj.split_associations(associations=obj.associations)
+        relations, associations = obj.split_associations()
     else:
         relations = []
     return get_template_attribute(
@@ -415,9 +413,7 @@ def makechildof(childmodel, childpk):
         parent.save()
     child.save()
     if hasattr(child, "split_associations"):
-        relations, associations = child.split_associations(
-            associations=child.associations
-        )
+        relations, associations = child.split_associations()
     else:
         relations = []
     return get_template_attribute(
