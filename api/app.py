@@ -12,6 +12,7 @@ from views import (
     event,
     gmscreen,
     index,
+    lore,
     manage,
     nav,
     story,
@@ -66,4 +67,5 @@ def create_app():
     app.register_blueprint(endpoints.endpoints_endpoint, url_prefix="/endpoints")
     app.register_blueprint(world.world_endpoint, url_prefix="/world")
     app.register_blueprint(dungeon.dungeon_endpoint, url_prefix="/dungeon")
+    app.register_blueprint(lore.lore_endpoint, url_prefix="/lore")
     return app

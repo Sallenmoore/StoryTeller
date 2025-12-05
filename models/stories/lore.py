@@ -54,16 +54,15 @@ class Lore(AutoModel):
     def calendar(self):
         return self.world.calendar
 
+    @property
+    def bbeg(self):
+        return self.story.bbeg if self.story else None
+
     ############# CRUD #############
 
     def delete(self):
-        if self.image:
-            self.image.delete()
-            self.image = None
         if self.start_date:
             self.start_date.delete()
-        if self.end_date:
-            self.end_date.delete()
         super().delete()
 
     ############# image generation #############
@@ -167,12 +166,7 @@ class Lore(AutoModel):
                     while len(dates):
                         dates[-1].delete()
                         dates.pop()
-                start_date = Date(obj=self, calendar=self.calendar)
-                start_date.day, start_date.month, start_date.year = (
-                    self.start_date["day"],
-                    self.start_date["month"],
-                    self.start_date["year"],
-                )
+                start_date = Date(obj=self, calendar=self.calendar, **self.start_date)
                 start_date.month = (
                     self.calendar.months.index(start_date.month.title())
                     if start_date.month

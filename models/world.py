@@ -58,7 +58,6 @@ class World(TTRPGBase):
     map_style = StringAttr(default="isometric")
     campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
     stories = ListAttr(ReferenceAttr(choices=["Story"]))
-    lore_entries = ListAttr(ReferenceAttr(choices=["Lore"]))
 
     TONES = {
         "Grimdark": "Dystopian, amoral, and violent, where hope is rare and the setting is generally brutal and bleak.",
@@ -288,6 +287,12 @@ class World(TTRPGBase):
         return sorted(
             Location.search(world=self) if self.pk else [], key=lambda x: x.name
         )
+
+    @property
+    def lore(self):
+        from models.stories.lore import Lore
+
+        return sorted(Lore.search(world=self) if self.pk else [], key=lambda x: x.name)
 
     @property
     def map_thumbnail(self):
