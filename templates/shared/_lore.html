@@ -186,7 +186,7 @@
             <form hx-post="/task/generate/lore/{{lore.pk}}">
                 <div class="grid-x">
                     <div class="cell">
-                        {{form_components.textarea(lore, name="prompt", label="Prompt")}}
+                        {{form_components.textarea(user, lore, name="prompt", label="Prompt")}}
                     </div>
                     <div class="cell shrink">
                         <button type="submit"

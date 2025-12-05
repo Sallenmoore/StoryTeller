@@ -16,7 +16,6 @@ class Lore(AutoModel):
     summary = StringAttr(default="")
     backstory = StringAttr(default="")
     situation = StringAttr(default="")
-    potential_events = ListAttr(StringAttr(default=""))
     start_date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     party = ListAttr(ReferenceAttr(choices=["Character"]))
@@ -40,11 +39,6 @@ class Lore(AutoModel):
                 "situation": {
                     "type": "string",
                     "description": "A description of the current situation the main characters find themselves in and its effects on the TTRPG world. This should be a specific, concrete situation that the players can engage with and explore.",
-                },
-                "potential_events": {
-                    "type": "array",
-                    "description": "A list of potential events related to the story and involving the main characters that could have far-reaching consequences.",
-                    "items": {"type": "string"},
                 },
             },
         },
