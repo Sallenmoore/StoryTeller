@@ -58,8 +58,8 @@
                 </div>
                 <div class="cell auto">
                     <h5 class='text-center'>Theme</h5>
-                    <input class=" text-center" type="text" name="traits"
-                           value="{{obj.traits}}" maxlength="64">
+                    <input class=" text-center" type="text" name="theme"
+                           value="{{obj.theme}}" maxlength="64">
                 </div>
             </div>
         </form>
@@ -151,7 +151,7 @@
                     </button>
                 </div>
             </div>
-            {{form_components.listeditor(user, obj, "post_scenes")}}
+            {{form_components.listarea(user, obj, "post_scenes")}}
         </div>
         <div class="cell" id="model-complications">
             <h4 class="text-center">Complications</h4>

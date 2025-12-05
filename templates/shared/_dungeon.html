@@ -157,10 +157,12 @@
                                     </a>
                                 </div>
                                 <div class="cell">
-                                    {% for cr in room.connected_rooms %}
-                                    <span class="badge secondary">
-                                        {{cr.name}}
-                                    </span>
+                                    {% for cr in room.encounters %}
+                                    <a href='/{{cr.path}}' target='_blank'>
+                                        <span class="badge secondary">
+                                            {{cr.name}}
+                                        </span>
+                                    </a>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -183,7 +185,7 @@
     <div class="cell">
         <h3 class='separator-center'>{{dungeonroom.name}}</h3>
     </div>
-    <div class="cell shrink">
+    <div class="cell medium-6">
         <a class="button"
            hx-post="/api/dungeon/room/{{dungeonroom.pk}}/manage"
            hx-target="#dungeon-container"
@@ -192,10 +194,33 @@
            hx-push-url="false">
             Manage Room
         </a>
-    </div>
-    <div class="cell">
-        <h4>{{dungeonroom.theme}}</h4>
         <p>{{dungeonroom.desc|safe}}</p>
+        {% if dungeonroom.encounters %}
+        <div class="callout bg-screen">
+            <h5 class="text-center">Encounters</h5>
+            <div class="grid-x align-spaced grid-margin-x">
+                {% for encounter in dungeonroom.encounters %}
+                <div class="cell">
+                    <a href='/{{encounter.path}}' target='_blank'>
+                        <div class="callout bg-muted">
+                            <div class="grid-x grid-margin-x">
+                                <div class="cell medium-2">
+                                    <img src="{{encounter.image.url()}}" alt="{{encounter.name}}" />
+                                </div>
+                                <div class="cell auto">
+                                    <h6 class="text-center">{{encounter.name | striptags}}</h6>
+                                    {{encounter.trigger_conditions | safe}}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="cell medium-6">
         <div class="callout">
             <h4>Layout</h4>
             <p>{{dungeonroom.layout}}</p>
@@ -217,98 +242,80 @@
             </ul>
         </div>
     </div>
-    {% if dungeonroom.encounters %}
-    <div class="cell">
-        <div class="callout bg-screen">
-            <h5 class="text-center">Encounters</h5>
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for encounter in dungeonroom.encounters %}
-                <div class="cell medium-6">
-                    <a href='/{{encounter.path}}' target='_blank'>
-                        <div class="callout bg-muted">
-                            <h6 class="text-center">{{encounter.name | striptags}}</h6>
-                            {{encounter.trigger_conditions | safe}}
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
+</div>
+{% if dungeonroom.characters %}
+<div class="cell medium-4">
+    <div class="callout bg-screen">
+        <h5 class="text-center">Character</h5>
+        <div class="grid-x align-spaced grid-margin-x">
+            {% for character in dungeonroom.characters %}
+            <div class="cell medium-2">
+                {{display_components.object_display(character, type=False)}}
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
-    {% if dungeonroom.characters %}
-    <div class="cell medium-4">
-        <div class="callout bg-screen">
-            <h5 class="text-center">Character</h5>
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for character in dungeonroom.characters %}
-                <div class="cell medium-4">
-                    {{display_components.object_display(character, type=False)}}
+</div>
+{% endif %}
+{% if dungeonroom.creatures %}
+<div class="cell medium-4">
+    <div class="callout bg-screen">
+        <h5 class="text-center">Creatures</h5>
+        <div class="grid-x align-spaced grid-margin-x">
+            {% for creature in dungeonroom.creatures %}
+            <div class="cell medium-2">
+                <div class="callout">
+                    {{display_components.object_display(creature, type=False)}}
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
-    {% if dungeonroom.creatures %}
-    <div class="cell medium-4">
-        <div class="callout bg-screen">
-            <h5 class="text-center">Creatures</h5>
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for creature in dungeonroom.creatures %}
-                <div class="cell medium-4">
-                    <div class="callout">
-                        {{display_components.object_display(creature, type=False)}}
+</div>
+{% endif %}
+{% if dungeonroom.loot %}
+<div class="cell medium-4">
+    <div class="callout bg-screen">
+        <h5 class="text-center">Loot</h5>
+        <div class="grid-x align-spaced grid-margin-x">
+            {% for loot in dungeonroom.loot %}
+            <div class="cell medium-2">
+                {{display_components.object_display(loot, type=False)}}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if dungeonroom.map %}
+<div id="map-container" class="cell">
+    <div id="map" style="width:100%;height:100%;">
+        <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
+    </div>
+</div>
+{% endif %}
+<div class="cell">
+    <div class="callout">
+        <h5 class="text-center">Connected Rooms</h5>
+        <div class="grid-x align-spaced">
+            {% for connected_room in dungeonroom.connected_rooms %}
+            <div class="cell medium-3">
+                <a class="button small"
+                   hx-get="/api/dungeon/room/{{connected_room.pk}}"
+                   hx-target="#dungeon-container"
+                   hx-indicator=""
+                   hx-push-url="false">
+                    <div class="callout secondary">
+                        <h5>{{connected_room.name}}</h5>
                     </div>
-                </div>
-                {% endfor %}
+                </a>
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
-    {% if dungeonroom.loot %}
-    <div class="cell medium-4">
-        <div class="callout bg-screen">
-            <h5 class="text-center">Loot</h5>
-            <div class="grid-x align-spaced grid-margin-x">
-                {% for loot in dungeonroom.loot %}
-                <div class="cell medium-4">
-                    {{display_components.object_display(loot, type=False)}}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if dungeonroom.map %}
-    <div id="map-container" class="cell">
-        <div id="map" style="width:100%;height:100%;">
-            <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
-        </div>
-    </div>
-    {% endif %}
-    <div class="cell">
-        <div class="callout">
-            <h5 class="text-center">Connected Rooms</h5>
-            <div class="grid-x align-spaced">
-                {% for connected_room in dungeonroom.connected_rooms %}
-                <div class="cell medium-3">
-                    <a class="button small"
-                       hx-get="/api/dungeon/room/{{connected_room.pk}}"
-                       hx-target="#dungeon-container"
-                       hx-indicator=""
-                       hx-push-url="false">
-                        <div class="callout secondary">
-                            <h5>{{connected_room.name}}</h5>
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <hr>
+    <hr>
 
-    </div>
+</div>
 </div>
 {%- endmacro %}
 
@@ -385,31 +392,31 @@
           hx-trigger="input delay:1s, change"
           hx-request-indicator="">
         <div class="grid-x align-spaced grid-margin-x grid-margin-y">
-            <div class="cell">
+            <div class="cell medium-6">
                 {{form_components.text_input("name", "Name", obj.name)}}
             </div>
-            <div class="cell">
+            <div class="cell medium-3">
                 {{form_components.text_input("theme", "Theme", obj.theme)}}
             </div>
-            <div class="cell">
+            <div class="cell medium-3">
                 {{form_components.text_input("structure_type", "Structure Type", obj.structure_type)}}
             </div>
-            <div class="cell">
+            <div class="cell medium-6">
                 {{form_components.text_input("dimensions", "Dimensions", obj.dimensions)}}
             </div>
-            <div class="cell">
+            <div class="cell medium-6">
                 {{form_components.text_input("shape", "Shape", obj.shape)}}
             </div>
             <div class="cell">
                 {{form_components.richtexteditor(user, obj, "desc")}}
             </div>
-            <div class="cell">
+            <div class="cell medium-6">
                 <div class="callout">
                     <label>Sensory Details</label>
                     {{form_components.listarea(user, obj, "sensory_details")}}
                 </div>
             </div>
-            <div class="cell">
+            <div class="cell medium-6">
                 <div class="callout">
                     <label>Features</label>
                     {{form_components.listarea(user, obj, "features")}}
@@ -453,7 +460,9 @@
                     <div class="cell shrink">
                         <button class="button small"
                                 hx-post="/api/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
-                                hx-target="#page-content"
+                                hx-target="#dungeon-container"
+                                hx-select="#dungeon-container"
+                                hx-swap="outerHTML"
                                 hx-indicator='#request-indicator'>
                             {{ icon_components.unlink(size="1rem") }}
                             <span style="font-size:0.5rem">Unlink</span>

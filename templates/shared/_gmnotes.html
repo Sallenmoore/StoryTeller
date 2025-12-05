@@ -37,19 +37,24 @@
     <thead>
         <tr>
             <th>Name</th>
+            <th> Type </th>
             <th>Sensory Detail</th>
             <th>Encounters</th>
         </tr>
     </thead>
     {% for a in obj.associations|sort(attribute='name') %}
     <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
-        <td><a href="{{ a.path }}" target='_blank'>{{ a.name }}</a></td>
+        <td><a href="/{{ a.path }}" target='_blank'>{{ a.name }}</a></td>
+        <td>
+            {{ a.title }}
+        </td>
         <td>
             {{ a.sensory_details | random | safe }}
         </td>
         <td>
             {% for e in a.encounters %}
-            <a href="/{{e.path}}">{{e.name}}</a>{% if not loop.last %} <br> {% endif %}
+            <a href="/{{e.path}}" target='_blank'>{{e.name}}</a>{% if not loop.last %}
+            <hr> {% endif %}
             {% endfor %}
         </td>
     </tr>

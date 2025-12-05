@@ -47,32 +47,6 @@
 
 {% macro details(user, obj) -%}
 <div class="grid-x align-spaced grid-margin-x">
-    <div class="cell shrink">
-        <div class="callout">
-            <div class="grid-x">
-                <div class="cell shrink align-center-middle">
-                    <h4>Difficulty:</h4>
-                </div>
-                <div class="cell align-center-middle">
-                    <h5 class='-grey'>{{obj.difficulty}}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="cell shrink">
-        <div class="callout">
-            <div class="grid-x">
-                <div class="cell shrink align-center-middle">
-                    <h4>Enemy Type:</h4>
-                </div>
-                <div class="cell align-center-middle">
-                    <h5 class='-grey'>{{obj.enemy_type}}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="grid-x align-spaced grid-margin-x">
     <div class="cell medium-6">
         <div class="callout ">
             <div class="grid-x grid-margin-x">
@@ -89,14 +63,24 @@
         </div>
     </div>
     <div class="cell medium-6">
+        <div class="grid-x grid-margin-x align-spaced text-center">
+            <div class="cell shrink">
+                <div class="callout">
+                    <h4>Difficulty:<span class='text-primary'> {{obj.difficulty}} </span></h4>
+                </div>
+            </div>
+            <div class="cell shrink">
+                <div class="callout">
+                    <h4>Enemy Type: <span class='text-primary'>{{obj.enemy_type}}</span></h4>
+                </div>
+            </div>
+        </div>
         <div class="callout ">
             <h3>Triggers</h3>
             <span>
                 {{obj.trigger_conditions | safe}}
             </span>
         </div>
-    </div>
-    <div class="cell">
         <div class="callout">
             <h5>Notes</h5>
             {{obj.notes | safe}}

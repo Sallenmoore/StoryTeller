@@ -333,7 +333,7 @@ class Encounter(AutoModel):
 
         if results := self.system.generate(self, prompt=prompt, funcobj=self._funcobj):
             for k, v in results.items():
-                if isinstance(v, str) and "#" in v:
+                if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
                     v = self.system.htmlize(v)
                 setattr(self, k, v)
             self.save()
@@ -443,6 +443,7 @@ The image should be in a {self.world.image_style} style.
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_image()
         document.pre_save_traits()
+        document.pre_save_text()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -474,3 +475,18 @@ The image should be in a {self.world.image_style} style.
     def pre_save_traits(self):
         if not self.theme:
             self.theme = f"{random.choice(self.themes_list['themes'])}; {random.choice(self.themes_list['motifs'])}"
+
+    def pre_save_text(self):
+        for attr in [
+            "name",
+            "backstory",
+            "desc",
+            "trigger_conditions",
+            "complications",
+            "mechanics",
+            "notes",
+        ]:
+            if v := getattr(self, attr):
+                if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
+                    v = self.system.htmlize(v.strip())
+                setattr(self, attr, v.strip())

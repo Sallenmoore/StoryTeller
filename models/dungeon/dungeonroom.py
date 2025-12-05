@@ -291,10 +291,10 @@ The area is described as: {self.desc}.
     #     log("Auto Pre Save World")
     #     super().auto_post_init(sender, document, **kwargs)
 
-    # @classmethod
-    # def auto_pre_save(cls, sender, document, **kwargs):
-    #     super().auto_pre_save(sender, document, **kwargs)
-    #     document.pre_save_owner()
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_text()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -304,3 +304,17 @@ The area is described as: {self.desc}.
     #     super().clean()
 
     ################### verify associations ##################
+    def pre_save_text(self):
+        for attr in [
+            "name",
+            "desc",
+            "theme",
+            "structure_type",
+            "dimensions",
+            "shape",
+            "map_prompt",
+        ]:
+            if v := getattr(self, attr):
+                if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
+                    v = self.system.htmlize(v.strip())
+                setattr(self, attr, v.strip())

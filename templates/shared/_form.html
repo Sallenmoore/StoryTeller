@@ -10,28 +10,6 @@
        placeholder='{{placeholder}}' />
 {%- endmacro %}
 
-{% macro richtexteditor(user, obj, attr, name="", label=True) -%}
-{% if label %}
-<label style="{{obj.genre | label_style}}">{{attr | replace("_", " ") | title}}
-</label>
-{% endif %}
-<textarea id="edit-{{obj.pk}}-{{attr}}"
-          name="{{name or attr}}"
-          data-model="{{obj.__class__.__name__.lower()}}"
-          data-user="{{user.pk}}"
-          data-pk="{{obj.pk}}"
-          class="rich-text">
-        {% if obj %}
-            {{obj[attr] | string | safe}}
-        {% endif %}
-    </textarea>
-<script>
-    $(function () {
-        createCK('edit-{{obj.pk}}-{{attr}}');
-    });
-</script>
-{%- endmacro %}
-
 {% macro textarea(user, obj, name="", content="", label="") -%}
 {% if label %}
 <label for="{{name}}" class="label">{{label}}</label>
@@ -54,6 +32,28 @@
         textarea.addEventListener('input', autoResize);
         // Adjust height on initial load (in case there's pre-filled content)
         autoResize();
+    });
+</script>
+{%- endmacro %}
+
+{% macro richtexteditor(user, obj, attr, name="", label=True) -%}
+{% if label %}
+<label style="{{obj.genre | label_style}}">{{attr | replace("_", " ") | title}}
+</label>
+{% endif %}
+<textarea id="edit-{{obj.pk}}-{{attr}}"
+          name="{{name or attr}}"
+          data-model="{{obj.__class__.__name__.lower()}}"
+          data-user="{{user.pk}}"
+          data-pk="{{obj.pk}}"
+          class="rich-text">
+        {% if obj %}
+            {{obj[attr] | string | safe}}
+        {% endif %}
+    </textarea>
+<script>
+    $(function () {
+        createCK('edit-{{obj.pk}}-{{attr}}');
     });
 </script>
 {%- endmacro %}
@@ -89,7 +89,7 @@
 </script>
 {%- endmacro %}
 
-{% macro texteditor(user, obj, attr, content=None, limit=0, name="") -%}
+{# {% macro texteditor(user, obj, attr, content=None, limit=0, name="") -%}
 <div onmouseout="tinyMCE.triggerSave();" data-max='{{limit}}'>
     <textarea class=" has-bg-white" id="edit-{{obj.pk}}-{{attr}}"
               name="{{name or attr}}">
@@ -172,4 +172,4 @@
     </div>
     {%endfor%}
 </div>
-{%- endmacro %}
+{%- endmacro %} #}
