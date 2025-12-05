@@ -58,14 +58,8 @@
                   hx-select='#associations-container'
                   hx-trigger="input delay:250ms, change, search"
                   hx-swap='outerHTML'>
-                <div class="grid-x grid-margin-x lign-spaced">
-                    <div class="cell medium-4">
-                        <input type="search"
-                               name="filter"
-                               placeholder="Filter by name..."
-                               style="border-bottom: solid #000">
-                    </div>
-                    <div class="cell medium-4">
+                <div class="grid-x grid-margin-x align-spaced">
+                    <div class="cell shrink">
                         <select name="type">
                             <option value=''>
                                 Filter by Type
@@ -77,7 +71,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="cell medium-4">
+                    <div class="cell shrink">
                         <select name="relationship">
                             <option value=''>
                                 Filter by Relationship
@@ -98,14 +92,14 @@
                             {% endif %}
                         </select>
                     </div>
-                    <div class="cell medium-6">
+                    <div class="cell shrink">
                         <div class="grid-x grid-margin-x align-center-middle">
                             <div class="cell shrink">
                                 <h5>
                                     Sort by
                                 </h5>
                             </div>
-                            <div class="cell auto">
+                            <div class="cell shrink">
                                 <select name="sorter">
                                     <option value='name'>
                                         Name
@@ -118,7 +112,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="cell auto">
+                            <div class="cell shrink">
                                 <select name="order">
                                     <option value='ascending'>
                                         ASC
@@ -129,6 +123,12 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="cell medium-3">
+                        <input type="search"
+                               name="filter"
+                               placeholder="Filter by name..."
+                               style="border-bottom: solid #000">
                     </div>
                 </div>
             </form>
