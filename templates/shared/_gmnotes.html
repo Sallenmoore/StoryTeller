@@ -33,10 +33,17 @@
 
 {% macro reference(user, obj) -%}
 <h3 class='text-center'>Quick Reference</h3>
-{% for a in obj.associations|sort(attribute='name') %}
 <table class="stack">
-    <tr>
-        <th><a href="{{ a.path }}" target='_blank'>{{ a.name }}</a></th>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Sensory Detail</th>
+            <th>Encounters</th>
+        </tr>
+    </thead>
+    {% for a in obj.associations|sort(attribute='name') %}
+    <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
+        <td><a href="{{ a.path }}" target='_blank'>{{ a.name }}</a></td>
         <td>
             {{ a.sensory_details | random | safe }}
         </td>
@@ -46,12 +53,9 @@
             {% endfor %}
         </td>
     </tr>
+    {% endfor %}
 </table>
-{% endfor %}
-<div class="grid-x grid-padding-x {{ loop.cycle('bg-screen', 'bg-muted') }}"
-     style='padding-top: .25rem; padding-bottom: .25rem;'>
 
-</div>
 {%- endmacro %}
 
 {% macro display_encounters(user, obj, manage=True) -%}
