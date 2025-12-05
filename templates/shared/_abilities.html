@@ -59,33 +59,39 @@
 {%- endmacro %}
 
 {% macro manage(user, obj) -%}
-{% if obj.model_name() != "World" %}
-<div class="grid-x align-spaced">
-    <div class="cell shrink">
-        <button type="button" class="button small"
-                hx-post='/api/manage/add/new/ability'
-                hx-target='#ability-item-list'
-                hx-select='#ability-item-list'
-                hx-swap='outerHTML' hx-trigger="click consume">
-            {{icon_components.plus(size="1rem")}}
-            New Ability
-        </button>
-    </div>
-    <div class="cell shrink">
-        <label for="ability-search-input">Add Existing Abilities
-            <select id="ability-search-input"
-                    name="apk"
-                    hx-post='/api/manage/add/ability'
+<div class="callout">
+    {% if obj.model_name() != "World" %}
+    <div class="grid-x align-spaced">
+        <div class="cell shrink">
+            <button type="button" class="button small"
+                    hx-post='/api/manage/add/new/ability'
                     hx-target='#ability-item-list'
                     hx-select='#ability-item-list'
-                    hx-swap='outerHTML'
-                    hx-trigger="change consume">
-                <option value="none">-- --</option>
-                {% for ability in obj.world.abilities %}
-                <option value="{{ ability.pk }}">{{ ability.name }}</option>
-                {% endfor %}
-            </select>
-        </label>
+                    hx-swap='outerHTML' hx-trigger="click consume">
+                {{icon_components.plus(size="1rem")}}
+                New Ability
+            </button>
+        </div>
+        <div class="cell shrink">
+            <label for="ability-search-input">Add Existing Abilities
+                <select id="ability-search-input"
+                        name="apk"
+                        hx-post='/api/manage/add/ability'
+                        hx-target='#ability-item-list'
+                        hx-select='#ability-item-list'
+                        hx-swap='outerHTML'
+                        hx-trigger="change consume">
+                    <option value="none">-- --</option>
+                    {% for group in obj.world.abilities|groupby('category') %}
+                    <optgroup label="{{ group.grouper | title }}">
+                        {% for ability in group.list %}
+                        <option value="{{ ability.pk }}">{{ ability.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -112,7 +118,7 @@
 <a href="#" class="accordion-title">{{ability.name}}</a>
 <div class="accordion-content" data-tab-content>
     <form hx-post='/api/manage/ability/{{ability.pk}}/update'
-          hx-trigger="click consume"
+          hx-trigger="click consume, change consume, input consume"
           hx-swap='none'>
         <table class="ability">
             <tr>
@@ -120,7 +126,7 @@
                 <td>
                     <div class="grid-x grid-margin-x align-center-middle">
                         <div class="cell auto">
-                            {{form_components.text_input("abilities[].name", label=False, value=ability.name, style=ability.genre)}}
+                            {{form_components.text_input("name", label=False, value=ability.name, style=ability.genre)}}
                         </div>
                         <div class="cell shrink">
                             <div
@@ -140,7 +146,7 @@
             <tr>
                 <th>Description</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "description", name="abilities[].description", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "description", name="description", label=False)}}
                 </td>
             </tr>
             <tr>
@@ -149,9 +155,9 @@
                     <table class="ability-subtable margin-0">
                         <tr>
                             <td>
-                                <label for="abilities[].category">Action Category</label>
+                                <label for="ability.category">Action Category</label>
                                 <div class="select">
-                                    <select name='abilities[].category'
+                                    <select name='category'
                                             value="{{ability.category}}">
                                         {%for a in [
                                         "offensive",
@@ -169,9 +175,9 @@
                                 </div>
                             </td>
                             <td>
-                                <label for="abilities[].action">Action Type</label>
+                                <label for="ability.action">Action Type</label>
                                 <div class="select">
-                                    <select name='abilities[].action'
+                                    <select name='action'
                                             value="{{ability.action}}">
                                         {%for a in ["main action", "bonus action", "reaction",
                                         "free action", "passive"] %}
@@ -182,7 +188,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{form_components.richtexteditor(user, ability, "duration", name="abilities[].duration", label=False)}}
+                                {{form_components.richtexteditor(user, ability, "duration", name="duration", label=False)}}
                             </td>
                         </tr>
                     </table>
@@ -191,19 +197,19 @@
             <tr>
                 <th>Roll</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "dice_roll", name="abilities[].dice_roll", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "dice_roll", name="dice_roll", label=False)}}
                 </td>
             </tr>
             <tr>
                 <th>Mechanics</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "mechanics", name="abilities[].mechanics", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "mechanics", name="mechanics", label=False)}}
                 </td>
             </tr>
             <tr>
                 <th>Effects</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "effects", name="abilities[].effects", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "effects", name="effects", label=False)}}
                 </td>
             </tr>
             <tr>

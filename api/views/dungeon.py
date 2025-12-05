@@ -163,7 +163,7 @@ def new_association(roompk):
     elif model_name.lower() == "creature":
         room.creatures += [association]
     elif model_name.lower() == "item":
-        room.items += [association]
+        room.loot += [association]
     elif model_name.lower() == "encounter":
         room.encounters += [association]
     room.save()

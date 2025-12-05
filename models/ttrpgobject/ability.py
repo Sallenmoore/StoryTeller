@@ -25,7 +25,17 @@ class Ability(AutoModel):
             "movement",
             "utility",
         ],
-        default="offensive",
+        default=lambda: random.choice(
+            [
+                "offensive",
+                "defensive",
+                "social",
+                "support",
+                "control",
+                "movement",
+                "utility",
+            ]
+        ),
     )
     effects = StringAttr(default="")
     duration = StringAttr(default="")
@@ -115,14 +125,14 @@ class Ability(AutoModel):
         if obj:
             self.world = obj.world
             prompt = f"""
-Generate a unique {obj.genre} TTRPG ability or feature for a {obj.title}. Ensure conistency with the world's tone: {obj.world.tone}
+Generate a unique{obj.genre} TTRPG {self.category} ability or feature for a {obj.title}. Ensure conistency with the world's tone: {obj.world.tone}
 Do not make the ability specific to the {obj.title}, but use the following backstory for guidance: {obj.backstory}.
 """
         else:
             prompt = f"""
 Generate a unique ability or feature for a {self.world.genre} TTRPG . Ensure conistency with the {self.world.title}:
 TONE: {self.world.tone}.
-HISTORY: {self.world.history or self.world.backstory}.
+HISTORY: {self.world.backstory}.
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
 
@@ -151,6 +161,6 @@ HISTORY: {self.world.history or self.world.backstory}.
                     self.system.htmlize(response.get(field, getattr(self, field))),
                 )
             self.save()
-        if obj and hasattr(obj, "abilities") and self not in obj.abilities:
-            obj.abilities += [self]
-            obj.save()
+            if obj and hasattr(obj, "abilities") and self not in obj.abilities:
+                obj.abilities += [self]
+                obj.save()

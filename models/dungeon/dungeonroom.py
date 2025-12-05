@@ -156,6 +156,15 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
     def generate_encounter(self):
         enc = Encounter(world=self.world, parent=self.location)
         enc.theme = self.theme
+        if self.creatures:
+            enc.encounter_type = random.choice(["combat", "stealth"])
+            enc.enemy_type = random.choice(self.creatures).name
+        elif self.characters:
+            enc.encounter_type = random.choice(["social interaction", "stealth"])
+            enc.enemy_type = random.choice(self.species).name
+        else:
+            enc.encounter_type = random.choice(["puzzle or trap", "skill challenge"])
+            enc.enemy_type = "environmental challenge"
         enc.story = (
             random.choice(self.location.stories) if self.location.stories else None
         )
@@ -169,11 +178,7 @@ The area is described as: {self.desc}.
 
 {f"This area is an entrance/exit to the {self.location.location_type} known as {self.location.name}." if self.is_entrance else ""}
 """
-        enc.encounter_type = (
-            random.choice(list(Encounter._encounter_types.keys()))
-            if self.associations
-            else "puzzle or trap"
-        )
+        enc.associations = self.associations
         enc.save()
         self.encounters += [enc]
         self.save()

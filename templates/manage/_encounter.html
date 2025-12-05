@@ -91,7 +91,7 @@
 </div>
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="grid-x">
+    <div class="grid-x grid-margin-y">
         <div class="cell">
             <div class="grid-x grid-margin-x">
                 <div class="cell auto">
@@ -129,13 +129,20 @@
             <h4 class="text-center">Trigger Conditions</h4>
             {{form_components.richtexteditor(user, obj, "trigger_conditions", label=False)}}
         </div>
-        <div class="cell" id="model-mechanics">
-            <h4 class="text-center">Mechanics</h4>
-            {{form_components.richtexteditor(user, obj, "mechanics", label=False)}}
+        <div class="cell">
+            {{manage_components.backstory(user, obj)}}
         </div>
         <div class="cell" id="model-notes">
             <h4 class="text-center">Notes</h4>
             {{form_components.richtexteditor(user, obj, "notes", label=False)}}
+        </div>
+        <div class="cell" id="model-mechanics">
+            <h4 class="text-center">Mechanics</h4>
+            {{form_components.richtexteditor(user, obj, "mechanics", label=False)}}
+        </div>
+        <div class="cell" id="model-complications">
+            <h4 class="text-center">Complications</h4>
+            {{form_components.richtexteditor(user, obj, "complications", label=False)}}
         </div>
         <div class="cell" id="model-outcomes">
             <h4 class="text-center">Potential Post Scenes</h4>
@@ -153,12 +160,7 @@
             </div>
             {{form_components.listarea(user, obj, "post_scenes")}}
         </div>
-        <div class="cell" id="model-complications">
-            <h4 class="text-center">Complications</h4>
-            {{form_components.richtexteditor(user, obj, "complications", label=False)}}
-        </div>
     </div>
 </form>
-{{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

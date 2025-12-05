@@ -206,10 +206,12 @@ class Encounter(AutoModel):
     @property
     def geneology(self):
         geneology = []
-        if self.parent:
-            geneology.append(self.parent)
-            geneology += self.parent.geneology
-        return geneology
+        parent = self.parent
+        while parent:
+            geneology.append(parent)
+            parent = parent.parent if hasattr(parent, "parent") else None
+        geneology += [self.world]
+        return geneology[::-1]
 
     @property
     def locations(self):
@@ -276,13 +278,12 @@ class Encounter(AutoModel):
                 "aerial predator",
             ]
         )
-        if story := self.story:
-            context = f"An encounter directly or tengentially related to the following storyline: {story.summary or story.situation} {story.current_status}"
-        elif self.world.stories:
-            story = random.choice(self.world.stories)
-            context = f"An encounter very subtly related to the following storyline: {story.summary or story.situation} {story.current_status}"
-        else:
-            context = f"Trouble is brewing in {self.world.name}."
+
+        context = (
+            f"An encounter directly or tengentially related to the following storyline: {story.summary or story.situation} {story.current_status}"
+            if (story := self.story)
+            else ""
+        )
 
         desc = f"""
 - Setting:
@@ -298,19 +299,16 @@ class Encounter(AutoModel):
      {f"- Controlled By: {self.parent.owner.name}" if hasattr(self.parent, "owner") and self.parent.owner else ""}
     - SETTING DESCRIPTION: {self.parent.desc}
 """
-        elif self.desc:
-            desc += f"""
-- SETTING DESCRIPTION: {self.desc}
-"""
+        if self.desc:
+            desc += self.desc
 
         prompt = f"""Generate a {self.genre} TTRPG encounter scenario using the following guidelines:
-- CONTEXT: {context}
 - ENEMY TYPE: {enemy_type}
 - ENCOUNTER TYPE: {self._encounter_types[self.encounter_type] if self.encounter_type in self._encounter_types else "a generic encounter appropriate to the setting and enemy type"}
 {f"- NAME: {self.name}" if self.name else ""}
-{f"- LOCATION: {desc}" if desc else ""}
 {f"- DESCRIPTION: {desc}" if desc else ""}
 {f"- THEME: {self.theme}" if self.theme else ""}
+{f"- CONTEXT: {context}" if context else ""}
 {f"- MECHANICS: {self.mechanics}" if self.mechanics else ""}
 {f"- SCENARIO: {self.backstory}" if self.backstory else ""}
 {f"- DIFFICULTY: {self.difficulty}" if self.difficulty else ""}

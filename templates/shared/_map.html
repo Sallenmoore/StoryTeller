@@ -33,36 +33,36 @@
                     <button class="button"
                             hx-post="/task/generate/map/{{obj.path}}"
                             hx-target="closest .cell"
-                            hx-indicator=''
-                            hx-confirm="Are you sure you want to generate and overwrite the current map?">
-                        {{icon_components.ai()}}
-                        AI Generated Image
-                    </button>
+                            hx-indicator="false"
+                        hx-confirm="Are you sure you want to generate and overwrite the current map?">
+                    {{icon_components.ai()}}
+                    AI Generated Image
+                </button>
                 {% else %}
-                    <button class="button" class="button"
-                            hx-post="/task/generate/history/{{obj.path}}"
-                            hx-target="closest .cell">
-                        Update History
-                    </button>
-                    <small style=' color:darkred'>The {{obj.title}} must have a history to generate
+                <button class="button" class="button"
+                        hx-post="/task/generate/history/{{obj.path}}"
+                        hx-target="closest .cell">
+                    Update History
+                </button>
+                <small style="color:darkred">The {{obj.title}} must have a history to generate
                     a map </small>
                     {% endif %}
                     <br>
                     <button class="button" hx-post="/api/manage/map/gallery"
                             hx-target="#map-container"
                             hx-swap="innerHTML show:#map-container:bottom"
-                            hx-indicator='#request-indicator'>
-                        {{icon_components.random()}}
-                        Select From Gallery
-                    </button>
+                            hx-indicator="false">
+                    {{icon_components.random()}}
+                    Select From Gallery
+                </button>
             </div>
         </div>
         <hr>
         <div class="grid-x">
             <div class="cell medium-6">
-                <form hx-post="/api/manage/update" hx-select='#map-container'
-                      hx-target="#map-container"
-                      hx-confirm="Are you sure you want to upload and overwrite the current map?">
+                <form hx-post="/api/manage/update" hx-select=' #map-container'
+                        hx-target="#map-container"
+                        hx-confirm="Are you sure you want to upload and overwrite the current map?">
                     <div class="grid-x">
                         <div class="cell shrink">
                             <button class="button small" type="submit">
@@ -72,13 +72,11 @@
                         </div>
                         <div class="cell auto">
                             <div>
-                                <input class=" "
-                                       type="url" name="map"
-                                       placeholder="enter url....">
+                                <input type="url" name="map" placeholder="enter url....">
                             </div>
                         </div>
                     </div>
-                </form>
+                    </form>
             </div>
             <div class="cell medium-6">
                 <form hx-post="/api/manage/map/file/upload"
