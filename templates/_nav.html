@@ -46,11 +46,11 @@
     {% if not user.is_guest %}
     <div>{{user.name | title}}</div>
     <a class="button" href="/auth/logout">Logout</a>
-    <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+    {# <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
             onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
         {{icon_components.keyboard(size="1.5rem")}}
         GM Screen
-    </button>
+    </button> #}
     {% if user.is_admin %}
     <a class="button" href="/admin/">
         {{icon_components.keyboard(size="1.5rem")}}

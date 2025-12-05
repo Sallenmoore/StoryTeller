@@ -163,7 +163,7 @@
     </a>
 </li>
 {% if user.world_user(obj) %}
-<li>
+{# <li>
     <a href=""
        hx-get="/api/{{obj.path}}/lore" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
@@ -177,8 +177,8 @@
             </div>
         </div>
     </a>
-</li>
-<li>
+</li> #}
+{# <li>
     <a href="" hx-post="/api/{{obj.path}}/managescreens"
        hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
@@ -192,7 +192,7 @@
             </div>
         </div>
     </a>
-</li>
+</li> #}
 <li>
     <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
        hx-indicator="#request-indicator" hx-swap="innerHTML"
