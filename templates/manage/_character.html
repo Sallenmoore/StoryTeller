@@ -187,11 +187,13 @@
         </div>
         <div class="cell shrink">
             <h4>Archetype</h4>
-            <select name="archetype">
+            <input name="archetype" type='text' list="character-archetypes"
+                   value="{{obj.archetype}}">
+            <datalist id="character-archetypes">
                 {%for a in obj.system.classes.keys() %}
                 <option value="{{a}}" {%if a==obj.archetype%} selected {%endif%}>{{a}}</option>
                 {% endfor %}
-            </select>
+            </datalist>
         </div>
         <div class="cell shrink">
             <h4>Occupation</h4>
@@ -217,11 +219,15 @@
             {{form_components.listarea(user, obj, "wealth")}}
             <hr>
         </div>
-        <div class="cell">
-            {{abilities_components.manage(user, obj)}}
-        </div>
     </div>
 </form>
+<hr>
+<div class="grid-x">
+    <div class="cell">
+        {{abilities_components.manage(user, obj)}}
+    </div>
+</div>
+<hr>
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}
