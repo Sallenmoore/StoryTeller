@@ -114,13 +114,11 @@ def worldcalendar(pk):
     return get_template_attribute("models/_world.html", "manage_details")(user, world)
 
 
-@world_endpoint.route("/<string:pk>/system/update", methods=("POST",))
-def worldsystem(pk):
-    user, obj, request_data = _loader()
-    world = World.get(pk)
-    system = world.SYSTEMS.get(request.json.get("system"), None)
-    world.set_system(system)
-    return get_template_attribute("shared/_details.html", "details")(user, world)
+@world_endpoint.route("/<string:pk>/lore/<string:lorepk>", methods=("GET",))
+def worldlore(pk, lorepk):
+    user, *_ = _loader()
+    lore = Lore.get(lorepk)
+    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 
 
 @world_endpoint.route("/<string:pk>/delete", methods=("POST",))

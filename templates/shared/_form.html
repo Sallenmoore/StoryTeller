@@ -12,7 +12,7 @@
 
 {% macro textarea(user, obj, name="", content="", label="") -%}
 {% if label %}
-<label for="{{name}}" class="label">{{label}}</label>
+<label for="{{name}}">{{label}}</label>
 {% endif %}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text secondary" rows="1"
           placeholder="Start typing...">{{ content or obj[name] }}</textarea>
@@ -130,46 +130,4 @@
     </script>
 </div>
 {%- endmacro %}
-
-{% macro listeditor(user, obj, attr, limit=0) -%}
-<div class="grid-x is-vertical" id='{{attr}}-item-list' data-max='{{limit}}'>
-    {% for item in obj[attr] %}
-    <div class="cell">
-        <div onmouseout="tinyMCE.triggerSave();">
-            <textarea id="edit-{{obj.pk}}-{{attr}}-{{loop.index}}"
-                      name="{{attr}}[]">{{item | string | safe}}</textarea>
-        </div>
-        <script>
-            tinyMCE.remove('#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}');
-            tinyMCE.init({
-                selector: '#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}',
-                toolbar: 'undo redo searchreplace | styles | bold italic blockquote link | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist | removeformat | fullscreen',
-                toolbar_sticky: true,
-                plugins: 'wordcount autoresize fullscreen lists link searchreplace',
-                resize: 'true',
-                min_height: 50,
-                content_style: "body {font - family:Open-Sans,sans-serif;font-size:1.25rem;line-height: 1.5;}",
-                menubar: false,
-                promotion: false,
-                license_key: 'gpl',
-                setup: function (editor) {
-                    var max = parseInt(htmx.find("#{{attr}}-item-list").dataset.max);
-                    editor.on('change', function (e) {
-                        console.log(max);
-                        var numChars = editor.plugins.wordcount.body.getCharacterCount();
-                        if (max && numChars > max) {
-                            alert("Maximum " + numChars + "/" + max + " characters allowed.");
-                            return false;
-                        } else {
-                            tinymce.triggerSave();
-                            htmx.trigger("#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}", 'input');
-                            htmx.trigger("#edit-{{ obj.pk }}-{{ attr }}-{{ loop.index }}", 'change');
-                        }
-                    });
-                }
-            });
-        </script>
-    </div>
-    {%endfor%}
-</div>
-{%- endmacro %} #}
+#}

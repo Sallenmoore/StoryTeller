@@ -17,10 +17,12 @@ class Lore(AutoModel):
     backstory = StringAttr(default="")
     situation = StringAttr(default="")
     start_date = ReferenceAttr(choices=["Date"])
+    current_date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     party = ListAttr(ReferenceAttr(choices=["Character"]))
     story = ReferenceAttr(choices=["Story"])
     world = ReferenceAttr(choices=["World"], required=True)
+    bbeg = ReferenceAttr(choices=["Character", "Faction"])
 
     funcobj = {
         "name": "generate_story",
@@ -47,10 +49,6 @@ class Lore(AutoModel):
     @property
     def calendar(self):
         return self.world.calendar
-
-    @property
-    def bbeg(self):
-        return self.story.bbeg if self.story else None
 
     ############# CRUD #############
 
@@ -153,35 +151,30 @@ class Lore(AutoModel):
         )
 
     def pre_save_dates(self):
-        log(self.pk)
         if self.pk:
-            if isinstance(self.start_date, dict):
-                if dates := Date.search(obj=self, calendar=self.calendar):
-                    while len(dates):
-                        dates[-1].delete()
-                        dates.pop()
-                start_date = Date(obj=self, calendar=self.calendar, **self.start_date)
-                start_date.month = (
-                    self.calendar.months.index(start_date.month.title())
-                    if start_date.month
-                    else random.randrange(len(self.calendar.months))
-                )
-                start_date.day = (
-                    int(start_date.day) if start_date.day else random.randint(1, 28)
-                )
-                start_date.year = int(start_date.year) if start_date.year else -1
-                self.start_date = start_date
-            elif not self.start_date:
-                self.start_date = Date(
-                    obj=self,
-                    calendar=self.calendar,
-                    day=random.randint(1, 28),
-                    month=random.randrange(len(self.calendar.months) or 12),
-                    year=0,
-                )
-            self.start_date.save()
-
-            if self.start_date and self.start_date.day <= 0:
-                self.start_date.day = random.randint(1, 28)
-            if self.start_date and self.start_date.month < 0:
-                self.start_date.month = random.randint(0, 11)
+            for date_attr in ["start_date", "current_date"]:
+                date = getattr(self, date_attr)
+                if isinstance(date, dict):
+                    date = Date(obj=self, calendar=self.calendar, **date)
+                    date.month = self.calendar.months.index(date.month.title())
+                    date.day = int(date.day)
+                    date.year = int(date.year)
+                    setattr(self, date_attr, date)
+                elif not date:
+                    date = Date(
+                        obj=self,
+                        calendar=self.calendar,
+                        day=random.randint(1, 28),
+                        month=random.randrange(len(self.calendar.months) or 12),
+                        year=0,
+                    )
+                    date.save()
+                    setattr(self, date_attr, date)
+                else:
+                    if date.day <= 0:
+                        setattr(self, date_attr, random.randint(1, 28))
+                    if date.month < 0:
+                        setattr(self, date_attr, random.randint(0, 11))
+            for date in Date.search(obj=self):
+                if date not in [self.start_date, self.current_date]:
+                    date.delete()

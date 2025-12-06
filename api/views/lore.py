@@ -52,7 +52,9 @@ def index(pk=None):
 @lore_endpoint.route("/new", methods=("POST",))
 def lore_new():
     user, obj, request_data = _loader()
-    lore = Lore(name="New Lore", world=obj)
+    lore = Lore(
+        name=request_data.get("name"), scope=request_data.get("scope"), world=obj
+    )
     lore.save()
     log(lore, lore.world)
     if story := Story.get(request_data.get("storypk")):
@@ -60,6 +62,11 @@ def lore_new():
         lore.associations = story.associations
         lore.backstory = story.summary
     lore.start_date = {
+        "day": request_data.get("start_day"),
+        "month": request_data.get("start_month"),
+        "year": request_data.get("start_year"),
+    }
+    lore.current_date = {
         "day": request_data.get("start_day"),
         "month": request_data.get("start_month"),
         "year": request_data.get("start_year"),
@@ -72,23 +79,20 @@ def lore_new():
 def lore_edit(lore_pk):
     user, obj, request_data = _loader()
     lore = Lore.get(lore_pk)
-    if name := request_data.get("name"):
-        lore.name = name
-    if scope := request_data.get("scope"):
-        lore.scope = scope.title()
-    if story := Story.get(request_data.get("storypk")):
-        lore.story = story
-        lore.associations += [a for a in story.associations]
-        lore.backstory = story.summary
+    if current_day := request_data.get("current_day"):
+        lore.current_date.day = int(current_day)
+    if current_month := request_data.get("current_month"):
+        lore.current_date.month = int(current_month)
+    if current_year := request_data.get("current_year"):
+        lore.current_date.year = int(current_year)
     lore.save()
     return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 
 
 @lore_endpoint.route("/<string:lore_pk>/delete", methods=("POST",))
 def lore_delete(lore_pk):
-    user, obj, request_data = _loader()
+    user, obj, _ = _loader()
     if lore := Lore.get(lore_pk):
-        lore.story = None
         lore.delete()
     return get_template_attribute("shared/_lore.html", "lore")(user, obj)
 
@@ -167,16 +171,27 @@ def loreassociationsearch(pk):
 
 
 @lore_endpoint.route(
+    "/<string:pk>/association/add/<string:amodel>",
+    methods=("POST",),
+)
+@lore_endpoint.route(
     "/<string:pk>/association/add/<string:amodel>/<string:apk>",
     methods=("POST",),
 )
 def loreassociationadd(pk, amodel, apk=None):
-    user, obj, request_data = _loader()
+    user, *_ = _loader()
     lore = Lore.get(pk)
-    if obj := obj.world.get_model(amodel, apk):
-        if obj not in lore.associations:
-            lore.associations += [obj]
-            lore.save()
+    if apk:
+        if obj := lore.world.get_model(amodel, apk):
+            if obj not in lore.associations:
+                lore.associations += [obj]
+                lore.save()
+    else:
+        Model = lore.world.get_model(amodel)
+        obj = Model(world=lore.world)
+        obj.save()
+        lore.associations += [obj]
+        lore.save()
     return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 
 
@@ -192,46 +207,3 @@ def loreassociationremove(pk, amodel, apk=None):
             lore.associations.remove(obj)
             lore.save()
     return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
-
-
-###########################################################
-##             lore Event Routes                        ##
-###########################################################
-@lore_endpoint.route(
-    "<string:pk>/event/add",
-    methods=("POST",),
-)
-@lore_endpoint.route(
-    "<string:pk>/event/add/<string:eventpk>",
-    methods=("POST",),
-)
-def loreeventadd(pk, eventpk=None):
-    user, obj, request_data = _loader()
-    lore = Lore.get(pk)
-    if eventpk:
-        event = Event.get(eventpk)
-    else:
-        event = Event(world=lore.world)
-    if lore not in event.stories:
-        event.stories += [lore]
-    event.save()
-    log(event.stories)
-    return get_template_attribute("manage/_lore.html", "manage")(user, lore)
-
-
-@lore_endpoint.route(
-    "<string:pk>/event/add/search",
-    methods=("POST",),
-)
-def loreeventaddsearch(pk):
-    user, obj, request_data = _loader()
-    lore = Lore.get(pk)
-    query = request.json.get("query")
-    results = (
-        obj.world.search_autocomplete(query=query, model=Event)
-        if len(query) > 2
-        else []
-    )
-    return get_template_attribute("manage/_lore.html", "events_dropdown")(
-        user, lore, results
-    )

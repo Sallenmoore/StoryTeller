@@ -17,26 +17,46 @@
 {% import "shared/_title.html" as title_components %}
 
 {% macro lore(user, obj) -%}
-<h2 class="text-center separator-center">Lore Builder</h2>
 <div id="lore-container" class="callout">
-    <div class="grid-x align-justify">
+    <h2 class="text-center separator-center">Lore Builder</h2>
+    <div class="grid-y">
         <div class="cell shrink">
-            <select name='lorepk' hx-post="/api/lore/" hx-target="#lore-container">
+            <select name='lorepk' hx-post="/api/lore/" hx-target="#lore-container"
+                    hx-trigger="change"
+                    onchange='history.pushState({}, "", `/{{obj.path}}/lore/${this.value}`);'
+                    hx-push-url="false"
+                    hx-selector="#lore-container"
+                    hx-swap="outerHTML">
                 <option value="" selected>=== Select Lore ===</option>
                 {% for entry in obj.lore%}
                 <option value="{{entry.pk}}">{{entry.name}}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="cell auto">
+        <div class="cell shrink">
             <h3>- OR -</h3>
         </div>
-        <div class="cell shrink">
+        <div class="cell medium-6">
             <div class="callout bg-screen">
                 <form hx-post="/api/lore/new" hx-target="#lore-container">
                     <div class="grid-x grid-margin-x align-spaced">
+                        <div class="cell medium-4">
+                            {{form_components.text_input(name="name",label="Title",value=lore.name)}}
+                        </div>
                         <div class="cell shrink">
-                            <select name="storypk" class="inputwidth" required>
+                            <label for="scope">Scope</label>
+                            <div class="select">
+                                <select name="scope">
+                                    <option value="" selected>=== Select Scope ===</option>
+                                    <option value="local" selected>Local</option>
+                                    <option value="regional" selected>Regional</option>
+                                    <option value="global" selected>Global</option>
+                                    <option value="epic" selected>Epic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cell shrink">
+                            <select name="storypk" required>
                                 <option value="" selected>=== Select Storyline ===</option>
                                 {% for entry in obj.stories %}
                                 <option value="{{entry.pk}}">{{entry.name}}</option>
@@ -44,8 +64,8 @@
                             </select>
                         </div>
                         <div class="cell shrink">
-                            <div class="grid-x">
-                                <div class="cell shrink align-middle margin-right-1">
+                            <div class="grid-x grid-margin-x align-top">
+                                <div class="cell shrink margin-right-1">
                                     Start Date:
                                 </div>
                                 <div class="cell shrink">
@@ -56,8 +76,8 @@
                                 </div>
                                 <div class="cell shrink">
                                     <div class='select'>
-                                        <select name="start_month" class="inputwidth">
-                                            <option value="" selected>=== Select Month ===</option>
+                                        <select name="start_month">
+                                            <option value="" selected>=== Month ===</option>
                                             {% for month in obj.calendar.months %}
                                             <option value="{{month}}" {% if
                                                     obj.current_date.month==loop.index
@@ -69,7 +89,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="cell shrink">
+                                <div class="cell auto">
                                     <input name="start_year" type="number" id="sliderOutputDate"
                                            value='{{obj.end_date.year // 2}}'>
                                     <div class="slider" data-slider
@@ -84,7 +104,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="cell shrink align-middle">
+                    </div>
+                    <div class="grid-x grid-margin-x align-spaced">
+                        <div class="cell shrink">
                             <button type="submit" class="button small ">
                                 {{icon_components.plus(size="1rem")}}
                                 New Lore Entry
@@ -100,39 +122,25 @@
 
 {% macro lore_details(user, lore) -%}
 <div class="callout">
+    <h2 class="text-center separator-center">{{lore.name}}</h2>
     <form hx-post="/api/lore/{{lore.pk}}/edit"
           hx-trigger="change delay:500ms"
           hx-swap="none">
-        <div class="grid-x align-spaced">
-            <div class="cell medium-6">
-                {{form_components.text_input(name="name",label="Title",value=lore.name)}}
-            </div>
-            <div class="cell shrink">
-                <label class="label " for="scope">Scope</label>
-                <div class="select">
-                    <select name="scope">
-                        <option value="" selected>=== Select Scope ===</option>
-                        <option value="local" selected>Local</option>
-                        <option value="regional" selected>Regional</option>
-                        <option value="global" selected>Global</option>
-                        <option value="epic" selected>Epic</option>
-                    </select>
-                </div>
-            </div>
+        <div class="grid-x grid-margin-x align-spaced">
             <div class="cell medium-4">
                 <h6 class=" text-center">
                     Current Date
                 </h6>
-                <div class="grid-x ">
+                <div class="grid-x align-center">
                     <div class="cell shrink">
-                        <input type="number" name="start_day"
+                        <input type="number" name="current_day"
                                class="inputwidth text-center"
                                value="{{lore.start_date.day}}" min="1"
                                max="31">
                     </div>
                     <div class="cell shrink">
                         <div class='select'>
-                            <select name="start_month" class="inputwidth">
+                            <select name="current_month" class="inputwidth">
                                 <option value="" selected>=== Select Month ===</option>
                                 {% for month in lore.calendar.months %}
                                 <option value="{{month}}" {% if lore.start_date.month==loop.index
@@ -144,9 +152,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="cell">
-                        <input
-                               name="start_year" type="number" min="{{lore.start_date.year}}"
+                    <div class="cell auto">
+                        <input name="current_year" type="number" min="{{lore.start_date.year}}"
                                max="{{lore.start_date.year}}" step='1'
                                value="{{lore.start_date.year}}">
                     </div>
@@ -154,38 +161,23 @@
             </div>
         </div>
     </form>
-    <div class="callout  ">
-        {% if lore.story %}
-        <h3 class="text-centered"
-            onclick='this.nextElementSibling.classList.toggle("is-hidden")'>Associated Storyline:
-            {{lore.story.name}}
-        </h3>
-        <div class="is-hidden ease-in-out">
-            {{lore.story.summary | safe}}
-        </div>
-        {% else %}
-        <div class=" grid-x align-spaced">
-            <div class="cell shrink">
-                <select name="storypk"
-                        hx-post="/api/world/lore/{{lore.pk}}/edit"
-                        hx-target="#lore-container"
-                        hx-trigger="change"
-                        hx-selector="#lore-container"
-                        hx-swap="outerHTML">
-                    <option value="" selected>=== Select Storyline ===</option>
-                    {% for entry in lore.world.stories %}
-                    <option value="{{entry.pk}}">{{entry.name}}</option>
-                    {% endfor %}
-                </select>
+    <div class="grid-x align-spaced">
+        {% if lore.summary %}
+        <div class="cell">
+            <div class="callout bg-screen">
+                {{lore.summary | safe}}
             </div>
         </div>
-        {% endif %}
-    </div>
-    <div class="grid-x align-spaced">
-        <div class="cell medium-6">
+        {% endif%}
+        {% if lore.situation %}
+        <div class="cell">
+            {{lore.situation | safe}}
+        </div>
+        {% endif%}
+        <div class="cell">
             <form hx-post="/task/generate/lore/{{lore.pk}}">
                 <div class="grid-x">
-                    <div class="cell">
+                    <div class="cell align-center">
                         {{form_components.textarea(user, lore, name="prompt", label="Prompt")}}
                     </div>
                     <div class="cell shrink">
@@ -198,46 +190,21 @@
                 </div>
             </form>
         </div>
-        {% if lore.summary %}
-        <div class="cell medium-6">
-            {{lore.summary | safe}}
-        </div>
-        {% endif%}
-        {% if lore.situation %}
-        <div class="cell medium-6">
-            {{lore.situation | safe}}
-        </div>
-        {% endif%}
-        {% if lore.backstory %}
-        <div class="cell medium-6">
-            {{lore.backstory | safe}}
-        </div>
-        {% endif%}
-        {% if lore.potential_events %}
-        <div class="cell medium-6">
-            <h3>Potential Events</h3>
-            <ul>
-                {% for event in lore.potential_events %}
-                <li>{{event | safe}}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif%}
     </div>
 </div>
 <div class="grid-x">
     <div class="cell">
-        <div id="lore-party-container" class="grid-x has-centered">
+        <div id="lore-party-container" class="grid-x align-justify">
             <div class="cell shrink">
                 <h3 class=" text-centered">Party Members</h3>
             </div>
             <div class="cell medium-4">
                 <input autocomplete="off" type="search" name="query"
+                       placeholder='add party member...'
                        style="border-bottom: solid #000;"
-                       hx-post="/api/world/lore/{{lore.pk}}/party/add/search"
+                       hx-post="/api/lore/{{lore.pk}}/party/add/search"
                        hx-target="#lore-new-party-list"
-                       hx-trigger="input changed delay:500ms consume"
-                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
+                       hx-trigger="input changed delay:500ms consume">
                 <ul class="dropdown menu" data-dropdown-menu id="lore-new-party-list">
                 </ul>
             </div>
@@ -247,7 +214,7 @@
                     <div class="cell medium-2" style='position:relative;'>
                         {{display_components.object_display(o, type=False, dim=150)}}
                         <a style='position:absolute; top:0px; right:5px;'
-                           hx-post="/api/world/lore/{{lore.pk}}/party/remove/{{o.pk}}"
+                           hx-post="/api/lore/{{lore.pk}}/party/remove/{{o.pk}}"
                            hx-target="closest .cell" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this character from the party?">
                             <iconify-icon icon="mdi:remove"
@@ -260,37 +227,70 @@
         </div>
     </div>
     <div class="cell">
-        <div id="lore-associations-container" class="grid-x has-centered">
-            <div class="cell shrink">
-                <h3 class=" text-centered">Associations</h3>
-            </div>
-            <div class="cell medium-4">
-                <input autocomplete="off" type="search" name="query"
-                       style="border-bottom: solid #000;"
-                       hx-post="/api/world/lore/{{lore.pk}}/association/add/search"
-                       hx-target="#lore-new-association-list"
-                       hx-trigger="input changed delay:500ms consume"
-                       hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                <ul class="dropdown menu" data-dropdown-menu id="lore-new-association-list">
-                </ul>
-            </div>
-            <div class="cell">
-                <div class="grid-x align-spaced">
-                    {% for o in lore.associations %}
-                    <div class="cell medium-2" style='position:relative;'>
-                        {{display_components.object_display(o, type=False, dim=150)}}
-                        <a style='position:absolute; top:0px; right:5px;'
-                           hx-post="/api/world/lore/{{lore.pk}}/association/remove/{{o.path}}"
-                           hx-target="closest .cell" hx-swap="delete"
-                           hx-confirm="Are you sure you want to remove this association from the lore?">
-                            <iconify-icon icon="mdi:remove"
-                                          width="1rem"></iconify-icon>
-                        </a>
+        <div class="callout">
+            <h3 class=" text-centered">Associations</h3>
+            <div id="lore-associations-container" class="grid-x align-spaced">
+                <div class="cell medium-4">
+                    <input autocomplete="off" type="search" name="query"
+                           style="border-bottom: solid #000;"
+                           placeholder='add association...'
+                           hx-post="/api/lore/{{lore.pk}}/association/add/search"
+                           hx-target="#lore-new-association-list"
+                           hx-trigger="input changed delay:500ms consume">
+                    <ul class="dropdown menu" data-dropdown-menu id="lore-new-association-list">
+                    </ul>
+                </div>
+                <div class="cell medium-7">
+                    <div class="grid-x align-spaced">
+                        {% for child in lore.world.all_models() %}
+                        <div class="cell shrink">
+                            <button class="button tiny"
+                                    hx-post="/api/lore/{{lore.pk}}/association/add/{{ child.__name__ | lower }}"
+                                    hx-target="#lore-associations-container"
+                                    hx-select="#lore-associations-container"
+                                    hx-swap='outerHTML'
+                                    hx-indicator='#request-indicator'>
+                                {{ lore.world.get_title(child) }}
+                            </button>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                </div>
+                <div class="cell">
+                    <div class="grid-x align-spaced">
+                        {% for o in lore.associations %}
+                        <div class="cell medium-2" style='position:relative;'>
+                            {{display_components.object_display(o, type=False, dim=150)}}
+                            <a style='position:absolute; top:0px; right:5px;'
+                               hx-post="/api/lore/{{lore.pk}}/association/remove/{{o.path}}"
+                               hx-target="closest .cell" hx-swap="delete"
+                               hx-confirm="Are you sure you want to remove this association from the lore?">
+                                <iconify-icon icon="mdi:remove"
+                                              width="1rem"></iconify-icon>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div class="callout">
+    <h4 class="text-centered">
+        Associated Storyline:
+        {{lore.story.name}}
+    </h4>
+    <div class="ease-in-out">
+        {{lore.story.summary | safe}}
+    </div>
+</div>
+<div class="grid-x align-center">
+    <div class="cell shrink" hx-post="/api/lore/{{lore.pk}}/delete"
+         hx-target="#lore-container"
+         hx-swap="outerHTML"
+         hx-confirm="Are you sure you want to delete this lore entry? This action cannot be undone.">
+        {{icon_components.delete()}}
     </div>
 </div>
 {%- endmacro %}
@@ -298,7 +298,7 @@
 {% macro lore_party_dropdown(user, lore, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link ">
-    <a hx-post="/api/world/lore/{{lore.pk}}/party/add/{{o.pk}}"
+    <a hx-post="/api/lore/{{lore.pk}}/party/add/{{o.pk}}"
        hx-target='#lore-party-container'
        hx-select='#lore-party-container'
        hx-swap='outerHTML'
@@ -323,7 +323,7 @@
 {% macro lore_association_dropdown(user, lore, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link ">
-    <a hx-post="/api/world/lore/{{lore.pk}}/association/add/{{o.path}}"
+    <a hx-post="/api/lore/{{lore.pk}}/association/add/{{o.path}}"
        hx-target='#lore-associations-container'
        hx-select='#lore-associations-container'
        hx-swap='outerHTML'

@@ -118,6 +118,10 @@ class Story(AutoModel):
         return self.summary
 
     @property
+    def system(self):
+        return self.world.system
+
+    @property
     def path(self):
         return f"story/{self.pk}"
 
@@ -226,6 +230,7 @@ The image should be in a {self.world.image_style} style.
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_text()
         ##### MIGRATION: Encounters ########
         document.associations = [
             a for a in document.associations if a and a.model_name() != "Encounter"
@@ -238,3 +243,10 @@ The image should be in a {self.world.image_style} style.
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
+
+    def pre_save_text(self):
+        for k in ["situation", "current_status", "backstory", "summary"]:
+            v = getattr(self, k)
+            if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
+                v = self.system.htmlize(v.strip())
+                setattr(self, k, v)
