@@ -520,7 +520,7 @@ The image should be in a {self.world.image_style} style.
 
         prompt = f"""
 Generate a narrative history of the {self.title}'s story, incorporating the given backstory and events, ensuring a consistent timeline with the given dates.
-{self.start_date_label} {self.start_date if hasattr(self, "start_date") and self.start_date.year > 0 else "Unknown"} - {self.end_date if hasattr(self, "end_date") and self.end_date.year > 0 else ""} {self.end_date_label}
+{self.start_date_label} {self.start_date if hasattr(self, "start_date") and self.start_date and self.start_date.year > 0 else "Unknown"} - {self.end_date if hasattr(self, "end_date") and self.end_date and self.end_date.year > 0 else ""} {self.end_date_label}
 
 Backstory
 ---
