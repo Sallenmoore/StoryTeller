@@ -7,10 +7,9 @@
 {% macro details(user, obj) -%}
 <div class="callout">
     <h3 class=" text-center" style='padding: 0.25rem;'>Abilities</h3>
-    {% set ability_list = obj.abilities %}
     <ul class="accordion abilities" data-accordion data-multi-expand="true"
         data-allow-all-closed="true">
-        {%for ability in ability_list%}
+        {%for ability in obj.abilities %}
         <li class="accordion-item" data-accordion-item>
             {{ability_display(ability)}}
         </li>
@@ -85,7 +84,9 @@
                     {% for group in obj.world.abilities|groupby('category') %}
                     <optgroup label="{{ group.grouper | title }}">
                         {% for ability in group.list %}
+                        {% if ability.type == obj.model_name().lower() %}
                         <option value="{{ ability.pk }}">{{ ability.name }}</option>
+                        {% endif %}
                         {% endfor %}
                     </optgroup>
                     {% endfor %}
@@ -127,6 +128,15 @@
                     <div class="grid-x grid-margin-x align-center-middle">
                         <div class="cell auto">
                             {{form_components.text_input("name", label=False, value=ability.name, style=ability.genre)}}
+                        </div>
+                        <div class="cell auto">
+                            <select name='type'>
+                                {%for t in ability.ABILITY_TYPES %}
+                                <option value="{{t}}" {% if ability.type==t %} selected {% endif %}>
+                                    {{t| title}}
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="cell shrink">
                             <div

@@ -25,7 +25,7 @@ class Character(Actor):
     start_date_label = "Born"
     end_date_label = "Died"
 
-    parent_list = ["Location", "District", "Faction", "City", "Vehicle", "Shop"]
+    parent_list = ["Location", "District", "City", "Vehicle", "Shop"]
 
     _template = [
         [

@@ -2,7 +2,7 @@ import random
 
 import markdown
 import validators
-from autonomous.model.autoattr import ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 
 from autonomous import log
@@ -16,31 +16,58 @@ class Lore(AutoModel):
     summary = StringAttr(default="")
     backstory = StringAttr(default="")
     situation = StringAttr(default="")
+    setting = ReferenceAttr(choices=["Place"])
     start_date = ReferenceAttr(choices=["Date"])
     current_date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     party = ListAttr(ReferenceAttr(choices=["Character"]))
+    responses = ListAttr(DictAttr())
     story = ReferenceAttr(choices=["Story"])
     world = ReferenceAttr(choices=["World"], required=True)
     bbeg = ReferenceAttr(choices=["Character", "Faction"])
 
     funcobj = {
-        "name": "generate_story",
-        "description": "creates a compelling narrative consistent with the described world for the players to engage with, explore, and advance in creative and unexpected ways.",
+        "name": "generate_response",
+        "description": "Generates a response from the party characters to the current described situation.",
         "parameters": {
             "type": "object",
             "properties": {
-                "summary": {
-                    "type": "string",
-                    "description": "A summary of all of the lore details.",
-                },
-                "backstory": {
-                    "type": "string",
-                    "description": "A detailed description of the entire backstory leading up to the current situation.",
-                },
-                "situation": {
-                    "type": "string",
-                    "description": "A description of the current situation the main characters find themselves in and its effects on the TTRPG world. This should be a specific, concrete situation that the players can engage with and explore.",
+                "responses": {
+                    "type": "array",
+                    "description": "A list of responses from each party character to the current described situation. The responses should include the character's verbal response, thoughts, actions taken, and any relevant roll information. If there is more than one character in the party, provide responses for each character that show awareness of each other to create a dynamic interaction.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "character_name": {
+                                "type": "string",
+                                "description": "The full name of the character.",
+                            },
+                            "verbal_response": {
+                                "type": "string",
+                                "description": "The character's verbal response to the situation, if any. Otherwise an empty string.",
+                            },
+                            "thoughts": {
+                                "type": "string",
+                                "description": "The character's internal thoughts regarding the situation. Any plans or considerations they have.",
+                            },
+                            "actions_taken": {
+                                "type": "string",
+                                "description": "Any actions the character takes in response to the situation, if any. Otherwise an empty string.",
+                            },
+                            "roll_type": {
+                                "type": "string",
+                                "description": "The type of roll the character would make to respond to the situation (e.g., 'Persuasion', 'Intimidation', 'Stealth', etc.), if any. Otherwise an empty string.",
+                            },
+                            "roll_explanation": {
+                                "type": "string",
+                                "description": "The reasoning behind the chosen roll type and how it relates to the character's response, if any. Otherwise an empty string.",
+                            },
+                            "roll_result": {
+                                "type": "integer",
+                                "description": "The result of the roll the character makes to respond to the situation, if any. Otherwise an empty string.",
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -50,6 +77,14 @@ class Lore(AutoModel):
     def calendar(self):
         return self.world.calendar
 
+    @property
+    def places(self):
+        return [
+            a
+            for a in self.associations
+            if a.model_name() in ["Region", "Location", "City", "Shop", "District"]
+        ]
+
     ############# CRUD #############
 
     def delete(self):
@@ -58,45 +93,39 @@ class Lore(AutoModel):
         super().delete()
 
     ############# image generation #############
-    def generate(self, lore_prompt):
-        prompt = f"Your task is to create expanded lore for a {self.world.genre} TTRPG world. The expanded lore should incorporate the listed world elements and relationships. Here is some context about the world: {self.world.name}, {self.world.history}. "
+    def generate(self):
+        prompt = f"""The goal is to develop the historical Lore of the character, places, and things in a TTRPG world by 'acting out' their roles and interactions to the described situation and events. Your task is to respond to the presented situation as the party characters would, based on their histories and personalities. The purpose is to expand the TTRPG world's historical lore, and your responses should reflect that context. The events describe may be in the past or present, but should always be consistent with the worlds's established history and current state.
 
-        if self.start_date:
-            prompt += "\n\nThe Lore has the following dates: "
-            if self.start_date:
-                prompt += f"\n\nThe lore starts on {self.start_date}, with he following notable events happening recently: "
-                for event in self.story.events:
-                    if (
-                        event.end_date
-                        and self.start_date.year - 20
-                        < event.end_date.year
-                        < self.start_date.year
-                    ):
-                        if not event.summary:
-                            event.summarize()
-                        prompt += f"\n\n{event.name}: {event.summary}. "
+WORLD NAME: {self.world.name}
+WORLD CURRENT DATE: {self.current_date}
+WORLD's HISTORY:
+{self.world.history}
+
+SITUATION START DATE: {self.start_date}
+SITUATION CURRENT DATE: {self.current_date}
+"""
         if self.story:
-            prompt += f"\n\nThe lore is part of the following storylines: \n{self.story.name}: {self.story.summary or self.story.backstory}. "
+            prompt += f"\n\nThe lore is part of the following storylines: \n{self.story.name}: {self.story.summary or self.story.backstory}."
 
         if self.party:
-            prompt += "\n\nThe lore involves the following main characters: "
+            prompt += "\n\nThe party consists of the following characters: "
             for member in self.party:
-                prompt += f"\n\n{member.name}: {member.history}. "
+                prompt += f"\n\n{member.name}: {member.history or member.backstory}. {member.skills} ABILITIES: {member.abilities}"
 
         if self.associations:
-            prompt += "\n\nHere are some existing elements related to this lore: "
+            prompt += "\n\nHere are some additional elements related to this lore: "
             for assoc in self.associations:
                 if assoc not in self.party:
-                    prompt += f"\n\n{assoc.name}: {assoc.history}."
+                    prompt += f"\n\n{assoc.name}: {assoc.history or assoc.backstory}."
 
         if self.summary:
-            prompt += (
-                f"\n\nThe lore currently has the following summary: {self.summary}. "
-            )
+            prompt += f"\n\nThe lore we are currently working on has the following summary: {self.summary}. "
 
-        prompt += (
-            f"\n\nUse the following prompt to guide the expanded lore: {lore_prompt}. "
-        )
+        prompt += f"""
+The party should respond to the following situation:
+{f"SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
+SCENARIO: {self.situation}.
+"""
 
         log("Generating Expanded Lore with prompt: " + prompt, __print=True)
         result = self.world.system.generate_json(
@@ -104,15 +133,37 @@ class Lore(AutoModel):
             primer=f"Create expanded lore that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
             funcobj=self.funcobj,
         )
-        if result:
+        if result.get("responses"):
             log(f"Generated Lore: {result}", __print=True)
-            for k, v in result.items():
-                if isinstance(v, str) and "#" in v:
-                    result[k] = self.system.htmlize(v)
-                setattr(self, k, result[k])
+            self.responses = result["responses"]
             self.save()
+            prompt = f"""Based on the following:
+{f"Summary of events: {self.summary}" if self.summary else ""}
+
+The current situation: {self.situation}
+
+CHARACTER RESPONSES:
+{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
+
+Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts or unspoken actions, only what actually happened. Keep it concise, but do not leave out any events that transpired, not matter how small.
+"""
+            log("Generating Lore Summary with prompt: " + prompt, __print=True)
+            summary_result = self.world.system.generate_text(
+                prompt=prompt,
+                primer="Summarize the events that transpired based on the character responses provided. Keep it concise, but do not leave out any events that transpired, not matter how small.",
+            )
+            if summary_result:
+                log(f"Generated Lore Summary: {summary_result}", __print=True)
+                self.summary = summary_result
+                self.save()
         else:
             log("Failed to generate Lore", __print=True)
+
+    def get_response(self, character_name):
+        for response in self.responses:
+            if response.get("character_name") == character_name:
+                return response
+        return None
 
     ############# Association Methods #############
     # MARK: Associations
@@ -134,7 +185,7 @@ class Lore(AutoModel):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_associations()
+        document.pre_save_setting()
         document.pre_save_dates()
 
     # @classmethod
@@ -144,11 +195,9 @@ class Lore(AutoModel):
     # def clean(self):
     #     super().clean()
 
-    def pre_save_associations(self):
-        self.associations = sorted(
-            set(self.associations),
-            key=lambda a: (a.model_name(), getattr(a, "name", "")),
-        )
+    def pre_save_setting(self):
+        if isinstance(self.setting, str):
+            self.setting = self.world.get_model(*self.setting.split("/"))
 
     def pre_save_dates(self):
         if self.pk:

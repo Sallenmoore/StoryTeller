@@ -152,27 +152,46 @@ class StarsWithoutNumber(SciFiSystem):
     }
 
     def get_skills(self, actor=None):
-        return {
-            "Administer": random.randint(-1, 2),
-            "Connect": random.randint(-1, 2),
-            "Exert": random.randint(-1, 2),
-            "Fix": random.randint(-1, 2),
-            "Heal": random.randint(-1, 2),
-            "Know": random.randint(-1, 2),
-            "Lead": random.randint(-1, 2),
-            "Notice": random.randint(-1, 2),
-            "Perform": random.randint(-1, 2),
-            "Pilot": random.randint(-1, 2),
-            "Program": random.randint(-1, 2),
-            "Punch": random.randint(-1, 2),
-            "Shoot": random.randint(-1, 2),
-            "Sneak": random.randint(-1, 2),
-            "Stab": random.randint(-1, 2),
-            "Survive": random.randint(-1, 2),
-            "Talk": random.randint(-1, 2),
-            "Trade": random.randint(-1, 2),
-            "Work": random.randint(-1, 2),
+        # 2. Define Skills and their Associated Governing Attribute
+        skill_attributes = {
+            "Administer": "intelligence",
+            "Connect": "charisma",
+            "Exert": "strength",
+            "Fix": "intelligence",
+            "Heal": "wisdom",
+            "Know": "intelligence",
+            "Lead": "charisma",
+            "Notice": "wisdom",
+            "Perform": "charisma",
+            "Pilot": "dexterity",
+            "Program": "intelligence",
+            "Punch": "strength",
+            "Shoot": "dexterity",
+            "Sneak": "dexterity",
+            "Stab": "dexterity",
+            "Survive": "constitution",
+            "Talk": "charisma",
+            "Trade": "charisma",
+            "Work": "strength",
         }
+
+        # 3. Calculate Final Weighted Skill Results
+        weighted_skill_results = {}
+        for skill, attr in skill_attributes.items():
+            # Base Skill Level (your random.randint(-1, 2) component)
+            base_level = random.randint(-1, 2)
+            # Attribute Bonus (The weight/modifier based on the attribute)
+            if actor and getattr(actor, attr):
+                attr_bonus = random.randint(
+                    -2, max([(int(getattr(actor, attr)) - 10) // 2, -1])
+                )
+            else:
+                attr_bonus = 0
+            # Final Weighted Skill Result
+            final_result = base_level + attr_bonus
+
+            weighted_skill_results[skill] = final_result
+        return weighted_skill_results
 
     def foundry_export(self, obj):
         data = obj.page_data()

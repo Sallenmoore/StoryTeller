@@ -158,14 +158,15 @@ def new_association(roompk):
     model_name = model_path.split("/")[0]
     pk = model_path.split("/")[1]
     association = AutoModel.get_model(model_name, pk)
-    if model_name.lower() == "character":
+    if model_name.lower() == "character" and association not in room.characters:
         room.characters += [association]
-    elif model_name.lower() == "creature":
+    elif model_name.lower() == "creature" and association not in room.creatures:
         room.creatures += [association]
-    elif model_name.lower() == "item":
+    elif model_name.lower() == "item" and association not in room.loot:
         room.loot += [association]
-    elif model_name.lower() == "encounter":
+    elif model_name.lower() == "encounter" and association not in room.encounters:
         room.encounters += [association]
+    association.add_association(room.location)
     room.save()
     return get_template_attribute("shared/_dungeon.html", "manageroom")(
         user,

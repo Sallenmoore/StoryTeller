@@ -78,6 +78,7 @@ def lore_new():
 @lore_endpoint.route("/<string:lore_pk>/edit", methods=("POST",))
 def lore_edit(lore_pk):
     user, obj, request_data = _loader()
+    log(request_data)
     lore = Lore.get(lore_pk)
     if current_day := request_data.get("current_day"):
         lore.current_date.day = int(current_day)
@@ -85,6 +86,13 @@ def lore_edit(lore_pk):
         lore.current_date.month = int(current_month)
     if current_year := request_data.get("current_year"):
         lore.current_date.year = int(current_year)
+    lore.situation = request_data.get("situation", lore.situation)
+    log(request_data.get("situation"), lore.situation)
+    lore.setting = (
+        obj.world.get_model(*request_data.get("setting").split("/"))
+        if request_data.get("setting")
+        else lore.setting
+    )
     lore.save()
     return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 

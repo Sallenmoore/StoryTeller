@@ -18,7 +18,7 @@ class Creature(Actor):
     start_date_label = "Born"
     end_date_label = "Died"
 
-    parent_list = ["Location", "District", "Vehicle", "Faction", "City"]
+    parent_list = ["Location", "District", "Vehicle", "City"]
     _funcobj = {
         "name": "generate_creature",
         "description": "completes Creature data object",

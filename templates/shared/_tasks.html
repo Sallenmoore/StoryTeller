@@ -3,7 +3,7 @@
 ##############################################
 {% macro checktask (task_id, snippet="") -%}
 <div id="task-loader" class="callout" hx-post="/task/checktask/{{task_id}}"
-     hx-target="#task-loader" hx-select="#task-loader" hx-swap="outerHTML" hx-indicator=""
+     hx-target="#task-loader" hx-select="#task-loader" hx-swap="outerHTML" hx-indicator="false"
      hx-confirm=''
      hx-params='model, pk'
      hx-trigger="every 3s">
@@ -32,7 +32,7 @@
 <div id="task-loader" class="alert fade-it-out"
      hx-post="{{url}}"
      hx-trigger="load delay:300ms"
-     hx-indicator=""
+     hx-indicator="false"
      hx-target="#{{target}}"
      {% if select%}
      hx-select="#{{select}}"

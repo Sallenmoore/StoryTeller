@@ -93,6 +93,20 @@
                 </select>
             </div>
         </div>
+        <div class="cell shrink ">
+            <h4 class='text-center'>Faction</h4>
+            <div class="is-select">
+                <select class="has-no-border" name="faction">
+                    <option value="">No Faction</option>
+                    {% for faction in obj.factions %}
+                    <option value="{{faction.pk}}" {%if obj.faction and faction==obj.faction
+                            %}selected {%endif%}>
+                        {{faction.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
         {% if obj.is_player %}
         <div class="cell shrink " id="dnd-beyond-id-input-container">
             <h4 class='text-center'>D&DBeyond ID</h4>
@@ -222,11 +236,7 @@
     </div>
 </form>
 <hr>
-<div class="grid-x">
-    <div class="cell">
-        {{abilities_components.manage(user, obj)}}
-    </div>
-</div>
+{{abilities_components.manage(user, obj)}}
 <hr>
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}

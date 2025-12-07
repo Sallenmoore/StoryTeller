@@ -49,9 +49,9 @@
             <input id="model-armor" type="number" value="{{obj.armor}}" name="armor">
         </div>
     </div>
-    <hr>
-    {{abilities_components.manage(user, obj)}}
 </form>
+<hr>
+{{abilities_components.manage(user, obj)}}
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

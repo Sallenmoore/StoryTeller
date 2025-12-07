@@ -240,7 +240,7 @@ def create_app():
 
     @app.route("/generate/lore/<string:pk>", methods=("POST",))
     def generate_lore(pk):
-        return _generate_task(tasks._generate_lore_task, pk, request.json.get("prompt"))
+        return _generate_task(tasks._generate_lore_task, pk=pk)
 
     @app.route("/generate/story/<string:pk>", methods=("POST",))
     def create_story(pk):

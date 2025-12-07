@@ -8,7 +8,6 @@
 {{manage_components.dates(user, obj)}}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
-
     <div class="grid-x grid-margin-x align-spaced">
         <div class="cell shrink">
             <h4>Rarity</h4>
@@ -33,11 +32,10 @@
             <h4>Duration</h4>
             <textarea name="duration">{{obj.duration}}</textarea>
         </div>
-        <div class="cell">
-            {{abilities_components.manage(user, obj)}}
-        </div>
     </div>
 </form>
+<hr>
+{{abilities_components.manage(user, obj)}}
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

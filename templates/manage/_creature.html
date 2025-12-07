@@ -102,9 +102,9 @@
             {{form_components.richtexteditor(user, obj, "goal", label=False)}}
         </div>
     </div>
-    <hr>
-    {{abilities_components.manage(user, obj)}}
 </form>
+<hr>
+{{abilities_components.manage(user, obj)}}
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}
 {%- endmacro %}

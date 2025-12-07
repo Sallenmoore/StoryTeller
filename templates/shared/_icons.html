@@ -786,6 +786,15 @@ if label %}
 {% endif %}
 {%- endmacro %}
 
+{% macro up(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:move-up" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
 
 {% macro update(size="2rem", label="") -%}
 <iconify-icon icon="grommet-icons:document-update" width="{{ size }}"></iconify-icon>

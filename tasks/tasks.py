@@ -272,7 +272,7 @@ def _generate_event_summary_task(pk):
     return {"url": f"/api/{event.path}/manage"}
 
 
-def _generate_lore_task(pk, prompt):
+def _generate_lore_task(pk):
     lore = Lore.get(pk)
-    lore.generate(prompt)
-    return {"url": f"/api/world/{lore.world.pk}/lore"}
+    lore.generate()
+    return {"url": f"/api/world/{lore.world.pk}/lore/{lore.pk}"}

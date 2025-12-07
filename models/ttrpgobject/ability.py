@@ -11,6 +11,7 @@ from tests.test_models.test_ttrpgobject import ability
 class Ability(AutoModel):
     world = ReferenceAttr(choices=["World"], required=True)
     name = StringAttr(default="")
+    type = StringAttr(default="character")
     description = StringAttr(default="")
     action = StringAttr(
         choices=["main action", "bonus action", "reaction", "free action", "passive"]
@@ -100,8 +101,10 @@ class Ability(AutoModel):
         },
     }
 
+    ABILITY_TYPES = ["character", "item", "vehicle", "creature"]
+
     def __str__(self):
-        return f"{f'NAME: {self.name}' if self.name else ''} [{f'{self.action}' if self.action else ''}]: {f'CATEGORY: {self.category}' if self.category else ''} {f'; DESCRIPTION: {self.description}' if self.description else ''} {f'; EFFECTS: {self.effects}' if self.effects else ''} {f'; DURATION: {self.duration}' if self.duration else ''}{f'; DICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'; MECHANICS: {self.mechanics}' if self.mechanics else ''}"
+        return f"{f'NAME: {self.name}' if self.name else ''} [{f'{self.action}' if self.action else ''}]; {f'FOR TYPE: {self.type}' if self.type else ''} {f'CATEGORY: {self.category}' if self.category else ''} {f'; DESCRIPTION: {self.description}' if self.description else ''} {f'; EFFECTS: {self.effects}' if self.effects else ''} {f'; DURATION: {self.duration}' if self.duration else ''}{f'; DICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'; MECHANICS: {self.mechanics}' if self.mechanics else ''}"
 
     @property
     def genre(self):
@@ -123,15 +126,12 @@ class Ability(AutoModel):
 
     def generate(self, obj=None):
         if obj:
+            self.type = obj.model_name().lower()
             self.world = obj.world
-            prompt = f"""
-Generate a unique{obj.genre} TTRPG {self.category} ability or feature for a {obj.title}. Ensure conistency with the world's tone: {obj.world.tone}
-Do not make the ability specific to the {obj.title}, but use the following backstory for guidance: {obj.backstory}.
-"""
-        else:
-            prompt = f"""
-Generate a unique ability or feature for a {self.world.genre} TTRPG . Ensure conistency with the {self.world.title}:
-TONE: {self.world.tone}.
+            self.save()
+        prompt = f"""
+Generate a unique ability or feature for a {self.genre} TTRPG {self.type}. Ensure conistency with the {self.world.title}:
+TONE: {self.world.tone_description}.
 HISTORY: {self.world.backstory}.
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""

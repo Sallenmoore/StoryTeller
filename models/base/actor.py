@@ -23,6 +23,7 @@ class Actor(TTRPGObject):
     goal = StringAttr(default="")
     level = IntAttr(default=1)
     gender = StringAttr(default="")
+    faction = ReferenceAttr(choices=["Faction"])
     age = IntAttr(default=0)
     species = StringAttr(default="")
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
@@ -263,11 +264,13 @@ class Actor(TTRPGObject):
         document.pre_save_ac()
         document.pre_save_ability()
         document.pre_save_skills()
+        document.pre_save_faction()
 
         ###### MIGRATION CODE ######
         for ability in document.abilities:
             ability.world = document.world
             ability.save()
+        ############################
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -279,7 +282,10 @@ class Actor(TTRPGObject):
     ############### Verification Methods ##############
 
     def pre_save_skills(self):
-        if not self.skills or all(int(v) == 0 for k, v in self.skills.items()):
+        # log(self.skills.items(), _print=True)
+        if not self.skills or all(
+            isinstance(v, list) or not v or int(v) <= 0 for k, v in self.skills.items()
+        ):
             self.skills = self.system.get_skills(self)
             # log(f"pre_save_skills: {self.skills}")
 
@@ -301,3 +307,17 @@ class Actor(TTRPGObject):
                 self.abilities[idx] = a
 
         self.abilities = [a for a in self.abilities if a]
+
+    def pre_save_faction(self):
+        from models.ttrpgobject.faction import Faction
+
+        if not self.faction and self.factions:
+            self.faction = self.factions[0]
+        elif isinstance(self.faction, str):
+            if faction := Faction.get(self.faction):
+                self.faction = faction
+        elif self.faction and not isinstance(self.faction, Faction):
+            log(f"pre_save_faction: {self.faction}")
+            raise ValueError(
+                "Invalid faction reference: must be a Faction pk or object."
+            )

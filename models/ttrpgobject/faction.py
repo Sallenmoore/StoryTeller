@@ -10,6 +10,7 @@ from autonomous.model.autoattr import (
 
 from autonomous import log
 from models.campaign.campaign import Campaign
+from models.ttrpgobject.creature import Creature
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 
 from .character import Character
@@ -92,7 +93,7 @@ class Faction(TTRPGObject):
 
     @property
     def members(self):
-        return self.characters
+        return [*Character.search(faction=self), *Creature.search(faction=self)]
 
     @property
     def owner(self):

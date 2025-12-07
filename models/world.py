@@ -332,6 +332,12 @@ class World(TTRPGBase):
         return sorted(Shop.search(world=self) if self.pk else [], key=lambda x: x.name)
 
     @property
+    def tone_description(self):
+        return self.TONES.get(
+            self.tone, "A balanced tone with a mix of light and dark elements."
+        )
+
+    @property
     def user(self):
         return self.users[0] if self.users else None
 
