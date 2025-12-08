@@ -52,6 +52,7 @@ initbackend:
 	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
 devdeploy:
+	git checkout steven
 	git merge main
 	git commit -am "Updated backend"
 	git push
