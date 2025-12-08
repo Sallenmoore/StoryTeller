@@ -187,6 +187,8 @@
             <form hx-post="/api/lore/{{lore.pk}}/edit"
                   hx-trigger="change delay:500ms"
                   hx-swap="none">
+                {{form_components.textarea(user, lore, name="guidance",
+                                                        label="Guidance for Responses")}}
                 {{form_components.textarea(user, lore, name="situation",
                                         label="Current Situation")}}
             </form>

@@ -30,6 +30,9 @@ class Lore(AutoModel):
     name = StringAttr(default="")
     scope = StringAttr(default="Local", choices=["Local", "Regional", "Global", "Epic"])
     backstory = StringAttr(default="")
+    guidance = StringAttr(
+        default="Ensure consistency with the established timeline, responding appropriately for that period in the timeline."
+    )
     situation = StringAttr(default="")
     setting = ReferenceAttr(choices=["Place"])
     start_date = ReferenceAttr(choices=["Date"])
@@ -154,6 +157,9 @@ SITUATION CURRENT DATE: {self.current_date}
         prompt += f"""
 The party should respond to the following situation:
 {f"SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
+
+{f"GUIDANCE: {self.guidance}"}
+
 SCENARIO: {self.situation}.
 """
 

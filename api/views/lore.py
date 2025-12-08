@@ -87,6 +87,7 @@ def lore_edit(lore_pk):
     if current_year := request_data.get("current_year"):
         lore.current_date.year = int(current_year)
     lore.situation = request_data.get("situation", lore.situation)
+    lore.guidance = request_data.get("guidance", lore.guidance)
     lore.setting = (
         obj.world.get_model(*request_data.get("setting").split("/"))
         if request_data.get("setting")
