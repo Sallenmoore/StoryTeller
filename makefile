@@ -51,6 +51,17 @@ initbackend:
 	cp -rf envs/backend/compose.yml ./
 	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
+devdeploy:
+	git merge main
+	git commit -am "Updated backend"
+	git push origin main
+	git checkout main
+	git merge steven
+	git commit -am "Updated Main Branch"
+	git push origin main
+	storytellerprod
+	storytellerbackend
+
 ###### TESTING #######
 
 cleantests: refresh tests

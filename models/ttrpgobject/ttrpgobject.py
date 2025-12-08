@@ -148,18 +148,16 @@ class TTRPGObject(TTRPGBase):
         if not associations:
             associations = self.associations
         if hasattr(self, "children") and hasattr(self, "geneology"):
-            children = self.children
-            ancestry = self.geneology
-            relations = [
-                a
-                for a in [*children, *ancestry]
-                if a.model_name() not in ["World", "Campaign"]
-            ]
-            associations = [a for a in self.associations if a not in relations]
-        else:
             relations = []
-
-        return relations, associations
+            general = []
+            ancestry = [*self.children, *self.geneology]
+            for a in associations:
+                if a in ancestry:
+                    relations.append(a)
+                else:
+                    general.append(a)
+            return relations, general
+        return [], associations
 
     ## MARK: - Verification Methods
     ###############################################################

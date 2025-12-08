@@ -4,7 +4,7 @@
 
 ##### Frameworks #####
 
-autonomous-app >= 0.3.20
+autonomous-app >= 0.3.21
 
 ##### Configuration and Documentation #####
 pdoc
@@ -28,13 +28,16 @@ httpx
 rq
 rq-dashboard
 
+##### Media #####
+mutagen
+
 ##### Security #####
 
 Authlib
 
 ##### AI #####
 ollama
-openai >= 1.35.6
+openai
 google-genai >= 1.52.0
 
 ##### Parsing #####

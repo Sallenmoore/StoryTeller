@@ -344,12 +344,12 @@ def association_search():
 )
 def association_add(amodel, apk=None):
     user, obj, request_data = _loader()
-    child = AutoModel.get_model(amodel, apk)
-    log(child)
-    if not apk:
+    if apk:
         model = AutoModel.get_model(amodel)
         child = model(world=obj.world, name="New " + obj.get_title(model))
         child.save()
+    else:
+        child = World.get_model(amodel, apk)
     if child:
         obj.add_association(child)
     if hasattr(obj, "split_associations"):

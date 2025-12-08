@@ -94,6 +94,21 @@ def addparty(pk):
     return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
+@campaign_endpoint.route(
+    "/<string:pk>/associations",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def associations(pk):
+    user, obj, request_data = _loader()
+    campaign = Campaign.get(pk)
+    return get_template_attribute("models/_campaign.html", "associations")(
+        user, campaign
+    )
+
+
 @campaign_endpoint.route("/<string:pk>/removeplayer", methods=("POST",))
 def removeparty(pk):
     user, obj, request_data = _loader()

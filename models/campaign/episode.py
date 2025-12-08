@@ -16,6 +16,7 @@ from autonomous.model.autoattr import (
 )
 from autonomous.model.automodel import AutoModel
 from bs4 import BeautifulSoup
+from mutagen.mp3 import MP3
 
 from autonomous import log
 from models.audio.audio import Audio
@@ -54,6 +55,17 @@ class Episode(AutoModel):
     @property
     def actors(self):
         return [*self.characters, *self.creatures]
+
+    @property
+    def audio_duration(self):
+        if self.audio:
+            try:
+                audio = MP3(self.audio.read())
+                duration_seconds = audio.info.length
+                return str(datetime.timedelta(seconds=int(duration_seconds)))
+            except Exception as e:
+                print(f"Error reading file: {e}")
+        return "00:00"
 
     @property
     def campaign_summary(self):
