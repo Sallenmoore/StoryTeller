@@ -31,8 +31,8 @@ class Calendar(AutoModel):
         return None
 
     ############# CRUD #############
-    def date(self, year, month, day):
-        date = Date(year=year, month=month, day=day, calendar=self)
+    def date(self, obj, year, month, day):
+        date = Date(obj=obj, year=year, month=month, day=day, calendar=self)
         date.save()
         return date
 

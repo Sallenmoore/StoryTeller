@@ -191,21 +191,17 @@ class Campaign(AutoModel):
                 episode.previous_episode.end_date
                 and episode.previous_episode.end_date.year > 0
             ):
-                episode.start_date = episode.previous_episode.end_date.copy()
-                episode.start_date.obj = episode
-                episode.start_date.save()
+                episode.start_date = episode.previous_episode.end_date.copy(episode)
             episode.episode_num = episode.previous_episode.episode_num + 1
         else:
             episode.loot = ""
             episode.hooks = ""
             episode.associations = episode.party.members if episode.party else []
             episode.start_date = (
-                self.end_date.copy()
+                self.end_date.copy(episode)
                 if self.end_date.year > 0
-                else episode.world.current_date.copy()
+                else episode.world.current_date.copy(episode)
             )
-            episode.start_date.obj = episode
-            episode.start_date.save()
         episode.save()
         return self.update_episode(
             pk=episode.pk,

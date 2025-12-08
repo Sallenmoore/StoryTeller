@@ -48,10 +48,10 @@
                             <div class="select">
                                 <select name="scope">
                                     <option value="" selected>=== Select Scope ===</option>
-                                    <option value="local" selected>Local</option>
-                                    <option value="regional" selected>Regional</option>
-                                    <option value="global" selected>Global</option>
-                                    <option value="epic" selected>Epic</option>
+                                    <option value="Local" selected>Local</option>
+                                    <option value="Regional" selected>Regional</option>
+                                    <option value="Global" selected>Global</option>
+                                    <option value="Epic" selected>Epic</option>
                                 </select>
                             </div>
                         </div>
@@ -121,8 +121,8 @@
 {%- endmacro %}
 
 {% macro lore_details(user, lore) -%}
-<div class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url"
-     <h2 class="text-center separator-center">{{lore.name}}</h2>
+<div class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url">
+    <h2 class="text-center separator-center">{{lore.name}}</h2>
     <form hx-post="/api/lore/{{lore.pk}}/edit"
           hx-trigger="change delay:500ms"
           hx-swap="none">
@@ -257,16 +257,16 @@
                                     </div>
                                     {% if lore.get_response(o.name).roll_type %}
                                     <div class="cell">
+                                        <strong>Roll Type:
+                                            {{lore.get_response(o.name).roll_type}}</strong>
                                         <div class="callout">
-                                            <strong>Roll Type:</strong>
-                                            {{lore.get_response(o.name).roll_type}}
-                                            <hr>
                                             <strong>Roll Explanation:</strong>
-
                                             {{lore.get_response(o.name).roll_explanation | safe}}
                                             <hr>
-                                            <strong>Roll Result:</strong>
-                                            {{lore.get_response(o.name).roll_result}}
+                                            <strong>Roll:</strong>
+                                            {{lore.get_response(o.name).roll_formula | safe}} =
+                                            <span
+                                                  class="stat">{{lore.get_response(o.name).roll_result}}</span>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -340,9 +340,9 @@
     </div>
     <div class="grid-x align-center">
         <div class="cell shrink" hx-post="/api/lore/{{lore.pk}}/delete"
-             hx-target="#lore-container"
-             hx-swap="outerHTML"
-             hx-confirm="Are you sure you want to delete this lore entry? This action cannot be undone.">
+             hx-target="#page-content"
+             hx-confirm="Are you sure you want to delete this lore entry? This action cannot be undone."
+             hx-push-url="/{{lore.world.path}}/lore/{{lore.pk}}">
             {{icon_components.delete()}}
         </div>
     </div>

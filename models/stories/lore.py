@@ -10,10 +10,25 @@ from models.calendar.date import Date
 from models.images.image import Image
 
 
+class LoreScene(AutoModel):
+    prompt = StringAttr(default="")
+    summary = StringAttr(default="")
+    situation = StringAttr(default="")
+    setting = ReferenceAttr(choices=["Place"])
+    date = ReferenceAttr(choices=["Date"])
+    associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
+    responses = ListAttr(DictAttr())
+    lore = ReferenceAttr(choices=["Lore"])
+
+    def delete(self):
+        if self.date:
+            self.date.delete()
+        super().delete()
+
+
 class Lore(AutoModel):
     name = StringAttr(default="")
     scope = StringAttr(default="Local", choices=["Local", "Regional", "Global", "Epic"])
-    summary = StringAttr(default="")
     backstory = StringAttr(default="")
     situation = StringAttr(default="")
     setting = ReferenceAttr(choices=["Place"])
@@ -21,6 +36,7 @@ class Lore(AutoModel):
     current_date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     party = ListAttr(ReferenceAttr(choices=["Character"]))
+    scenes = ListAttr(ReferenceAttr(choices=["LoreScene"]))
     responses = ListAttr(DictAttr())
     story = ReferenceAttr(choices=["Story"])
     world = ReferenceAttr(choices=["World"], required=True)
@@ -62,6 +78,10 @@ class Lore(AutoModel):
                                 "type": "string",
                                 "description": "The reasoning behind the chosen roll type and how it relates to the character's response, if any. Otherwise an empty string.",
                             },
+                            "roll_formula": {
+                                "type": "string",
+                                "description": "The formula, including the specific attribue/skill bonuses used, for the roll the character makes to respond to the situation (e.g., '1d20 + 5 (Notice:+2, Wisdom:+3)'), if any. Otherwise an empty string.",
+                            },
                             "roll_result": {
                                 "type": "integer",
                                 "description": "The result of the roll the character makes to respond to the situation, if any. Otherwise an empty string.",
@@ -85,11 +105,21 @@ class Lore(AutoModel):
             if a.model_name() in ["Region", "Location", "City", "Shop", "District"]
         ]
 
+    @property
+    def summary(self):
+        if self.scenes:
+            return self.scenes[-1].summary
+        return ""
+
     ############# CRUD #############
 
     def delete(self):
         if self.start_date:
             self.start_date.delete()
+        if self.current_date:
+            self.current_date.delete()
+        for scene in self.scenes:
+            scene.delete()
         super().delete()
 
     ############# image generation #############
@@ -135,8 +165,20 @@ SCENARIO: {self.situation}.
         )
         if result.get("responses"):
             log(f"Generated Lore: {result}", __print=True)
+            ls = LoreScene(
+                lore=self,
+                prompt=prompt,
+                setting=self.setting,
+                associations=self.associations,
+                situation=self.situation,
+                date=self.current_date.copy(self),
+                responses=result["responses"],
+            )
+            ls.save()
+            self.scenes += [ls]
             self.responses = result["responses"]
             self.save()
+
             prompt = f"""Based on the following:
 {f"Summary of events: {self.summary}" if self.summary else ""}
 
@@ -154,8 +196,8 @@ Summarize the events so that that they can be added to the characters' history. 
             )
             if summary_result:
                 log(f"Generated Lore Summary: {summary_result}", __print=True)
-                self.summary = summary_result
-                self.save()
+                ls.summary = summary_result
+                ls.save()
         else:
             log("Failed to generate Lore", __print=True)
 
@@ -204,11 +246,8 @@ Summarize the events so that that they can be added to the characters' history. 
             for date_attr in ["start_date", "current_date"]:
                 date = getattr(self, date_attr)
                 if isinstance(date, dict):
-                    date = Date(obj=self, calendar=self.calendar, **date)
-                    date.month = self.calendar.months.index(date.month.title())
-                    date.day = int(date.day)
-                    date.year = int(date.year)
-                    setattr(self, date_attr, date)
+                    date_obj = self.calendar.date(self, **date)
+                    setattr(self, date_attr, date_obj)
                 elif not date:
                     date = Date(
                         obj=self,

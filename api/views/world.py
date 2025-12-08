@@ -114,7 +114,13 @@ def worldcalendar(pk):
     return get_template_attribute("models/_world.html", "manage_details")(user, world)
 
 
-@world_endpoint.route("/<string:pk>/lore/<string:lorepk>", methods=("GET",))
+@world_endpoint.route(
+    "/<string:pk>/lore/<string:lorepk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
 def worldlore(pk, lorepk):
     user, *_ = _loader()
     lore = Lore.get(lorepk)

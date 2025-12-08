@@ -89,30 +89,29 @@ class Event(AutoModel):
             encounter.save()
         event.save()
         if start_date := encounter.world.current_date:
-            event.start_date = start_date.copy()
-            event.start_date.day -= random.randint(0, 3)
-            event.start_date.obj = event
-            event.start_date.save()
-            event.end_date = start_date.copy()
-            event.end_date.obj = event
+            event.start_date = start_date.copy(event)
+            event.start_date.day -= random.randint(1, 3)
+            event.end_date = start_date.copy(event)
             event.end_date.save()
         event.save()
         return event
 
     @classmethod
     def create_event_from_episode(cls, episode):
-        event = cls()
-        event.name = episode.name
+        event = cls(
+            world=episode.world,
+            name=episode.name,
+            associations=episode.associations,
+            story=episode.story,
+            outcome=episode.episode_report,
+            backstory=episode.campaign.summary,
+            impact=episode.summary,
+        )
+        event.save()
         event.scope = "Local"
-        event.impact = episode.summary
-        event.backstory = episode.campaign.summary
-        event.outcome = episode.episode_report
-        event.start_date = episode.start_date
-        event.end_date = episode.end_date
-        event.story = episode.story
-        event.associations = episode.associations
+        event.start_date = episode.start_date.copy(event)
+        event.end_date = episode.end_date.copy(event)
         event.episodes = [episode]
-        event.world = episode.world
         event.save()
         return event
 

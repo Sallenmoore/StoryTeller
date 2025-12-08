@@ -87,13 +87,16 @@ class Date(AutoModel):
     def world(self):
         return self.calendar.world if self.calendar else None
 
-    def copy(self):
-        return Date(
+    def copy(self, obj):
+        date = Date(
+            obj=obj,
             calendar=self.calendar,
             day=self.day,
             month=self.month,
             year=self.year,
         )
+        date.save()
+        return date
 
     ## MARK: - Verification Hooks
     ###############################################################
