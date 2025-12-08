@@ -78,6 +78,7 @@ def update():
             setattr(obj, attr, value)
         else:
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
+        # log(f"Updated {obj.model_name()}:{obj.pk} - set {attr} to {value}", _print=True)
     obj.save()
     log(response_url.split("/"))
     path = (

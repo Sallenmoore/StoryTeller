@@ -45,7 +45,7 @@ class Actor(TTRPGObject):
     pc_voice = StringAttr(default="")
     chat_summary = StringAttr(default="")
     chats = ListAttr(DictAttr(default={}))
-    audio = FileAttr(default="")
+    audio = FileAttr()
 
     _genders = ["male", "female", "non-binary"]
 
@@ -311,11 +311,8 @@ class Actor(TTRPGObject):
     def pre_save_faction(self):
         from models.ttrpgobject.faction import Faction
 
-        if not self.faction and self.factions:
-            self.faction = self.factions[0]
-        elif isinstance(self.faction, str):
-            if faction := Faction.get(self.faction):
-                self.faction = faction
+        if isinstance(self.faction, str):
+            self.faction = Faction.get(self.faction)
         elif self.faction and not isinstance(self.faction, Faction):
             log(f"pre_save_faction: {self.faction}")
             raise ValueError(

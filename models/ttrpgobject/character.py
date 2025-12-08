@@ -18,9 +18,11 @@ class Character(Actor):
     occupation = StringAttr(default="")
     wealth = ListAttr(StringAttr(default=""))
     quests = ListAttr(ReferenceAttr(choices=["Quest"]))
+    ancestor_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
     parent_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
     sibling_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
     children_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
+    descendant_lineage = ListAttr(ReferenceAttr(choices=["Character"]))
 
     start_date_label = "Born"
     end_date_label = "Died"
