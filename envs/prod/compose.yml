@@ -18,7 +18,6 @@ services:
       - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
@@ -43,7 +42,6 @@ services:
       - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
     ports:
       - "${API_PORT}:${COMM_PORT}"
@@ -66,7 +64,6 @@ services:
       - ./templates:/var/app/templates/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
 networks:
   default:
