@@ -17,7 +17,7 @@
 {% import "shared/_title.html" as title_components %}
 
 {% macro lore(user, obj) -%}
-<div id="lore-container" class="callout">
+<div id="lore-container" class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url">
     <h2 class="text-center separator-center">Lore Builder</h2>
     <div class="grid-y">
         <div class="cell shrink">
@@ -121,8 +121,8 @@
 {%- endmacro %}
 
 {% macro lore_details(user, lore) -%}
-<div class="callout">
-    <h2 class="text-center separator-center">{{lore.name}}</h2>
+<div class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url"
+     <h2 class="text-center separator-center">{{lore.name}}</h2>
     <form hx-post="/api/lore/{{lore.pk}}/edit"
           hx-trigger="change delay:500ms"
           hx-swap="none">

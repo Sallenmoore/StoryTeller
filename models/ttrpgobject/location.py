@@ -135,7 +135,6 @@ class Location(Place):
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         ##### MIGRATION: old dungeon str to reference #####
-        log(document.dungeon)
         if isinstance(document.dungeon, str):
             document.dungeon = None
 

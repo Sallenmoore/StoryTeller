@@ -178,7 +178,6 @@ class TTRPGObject(TTRPGBase):
         document.pre_save_world()
         document.pre_save_associations()
         document.pre_save_dates()
-        document.pre_save_canon()
 
         # MIGRATION: remove encountrers from associations
         document.associations = [
@@ -202,24 +201,16 @@ class TTRPGObject(TTRPGBase):
             key=lambda a: (a.model_name(), getattr(a, "name", "")),
         )
 
-    def pre_save_canon(self):
-        for campaign in self.world.campaigns:
-            for ass in campaign.associations:
-                if str(self.pk) == str(ass.pk):
-                    self.canon = True
-                    return
-        self.canon = False
-
     def pre_save_world(self):
         if not self.world:
             raise ValidationError("Must be associated with a World object")
 
     def pre_save_dates(self):
         if self.pk:
-            if hasattr(self.start_date, "pk") and not self.start_date.pk:
-                self.start_date = None
-            if hasattr(self.end_date, "pk") and not self.end_date.pk:
-                self.end_date = None
+            # if hasattr(self.start_date, "pk") and not self.start_date.pk:
+            #     self.start_date = None
+            # if hasattr(self.end_date, "pk") and not self.end_date.pk:
+            #     self.end_date = None
 
             if start_date := parse_date(self, self.start_date):
                 self.start_date = start_date

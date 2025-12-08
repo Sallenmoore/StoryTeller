@@ -14,7 +14,7 @@ from autonomous import log
 from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
-from models.utility.parse_attributes import parse_text, sanitize
+from models.utility import parse_attributes
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -376,7 +376,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
             log(results, _print=True)
             for k, v in results.items():
                 if isinstance(v, str) and "#" in v:
-                    v = self.system.htmlize(v)
+                    v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)
             self.save()
             self.resummarize()
@@ -417,7 +417,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
 
 The image should be in a {self.world.image_style} style.
 """
-        if image := Image.generate(prompt=prompt, tags=self.image_tags, **kwargs):
+        if image := Image.generate(
+            prompt=prompt, tags=self.image_tags, filename=f"{self.slug}.webp", **kwargs
+        ):
             if self.image:
                 self.image.delete()
             self.image = image
@@ -543,7 +545,7 @@ Backstory
 
 {self.status}
 """
-        prompt = sanitize(prompt)
+        prompt = parse_attributes.sanitize(prompt)
         log(f"Generating history...\n{prompt}", _print=True)
         history_primer = f"Generate a chronological history of the {self.title}, incorporating the given backstory and event list, ensuring a consistent chonology based on the provided dates. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
 
@@ -681,6 +683,9 @@ Backstory
         elif self.image and not self.image.tags:
             self.image.tags = self.image_tags
             self.image.save()
+        if self.image and not self.image.filename:
+            self.image.filename = f"{self.slug}.webp"
+            self.image.save()
 
     def pre_save_backstory(self):
         if ">" in self.backstory_summary:
@@ -699,15 +704,15 @@ Backstory
             self.save()
 
     def pre_save_text_fields(self):
-        if self.backstory:
-            self.backstory = parse_text(self, self.backstory)
-        if self.backstory_summary:
-            self.backstory_summary = parse_text(self, self.backstory_summary)
-        if self.desc:
-            self.desc = parse_text(self, self.desc)
-        if self.desc_summary:
-            self.desc_summary = parse_text(self, self.desc_summary)
-        if self.status:
-            self.status = parse_text(self, self.status)
-        if self.history:
-            self.history = parse_text(self, self.history)
+        for text in [
+            "backstory",
+            "backstory_summary",
+            "desc",
+            "desc_summary",
+            "status",
+            "history",
+        ]:
+            if getattr(self, text):
+                setattr(
+                    self, text, parse_attributes.parse_text(self, getattr(self, text))
+                )

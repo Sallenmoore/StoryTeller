@@ -60,7 +60,7 @@
                     <a class="button"
                        hx-post="/task/generate/dungeon/{{obj.dungeon.pk}}/map"
                        hx-target="closest .cell"
-                       hx-indicator=""
+                       hx-disinherit="hx-confirm hx-indicator"
                        hx-push-url="false">
                         Generate New Layout
                     </a>
@@ -81,7 +81,7 @@
                             <a class="button small"
                                hx-get="/api/dungeon/room/{{room.pk}}"
                                hx-target="#dungeon-container"
-                               hx-indicator=""
+                               hx-disinherit="hx-confirm hx-indicator"
                                hx-push-url="false">
                                 View Entrance
                             </a>
@@ -132,8 +132,7 @@
                                     <a class="button small"
                                        hx-get="/api/dungeon/room/{{room.pk}}"
                                        hx-target="#dungeon-container"
-                                       hx-indicator=""
-                                       hx-push-url="false">
+                                       hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                         View
                                     </a>
                                 </div>
@@ -141,8 +140,7 @@
                                     <a class="button small"
                                        hx-post="/api/dungeon/room/{{room.pk}}/entrance"
                                        hx-target="#page-content"
-                                       hx-indicator=""
-                                       hx-push-url="false">
+                                       hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                         Toggle Entrance
                                     </a>
                                 </div>
@@ -150,8 +148,7 @@
                                     <a class="button tiny alert"
                                        hx-post="/api/dungeon/room/{{room.pk}}/delete"
                                        hx-target="#dungeon-container"
-                                       hx-indicator=""
-                                       hx-push-url="false"
+                                       hx-disinherit="hx-indicator hx-push-url"
                                        hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
                                         {{icon_components.delete(size="1rem")}}
                                     </a>
@@ -219,8 +216,7 @@
                         <div class="cell shrink">
                             <a hx-get="/api/dungeon/room/{{connected_room.pk}}"
                                hx-target="#dungeon-container"
-                               hx-indicator=""
-                               hx-push-url="false">
+                               hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                 <h5>{{connected_room.name}}</h5>
                             </a>
                             {% if not loop.last %}, &nbsp;{% endif %}
@@ -368,8 +364,7 @@
                         <a class="button small"
                            hx-get="/api/dungeon/room/{{room.pk}}"
                            hx-target="#dungeon-container"
-                           hx-indicator=""
-                           hx-push-url="false">
+                           hx-disinherit="hx-confirm hx-indicator hx-push-url">
                             View Room
                         </a>
                     </div>
@@ -377,8 +372,7 @@
                         <a class="button small"
                            hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
                            hx-target="#dungeon-container"
-                           hx-indicator=""
-                           hx-push-url="false">
+                           hx-disinherit="hx-confirm hx-indicator hx-push-url">
                             {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
                         </a>
                     </div>
@@ -470,7 +464,7 @@
                 <button class="button small"
                         hx-post="/api/dungeon/room/{{obj.pk}}/add/encounter"
                         hx-target="closest .cell"
-                        hx-indicator='false'>
+                        hx-disinherit="hx-confirm hx-indicator">
                     {{ icon_components.link(size="1rem") }}
                     Generate New Encounter
                 </button>
@@ -514,7 +508,7 @@
             <button class="button"
                     hx-post="/task/generate/dungeon/room/{{obj.pk}}/map"
                     hx-target="closest .cell"
-                    hx-indicator='false'
+                    hx-disinherit="hx-indicator"
                     hx-confirm="Are you sure you want to generate and overwrite the current map?">
                 {{icon_components.ai()}}
                 Generate New Map

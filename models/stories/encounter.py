@@ -9,6 +9,7 @@ from validators import ValidationError
 from autonomous import log
 from models.images.image import Image
 from models.journal import Journal
+from models.utility import parse_attributes
 
 
 class Encounter(AutoModel):
@@ -331,8 +332,8 @@ class Encounter(AutoModel):
 
         if results := self.system.generate(self, prompt=prompt, funcobj=self._funcobj):
             for k, v in results.items():
-                if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
-                    v = self.system.htmlize(v)
+                if isinstance(v, str):
+                    v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)
             self.save()
             self.generate_image()
@@ -485,6 +486,6 @@ The image should be in a {self.world.image_style} style.
             "notes",
         ]:
             if v := getattr(self, attr):
-                if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
-                    v = self.system.htmlize(v.strip())
+                if isinstance(v, str):
+                    parse_attributes.parse_text(self, v)
                 setattr(self, attr, v.strip())

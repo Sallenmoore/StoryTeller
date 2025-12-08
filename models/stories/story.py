@@ -10,6 +10,7 @@ from models.images.image import Image
 from models.stories.encounter import Encounter
 from models.stories.event import Event
 from models.stories.quest import Quest
+from models.utility import parse_attributes
 
 
 class Story(AutoModel):
@@ -171,7 +172,7 @@ class Story(AutoModel):
         if result:
             for k, v in result.items():
                 if isinstance(v, str) and "#" in v:
-                    v = self.world.system.htmlize(v)
+                    v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)
             self.save()
             log(f"Generated Story: {self.name}", __print=True)
@@ -248,5 +249,5 @@ The image should be in a {self.world.image_style} style.
         for k in ["situation", "current_status", "backstory", "summary"]:
             v = getattr(self, k)
             if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
-                v = self.system.htmlize(v.strip())
+                v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)

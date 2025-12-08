@@ -12,6 +12,7 @@ from autonomous import log
 from models.images.map import Map
 from models.stories.encounter import Encounter
 from models.ttrpgobject.character import Character
+from models.utility import parse_attributes
 
 
 class DungeonRoom(AutoModel):
@@ -321,5 +322,5 @@ The area is described as: {self.desc}.
         ]:
             if v := getattr(self, attr):
                 if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
-                    v = self.system.htmlize(v.strip())
+                    v = parse_attributes.parse_text(v.strip())
                 setattr(self, attr, v.strip())

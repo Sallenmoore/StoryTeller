@@ -160,12 +160,6 @@ def _generate_image_task(model, pk):
     return {"url": f"/api/{obj.path}/manage"}
 
 
-def _generate_episode_transcription_task(pk):
-    if obj := Episode.get(pk):
-        obj.transcribe()
-    return {"url": f"/api/{obj.path}/transcribe"}
-
-
 def _generate_campaign_summary_task(pk):
     if obj := Campaign.get(pk):
         obj.resummarize()
@@ -182,6 +176,12 @@ def _generate_session_report_task(pk):
     if obj := Episode.get(pk):
         obj.regenerate_report()
     return {"url": f"/api/{obj.path}/manage"}
+
+
+def _generate_episode_transcription_task(pk):
+    if obj := Episode.get(pk):
+        obj.transcribe()
+    return {"url": f"/api/{obj.path}/transcribe"}
 
 
 def _generate_episode_transcription_summary_task(pk):

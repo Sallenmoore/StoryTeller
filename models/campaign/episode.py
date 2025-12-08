@@ -3,6 +3,7 @@ import json
 import os
 import random
 import re
+from io import BytesIO
 
 import markdown
 import requests
@@ -60,7 +61,7 @@ class Episode(AutoModel):
     def audio_duration(self):
         if self.audio:
             try:
-                audio = MP3(self.audio.read())
+                audio = MP3(BytesIO(self.audio.read()))
                 duration_seconds = audio.info.length
                 return str(datetime.timedelta(seconds=int(duration_seconds)))
             except Exception as e:
@@ -275,6 +276,10 @@ class Episode(AutoModel):
             markdown.markdown(self.summary).replace("h1>", "h3>").replace("h2>", "h3>")
         )
         self.save()
+        self.world.set_current_date()
+        for ass in self.associations:
+            ass.canon = True
+            ass.save()
         return self.summary
 
     def summarize_transcription(self):
@@ -316,23 +321,16 @@ class Episode(AutoModel):
                     prompt += f"\n\n{assoc.name}: {assoc.history}."
 
         prompt += f"\n\nHere are the current session notes: {self.episode_report}."
+        log(prompt, _print=True)
         self.episode_report = self.world.system.generate_text(
             prompt,
             primer=f"Rewrite the following session notes in MARKDOWN for a {self.world.genre} TTRPG world in a narrative, evocative, and vivid style using a witty and judgemental narrator tone.",
         )
-
-        self.episode_report = self.episode_report.replace("```markdown", "").replace(
-            "```", ""
-        )
-        self.episode_report = (
-            markdown.markdown(self.episode_report)
-            .replace("h1>", "h3>")
-            .replace("h2>", "h3>")
-        )
+        log(f"Regenerated Report: {self.episode_report}", _print=True)
         self.save()
         return self.episode_report
 
-    def generate_graphic(self):
+    def generate_graphic_description(self):
         prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
         log(f"Graphic Prompt: {prompt}", _print=True)
         description = self.world.system.generate_text(
@@ -344,9 +342,18 @@ class Episode(AutoModel):
         self.graphic_description = description
         self.save()
         # log(f"Graphic Description: {description}", _print=True)
-        chars = {f"{c.name}.webp": c.image for c in self.characters if c.image}
+        return self.graphic_description
+
+    def generate_graphic(self):
+        if not self.graphic_description:
+            self.generate_graphic_description()
+        # log(f"Graphic Description: {description}", _print=True)
+        chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
         if image := Image.generate(
-            prompt=description, tags=["episode", "graphic"], text=True, files=chars
+            prompt=self.graphic_description,
+            tags=["episode", "graphic"],
+            text=True,
+            files=chars,
         ):
             if self.graphic:
                 self.graphic.delete()
@@ -393,10 +400,11 @@ class Episode(AutoModel):
         prompt = f"""Transcribe the following audio from a TTRPG session set in a {self.world.genre} world. Focus on capturing the dialogue, narration, and significant sound cues relevant to the gameplay and story, while omitting any irrelevant background noise, verbal ticks such as 'umms' or 'ahs', or off-topic conversations. When possible, use full names for characters, places, and things in the world. Provide the transcription in MARKDOWN format.
 Here is some context about the campaign: {self.campaign.name} {self.campaign_summary}. Identify and separate distinct speakers as much as possible. The player characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in self.players])}.
 """
+        log(f"Raw Prompt: {prompt}", _print=True)
         transcription = Audio.transcribe(
             self.audio,
             prompt=prompt,
-            display_name="episode.mp3",
+            display_name=f"episode{self.episode_num}.mp3",
         )
 
         self.transcription = (
@@ -404,11 +412,10 @@ Here is some context about the campaign: {self.campaign.name} {self.campaign_sum
             if transcription
             else "Transcription failed or was empty."
         )
-
         self.save()
 
         if self.transcription:
-            prompt = f"""Reinterpret the following trabnscript of a live TTRPG session as a screenplay for a fictional episodic adventure. Feel free to embellish events, conversations, and details for the sake of the narrative, but maintain the same sequence of events. Leave out any discussion of game mechanics, substituting a narrative interpretation instead.
+            prompt = f"""Reinterpret the following transcript of a live TTRPG session as a screenplay for a fictional episodic adventure. Feel free to embellish events, conversations, and details for the sake of the narrative, but maintain the same sequence of events. Leave out any discussion of game mechanics, substituting a narrative interpretation instead.
 
 The player characters are: {", ".join([f"{c.name}:{c.backstory_summary}]" for c in self.players])}.
 
@@ -424,6 +431,7 @@ Format in MARKDOWN.
 TRANSCRIPT:
 {self.transcription}
 """
+            log(f"Interpretation Prompt: {prompt}", _print=True)
             interpreted_transcription = self.world.system.generate_text(
                 prompt=prompt,
                 primer="Provide a narrative reinterpretation of the TTRPG session transcript in screenplay style.",
@@ -460,14 +468,11 @@ TRANSCRIPT:
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_campaign()
         document.pre_save_associations()
-        document.pre_save_episode_num()
         document.pre_save_dates()
-        document.pre_save_report()
-        document.pre_save_description()
-
+        document.pre_save_text()
         ##### MIGRATION: Encounters #######
         document.associations = [
-            a for a in document.associations if a.model_name() != "Encounter"
+            a for a in document.associations if a and a.model_name() != "Encounter"
         ]
 
         #########################################
@@ -475,7 +480,6 @@ TRANSCRIPT:
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
         super().auto_post_save(sender, document, **kwargs)
-        document.world.set_current_date()
 
     # def clean(self):
     #     super().clean()
@@ -487,16 +491,8 @@ TRANSCRIPT:
             self.campaign.save()
 
     def pre_save_associations(self):
-        self.associations = list(set([a for a in self.associations if a]))
+        # self.associations = list(set([self.associations]))
         self.associations.sort(key=lambda x: (x.model_name(), x.name))
-
-    ################### verify current_scene ##################
-    def pre_save_episode_num(self):
-        if not self.episode_num:
-            if num_group := re.search(r"\b\d+\b", self.name):
-                num = num_group.group(0)
-                if num.isdigit():
-                    self.episode_num = int(num)
 
     def pre_save_dates(self):
         if not self.world.current_date:
@@ -506,7 +502,7 @@ TRANSCRIPT:
             self.world.current_date = self.end_date_obj
             self.world.save()
 
-    def pre_save_report(self):
+    def pre_save_text(self):
         """
         Checks for a full name (obj.name) in a block of text and replaces it
         with a link, while respecting existing anchor tags.
@@ -519,21 +515,13 @@ TRANSCRIPT:
         Returns:
             str: The modified text with the name parts linked.
         """
-        if self.episode_report:
-            self.episode_report = parse_text(self, self.episode_report)
-
-    def pre_save_description(self):
-        """
-        Checks for a full name (obj.name) in a block of text and replaces it
-        with a link, while respecting existing anchor tags.
-
-        Args:
-            text (str): The block of text to search and modify.
-            obj (object): An object with 'name' and 'path' attributes
-                        (e.g., Character, City, etc.).
-
-        Returns:
-            str: The modified text with the name parts linked.
-        """
-        if self.description:
-            self.description = parse_text(self, self.description)
+        for text in [
+            "episode_report",
+            "loot",
+            "hooks",
+            "transcription",
+            "interpreted_transcription",
+            "graphic_description",
+        ]:
+            if getattr(self, text):
+                setattr(self, text, parse_text(self, getattr(self, text)))

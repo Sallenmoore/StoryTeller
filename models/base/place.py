@@ -181,8 +181,6 @@ The map should be in a {self.world.map_style} style.
         # log(self.map)
 
     def pre_save_encounters(self):
-        self.encounters = list(set(self.encounters))
-        log(self.encounters, [e.parent for e in self.encounters])
         for encounter in self.encounters:
             if encounter.parent != self:
                 encounter.parent = self

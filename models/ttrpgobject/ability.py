@@ -5,6 +5,7 @@ from autonomous.model.autoattr import ReferenceAttr, StringAttr
 from autonomous.model.automodel import AutoModel
 
 from autonomous import log
+from models.utility import parse_attributes
 from tests.test_models.test_ttrpgobject import ability
 
 
@@ -148,18 +149,19 @@ HISTORY: {self.world.backstory}.
             self.name = self.name or response.get("name", "")
             self.action = response.get("action", self.action)
             self.category = response.get("category", self.category)
-            for field in [
+            for text in [
                 "description",
                 "effects",
                 "duration",
                 "dice_roll",
                 "mechanics",
             ]:
-                setattr(
-                    self,
-                    field,
-                    self.system.htmlize(response.get(field, getattr(self, field))),
-                )
+                if getattr(self, text):
+                    setattr(
+                        self,
+                        text,
+                        parse_attributes.parse_text(self, getattr(self, text)),
+                    )
             self.save()
             if obj and hasattr(obj, "abilities") and self not in obj.abilities:
                 obj.abilities += [self]

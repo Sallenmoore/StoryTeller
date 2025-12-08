@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from autonomous import log
 from models.calendar.date import Date
 from models.images.image import Image
+from models.utility import parse_attributes
 
 
 class Event(AutoModel):
@@ -191,7 +192,7 @@ The timeline of the world is as follows:
             """
 
         log("Generating Event with prompt: " + prompt, _print=True)
-        prompt = BeautifulSoup(prompt, "html.parser").get_text()
+        prompt = parse_attributes.sanitize(prompt)
         result = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Create a new event that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
@@ -200,7 +201,7 @@ The timeline of the world is as follows:
         if result:
             for k, v in result.items():
                 if isinstance(v, str) and "#" in v:
-                    result[k] = self.system.htmlize(v)
+                    result[k] = parse_attributes.parse_text(self, v)
                 setattr(self, k, result[k])
             self.save()
         else:
@@ -282,14 +283,7 @@ The image should be in a {self.world.image_style} style.
         primer = "Provide an engaging summary of the event, highlighting its key elements in less than 65 words."
         log(f"Generating summary...\n{prompt}", _print=True)
         self.summary = self.world.system.generate_summary(prompt, primer)
-        self.summary = self.summary.replace("```markdown", "").replace("```", "")
-        self.summary = (
-            markdown.markdown(self.summary)
-            .replace("h1>", "h3>")
-            .replace("h2>", "h3>")
-            .replace("h3>", "h4>")
-            .replace("h4>", "h5>")
-        )
+        self.world.set_current_date()
         self.save()
 
     ############# Association Methods #############
@@ -326,7 +320,6 @@ The image should be in a {self.world.image_style} style.
     @classmethod
     def auto_post_save(cls, sender, document, **kwargs):
         super().auto_post_save(sender, document, **kwargs)
-        document.world.set_current_date()
 
     # def clean(self):
     #     super().clean()

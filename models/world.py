@@ -515,16 +515,6 @@ The map should be in a {self.world.map_style} style.
 
         super().auto_pre_save(sender, document, **kwargs)
 
-        ##### MIGRATION #####
-        stories = []
-        for story in document.stories:
-            if isinstance(story, Story):
-                stories.append(story)
-                story.world = document
-                story.save()
-        document.stories = stories
-
-        document.pre_save_users()
         document.pre_save_system()
         document.pre_save_map()
 
@@ -537,13 +527,6 @@ The map should be in a {self.world.map_style} style.
     #     super().clean()
 
     ################### verification methods ##################
-
-    def pre_save_users(self):
-        users = []
-        for u in self.users:
-            if u not in users:
-                users.append(u)
-        self.users = users
 
     def pre_save_map(self):
         if not self.map_prompt:

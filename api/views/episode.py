@@ -43,22 +43,24 @@ def edit_episode(pk=None):
     pk = pk or request_data.get("episodepk")
     log(request_data)
     if episode := Episode.get(pk):
-        episode.name = request_data.get("name", episode.name)
-        episode.episode_num = request_data.get("episode_num", episode.episode_num)
         start_date = request_data.get("start_date", episode.start_date)
         if start_date and start_date["year"]:
             episode.start_date = start_date
         end_date = request_data.get("end_date", episode.end_date)
         if end_date and end_date["year"]:
             episode.end_date = end_date
+        for field in [
+            "name",
+            "episode_num",
+            "episode_report",
+            "loot",
+            "hooks",
+            "transcription",
+            "interpreted_transcription",
+        ]:
+            setattr(episode, field, request_data.get(field, getattr(episode, field)))
         episode.episode_report = request_data.get(
             "episode_report", episode.episode_report
-        )
-        episode.loot = request_data.get("loot", episode.loot)
-        episode.hooks = request_data.get("hooks", episode.hooks)
-        episode.transcription = request_data.get("transcription", episode.transcription)
-        episode.interpreted_transcription = request_data.get(
-            "interpreted_transcription", episode.interpreted_transcription
         )
         episode.save()
     return get_template_attribute("manage/_episode.html", "manage")(
@@ -326,6 +328,7 @@ def episodetranscribeclear(pk):
     user, _, request_data = _loader()
     obj = Episode.get(pk)
     obj.transcription = ""
+    obj.interpreted_transcription = ""
     if obj.audio:
         obj.audio.delete()
         obj.audio = None

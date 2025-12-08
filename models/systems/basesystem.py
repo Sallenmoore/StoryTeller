@@ -1,16 +1,15 @@
 import random
 import re
 
-import markdown
 from autonomous.ai.jsonagent import JSONAgent
 from autonomous.ai.textagent import TextAgent
 from autonomous.model.autoattr import (
     ReferenceAttr,
 )
 from autonomous.model.automodel import AutoModel
-from bs4 import BeautifulSoup
 
 from autonomous import log
+from models.utility import parse_attributes
 
 
 class BaseSystem(AutoModel):
@@ -486,26 +485,6 @@ class BaseSystem(AutoModel):
     ############# Class Methods #############
 
     @classmethod
-    def sanitize(cls, data):
-        if isinstance(data, str):
-            data = BeautifulSoup(data, "html.parser").get_text()
-        return data
-
-    @classmethod
-    def htmlize(cls, text):
-        if isinstance(text, str):
-            text = (
-                markdown.markdown(text.replace("```markdown", "").replace("```", ""))
-                .replace("h1>", "h3>")
-                .replace("h2>", "h4>")
-                .replace("h3>", "h5>")
-                .replace("h4>", "h6>")
-            )
-        if len(text) < 100:
-            text = cls.sanitize(text)
-        return text
-
-    @classmethod
     def map_prompt(cls, obj):
         return f"""{cls._map_prompts[obj.model_name().lower()](obj)}
 
@@ -624,7 +603,7 @@ class BaseSystem(AutoModel):
 
     def generate(self, obj, prompt, funcobj):
         additional = f"\n\nIMPORTANT: The generated data must be new, unique, consistent with, and connected to the world data described. If existing data is present in the object, expand on the {obj.title} data by adding greater specificity where possible, while ensuring the original concept remains unchanged. The result must be in VALID JSON format."
-        prompt = self.sanitize(prompt)
+        prompt = parse_attributes.sanitize(prompt)
         log(f"=== generation prompt ===\n\n{prompt}", _print=True)
         log(f"=== generation function ===\n\n{funcobj}", _print=True)
         response = self.json_agent.generate(
@@ -635,18 +614,18 @@ class BaseSystem(AutoModel):
         return response
 
     def generate_text(self, prompt, primer=""):
-        prompt = self.sanitize(prompt)
+        prompt = parse_attributes.sanitize(prompt)
         return self.text_agent.generate(prompt, additional_instructions=primer)
 
     def generate_json(self, prompt, primer, funcobj):
-        prompt = self.sanitize(prompt)
+        prompt = parse_attributes.sanitize(prompt)
         response = self.json_agent.generate(
             prompt, function=funcobj, additional_instructions=primer
         )
         return response
 
     def generate_summary(self, prompt, primer=""):
-        prompt = self.sanitize(prompt)
+        prompt = parse_attributes.sanitize(prompt)
         updated_prompt_list = []
         # Find all words in the prompt
         words = re.findall(r"\w+", prompt)

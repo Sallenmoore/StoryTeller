@@ -3,7 +3,7 @@
 
 {% macro associations(user, obj, extended_associations, direct_associations=[]) -%}
 <title>{{ obj.name }} - Associations</title>
-<div class="callout">
+<div class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url">
     <h2>
         Associations
     </h2>
@@ -135,7 +135,7 @@
         </div>
     </div>
 </div>
-<div id="associations-container">
+<div id="associations-container" hx-disinherit="hx-confirm hx-indicator hx-push-url">
     {% if direct_associations %}
     <div class="callout">
         <h3 class="text-center">
@@ -182,8 +182,10 @@
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
-                            {{ icon_components.down(size="1rem") }}
-                            <span style="font-size:0.5rem">make direct</span>
+                            <span data-tooltip tabindex="1"
+                                  title="Make {{ a.name }} child to {{ obj.name }}">
+                                {{ icon_components.down(size="1.5rem") }}
+                            </span>
                         </button>
                     </div>
                     {% endif %}
@@ -195,8 +197,10 @@
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
-                            {{ icon_components.up(size="1rem") }}
-                            <span style="font-size:0.5rem">make direct</span>
+                            <span data-tooltip tabindex="1"
+                                  title="Make {{ a.name }} parent to {{ obj.name }}">
+                                {{ icon_components.up(size="1.5rem") }}
+                            </span>
                         </button>
                     </div>
                     {% endif %}
@@ -206,8 +210,10 @@
                                 hx-target="#associations-container"
                                 hx-select="#associations-container"
                                 hx-indicator='#request-indicator'>
-                            {{ icon_components.unlink(size="1rem") }}
-                            <span style="font-size:0.5rem">Unlink</span>
+                            <span data-tooltip tabindex="1"
+                                  title="Unlink {{ a.name }} from {{ obj.name }}">
+                                {{ icon_components.unlink(size="1.5rem") }}
+                            </span>
                         </button>
                     </div>
                 </div>

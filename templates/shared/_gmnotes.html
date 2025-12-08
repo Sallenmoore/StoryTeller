@@ -64,7 +64,7 @@
 {%- endmacro %}
 
 {% macro display_encounters(user, obj, manage=True) -%}
-<div class="callout">
+<div class="callout" hx-disinherit="hx-confirm hx-indicator hx-push-url">
     <h5>Encounters</h5>
     {% if manage %}
     <div class="grid-x grid-margin-x align-justify margin-bottom-2">

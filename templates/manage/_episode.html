@@ -132,9 +132,9 @@
             <div class="cell">
                 <h3>Report</h3>
                 <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
-                      hx-trigger="input delay:1s, change">
+                      hx-trigger="input delay:250ms, change"
+                      hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
-                    <!-- display AI Generative buttons -->
                 </form>
             </div>
         </div>
@@ -142,14 +142,16 @@
             <div class="cell small-shrink large-shrink">
                 <button class='button'
                         hx-post='/task/generate/campaign/episode/{{episode.pk}}/report'
-                        hx-target="closest .cell">
+                        hx-target="closest .cell"
+                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     Punch Up Report
                 </button>
             </div>
             <div class="cell small-shrink large-shrink">
                 <button class="button"
                         hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                        hx-target="closest .cell">
+                        hx-target="closest .cell"
+                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     {{icon_components.ai(size="1rem")}}
                     Update Summary
                 </button>

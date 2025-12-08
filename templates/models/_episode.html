@@ -107,28 +107,31 @@
 <title>{{obj.name or obj.title}} - Details</title>
 <div class="callout">
     <div id="episode-info" class="grid-x align-spaced">
-        <div class="cell medium-4">
-            {% if obj.image %}
-            <div class="image">
-                <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
-            </div>
-            {% endif %}
-        </div>
         <div class="cell">
             <div class="grid-x align-spaced">
                 <div class="cell medium-4 text-center">
-                    <h3 class='text-center'>Start</h3>
+                    <h4 class='text-center'>Start</h4>
                     {{obj.start_date}}
                 </div>
                 <div class="cell medium-4 text-center">
-                    <h3 class='text-center'>End</h3>
+                    <h2 class='text-center'>Episode #{{obj.episode_num}}</h2>
+                </div>
+                <div class="cell medium-4 text-center">
+                    <h4 class='text-center'>End</h4>
                     {{obj.end_date}}
                 </div>
             </div>
         </div>
         <div class="cell">
-            <div id="report-container" class="callout">
-                <h2 class='text-center'>Report</h2>
+            <div id="report-container" class="clearfix">
+                <h2 class='text-center separator-center'>Report</h2>
+                <div class="float-right">
+                    {% if obj.image %}
+                    <div class="image">
+                        <img src="{{obj.image.url(size='large')}}" alt="{{obj.name}}" />
+                    </div>
+                    {% endif %}
+                </div>
                 <div>
                     {{obj.report | safe}}
                 </div>
@@ -270,6 +273,18 @@
             </div>
         </div>
     </div>
+    <div class="grid-x align-spaced">
+        <div class="cell shrink"></div>
+        <div class="cell">
+            <div class="callout">
+                <h3 class='text-center'>Graphic Description</h3>
+                <form hx-post="/api/manage/update"
+                      hx-swap="none"
+                      hx-trigger="input delay:250ms, change">
+                    {{form_components.richtexteditor(user, obj, 'graphic_description', label=False)}}
+            </div>
+        </div>
+    </div>
 </div>
 {%- endmacro %}
 
@@ -286,7 +301,7 @@
                   hx-encoding="multipart/form-data"
                   hx-trigger="change from:#audio-upload"
                   hx-confirm='This will append to the current audio. If you want to replace the audio, clear it first. Proceed?'>
-                <div class="grid-x align-center-middle">
+                <div class="grid-x align-center-middle text-center">
                     <div class="cell">
                         <label for="audio-upload"
                                class="button large expanded secondary margin-bottom-0">
@@ -295,19 +310,23 @@
                             Upload Audio
                         </label>
                         <input type="file" id="audio-upload" name="audio_file" accept="audio/*"
-                               style="display: none;" required>
-                        <progress id='progress' value='0' max='100'></progress>
-                        <script>
-                            htmx.on('#audio-upload-form', 'htmx:xhr:progress', function (evt) {
-                                htmx.find('#progress').setAttribute('value', evt.detail.loaded / evt.detail.total * 100);
-                            });
-                        </script>
+                               style="display: none;" required
+                               onclick='this.nextElementSibling.classList.remove("hide");'>
+                        <div class="progress-container hide">
+                            <progress class="success margin-top-1" id='progress' value='0'
+                                      max='100'></progress>
+                            <script>
+                                htmx.on('#audio-upload-form', 'htmx:xhr:progress', function (evt) {
+                                    htmx.find('#progress').setAttribute('value', evt.detail.loaded / evt.detail.total * 100);
+                                });
+                            </script>
+                        </div>
                     </div>
                 </div>
                 {% if episode.audio %}
                 <div class="cell">
-                    <h4>{{episode.num}}: {{episode.name}}.mp3</h4>
-                    <h5>{{episode.audio_duration}}</h5>
+                    <h5 class='subheader'>audio length</h5>
+                    <h4>{{episode.audio_duration}}</h>
                 </div>
                 {% endif %}
             </form>
@@ -316,17 +335,17 @@
     <div id="session-transcription-container" class="callout bg-screen">
         <div class="grid-x grid-margin-x align-center-middle"
              id="session-transcription-controls">
-            <div class="cell shrink align-self-middle">
+            <div class="cell shrink">
                 <button id="transcribe-btn" class="button success"
                         {% if not episode.audio %} disabled {% endif %}
                         hx-post="/api/{{episode.path}}/transcribe"
                         hx-confirm='Are you sure you want to transcribe the current audio?'
-                        hx-target="#output-area">
+                        hx-target="#session-transcription-container">
                     {{icon_components.transcribe(size="1rem")}}
                     Transcribe
                 </button>
             </div>
-            <div class="cell shrink align-self-middle">
+            <div class="cell shrink">
                 <button id="clear-btn" class="button warning"
                         {% if not episode.transcription and not episode.audio %} disabled {% endif
                         %}
@@ -339,52 +358,49 @@
                     Clear
                 </button>
             </div>
+            <div class="cell shrink">
+                <button class="button"
+                        {% if not episode.transcription %} disabled {%endif%}
+                        hx-post="/api/{{episode.path}}/transcription/summarize"
+                        hx-swap="outerHTML"
+                        hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
+                    Summarize for Report
+                </button>
+            </div>
         </div>
-        <div class="cell shrink align-self-middle">
-            <button class="button"
-                    {% if not episode.transcription %} disabled {%endif%}
-                    hx-post="/api/{{episode.path}}/transcription/summarize"
-                    hx-swap="outerHTML"
-                    hx-indicator=""
-                    hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
-                Summarize for Report
-            </button>
-        </div>
-        <div class="cell">
+
+        <div class="cell text-center">
+            {% if episode.transcription %}
             <div class="grid-x align-center">
                 <div class="cell shrink">
-                    <div class="primary button-group no-gaps">
-                        <a class="button primary" style='border-radius: 0;'
+                    <div class="button-group no-gaps">
+                        <a class="button muted" style='border-radius: 0;'
                            onclick='this.classList.remove("primary");this.classList.add("secondary");this.nextElementSibling.classList.remove("secondary");this.nextElementSibling.classList.add("primary");htmx.find("#interpreted-transcription").classList.remove("hide");htmx.find("#audio-transcription").classList.add("hide");'>Interpreted</a>
-                        <a class="button secondary" style='border-radius: 0;'
+                        <a class="button screen" style='border-radius: 0;'
                            onclick='this.classList.remove("primary");this.classList.add("secondary");this.previousElementSibling.classList.remove("secondary");this.previousElementSibling.classList.add("primary");htmx.find("#interpreted-transcription").classList.add("hide");htmx.find("#audio-transcription").classList.remove("hide");'>Raw</a>
                     </div>
                 </div>
             </div>
             <div id="interpreted-transcription">
-                {% if episode.interpreted_transcription %}
                 <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
                     {{form_components.richtexteditor(user, episode, 'interpreted_transcription', label=False)}}
                 </form>
-                {% else %}
-                No interpretation available Yet.
-                {% endif %}
             </div>
             <div id="audio-transcription" class="hide">
-                {% if episode.transcription %}
                 <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
                     {{form_components.richtexteditor(user, episode, 'transcription', label=False)}}
                 </form>
-                {% else %}
-                No transcription available Yet.
-                {% endif %}
             </div>
+            {% else %}
+            No transcription available.
+            {% endif %}
         </div>
     </div>
 </div>
 {%- endmacro %}
+
 
 {% macro timeline(user, obj)%}
 {{timeline_components.timeline(user, obj)}}

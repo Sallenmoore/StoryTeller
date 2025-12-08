@@ -344,9 +344,9 @@ def association_search():
 )
 def association_add(amodel, apk=None):
     user, obj, request_data = _loader()
-    if apk:
+    if not apk:
         model = AutoModel.get_model(amodel)
-        child = model(world=obj.world, name="New " + obj.get_title(model))
+        child = model(world=obj.world, name="New " + obj.world.get_title(model))
         child.save()
     else:
         child = World.get_model(amodel, apk)

@@ -7,7 +7,9 @@ from autonomous import log
 
 
 class Date(AutoModel):
-    obj = ReferenceAttr(choices=["TTRPGBase", "Episode", "Event", "Lore"])
+    obj = ReferenceAttr(
+        choices=["TTRPGBase", "Episode", "Event", "Lore"], required=True
+    )
     year = IntAttr(default=0)
     day = IntAttr(default=-1)
     month = IntAttr(default=-1)

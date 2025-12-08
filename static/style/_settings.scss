@@ -73,6 +73,8 @@ $foundation-palette: (
     "success": #3adb76,
     "warning": #ffae00,
     "alert": #cc4b37,
+    "muted": rgba(#075285, 0.6),
+    "screen": rgba(#d4d4d4, 0.3),
 );
 
 @include add-foundation-colors; // 1. Global

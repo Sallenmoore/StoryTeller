@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 from autonomous import log
 from models.base.ttrpgbase import TTRPGBase
+from models.utility import parse_attributes
 
 
 class Quest(AutoModel):
@@ -120,7 +121,7 @@ The situation should be tangentially related in some way to the following global
         results = self.contact.system.generate_json(prompt, primer, self.funcobj)
         for k, v in results.items():
             if isinstance(v, str) and "#" in v:
-                results[k] = self.system.htmlize(v)
+                results[k] = parse_attributes.parse_text(self, v)
         self.update_quest(**results)
 
     def update_quest(

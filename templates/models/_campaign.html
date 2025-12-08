@@ -155,11 +155,11 @@
 {%- endmacro %}
 
 {% macro episodes(user, campaign) -%}
-{% if user.world_user(campaign)%}
 <div id="episode-list" class="section small">
     <div class="callout">
         <h2 class='text-center'> Episodes </h2>
         <div class="grid-x">
+            {% if user.world_user(campaign)%}
             <div class="cell shrink">
                 <button class="button small"
                         hx-post="/api/campaign/{{campaign.pk}}/episode/new"
@@ -170,6 +170,7 @@
                     New Episode
                 </button>
             </div>
+            {% endif %}
             {% for entry in campaign.episodes %}
             <div class="cell episode-association-entry">
                 <div class="callout ">
@@ -177,6 +178,7 @@
                         <div class="cell align-center-middle">
                             <a href='/episode/{{entry.pk}}'>
                                 <h4>{{entry.name}}</h4>
+                                <h5 class='subheader'>Episode #{{entry.episode_num}}</h5>
                             </a>
                         </div>
                         <div class="cell shrink">
@@ -207,7 +209,6 @@
         </div>
     </div>
 </div>
-{% endif %}
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}

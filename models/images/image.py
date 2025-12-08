@@ -19,6 +19,7 @@ from autonomous import log
 class Image(AutoModel):
     # meta = {"collection": "Image"}
     data = FileAttr(default="")
+    filename = StringAttr(default="")
     prompt = StringAttr(default="")
     tags = ListAttr(StringAttr(default=""))
 
