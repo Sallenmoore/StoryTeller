@@ -54,11 +54,11 @@ initbackend:
 devdeploy:
 	git merge main
 	git commit -am "Updated backend"
-	git push origin main
+	git push
 	git checkout main
 	git merge steven
 	git commit -am "Updated Main Branch"
-	git push origin main
+	git push
 	storytellerprod
 	storytellerbackend
 
