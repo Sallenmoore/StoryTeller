@@ -105,7 +105,7 @@ class Ability(AutoModel):
     ABILITY_TYPES = ["character", "item", "vehicle", "creature"]
 
     def __str__(self):
-        return f"{f'NAME: {self.name}' if self.name else ''} [{f'{self.action}' if self.action else ''}]; {f'FOR TYPE: {self.type}' if self.type else ''} {f'CATEGORY: {self.category}' if self.category else ''} {f'; DESCRIPTION: {self.description}' if self.description else ''} {f'; EFFECTS: {self.effects}' if self.effects else ''} {f'; DURATION: {self.duration}' if self.duration else ''}{f'; DICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'; MECHANICS: {self.mechanics}' if self.mechanics else ''}"
+        return f"{f'\nNAME: {self.name}' if self.name else ''} {f'\n[{self.action}];' if self.action else ''} {f'\nFOR TYPE: {self.type}' if self.type else ''} {f'\nCATEGORY: {self.category}' if self.category else ''} {f'\n DESCRIPTION: {self.description}' if self.description else ''} {f'\n EFFECTS: {self.effects}' if self.effects else ''} {f'\nDURATION: {self.duration}' if self.duration else ''}{f'\nDICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'\nMECHANICS: {self.mechanics}' if self.mechanics else ''}"
 
     @property
     def genre(self):
@@ -131,9 +131,9 @@ class Ability(AutoModel):
             self.world = obj.world
             self.save()
         prompt = f"""
-Generate a unique ability or feature for a {self.genre} TTRPG {self.type}. Ensure conistency with the {self.world.title}:
+Generate a unique ability or feature for a {self.genre} TTRPG {self.type}. Ensure conistency with the established details:
 TONE: {self.world.tone_description}.
-HISTORY: {self.world.backstory}.
+{self.world.title} HISTORY: {self.world.backstory_summary}.
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
 
@@ -141,7 +141,7 @@ HISTORY: {self.world.backstory}.
 
         response = self.system.generate_json(
             prompt,
-            f"Given an element in a {self.world.genre} TTRPG {self.world.title}, generate a new ability that is consistent with the tone and themes {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
+            f"Given a {self.type} in a {self.world.genre} TTRPG {self.world.title}, generate a new ability that is consistent with the tone and themes {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
             Ability._funcobj,
         )
 
@@ -156,12 +156,11 @@ HISTORY: {self.world.backstory}.
                 "dice_roll",
                 "mechanics",
             ]:
-                if getattr(self, text):
-                    setattr(
-                        self,
-                        text,
-                        parse_attributes.parse_text(self, getattr(self, text)),
-                    )
+                setattr(
+                    self,
+                    text,
+                    parse_attributes.parse_text(self, getattr(self, text)),
+                )
             self.save()
             if obj and hasattr(obj, "abilities") and self not in obj.abilities:
                 obj.abilities += [self]
