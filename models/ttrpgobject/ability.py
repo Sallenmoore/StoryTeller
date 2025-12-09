@@ -156,12 +156,13 @@ TONE: {self.world.tone_description}.
                 "dice_roll",
                 "mechanics",
             ]:
+                cleaned_text = parse_attributes.parse_text(self, getattr(self, text))
+                log(f"Cleaned: {cleaned_text}", _print=True)
                 setattr(
                     self,
                     text,
-                    parse_attributes.parse_text(self, getattr(self, text)),
+                    cleaned_text,
                 )
-            log(f"Generated Ability: {self}", _print=True)
             self.save()
             if obj and hasattr(obj, "abilities") and self not in obj.abilities:
                 obj.abilities += [self]
