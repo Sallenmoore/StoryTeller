@@ -16,11 +16,11 @@
 </div>
 <div class="grid-x align-spaced">
     <div class="cell shrink align-center-middle">
-        <button class="button  has-text-white"
+        <button class="button"
                 hx-post="/task/generate/{{obj.path}}"
                 hx-target="closest .cell"
                 hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'
-                hx-disinherit="hx-indicator">
+                hx-disinherit="hx-indicator hx-push-url">
             {{icon_components.ai(size="1rem")}}
             Generate Details
         </button>
@@ -54,7 +54,7 @@
 <hr>
 <form hx-post="/api/manage/update" hx-swap="none"
       hx-trigger="input delay:1s consume, change consume"
-      hx-request-indicator="">
+      hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <div class="grid-x grid-margin-x">
         <div class="cell auto">
             <h5 class='text-center'>Name</h5>
@@ -65,8 +65,8 @@
         </div>
         <div class="cell auto">
             <h5 class='text-center'>Theme</h5>
-            <input class=" text-center" type="text" name="traits"
-                   value="{{obj.traits}}" maxlength="64">
+            <input class="text-center" type="text" name="traits"
+                   value="{{obj.traits}}">
         </div>
         <div id="model-status" class="cell">
             <h4 class='text-center'>Status</h4>
@@ -78,7 +78,8 @@
 
 {%macro backstory(user, obj) -%}
 <form hx-post="/api/manage/update"
-      hx-swap="none" hx-trigger="input delay:1s consume, change consume">
+      hx-swap="none" hx-trigger="input delay:250ms consume, change consume"
+      hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <h4 class='text-center'>Backstory</h4>
     {{form_components.richtexteditor(user, obj, 'backstory', label=False)}}
 </form>
@@ -86,7 +87,8 @@
 
 {%macro dates(user, obj, stacked=False, url="manage/update") -%}
 <form id="manage-obj-dates" hx-post="/api/{{url}}" hx-swap="none"
-      hx-trigger="input delay:1s consume, change consume">
+      hx-trigger="input delay:250ms consume, change consume"
+      hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <div class="grid-x grid-margin-x align-center" style='position:relative;'>
         <div class="cell small-12 {% if not stacked %} medium-6 {% endif %}  align-center-middle">
             <h5 class='text-center'>Start</h5>
@@ -184,8 +186,8 @@
                 <div class="cell shrink">
                     <button class="button small"
                             hx-post="/task/generate/image/{{obj.path}}" hx-target="closest .cell"
-                            hx-indicator="#request-indicator"
-                            hx-confirm="Are you sure you want to generate and overwrite the current image?">
+                            hx-confirm="Are you sure you want to generate and overwrite the current image?"
+                            hx-disinherit="hx-indicator hx-push-url">
                         {{icon_components.ai(size="1rem")}}
                         AI Generated Image
                     </button>
