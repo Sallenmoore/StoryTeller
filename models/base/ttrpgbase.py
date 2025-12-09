@@ -324,9 +324,9 @@ class TTRPGBase(AutoModel):
         return super().delete()
 
     # MARK: Generate
-    def generate(self, prompt=""):
+    def generate(self, obj_prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
-        prompt += f"""
+        base_prompt = f"""
 Use and expand on the existing object data listed below for the {self.title} object:
 {"- Name: " + self.name if self.name.strip() else ""}
 {"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
@@ -334,19 +334,20 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
 """
-        prompt += f"""
+        prompt = f"""{base_prompt}
+{obj_prompt}
 ===
 - Setting:
   - Genre: {self.genre}
   - World Tone: {self.world.tone}
   - World Theme: {self.world.theme}
-  - World Details: {self.world.backstory}
+  - World History: {self.world.history}
   - Relevant World Events:
     - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
   - Location Details:
 """
-
-        if self.geneology and len(self.geneology) > 1:
+        geneology = self.geneology
+        if geneology and len(geneology) > 1:
             for relative in self.geneology:
                 if (
                     relative not in [self, self.world]
@@ -354,23 +355,26 @@ Use and expand on the existing object data listed below for the {self.title} obj
                     and relative.backstory
                 ):
                     prompt += f"""
-    - Type: {relative.title}
-      - Name: {relative.name}
-      - Backstory: {relative.backstory}
+    - Name: {relative.name}
+      - Type: {relative.title}
+      - Backstory: {relative.backstory_summary}
      {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
-        if associations := self.associations:
-            associations = random.sample(associations, k=min(20, len(associations)))
+        if associations := [
+            a
+            for a in self.associations
+            if a not in geneology and a.name and a.backstory
+        ]:
+            associations = random.sample(associations, k=min(10, len(associations)))
             prompt += """
 ===
 - Additional Associated Objects:
 """
             for ass in associations:
-                if ass not in self.geneology and ass.name and ass.backstory:
-                    prompt += f"""
-  - Type: {ass.title}
+                prompt += f"""
   - Name: {ass.name}
-  - Backstory: {ass.history or ass.backstory}
+    - Type: {ass.title}
+    - Backstory: {ass.history or ass.backstory}
 """
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
             log(results, _print=True)

@@ -155,7 +155,22 @@ PRODUCE ONLY A SINGLE REPRESENTATION. DO NOT GENERATE VARIATIONS.
             ]
         )
 
-        prompt = f"""Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {occupation}. Use the following thematic motif: {self.traits}.
+        prompt = f"""
+Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is a {occupation}. Use and expand on the following existing information:
+
+{f"THEME/MOTIF: {self.traits}" if self.traits else ""}
+{f"GOALS: {self.goal}" if self.goal else ""}
+{f"FACTION MEMBERSHIP: {self.faction.name}: {self.faction.backstory_summary}" if self.faction else ""}
+{f"HITPOINTS: {self.hitpoints}" if self.hitpoints else ""}
+{f"AC: {self.ac}" if self.ac and self.ac != 10 else ""}
+{f"ARCHETYPE: {self.archetype}" if self.archetype else ""}
+{f"VOICE DESCRIPTION: {self.voice_description}" if self.voice_description else ""}
+{f"LOOKALIKE: {self.lookalike}" if self.lookalike else ""}
+{f"SKILLS: {self.skills}" if self.skills else ""}
+{f"PC VOICE: {self.pc_voice}" if self.pc_voice else ""}
+{f"ATTRIBUTES: STR{self.strength}, DEX{self.dexterity}, CON{self.constitution}, WIS{self.wisdom}, INT{self.intelligence}, CHA{self.charisma}" if any([self.strength, self.dexterity, self.constitution, self.wisdom, self.intelligence, self.charisma]) else ""}
+{f"SPEED: {self.speed} {self.speed_units}" if self.speed and self.speed_units else ""}
+{f"WEALTH: {', '.join(self.wealth)}" if self.wealth else ""}
 """
 
         result = super().generate(prompt=prompt)
