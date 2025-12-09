@@ -480,7 +480,6 @@ def generateability(pk):
     response = requests.post(
         f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/ability/{pk}",
     ).text
-    log(response)
     return response
 
 

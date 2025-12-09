@@ -149,8 +149,6 @@ def _generate_ability_task(pk):
     return {
         "url": f"/api/ability/{obj.pk}/manage",
         "target": f"ability_{obj.pk}",
-        "select": f"ability_{obj.pk}",
-        "swap": "outerHTML",
     }
 
 
@@ -259,7 +257,7 @@ def _generate_event_task(pk):
 def _generate_event_from_events_task(event_ids):
     events = [Event.get(eid) for eid in event_ids if Event.get(eid)]
     if not events:
-        return {"url": "#"}
+        return {"url": ""}
     world = events[0].world
     new_event = Event(world=world)
     new_event.generate_from_events(events)

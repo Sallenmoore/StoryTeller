@@ -105,7 +105,7 @@ class Ability(AutoModel):
     ABILITY_TYPES = ["character", "item", "vehicle", "creature"]
 
     def __str__(self):
-        return f"{f'\nNAME: {self.name}' if self.name else ''} {f'\n[{self.action}];' if self.action else ''} {f'\nFOR TYPE: {self.type}' if self.type else ''} {f'\nCATEGORY: {self.category}' if self.category else ''} {f'\n DESCRIPTION: {self.description}' if self.description else ''} {f'\n EFFECTS: {self.effects}' if self.effects else ''} {f'\nDURATION: {self.duration}' if self.duration else ''}{f'\nDICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'\nMECHANICS: {self.mechanics}' if self.mechanics else ''}"
+        return f"{f'\nNAME: {self.name}' if self.name else ''} {f'\nACTION: [{self.action}];' if self.action else ''} {f'\nFOR TYPE: {self.type}' if self.type else ''} {f'\nCATEGORY: {self.category}' if self.category else ''} {f'\n DESCRIPTION: {self.description}' if self.description else ''} {f'\n EFFECTS: {self.effects}' if self.effects else ''} {f'\nDURATION: {self.duration}' if self.duration else ''}{f'\nDICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'\nMECHANICS: {self.mechanics}' if self.mechanics else ''}"
 
     @property
     def genre(self):
@@ -130,10 +130,17 @@ class Ability(AutoModel):
             self.type = obj.model_name().lower()
             self.world = obj.world
             self.save()
+            description = f"The ability or feature should be appropriate for, but not unique to, a {self.type} with the following description: {obj.backstory_summary}."
+        elif not self.world or not self.type:
+            log("Ability must be associated with a world to generate.", _print=True)
+            return
+        else:
+            description = f"The ability or feature should be appropriate for, but not unique to, a {self.type} in the {self.world.genre} TTRPG world of {self.world.title}."
         prompt = f"""
 Generate a unique ability or feature for a {self.genre} TTRPG {self.type}. Ensure conistency with the established details:
 TONE: {self.world.tone_description}.
 {self.world.title} HISTORY: {self.world.backstory_summary}.
+{description}
 """
         prompt += f"Use the following notes as a guideline: {self}" if str(self) else ""
 
@@ -156,8 +163,9 @@ TONE: {self.world.tone_description}.
                 "dice_roll",
                 "mechanics",
             ]:
-                cleaned_text = parse_attributes.parse_text(self, getattr(self, text))
-                log(f"Cleaned: {cleaned_text}", _print=True)
+                cleaned_text = parse_attributes.parse_text(
+                    self, response.get(text, getattr(self, text))
+                )
                 setattr(
                     self,
                     text,
