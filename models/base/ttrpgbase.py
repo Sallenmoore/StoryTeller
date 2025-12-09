@@ -324,7 +324,7 @@ class TTRPGBase(AutoModel):
         return super().delete()
 
     # MARK: Generate
-    def generate(self, obj_prompt=""):
+    def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
         base_prompt = f"""
 Use and expand on the existing object data listed below for the {self.title} object:
@@ -335,7 +335,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
 """
         prompt = f"""{base_prompt}
-{obj_prompt}
+{prompt}
 ===
 - Setting:
   - Genre: {self.genre}

@@ -19,7 +19,8 @@
         <button class="button  has-text-white"
                 hx-post="/task/generate/{{obj.path}}"
                 hx-target="closest .cell"
-                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'>
+                hx-confirm='Details can be generated from scratch, but works best if you add any required details to the {{obj.title}} first, such as name, brief history, or other  details'
+                hx-disinherit="hx-indicator">
             {{icon_components.ai(size="1rem")}}
             Generate Details
         </button>
