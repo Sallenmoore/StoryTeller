@@ -144,7 +144,7 @@ TONE: {self.world.tone_description}.
             f"Given a {self.type} in a {self.world.genre} TTRPG {self.world.title}, generate a new ability that is consistent with the tone and themes {f' and follows these guidelines: {self}' if str(self) else ''}.\nProvide the ability in the given JSON format.",
             Ability._funcobj,
         )
-
+        log(f"Response: {response}", _print=True)
         if response:
             self.name = self.name or response.get("name", "")
             self.action = response.get("action", self.action)
