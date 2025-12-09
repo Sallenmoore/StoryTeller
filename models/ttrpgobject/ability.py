@@ -161,6 +161,7 @@ TONE: {self.world.tone_description}.
                     text,
                     parse_attributes.parse_text(self, getattr(self, text)),
                 )
+            log(f"Generated Ability: {self}", _print=True)
             self.save()
             if obj and hasattr(obj, "abilities") and self not in obj.abilities:
                 obj.abilities += [self]
