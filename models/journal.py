@@ -92,7 +92,7 @@ class Journal(AutoModel):
         importance=None,
         associations=None,
     ):
-        entry = JournalEntry()
+        entry = JournalEntry(world=self.world)
         entry.save()
         self.entries += [entry]
         self.save()
@@ -104,8 +104,10 @@ class Journal(AutoModel):
         title=None,
         text=None,
         importance=None,
-        associations=[],
+        associations=None,
     ):
+        if associations is None:
+            associations = []
         if entry := JournalEntry.get(pk):
             entry.title = title or entry.title
             if text and entry.text != text:

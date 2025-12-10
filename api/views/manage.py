@@ -243,10 +243,7 @@ def edit_journal_entry(entrypk=None):
     user, obj, request_data = _loader()
     entry = obj.journal.get_entry(entrypk)
     if not entry:
-        entry = JournalEntry(title=f"Entry #{len(obj.journal.entries) + 1}")
-        entry.save()
-        obj.journal.entries.append(entry)
-        obj.journal.save()
+        entry = obj.journal.add_entry(title=f"Entry #{len(obj.journal.entries) + 1}")
     return get_template_attribute("shared/_journal.html", "journal_entry")(
         user, obj, entry
     )
