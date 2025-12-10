@@ -11,7 +11,7 @@ from models.base.place import Place
 
 
 class City(Place):
-    population = IntAttr(default=100)
+    population = IntAttr(default=-1)
     culture = StringAttr(default="")
     religion = StringAttr(default="")
     government = StringAttr(default="")
@@ -75,9 +75,10 @@ class City(Place):
     def generate(self):
         self._funcobj["name"] = f"generate_{self.title.lower()}"
         self._funcobj["description"] = f"completes the {self.title} data object"
-        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title}, and incorporate the following details into the description:
+        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title}, and incorporate and emblellish on the following details into the description:
 {f"- BACKSTORY: {self.backstory}" if self.backstory else ""}
 {f"- DESCRIPTION: {self.desc}" if self.desc else ""}
+{f"- POPULATION: {self.population}"}
 {f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
 {f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}
 {f"- GOVERNMENT: {self.parent.government}" if self.parent and self.parent.government else ""}
@@ -107,14 +108,8 @@ class City(Place):
 
     @property
     def size(self):
-        if self.population < 100:
-            return "settlement"
-        elif self.population < 1000:
-            return "village"
-        elif self.population < 10000:
-            return "town"
-        else:
-            return "city"
+        log("TODO: this is deprecated, remove")
+        return ""
 
     ####################### Instance Methods #######################
 
@@ -162,7 +157,9 @@ class City(Place):
     ################### verify associations ##################
 
     def pre_save_population(self):
-        if not self.population:
-            pop_list = list(range(20, 20000, 23))
+        if self.population < 0:
+            pop_list = list(
+                range(0, random.randint(512, 1000000), random.randint(23, 5713))
+            )
             pop_weights = [i + 1 for i in range(len(pop_list), 0, -1)]
-            self.population = random.choices(pop_list, pop_weights)[0]
+            self.population = random.choice(random.choices(pop_list, pop_weights))
