@@ -157,25 +157,18 @@
 {%- endmacro %}
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="callout">
+<div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
-
     {{gmnotes_components.foundry_buttons(user, obj)}}
-    <div class="grid-x">
-        <div class="cell">
-            <h5> Details</h5>
-            <div class="callout">
-                {{obj.description_summary | safe}}
-            </div>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            {{gmnotes_components.details(user, obj)}}
         </div>
-        <div class="cell">
-            <h5>Current Status</h5>
-            <div class="callout">
-                {{obj.status | safe}}
-            </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.display_encounters(user, obj)}}
         </div>
     </div>
-    {{ info(user, obj) }}
+    {{gmnotes_components.reference(user, obj)}}
 </div>
 {%- endmacro %}
 

@@ -223,37 +223,24 @@
 
 
 {% macro gmnotes(user, obj) -%}
-<div id="gmnotes" class="callout bg-screen"
-     onclick='this.querySelector(".grid-x").classList.toggle("hide")'>
-    <h3 class='text-center'>GM Notes <small>(click to expand)</small></h3>
-    <div class="grid-x">
-        <div class="cell">
-            <div class="callout bg-muted">
-                {{obj.description_summary | safe}}
-            </div>
+<div id="gmnotes" lass="callout">
+    <h3 class='text-center'>GM Notes</h3>
+    <h4 class='subtitle'>Foundry Client ID: {{obj.foundry_client_id}}</h4>
+    <h4 class='subtitle'>Foundry ID: {{obj.foundry_id}}</h4>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            {{gmnotes_components.details(user, obj)}}
         </div>
-        <div class="cell">
-            <h5>Rumors</h5>
-            <div class="callout bg-muted">
-                <ul>
-                    {% for sd in obj.rumors %}
-                    <li>{{ sd | safe }}
-                        <hr>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        {% if obj.map %}
+        <div class="cell medium-6">
+            {{gmnotes_components.display_map(user, obj)}}
         </div>
-        <div class="cell">
-            <h2 class='text-center' id='manage-stories'>Stories</h2>
-            <ul class="no-bullet">
-                {% for story in obj.stories %}
-                <li>
-                    <h5>{{story.name}}</h5>
-                    {{story | safe}}
-                </li>
-                {% endfor %}
-            </ul>
+        {% endif %}
+        <div class="cell medium-6">
+            {{gmnotes_components.display_encounters(user, obj)}}
+        </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.rumors(user, obj)}}
         </div>
     </div>
 </div>

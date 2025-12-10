@@ -245,68 +245,30 @@
 
 {% macro gmnotes(user, obj) -%}
 <h3>GM Notes</h3>
-
 {{gmnotes_components.foundry_buttons(user, obj)}}
-<table id="gm-notes">
-    <tr>
-        <th> Details</th>
-        <td colspan="5">
-            <ul>
-                <li>{{obj.description_summary | safe}}</li>
-                {% for sd in obj.sensory_details %}
-                <li>{{ sd | safe }}</li>
-                {% endfor %}
-            </ul>
-        </td>
-    </tr>
-    <tr>
-        <th>
-            <h5>Current Status</h5>
-        </th>
-        <td>
-            {{obj.status | safe}}
-        </td>
-        <th>Look-A-Like</th>
-        <td>{{obj.lookalike | safe}}</td>
-        <th>Voice</th>
-        <td>{{obj.voice_description | safe}}</td>
-    </tr>
-    <tr>
-        <th>Hooks</th>
-        <td colspan="5">
-            <div class="grid-x grid-margin-x">
-                <div class="cell medium-2">
-                    <h5> Hook </h5>
-                </div>
-                <div class="cell medium-10">
-                    <h5> Summary </h5>
-                </div>
-                {% for q in obj.quests %}
-                <div class="cell medium-2">
-                    <div class="callout">
-                        {{ q.summary | safe }}
-                    </div>
-                </div>
-                <div class="cell medium-10">
-                    {{ q.hook | safe }}
-                </div>
-                {% endfor %}
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <th>Rumors</th>
-        <td colspan="5">
-            <ul>
-                {% for r in obj.rumors %}
-                <li>
-                    {{ r | safe }}
-                </li>
-                {% endfor %}
-            </ul>
-        </td>
-    </tr>
-</table>
+<div id="gmnotes" lass="callout">
+    <h3 class='text-center'>GM Notes</h3>
+    {{gmnotes_components.foundry_buttons(user, obj)}}
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            {{gmnotes_components.details(user, obj)}}
+            <h4>Look-A-Like</h4>
+            {{obj.lookalike | safe}}
+            <h4>Voice</h4>
+            {{obj.voice_description | safe}}
+        </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.display_encounters(user, obj)}}
+        </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.rumors(user, obj)}}
+        </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.hooks(user, obj)}}
+        </div>
+    </div>
+    {{gmnotes_components.reference(user, obj)}}
+</div>
 {%- endmacro %}
 
 {% macro info(user, obj) -%}

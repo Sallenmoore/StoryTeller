@@ -157,41 +157,18 @@
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
-    <div class="grid-x">
-        <div class="cell">
-            <h5> Details</h5>
-            <div class="callout ">
-                <ul>
-                    <li>{{obj.description_summary | safe}}</li>
-                    {% for sd in obj.sensory_details %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-6">
+            {{gmnotes_components.details(user, obj)}}
         </div>
-        <div class="cell">
-            <h5>Recent Events</h5>
-            <div class="callout ">
-                <ul>
-                    {% for sd in obj.recent_events %}
-                    <li>{{ sd | safe }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.display_encounters(user, obj)}}
         </div>
-        <div class="cell">
-            <h5>Rumors</h5>
-            <div class="callout ">
-                <ul>
-                    {% for r in obj.rumors %}
-                    <li>
-                        {{ r | safe }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="cell medium-6">
+            {{gmnotes_components.rumors(user, obj)}}
         </div>
     </div>
+    {{gmnotes_components.reference(user, obj)}}
 </div>
 {%- endmacro %}
 

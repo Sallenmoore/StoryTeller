@@ -20,6 +20,20 @@
 </div>
 {%- endmacro %}
 
+{% macro details(user, obj) -%}
+<div class="callout">
+    <h5> Details</h5>
+    <ul>
+        <li>{{obj.description_summary | safe}}</li>
+        {% for sd in obj.sensory_details %}
+        <li>{{ sd | safe }}</li>
+        {% endfor %}
+    </ul>
+    <h5>Current Status</h5>
+    {{obj.status | safe}}
+</div>
+{%- endmacro %}
+
 {% macro display_map(user, obj) -%}
 <div class="callout">
     <h5>Map</h5>
@@ -31,13 +45,51 @@
 </div>
 {%- endmacro %}
 
+{% macro rumors(user, obj) -%}
+<div class="callout">
+    <h5>Rumors</h5>
+    <ul>
+        {% for r in obj.rumors + obj.recent_events %}
+        <li>
+            {{ r | safe }}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{%- endmacro %}
+
+{% macro hooks(user, obj)%}
+<div class="callout">
+    <h4>Hooks</h4>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-2">
+            <h5> Hook </h5>
+        </div>
+        <div class="cell medium-10">
+            <h5> Summary </h5>
+        </div>
+        {% for q in obj.quests %}
+        <div class="cell medium-2">
+            <div class="callout">
+                {{ q.summary | safe }}
+            </div>
+        </div>
+        <div class="cell medium-10">
+            {{ q.hook | safe }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
 {% macro reference(user, obj) -%}
 <h3 class='text-center'>Quick Reference</h3>
 <table class="stack">
     <thead>
         <tr>
             <th>Name</th>
-            <th> Type </th>
+            <th>Type</th>
+            <th>Backstory</th>
             <th>Sensory Detail</th>
             <th>Encounters</th>
         </tr>
@@ -47,6 +99,9 @@
         <td><a href="/{{ a.path }}" target='_blank'>{{ a.name }}</a></td>
         <td>
             {{ a.title }}
+        </td>
+        <td>
+            {{ a.backstory_summary | safe }}
         </td>
         <td>
             {{ a.sensory_details | random | safe }}
@@ -60,7 +115,6 @@
     </tr>
     {% endfor %}
 </table>
-
 {%- endmacro %}
 
 {% macro display_encounters(user, obj, manage=True) -%}
