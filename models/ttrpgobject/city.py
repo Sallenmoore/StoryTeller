@@ -157,7 +157,7 @@ class City(Place):
     ################### verify associations ##################
 
     def pre_save_population(self):
-        if self.population < 0:
+        if int(self.population) < 0:
             pop_list = list(
                 range(0, random.randint(512, 1000000), random.randint(23, 5713))
             )
