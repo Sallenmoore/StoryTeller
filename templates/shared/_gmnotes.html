@@ -3,6 +3,10 @@
 
 {% macro foundry_buttons(user, obj) -%}
 <div class="grid-x align-spaced">
+    <div class="cell">
+        <h4 class='subtitle'>Foundry Client ID: {{obj.foundry_client_id}}</h4>
+        <h4 class='subtitle'>Foundry ID: {{obj.foundry_id}}</h4>
+    </div>
     {% if user.world_user(obj) %}
     <div class="cell shrink">
         <button class="button small" hx-get="/foundry/push/{{obj.path}}"
