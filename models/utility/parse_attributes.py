@@ -17,10 +17,8 @@ def parse_text(obj, text):
         .replace("h3>", "h5>")
         .replace("h4>", "h6>")
     )
-    log(text)
     if text.count("<") < 3 or len(text) < 100:
         text = sanitize(text)
-    log(text)
     if hasattr(obj, "associations"):
         LINK_PATTERN = re.compile(r'href="/([a-zA-Z]+)/([a-fA-F0-9]+)"')
         # Use re.findall to get all tuples of (model, pk) from the report string
@@ -87,7 +85,6 @@ def parse_text(obj, text):
 
                 # Use re.sub to replace the name occurrences with the link template
                 text = full_name_pattern.sub(replacer, text)
-        log(text)
     return text
 
 

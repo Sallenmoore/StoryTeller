@@ -224,7 +224,7 @@
             <a href="/{{obj.ruling_faction.path}}">
                 <h4 class='text-center '>Ruling Faction</h4>
                 <h5>{{obj.ruling_faction.name}}</h5>
-                {{obj.ruling_faction.backstory_summary | safe}}
+                {{display_components.object_display(obj.ruling_faction)}}
             </a>
         </div>
     </div>
@@ -233,10 +233,12 @@
     <div class="cell medium-4">
         <h4 class='text-center'>Local Factions</h4>
         {% for faction in obj.factions %}
+        {% if faction == obj.ruling_faction %}
+        {% continue %}
+        {% endif %}
         <a href="/{{obj.path}}/factions">
-            <div class="callout small ">
-                <h5>{{faction.name}}</h5>
-                {{faction.backstory_summary | safe}}
+            <div class="callout small">
+                {{display_components.object_display(faction)}}
             </div>
         </a>
         {% endfor %}
