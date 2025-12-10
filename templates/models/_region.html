@@ -220,7 +220,7 @@
 {% macro info(user, obj) -%}
 <div class="grid-x align-spaced">
     {% if obj.ruling_faction %}
-    <div class="cell medium-4">
+    <div class="cell medium-2">
         <div class="callout small">
             <a href="/{{obj.ruling_faction.path}}">
                 <h4 class='text-center '>Ruling Faction</h4>
@@ -231,17 +231,21 @@
     </div>
     {% endif %}
     {% if obj.factions %}
-    <div class="cell medium-4">
-        <h4 class='text-center'>Local Factions</h4>
-        {% for faction in obj.factions %}
-        {% if faction != obj.ruling_faction %}
-        <a href="/{{obj.path}}/factions">
-            <div class="callout small">
-                {{display_components.object_display(faction)}}
+    <div class="cell medium-6">
+        <h4 class='text-center'>Additional Local Factions</h4>
+        <div class="grid-x grid-margin-x">
+            {% for faction in obj.factions %}
+            {% if faction != obj.ruling_faction %}
+            <div class="cell medium-2">
+                <a href="/{{obj.path}}/factions">
+                    <div class="callout small">
+                        {{display_components.object_display(faction)}}
+                    </div>
+                </a>
             </div>
-        </a>
-        {% endif %}
-        {% endfor %}
+            {% endif %}
+            {% endfor %}
+        </div>
     </div>
     {% endif %}
     <div class="cell">
