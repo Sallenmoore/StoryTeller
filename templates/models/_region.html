@@ -233,14 +233,13 @@
     <div class="cell medium-4">
         <h4 class='text-center'>Local Factions</h4>
         {% for faction in obj.factions %}
-        {% if faction == obj.ruling_faction %}
-        {% continue %}
-        {% endif %}
+        {% if faction != obj.ruling_faction %}
         <a href="/{{obj.path}}/factions">
             <div class="callout small">
                 {{display_components.object_display(faction)}}
             </div>
         </a>
+        {% endif %}
         {% endfor %}
     </div>
     {% endif %}
