@@ -144,7 +144,7 @@
                                 <option value="" selected>=== Select Month ===</option>
                                 {% for month in lore.calendar.months %}
                                 <option value="{{loop.index0}}" {% if
-                                        lore.current_date.month==loop.index
+                                        lore.current_date.month==loop.index0
                                         %}
                                         selected {% endif %}>
                                     {{month}}

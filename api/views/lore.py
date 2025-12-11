@@ -82,7 +82,8 @@ def lore_edit(lore_pk):
     lore = Lore.get(lore_pk)
     if current_day := request_data.get("current_day"):
         lore.current_date.day = int(current_day)
-    if current_month := request_data.get("current_month"):
+    current_month = request_data.get("current_month")
+    if current_month is not None:
         lore.current_date.month = int(current_month)
     if current_year := request_data.get("current_year"):
         lore.current_date.year = int(current_year)
