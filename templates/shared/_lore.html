@@ -220,21 +220,20 @@
                                         <div class="callout">
                                             {{lore.get_response(o.name).verbal_response}}
                                         </div>
-                                    </div>
-                                    <div class="cell">
+                                        <hr>
                                         <strong>Thoughts:</strong>
                                         <div class="callout">
                                             {{lore.get_response(o.name).thoughts}}
                                         </div>
                                     </div>
-                                    <div class="cell">
+                                    <div class="cell medium-6">
                                         <strong>Actions Taken:</strong>
                                         <div class="callout">
                                             {{lore.get_response(o.name).actions_taken}}
                                         </div>
                                     </div>
                                     {% if lore.get_response(o.name).roll_type %}
-                                    <div class="cell">
+                                    <div class="cell medium-6">
                                         <strong>Roll Type:
                                             {{lore.get_response(o.name).roll_type}}</strong>
                                         <div class="callout">
