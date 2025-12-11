@@ -53,8 +53,8 @@ initbackend:
 
 devdeploy:
 	git checkout steven
-	git merge main
 	git commit -am "Updated backend"
+	git merge main
 	git push
 	git checkout main
 	git merge steven
