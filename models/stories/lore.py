@@ -159,7 +159,7 @@ SITUATION CURRENT DATE: {self.current_date}
                     prompt += f"\n\n{assoc.name}: {assoc.history or assoc.backstory}."
 
         if self.summary:
-            prompt += f"\n\nThe lore we are currently working on has the following summary: {self.summary}. "
+            prompt += f"\n\nThe lore we are currently working on has the following summary: {self.summary}."
 
         prompt += f"""
 The party should respond to the following:
@@ -203,8 +203,12 @@ SCENARIO: {self.situation}.
             self.scenes += [ls]
             self.responses = result["responses"]
             self.save()
+            self.summarize()
+        else:
+            log("Failed to generate Lore", __print=True)
 
-            prompt = f"""Based on the following:
+    def summarize(self):
+        prompt = f"""Based on the following:
 {f"Summary of events: {self.summary}" if self.summary else ""}
 
 The current situation: {self.situation}
@@ -214,18 +218,17 @@ CHARACTER RESPONSES:
 
 Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
-            log("Generating Lore Summary with prompt: " + prompt, __print=True)
-            summary_result = self.world.system.generate_text(
-                prompt=prompt,
-                primer="Summarize the events that transpired based on the character responses provided. Do not leave out any events that transpired, not matter how small.",
-            )
-            if summary_result:
-                log(f"Generated Lore Summary: {summary_result}", __print=True)
-                ls.summary = summary_result
-                self.situation = ""
-                ls.save()
-        else:
-            log("Failed to generate Lore", __print=True)
+        log("Generating Lore Summary with prompt: " + prompt, __print=True)
+        summary_result = self.world.system.generate_text(
+            prompt=prompt,
+            primer="Summarize the events that transpired based on the character responses provided. Do not leave out any events that transpired, not matter how small.",
+        )
+        if summary_result:
+            log(f"Generated Lore Summary: {summary_result}", __print=True)
+            self.scenes[-1].summary = summary_result
+            self.scenes[-1].save()
+            self.situation = ""
+            self.save()
 
     def get_response(self, character_name):
         for response in self.responses:
