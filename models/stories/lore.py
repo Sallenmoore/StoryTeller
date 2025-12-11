@@ -83,6 +83,10 @@ class Lore(AutoModel):
         "parameters": {
             "type": "object",
             "properties": {
+                "situation":{
+                    "type":"string",
+                     "description":"Suggest likely next scenes/scenarios based on the character's responses to the previous scenario and the setting information.",
+                    },
                 "responses": {
                     "type": "array",
                     "description": "A list of responses from each party character to the current described situation. The responses should include the character's verbal response, thoughts, actions taken, and any relevant roll information. If there is more than one character in the party, provide responses for each character that show awareness of each other to create a dynamic interaction.",
@@ -202,7 +206,7 @@ SCENARIO: {self.situation}.
             funcobj=self.funcobj,
         )
         if result.get("responses"):
-            log(f"Generated Lore: {result}", __print=True)
+            log(f"Generated Lore: {result}", _print=True)
             for resp in result["responses"]:
                 try:
                     resp["roll_result"] = (
@@ -213,7 +217,7 @@ SCENARIO: {self.situation}.
                 except Exception as e:
                     log(
                         f"Error rolling dice for formula {resp.get('roll_formula')}: {e}",
-                        __print=True,
+                        _print=True,
                     )
             ls = LoreScene(
                 lore=self,
@@ -229,8 +233,11 @@ SCENARIO: {self.situation}.
             self.responses = result["responses"]
             self.save()
             self.summarize()
+            self.situation = result.get("situation", "")
+            self.save()
+
         else:
-            log("Failed to generate Lore", __print=True)
+            log("Failed to generate Lore", _print=True)
 
     def summarize(self):
         prompt = f"""Based on the following:
@@ -243,16 +250,15 @@ CHARACTER RESPONSES:
 
 Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
-        log("Generating Lore Summary with prompt: " + prompt, __print=True)
+        log("Generating Lore Summary with prompt: " + prompt, _print=True)
         summary_result = self.world.system.generate_text(
             prompt=prompt,
             primer="Summarize the events that transpired based on the character responses provided. Do not leave out any events that transpired, not matter how small.",
         )
         if summary_result:
-            log(f"Generated Lore Summary: {summary_result}", __print=True)
+            log(f"Generated Lore Summary: {summary_result}", _print=True)
             self.scenes[-1].summary = summary_result
             self.scenes[-1].save()
-            self.situation = ""
             self.save()
 
     def get_response(self, character_name):
