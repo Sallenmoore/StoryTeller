@@ -105,7 +105,7 @@ class Ability(AutoModel):
     ABILITY_TYPES = ["character", "item", "vehicle", "creature"]
 
     def __str__(self):
-        return f"{f'\nNAME: {self.name}' if self.name else ''} {f'\nACTION: [{self.action}];' if self.action else ''} {f'\nFOR TYPE: {self.type}' if self.type else ''} {f'\nCATEGORY: {self.category}' if self.category else ''} {f'\n DESCRIPTION: {self.description}' if self.description else ''} {f'\n EFFECTS: {self.effects}' if self.effects else ''} {f'\nDURATION: {self.duration}' if self.duration else ''}{f'\nDICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'\nMECHANICS: {self.mechanics}' if self.mechanics else ''}"
+        return f"{f'\nNAME: {self.name}' if self.name else ''} {f'\nACTION: {self.action}' if self.action else ''} {f'\nFOR TYPE: {self.type}' if self.type else ''} {f'\nCATEGORY: {self.category}' if self.category else ''} {f'\nDESCRIPTION: {self.description}' if self.description else ''} {f'\nEFFECTS: {self.effects}' if self.effects else ''} {f'\nDURATION: {self.duration}' if self.duration else ''}{f'\nDICE ROLL: {self.dice_roll}' if self.dice_roll else ''}{f'\nMECHANICS: {self.mechanics}' if self.mechanics else ''}"
 
     @property
     def genre(self):

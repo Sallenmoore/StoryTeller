@@ -150,19 +150,19 @@ SITUATION CURRENT DATE: {self.current_date}
         if self.party:
             prompt += "\n\nThe party consists of the following characters: "
             for member in self.party:
-                prompt += f"\n\n{member.name}: {member.history or member.backstory}. {member.skills} ABILITIES: {member.abilities}"
+                prompt += f"\n- {member.name}: {member.history or member.backstory}. SKILLS: {member.skills} ABILITIES: {member.abilities}"
 
         if self.associations:
             prompt += "\n\nHere are some additional elements related to this lore: "
             for assoc in self.associations:
-                if assoc not in self.party:
+                if assoc not in self.party and assoc != self.setting:
                     prompt += f"\n\n{assoc.name}: {assoc.history or assoc.backstory}."
 
         if self.summary:
             prompt += f"\n\nThe lore we are currently working on has the following summary: {self.summary}. "
 
         prompt += f"""
-The party should respond to the following situation:
+The party should respond to the following:
 {f"SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
 
 {f"GUIDANCE: {self.guidance}" if self.guidance else ""}
