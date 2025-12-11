@@ -195,7 +195,7 @@ The party should respond to the following:
 SCENARIO: {self.situation}.
 """
 
-        log("Generating Expanded Lore with prompt: " + prompt, __print=True)
+        log("Generating Expanded Lore with prompt: " + prompt, _print=True)
         result = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Create expanded lore that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
@@ -300,7 +300,7 @@ Summarize the events so that that they can be added to the characters' history. 
             for date_attr in ["start_date", "current_date"]:
                 date = getattr(self, date_attr)
                 if isinstance(date, dict):
-                    date_obj = self.calendar.date(self, **date)
+                    date = self.calendar.date(self, **date)
                 elif not date:
                     date = Date(
                         obj=self,
@@ -318,7 +318,7 @@ Summarize the events so that that they can be added to the characters' history. 
                     if date.month < 0:
                         setattr(self, date_attr, random.randint(0, 11))
                     date.save()
-            setattr(self, date_attr, date)
+                setattr(self, date_attr, date)
             for date in Date.search(obj=self):
                 if date not in [self.start_date, self.current_date]:
                     date.delete()
