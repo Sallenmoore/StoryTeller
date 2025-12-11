@@ -127,7 +127,7 @@
           hx-trigger="change delay:500ms"
           hx-swap="none">
         <div class="grid-x grid-margin-x align-spaced">
-            <div class="cell medium-4">
+            <div class="cell medium-6">
                 <h6 class=" text-center">
                     Current Date
                 </h6>
@@ -135,7 +135,7 @@
                     <div class="cell shrink">
                         <input type="number" name="current_day"
                                class="inputwidth text-center"
-                               value="{{lore.start_date.day}}" min="1"
+                               value="{{lore.current_date.day}}" min="1"
                                max="31">
                     </div>
                     <div class="cell shrink">
@@ -144,7 +144,7 @@
                                 <option value="" selected>=== Select Month ===</option>
                                 {% for month in lore.calendar.months %}
                                 <option value="{{loop.index0}}" {% if
-                                        lore.start_date.month==loop.index
+                                        lore.current_date.month==loop.index
                                         %}
                                         selected {% endif %}>
                                     {{month}}
@@ -155,12 +155,13 @@
                     </div>
                     <div class="cell auto">
                         <input name="current_year" type="number" min="{{lore.start_date.year}}"
-                               max="{{lore.start_date.year}}" step='1'
-                               value="{{lore.start_date.year}}">
+                               step='1'
+                               value="{{lore.current_date.year}}">
                     </div>
                 </div>
             </div>
-            <div class="cell medium-4">
+            <div class="cell medium-6">
+                <label for="setting">Current Setting</label>
                 <select name="setting">
                     <option value="" selected>=== Select Setting ===</option>
                     {% for place in lore.places %}
