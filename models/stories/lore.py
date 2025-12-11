@@ -32,6 +32,31 @@ class LoreScene(AutoModel):
             self.date.delete()
         super().delete()
 
+    ## MARK: - Verification Methods
+    ###############################################################
+    ##                    VERIFICATION HOOKS                   ##
+    ###############################################################
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     super().auto_post_init(sender, document, **kwargs)
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_dates()
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
+
+    # def clean(self):
+    #     super().clean()
+
+    def pre_save_dates(self):
+        if self.pk and self.date.obj != self:
+            self.date.obj = self
+            self.date.save()
+
 
 class Lore(AutoModel):
     name = StringAttr(default="")
@@ -276,7 +301,6 @@ Summarize the events so that that they can be added to the characters' history. 
                 date = getattr(self, date_attr)
                 if isinstance(date, dict):
                     date_obj = self.calendar.date(self, **date)
-                    setattr(self, date_attr, date_obj)
                 elif not date:
                     date = Date(
                         obj=self,
@@ -286,12 +310,15 @@ Summarize the events so that that they can be added to the characters' history. 
                         year=0,
                     )
                     date.save()
-                    setattr(self, date_attr, date)
                 else:
+                    if date.obj != self:
+                        date.obj = self
                     if date.day <= 0:
                         setattr(self, date_attr, random.randint(1, 28))
                     if date.month < 0:
                         setattr(self, date_attr, random.randint(0, 11))
+                    date.save()
+            setattr(self, date_attr, date)
             for date in Date.search(obj=self):
                 if date not in [self.start_date, self.current_date]:
                     date.delete()
