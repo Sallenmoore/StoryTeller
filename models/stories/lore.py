@@ -115,11 +115,11 @@ class Lore(AutoModel):
                             },
                             "roll_formula": {
                                 "type": "string",
-                                "description": "The formula for the roll the character makes to respond to the situation (e.g. '1d20 + 5'), if any. Otherwise an empty string.",
+                                "description": "The numerical formula of the roll the character makes in response to the situation (e.g. '1d20 + 5'). Only use the '#d## +/- #' format, with no other text, since this output will be used to calculate the result. Otherwise an empty string.",
                             },
                             "roll_bonuses": {
                                 "type": "string",
-                                "description": "The specific attribue/skill bonuses used for the roll (e.g. Notice:+2, Wisdom:+3'), if any. Otherwise an empty string.",
+                                "description": "The specific attribue/skill bonuses/abilities used for the roll (e.g. Notice:+2, Wisdom:+3, Fireball'), if any. Otherwise an empty string.",
                             },
                         },
                     },
