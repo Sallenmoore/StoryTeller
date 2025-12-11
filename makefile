@@ -57,8 +57,8 @@ devdeploy:
 	git commit -am "Updated backend"
 	git push
 	git checkout main
-	git merge steven
 	git commit -am "Updated Main Branch"
+	git merge steven
 	git push
 	storytellerprod
 	storytellerbackend
