@@ -202,7 +202,6 @@ SCENARIO: {self.situation}.
             ls.save()
             self.scenes += [ls]
             self.responses = result["responses"]
-            self.situation = ""
             self.save()
 
             prompt = f"""Based on the following:
@@ -223,6 +222,7 @@ Summarize the events so that that they can be added to the characters' history. 
             if summary_result:
                 log(f"Generated Lore Summary: {summary_result}", __print=True)
                 ls.summary = summary_result
+                self.situation = ""
                 ls.save()
         else:
             log("Failed to generate Lore", __print=True)
