@@ -184,31 +184,6 @@
         {% endif%}
     </div>
     <div class="grid-x">
-        <div class="cell align-center">
-            <form hx-post="/api/lore/{{lore.pk}}/edit"
-                  hx-trigger="change delay:500ms"
-                  hx-swap="none">
-                {{form_components.textarea(user, lore, name="guidance",
-                                                        label="Guidance for Responses")}}
-                {{form_components.textarea(user, lore, name="situation",
-                                        label="Current Situation")}}
-            </form>
-        </div>
-        <div class="cell">
-            <form hx-post="/task/generate/lore/{{lore.pk}}">
-                <div class="grid-x">
-                    <div class="cell shrink">
-                        <button type="submit"
-                                class="button small">
-                            {{icon_components.refresh(size="1rem")}}
-                            Generate Lore
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="grid-x">
         <div class="cell">
             <div id="lore-party-container" class="grid-x align-justify">
                 <div class="cell shrink">
@@ -282,6 +257,33 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="grid-x">
+        <div class="cell align-center">
+            <form hx-post="/api/lore/{{lore.pk}}/edit"
+                  hx-trigger="change delay:500ms"
+                  hx-swap="none">
+                {{form_components.textarea(user, lore, name="guidance",
+                                                                label="Guidance for Responses")}}
+                {{form_components.textarea(user, lore, name="situation",
+                                                label="Current Situation")}}
+            </form>
+        </div>
+        <div class="cell">
+            <form hx-post="/task/generate/lore/{{lore.pk}}">
+                <div class="grid-x">
+                    <div class="cell shrink">
+                        <button type="submit"
+                                class="button small">
+                            {{icon_components.refresh(size="1rem")}}
+                            Generate Lore
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="grid-x">
         <div class="cell">
             <div class="callout">
                 <h3 class=" text-centered">Associations</h3>
