@@ -32,6 +32,31 @@ class LoreScene(AutoModel):
             self.date.delete()
         super().delete()
 
+    ## MARK: - Verification Methods
+    ###############################################################
+    ##                    VERIFICATION HOOKS                   ##
+    ###############################################################
+    # @classmethod
+    # def auto_post_init(cls, sender, document, **kwargs):
+    #     super().auto_post_init(sender, document, **kwargs)
+
+    @classmethod
+    def auto_pre_save(cls, sender, document, **kwargs):
+        super().auto_pre_save(sender, document, **kwargs)
+        document.pre_save_dates()
+
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
+
+    # def clean(self):
+    #     super().clean()
+
+    def pre_save_dates(self):
+        if self.pk and self.date.obj != self:
+            self.date.obj = self
+            self.date.save()
+
 
 class Lore(AutoModel):
     name = StringAttr(default="")
@@ -90,11 +115,11 @@ class Lore(AutoModel):
                             },
                             "roll_formula": {
                                 "type": "string",
-                                "description": "The formula for the roll the character makes to respond to the situation (e.g. '1d20 + 5'), if any. Otherwise an empty string.",
+                                "description": "The numerical formula of the roll the character makes in response to the situation (e.g. '1d20 + 5'). Only use the '#d## +/- #' format, with no other text, since this output will be used to calculate the result. Otherwise an empty string.",
                             },
                             "roll_bonuses": {
                                 "type": "string",
-                                "description": "The specific attribue/skill bonuses used for the roll (e.g. Notice:+2, Wisdom:+3'), if any. Otherwise an empty string.",
+                                "description": "The specific attribue/skill bonuses/abilities used for the roll (e.g. Notice:+2, Wisdom:+3, Fireball'), if any. Otherwise an empty string.",
                             },
                         },
                     },
@@ -170,7 +195,7 @@ The party should respond to the following:
 SCENARIO: {self.situation}.
 """
 
-        log("Generating Expanded Lore with prompt: " + prompt, __print=True)
+        log("Generating Expanded Lore with prompt: " + prompt, _print=True)
         result = self.world.system.generate_json(
             prompt=prompt,
             primer=f"Create expanded lore that fits into the described world. Respond in JSON format consistent with this structure: {self.funcobj['parameters']}.",
@@ -275,8 +300,7 @@ Summarize the events so that that they can be added to the characters' history. 
             for date_attr in ["start_date", "current_date"]:
                 date = getattr(self, date_attr)
                 if isinstance(date, dict):
-                    date_obj = self.calendar.date(self, **date)
-                    setattr(self, date_attr, date_obj)
+                    date = self.calendar.date(self, **date)
                 elif not date:
                     date = Date(
                         obj=self,
@@ -286,12 +310,15 @@ Summarize the events so that that they can be added to the characters' history. 
                         year=0,
                     )
                     date.save()
-                    setattr(self, date_attr, date)
                 else:
+                    if date.obj != self:
+                        date.obj = self
                     if date.day <= 0:
                         setattr(self, date_attr, random.randint(1, 28))
                     if date.month < 0:
                         setattr(self, date_attr, random.randint(0, 11))
+                    date.save()
+                setattr(self, date_attr, date)
             for date in Date.search(obj=self):
                 if date not in [self.start_date, self.current_date]:
                     date.delete()

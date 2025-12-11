@@ -202,39 +202,38 @@
                 <div class="cell">
                     <div class="grid-x">
                         {% for o in lore.party %}
-                        <div class="cell medium-2" style='position:relative;'>
-                            {{display_components.object_display(o, type=False, dim=500)}}
-                            <a style='position:absolute; top:0px; right:5px;'
-                               hx-post="/api/lore/{{lore.pk}}/party/remove/{{o.pk}}"
-                               hx-target="closest .cell" hx-swap="delete"
-                               hx-confirm="Are you sure you want to remove this character from the party?">
-                                <iconify-icon icon="mdi:remove"
-                                              width="1rem"></iconify-icon>
-                            </a>
-                        </div>
-                        <div class="cell medium-10">
+                        <div class="cell">
                             <div class="callout bg-screen small">
                                 <div class="grid-x grid-margin-x">
-                                    <div class="cell">
+                                    <div class="cell medium-3" style='position:relative;'>
+                                        {{display_components.object_display(o, type=False, dim=500)}}
+                                        <a style='position:absolute; top:0px; right:5px;'
+                                           hx-post="/api/lore/{{lore.pk}}/party/remove/{{o.pk}}"
+                                           hx-target="closest .cell" hx-swap="delete"
+                                           hx-confirm="Are you sure you want to remove this character from the party?">
+                                            <iconify-icon icon="mdi:remove"
+                                                          width="1rem"></iconify-icon>
+                                        </a>
+                                    </div>
+                                    <div class="cell medium-9">
                                         <strong>Verbal Response:</strong>
                                         <div class="callout">
                                             {{lore.get_response(o.name).verbal_response}}
                                         </div>
-                                    </div>
-                                    <div class="cell">
+                                        <hr>
                                         <strong>Thoughts:</strong>
                                         <div class="callout">
                                             {{lore.get_response(o.name).thoughts}}
                                         </div>
                                     </div>
-                                    <div class="cell">
+                                    <div class="cell medium-6">
                                         <strong>Actions Taken:</strong>
                                         <div class="callout">
                                             {{lore.get_response(o.name).actions_taken}}
                                         </div>
                                     </div>
                                     {% if lore.get_response(o.name).roll_type %}
-                                    <div class="cell">
+                                    <div class="cell medium-6">
                                         <strong>Roll Type:
                                             {{lore.get_response(o.name).roll_type}}</strong>
                                         <div class="callout">
