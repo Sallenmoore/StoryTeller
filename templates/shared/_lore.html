@@ -266,7 +266,8 @@
                                             {{lore.get_response(o.name).roll_explanation | safe}}
                                             <hr>
                                             <strong>Roll:</strong>
-                                            {{lore.get_response(o.name).roll_formula | safe}} =
+                                            {{lore.get_response(o.name).roll_formula | safe}}
+                                            ({{lore.get_response(o.name).roll_bonuses | safe}}) =
                                             <span
                                                   class="stat">{{lore.get_response(o.name).roll_result}}</span>
                                         </div>

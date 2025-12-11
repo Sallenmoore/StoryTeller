@@ -2,8 +2,15 @@ import random
 
 import markdown
 import validators
-from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringAttr
+from autonomous.model.autoattr import (
+    DictAttr,
+    IntAttr,
+    ListAttr,
+    ReferenceAttr,
+    StringAttr,
+)
 from autonomous.model.automodel import AutoModel
+from dmtoolkit import dmtools
 
 from autonomous import log
 from models.calendar.date import Date
@@ -83,11 +90,11 @@ class Lore(AutoModel):
                             },
                             "roll_formula": {
                                 "type": "string",
-                                "description": "The formula, including the specific attribue/skill bonuses used, for the roll the character makes to respond to the situation (e.g., '1d20 + 5 (Notice:+2, Wisdom:+3)'), if any. Otherwise an empty string.",
+                                "description": "The formula for the roll the character makes to respond to the situation (e.g. '1d20 + 5'), if any. Otherwise an empty string.",
                             },
-                            "roll_result": {
-                                "type": "integer",
-                                "description": "The result of the roll the character makes to respond to the situation, if any. Otherwise an empty string.",
+                            "roll_bonuses": {
+                                "type": "string",
+                                "description": "The specific attribue/skill bonuses used for the roll (e.g. Notice:+2, Wisdom:+3'), if any. Otherwise an empty string.",
                             },
                         },
                     },
@@ -110,8 +117,8 @@ class Lore(AutoModel):
 
     @property
     def summary(self):
-        if self.scenes:
-            return self.scenes[-1].summary
+        if len(self.scenes) > 1:
+            return self.scenes[-2].summary
         return ""
 
     ############# CRUD #############
@@ -158,7 +165,7 @@ SITUATION CURRENT DATE: {self.current_date}
 The party should respond to the following situation:
 {f"SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
 
-{f"GUIDANCE: {self.guidance}"}
+{f"GUIDANCE: {self.guidance}" if self.guidance else ""}
 
 SCENARIO: {self.situation}.
 """
@@ -171,6 +178,18 @@ SCENARIO: {self.situation}.
         )
         if result.get("responses"):
             log(f"Generated Lore: {result}", __print=True)
+            for resp in result["responses"]:
+                try:
+                    resp["roll_result"] = (
+                        dmtools.dice_roll(resp["roll_formula"])
+                        if resp.get("roll_formula")
+                        else 0
+                    )
+                except Exception as e:
+                    log(
+                        f"Error rolling dice for formula {resp.get('roll_formula')}: {e}",
+                        __print=True,
+                    )
             ls = LoreScene(
                 lore=self,
                 prompt=prompt,
@@ -183,6 +202,7 @@ SCENARIO: {self.situation}.
             ls.save()
             self.scenes += [ls]
             self.responses = result["responses"]
+            self.situation = ""
             self.save()
 
             prompt = f"""Based on the following:
@@ -193,12 +213,12 @@ The current situation: {self.situation}
 CHARACTER RESPONSES:
 {"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
 
-Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts or unspoken actions, only what actually happened. Keep it concise, but do not leave out any events that transpired, not matter how small.
+Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
             log("Generating Lore Summary with prompt: " + prompt, __print=True)
             summary_result = self.world.system.generate_text(
                 prompt=prompt,
-                primer="Summarize the events that transpired based on the character responses provided. Keep it concise, but do not leave out any events that transpired, not matter how small.",
+                primer="Summarize the events that transpired based on the character responses provided. Do not leave out any events that transpired, not matter how small.",
             )
             if summary_result:
                 log(f"Generated Lore Summary: {summary_result}", __print=True)
