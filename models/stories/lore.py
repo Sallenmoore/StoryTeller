@@ -188,13 +188,15 @@ class Lore(AutoModel):
 
     @property
     def summary(self):
-        if self.scenes:
-            return self.scenes[-1].summary
-        return ""
+        result = ""
+        result = self.scenes[-1].summary if self.scenes else ""
+        log(result, _print=True)
+        return result
 
     @property
     def last_summary(self):
         if len(self.scenes) > 1 and self.scenes[-2].summary:
+            log(self.scenes[-2].summary, _print=True)
             return self.scenes[-2].summary
         return self.summary
 

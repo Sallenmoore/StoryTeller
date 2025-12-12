@@ -18,7 +18,7 @@ services:
       - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./vendor/pytest.ini:/var/app/pytest.ini
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
@@ -43,7 +43,7 @@ services:
       - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./vendor/pytest.ini:/var/app/pytest.ini
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
   sttasksbackdev:
     image: ${APP_NAME}_tasks:latest
@@ -64,7 +64,7 @@ services:
       - ./templates:/var/app/templates/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./vendor/pytest.ini:/var/app/pytest.ini
+      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
 networks:
   default:
