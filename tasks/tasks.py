@@ -15,7 +15,7 @@ from models.dungeon.dungeon import Dungeon
 from models.dungeon.dungeonroom import DungeonRoom
 from models.gmscreen.gmscreentable import GMScreenTable
 from models.stories.event import Event
-from models.stories.lore import Lore
+from models.stories.lore import Lore, LoreScene
 from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.ability import Ability
@@ -274,3 +274,9 @@ def _generate_lore_task(pk):
     lore = Lore.get(pk)
     lore.generate()
     return {"url": f"/api/world/{lore.world.pk}/lore/{lore.pk}"}
+
+
+def _generate_lore_summary_task(pk):
+    ls = LoreScene.get(pk)
+    ls.summarize()
+    return {"url": f"/api/world/{ls.lore.world.pk}/lore/{ls.lore.pk}"}

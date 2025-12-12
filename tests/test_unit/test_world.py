@@ -1,564 +1,227 @@
-import json
 import os
-import random
+from unittest.mock import ANY, MagicMock, patch
 
-import requests
-import validators
+import pytest
+
+# We need to mock the imports inside world.py before importing it if they have side effects,
+# or patch them where they are used.
+# Since world.py imports many models at the top level, let's assume we can import World
+# and then patch the classes it uses.
+from app.models.world import World
 from autonomous.db import ValidationError
-from autonomous.model.autoattr import (
-    ListAttr,
-    ReferenceAttr,
-    StringAttr,
-)
-
-from autonomous import log
-from models.base.ttrpgbase import TTRPGBase
-from models.calendar.calendar import Calendar
-from models.campaign.campaign import Campaign
-from models.images.image import Image
-from models.images.map import Map
-from models.journal import Journal
-from models.stories.encounter import Encounter
-from models.stories.event import Event
-from models.stories.story import Story
-from models.systems import (
-    FantasySystem,
-    HardboiledSystem,
-    HistoricalSystem,
-    HorrorSystem,
-    PostApocalypticSystem,
-    SciFiSystem,
-    WesternSystem,
-)
-from models.systems.swn import StarsWithoutNumber
-from models.ttrpgobject.character import Character
-from models.ttrpgobject.city import City
-from models.ttrpgobject.creature import Creature
-from models.ttrpgobject.district import District
-from models.ttrpgobject.faction import Faction
-from models.ttrpgobject.item import Item
-from models.ttrpgobject.location import Location
-from models.ttrpgobject.region import Region
-from models.ttrpgobject.shop import Shop
-from models.ttrpgobject.vehicle import Vehicle
 
 
-class World(TTRPGBase):
-    system = ReferenceAttr(choices=["BaseSystem"])
-    users = ListAttr(ReferenceAttr(choices=["User"]))
-    calendar = ReferenceAttr(choices=["Calendar"])
-    current_date = ReferenceAttr(choices=["Date"])
-    start_date = ReferenceAttr(choices=["Date"])
-    map = ReferenceAttr(choices=["Map"])
-    map_prompt = StringAttr(default="")
-    campaigns = ListAttr(ReferenceAttr(choices=["Campaign"]))
-    stories = ListAttr(ReferenceAttr(choices=["Story"]))
-    lore_entries = ListAttr(ReferenceAttr(choices=["Lore"]))
+class TestWorldModel:
+    @pytest.fixture
+    def mock_system_classes(self):
+        """Mock the system classes used in World.SYSTEMS/build."""
+        with (
+            patch("app.models.world.FantasySystem") as fantasy,
+            patch("app.models.world.SciFiSystem") as scifi,
+            patch("app.models.world.WesternSystem") as western,
+        ):
+            yield {"fantasy": fantasy, "sci-fi": scifi, "western": western}
 
-    SYSTEMS = {
-        "fantasy": FantasySystem,
-        "scifi": SciFiSystem,
-        "swn": StarsWithoutNumber,
-        "hardboiled": HardboiledSystem,
-        "horror": HorrorSystem,
-        "historical": HistoricalSystem,
-        "postapocalyptic": PostApocalypticSystem,
-        "western": WesternSystem,
-    }
+    @pytest.fixture
+    def mock_associated_models(self):
+        """Mock all the TTRPG object models (Character, City, etc.)."""
+        # Patch the classes where they are imported in world.py
+        with (
+            patch("app.models.world.Character") as char,
+            patch("app.models.world.City") as city,
+            patch("app.models.world.Faction") as faction,
+            patch("app.models.world.Story") as story,
+            patch("app.models.world.Event") as event,
+            patch("app.models.world.Map") as map_model,
+            patch("app.models.world.Image") as image_model,
+            patch("app.models.world.Journal") as journal,
+        ):
+            yield {
+                "Character": char,
+                "City": city,
+                "Faction": faction,
+                "Story": story,
+                "Event": event,
+                "Map": map_model,
+                "Image": image_model,
+                "Journal": journal,
+            }
 
-    start_date_label = "Founding"
-    end_date_label = "Current"
-
-    _funcobj = {
-        "name": "generate_world",
-        "description": "creates, completes, and expands a World data object for a TTRPG setting",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "A unique and evocative name for the world",
-                },
-                "desc": {
-                    "type": "string",
-                    "description": "A brief physical description that will be used to generate an image of the world",
-                },
-                "backstory": {
-                    "type": "string",
-                    "description": "A brief history of the world and its people. Only include publicly known information.",
-                },
-            },
-        },
-    }
-    ########################## Dunder Methods #############################
-
-    ########################## Class Methods #############################
-
-    @classmethod
-    def build(cls, system, user, name="", desc="", backstory=""):
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
-        System = {
-            "fantasy": FantasySystem,
-            "sci-fi": SciFiSystem,
-            "western": WesternSystem,
-            "hardboiled": HardboiledSystem,
-            "horror": HorrorSystem,
-            "post-apocalyptic": PostApocalypticSystem,
-            "historical": HistoricalSystem,
-        }.get(system)
-        if not System:
-            raise ValueError(f"System {system} not found")
-        else:
-            system = System()
-            system.save()
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
-        ### set attributes ###
-        if not name.strip():
-            name = f"{system._genre} Setting"
-        if not desc.strip():
-            desc = f"An expansive, complex, and mysterious {system._genre} setting suitable for a {system._genre} {system.get_title(cls)}."
-        if not backstory.strip():
-            backstory = f"{name} is filled with curious and dangerous points of interest filled with various creatures and characters. The complex and mysterious history of this world is known only to a few reclusive individuals. Currently, there are several factions vying for power through poltical machinations, subterfuge, and open warfare."
-
-        # log(f"Building world {name}, {desc}, {backstory}, {system}, {user}")
-
-        world = cls(
-            name=name,
-            desc=desc,
-            backstory=backstory,
-            system=system,
-            users=[user],
-        )
-        system.world = world
-        world.users += [user]
-        world.save()
-        system.save()
-        f = Faction(world=world, is_player_faction=True)
-        f.save()
-        world.add_association(f)
-        c = Character(world=world, parent=f, is_player=True)
-        c.save()
-        c.add_association(f)
-        world.add_association(c)
-        f.add_association(c)
-        requests.post(
-            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{world.path}"
-        )
-        requests.post(
-            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{f.path}"
-        )
-        requests.post(
-            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/{c.path}"
-        )
+    @pytest.fixture
+    def world_instance(self):
+        """Create a basic World instance with mocks."""
+        world = World()
+        world.pk = "world_pk_123"
+        world.name = "Test World"
+        world.system = MagicMock()
+        world.system._genre = "Fantasy"
+        world.save = MagicMock()
         return world
 
-    ############################ PROPERTIES ############################
-    @property
-    def associations(self):
-        return sorted(
-            [
-                *self.items,
-                *self.characters,
-                *self.creatures,
-                *self.factions,
-                *self.cities,
-                *self.locations,
-                *self.regions,
-                *self.vehicles,
-                *self.shops,
-                *self.districts,
-            ],
-            key=lambda x: (
-                x.name.startswith("_"),
-                "",
-                x.name,
-            ),
-        )
+    def test_build_success(self, mock_system_classes, mock_associated_models):
+        """Test building a new world with valid system."""
+        user = MagicMock()
 
-    @associations.setter
-    def associations(self, obj):
-        if obj.world != self:
-            obj.world = self
-            obj.save()
+        # Mock requests used for task generation triggers
+        with patch("app.models.world.requests.post") as mock_post:
+            with patch.dict(
+                os.environ, {"TASKS_SERVICE_NAME": "tasks", "COMM_PORT": "8000"}
+            ):
+                world = World.build("fantasy", user, name="My World")
 
-    @property
-    def characters(self):
-        return sorted(
-            Character.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+        assert world.name == "My World"
+        assert user in world.users
 
-    @property
-    def children(self):
-        return self.associations
+        # Verify system creation
+        mock_system_classes["fantasy"].assert_called()
+        assert world.system == mock_system_classes["fantasy"].return_value
 
-    @property
-    def cities(self):
-        return sorted(City.search(world=self) if self.pk else [], key=lambda x: x.name)
+        # Verify initial objects creation (Faction, Character, Story)
+        mock_associated_models["Faction"].assert_called()
+        mock_associated_models["Character"].assert_called()
+        mock_associated_models["Story"].assert_called()
 
-    @property
-    def creatures(self):
-        return sorted(
-            Creature.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+        # Verify task triggers
+        assert mock_post.call_count >= 4  # World, Faction, Char, Story
 
-    @property
-    def districts(self):
-        return sorted(
-            District.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+    def test_build_invalid_system(self):
+        """Test building with an invalid system raises ValueError."""
+        with pytest.raises(ValueError, match="System invalid not found"):
+            World.build("invalid", MagicMock())
 
-    @property
-    def encounters(self):
-        return sorted(
-            Encounter.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+    def test_associations_getter(self, world_instance, mock_associated_models):
+        """Test that associations property aggregates all child objects."""
+        # Setup mocks to return lists
+        mock_associated_models["Character"].search.return_value = ["c1"]
+        mock_associated_models["City"].search.return_value = ["city1"]
+        # ... assuming other search calls return empty lists by default if not mocked explicitly
 
-    @property
-    def events(self):
-        return sorted(
-            [e for e in Event.search(world=self) if e.end_date and e.end_date.year]
-            if self.pk
-            else [],
-            key=lambda x: x.end_date,
-            reverse=True,
-        )
+        # We need to mock the property accessors on the instance since they call .search()
+        # Alternatively, relying on the class patches above should work if the properties use the imported classes.
 
-    @property
-    def factions(self):
-        return sorted(
-            Faction.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+        # The 'associations' property calls self.characters, self.items, etc.
+        # Let's verify one of those sub-properties first
+        assert world_instance.characters == ["c1"]
 
-    @property
-    def genre(self):
-        return self.system._genre.lower()
+        # Now check aggregations. Note: The order depends on the implementation of `associations` property.
+        assoc = world_instance.associations
+        assert "c1" in assoc
+        assert "city1" in assoc
 
-    @property
-    def items(self):
-        return sorted(Item.search(world=self) if self.pk else [], key=lambda x: x.name)
+    def test_associations_setter(self, world_instance):
+        """Test setting association updates the child's world."""
+        child = MagicMock()
+        child.world = None
 
-    @property
-    def image_prompt(self):
-        return f"A full color, high resolution illustrated map of a fictional {self.genre} setting called {self.name} and described as {self.desc or 'filled with points of interest to explore, antagonistic factions, and a rich, mysterious history.'}"
+        world_instance.associations = child
 
-    @property
-    def jobs(self):
-        jobs = []
-        for c in self.characters:
-            jobs += c.quests
-        jobs = list(set(jobs))
-        return jobs
+        assert child.world == world_instance
+        child.save.assert_called()
 
-    @property
-    def locations(self):
-        return sorted(
-            Location.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+    def test_events_property(self, world_instance, mock_associated_models):
+        """Test events property sorting."""
+        e1 = MagicMock(end_date="2023-01-01")
+        e2 = MagicMock(end_date="2024-01-01")
+        # Mock the search to return unsorted
+        mock_associated_models["Event"].search.return_value = [e1, e2]
 
-    @property
-    def map_thumbnail(self):
-        return self.map.image.url(100)
+        events = world_instance.events
+        # Should be reverse sorted by date
+        assert events == [e2, e1]
 
-    @property
-    def parent(self):
-        return None
+    def test_delete_cascade(self, world_instance, mock_associated_models):
+        """Test that deleting the world deletes all children."""
+        # Setup some children
+        mock_associated_models["Character"].search.return_value = [MagicMock()]
+        mock_associated_models["City"].search.return_value = [MagicMock()]
 
-    @property
-    def players(self):
-        return Character.search(world=self, is_player=True) if self.pk else []
+        with patch("app.models.world.TTRPGBase.delete") as super_delete:
+            world_instance.delete()
 
-    @property
-    def parties(self):
-        ps = []
-        for f in Faction.search(world=self, is_player_faction=True):
-            ps += [f]
-        return ps
+            # Verify children delete called
+            mock_associated_models["Character"].search.return_value[
+                0
+            ].delete.assert_called()
+            mock_associated_models["City"].search.return_value[0].delete.assert_called()
+            super_delete.assert_called()
 
-    @property
-    def end_date(self):
-        return self.current_date
+    def test_pre_save_system_defaults(self, world_instance, mock_system_classes):
+        """Test pre_save_system creates default FantasySystem if missing."""
+        world_instance.system = None
 
-    @end_date.setter
-    def end_date(self, date):
-        self.current_date = date
+        world_instance.pre_save_system()
 
-    @property
-    def regions(self):
-        return sorted(
-            Region.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+        mock_system_classes["fantasy"].assert_called()
+        assert world_instance.system == mock_system_classes["fantasy"].return_value
 
-    @property
-    def shops(self):
-        return sorted(Shop.search(world=self) if self.pk else [], key=lambda x: x.name)
+    def test_pre_save_system_from_string(self, world_instance, mock_system_classes):
+        """Test pre_save_system instantiates system from string key."""
+        world_instance.system = "scifi"
+        # Mock the _systems dict on the instance/class
+        world_instance._systems = {"scifi": mock_system_classes["sci-fi"]}
 
-    @property
-    def user(self):
-        return self.users[0] if self.users else None
+        world_instance.pre_save_system()
 
-    @property
-    def vehicles(self):
-        return sorted(
-            Vehicle.search(world=self) if self.pk else [], key=lambda x: x.name
-        )
+        mock_system_classes["sci-fi"].assert_called()
 
-    @property
-    def world(self):
-        return self
+    def test_pre_save_system_invalid_string(self, world_instance):
+        """Test pre_save_system raises ValidationError for bad string."""
+        world_instance.system = "invalid_sys"
+        world_instance._systems = {}
 
-    ########################## Override Methods #############################
+        with pytest.raises(ValidationError):
+            world_instance.pre_save_system()
 
-    def delete(self):
-        objs = [
-            self.system,
-            *Campaign.search(world=self),
-            *Region.search(world=self),
-            *City.search(world=self),
-            *Location.search(world=self),
-            *Journal.search(parent=self),
-            *Vehicle.search(world=self),
-            *District.search(world=self),
-            *Encounter.search(world=self),
-            *Faction.search(world=self),
-            *Creature.search(world=self),
-            *Character.search(world=self),
-            *Vehicle.search(world=self),
-            *Item.search(world=self),
-        ]
-        for obj in objs:
-            if obj:
-                obj.delete()
-        return super().delete()
+    def test_generate_map(self, world_instance, mock_associated_models):
+        """Test generating a map."""
+        mock_map = MagicMock()
+        mock_associated_models["Map"].generate.return_value = mock_map
 
-    ###################### Boolean Methods ########################
+        # Setup system prompt
+        world_instance.system.map_prompt.return_value = "A map prompt"
+        world_instance.map_style = "isometric"
 
-    def is_associated(self, obj):
-        return self == obj.world
+        result = world_instance.generate_map()
 
-    def is_user(self, user):
-        return user in self.users
-
-    ###################### Getter Methods ########################
-    def get_world(self):
-        return self
-
-    ###################### Setter Methods ########################
-    def add_association(self, obj):
-        obj.world = self
-        obj.save()
-        return self.associations
-
-    def set_system(self, System):
-        if System:
-            self.system.delete()
-            self.system = System(world=self)
-            self.system.save()
-            self.save()
-
-        for obj in [*self.characters, *self.creatures]:
-            obj.skills = self.system.skills.copy()
-            obj.save()
-
-        for obj in self.creatures:
-            obj.skills = self.system.skills.copy()
-            obj.save()
-
-        return self.system
-
-    ###################### Data Methods ########################
-
-    ################### Instance Methods #####################
-
-    # MARK: generate_map
-    def generate_map(self):
-        if self.map and self in self.map.associations:
-            if len(self.map.associations) <= 1:
-                log("deleting map", self.map, _print=True)
-                self.map.delete()
-            else:
-                self.map.associations.remove(self)
-                self.map.save()
-        if not self.map_prompt:
-            self.map_prompt = self.system.map_prompt(self)
-        self.map = Map.generate(
-            prompt=self.map_prompt,
-            tags=["map", self.model_name().lower(), self.genre],
+        mock_associated_models["Map"].generate.assert_called_with(
+            prompt="A map prompt\n\nThe map should be in a isometric style.\n",
+            tags=[
+                "map",
+                "world",
+                "fantasy",
+            ],  # assuming model_name='world', genre='fantasy'
             img_quality="hd",
             img_size="1792x1024",
         )
-        self.map.save()
-        self.save()
-        return self.map
+        assert world_instance.map == mock_map
+        assert result == mock_map
 
-    def get_map_list(self):
-        maps = []
-        for img in Map.all():
-            # log(img.asset_id)
-            if all(
-                t in img.tags for t in ["map", self.model_name().lower(), self.genre]
-            ):
-                maps.append(img)
-        return maps
+    def test_pre_save_map_conversions(self, world_instance, mock_associated_models):
+        """Test pre_save_map handles URLs and Image objects."""
+        # Case 1: URL string
+        world_instance.map = "http://example.com/map.png"
+        world_instance.map_prompt = "Prompt"
 
-    def page_data(self):
-        response = {
-            "worldname": self.name,
-            "genre": self.genre,
-            "backstory": self.history,
-            "current_date": str(self.current_date),
-            "campaigns": [c.page_data() for c in self.campaigns],
-            "world_objects": {
-                "Regions": [o.page_data() for o in self.regions],
-                "Locations": [o.page_data() for o in self.locations],
-                "Vehicles": [o.page_data() for o in self.vehicles],
-                "Cities": [o.page_data() for o in self.cities],
-                "Factions": [o.page_data() for o in self.factions],
-                "Players": [o.page_data() for o in self.players],
-                "Characters": [o.page_data() for o in self.characters],
-                "Items": [o.page_data() for o in self.items],
-                "Creatures": [o.page_data() for o in self.creatures],
-                "Districts": [o.page_data() for o in self.districts],
-                "Shops": [o.page_data() for o in self.shops],
-                "Encounters": [o.page_data() for o in self.encounters],
-            },
-        }
-        # Convert the response object to JSON
-        json_data = json.dumps(response, indent=4, sort_keys=True)
-        # Define the file path
-        file_path = f"logs/{self.name}-{self.model_name()}-{self.pk}.json"
-        # Write the JSON data to the file
-        with open(file_path, "w") as file:
-            file.write(json_data)
-        return response
+        with patch("app.models.world.validators.url", return_value=True):
+            mock_map_obj = MagicMock()
+            mock_associated_models["Map"].from_url.return_value = mock_map_obj
 
-    ## MARK: - Verification Methods
-    ###############################################################
-    ##                    VERIFICATION HOOKS                     ##
-    ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     # log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
-    #     =
+            world_instance.pre_save_map()
 
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        from models.gmscreen.gmscreen import GMScreen
+            mock_associated_models["Map"].from_url.assert_called()
+            assert world_instance.map == mock_map_obj
 
-        super().auto_pre_save(sender, document, **kwargs)
+        # Case 2: Image object (needs conversion to Map)
+        # We simulate this by passing an object that is NOT of type Map but IS of type Image
+        # Since we mocked the classes, we need to be careful with type() checks in the code.
+        # The code uses `type(self.map) is not Map`.
 
-        ##### MIGRATION #####
-        stories = []
-        for story in document.stories:
-            if isinstance(story, Story):
-                stories.append(story)
-                story.world = document
-                story.save()
-        document.stories = stories
+        # Reset
+        world_instance.map = MagicMock()
+        # To make isinstance/type work with mocks in the way the code expects
+        # (checking against the imported class), we must ensure the mock *is* the imported class.
+        # This is hard with 'patch'.
 
-        document.pre_save_users()
-        document.pre_save_system()
-        document.pre_save_map()
-        document.pre_save_current_date()
-
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
-        document.post_save_system()
-
-    # def clean(self):
-    #     super().clean()
-
-    ################### verification methods ##################
-
-    def pre_save_users(self):
-        users = []
-        for u in self.users:
-            if u not in users:
-                users.append(u)
-        self.users = users
-
-    def pre_save_map(self):
-        if not self.map_prompt:
-            self.map_prompt = self.description_summary or self.description
-
-        if isinstance(self.map, str):
-            if validators.url(self.map):
-                self.map = Map.from_url(
-                    self.map,
-                    prompt=self.map_prompt,
-                    tags=["map", *self.image_tags],
-                )
-                self.map.save()
-            elif map := Map.get(self.map):
-                self.map = map
-            elif image := Image.get(self.map):
-                self.map = Map.from_image(image)
-                self.map.save()
-            else:
-                raise ValidationError(
-                    f"Image must be an Map object, url, or Image, not {self.map}"
-                )
-        elif type(self.map) is not Map and type(self.map) is Image:
-            log("converting to map...", self.map, _print=True)
-            self.map = Map.from_image(self.map)
-            self.map.save()
-            log("converted to map", self.map, _print=True)
-
-        if self.map and not self.map.tags:
-            self.map.tags = self.map_tags
-            self.map.save()
-
-        if self.map and self not in self.map.associations:
-            self.map.associations += [self]
-            self.map.save()
-
-    def pre_save_system(self):
-        # log(f"Verifying system for {self.name}: self.system={self.system}")
-        if not self.system:
-            system = FantasySystem()
-            system.save()
-            self.system = system
-        elif isinstance(self.system, str):
-            if SystemModel := self._systems.get(self.system):
-                self.system = SystemModel()
-                self.system.save()
-            else:
-                raise ValidationError(
-                    f"The system key does not correspond to a system: {self.system}"
-                )
-
-        # log(f"Verifying system for {self.name}: self.system={self.system}")
-
-    def pre_save_current_date(self):
-        if not self.start_date:
-            self.start_date = self.calendar.date(1, 1, 1, self)
-
-        event_date = (
-            sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
-            if self.events
-            else None
-        )
-        episode_date = (
-            sorted(
-                [
-                    c.episodes[0].start_date
-                    for c in self.campaigns
-                    if c.episodes and c.episodes[0].start_date
-                ],
-                key=lambda x: x,
-                reverse=True,
-            )[0]
-            if self.campaigns
-            else None
-        )
-        self.current_date = episode_date if episode_date > event_date else event_date
-        if not self.calendar:
-            self.calendar = Calendar()
-            self.calendar.save()
-
-    def post_save_system(self):
-        # log(f"Verifying system for {self.name}: self.system={self.system}")
-        if self.system.world != self:
-            self.system.world = self
-            self.system.save()
+        # Alternative: Test the logic flow.
+        # If type(map) is Image...
+        # We can just rely on the fact that if it enters that block, .from_image is called.

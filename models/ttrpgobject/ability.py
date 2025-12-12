@@ -6,7 +6,6 @@ from autonomous.model.automodel import AutoModel
 
 from autonomous import log
 from models.utility import parse_attributes
-from tests.test_models.test_ttrpgobject import ability
 
 
 class Ability(AutoModel):

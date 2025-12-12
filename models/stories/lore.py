@@ -1,6 +1,8 @@
+import os
 import random
 
 import markdown
+import requests
 import validators
 from autonomous.model.autoattr import (
     DictAttr,
@@ -25,12 +27,39 @@ class LoreScene(AutoModel):
     date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     responses = ListAttr(DictAttr())
-    lore = ReferenceAttr(choices=["Lore"])
+    lore = ReferenceAttr(choices=["Lore"], require=True)
 
     def delete(self):
         if self.date:
             self.date.delete()
         super().delete()
+
+    def summarize(self):
+        prompt = f"""Based on the following:
+{f"Summary of events: {self.lore.summary}" if self.lore.summary else ""}
+
+The current situation: {self.situation}
+
+CHARACTER RESPONSES:
+{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.lore.party])}
+
+Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
+"""
+        log("Generating Lore Summary with prompt: " + prompt, __print=True)
+        summary_result = self.lore.world.system.generate_text(
+            prompt=prompt,
+            primer="Rewrite the described events into a cohesive narrative based on the scenario information and character responses. Feel free to embellish for dramatic effect, but keep the same narrative structure, sequence of events, and do not leave out any events that transpired, not matter how small.",
+        )
+        if summary_result:
+            log(f"Generated Lore Summary: {summary_result}", __print=True)
+            self.summary = summary_result
+            self.save()
+
+    def get_response(self, character_name):
+        for response in self.responses:
+            if response.get("character_name") == character_name:
+                return response
+        return None
 
     ## MARK: - Verification Methods
     ###############################################################
@@ -72,7 +101,6 @@ class Lore(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     party = ListAttr(ReferenceAttr(choices=["Character"]))
     scenes = ListAttr(ReferenceAttr(choices=["LoreScene"]))
-    responses = ListAttr(DictAttr())
     story = ReferenceAttr(choices=["Story"])
     world = ReferenceAttr(choices=["World"], required=True)
     bbeg = ReferenceAttr(choices=["Character", "Faction"])
@@ -141,7 +169,27 @@ class Lore(AutoModel):
         ]
 
     @property
+    def responses(self):
+        return self.scenes[-1].responses if self.scenes else []
+
+    @responses.setter
+    def responses(self, rsps):
+        if self.scenes:
+            self.scenes[-1].responses = rsps
+        else:
+            ls = LoreScene(lore=self, responses=rsps)
+            ls.save()
+            self.scenes = [ls]
+            self.save()
+
+    @property
     def summary(self):
+        if self.scenes:
+            return self.scenes[-1].summary
+        return ""
+
+    @property
+    def last_summary(self):
         if len(self.scenes) > 1:
             return self.scenes[-2].summary
         return ""
@@ -159,15 +207,15 @@ class Lore(AutoModel):
 
     ############# image generation #############
     def generate(self):
-        prompt = f"""The goal is to develop the historical Lore of the character, places, and things in a TTRPG world by 'acting out' their roles and interactions to the described situation and events. Your task is to respond to the presented situation as the party characters would, based on their histories and personalities. The purpose is to expand the TTRPG world's historical lore, and your responses should reflect that context. The events describe may be in the past or present, but should always be consistent with the worlds's established history and current state.
+        prompt = f"""The goal is to develop the historical Lore of the character, places, and things in a TTRPG world by 'acting out' their roles and interactions to the described situation and events. Your task is to respond to the presented situation as the party characters would, based on their histories and personalities. You will be provided with specific scenario context, and your responses should reflect that context. The events describe may be in the past or present, but should always be consistent with the worlds's established history and current state.
 
 WORLD NAME: {self.world.name}
 WORLD CURRENT DATE: {self.current_date}
 WORLD's HISTORY:
 {self.world.history}
 
-SITUATION START DATE: {self.start_date}
-SITUATION CURRENT DATE: {self.current_date}
+LORE SCENARIO START DATE: {self.start_date}
+LORE SCENARIO CURRENT DATE: {self.current_date}
 """
         if self.story:
             prompt += f"\n\nThe lore is part of the following storylines: \n{self.story.name}: {self.story.summary or self.story.backstory}."
@@ -180,7 +228,7 @@ SITUATION CURRENT DATE: {self.current_date}
         if self.associations:
             prompt += "\n\nHere are some additional elements related to this lore: "
             for assoc in self.associations:
-                if assoc not in self.party and assoc != self.setting:
+                if assoc not in [*self.party, self.setting, self.world]:
                     prompt += f"\n\n{assoc.name}: {assoc.history or assoc.backstory}."
 
         if self.summary:
@@ -188,11 +236,12 @@ SITUATION CURRENT DATE: {self.current_date}
 
         prompt += f"""
 The party should respond to the following:
-{f"SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
 
-{f"GUIDANCE: {self.guidance}" if self.guidance else ""}
+{f"CONTEXT GUIDANCE: {self.guidance}" if self.guidance else ""}
 
-SCENARIO: {self.situation}.
+{f"CURRENT SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
+
+NEXT SCENE: {self.situation}.
 """
 
         log("Generating Expanded Lore with prompt: " + prompt, _print=True)
@@ -226,40 +275,15 @@ SCENARIO: {self.situation}.
             )
             ls.save()
             self.scenes += [ls]
-            self.responses = result["responses"]
             self.save()
-            self.summarize()
+            requests.post(
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/{ls.pk}/summary"
+            )
         else:
             log("Failed to generate Lore", __print=True)
 
-    def summarize(self):
-        prompt = f"""Based on the following:
-{f"Summary of events: {self.summary}" if self.summary else ""}
-
-The current situation: {self.situation}
-
-CHARACTER RESPONSES:
-{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
-
-Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
-"""
-        log("Generating Lore Summary with prompt: " + prompt, __print=True)
-        summary_result = self.world.system.generate_text(
-            prompt=prompt,
-            primer="Summarize the events that transpired based on the character responses provided. Do not leave out any events that transpired, not matter how small.",
-        )
-        if summary_result:
-            log(f"Generated Lore Summary: {summary_result}", __print=True)
-            self.scenes[-1].summary = summary_result
-            self.scenes[-1].save()
-            self.situation = ""
-            self.save()
-
     def get_response(self, character_name):
-        for response in self.responses:
-            if response.get("character_name") == character_name:
-                return response
-        return None
+        return self.scenes[-1].get_response(character_name) if self.scenes else {}
 
     ############# Association Methods #############
     # MARK: Associations

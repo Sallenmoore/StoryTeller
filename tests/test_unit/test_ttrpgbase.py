@@ -1,701 +1,296 @@
-import inspect
-import random
-import traceback
-
-import markdown
-import validators
-from autonomous.db import ValidationError
-from autonomous.model.autoattr import IntAttr, ReferenceAttr, StringAttr
+import pytest
+from unittest.mock import MagicMock, patch, PropertyMock
+from app.models.ttrpgbase import TTRPGBase  # Adjust import based on your structure
+from autonomous.model.autoattr import StringAttr, IntAttr
 from autonomous.model.automodel import AutoModel
-from flask import get_template_attribute
-from slugify import slugify
 
-from autonomous import log
-from models.images.image import Image
-from models.images.map import Map
-from models.journal import Journal
-from models.utility.parse_attributes import parse_text, sanitize
-
-MAX_NUM_IMAGES_IN_GALLERY = 100
-IMAGES_BASE_PATH = "static/images/tabletop"
+# Mock dependencies that TTRPGBase imports
+# This is crucial because TTRPGBase imports from models.images.image, etc.
+# which might try to connect to DBs or do other things on import.
+# However, for unit testing the class logic itself, we can often rely on patching
+# where the class is used.
+# If imports fail at the top level, we might need sys.modules patching in conftest.
 
 
-class TTRPGBase(AutoModel):
-    """
-    TTRPGBase is a base class for tabletop role-playing game (TTRPG) models. It provides common attributes and methods for various TTRPG entities such as characters, locations, items, etc.
-    """
+class TestTTRPGBase:
+    @pytest.fixture
+    def concrete_ttrpg_model(self):
+        """Creates a concrete subclass of TTRPGBase for testing."""
 
-    meta = {"abstract": True, "allow_inheritance": True, "strict": False}
-    name = StringAttr(default="")
-    backstory = StringAttr(default="")
-    backstory_summary = StringAttr(default="")
-    desc = StringAttr(default="")
-    desc_summary = StringAttr(default="")
-    traits = StringAttr(default="")
-    image = ReferenceAttr(choices=[Image])
-    current_age = IntAttr(default=lambda: random.randint(18, 50))
-    history = StringAttr(default="")
-    status = StringAttr(default="")
-    journal = ReferenceAttr(choices=[Journal])
-    foundry_id = StringAttr(default="")
-    foundry_client_id = StringAttr(default="")
+        class ConcreteItem(TTRPGBase):
+            # TTRPGBase requires a 'world' attribute for many methods (e.g. current_date, events)
+            # Typically this is a ReferenceAttr to a World model.
+            # We'll mock it or add a dummy attr for testing.
+            # In TTRPGBase it seems expected to exist or be reachable.
+            # Let's add a dummy world attribute for the mock.
+            pass
 
-    start_date_label = "Founded"
-    end_date_label = "Abandoned"
+        # We need to simulate the 'meta' behavior if AutoModel uses it for registration
+        ConcreteItem.__name__ = "ConcreteItem"
+        return ConcreteItem
 
-    story_types = [
-        "tragic",
-        "heroic",
-        "mysterious",
-        "sinister",
-        "unexpected",
-        "dangerous",
-        "boring",
-        "mundane",
-        "opulent",
-        "decaying",
-        "haunted",
-        "harrowing",
-        "enchanted",
-        "cursed",
-    ]
+    @pytest.fixture
+    def mock_instance(self, concrete_ttrpg_model):
+        """Creates an instance of the concrete model with mocked world/system."""
+        instance = concrete_ttrpg_model()
+        instance.pk = "test_pk_123"
+        instance.name = "Test Object"
 
-    child_list = {"city": "cities"}
-    _no_copy = {
-        "journal": None,
-        "history": "",
-    }
+        # Mock the 'world' object which is heavily used
+        mock_world = MagicMock()
+        mock_world.current_date = "2023-01-01"
+        mock_world.events = []
+        mock_world.image_style = "fantasy"
+        mock_world.tone = "dark"
+        mock_world.theme = "survival"
+        mock_world.history = "Ancient history"
+        mock_world.stories = []
 
-    _funcobj = {}
+        # Attach world to instance. In real usage this is likely a ReferenceAttr
+        instance.world = mock_world
 
-    ########### Dunder Methods ###########
+        # Mock the 'system' object used for generation
+        instance.system = MagicMock()
+        instance.system._titles = {"concreteitem": "Concrete Item"}
+        instance.system._themes_list = {
+            "concreteitem": {"themes": ["Theme A"], "motifs": ["Motif B"]}
+        }
 
-    def __eq__(self, obj):
-        if not hasattr(obj, "pk"):
-            return False
-        try:
-            return self.pk == obj.pk
-        except Exception as e:
-            # traceback.print_stack(limit=5)
-            log(e)
-            return False
+        return instance
 
-    def __ne__(self, obj):
-        if not hasattr(obj, "pk"):
-            return True
-        if hasattr(obj, "pk"):
-            return self.pk != obj.pk
-        return True
+    def test_initialization_defaults(self, concrete_ttrpg_model):
+        """Test that default values are set correctly."""
+        # Patch random.randint to have deterministic age
+        with patch("random.randint", return_value=25):
+            obj = concrete_ttrpg_model()
+            assert obj.name == ""
+            assert obj.backstory == ""
+            assert obj.current_age == 25
+            assert obj.foundry_id == ""
 
-    def __lt__(self, obj):
-        if hasattr(obj, "name"):
-            return self.name < obj.name
-        return False
+    def test_dunder_methods(self, mock_instance):
+        """Test __eq__, __ne__, __lt__, __gt__, __hash__."""
+        other = MagicMock()
+        other.pk = "test_pk_123"
+        other.name = "Test Object"
 
-    def __gt__(self, obj):
-        if hasattr(obj, "name"):
-            return self.name > obj.name
-        return False
+        # Equality
+        assert mock_instance == other
 
-    def __hash__(self):
-        return hash(self.pk)
+        other.pk = "different_pk"
+        assert mock_instance != other
 
-    ########### Class Methods ###########
+        # Comparison (based on name)
+        other.name = "ZObject"  # 'Test Object' < 'ZObject'
+        assert mock_instance < other
 
-    @classmethod
-    def child_list_key(cls, model):
-        return cls.child_list.get(model.lower(), f"{model.lower()}s") if model else None
+        other.name = "AObject"  # 'Test Object' > 'AObject'
+        assert mock_instance > other
 
-    @classmethod
-    def all_models_str(cls):
-        return [m.__name__ for m in cls.all_models()]
+        # Hash
+        assert hash(mock_instance) == hash(mock_instance.pk)
 
-    @classmethod
-    def all_models(cls):
-        subclasses = TTRPGBase.__subclasses__()
-        TTRPGObject = [s for s in subclasses if s.__name__ == "TTRPGObject"][0]
-        result = cls.all_subclasses(TTRPGObject)
-        return result
+    def test_child_list_key(self, concrete_ttrpg_model):
+        """Test child_list_key class method."""
+        # Using the default mapping defined in TTRPGBase
+        assert TTRPGBase.child_list_key("city") == "cities"
+        # Fallback
+        assert TTRPGBase.child_list_key("unknown") == "unknowns"
 
-    @classmethod
-    def all_subclasses(cls, BaseModel=None):
-        """
-        Recursively retrieves all non-abstract subclasses of the given class.
+    @patch("app.models.ttrpgbase.TTRPGBase.__subclasses__")
+    def test_all_subclasses(self, mock_subclasses, concrete_ttrpg_model):
+        """Test all_subclasses recursive retrieval."""
 
-        This method starts with the given class (or the class on which the method
-        is called if no class is provided) and traverses its subclass hierarchy
-        to find all subclasses that are not marked as abstract.
+        # Setup a hierarchy: TTRPGBase -> Sub1 -> Sub2
+        class Sub1(TTRPGBase):
+            pass
 
-        Args:
-            BaseModel (type, optional): The base class to start the search from.
-                If not provided, the method uses the class on which it is called.
+        class Sub2(Sub1):
+            pass
 
-        Returns:
-            list: A list of all non-abstract subclasses of the given class.
-        """
-        if not BaseModel:
-            BaseModel = cls
-        subclasses = BaseModel.__subclasses__()
-        models = []
-        for subclass in subclasses:
-            if "_meta" in subclass.__dict__ and not subclass._meta.get("abstract"):
-                models.append(subclass)
-            models += cls.all_subclasses(subclass)
-        return models
+        # TTRPGBase.__subclasses__() returns [Sub1]
+        # Sub1.__subclasses__() returns [Sub2]
 
-    @classmethod
-    def get_model(cls, model, pk=None):
-        """
-        Retrieve a model class or an instance of the model class by its primary key.
+        # We need to mock the return values for different calls.
+        # This is tricky with a single patch.
+        # Alternatively, since we defined ConcreteItem, we can just check if it appears.
 
-        This method searches through all subclasses of `TTRPGBase` to find a model class
-        that matches the provided `model` name. If a primary key (`pk`) is provided, it
-        returns an instance of the model class with that primary key. Otherwise, it returns
-        the model class itself.
+        # Let's rely on the actual method logic with our dynamic class
+        # concrete_ttrpg_model is a subclass of TTRPGBase
 
-        Args:
-            model (str): The name of the model class to retrieve.
-            pk (int, optional): The primary key of the model instance to retrieve. Defaults to None.
+        subclasses = TTRPGBase.all_subclasses()
+        # Since ConcreteItem was defined in this file, it might not be in the global registry
+        # depending on how AutoModel works, but let's assume standard python inheritance.
+        assert concrete_ttrpg_model in subclasses
 
-        Returns:
-            Model class or instance: The model class if `pk` is None, otherwise an instance of the model class.
+    def test_get_model(self, concrete_ttrpg_model):
+        """Test retrieving a model class by name."""
+        # We need to make sure all_subclasses returns our concrete model
+        with patch.object(
+            TTRPGBase, "all_subclasses", return_value=[concrete_ttrpg_model]
+        ):
+            model_class = TTRPGBase.get_model("ConcreteItem")
+            assert model_class == concrete_ttrpg_model
 
-        Raises:
-            AttributeError: If the model class does not have a `get` method.
-            ValueError: If the provided `model` is not a string or is None.
-        """
-        # log(model, pk)
-        if not model or not isinstance(model, str):
-            return model
-        Model = None
-        for klass in TTRPGBase.all_subclasses():
-            # log(klass)
-            if klass.__name__.lower() == model.lower():
-                Model = klass
-                break
-        return Model.get(pk) if Model and pk else Model
+            # Case insensitive
+            model_class = TTRPGBase.get_model("concreteitem")
+            assert model_class == concrete_ttrpg_model
 
-    @classmethod
-    def get_models(cls):
-        """
-        Class method to retrieve a list of models.
+            # Test with PK (should call .get())
+            concrete_ttrpg_model.get = MagicMock(return_value="Instance")
+            instance = TTRPGBase.get_model("ConcreteItem", pk="123")
+            assert instance == "Instance"
+            concrete_ttrpg_model.get.assert_called_with("123")
 
-        This method iterates over the class attribute `_models`, which is expected to be a list of model identifiers (strings),
-        and loads each model using the `AutoModel.load_model` method.
+    def test_properties(self, mock_instance):
+        """Test various property getters."""
+        # Age
+        mock_instance.current_age = 30
+        assert mock_instance.age == 30
 
-        Returns:
-            list: A list of loaded models.
-        """
-        return cls.all_models()
+        # Current Date (delegates to world)
+        assert mock_instance.current_date == "2023-01-01"
 
-    ########### Property Methods ###########
-    @property
-    def age(self):
-        return self.current_age
+        # Path
+        # Assuming model_name() returns class name lowercased
+        with patch.object(mock_instance, "model_name", return_value="concreteitem"):
+            assert mock_instance.path == "concreteitem/test_pk_123"
 
-    @age.setter
-    def age(self, value):
-        self.current_age = value
+        # Slug
+        assert mock_instance.slug == "test-object"
 
-    @property
-    def child_models(self):
-        results = []
-        for model in self.all_models():
-            if self.model_name() in model.association_list:
-                results.append(model)
-        return results
+        # Theme
+        mock_instance.traits = " brave; strong "
+        assert mock_instance.theme == "brave; strong"
 
-    @property
-    def current_date(self):
-        return self.world.current_date
+    def test_geneology(self, mock_instance):
+        """Test geneology property traversal."""
+        parent = MagicMock()
+        parent.parent = None
+        parent.world = mock_instance.world
+        mock_instance.parent = parent
 
-    @property
-    def description(self):
-        return self.desc
+        # geneology should be [world, parent] (ancestors reversed)
+        # The code is: ancestors.append(obj.parent)... if world not in ancestors... return ancestors[::-1]
 
-    @description.setter
-    def description(self, val):
-        self.desc = val
+        # Mock add_association to avoid side effects
+        mock_instance.add_association = MagicMock()
 
-    @property
-    def description_summary(self):
-        return self.desc_summary
+        gen = mock_instance.geneology
+        assert len(gen) == 2
+        assert gen[0] == mock_instance.world
+        assert gen[1] == parent
 
-    @description_summary.setter
-    def description_summary(self, val):
-        self.desc_summary = val
+    @patch("app.models.ttrpgbase.markdown.markdown")
+    def test_resummarize(self, mock_markdown, mock_instance):
+        """Test the resummarize method logic."""
+        mock_instance.backstory = "A very long backstory..." * 10
+        mock_instance.description = "A description"
+        mock_instance.status = "Active"
 
-    @property
-    def episodes(self):
-        return [e for c in self.campaigns for e in c.episodes if self in e.associations]
+        # Mock system generation
+        mock_instance.system.generate_summary.side_effect = [
+            "Short Summary",
+            "Description Summary",
+            "Markdown History",
+        ]
+        mock_markdown.return_value = "<h1>History</h1>"
 
-    @property
-    def events(self):
-        self.world.events.sort(key=lambda e: e.end_date, reverse=True)
-        return sorted(
-            [e for e in self.world.events if self in e.associations],
-            key=lambda e: e.end_date,
-            reverse=True,
+        mock_instance.save = MagicMock()
+
+        mock_instance.resummarize()
+
+        # Verify summaries were generated
+        assert mock_instance.backstory_summary == "<h1>History</h1>".replace(
+            "h1>", "h3>"
         )
+        assert mock_instance.description_summary == "Description Summary"
+        assert mock_instance.history == "<h1>History</h1>".replace("h1>", "h3>")
 
-    @property
-    def funcobj(self):
-        self._funcobj["parameters"]["required"] = list(
-            self._funcobj["parameters"]["properties"].keys()
-        )
-        return self._funcobj
+        mock_instance.save.assert_called()
 
-    @property
-    def geneology(self):
-        # TBD: Implement geneology
-        return [self]
+    @patch("app.models.ttrpgbase.get_template_attribute")
+    def test_get_icon(self, mock_get_template, mock_instance):
+        """Test get_icon template rendering."""
+        # Mock the callable returned by get_template_attribute
+        mock_macro = MagicMock(return_value="<svg>...</svg>")
+        mock_get_template.return_value = mock_macro
 
-    @property
-    def genres(self):
-        return list(self._systems.keys())
+        # Test default
+        icon = mock_instance.get_icon()
+        mock_get_template.assert_called()
+        # The icon name is derived from get_title -> "Concrete Item" -> "concrete_item"
+        args, _ = mock_get_template.call_args
+        assert "concrete_item" in args[1] or "concreteitem" in args[1]
+        assert icon == "<svg>...</svg>"
 
-    @property
-    def image_tags(self):
-        return [self.genre, self.model_name().lower()]
+    def test_add_association(self, mock_instance):
+        """Test adding associations."""
+        obj = MagicMock()
+        obj.associations = []
+        obj.save = MagicMock()
 
-    @property
-    def image_prompt(self):
-        return self.desc
+        mock_instance.associations = []
+        mock_instance.save = MagicMock()
 
-    @property
-    def path(self):
-        return f"{self.model_name().lower()}/{self.pk}"
+        mock_instance.add_association(obj)
 
-    @property
-    def rumors(self):
-        rumors = []
-        for story in self.stories:
-            rumors += story.rumors
-        return rumors
+        assert mock_instance in obj.associations
+        assert obj in mock_instance.associations
+        obj.save.assert_called()
+        mock_instance.save.assert_called()
 
-    @property
-    def recent_events(self):
-        recent_events = []
-        for poi in [
-            *self.regions,
-            *self.cities,
-            *self.districts,
-            *self.locations,
-            *self.shops,
-            *self.vehicles,
-        ]:
-            recent_events += poi.recent_events
-        return recent_events
+        # Test adding world (should return early)
+        res = mock_instance.add_association(mock_instance.world)
+        assert res == mock_instance.world
 
-    @property
-    def slug(self):
-        return slugify(self.name)
+    @patch("app.models.ttrpgbase.Image")
+    def test_generate_image(self, MockImage, mock_instance):
+        """Test AI image generation trigger."""
+        mock_instance.image_prompt = "A prompt"
+        mock_instance.model_name = MagicMock(return_value="concreteitem")
+        mock_instance.genre = "fantasy"
 
-    @property
-    def title(self):
-        return self.get_title(self)
+        mock_generated_image = MagicMock()
+        MockImage.generate.return_value = mock_generated_image
 
-    @property
-    def titles(self):
-        return self.system._titles
+        mock_instance.save = MagicMock()
 
-    @property
-    def traits_list(self):
-        return self.system._themes_list.get(self.model_name().lower())
+        result = mock_instance.generate_image()
 
-    ########### CRUD Methods ###########
-    def delete(self):
-        if self.journal:
-            self.journal.delete()
-        if self.image:
-            self.image.remove_association(self)
-        if self.map:
-            self.map.delete()
-        return super().delete()
+        MockImage.generate.assert_called()
+        assert mock_instance.image == mock_generated_image
+        mock_instance.image.save.assert_called()
+        mock_instance.save.assert_called()
 
-    # MARK: Generate
-    def generate(self, prompt=""):
-        # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
-        prompt += f"""
-Use and expand on the existing object data listed below for the {self.title} object:
-{"- Name: " + self.name if self.name.strip() else ""}
-{"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
-{"- Current Status: " + self.status if getattr(self, "status", None) else ""}
-{"- Description: " + self.description.strip() if self.description.strip() else ""}
-{"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
-"""
-        prompt += f"""
-===
-- Setting:
-  - Genre: {self.genre}
-  - World Details: {self.world.backstory}
-  - Relevant World Events:
-    - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
-  - Geographic Details:
-"""
+    def test_pre_save_hooks(self, mock_instance):
+        """Test pre-save logic like backstory formatting and traits."""
+        # Test Backstory header replacement
+        mock_instance.backstory_summary = "<h1>Title</h1>"
+        mock_instance.pre_save_backstory()
+        assert mock_instance.backstory_summary == "<h3>Title</h3>"
 
-        if self.geneology and len(self.geneology) > 1:
-            for relative in self.geneology:
-                if (
-                    relative not in [self, self.world]
-                    and relative.name
-                    and relative.backstory
-                ):
-                    prompt += f"""
-    - Type: {relative.title}
-      - Name: {relative.name}
-      - Backstory: {relative.backstory}
-     {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
-"""
-        if associations := self.associations:
-            prompt += """
-===
-- Additional Associated Objects:
-"""
-            for ass in associations:
-                if ass not in self.geneology and ass.name and ass.backstory:
-                    prompt += f"""
-  - Type: {ass.title}
-  - Name: {ass.name}
-  - Backstory: {ass.history or ass.backstory}
-"""
-        name = self.name
-        if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
-            log(results, _print=True)
-            for k, v in results.items():
-                setattr(self, k, v)
-            if name:
-                self.backstory = self.backstory.replace(self.name, name)
-                self.desc = self.desc.replace(self.name, name)
-                self.name = name
-            self.save()
-            self.resummarize()
-            if not self.image:
-                self.generate_image()
-        else:
-            log(results, _print=True)
-        return results
+        # Test Trait generation
+        mock_instance.traits = ""
+        with patch("random.choice", side_effect=["Theme", "Motif"]):
+            mock_instance.pre_save_traits()
+            assert mock_instance.traits == "Theme; Motif"
 
-    ############# Boolean Methods #############
+    def test_pre_save_image_url(self, mock_instance):
+        """Test pre_save_image when image is a URL string."""
+        mock_instance.image = "http://example.com/image.png"
+        mock_instance.image_prompt = "Prompt"
+        mock_instance.image_tags = ["tag"]
 
-    def is_child(self, obj):
-        return self in obj.children
+        with patch("app.models.ttrpgbase.Image") as MockImage:
+            with patch("app.models.ttrpgbase.validators.url", return_value=True):
+                mock_img_obj = MagicMock()
+                MockImage.from_url.return_value = mock_img_obj
 
-    def is_associated(self, obj):
-        return obj in self.associations
+                mock_instance.pre_save_image()
 
-    ############# Image Methods #############
-
-    def get_image_list(self, tags=[]):
-        """
-        Retrieve a list of images that match the given tags.
-        Args:
-            tags (list, optional): A list of tags to filter images by. If not provided,
-                                   defaults to a list containing the model's name in lowercase.
-        Returns:
-            list: A list of images that contain all the specified tags.
-        """
-
-        images = []
-        tags = tags or [self.model_name().lower()]
-        images = [img for img in Image.all() if all(t in img.tags for t in tags)]
-        return images
-
-    # MARK: generate_image
-    def generate_image(self):
-        if image := Image.generate(prompt=self.image_prompt, tags=self.image_tags):
-            self.image = image
-            self.image.save()
-            self.save()
-        else:
-            log(self.image_prompt, "Image generation failed.", _print=True)
-        return self.image
-
-    ############# Association Methods #############
-    # MARK: Associations
-    def add_association(self, obj):
-        # log(len(obj.associations), self in obj.associations)
-        if obj == self.world:
-            return obj
-        if self not in obj.associations:
-            obj.associations += [self]
-            obj.save()
-        # log(len(obj.associations), self in obj.associations)
-
-        # log(len(self.associations), obj in self.associations)
-        if obj not in self.associations:
-            self.associations += [obj]
-            self.save()
-        # log(len(self.associations), obj in self.associations)
-        if not obj.parent and obj.in_parent_list(self):
-            obj.parent = self
-            obj.save()
-        return obj
-
-    def add_associations(self, objs):
-        for obj in objs:
-            self.add_association(obj)
-        return self.associations
-
-    def remove_association(self, obj):
-        log(
-            f"Association: {obj.name}, Removing association: {obj in self.associations}"
-        )
-        if obj.parent == self:
-            # log(f"Removing parent association: {obj.name} from {self.name}")
-            obj.parent = None
-            obj.save()
-        elif self.parent == obj:
-            # log(f"Removing parent association: {self.name} from {obj.name}")
-            self.parent = None
-            self.save()
-        elif obj in self.associations:
-            # log(f"Removing association: {obj.name} from {self.name}")
-            # log(f"Before removal: {len(self.associations)} associations")
-            self.associations.remove(obj)
-            log(f"After removal: {len(self.associations)} associations")
-            self.save()
-            log(f"After save: {len(self.associations)} associations")
-            obj.remove_association(self)
-            log(f"After reciprocal removal: {len(self.associations)} associations")
-        log(
-            f"Associations: {obj.name}, Removed association: {obj not in self.associations}"
-        )
-        return self.associations
-
-    def has_associations(self, model):
-        log(model)
-        if not isinstance(model, str):
-            model = model.__name__
-        for assoc in self.associations:
-            if assoc.model_name() == model:
-                return True
-        return False
-
-    ########## Object Data ######################
-    # MARK: History
-    def resummarize(self):
-        from models.stories.quest import Quest
-
-        # generate backstory summary
-        if len(self.backstory.split()) < 80:
-            self.backstory_summary = self.backstory
-        else:
-            primer = "Generate a summary of less than 80 words of the following events in MARKDOWN format."
-            self.backstory_summary = self.system.generate_summary(
-                self.backstory, primer
-            )
-            self.backstory_summary = (
-                markdown.markdown(self.backstory_summary)
-                .replace("h1>", "h3>")
-                .replace("h2>", "h3>")
-            )
-        # generate backstory summary
-        if len(self.description.split()) < 25:
-            self.description_summary = self.description
-        else:
-            primer = f"Generate a plain text summary of the provided {self.title}'s description in 25 words or fewer."
-            self.description_summary = self.system.generate_summary(
-                self.description, primer
-            )
-        self.save()
-
-        # generate history
-
-        prompt = f"""
-Generate a narrative history of the {self.title}'s story, incorporating the given backstory and events, ensuring a consistent timeline with the given dates.
-{self.start_date_label} {self.start_date if hasattr(self, "start_date") and self.start_date else "Unknown"} - {self.end_date if hasattr(self, "end_date") and hasattr(self, "end_date") else ""} {self.end_date_label}
-
-Backstory
----
-{self.backstory}
-
-"""
-        if self.events:
-            prompt += """
-## Associated Events
-"""
-            prompt += "\n\n".join(
-                f"- {e.name} [{e.end_date}]: {e.summary or f'{e.backstory} {e.outcome}'}"
-                for e in sorted(self.events, key=lambda e: e.end_date)
-                if e.backstory and e.outcome
-            )
-
-        if self.status:
-            prompt += f"""
-## Current Status
-
-{self.status}
-"""
-        prompt = sanitize(prompt)
-        log(f"Generating history...\n{prompt}", _print=True)
-        history_primer = f"Generate a chronological history of the {self.title}, incorporating the given backstory and event list, ensuring a consistent chonology based on the provided dates. Use MARKDOWN format with paragraph breaks after no more than 4 sentences."
-
-        history = self.system.generate_summary(prompt, history_primer)
-        history = history.replace("```markdown", "").replace("```", "")
-        self.history = (
-            markdown.markdown(history).replace("h1>", "h3>").replace("h2>", "h3>")
-        )
-        self.save()
-
-    def get_title(self, model):
-        if inspect.isclass(model):
-            model = model.__name__
-        elif not isinstance(model, str):
-            model = model.__class__.__name__
-        model = model.lower()
-        return self.system._titles.get(model, model.capitalize())
-
-    def get_icon(self, model=None, size="1rem"):
-        if not model:
-            model = self.__class__.__name__
-        elif inspect.isclass(model):
-            model = model.__name__
-        elif not isinstance(model, str):
-            model = model.__class__.__name__
-        else:
-            model = str(model).lower()
-        icon = self.get_title(model).lower().replace("-", "_")
-        try:
-            return get_template_attribute("shared/_icons.html", icon)(size=size)
-        except Exception as e:
-            log(e)
-            return get_template_attribute("shared/_icons.html", "d1dice")(size=size)
-
-    def page_data(self):
-        return {}
-
-    def to_foundry(self):
-        return self.system.foundry_export(self)
-
-    def add_journal_entry(
-        self,
-        pk=None,
-        title=None,
-        text=None,
-        tags=[],
-        importance=0,
-        date=None,
-        associations=[],
-    ):
-        if pk:
-            return self.journal.update_entry(
-                pk=pk,
-                title=title,
-                text=text,
-                tags=tags,
-                importance=importance,
-                date=date,
-                associations=associations,
-            )
-        else:
-            return self.journal.add_entry(
-                title=title,
-                text=text,
-                tags=tags,
-                importance=importance,
-                date=date,
-                associations=associations,
-            )
-
-    def search_autocomplete(self, query, model=None):
-        results = []
-        if not model:
-            for model in self.all_models():
-                Model = self.load_model(model)
-                # log(model, query)
-                results += [
-                    r for r in Model.search(name=query, world=self.world) if r != self
-                ]
-                # log(results)
-        else:
-            Model = self.load_model(model)
-            results = [
-                r for r in Model.search(name=query, world=self.world) if r != self
-            ]
-        return results
-
-    # /////////// HTML SNIPPET Methods ///////////
-    def snippet(self, user, macro, kwargs=None):
-        module = f"models/_{self.model_name().lower()}.html"
-        kwargs = kwargs or {}
-        # try:
-        return get_template_attribute(module, macro)(user, self, **kwargs)
-        # except Exception as e:
-        #     log(e)
-        #     return ""
-
-    ## MARK: - Verification Methods
-    ###############################################################
-    ##                    VERIFICATION HOOKS                   ##
-    ###############################################################
-
-    @classmethod
-    def auto_pre_save(cls, sender, document, **kwargs):
-        super().auto_pre_save(sender, document, **kwargs)
-        document.pre_save_image()
-        document.pre_save_backstory()
-        document.pre_save_traits()
-        document.pre_save_text_fields()
-
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
-        document.post_save_journal()
-
-    ###############################################################
-    ##                    VERIFICATION HOOKS                     ##
-    ###############################################################
-
-    def pre_save_image(self):
-        if isinstance(self.image, str):
-            if validators.url(self.image):
-                self.image = Image.from_url(
-                    self.image,
-                    prompt=self.image_prompt,
-                    tags=[*self.image_tags],
+                MockImage.from_url.assert_called_with(
+                    "http://example.com/image.png", prompt="Prompt", tags=["tag"]
                 )
-                self.image.save()
-            elif image := Image.get(self.image):
-                self.image = image
-            else:
-                raise ValidationError(
-                    f"Image must be an Image object, url, or Image pk, not {self.image}"
-                )
-        elif self.image and not self.image.tags:
-            self.image.tags = self.image_tags
-            self.image.save()
-
-        if self.image and self not in self.image.associations:
-            self.image.associations += [self]
-            self.image.save()
-
-    def pre_save_backstory(self):
-        if ">" in self.backstory_summary:
-            self.backstory_summary = self.backstory_summary.replace(
-                "h1>", "h3>"
-            ).replace("h2>", "h3>")
-
-    def pre_save_traits(self):
-        if not self.traits:
-            self.traits = f"{random.choice(self.traits_list['themes'])}; {random.choice(self.traits_list['motifs'])}"
-
-    def post_save_journal(self):
-        if not self.journal:
-            self.journal = Journal(world=self.world, parent=self)
-            self.journal.save()
-            self.save()
-
-    def pre_save_text_fields(self):
-        if self.backstory:
-            self.backstory = parse_text(self, self.backstory)
-        if self.backstory_summary:
-            self.backstory_summary = parse_text(self, self.backstory_summary)
-        if self.desc:
-            self.desc = parse_text(self, self.desc)
-        if self.desc_summary:
-            self.desc_summary = parse_text(self, self.desc_summary)
-        if self.status:
-            self.status = parse_text(self, self.status)
-        if self.history:
-            self.history = parse_text(self, self.history)
+                assert mock_instance.image == mock_img_obj
+                mock_img_obj.save.assert_called()

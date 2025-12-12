@@ -59,7 +59,6 @@ pytest-cov
 requests-mock
 pytest-mock
 pytest-flask          # Flask integration for pytest
-pytest-cov            # Coverage reporting
 mongomock             # For mocking MongoDB in unit tests
 selenium              # For E2E testing (or playwright)
 webdriver-manager     # For managing browser drivers

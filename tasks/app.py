@@ -73,6 +73,10 @@ def create_app():
         )
         return get_template_attribute("shared/_tasks.html", "checktask")(task["id"])
 
+    ###############################################################################
+    # World Object Generation Endpoints
+    # MARK: TTRPGObject
+    ###############################################################################
     @app.route("/generate/<string:model>/<string:pk>", methods=("POST",))
     def generate(model, pk):
         return _generate_task(
@@ -81,12 +85,10 @@ def create_app():
             pk=pk,
         )
 
-    @app.route("/generate/character/<string:pk>/dndbeyond", methods=("POST",))
-    def pulldnbeyonddata(pk):
-        return _generate_task(
-            tasks._generate_character_from_dndbeyond_task,
-            pk=pk,
-        )
+    ###############################################################################
+    # Image Generation Endpoints
+    # MARK: IMAGE
+    ###############################################################################
 
     @app.route("/generate/image/<string:model>/<string:pk>", methods=("POST",))
     def image_generate_task(model, pk):
@@ -96,6 +98,11 @@ def create_app():
             pk=pk,
         )
 
+    ###############################################################################
+    # Map Generation Endpoints
+    # MARK: MAP
+    ###############################################################################
+
     @app.route("/generate/map/<string:model>/<string:pk>", methods=("POST",))
     def create_map(model, pk):
         return _generate_task(
@@ -104,6 +111,11 @@ def create_app():
             pk=pk,
         )
 
+    ###############################################################################
+    # History Generation Endpoints
+    # MARK: HISTORY
+    ###############################################################################
+
     @app.route("/generate/history/<string:model>/<string:pk>", methods=("POST",))
     def generate_history(model, pk):
         return _generate_task(
@@ -111,6 +123,11 @@ def create_app():
             model=model,
             pk=pk,
         )
+
+    ###############################################################################
+    # Campaign Generation Endpoints
+    # MARK: CAMPAIGN
+    ###############################################################################
 
     @app.route("/generate/campaign/<string:pk>/summary", methods=("POST",))
     def generate_campaign_summary(pk):
@@ -133,6 +150,10 @@ def create_app():
             pk=pk,
         )
 
+    ###############################################################################
+    # Episode Generation Endpoints
+    # MARK: EPISODE
+    ###############################################################################
     @app.route("/generate/episode/<string:pk>/graphic", methods=("POST",))
     def generate_episode_graphic(pk):
         return _generate_task(
@@ -154,6 +175,10 @@ def create_app():
             pk=pk,
         )
 
+    ###############################################################################
+    # GMScreen Character Endpoints
+    # MARK: CHARACTER
+    ###############################################################################
     @app.route("/generate/character/<string:pk>/chat", methods=("POST",))
     def generate_character_chat(pk):
         return _generate_task(
@@ -162,6 +187,22 @@ def create_app():
             chat=request.json.get("chat"),
         )
 
+    @app.route("/generate/character/<string:pk>/dndbeyond", methods=("POST",))
+    def pulldnbeyonddata(pk):
+        return _generate_task(
+            tasks._generate_character_from_dndbeyond_task,
+            pk=pk,
+        )
+
+    @app.route("/generate/<string:pk>/quest/create", methods=("POST",))
+    def create_quest(pk):
+        return _generate_task(tasks._generate_quest_task, pk=pk)
+
+    ###############################################################################
+    # Ability Generation Endpoints
+    # MARK: ABILITY
+    ###############################################################################
+
     @app.route("/generate/ability/<string:pk>", methods=("POST",))
     def generate_ability(pk):
         return _generate_task(
@@ -169,6 +210,10 @@ def create_app():
             pk=pk,
         )
 
+    ###############################################################################
+    # Audio Generation Endpoints
+    # MARK: AUDIO
+    ###############################################################################
     @app.route("/generate/audio/<string:model>/<string:pk>", methods=("POST",))
     def create_audio(model, pk):
         return _generate_task(
@@ -179,6 +224,11 @@ def create_app():
             post_text=request.json.get("post_text", ""),
         )
 
+    ###############################################################################
+    # GMScreen Generation Endpoints
+    # MARK: GMSCREEN
+    ###############################################################################
+
     @app.route("/generate/gmscreen/table/<string:pk>", methods=("POST",))
     def create_table(pk):
         return _generate_task(
@@ -187,6 +237,11 @@ def create_app():
             worldpk=request.json.get("worldpk"),
             prompt=request.json.get("prompt"),
         )
+
+    ###############################################################################
+    # Dungeon Generation Endpoints
+    # MARK: DUNGEON
+    ###############################################################################
 
     @app.route("/generate/dungeon/<string:pk>/map", methods=("POST",))
     def create_dungeon_map(pk):
@@ -216,9 +271,10 @@ def create_app():
             pk=pk,
         )
 
-    @app.route("/generate/<string:pk>/quest/create", methods=("POST",))
-    def create_quest(pk):
-        return _generate_task(tasks._generate_quest_task, pk=pk)
+    ###############################################################################
+    # Event Generation Endpoints
+    # MARK: EVENT
+    ###############################################################################
 
     @app.route("/generate/event/<string:pk>", methods=("POST",))
     def generate_event(pk):
@@ -238,10 +294,23 @@ def create_app():
     def generate_event_summary(pk):
         return _generate_task(tasks._generate_event_summary_task, pk=pk)
 
+    ###############################################################################
+    # Lore Generation Endpoints
+    # MARK: LORE
+    ###############################################################################
+
     @app.route("/generate/lore/<string:pk>", methods=("POST",))
     def generate_lore(pk):
         return _generate_task(tasks._generate_lore_task, pk=pk)
 
+    @app.route("/generate/lore/<string:pk>/summary", methods=("POST",))
+    def generate_lore_summary(pk):
+        return _generate_task(tasks._generate_lore_summary_task, pk=pk)
+
+    ###############################################################################
+    # Story Generation Endpoints
+    # MARK: STORY
+    ###############################################################################
     @app.route("/generate/story/<string:pk>", methods=("POST",))
     def create_story(pk):
         return _generate_task(tasks._generate_story_task, pk=pk)
