@@ -194,9 +194,9 @@ class Lore(AutoModel):
 
     @property
     def last_summary(self):
-        if len(self.scenes) > 1:
+        if len(self.scenes) > 1 and self.scenes[-2].summary:
             return self.scenes[-2].summary
-        return ""
+        return self.summary
 
     ############# CRUD #############
 
@@ -241,9 +241,9 @@ LORE SCENARIO CURRENT DATE: {self.current_date}
         prompt += f"""
 The party should respond to the following:
 
-{f"CONTEXT GUIDANCE: {self.guidance}" if self.guidance else ""}
-
 {f"CURRENT SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
+
+{f"CONTEXT GUIDANCE: {self.guidance}" if self.guidance else ""}
 
 NEXT SCENE: {self.situation}.
 """
@@ -279,6 +279,7 @@ NEXT SCENE: {self.situation}.
             )
             ls.save()
             self.scenes += [ls]
+            self.situation = result.get("situation", "")
             self.save()
             requests.post(
                 f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/{ls.pk}/summary"
