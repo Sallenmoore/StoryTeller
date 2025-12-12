@@ -356,7 +356,7 @@
     <div id="all-rooms" class="grid-x align-spaced grid-margin-x hide">
         {% for room in obj.dungeon.rooms %}
         {%if room != obj%}
-        <div class="cell medium-4">
+        <div id="room-{{room.pk}}" class="cell medium-4">
             <div class="callout secondary">
                 <h6>{{room.name}}</h6>
                 <div class="grid-x align-spaced">
@@ -371,7 +371,9 @@
                     <div class="cell shrink">
                         <a class="button small"
                            hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
-                           hx-target="#dungeon-container"
+                           hx-target="#room-{{room.pk}}"
+                           hx-select="#room-{{room.pk}}"
+                           hx-swap="outerHTML"
                            hx-disinherit="hx-confirm hx-indicator hx-push-url">
                             {% if obj.is_connected(room) %}Disconnect{% else %}Connect{% endif %}
                         </a>
