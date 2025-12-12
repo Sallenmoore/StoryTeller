@@ -53,9 +53,9 @@ initbackend:
 
 devdeploy:
 	-git checkout steven
-	git commit -am "Updated backend"
-	git push
-	git checkout main
+	-git commit -am "Updated backend"
+	-git push
+	-git checkout main
 	-git merge steven -m "Updated Main Branch"
 	-git push
 	-storytellerprod
