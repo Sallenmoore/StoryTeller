@@ -45,13 +45,13 @@ CHARACTER RESPONSES:
 
 Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
-        log("Generating Lore Summary with prompt: " + prompt, __print=True)
+        log("Generating Lore Summary with prompt: " + prompt, _print=True)
         summary_result = self.lore.world.system.generate_text(
             prompt=prompt,
             primer="Rewrite the described events into a cohesive narrative based on the scenario information and character responses. Feel free to embellish for dramatic effect, but keep the same narrative structure, sequence of events, and do not leave out any events that transpired, not matter how small.",
         )
         if summary_result:
-            log(f"Generated Lore Summary: {summary_result}", __print=True)
+            log(f"Generated Lore Summary: {summary_result}", _print=True)
             self.summary = summary_result
             self.save()
 

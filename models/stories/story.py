@@ -175,9 +175,9 @@ class Story(AutoModel):
                     v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)
             self.save()
-            log(f"Generated Story: {self.name}", __print=True)
+            log(f"Generated Story: {self.name}", _print=True)
         else:
-            log("Failed to generate Story", __print=True)
+            log("Failed to generate Story", _print=True)
 
     def summarize(self):
         prompt = f"Summarize the following storyline for a {self.world.genre} TTRPG world. The summary should be concise and engaging, highlighting the key elements of the story and its significance within the larger world. Here is some context about the world: {self.world.name}, {self.world.description}. Here is the storyline: {self.situation}, {self.backstory}, {self.current_status}. The storyline includes the following tasks: {', '.join(self.tasks)}. There are also the following rumors associated with the storyline: {', '.join(self.rumors)}. Finally, here is some reliable information about the storyline: {', '.join(self.information)}. Here are the events that have occurred related to this storyline: {', '.join([f'{e.end_date}: {e.outcome}' for e in self.events])}"
