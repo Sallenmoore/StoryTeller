@@ -2,7 +2,7 @@ from datetime import datetime
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
-from app.models.journal import Journal, JournalEntry
+from models.journal import Journal, JournalEntry
 from autonomous.db import ValidationError
 
 # ### Notes

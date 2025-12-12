@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from app.models.user import User  # Adjust import based on structure
+from models.user import User  # Adjust import based on structure
 
 # ### Notes
 

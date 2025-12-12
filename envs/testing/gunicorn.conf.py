@@ -3,7 +3,7 @@ from glob import glob
 
 # Non logging stuff
 bind = f"{os.environ.get('APP_HOST', '0.0.0.0')}:{os.environ.get('COMM_PORT', 80)}"
-timeout = 120
+timeout = 300
 workers = 2
 capture_output = True  # Whether to send output to the error log
 
@@ -13,7 +13,7 @@ error_log_format = "ERROR - %(U)s :: \n"
 accesslog = os.getenv("ACCESS_LOG", "-")
 # Error log - records Gunicorn server goings-on
 errorlog = os.getenv("ERROR_LOG", "-")
-loglevel = "debug"
+loglevel = "info"
 reload = True
 reload_extra_files = glob("templates/**/*", recursive=True) + glob(
     "static/**/*", recursive=True

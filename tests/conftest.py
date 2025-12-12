@@ -1,10 +1,10 @@
 import mongomock
 import pytest
 from autonomous.db import connect, disconnect
+from autonomous.model.automodel import AutoModel
 from mongomock.gridfs import enable_gridfs_integration
 
 from app import create_app
-from autonomous import AutoModel
 
 enable_gridfs_integration()
 

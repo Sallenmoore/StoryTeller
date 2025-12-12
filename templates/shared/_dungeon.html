@@ -217,9 +217,9 @@
                             <a hx-get="/api/dungeon/room/{{connected_room.pk}}"
                                hx-target="#dungeon-container"
                                hx-disinherit="hx-confirm hx-indicator hx-push-url">
-                                <h5>{{connected_room.name}}</h5>
+                                <small>{{connected_room.name}}</small>
                             </a>
-                            {% if not loop.last %}, &nbsp;{% endif %}
+                            {% if not loop.last %} {{icon_components.line()}} {% endif %}
                         </div>
                         {% endfor %}
                     </div>

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch, PropertyMock
-from app.models.ttrpgbase import TTRPGBase  # Adjust import based on your structure
+from models.base.ttrpgbase import TTRPGBase  # Adjust import based on your structure
 from autonomous.model.autoattr import StringAttr, IntAttr
 from autonomous.model.automodel import AutoModel
 

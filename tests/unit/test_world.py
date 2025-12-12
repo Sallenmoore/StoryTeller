@@ -2,13 +2,13 @@ import os
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
+from autonomous.db import ValidationError
 
 # We need to mock the imports inside world.py before importing it if they have side effects,
 # or patch them where they are used.
 # Since world.py imports many models at the top level, let's assume we can import World
 # and then patch the classes it uses.
-from app.models.world import World
-from autonomous.db import ValidationError
+from models.world import World
 
 
 class TestWorldModel:

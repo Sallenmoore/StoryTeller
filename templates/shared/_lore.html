@@ -175,7 +175,7 @@
         </div>
     </form>
     <div class="grid-x align-spaced">
-        {% if lore.summary %}
+        {% if lore.last_summary %}
         <div class="cell">
             <div class="callout bg-screen">
                 {{lore.last_summary | safe}}
@@ -257,7 +257,7 @@
             </div>
         </div>
     </div>
-    <div class="grid-x">
+    <div id='lore-gm-prompts' class="grid-x">
         <div class="cell align-center">
             <form hx-post="/api/lore/{{lore.pk}}/edit"
                   hx-trigger="change delay:500ms"
@@ -273,7 +273,7 @@
                 <div class="grid-x">
                     <div class="cell shrink">
                         <button type="submit"
-                                class="button small">
+                                class="button small" hx-target='#lore-gm-prompts'>
                             {{icon_components.refresh(size="1rem")}}
                             Generate Lore
                         </button>

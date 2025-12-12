@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-from app.models.audio import Audio  # Adjust import based on your actual structure
+
+from models.audio.audio import Audio  # Adjust import based on your actual structure
 
 # Assuming Audio inherits from AutoModel which interacts with a DB.
 # We'll use the mock_db fixture from conftest.py implicitly if it handles connection patching,
