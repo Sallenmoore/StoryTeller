@@ -225,8 +225,6 @@
 {% macro gmnotes(user, obj) -%}
 <div id="gmnotes" lass="callout">
     <h3 class='text-center'>GM Notes</h3>
-    <h4 class='subtitle'>Foundry Client ID: {{obj.foundry_client_id}}</h4>
-    <h4 class='subtitle'>Foundry ID: {{obj.foundry_id}}</h4>
     <div class="grid-x grid-margin-x">
         <div class="cell medium-6">
             {{gmnotes_components.details(user, obj)}}

@@ -453,24 +453,6 @@ class StarsWithoutNumber(SciFiSystem):
             "_stats": {},
         }
 
-        # Helper function to safely get attribute base score
-        def get_attr_score(attr_key, default=9):
-            # Source uses 'dexerity', target uses 'dex'
-            key_map = {
-                "dex": "dexerity",
-                "int": "intelligence",
-                "con": "constitution",
-                "wis": "wisdom",
-                "cha": "charisma",
-                "str": "strength",
-            }
-            final_key = key_map.get(attr_key)
-            # We assume the source attribute scores are the Base scores
-            # log(final_key, attr_key, source_data.get("attributes", {}))
-            result = int(source_data.get("attributes", {}).get(final_key, 9))
-            # log(result)
-            return result
-
         # 2. Map Core Fields (Name, Image, Health, AC, Speed)
         char_name = source_data.get("name", "Unknown Character").strip()
         target_schema["name"] = char_name
@@ -499,29 +481,39 @@ class StarsWithoutNumber(SciFiSystem):
         target_schema["system"]["level"]["value"] = int(source_data.get("level", 1))
 
         # 3. Map Attributes (Stats)
+        # Helper function to safely get attribute base score
+        def get_attr_score(attr_key, default=9):
+            # Source uses 'dexerity', target uses 'dex'
+            key_map = {
+                "dex": "dexerity",
+                "int": "intelligence",
+                "con": "constitution",
+                "wis": "wisdom",
+                "cha": "charisma",
+                "str": "strength",
+            }
+            final_key = key_map.get(attr_key)
+            # We assume the source attribute scores are the Base scores
+            # log(final_key, attr_key, source_data.get("attributes", {}))
+            result = int(source_data.get("attributes", {}).get(final_key, 9))
+            # log(result)
+            return result
+
         # log(target_schema["system"]["stats"].keys())
         for stat_key in target_schema["system"]["stats"].keys():
             score = get_attr_score(stat_key)
             target_schema["system"]["stats"][stat_key]["base"] = score
 
         skill_items = []
-        SKILL_TYPES = ["combat", "noncombat", "psychic"]
         for k, v in source_data.get("skills", {}).items():
-            # Determine the type. SWN system uses 'noncombat' for standard skills.
-            skill_type = "noncombat"
-
             # The core requirement: A new Item document object for each skill.
             skill_item = {
                 "name": k,
                 "type": "skill",  # Important: this must match the Item Type for SWN skills
-                "img": f"icons/svg/{skill_type}.svg",  # Default icon based on type
+                "img": "icons/svg/noncombat.svg",  # Default icon based on type
                 "system": {
                     # SWN stores the score/level under 'level.value'
-                    "level": {
-                        "value": int(v)
-                        or 0,  # Convert string score ("-1", "0") to integer
-                        "max": 5,
-                    },
+                    "rank": int(v),
                     # Other required fields for a minimal skill Item
                     "description": "",
                     "favorite": False,
