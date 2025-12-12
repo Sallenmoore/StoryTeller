@@ -111,6 +111,10 @@ class Lore(AutoModel):
         "parameters": {
             "type": "object",
             "properties": {
+                "situation": {
+                    "type": "string",
+                    "description": "Suggest likely next scenes/scenarios based on the character's responses to the previous scenario and the setting information.",
+                },
                 "responses": {
                     "type": "array",
                     "description": "A list of responses from each party character to the current described situation. The responses should include the character's verbal response, thoughts, actions taken, and any relevant roll information. If there is more than one character in the party, provide responses for each character that show awareness of each other to create a dynamic interaction.",
@@ -251,7 +255,7 @@ NEXT SCENE: {self.situation}.
             funcobj=self.funcobj,
         )
         if result.get("responses"):
-            log(f"Generated Lore: {result}", __print=True)
+            log(f"Generated Lore: {result}", _print=True)
             for resp in result["responses"]:
                 try:
                     resp["roll_result"] = (
@@ -262,7 +266,7 @@ NEXT SCENE: {self.situation}.
                 except Exception as e:
                     log(
                         f"Error rolling dice for formula {resp.get('roll_formula')}: {e}",
-                        __print=True,
+                        _print=True,
                     )
             ls = LoreScene(
                 lore=self,
@@ -280,7 +284,7 @@ NEXT SCENE: {self.situation}.
                 f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/{ls.pk}/summary"
             )
         else:
-            log("Failed to generate Lore", __print=True)
+            log("Failed to generate Lore", _print=True)
 
     def get_response(self, character_name):
         return self.scenes[-1].get_response(character_name) if self.scenes else {}
