@@ -52,13 +52,14 @@ initbackend:
 	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
 devdeploy:
+	-git checkout steven
 	git commit -am "Updated backend"
 	git push
 	git checkout main
-	git merge steven -m "Updated Main Branch"
-	git push
-	storytellerprod
-	storytellerbackend
+	-git merge steven -m "Updated Main Branch"
+	-git push
+	-storytellerprod
+	-storytellerbackend
 
 ###### TESTING #######
 
