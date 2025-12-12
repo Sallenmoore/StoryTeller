@@ -21,17 +21,31 @@
     <h2 class="text-center separator-center">Lore Builder</h2>
     <div class="grid-y">
         <div class="cell shrink">
-            <select name='lorepk' hx-post="/api/lore/" hx-target="#lore-container"
-                    hx-trigger="change"
-                    onchange='history.pushState({}, "", `/{{obj.path}}/lore/${this.value}`);'
-                    hx-push-url="false"
-                    hx-selector="#lore-container"
-                    hx-swap="outerHTML">
-                <option value="" selected>=== Select Lore ===</option>
+            <div class="grid-x grid-margin-y">
                 {% for entry in obj.lore%}
-                <option value="{{entry.pk}}">{{entry.name}}</option>
+                <div class="cell" hx-post="/api/lore/"
+                     hx-target="#lore-container"
+                     hx-trigger="click"
+                     hx-push-url="/{{obj.path}}/lore/{{entry.pk}}"
+                     hx-selector="#lore-container"
+                     hx-vals='{"lorepk":"{{entry.pk}}"}'
+                     hx-swap="outerHTML"
+                     style='cursor: pointer;'>
+                    <div class="callout">
+                        <div class="grid-x grid-margin-x">
+                            <div class="cell medium-2">
+                                <h5 class='separator-center'>{{entry.name}}</h5>
+                                <h6 class='subheader'>{{entry.start_date}} - {{entry.current_date}}
+                                </h6>
+                            </div>
+                            <div class="cell medium-10">
+                                <span style='font-size: small;'>{{entry.summary}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
-            </select>
+            </div>
         </div>
         <div class="cell shrink">
             <h3>- OR -</h3>
