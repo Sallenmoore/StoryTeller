@@ -322,5 +322,5 @@ The area is described as: {self.desc}.
         ]:
             if v := getattr(self, attr):
                 if isinstance(v, str) and any(ch in v for ch in ["#", "*", "- "]):
-                    v = parse_attributes.parse_text(v.strip())
+                    v = parse_attributes.parse_text(self, v.strip())
                 setattr(self, attr, v.strip())
