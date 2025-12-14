@@ -124,6 +124,14 @@ def create_app():
             pk=pk,
         )
 
+    @app.route("/generate/summaries/<string:model>/<string:pk>", methods=("POST",))
+    def generate_summaries(model, pk):
+        return _generate_task(
+            tasks._generate_summaries_task,
+            model=model,
+            pk=pk,
+        )
+
     ###############################################################################
     # Campaign Generation Endpoints
     # MARK: CAMPAIGN

@@ -132,13 +132,6 @@ class Region(Place):
 
     ################### verify associations ##################
 
-    def pre_save_owner(self):
-        if isinstance(self.owner, str):
-            if faction := Faction.get(self.owner):
-                self.owner = faction
-            else:
-                raise ValueError(f"Faction {self.owner} not found")
-
     def post_save_backstory(self):
         if not self.backstory:
             story = ""

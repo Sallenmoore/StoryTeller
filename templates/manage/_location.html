@@ -22,8 +22,8 @@
         <div class="cell shrink">
             <label>Owner
                 <select name="owner">
-                    <option value=""></option>
-                    {% for ch in obj.characters %}
+                    <option value="">===Select Owner===</option>
+                    {% for ch in obj.characters + obj.creatures + obj.factions %}
                     <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
                         {{ch.name}}
                     </option>

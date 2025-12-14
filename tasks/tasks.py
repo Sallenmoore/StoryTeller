@@ -137,7 +137,13 @@ def _generate_map_task(model, pk):
 
 def _generate_history_task(model, pk):
     if obj := World.get_model(model, pk):
-        obj.resummarize()
+        obj.generate_history()
+    return {"url": f"/api/{obj.path}/history"}
+
+
+def _generate_summaries_task(model, pk):
+    if obj := World.get_model(model, pk):
+        obj.generate_summaries()
     return {"url": f"/api/{obj.path}/history"}
 
 
@@ -160,13 +166,13 @@ def _generate_image_task(model, pk):
 
 def _generate_campaign_summary_task(pk):
     if obj := Campaign.get(pk):
-        obj.resummarize()
+        obj.generate_history()
     return {"url": f"/api/{obj.path}/manage"}
 
 
 def _generate_session_summary_task(pk):
     if obj := Episode.get(pk):
-        obj.resummarize()
+        obj.generate_summaries()
     return {"url": f"/api/{obj.path}/manage"}
 
 

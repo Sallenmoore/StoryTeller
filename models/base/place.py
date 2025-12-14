@@ -70,9 +70,9 @@ The map should be in a {self.world.map_style} style.
             )
             if self.map and map:
                 self.map.delete()
-            self.map = map
-            self.map.save()
-            self.save()
+                self.map = map
+                self.map.save()
+                self.save()
         else:
             raise AttributeError(
                 "Object must have a backstory and description to generate a map"
@@ -135,6 +135,7 @@ The map should be in a {self.world.map_style} style.
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_map()
+        document.pre_save_owner()
         document.pre_save_encounters()
 
     # @classmethod
@@ -185,3 +186,10 @@ The map should be in a {self.world.map_style} style.
             if encounter.parent != self:
                 encounter.parent = self
                 encounter.save()
+
+    def pre_save_owner(self):
+        if isinstance(self.owner, str):
+            for a in self.associations:
+                if self.owner == str(a.pk):
+                    self.owner = a
+                    break

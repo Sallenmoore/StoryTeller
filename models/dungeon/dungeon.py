@@ -11,10 +11,11 @@ from autonomous import log
 from models.dungeon.dungeonroom import DungeonRoom
 from models.images.map import Map
 from models.ttrpgobject.character import Character
+from models.utility import tasks as utility_tasks
 
 
 class Dungeon(AutoModel):
-    location = ReferenceAttr(choices=["Location", "District"], required=True)
+    location = ReferenceAttr(choices=["Location", "District", "Vehicle"], required=True)
     theme = StringAttr(default="")
     desc = StringAttr(default="")
     map = ReferenceAttr(choices=["Map"])
@@ -68,7 +69,7 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         for room in self.rooms:
             room.generate()
             log(f"Generated room {room.name} for dungeon", _print=True)
-        self.generate_map()
+        utility_tasks.start_task(f"/generate/dungeon/{self.pk}/map")
         return self.rooms
 
     def create_room(self):

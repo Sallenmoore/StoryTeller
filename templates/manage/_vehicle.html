@@ -31,8 +31,16 @@
     </div>
     <div class="grid-x grid-margin-x align-spaced">
         <div class="cell auto">
-            <label>Owner</label>
-            <input disabled id='owner' type="text" name="owner" value='TBD...'>
+            <div class="cell shrink">
+                <select name="owner">
+                    <option value="">===Select Owner===</option>
+                    {% for ch in obj.characters + obj.factions %}
+                    <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
+                        {{ch.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
         <div class="cell shrink">
             <label class="is-subheading">Crew Capacity</label>

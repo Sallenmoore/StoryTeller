@@ -15,6 +15,7 @@
 {% import "manage/_vehicle.html" as manage_vehicle_components %}
 {% import "shared/_title.html" as title_components %}
 {% import "shared/_gmnotes.html" as gmnotes_components %}
+{% import "shared/_dungeon.html" as dungeon_components %}
 
 {% macro index(user, obj) -%}
 {{history(user, obj)}}
@@ -148,6 +149,21 @@
         </div>
     </a>
 </li>
+<li>
+    <a href=""
+       hx-get="/api/{{obj.path}}/dungeon" hx-target="#page-content"
+       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
+       hx-push-url="/{{obj.path}}/dungeon">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.dungeon(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Layout</span>
+            </div>
+        </div>
+    </a>
+</li>
 {% endif %}
 {%- endmacro %}
 
@@ -262,6 +278,10 @@
     </div>
 </div>
 {{abilities_components.details(user, obj)}}
+{%- endmacro %}
+
+{% macro dungeon(user, obj)%}
+{{dungeon_components.dungeon(user, obj)}}
 {%- endmacro %}
 
 {% macro timeline(user, obj)%}

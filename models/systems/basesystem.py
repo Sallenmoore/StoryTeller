@@ -485,6 +485,14 @@ class BaseSystem(AutoModel):
     ############# Class Methods #############
 
     @classmethod
+    def get_theme(cls, obj):
+        if not isinstance(obj, str):
+            obj = obj.model_name().lower()
+        if themes := cls._themes_list.get(obj, {}):
+            return f"{random.choice(themes.get('themes', ['sadness', 'fear', 'anger', 'awe and wonder']))}; {random.choice(themes.get('motifs', ['fire', 'water', 'earth', 'air']))}"
+        return ""
+
+    @classmethod
     def map_prompt(cls, obj):
         return f"""{cls._map_prompts[obj.model_name().lower()](obj)}
 

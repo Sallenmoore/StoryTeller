@@ -15,6 +15,7 @@ from models.images.image import Image
 from models.images.map import Map
 from models.journal import Journal
 from models.utility import parse_attributes
+from models.utility import tasks as utility_tasks
 
 MAX_NUM_IMAGES_IN_GALLERY = 100
 IMAGES_BASE_PATH = "static/images/tabletop"
@@ -329,6 +330,7 @@ class TTRPGBase(AutoModel):
         base_prompt = f"""
 Use and expand on the existing object data listed below for the {self.title} object:
 {"- Name: " + self.name if self.name.strip() else ""}
+{"- Theme: " + self.traits if self.traits else ""}
 {"- Goal: " + self.goal if getattr(self, "goal", None) else ""}
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
@@ -383,9 +385,10 @@ Use and expand on the existing object data listed below for the {self.title} obj
                     v = parse_attributes.parse_text(self, v)
                 setattr(self, k, v)
             self.save()
-            self.resummarize()
+            utility_tasks.start_task(f"/generate/summaries/{self.path}")
+            utility_tasks.start_task(f"/generate/history/{self.path}")
             if not self.image:
-                self.generate_image()
+                utility_tasks.start_task(f"/generate/image/{self.path}")
         else:
             log(results, _print=True)
         return results
@@ -495,33 +498,35 @@ The image should be in a {self.world.image_style} style.
         return False
 
     ########## Object Data ######################
+    # utility_tasks.start_task(f"/generate/ability/{ability.pk}")
     # MARK: History
-    def resummarize(self):
-        from models.stories.quest import Quest
-
+    def generate_summaries(self):
         # generate backstory summary
-        if len(self.backstory.split()) < 80:
+        if len(self.backstory.split()) < 100:
             self.backstory_summary = self.backstory
         else:
-            primer = "Generate a summary of less than 80 words of the following events in MARKDOWN format."
+            primer = f"Generate a summary of less than 100 words of the following {self.title} backstory in MARKDOWN format. Focus on the key details and important aspects."
             self.backstory_summary = self.system.generate_summary(
                 self.backstory, primer
             )
-            self.backstory_summary = (
-                markdown.markdown(self.backstory_summary)
-                .replace("h1>", "h3>")
-                .replace("h2>", "h3>")
+            self.backstory_summary = parse_attributes.parse_text(
+                self, self.backstory_summary
             )
         # generate backstory summary
-        if len(self.description.split()) < 25:
+        if len(self.description.split()) < 30:
             self.description_summary = self.description
         else:
-            primer = f"Generate a plain text summary of the provided {self.title}'s description in 25 words or fewer."
+            primer = f"Generate a plain text summary of the provided {self.title}'s description in 30 words or fewer. Focus on the key characteristics and important aspects."
             self.description_summary = self.system.generate_summary(
                 self.description, primer
             )
+            self.description_summary = parse_attributes.parse_text(
+                self, self.description_summary
+            )
         self.save()
 
+    def generate_history(self):
+        from models.stories.quest import Quest
         # generate history
 
         prompt = f"""
@@ -656,7 +661,6 @@ Backstory
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_image()
-        document.pre_save_backstory()
         document.pre_save_traits()
         document.pre_save_text_fields()
 
@@ -691,15 +695,9 @@ Backstory
             self.image.filename = f"{self.slug}.webp"
             self.image.save()
 
-    def pre_save_backstory(self):
-        if ">" in self.backstory_summary:
-            self.backstory_summary = self.backstory_summary.replace(
-                "h1>", "h3>"
-            ).replace("h2>", "h3>")
-
     def pre_save_traits(self):
         if not self.traits:
-            self.traits = f"{random.choice(self.traits_list['themes'])}; {random.choice(self.traits_list['motifs'])}"
+            self.traits = self.system.get_theme(self)
 
     def post_save_journal(self):
         if not self.journal:

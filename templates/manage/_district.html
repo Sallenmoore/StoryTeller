@@ -7,9 +7,16 @@
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="cell shrink">
-        <h4>Owner</h4>
-        <input disabled id='owner' type="text" name="owner"
-               value='TBD...'>
+        <label>Owner
+            <select name="owner">
+                <option value=""></option>
+                {% for ch in obj.characters + obj.factions %}
+                <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
+                    {{ch.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
     </div>
 </form>
 {{manage_components.backstory(user, obj)}}

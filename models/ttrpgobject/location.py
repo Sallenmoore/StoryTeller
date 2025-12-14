@@ -140,8 +140,6 @@ class Location(Place):
 
         super().auto_pre_save(sender, document, **kwargs)
 
-        document.pre_save_owner()
-
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
     #     super().auto_post_save(sender, document, **kwargs)
@@ -150,9 +148,3 @@ class Location(Place):
     #     super().clean()
 
     ################### verify associations ##################
-
-    def pre_save_owner(self):
-        if self.owner and not isinstance(self.owner, Character):
-            self.owner = Character.get(self.owner)
-
-        # log(self.features, _print=True)

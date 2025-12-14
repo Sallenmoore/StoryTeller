@@ -29,59 +29,6 @@ class Character(Actor):
 
     parent_list = ["Location", "District", "City", "Vehicle", "Shop"]
 
-    _template = [
-        [
-            "Criminal, thug, thief, swindler",
-            "Menial, cleaner, retail worker, servant",
-            "Unskilled heavy labor, porter, construction",
-            "Skilled trade, electrician, mechanic, pilot",
-            "Idea worker, programmer, writer",
-            "Merchant, business owner, trader, banker",
-            "Official, bureaucrat, courtier, clerk",
-            "Military, soldier, enforcer, law officer",
-        ],
-        [
-            "The local underclass",
-            "Common laborer",
-            "Aspiring bourgeoise or upper class",
-            "The elite of this society",
-            "Minority or foreigner",
-            "Outsider or exotic",
-        ],
-        [
-            "They have significant debt or money woes",
-            "A loved one is in trouble",
-            "Romantic failure with a desired person",
-            "Drug or behavioral addiction",
-            "Their superior dislikes or resents them",
-            "They have a persistent sickness",
-            "They hate their job or life situation",
-            "Someone dangerous is targeting them",
-            "They're pursuing a disastrous purpose",
-            "They have no problems worth mentioning",
-        ],
-        [
-            "Unusually young or old for their role",
-            "Young adult",
-            "Mature prime",
-            "Middle-aged or elderly",
-        ],
-        [
-            "They want a particular romantic partner",
-            "They want money for them or a loved one",
-            "They want a promotion in their job",
-            "They want answers about a past trauma",
-            "They want revenge on an enemy",
-            "They want to help a beleaguered friend",
-            "They want an entirely different job",
-            "They want protection from an enemy",
-            "They want to leave their current life",
-            "They want fame and glory",
-            "They want power over those around them",
-            "They have everything they want from life",
-        ],
-    ]
-
     _funcobj = {
         "name": "generate_npc",
         "description": "creates, completes, and expands on the attributes and story of an existing NPC",
@@ -181,7 +128,7 @@ Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is
     ## MARK: Object Data
     def page_data(self):
         if not self.history:
-            self.resummarize()
+            self.generate_history()
         return {
             "pk": str(self.pk),
             "image": str(self.image.url()) if self.image else None,
@@ -226,7 +173,6 @@ Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_is_player()
-        document.pre_save_description()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -243,10 +189,3 @@ Generate a {gender} {self.species} {self.archetype} NPC aged {age} years that is
         else:
             self.is_player = bool(self.is_player)
         # log(self.is_player)
-
-    def pre_save_description(self):
-        if not self.backstory:
-            for t in self._template:
-                self.backstory += f"""
-<p>{random.choice(t)}</p>
-"""

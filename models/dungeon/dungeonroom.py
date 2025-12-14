@@ -13,6 +13,7 @@ from models.images.map import Map
 from models.stories.encounter import Encounter
 from models.ttrpgobject.character import Character
 from models.utility import parse_attributes
+from models.utility import tasks as utility_tasks
 
 
 class DungeonRoom(AutoModel):
@@ -172,9 +173,11 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             self.shape = results.get("shape", self.shape)
             if self.save():
                 if not self.map:
-                    self.generate_map()
+                    utility_tasks.start_task(f"/generate/dungeon/room/{self.pk}/map")
                 if not self.encounters:
-                    self.generate_encounter()
+                    utility_tasks.start_task(
+                        f"/generate/dungeon/room/{self.pk}/encounter"
+                    )
         return self
 
     def generate_encounter(self):

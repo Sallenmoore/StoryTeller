@@ -261,7 +261,7 @@ class Episode(AutoModel):
 
     ##################### INSTANCE METHODS ####################
 
-    def resummarize(self):
+    def generate_history(self):
         if not self.episode_report:
             return ""
         self._campaign_summary = ""

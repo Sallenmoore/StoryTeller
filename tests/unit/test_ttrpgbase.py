@@ -182,8 +182,8 @@ class TestTTRPGBase:
         assert gen[1] == parent
 
     @patch("app.models.ttrpgbase.markdown.markdown")
-    def test_resummarize(self, mock_markdown, mock_instance):
-        """Test the resummarize method logic."""
+    def test_generate_history(self, mock_markdown, mock_instance):
+        """Test the generate_history method logic."""
         mock_instance.backstory = "A very long backstory..." * 10
         mock_instance.description = "A description"
         mock_instance.status = "Active"
@@ -198,7 +198,7 @@ class TestTTRPGBase:
 
         mock_instance.save = MagicMock()
 
-        mock_instance.resummarize()
+        mock_instance.generate_history()
 
         # Verify summaries were generated
         assert mock_instance.backstory_summary == "<h1>History</h1>".replace(

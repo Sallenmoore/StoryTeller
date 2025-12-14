@@ -33,6 +33,18 @@
         <h4>Religion</h4>
         {{form_components.richtexteditor(user, obj, "religion", label=False)}}
     </div>
+    <div class="cell shrink">
+        <label>Owner
+            <select name="owner">
+                <option value=""></option>
+                {% for ch in obj.characters + obj.factions %}
+                <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
+                    {{ch.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
 </form>
 {{manage_components.backstory(user, obj)}}
 {{manage_components.image(user, obj)}}

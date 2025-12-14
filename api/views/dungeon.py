@@ -27,6 +27,7 @@ from models.ttrpgobject.faction import Faction
 from models.ttrpgobject.item import Item
 from models.ttrpgobject.location import Location
 from models.ttrpgobject.vehicle import Vehicle
+from models.utility import tasks as utility_tasks
 from models.world import World
 
 from ._utilities import loader as _loader
@@ -43,7 +44,7 @@ dungeon_endpoint = Blueprint("dungeon", __name__)
 @dungeon_endpoint.route("/create/random", methods=("POST",))
 @dungeon_endpoint.route("/create", methods=("POST",))
 def create_dungeon():
-    user, obj, request_data = _loader()
+    user, obj, *_ = _loader()
     log(request.json)
     if obj.dungeon:
         obj.dungeon.delete()
@@ -59,9 +60,7 @@ def create_dungeon():
     elif request.path.endswith("random"):
         for _ in range(random.randint(3, 10)):
             obj.dungeon.create_room()
-    requests.post(
-        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/dungeon/{obj.dungeon.pk}/rooms"
-    )
+    utility_tasks.start_task(f"/generate/dungeon/{obj.dungeon.pk}/rooms")
     return get_template_attribute("shared/_dungeon.html", "dungeon")(user, obj)
 
 
@@ -107,7 +106,7 @@ def create_dungeonroom():
     ),
 )
 def room(roompk):
-    user, obj, request_data = _loader()
+    user, *_ = _loader()
     room = DungeonRoom.get(roompk)
     return get_template_attribute("shared/_dungeon.html", "room")(
         user,
@@ -117,7 +116,7 @@ def room(roompk):
 
 @dungeon_endpoint.route("/room/<string:dpk>/entrance", methods=("POST",))
 def dungeon_entrance(dpk):
-    user, obj, request_data = _loader()
+    user, obj, *_ = _loader()
     dr = DungeonRoom.get(dpk)
     dr.is_entrance = not dr.is_entrance
     dr.save()
@@ -129,7 +128,7 @@ def dungeon_entrance(dpk):
 
 @dungeon_endpoint.route("/room/<string:roompk>/manage", methods=("POST",))
 def edit_room(roompk=None):
-    user, obj, request_data = _loader()
+    user, _, request_data = _loader()
     log(request_data)
     room = DungeonRoom.get(roompk)
     room.name = request_data.get("name", room.name)
@@ -153,7 +152,7 @@ def edit_room(roompk=None):
     methods=("POST",),
 )
 def new_association(roompk):
-    user, obj, request_data = _loader()
+    user, _, request_data = _loader()
     log(request_data)
     room = DungeonRoom.get(roompk)
     model_path = request_data.get("apath")
@@ -181,10 +180,7 @@ def new_association(roompk):
     methods=("POST",),
 )
 def new_encounter(roompk):
-    user, obj, request_data = _loader()
-    return requests.post(
-        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/dungeon/room/{roompk}/encounter"
-    ).text
+    return utility_tasks.start_task(f"/generate/dungeon/room/{roompk}/encounter")
 
 
 @dungeon_endpoint.route(
@@ -192,7 +188,7 @@ def new_encounter(roompk):
     methods=("POST",),
 )
 def remove_association(roompk, associationmodel, associationpk):
-    user, obj, request_data = _loader()
+    user, _, request_data = _loader()
     log(request_data)
     room = DungeonRoom.get(roompk)
     if associationmodel == "character":
@@ -215,7 +211,7 @@ def remove_association(roompk, associationmodel, associationpk):
     "/room/<string:roompk>/connect/<string:connected_roompk>", methods=("POST",)
 )
 def connect_room(roompk=None, connected_roompk=None):
-    user, obj, request_data = _loader()
+    user, *_ = _loader()
     log(request.json)
     room = DungeonRoom.get(roompk)
     connected_room = DungeonRoom.get(connected_roompk)
@@ -230,7 +226,7 @@ def connect_room(roompk=None, connected_roompk=None):
 
 @dungeon_endpoint.route("/room/<string:roompk>/delete", methods=("POST",))
 def delete_room(roompk=None):
-    user, obj, request_data = _loader()
+    user, obj, *_ = _loader()
     log(request.json)
     room = DungeonRoom.get(roompk)
     room.delete()

@@ -8,16 +8,15 @@
     <div class="cell medium-6">
         <h4>Owner</h4>
         <div class="grid-x align-spaced" id='owner-manager-container'>
-            <div class="cell search">
-                <input autocomplete=off type="search" name="query"
-                       placeholder="Search to Add Owner..."
-                       style="border-bottom: solid #000;" hx-target="#owner-search"
-                       hx-post="/api/manage/owner/add/search"
-                       hx-trigger="input delay:750ms, search"
-                       hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
-                <ul class="dropdown menu autocomplete-list" data-dropdown-menu
-                    id="owner-search">
-                </ul>
+            <div class="cell shrink">
+                <select name="owner">
+                    <option value="">===Select Owner===</option>
+                    {% for ch in obj.characters %}
+                    <option value="{{ch.pk}}" {% if obj.owner==ch %} selected {% endif %}>
+                        {{ch.name}}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
             {% if obj.owner %}
             <div class="cell medium-6">

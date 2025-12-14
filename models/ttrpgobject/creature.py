@@ -69,7 +69,7 @@ class Creature(Actor):
 
     def page_data(self):
         if not self.history:
-            self.resummarize()
+            self.hiatory()
         return {
             "pk": str(self.pk),
             "image": str(self.image.url()) if self.image else None,

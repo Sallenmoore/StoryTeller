@@ -1,6 +1,7 @@
 import random
 
 import markdown
+import requests
 from autonomous.ai.audioagent import AudioAgent
 from autonomous.model.autoattr import (
     BoolAttr,
@@ -16,6 +17,7 @@ from bs4 import BeautifulSoup
 from autonomous import log
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.ttrpgobject import TTRPGObject
+from models.utility import tasks as utility_tasks
 
 
 class Actor(TTRPGObject):
@@ -28,7 +30,6 @@ class Actor(TTRPGObject):
     species = StringAttr(default="")
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     hitpoints = IntAttr(default=30)
-    status = StringAttr(default="healthy")
     ac = IntAttr(default=10)
     speed = IntAttr(default=30)
     speed_units = StringAttr(default="ft")
@@ -189,11 +190,12 @@ class Actor(TTRPGObject):
         for _ in range(random.randint(1, 6)):
             ability = Ability(
                 world=self.world,
+                type=self.model_name().lower(),
             )
             ability.save()
             self.abilities.append(ability)
             self.save()
-            ability.generate(self)
+            utility_tasks.start_task(f"/generate/ability/{ability.pk}")
 
     def chat(self, message=""):
         # summarize conversation
@@ -290,10 +292,13 @@ class Actor(TTRPGObject):
             # log(f"pre_save_skills: {self.skills}")
 
     def pre_save_ac(self):
-        self.ac = max(
-            10,
-            ((int(self.dexterity) - 10) // 2) + ((int(self.strength) - 10) // 2) + 10,
-        )
+        if not self.ac or self.ac == 10:
+            self.ac = max(
+                10,
+                ((int(self.dexterity) - 10) // 2)
+                + ((int(self.strength) - 10) // 2)
+                + 10,
+            )
 
     def pre_save_ability(self):
         for idx, ability in enumerate(self.abilities):

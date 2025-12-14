@@ -138,7 +138,7 @@ class Item(TTRPGObject):
 
     def page_data(self):
         if not self.history:
-            self.resummarize()
+            self.generate_history()
         return {
             "pk": str(self.pk),
             "image": str(self.image.url()) if self.image else "",

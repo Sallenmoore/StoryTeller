@@ -139,13 +139,13 @@ class Campaign(AutoModel):
     ##                     INSTANCE METHODS                       ##
     ################################################################
 
-    def resummarize(self):
+    def generate_history(self):
         text = ""
         for entry in sorted(self.episodes, key=lambda x: x.episode_num):
             if entry.summary.strip():
                 text += f"\n{entry.summary}\n"
             elif entry.end_date:
-                entry.resummarize()
+                entry.generate_history()
                 text += f"\n{entry.summary}\n"
         storylines = (
             ", ".join([f"{s.name}:{s.summary}" for s in self.stories])

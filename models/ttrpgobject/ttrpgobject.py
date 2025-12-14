@@ -179,11 +179,6 @@ class TTRPGObject(TTRPGBase):
         document.pre_save_associations()
         document.pre_save_dates()
 
-        # MIGRATION: remove encountrers from associations
-        document.associations = [
-            a for a in document.associations if a.model_name() != "Encounter"
-        ]
-
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
     #     super().auto_post_save(sender, document, **kwargs)

@@ -24,6 +24,7 @@ class Vehicle(Place):
     ac = IntAttr(default=lambda: random.randint(1, 20))
     abilities = ListAttr(ReferenceAttr(choices=["Ability"]))
     capacity = IntAttr(default=1)
+    dungeon = ReferenceAttr(choices=["Dungeon"])
 
     start_date_label = "Built"
     end_date_label = "Destroyed"
@@ -101,6 +102,10 @@ class Vehicle(Place):
         ]
 
     @property
+    def location_type(self):
+        return f"{self.size} {self.type}"
+
+    @property
     def image_tags(self):
         return super().image_tags + [self.type, self.size]
 
@@ -131,7 +136,7 @@ class Vehicle(Place):
 
     def page_data(self):
         if not self.history:
-            self.resummarize()
+            self.generate_history()
         return {
             "pk": str(self.pk),
             "name": self.name,
