@@ -302,7 +302,7 @@
                   hx-encoding="multipart/form-data"
                   hx-trigger="change from:#audio-upload"
                   hx-confirm='This will append to the current audio. If you want to replace the audio, clear it first. Proceed?'>
-                <div class="grid-x align-center-middle text-center">
+                <div class="grid-x grid-margin-xalign-center-middle text-center">
                     <div class="cell">
                         <label for="audio-upload"
                                class="button large expanded secondary margin-bottom-0">
@@ -331,7 +331,7 @@
                         </a>
                     </div>
                     <div class="cell shrink text-center margin-top-2">
-                        <h4 class='subheader'>{{episode.audio_duration}}</h4>
+                        <h4 class='subheader'>({{episode.audio_duration}})</h4>
                     </div>
                     {% endif %}
                 </div>
