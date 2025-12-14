@@ -71,9 +71,11 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
             new_room = self.create_room()
             new_room.connect(random.choice(self.rooms))
             obj = random.choice(
-                *self.location.creatures,
-                *self.location.characters,
-                *self.location.items,
+                [
+                    *self.location.creatures,
+                    *self.location.characters,
+                    *self.location.items,
+                ]
             )
             if obj:
                 new_room.associations += [obj]
