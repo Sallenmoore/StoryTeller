@@ -293,7 +293,7 @@
     </h5>
     <div class="grid-x grid-margin-x grid-margin-y align-center"
          id="session-audio-container">
-        <div class="cell medium-4">
+        <div class="cell">
             <form id="audio-upload-form" enctype="multipart/form-data"
                   hx-post="/api/{{episode.path}}/audio"
                   hx-ext="ignore:json-enc"
@@ -323,18 +323,18 @@
                             </script>
                         </div>
                     </div>
+                    {% if episode.audio %}
+                    <div class="cell shrink text-center margin-top-2">
+                        <a href="/api/audio/{{episode.path}}" target='_blank'>
+                            {{icon_components.download(size="1rem")}}
+                            Download Current Audio
+                        </a>
+                    </div>
+                    <div class="cell shrink text-center margin-top-2">
+                        <h4 class='subheader'>{{episode.audio_duration}}</h4>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if episode.audio %}
-                <div class="cell shrink text-center margin-top-2">
-                    <a href="/api/audio/{{episode.path}}" target='_blank'>
-                        {{icon_components.download(size="1rem")}}
-                        Download Current Audio
-                    </a>
-                </div>
-                <div class="cell shrink text-center margin-top-2">
-                    <h4 class='subheader'>{{episode.audio_duration}}</h4>
-                </div>
-                {% endif %}
             </form>
         </div>
     </div>
