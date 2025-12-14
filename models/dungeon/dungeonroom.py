@@ -185,7 +185,7 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             enc.enemy_type = random.choice(self.creatures).name
         elif self.characters:
             enc.encounter_type = random.choice(["social interaction", "stealth"])
-            enc.enemy_type = random.choice(self.species).name
+            enc.enemy_type = random.choice(self.characters).species
         else:
             enc.encounter_type = random.choice(["puzzle or trap", "skill challenge"])
             enc.enemy_type = "environmental challenge"
