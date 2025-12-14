@@ -49,6 +49,14 @@ class Item(TTRPGObject):
                     "type": "boolean",
                     "description": "Whether the item is a one-of-a-kind or a mass-produced item",
                 },
+                "type": {
+                    "type": "string",
+                    "description": "The general category of the item, such as weapon, armor, tool, consumable, magical, technological, etc.",
+                },
+                "consumable": {
+                    "type": "boolean",
+                    "description": "Whether the item is consumed upon use",
+                },
                 "status": {
                     "type": "string",
                     "description": "current, immediate situation the item is in, such as being used, in storage, destroyed, etc.",
@@ -94,17 +102,15 @@ class Item(TTRPGObject):
         for i in ["rarity", "cost", "duration", "weight", "features"]:
             if getattr(self, i):
                 prompt += f"""
-        {i}: {getattr(self, i)}
-        """
+{i}: {getattr(self, i)}
+"""
         results = super().generate(
             prompt=prompt,
         )
-        log(results)
-        for _ in range(random.randint(1, 2)):
-            ability = Ability(
-                world=self.world,
-            )
-            ability.generate(self)
+        ability = Ability(
+            world=self.world,
+        )
+        ability.generate(self)
 
         return results
 
@@ -118,7 +124,7 @@ class Item(TTRPGObject):
 
     @property
     def image_prompt(self):
-        return f"A full color image of an item on display called a {self.name} and described as follows: {self.desc}."
+        return f"A full color image of an item called a {self.name} and described as follows on display: {self.desc}."
 
     @property
     def map(self):
@@ -147,10 +153,11 @@ class Item(TTRPGObject):
     ###############################################################
     ##                    VERIFICATION METHODS                   ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        super().auto_post_init(sender, document, **kwargs)
+        if not document.artifact:
+            document.parent_list = []
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -171,6 +178,10 @@ class Item(TTRPGObject):
         self.rarity = self.rarity.strip()
         if self.rarity not in self._rarity_list:
             self.rarity = self._rarity_list[-1]
+        if self.rarity == "artifact":
+            self.artifact = True
+        if not self.artifact:
+            self.parent = None
 
     def pre_save_feature(self):
         # log(self.features, _print=True)

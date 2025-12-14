@@ -5,7 +5,9 @@
 
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
+{% if obj.legendary %}
 {{manage_components.dates(user, obj)}}
+{% endif %}
 <form hx-post="/api/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x align-spaced">
