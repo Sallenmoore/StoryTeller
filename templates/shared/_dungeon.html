@@ -12,6 +12,12 @@
 {%- macro dungeon(user, obj) -%}
 <div class="grid-x align-spaced">
     {% if not obj.dungeon %}
+    {% if not(obj.characters or obj.items or obj.creatures) %}
+    <div class="cell">
+        <div class="callout alert"> It is highly recommended that you add character, creature and/or
+            item associations to the location before generating a dungeon</div>
+    </div>
+    {% endif %}
     <div class="cell shrink">
         <button class="button primary"
                 hx-post="/api/dungeon/create"
