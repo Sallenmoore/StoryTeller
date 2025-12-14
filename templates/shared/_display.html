@@ -20,14 +20,14 @@
 {{lifetime[event]}}
 {%- endmacro %}
 
-{% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=False, pk=False) -%}
+{% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=True, pk=False) -%}
 <a href="/{{obj.path}}">
     <div class="card">
         {{dsp_object_image(obj,dim)}}
         {% if name %}
         <div class="card-divider text-center align-center-middle">
             {{obj.name | safe}}
-            {% if obj.canon|default(false) %} <sup>(c)</sup> {% endif %}
+            {% if canon and obj.canon|default(false) %} <sup>(c)</sup> {% endif %}
         </div>
         {% endif %}
         {% if date or type or pk%}
@@ -43,7 +43,7 @@
             </p>
             {% endif %}
             {% if type %}
-            <p>{{obj.title}}</p>
+            <p>{{obj.title | safe}}</p>
             {% endif %}
             {% if pk %}
             <p>
