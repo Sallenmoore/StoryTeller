@@ -51,7 +51,9 @@
             <p>{{obj.dungeon.desc | safe}}</p>
             {% if obj.dungeon.map %}
             <div id="map" style="width:100%;height:100%;">
+                {% if obj.dungeon.map %}
                 <img src="{{obj.dungeon.map.url()}}" alt="{{obj.dungeon.name}} map" />
+                {% endif %}
             </div>
             {% endif %}
             {% if obj.dungeon.rooms %}
@@ -60,8 +62,7 @@
                     <a class="button"
                        hx-post="/task/generate/dungeon/{{obj.dungeon.pk}}/map"
                        hx-target="closest .cell"
-                       hx-disinherit="hx-confirm hx-indicator"
-                       hx-push-url="false">
+                       hx-disinherit="hx-confirm hx-indicator hx-push-url">
                         Generate New Layout
                     </a>
                 </div>
@@ -81,8 +82,7 @@
                             <a class="button small"
                                hx-get="/api/dungeon/room/{{room.pk}}"
                                hx-target="#dungeon-container"
-                               hx-disinherit="hx-confirm hx-indicator"
-                               hx-push-url="false">
+                               hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                 View Entrance
                             </a>
                         </div>
@@ -105,7 +105,7 @@
                            hx-select='#dungeon-container'
                            hx-indicator="#request-indicator"
                            hx-swap="outerHTML"
-                           hx-push-url="false">
+                           hx-disinherit="hx-push-url">
                             Manage Rooms
                         </a>
                     </div>
@@ -114,7 +114,7 @@
                            hx-post="/api/dungeon/create/room"
                            hx-target="#dungeon-container"
                            hx-indicator="#request-indicator"
-                           hx-push-url="false">
+                           hx-disinherit="hx-push-url">
                             +New Room
                         </a>
                     </div>
@@ -234,7 +234,7 @@
                hx-target="#dungeon-container"
                hx-indicator="#request-indicator"
                hx-swap="innerHTML"
-               hx-push-url="false">
+               hx-disinherit="hx-push-url">
                 Manage Room
             </a>
             <p>{{dungeonroom.desc|safe}}</p>
@@ -498,7 +498,7 @@
 </div>
 <div class="callout">
     <h4>Map</h4>
-    <div class="grid-x grid-margin-x align-spaced" hx-push-url="false" id='object-map-view'>
+    <div class="grid-x grid-margin-x align-spaced" hx-disinherit="hx-push-url" id='object-map-view'>
         <div class="cell">
             <h5 class='text-center'>Map Prompt</h5>
             <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
