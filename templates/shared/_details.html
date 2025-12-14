@@ -2,17 +2,6 @@
 {% import "shared/_icons.html" as icon_components %}
 {% import "shared/_form.html" as form_components %}
 
-{% macro details(user, obj) -%}
-<title>{{obj.name or obj.title}} - Details</title>
-<div class="callout white">
-    {{details_dates(user, obj)}}
-    <hr>
-    {{details_backstory(user, obj)}}
-    <hr>
-    {{details_description(user, obj)}}
-</div>
-{%- endmacro %}
-
 {% macro details_dates(user, obj) -%}
 <div class="grid-x align-center">
     {% if obj.start_date and obj.start_date.year > 0 %}

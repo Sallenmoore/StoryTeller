@@ -130,6 +130,10 @@ class Item(TTRPGObject):
     def map(self):
         return self.parent.map if self.parent else None
 
+    @property
+    def title(self):
+        return super().title + f" <small>({self.rarity})</small>"
+
     ################### Instance Methods #####################
 
     def page_data(self):
