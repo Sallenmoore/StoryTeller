@@ -248,8 +248,10 @@
                             <div class="callout bg-muted">
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell medium-2">
+                                        {% if encounter.image%}
                                         <img src="{{encounter.image.url()}}"
                                              alt="{{encounter.name}}" />
+                                        {% endif %}
                                     </div>
                                     <div class="cell auto">
                                         <h6 class="text-center">{{encounter.name | striptags}}</h6>
@@ -333,7 +335,9 @@
         {% if dungeonroom.map %}
         <div id="map-container" class="cell">
             <div id="map" style="width:100%;height:100%;">
+                {% if dungeonroom.map%}
                 <img src="{{dungeonroom.map.url()}}" alt="{{dungeonroom.name}} map" />
+                {% endif %}
             </div>
         </div>
         {% endif %}
