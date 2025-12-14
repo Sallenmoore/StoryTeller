@@ -56,10 +56,10 @@ devdeploy:
 	-git commit -am "Updated backend"
 	-git push
 	-git checkout main
+	-git commit -am "Updated"
 	-git merge steven -m "Updated Main Branch"
 	-git push
 	-cd /root/prod/StoryTeller/;make clean;git checkout main;git pull;make prod
-	-cd /root/dev/StoryTellerBackend/;git checkout steven;git merge main -m "merging main";make clean;make backend
 
 
 ###### TESTING #######

@@ -218,6 +218,15 @@ if label %}
 {% endif %}
 {%- endmacro %}
 
+{% macro download(size="2rem", label="") -%}
+<iconify-icon icon="material-symbols:move-down" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
 
 {% macro drama(size="2rem", label="") -%}
 <iconify-icon icon="game-icons:drama-masks" width="{{ size }}"></iconify-icon>
