@@ -88,6 +88,27 @@ class DungeonRoom(AutoModel):
     def associations(self):
         return self.loot + self.creatures + self.characters + self.encounters
 
+    @associations.setter
+    def associations(self, value):
+        self.loot = [
+            a for a in value if a.model_name().lower() == "item" and a not in self.loot
+        ]
+        self.creatures = [
+            a
+            for a in value
+            if a.model_name().lower() == "creature" and a not in self.creatures
+        ]
+        self.characters = [
+            a
+            for a in value
+            if a.model_name().lower() == "character" and a not in self.characters
+        ]
+        self.encounters = [
+            a
+            for a in value
+            if a.model_name().lower() == "encounter" and a not in self.encounters
+        ]
+
     @property
     def description(self):
         return self.desc
@@ -152,6 +173,8 @@ Generate a {self.genre} TTRPG {self.structure_type or self.location.location_typ
             if self.save():
                 if not self.map:
                     self.generate_map()
+                if not self.encounters:
+                    self.generate_encounter()
         return self
 
     def generate_encounter(self):

@@ -63,10 +63,26 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         self.save()
         return self.map
 
+    def create_rooms(self, min_rooms, max_rooms=None):
+        if max_rooms is None:
+            max_rooms = min_rooms
+        num_rooms = random.randint(min_rooms, max_rooms)
+        for _ in range(num_rooms):
+            new_room = self.create_room()
+            new_room.connect(random.choice(self.rooms))
+            obj = random.choice(
+                *self.location.creatures,
+                *self.location.characters,
+                *self.location.items,
+            )
+            if obj:
+                new_room.associations += [obj]
+            new_room.save()
+        return self.rooms
+
     def create_room(self):
         room = DungeonRoom(dungeon=self)
         room.theme = self.theme
-        room.desc = self.desc
         room.save()
         self.rooms.append(room)
         self.save()
