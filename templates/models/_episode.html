@@ -291,7 +291,8 @@
 {% macro transcribe(user, episode)%}
 <div class="callout">
     </h5>
-    <div class="grid-x align-spaced align-middle" id="session-audio-container">
+    <div class="grid-x grid-margin-x grid-margin-y align-middle-center"
+         id="session-audio-container">
         <div class="cell medium-4">
             <form id="audio-upload-form" enctype="multipart/form-data"
                   hx-post="/api/{{episode.path}}/audio"
@@ -324,8 +325,8 @@
                     </div>
                 </div>
                 {% if episode.audio %}
-                <div class="cell">
-                    <a href="/api/audio/{{episode.path}}" class="button secondary" target='_blank'>
+                <div class="cell text-center margin-top-2">
+                    <a href="/api/audio/{{episode.path}}" target='_blank'>
                         {{icon_components.download(size="1rem")}}
                         Download Current Audio
                     </a>
