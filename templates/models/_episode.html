@@ -325,8 +325,11 @@
                 </div>
                 {% if episode.audio %}
                 <div class="cell">
-                    <h5 class='subheader'>audio length</h5>
-                    <h4>{{episode.audio_duration}}</h>
+                    <a href="/api/audio/{{episode.path}}" class="button secondary" target='_blank'>
+                        {{icon_components.download(size="1rem")}}
+                        Download Current Audio
+                    </a>
+                    <h4 class='subheader'>{{episode.audio_duration}}</h4>
                 </div>
                 {% endif %}
             </form>
