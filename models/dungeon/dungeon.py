@@ -63,12 +63,9 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         self.save()
         return self.map
 
-    def create_rooms(self, min_rooms, max_rooms=None):
-        if max_rooms is None:
-            max_rooms = min_rooms
-        num_rooms = random.randint(min_rooms, max_rooms)
-        for _ in range(num_rooms):
-            self.create_room()
+    def generate_rooms(self):
+        for room in self.rooms:
+            room.generate()
         return self.rooms
 
     def create_room(self):

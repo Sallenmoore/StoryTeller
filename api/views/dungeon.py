@@ -54,14 +54,12 @@ def create_dungeon():
     obj.dungeon = dungeon
     obj.save()
     if request.path.endswith("fiveroom"):
-        obj.dungeon.create_rooms(5)
+        (obj.dungeon.create_room() for _ in range(5))
     elif request.path.endswith("random"):
-        obj.dungeon.create_rooms(2, 7)
-    for r in obj.dungeon.rooms:
-        requests.post(
-            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/dungeon/room/{r.pk}"
-        )
-
+        (obj.dungeon.create_room() for _ in range(random.randint(3, 10)))
+    requests.post(
+        f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/dungeon/{obj.dungeon.pk}/rooms"
+    )
     return get_template_attribute("shared/_dungeon.html", "dungeon")(user, obj)
 
 

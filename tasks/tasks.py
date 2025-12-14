@@ -212,6 +212,12 @@ def _generate_dungeon_map_task(pk):
     return {"url": f"/api/{obj.location.path}/dungeon"}
 
 
+def _generate_dungeon_rooms_task(pk):
+    obj = Dungeon.get(pk)
+    obj.generate_rooms()
+    return {"url": f"/api/{obj.location.path}/dungeon"}
+
+
 def _generate_dungeon_room_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate()
