@@ -64,26 +64,30 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         return self.map
 
     def generate_rooms(self):
+        log(f"Generating rooms {len(self.rooms)} for dungeon", _print=True)
         for room in self.rooms:
             room.generate()
+            log(f"Generated room {room.name} for dungeon", _print=True)
         return self.rooms
 
     def create_room(self):
         room = DungeonRoom(dungeon=self)
         room.theme = self.theme
         room.save()
+        if self.rooms:
+            room.connect(random.choice(self.rooms))
         self.rooms.append(room)
         self.save()
-        room.connect(random.choice(self.rooms))
-        obj = random.choice(
-            [
-                *self.location.creatures,
-                *self.location.characters,
-                *self.location.items,
-            ]
-        )
-        if obj:
-            room.associations += [obj]
+        obj_list = [
+            *self.location.creatures,
+            *self.location.characters,
+            *self.location.items,
+        ]
+        for obj in obj_list:
+            if obj not in room.associations:
+                room.associations += [random.choice(obj_list)]
+            if random.randint(0, 2) > 0:
+                break
         room.save()
         return room
 
