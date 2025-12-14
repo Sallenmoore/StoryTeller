@@ -43,7 +43,7 @@ class Dungeon(AutoModel):
     def generate_map(self):
         if self.map:
             self.map.delete()
-        prompt = f"""Create a top-down, black and white line art map of a TTRPG dungeon. The style should be reminiscent of {random.choice(["a hand drawn map by an individual planning something", "old parchment paper weathered by time, adorned with hand written notes along the sides in a mysterious script", "old-school 1970s/80s RPG modules: clean lines, high contrast, and minimal shading"])}. Focus purely on the layout and connectivity of the rooms. Avoid any complex furniture, rubble, or detailed textures—this map is about clarity and function.
+        prompt = f"""Create a top-down, black and white line art map of a TTRPG dungeon. The style should be reminiscent of {random.choice(["a hand drawn map by an individual planning something", "old parchment paper weathered by time, adorned with hand written notes along the sides in a mysterious script", "bluerint-style layout in b&w: clean lines, high contrast, and minimal shading"])}. Focus purely on the layout and connectivity of the rooms. Avoid any complex furniture, rubble, or detailed textures—this map is about clarity and function.
 
 The layout must include the following distinct areas connected by corridors:
 
@@ -68,6 +68,7 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         for room in self.rooms:
             room.generate()
             log(f"Generated room {room.name} for dungeon", _print=True)
+        self.generate_map()
         return self.rooms
 
     def create_room(self):
