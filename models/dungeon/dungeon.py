@@ -68,18 +68,7 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
             max_rooms = min_rooms
         num_rooms = random.randint(min_rooms, max_rooms)
         for _ in range(num_rooms):
-            new_room = self.create_room()
-            new_room.connect(random.choice(self.rooms))
-            obj = random.choice(
-                [
-                    *self.location.creatures,
-                    *self.location.characters,
-                    *self.location.items,
-                ]
-            )
-            if obj:
-                new_room.associations += [obj]
-            new_room.save()
+            self.create_room()
         return self.rooms
 
     def create_room(self):
@@ -88,6 +77,17 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         room.save()
         self.rooms.append(room)
         self.save()
+        room.connect(random.choice(self.rooms))
+        obj = random.choice(
+            [
+                *self.location.creatures,
+                *self.location.characters,
+                *self.location.items,
+            ]
+        )
+        if obj:
+            room.associations += [obj]
+        room.save()
         return room
 
     def create_room_from_location(self, location):
