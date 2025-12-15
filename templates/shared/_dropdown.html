@@ -1,7 +1,7 @@
 {% macro search_dropdown(user, obj, url, objs=[]) -%}
 {% for o in objs %}
 <li>
-    <a hx-post='/api/{{url}}/{{o.path}}'
+    <a hx-post='rl}}/{{o.path}}'
        hx-target='#page-content'
        hx-indicator='#request-indicator'
        hx-push-url='false'>

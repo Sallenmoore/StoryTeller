@@ -21,10 +21,7 @@
 {% macro menu(user, obj) -%}
 
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/details">
+    <a href=="/{{obj.path}}/details">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -36,11 +33,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/history"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/history">
+    <a href="/{{obj.path}}/history">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
@@ -52,11 +45,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/lineage"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/lineage">
+    <a href="/{{obj.path}}/lineage">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.lineage(size="1rem")}}
@@ -68,11 +57,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/timeline"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/timeline">
+    <a href="/{{obj.path}}/timeline">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
@@ -84,12 +69,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/campaigns"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/campaigns">
+    <a href="/{{obj.path}}/campaigns">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
@@ -102,12 +82,7 @@
 </li>
 {% if user.world_user(obj) %}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/stories"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/stories">
+    <a href="/{{obj.path}}/stories">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
@@ -119,10 +94,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/journal">
+    <a href="/{{obj.path}}/journal">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
@@ -136,9 +108,7 @@
 {% endif %}
 {% if user.world_user(obj) %}
 <li>
-    <a href="" hx-get="/api/{{obj.path}}/quests" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url=" /{{obj.path}}/quests">
+    <a href="/{{obj.path}}/quests">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.quest(size="1rem")}}
@@ -151,9 +121,7 @@
 </li>
 {% endif %}
 <li>
-    <a href="" hx-get="/api/{{obj.path}}/chat" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url=" /{{obj.path}}/chat">
+    <a href="/{{obj.path}}/chat">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.chat(size="1rem")}}
@@ -166,9 +134,7 @@
 </li>
 {% if user.world_user(obj) %}
 <li>
-    <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url=" /{{obj.path}}/gmnotes">
+    <a href="/{{obj.path}}/gmnotes">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.gamemaster(size="1rem")}}
@@ -424,7 +390,7 @@
 {% if user.world_user(obj) %}
 <div class="callout ">
     <h4 class=' text-center'>Add Family Member</h4>
-    <form hx-post="/api/manage/character/addlineage" hx-target="#page-content">
+    <form hx-post="/manage/character/addlineage" hx-target="#page-content">
         <div class="grid-x has-centered">
             <div class="cell shrink">
                 <div class="is-select">
@@ -466,7 +432,7 @@
                 <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(parent)}}
                     <a style='position:absolute; top:0px; right:5px;'
-                       hx-post="/api/manage/character/removelineage/{{parent.pk}}"
+                       hx-post="/manage/character/removelineage/{{parent.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
                         <iconify-icon icon="mdi:remove"
@@ -488,7 +454,7 @@
                 <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(sibling)}}
                     <a style='position:absolute; top:0px; right:5px;'
-                       hx-post="/api/manage/character/removelineage/{{sibling.pk}}"
+                       hx-post="/manage/character/removelineage/{{sibling.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
                         <iconify-icon icon="mdi:remove"
@@ -509,7 +475,7 @@
                 <div class="cell medium-2" style='position:relative;'>
                     {{display_components.object_display(child)}}
                     <a style='position:absolute; top:0px; right:5px;'
-                       hx-post="/api/manage/character/removelineage/{{child.pk}}"
+                       hx-post="/manage/character/removelineage/{{child.pk}}"
                        hx-target="#page-content"
                        hx-confirm="Are you sure you want to remove this character from the lineage?">
                         <iconify-icon icon="mdi:remove"
@@ -528,7 +494,7 @@
 
 {% macro quests(user, obj) -%}
 <div class="callout">
-    <form hx-post="/api/manage/{{obj.pk}}/quest/create">
+    <form hx-post="/manage/{{obj.pk}}/quest/create">
         <div class="grid-x align-spaced">
             <div class="cell">
                 <h3>Quest Board</h3>
@@ -569,14 +535,14 @@
                 <div class="cell auto"></div>
                 <div class="cell shrink">
                     <button class="button small"
-                            hx-post="/api/manage/quest/{{entry.pk}}/edit"
+                            hx-post="/manage/quest/{{entry.pk}}/edit"
                             hx-target="#page-content">
                         Edit
                     </button>
                 </div>
                 <div class="cell shrink align-center-middle">
                     <button class="button small"
-                            hx-post="/api/manage/quest/{{entry.pk}}/delete"
+                            hx-post="/manage/quest/{{entry.pk}}/delete"
                             hx-target='closest li'
                             hx-swap="delete"
                             hx-confirm='Are you sure you want to delete this entry?'>

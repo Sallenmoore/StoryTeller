@@ -4,7 +4,7 @@
 
 
 {% macro manage(user, story) -%}
-<form hx-post="/api/story/{{story.pk}}/update" hx-swap='none' hx-push-url='false'
+<form hx-post="/story/{{story.pk}}/update" hx-swap='none' hx-push-url='false'
       hx-trigger='input delay:0.5s'>
     <div class="grid-x align-justify">
         <div class="cell bg">
@@ -67,7 +67,7 @@
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
                     <button type="button" class="button small"
-                            hx-post='/api/story/{{story.pk}}/add/listitem/tasks'
+                            hx-post='/story/{{story.pk}}/add/listitem/tasks'
                             hx-target='#tasks-item-list'
                             hx-select='#tasks-item-list'
                             hx-swap='outerHTML' hx-trigger="click consume">
@@ -83,7 +83,7 @@
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
                     <button type="button" class="button small"
-                            hx-post='/api/story/{{story.pk}}/add/listitem/rumors'
+                            hx-post='/story/{{story.pk}}/add/listitem/rumors'
                             hx-target='#rumors-item-list'
                             hx-select='#rumors-item-list'
                             hx-swap='outerHTML' hx-trigger="click consume">
@@ -99,7 +99,7 @@
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
                     <button type="button" class="button small"
-                            hx-post='/api/story/{{story.pk}}/add/listitem/information'
+                            hx-post='/story/{{story.pk}}/add/listitem/information'
                             hx-target='#information-item-list'
                             hx-select='#information-item-list'
                             hx-swap='outerHTML' hx-trigger="click consume">
@@ -120,7 +120,7 @@
             <div class="cell">
                 <input autocomplete="off" type="search" name="query"
                        style="border-bottom: solid #000;"
-                       hx-post="/api/story/{{story.pk}}/bbeg/add/search"
+                       hx-post="/story/{{story.pk}}/bbeg/add/search"
                        hx-target="#story-new-bbeg-list"
                        hx-trigger="input changed delay:500ms consume"
                        hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
@@ -150,7 +150,7 @@
                 <input autocomplete=off type="search" name="query"
                        placeholder="Search to Add Events..."
                        style="border-bottom: solid #000;" hx-target="#event-search"
-                       hx-post="/api/{{story.path}}/event/add/search"
+                       hx-post="/{{story.path}}/event/add/search"
                        hx-push-url='false'
                        hx-trigger="input delay:750ms, search"
                        hx-on:input="this.value.length < 1 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
@@ -160,7 +160,7 @@
             </div>
             <div class="cell shrink">
                 <button class='button '
-                        hx-post='/api/{{story.path}}/event/add'
+                        hx-post='/{{story.path}}/event/add'
                         hx-target="#story-events-list"
                         hx-select="#story-events-list"
                         hx-swap='outerHTML'>
@@ -199,7 +199,7 @@
             <input autocomplete=off type="search" name="story_query"
                    placeholder="Search to associate other stories..."
                    style="border-bottom: solid #000;" hx-target="#story-search"
-                   hx-post="/api/{{story.path}}/story/add/search"
+                   hx-post="/{{story.path}}/story/add/search"
                    hx-push-url='false'
                    hx-trigger="input delay:750ms, search">
             <ul class="dropdown menu autocomplete-list" data-dropdown-menu
@@ -244,7 +244,7 @@
         <h4 class='text-center'>Merge Story</h4>
         <div class="is-select" style="width: 100%;">
             <select name="mergepk"
-                    hx-post="/api/story/{{story.pk}}/merge"
+                    hx-post="/story/{{story.pk}}/merge"
                     hx-target="#page-content"
                     hx-push-url='false'
                     hx-trigger="change"
@@ -261,7 +261,7 @@
     </div>
     <div class="cell shrink">
         <h4 class='text-center'>Delete Story</h4>
-        <a hx-post="/api/story/{{story.pk}}/delete"
+        <a hx-post="/story/{{story.pk}}/delete"
            hx-target="#page-content"
            hx-confirm='Are you sure you want to delete this story?'>
             {{icon_components.trash(size="1.5rem")}}
@@ -273,7 +273,7 @@
 {% macro bbeg_dropdown(user, obj, story, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link ">
-    <a hx-post="/api/story/{{story.pk}}/bbeg/add/{{o.pk}}"
+    <a hx-post="/story/{{story.pk}}/bbeg/add/{{o.pk}}"
        hx-target='#story-bbeg'
        hx-select='#story-bbeg' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
@@ -297,7 +297,7 @@
 {% macro associations_dropdown(user, story, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link ">
-    <a hx-post="/api/story/{{story.pk}}/associations/add/{{o.path}}"
+    <a hx-post="/story/{{story.pk}}/associations/add/{{o.path}}"
        hx-target='#story-associations'
        hx-select='#story-associations' hx-swap='outerHTML'
        onclick="this.closest('.has-dropdown').classList.remove('is-active')">
@@ -321,7 +321,7 @@
 {% macro events_dropdown(user, story, events=[]) -%}
 {% for o in events %}
 <li class="dropdown__link ">
-    <a hx-post="/api/story/{{story.pk}}/event/add/{{o.pk}}"
+    <a hx-post="/story/{{story.pk}}/event/add/{{o.pk}}"
        hx-target='#story-events-list'
        hx-select='#story-events-list' hx-swap='outerHTML'
        hx-push-url='false'

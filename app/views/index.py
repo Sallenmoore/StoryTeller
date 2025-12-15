@@ -1,8 +1,5 @@
-import base64
-import io
 import json
 import os
-from urllib.parse import urlparse
 
 import requests
 from autonomous.auth import AutoAuth, auth_required
@@ -10,6 +7,7 @@ from autonomous.model.automodel import AutoModel
 from flask import (
     Blueprint,
     Response,
+    get_template_attribute,
     render_template,
     request,
     session,
@@ -38,7 +36,8 @@ def _authenticate(user, obj):
 def index():
     user = AutoAuth.current_user()
     session["page"] = "/home"
-    return render_template("index.html", user=user, page_url="/home")
+    page = get_template_attribute("home.html", "home")(user)
+    return render_template("index.html", user=user, page=page)
 
 
 @index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
@@ -52,9 +51,73 @@ def page(model, pk, page=""):
         session["pk"] = pk
     if "manage" in page and not _authenticate(user, obj):
         return "<p>You do not have permission to manage this object<p>"
-    return render_template("index.html", user=user, obj=obj, page_url=session["page"])
+    page = get_template_attribute(f"models/_{model}.html", page or "index")(user, obj)
+
+    return render_template("index.html", user=user, obj=obj, page=page)
 
 
+# MARK: Association routes
+###########################################################
+##                    Association Routes                 ##
+###########################################################
+@index_page.route("/<string:model>/<string:pk>/associations", methods=("GET", "POST"))
+def associations(model, pk):
+    user = AutoAuth.current_user()
+    obj = AutoModel.get_model(model, pk)
+    associations = obj.associations
+    if request.method == "POST":
+        if filter_str := request.json.get("filter"):
+            if len(filter_str) > 2:
+                associations = [
+                    o for o in associations if filter_str.lower() in o.name.lower()
+                ]
+        if type_str := request.json.get("type"):
+            associations = [
+                o for o in associations if o.model_name().lower() == type_str.lower()
+            ]
+        if rel_str := request.json.get("relationship"):
+            if rel_str.lower() == "parent":
+                associations = [o for o in associations if o in obj.geneology]
+            elif rel_str.lower() == "child":
+                associations = [o for o in associations if obj == o.parent]
+            elif hasattr(obj, "lineage") and rel_str.lower() == "lineage":
+                associations = [o for o in associations if o in obj.lineage]
+        if sort_str := request.json.get("sorter"):
+            order = request.json.get("order", "ascending")
+            if sort_str.lower() == "name":
+                associations.sort(
+                    key=lambda x: x.name, reverse=True
+                ) if order == "descending" else associations
+            elif sort_str.lower() == "date":
+                associations = [
+                    a for a in associations if a.end_date and a.end_date.year > 0
+                ]
+                associations.sort(
+                    key=lambda x: x.end_date, reverse=True
+                ) if order == "descending" else associations.sort(
+                    key=lambda x: x.end_date
+                )
+            elif sort_str.lower() == "type":
+                associations.sort(
+                    key=lambda x: x.model_name(), reverse=True
+                ) if order == "descending" else associations.sort(
+                    key=lambda x: x.model_name()
+                )
+    if hasattr(obj, "split_associations"):
+        relations, associations = obj.split_associations(associations=associations)
+    else:
+        relations = []
+    page = get_template_attribute(f"models/_{model}.html", "associations")(
+        user, obj, extended_associations=associations, direct_associations=relations
+    )
+
+    return render_template("index.html", user=user, obj=obj, page=page)
+
+
+# MARK: Association routes
+###########################################################
+##                    Media Routes                       ##
+###########################################################
 @index_page.route(
     "/image/<string:pk>/<string:size>",
     methods=("GET",),
@@ -99,46 +162,10 @@ def audio(model, pk, attrib=None):
         return Response("No audio available", status=404)
 
 
-@index_page.route(
-    "/api/<path:rest_path>",
-    endpoint="api",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def api(rest_path):
-    url = f"http://{os.environ.get('API_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}"
-    response = "<p>You do not have permission to alter this object<p>"
-    user = AutoAuth.current_user()
-    response_url = urlparse(request.referrer).path
-    if request.method == "GET":
-        params = dict(request.args)
-        params["user"] = user.pk
-        params["response_path"] = response_url
-        url = f"http://{os.environ.get('API_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}?{requests.compat.urlencode(params)}"
-        log("API GET REQUEST", url)
-        response = requests.get(url).text
-    elif not user.is_guest:
-        params = {}
-        # log(request.files)
-        if request.files:
-            params = dict(request.form)
-            for key, file in request.files.items():
-                params[key] = base64.b64encode(file.read()).decode("utf-8")
-        elif request.json:
-            params = dict(request.json)
-        params["response_path"] = response_url
-        params |= {"user": str(AutoAuth.current_user().pk)}
-        # log(url, params)
-        if params.get("model") and params.get("pk"):
-            obj = AutoModel.get_model(params.get("model"), params.get("pk"))
-            if _authenticate(user, obj.world):
-                response = requests.post(url, json=params).text
-        else:
-            response = requests.post(url, json=params).text
-    # log(response)
-    return response
+# MARK: Association routes
+###########################################################
+##                    Task Routes                        ##
+###########################################################
 
 
 @index_page.route("/task/<path:rest_path>", endpoint="tasks", methods=("POST",))
@@ -180,39 +207,3 @@ def tasks(rest_path):
                 json=request.json,
             )
     return response.text
-
-
-# MARK: Data routes
-###########################################################
-##                    Data        Routes                 ##
-###########################################################
-@index_page.route(
-    "/data/list/<string:model>",
-    methods=("GET", "POST"),
-)
-def listobjs(model):
-    objs = World.get_model(model).all()
-    result = []
-    for obj in objs:
-        objs_dict = json.loads(obj.to_json())
-        result += [objs_dict]
-        log(objs_dict)
-    return result
-
-
-@index_page.route(
-    "/<string:model>/<pk>/data",
-    methods=("GET", "POST"),
-)
-def obj_data(pk, model):
-    obj = World.get_model(model, pk)
-    return obj.page_data()
-
-
-@index_page.route(
-    "/<string:model>/<pk>/data/foundry",
-    methods=("GET", "POST"),
-)
-def foundry_export(pk, model):
-    obj = World.get_model(model, pk)
-    return obj.system.foundry_export(obj)

@@ -13,11 +13,7 @@
 
 {% macro menu(user, obj) -%}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/episodes"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/episodes">
+    <a href="/{{obj.path}}/episodes">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.episode(size="1rem")}}
@@ -29,10 +25,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/details">
+    <a href="/{{obj.path}}/details">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -44,11 +37,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/history"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/history">
+    <a href="/{{obj.path}}/history">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
@@ -60,11 +49,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/timeline"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/timeline">
+    <a href="/{{obj.path}}/timeline">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
@@ -76,11 +61,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/graphic_novel"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/graphic_novel">
+    <a href="/{{obj.path}}/graphic_novel">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.graphic_novel(size="1rem")}}
@@ -92,12 +73,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/stories"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/stories">
+    <a href="/{{obj.path}}/stories">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
@@ -162,7 +138,7 @@
             {% if user.world_user(campaign)%}
             <div class="cell shrink">
                 <button class="button small"
-                        hx-post="/api/campaign/{{campaign.pk}}/episode/new"
+                        hx-post="/campaign/{{campaign.pk}}/episode/new"
                         hx-target="#episode-list"
                         hx-select="#episode-list"
                         hx-swap="outerHTML">

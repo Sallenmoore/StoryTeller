@@ -31,7 +31,7 @@
                 <div class="cell">
                     <div class="is-select">
                         <select class=" has-text-white" name='screenpk'
-                                hx-post='/api/gmscreen/display'
+                                hx-post='/gmscreen/display'
                                 hx-target='#screen-container'
                                 hx-trigger='change'>
                             {%for s in user.screens %}
@@ -73,7 +73,7 @@
 <div class="grid-x has-centered" id='manage-gmscreens-container'>
     <div class="cell medium-6 align-center-middle">
         <div class="is-select">
-            <select name='screenpk' hx-post='/api/gmscreen/'
+            <select name='screenpk' hx-post='/gmscreen/'
                     hx-target='#manage-gmscreens-container'
                     hx-select='#manage-gmscreens-container' hx-swap='outerHTML' hx-trigger='change'
                     hx-indicator='#request-indicator'>
@@ -89,7 +89,7 @@
         </div>
     </div>
     <div class="cell shrink">
-        <button class="button small" hx-post='/api/gmscreen/add'
+        <button class="button small" hx-post='/gmscreen/add'
                 hx-target='#manage-gmscreens-container'
                 hx-select='#manage-gmscreens-container' hx-swap='outerHTML'
                 hx-confirm='Are you sure you want to add a new GM Screen?'>
@@ -108,13 +108,13 @@
                         <div class="cell">
                             <input type="text" name="name"
                                    value="{{user.current_screen.name}}"
-                                   hx-post='/api/gmscreen/{{user.current_screen.pk}}/update'
+                                   hx-post='/gmscreen/{{user.current_screen.pk}}/update'
                                    hx-swap="none"
                                    hx-trigger='input delay:700ms'>
                         </div>
                     </div>
                     <hr>
-                    <form hx-post='/api/gmscreen/{{user.current_screen.pk}}/update'
+                    <form hx-post='/gmscreen/{{user.current_screen.pk}}/update'
                           hx-target='#screen-area-container'
                           hx-select='#screen-area-container' hx-swap="outerHTML">
                         <div class="grid-x">
@@ -160,7 +160,7 @@
                     <div class="cell">
                         <input type="text" name="name"
                                value="{{area.name}}"
-                               hx-post='/api/gmscreen/{{user.current_screen.pk}}/area/{{area.pk}}/update'
+                               hx-post='/gmscreen/{{user.current_screen.pk}}/area/{{area.pk}}/update'
                                hx-swap="none"
                                hx-trigger='input delay:700ms'>
                     </div>
@@ -170,7 +170,7 @@
                 <hr>
                 <div class="grid-x">
                     <div class="cell shrink">
-                        <a hx-post='/api/gmscreen/{{user.current_screen.pk}}/area/{{area.pk}}/remove'
+                        <a hx-post='/gmscreen/{{user.current_screen.pk}}/area/{{area.pk}}/remove'
                            hx-swap='delete' hx-target='closest .screen-area'
                            hx-confirm='Are you sure you want to remove this GM Screen Area?'>
                             {{icon_components.trash(size="1rem")}}
@@ -198,7 +198,7 @@
 
 {% macro screen_note_area(screenarea, editable) -%}
 {% if editable %}
-<form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/note' hx-swap='none'
+<form hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/note' hx-swap='none'
       hx-trigger='change'>
     <div class="grid-x align-spaced">
         <div class="cell shrink">
@@ -257,7 +257,7 @@
             <hr>
         </div>
         <div class="cell medium-6">
-            <form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/preset'
+            <form hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/preset'
                   hx-target='#table-{{screenarea.pk}}-item-list'>
                 <input type='hidden' name='worldpk' value='{{screenarea.screen.world.pk}}'>
                 <div class="grid-x has-centered">
@@ -281,7 +281,7 @@
             <hr>
         </div>
         <div class="cell">
-            <a hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/additem'
+            <a hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/additem'
                hx-target="#table-{{screenarea.pk}}-item-list"
                hx-select="#table-{{screenarea.pk}}-item-list"
                hx-swap='outerHTML'>Add Item</a>
@@ -289,13 +289,13 @@
         {% endif %}
         <div class="cell text-center">
             <a class="button small text-center"
-               hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/random'
+               hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/random'
                hx-target="#roll-table-{{screenarea.pk}}-selected"
                hx-select="#roll-table-{{screenarea.pk}}-selected"
                hx-swap='outerHTML'>Randomize</a>
         </div>
         <div class="cell has-text-right">
-            <a hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/reset'
+            <a hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table/reset'
                hx-target="#table-{{screenarea.pk}}-item-list"
                hx-select="#table-{{screenarea.pk}}-item-list"
                hx-swap='outerHTML'>Reset</a>
@@ -311,7 +311,7 @@
     <div class="grid-x">
         <div class="cell">
             {% if editable %}
-            <form hx-post=' /api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table'
+            <form hx-post=' /gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/table'
                   hx-target="#table-{{screenarea.pk}}-item-list"
                   hx-select="#table-{{screenarea.pk}}-item-list" hx-swap="outerHTML"
                   hx-trigger='input delay:500ms'>
@@ -344,7 +344,7 @@
     <div class="cell">
         <input autocomplete="off"
                type="search" placeholder="Search to add quick link" name="query"
-               hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/search"
+               hx-post="/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/search"
                hx-target="#link-area-search-{{screenarea.pk}}"
                hx-trigger="input changed delay:750ms"
                hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
@@ -365,7 +365,7 @@
             </div>
             <div class="cell shrink is-center is-mobile-center -top">
                 <a
-                   hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/remove/{{obj.path}}'
+                   hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/remove/{{obj.path}}'
                    hx-swap='delete' hx-target='closest .screen-link-item'>
                     {{icon_components.delete(size="1.5rem")}}
                 </a>
@@ -379,7 +379,7 @@
 {% macro screen_link_area_dropdown(user, obj, screenarea, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link"
-    hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/add/{{o.model_name()}}/{{o.pk}}'
+    hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/link/add/{{o.model_name()}}/{{o.pk}}'
     hx-target='closest .row' hx-select='.screen-link-area' hx-swap="outerHTML"
     onclick="this.closest('.has-dropdown').classList.remove('is-active')">
     <div class="grid-x is-vertical">
@@ -406,7 +406,7 @@
             </span>
             <input autocomplete="off"
                    type="search" name="query"
-                   hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e/search"
+                   hx-post="/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e/search"
                    hx-target="next .dropdown"
                    hx-trigger="input changed delay:500ms, search"
                    hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active');">
@@ -434,7 +434,7 @@
 {% macro dnd5e_search(screenarea, results) -%}
 {% for res in results%}
 <li class="dropdown__link"
-    hx-post="/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e"
+    hx-post="/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/dnd5e"
     hx-target='closest .dnd5e-area'
     hx-select='.dnd5e-area'
     hx-swap='outerHTML'
@@ -450,7 +450,7 @@
 <div>
     <div class="grid-x">
         <div class="cell">
-            <form hx-post='/api/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/noncanon'
+            <form hx-post='/gmscreen/{{screenarea.screen.pk}}/area/{{screenarea.pk}}/noncanon'
                   hx-target='#noncanon-{{screenarea.pk}}-item-list'
                   hx-select='#noncanon-{{screenarea.pk}}-item-list' hx-swap="outerHTML"
                   hx-trigger='change'>

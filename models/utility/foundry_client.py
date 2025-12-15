@@ -85,7 +85,6 @@ class FoundryClient:
 
     def get_worlds(self):
         """Retrieves a list of available worlds."""
-        # Endpoint example: GET /api/relay/worlds
         response = self._request("GET", "clients")
         log(response)
         return response.get("clients", [])
@@ -113,22 +112,18 @@ class FoundryClient:
 
     def get_scene(self, scene_id):
         """Retrieves a specific scene within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/scenes/scene_id
         return self._request("GET", f"get?clientId={self.client_id}", uuid=scene_id)
 
     def get_actor(self, actor_id):
         """Retrieves a specific actor within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/actors/actor_id
         return self._request("GET", f"get?clientId={self.client_id}", uuid=actor_id)
 
     def get_item(self, item_id):
         """Retrieves a specific item within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/items/item_id
         return self._request("GET", f"get?clientId={self.client_id}", uuid=item_id)
 
     def push_actor(self, obj):
         """Creates a new Foundry actor (character)."""
-        # Endpoint example: POST /api/relay/worlds/world_id/actors
         actor_data = {
             "entityType": "Actor",
             "data": obj.to_foundry(),
@@ -185,7 +180,6 @@ class FoundryClient:
 
     def push_scene(self, obj):
         """Creates a new Foundry scene."""
-        # Endpoint example: POST /api/relay/worlds/world_id/scenes
         scene_data = {
             "entityType": "Scene",
             "data": obj.to_foundry(),
@@ -219,14 +213,12 @@ class FoundryClient:
 
     def get_scenes(self):
         """Retrieves all scenes within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/scenes
         return self._request(
             "GET", f"search?clientId={self.client_id}", query="", filter="Scene"
         )
 
     def get_actors(self):
         """Retrieves all actors within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/actors
         results = self._request(
             "GET", f"search?clientId={self.client_id}", query="", filter="actor"
         )
@@ -239,7 +231,6 @@ class FoundryClient:
 
     def get_items(self):
         """Retrieves all items within a specific world."""
-        # Endpoint example: GET /api/relay/worlds/world_id/items
         return self._request(
             "GET", f"search?clientId={self.client_id}", query="", filter="Item"
         )

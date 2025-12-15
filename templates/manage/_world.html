@@ -23,7 +23,7 @@
             <label for="image_style">Image Style
                 <input list="image_styles" type="text" name="image_style"
                        value="{{obj.image_style}}"
-                       hx-post="/api/manage/update"
+                       hx-post="/manage/update"
                        hx-trigger="change"
                        hx-swap="none"
                        placeholder="Image Style (e.g., illustrated, realistic, cartoon)">
@@ -41,7 +41,7 @@
         <div class="cell medium-6">
             <label for="map_style">Map Style
                 <input list="map_styles" type="text" name="map_style" value="{{obj.map_style}}"
-                       hx-post="/api/manage/update"
+                       hx-post="/manage/update"
                        hx-trigger="change"
                        hx-swap="none"
                        placeholder="Map Style (e.g., isometric, top-down, hand-drawn)">
@@ -61,7 +61,7 @@
 <h3 class='text-center'>World Calendar Settings</h3>
 <div class="grid-x grid-padding-x">
     <div class="cell">
-        <form hx-post="/api/{{obj.path}}/calendar/update"
+        <form hx-post="/{{obj.path}}/calendar/update"
               hx-swap="none"
               hx-trigger="input delay:1s, change, submit" 7>
             <div class="grid-x">
@@ -146,7 +146,7 @@
 </div>
 <div class="grid-x align-spaced">
     <div class="cell medium-4">
-        <form id="change_system_form" hx-post="/api/{{obj.path}}/system/update"
+        <form id="change_system_form" hx-post="/{{obj.path}}/system/update"
               hx-target="#change_system_form"
               hx-select="#change_system_form"
               hx-swap="outerHTML"
@@ -175,7 +175,7 @@
 <div class="grid-x">
     <div class="cell auto">
         <h4>Add Users</h4>
-        <form id="add_user_form" hx-post="/api/manage/{{obj.path}}/user/add"
+        <form id="add_user_form" hx-post="/manage/{{obj.path}}/user/add"
               hx-target="closest .row"
               hx-swap="outerHTML"
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
@@ -221,7 +221,7 @@
                 <div class="grid-x align-spaced">
                     <div class="cell shrink text-center">
                         <a
-                           hx-post='/api/manage/ability/{{ability.pk}}/delete'
+                           hx-post='/manage/ability/{{ability.pk}}/delete'
                            hx-target='#ability_{{ability.pk}}'
                            hx-swap='delete' hx-trigger="click consume"
                            hx-confirm='Are you sure you want to permanently delete ability"{{ability.name}}"? This will remove it from all associated objects and cannot be undone.'>

@@ -27,7 +27,7 @@
                 <div class="cell auto align-center-middle">
                     <div class="select">
                         <select class="has-bg-white" name='storypk'
-                                hx-post='/api/{{episode.path}}/story/add'
+                                hx-post='/{{episode.path}}/story/add'
                                 hx-target='#episode-connected-stories'
                                 hx-select='#episode-connected-stories'
                                 hx-swap='outerHTML'
@@ -50,7 +50,7 @@
             <div class="grid-x align-spaced">
                 <div class="cell shrink">
                     <button class='button small'
-                            hx-post='/api/{{episode.path}}/event/generate'
+                            hx-post='/{{episode.path}}/event/generate'
                             hx-target='#page-content'
                             hx-confirm="Are you sure you want to generate a new event from this episode?">
                         Generate Event From Episode
@@ -63,7 +63,7 @@
                      style="position: relative; margin-bottom: 0.5rem;">
                     {{display_components.object_display(event, type=False, dim=150)}}
                     <a class="text-white" style='position:absolute; top:2px; right:5px;'
-                       hx-post="/api/{{episode.path}}/events/{{event.pk}}/delete"
+                       hx-post="/{{episode.path}}/events/{{event.pk}}/delete"
                        hx-trigger="click consume"
                        hx-target="closest .episode-event-entry" hx-swap="delete"
                        hx-confirm="Are you sure you want to remove this event from the episode?">
@@ -78,7 +78,7 @@
                            name="event_query"
                            placeholder='Search Events to Add'
                            style="margin-bottom: 0;padding-bottom: 0;border-bottom: solid #000;"
-                           hx-post="/api/{{episode.path}}/events/add/search"
+                           hx-post="/{{episode.path}}/events/add/search"
                            hx-target="#episode-new-events-list"
                            hx-trigger="input consume changed delay:500ms">
                     <ul class="dropdown menu bg-white" data-dropdown-menu
@@ -95,7 +95,7 @@
         <div class="grid-x align-spaced">
             <div class="cell shrink">
                 <button class="button alert small"
-                        hx-post="/api/episode/{{episode.pk}}/delete"
+                        hx-post="/episode/{{episode.pk}}/delete"
                         hx-target="#page-content"
                         hx-select="#page-content"
                         hx-swap="outerHTML"
@@ -106,7 +106,7 @@
         </div>
     </div>
     <div class="story cell small-12 medium-8">
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <div class="grid-x">
                 <div class="cell small-1">
@@ -131,7 +131,7 @@
             </div>
             <div class="cell">
                 <h3>Report</h3>
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:250ms, change"
                       hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
@@ -158,7 +158,7 @@
             </div>
         </div>
         <hr>
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <h3>Loot</h3>
             {{form_components.richtexteditor(user, episode, 'loot', label=False)}}

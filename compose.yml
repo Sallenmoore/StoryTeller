@@ -22,29 +22,6 @@ services:
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
-    depends_on:
-      - ${API_SERVICE_NAME}
-  stapibackdev:
-    image: ${APP_NAME}_api:latest
-    build:
-      context: .
-    working_dir: /var/app
-    env_file: .env
-    container_name: ${APP_NAME}_api
-    networks:
-      - default # The application's default network
-      - db_net  # The network created by the database stack
-    volumes:
-      - ./api:/var/app/
-      - ./models:/var/app/models/
-      - ./static:/var/app/static/
-      - ./templates:/var/app/templates/
-      - ./filters:/var/app/filters/
-      - ./tests:/var/app/tests/
-      - ./logs:/var/app/logs/
-      - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
-    command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
   sttasksbackdev:
     image: ${APP_NAME}_tasks:latest
     build:

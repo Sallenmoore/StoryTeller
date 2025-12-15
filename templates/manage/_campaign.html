@@ -34,7 +34,7 @@
             </div>
         </div>
     </div>
-    <form hx-post="/api/campaign/{{campaign.pk}}/update" hx-swap='none'
+    <form hx-post="/campaign/{{campaign.pk}}/update" hx-swap='none'
           hx-trigger='input delay:0.5s'>
         <div class="grid-x grid-margin-x align-center-middle align-spaced"
              id="current-campaign-name">
@@ -75,7 +75,7 @@
                     <select
                             name='party'
                             style='max-height: 20rem;'
-                            hx-post="/api/campaign/{{campaign.pk}}/add/party"
+                            hx-post="/campaign/{{campaign.pk}}/add/party"
                             hx-target="#campaign-players" hx-select="#campaign-players"
                             hx-swap="outerHTML" hx-indicator='#request-indicator'>
                         <option value=''>
@@ -109,7 +109,7 @@
                     <div class="cell medium-2 text-center">
                         {{display_components.object_display(p, dim=250, type=False)}}
                         <a
-                           hx-post="/api/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
+                           hx-post="/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
                            hx-target="#campaign-players" hx-select="#campaign-players"
                            hx-swap="outerHTML" hx-indicator=' #request-indicator'
                            hx-confirm="Are you sure you want to remove this player from the campaign?">
@@ -147,7 +147,7 @@
     <hr>
     <div class="grid-x">
         <div class="cell shrink is-center">
-            <a hx-post="/api/campaign/{{campaign.pk}}/delete"
+            <a hx-post="/campaign/{{campaign.pk}}/delete"
                hx-target="#page-content"
                hx-confirm='Are you sure you want to delete this campaign?'>
                 {{icon_components.trash(size="1.5rem")}}

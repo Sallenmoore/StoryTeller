@@ -98,7 +98,6 @@ def delete(episodepk):
 ###########################################################
 ##             episode Story Routes                  ##
 ###########################################################
-# /api/{{episode.path}}/stories/{{story.pk}}/delete
 
 
 @episode_endpoint.route("/<string:episodepk>/story/add", methods=("POST",))

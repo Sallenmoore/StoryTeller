@@ -90,28 +90,23 @@
         {% endblock %}
 
         {% if obj %}
-
         <!-- display the object title  -->
         {{title.object_title(user, obj)}}
-
-
         <!-- display the object menu  -->
         <section id="object-menu">
             {{nav.object_menu(user, obj)}}
         </section>
-
         {% endif %}
 
-        {% if page_url %}
         <section class="container medium-width-85 medium-padding-2">
-            <div id="page-content"
-                 hx-get='/api{{page_url}}'
-                 hx-trigger='load'
-                 hx-indicator='#request-indicator'
-                 hx-push-url='{{page_url}}'>
+            <div id="page-content">
+                {% if page %}
+                {{page | safe}}
+                {% elif page_url %}
+                {{page_url | safe}}
+                {% endif %}
             </div>
         </section>
-        {% endif %}
 
         <div class="image htmx-indicator has-text-muted bg-screen" id="request-indicator">
             <img src="/static/images/grid.svg" alt="loading">
@@ -159,7 +154,7 @@
         } = CKEDITOR;
 
         function getMentions(queryText) {
-            const url = '/api/nav/mentions';
+            const url = '/nav/mentions';
             const data = {
                 query: queryText,
                 user: '67886696f166a76d0ce3ba82',

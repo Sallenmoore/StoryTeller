@@ -128,7 +128,7 @@
     <div class="grid-x grid-margin-x align-justify margin-bottom-2">
         <div class="cell shrink">
             <button class="button small"
-                    hx-post="/api/manage/{{obj.path}}/add/encounter"
+                    hx-post="/manage/{{obj.path}}/add/encounter"
                     hx-target="#encounter-list"
                     hx-select="#encounter-list"
                     hx-swap="outerHTML"
@@ -143,7 +143,7 @@
                    placeholder="Search to Add Encounters..."
                    style="border-bottom: solid #000"
                    hx-target="#association-search"
-                   hx-post="/api/manage/encounter/search"
+                   hx-post="/manage/encounter/search"
                    hx-trigger="input delay:750ms, search">
             <ul class="vertical dropdown menu"
                 data-dropdown-menu

@@ -26,7 +26,7 @@
     </div>
     <div class="cell shrink align-center-middle">
         <button type="button" class="button small"
-                hx-post='/api/manage/encounter/toevent'
+                hx-post='/manage/encounter/toevent'
                 hx-target='#page-content'
                 hx-confirm='Are you sure you want to convert this encounter to an event?'
                 hx-trigger="click consume">
@@ -36,7 +36,7 @@
     </div>
     <div class="cell shrink align-center-middle">
         <button class="button "
-                hx-post="/api/manage/delete/{{obj.path}}"
+                hx-post="/manage/delete/{{obj.path}}"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>
             {{icon_components.delete(size="1rem")}}
@@ -47,7 +47,7 @@
 <hr>
 <div class="grid-x align-spaced">
     <div class="cell medium-8">
-        <form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+        <form hx-post="/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
             <div class="grid-x grid-margin-x">
                 <div class="cell auto">
                     <h5 class='text-center'>Name</h5>
@@ -72,7 +72,7 @@
             <div class="cell align-center-middle">
                 <div class="select">
                     <select class="has-bg-white" name='storypk'
-                            hx-post='/api/manage/encounter/story'
+                            hx-post='/manage/encounter/story'
                             hx-swap='none'
                             hx-trigger="change">
                         <option value="" {% if not obj.story %} selected {% endif
@@ -89,7 +89,7 @@
         </div>
     </div>
 </div>
-<form hx-post="/api/manage/update"
+<form hx-post="/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x grid-margin-y">
         <div class="cell">
@@ -149,7 +149,7 @@
             <div class="grid-x is-vertical">
                 <div class="cell shrink">
                     <button type="button" class="button small"
-                            hx-post='/api/manage/add/listitem/post_scenes'
+                            hx-post='/manage/add/listitem/post_scenes'
                             hx-target='#post_scenes-item-list'
                             hx-select='#post_scenes-item-list'
                             hx-swap='outerHTML' hx-trigger="click consume">

@@ -17,7 +17,7 @@
             </a>
             {% for t in tags %}
             <a class="button small {% if tag == t %}is-primary{% else %}is-muted {% endif %}"
-               hx-post='/api/admin/manage/images/tag/{{t}}' hx-target='#manager'>
+               hx-post='/admin/manage/images/tag/{{t}}' hx-target='#manager'>
                 {{ t }}
             </a>
             {% endfor %}
@@ -35,7 +35,7 @@
             {% endfor %}
         </div>
         <button class="button small"
-                hx-post="/api/admin/manage/image/delete"
+                hx-post="/admin/manage/image/delete"
                 hx-vals='{"pk": "{{ image.pk }}", "model": "Image"}'
                 hx-swap="delete"
                 hx-target='closest .cell'>

@@ -5,7 +5,15 @@ import json
 import random
 from datetime import datetime
 
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    get_template_attribute,
+)
 
 from autonomous import log
 from autonomous.auth import AutoAuth, GoogleAuth
@@ -34,7 +42,10 @@ def login():
         session["authprovider_state"] = state
 
         return redirect(uri)
-    return render_template("index.html", page_url="/auth/login")
+    worlds = World.all()
+    worlds = random.sample(worlds, 4) if len(worlds) > 4 else worlds
+    page = get_template_attribute("login.html", "login")(worlds=worlds)
+    return render_template("index.html", page=page)
 
 
 @auth_page.route("/authorize", methods=("GET", "POST"))

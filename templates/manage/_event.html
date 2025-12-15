@@ -28,7 +28,7 @@
         </div>
     </div>
 </div>
-<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+<form hx-post="/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x">
         <div class="cell">
             <h5 class='text-center'>Name</h5>
@@ -48,7 +48,7 @@
                 <div class="cell align-center-middle">
                     <div class="select">
                         <select class="has-bg-white" name='storypk'
-                                hx-post="/api/event/{{event.pk}}/stories/add"
+                                hx-post="/event/{{event.pk}}/stories/add"
                                 hx-target="#event-stories-list"
                                 hx-select="#event-stories-list"
                                 hx-swap="outerHTML"
@@ -71,7 +71,7 @@
                     <div class="cell medium-2 event-story-entry" style="position: relative;">
                         {{display_components.object_display(story, type=False)}}
                         <a style='position:absolute; top:0px; right:5px;'
-                           hx-post="/api/event/{{event.pk}}/stories/{{story.pk}}/delete"
+                           hx-post="/event/{{event.pk}}/stories/{{story.pk}}/delete"
                            hx-target="closest .event-story-entry" hx-swap="delete"
                            hx-confirm="Are you sure you want to remove this story from the event?">
                             <iconify-icon icon="mdi:remove"
@@ -84,7 +84,7 @@
         </div>
     </div>
 </div>
-<form hx-post="/api/manage/update" hx-swap="none" hx-trigger="input delay:1s, change"
+<form hx-post="/manage/update" hx-swap="none" hx-trigger="input delay:1s, change"
       hx-push-url='false'>
     <div class="grid-x">
         <div class="cell">
@@ -105,7 +105,7 @@
 {{manage_components.image(user, event)}}
 <div class="grid-x align-spaced">
     <div class="cell shrink">
-        <button class="button is-danger" hx-post="/api/event/{{ event.pk }}/delete"
+        <button class="button is-danger" hx-post="/event/{{ event.pk }}/delete"
                 hx-target="#page-content">
             {{icon_components.delete()}}
         </button>

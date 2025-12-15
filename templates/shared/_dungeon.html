@@ -20,7 +20,7 @@
     {% endif %}
     <div class="cell shrink">
         <button class="button primary"
-                hx-post="/api/dungeon/create"
+                hx-post="/dungeon/create"
                 hx-target="#page-content"
                 hx-indicator="#request-indicator"
                 hx-swap="innerHTML show:#page-content:top"
@@ -30,7 +30,7 @@
     </div>
     <div class="cell shrink">
         <button class="button primary"
-                hx-post="/api/dungeon/create/fiveroom"
+                hx-post="/dungeon/create/fiveroom"
                 hx-target="#page-content"
                 hx-indicator="#request-indicator"
                 hx-swap="innerHTML show:#page-content:top"
@@ -41,7 +41,7 @@
     </div>
     <div class="cell shrink">
         <button class="button primary"
-                hx-post="/api/dungeon/create/random"
+                hx-post="/dungeon/create/random"
                 hx-target="#page-content"
                 hx-indicator="#request-indicator"
                 hx-swap="innerHTML show:#page-content:top"
@@ -86,7 +86,7 @@
                     <div class="grid-x align-center">
                         <div class="cell shrink">
                             <a class="button small"
-                               hx-get="/api/dungeon/room/{{room.pk}}"
+                               hx-get="/dungeon/room/{{room.pk}}"
                                hx-target="#dungeon-container"
                                hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                 View Entrance
@@ -106,7 +106,7 @@
                 <div class="grid-x align-justify grid-margin-x">
                     <div class="cell shrink">
                         <a class="button tiny margin-0"
-                           hx-post="/api/{{obj.path}}/dungeon"
+                           hx-post="{{obj.path}}/dungeon"
                            hx-target="#dungeon-container"
                            hx-select='#dungeon-container'
                            hx-indicator="#request-indicator"
@@ -117,7 +117,7 @@
                     </div>
                     <div class="cell shrink">
                         <a class="button tiny margin-0"
-                           hx-post="/api/dungeon/create/room"
+                           hx-post="/create/room"
                            hx-target="#dungeon-container"
                            hx-indicator="#request-indicator"
                            hx-disinherit="hx-push-url">
@@ -136,7 +136,7 @@
                             <div class="grid-x align-spaced">
                                 <div class="cell shrink">
                                     <a class="button small"
-                                       hx-get="/api/dungeon/room/{{room.pk}}"
+                                       hx-get="/dungeon/room/{{room.pk}}"
                                        hx-target="#dungeon-container"
                                        hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                         View
@@ -144,7 +144,7 @@
                                 </div>
                                 <div class="cell shrink">
                                     <a class="button small"
-                                       hx-post="/api/dungeon/room/{{room.pk}}/entrance"
+                                       hx-post="/dungeon/room/{{room.pk}}/entrance"
                                        hx-target="#page-content"
                                        hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                         Toggle Entrance
@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="cell shrink">
                                     <a class="button tiny alert"
-                                       hx-post="/api/dungeon/room/{{room.pk}}/delete"
+                                       hx-post="/dungeon/room/{{room.pk}}/delete"
                                        hx-target="#dungeon-container"
                                        hx-disinherit="hx-indicator hx-push-url"
                                        hx-confirm="Are you sure you want to delete this room? This action cannot be undone.">
@@ -220,7 +220,7 @@
                     <div class="grid-x align-spaced">
                         {% for connected_room in dungeonroom.connected_rooms %}
                         <div class="cell shrink">
-                            <a hx-get="/api/dungeon/room/{{connected_room.pk}}"
+                            <a hx-get="/dungeon/room/{{connected_room.pk}}"
                                hx-target="#dungeon-container"
                                hx-disinherit="hx-confirm hx-indicator hx-push-url">
                                 <small>{{connected_room.name}}</small>
@@ -236,7 +236,7 @@
     <div class="grid-x align-spaced grid-margin-x">
         <div class="cell medium-6">
             <a class="button small expanded"
-               hx-post="/api/dungeon/room/{{dungeonroom.pk}}/manage"
+               hx-post="/dungeon/room/{{dungeonroom.pk}}/manage"
                hx-target="#dungeon-container"
                hx-indicator="#request-indicator"
                hx-swap="innerHTML"
@@ -372,7 +372,7 @@
                 <div class="grid-x align-spaced">
                     <div class="cell shrink">
                         <a class="button small"
-                           hx-get="/api/dungeon/room/{{room.pk}}"
+                           hx-get="/dungeon/room/{{room.pk}}"
                            hx-target="#dungeon-container"
                            hx-disinherit="hx-confirm hx-indicator hx-push-url">
                             View Room
@@ -380,7 +380,7 @@
                     </div>
                     <div class="cell shrink">
                         <a class="button small"
-                           hx-post="/api/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
+                           hx-post="/dungeon/room/{{obj.pk}}/connect/{{room.pk}}"
                            hx-target="#room-{{room.pk}}"
                            hx-select="#room-{{room.pk}}"
                            hx-swap="outerHTML"
@@ -406,21 +406,21 @@
         </button>
     </div>
     <div class="cell shrink align-center-middle">
-        <button class="button small" hx-post="/api/dungeon/room/{{obj.pk}}"
+        <button class="button small" hx-post="/dungeon/room/{{obj.pk}}"
                 hx-target="#dungeon-container">{{icon_components.remove(size="1rem")}}
             Done Editing
         </button>
     </div>
     <div class="cell shrink align-center-middle">
         <button class="button alert tiny"
-                hx-post="/api/dungeon/room/{{obj.pk}}/delete"
+                hx-post="/dungeon/room/{{obj.pk}}/delete"
                 hx-target="#page-content"
                 hx-confirm='Are you sure? This cannot be undone'>{{icon_components.delete(size="1rem")}}Delete
         </button>
     </div>
 </div>
 <div class="callout">
-    <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-swap="none"
+    <form hx-post="/dungeon/room/{{obj.pk}}/manage" hx-swap="none"
           hx-trigger="input delay:1s, change"
           hx-request-indicator="">
         <div class="grid-x align-spaced grid-margin-x grid-margin-y">
@@ -462,7 +462,7 @@
     <div class="callout">
         <div class="grid-x grid-margin-x align-spaced">
             <div class="cell shrink">
-                <select name="apath" hx-post="/api/dungeon/room/{{obj.pk}}/add/association"
+                <select name="apath" hx-post="/dungeon/room/{{obj.pk}}/add/association"
                         hx-target="#dungeon-container"
                         hx-indicator='#request-indicator'>
                     <option value="">== Add Association ==</option>
@@ -474,7 +474,7 @@
             </div>
             <div class="cell shrink">
                 <button class="button small"
-                        hx-post="/api/dungeon/room/{{obj.pk}}/add/encounter"
+                        hx-post="/dungeon/room/{{obj.pk}}/add/encounter"
                         hx-target="closest .cell"
                         hx-disinherit="hx-confirm hx-indicator">
                     {{ icon_components.link(size="1rem") }}
@@ -491,7 +491,7 @@
                 <div class="grid-x align-center">
                     <div class="cell shrink">
                         <button class="button small"
-                                hx-post="/api/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
+                                hx-post="/dungeon/room/{{obj.pk}}/association/remove/{{ a.path }}"
                                 hx-target="#dungeon-container"
                                 hx-select="#dungeon-container"
                                 hx-swap="outerHTML"
@@ -511,7 +511,7 @@
     <div class="grid-x grid-margin-x align-spaced" hx-disinherit="hx-push-url" id='object-map-view'>
         <div class="cell">
             <h5 class='text-center'>Map Prompt</h5>
-            <form hx-post="/api/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
+            <form hx-post="/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
                   hx-swap='none'>
                 {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
             </form>
