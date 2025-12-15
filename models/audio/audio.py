@@ -1,4 +1,5 @@
 import io
+import random
 
 import requests
 from autonomous.ai.audioagent import AudioAgent
@@ -28,6 +29,13 @@ class Audio(AutoModel):
 
     @classmethod
     def generate(cls, audio_text, voice="Algieba", pre_text="", post_text=""):
+        log(f"WARNING -- DEPRECATED: Audio.generate\tUse Audio.tts instead.")
+        return cls.tts(
+            audio_text=audio_text, voice=voice, pre_text=pre_text, post_text=post_text
+        )
+
+    @classmethod
+    def tts(cls, audio_text, voice="Algieba", pre_text="", post_text=""):
         from models.world import World
 
         message = f"""
@@ -52,6 +60,14 @@ class Audio(AutoModel):
             audio_file.to_file(), prompt=prompt, **kwargs
         )
         return transcription
+
+    @classmethod
+    def get_voice(cls, filters=[]):
+        from models.world import World
+
+        if voices := AudioAgent.available_voices(filters=filters):
+            return random.choice(voices)
+        return ""
 
     ################### Crud Methods #####################
     def read(self):
@@ -82,7 +98,5 @@ class Audio(AutoModel):
             self.data.delete()
         return super().delete()
 
-    """
-    Mixin class for handling audio data. Audio file must be called 'audio' and content 'audio_text' (it can be a @property wrapper).
-
-    """
+    def url(self):
+        return f"/audio/{self.pk}"

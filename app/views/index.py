@@ -14,6 +14,7 @@ from flask import (
 )
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.campaign.campaign import Campaign
 from models.gmscreen.gmscreen import GMScreen  # required import for model loading
 from models.images.image import Image
@@ -110,7 +111,6 @@ def associations(model, pk):
     page = get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, extended_associations=associations, direct_associations=relations
     )
-
     return render_template("index.html", user=user, obj=obj, page=page)
 
 
@@ -140,21 +140,11 @@ def image(pk, size="orig"):
         return Response("No image available", status=404)
 
 
-@index_page.route(
-    "/audio/<string:model>/<string:pk>",
-    methods=("GET",),
-)
-@index_page.route(
-    "/audio/<string:model>/<string:pk>/<string:attrib>",
-    methods=("GET",),
-)
-def audio(model, pk, attrib=None):
-    attrib = attrib or "audio"
-    obj = AutoModel.get_model(model, pk)
-    log(hasattr(obj, attrib), getattr(obj, attrib))
-    if hasattr(obj, attrib) and getattr(obj, attrib):
+@index_page.route("/audio/<string:pk>", methods=("GET",))
+def audio(pk):
+    if audio := Audio.get(pk):
         return Response(
-            getattr(obj, attrib).read(),
+            audio.read(),
             mimetype="audio/mpeg",
             headers={"Content-Disposition": f"inline; filename={pk}.mp3"},
         )

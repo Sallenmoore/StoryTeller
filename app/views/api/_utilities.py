@@ -1,16 +1,13 @@
-from flask import request
+from autonomous.auth import AutoAuth, auth_required
+from autonomous.model.automodel import AutoModel
+from flask import request, session
 
 from autonomous import log
-from autonomous.model.automodel import AutoModel
 from models.user import User
 from models.world import World
 
 
-def loader(
-    user=None,
-    model=None,
-    pk=None,
-):
+def loader():
     # log(f"User: {user}, Model: {model}, PK: {pk}")
     # log(f"Request: {request}")
     if request.method == "GET":
@@ -19,26 +16,11 @@ def loader(
     elif request.method == "POST":
         request_data = request.json
         # log(f"post: {request_data}")
-    else:
-        return None, None, None, None, None
-
-    # get user
-    if not user:
-        user_data = request_data.get("user", None)
-        #
-        user = (
-            User.get(user_data["pk"])
-            if isinstance(user_data, dict) and user_data.get("pk")
-            else User.get(user_data)
-        )
-    else:
-        user = User.get(user)
+    user = AutoAuth.current_user()
     # log(user)
     # get obj
     try:
-        obj = AutoModel.get_model(
-            model or request_data.get("model", None), pk or request_data.get("pk", None)
-        )
+        obj = AutoModel.get_model(session.get("model", None), session.get("pk", None))
     except Exception as e:
         log(f"Error getting model: {e}")
         obj = None

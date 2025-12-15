@@ -9,7 +9,7 @@ import os
 import random
 
 import requests
-from flask import Blueprint, get_template_attribute, request
+from flask import Blueprint, get_template_attribute, render_template, request
 from jinja2 import TemplateNotFound
 
 from autonomous import log
@@ -48,6 +48,19 @@ def build():
 def buildform():
     user, obj, request_data = _loader()
     return get_template_attribute("home.html", "worldbuild")(user=user)
+
+
+@world_endpoint.route(
+    "/<string:pk>/lore/<string:lorepk>",
+    methods=(
+        "GET",
+        "POST",
+    ),
+)
+def worldlore(pk, lorepk):
+    user, obj, request_data = _loader()
+    lore = Lore.get(lorepk)
+    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 
 
 @world_endpoint.route("/campaign/new", methods=("POST",))
@@ -112,19 +125,6 @@ def worldcalendar(pk):
     world.calendar.save()
     # log(world.calendar.months, world.calendar.days)
     return get_template_attribute("models/_world.html", "manage_details")(user, world)
-
-
-@world_endpoint.route(
-    "/<string:pk>/lore/<string:lorepk>",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def worldlore(pk, lorepk):
-    user, *_ = _loader()
-    lore = Lore.get(lorepk)
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
 
 
 @world_endpoint.route("/<string:pk>/delete", methods=("POST",))

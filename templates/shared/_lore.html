@@ -191,7 +191,13 @@
     <div class="grid-x align-spaced">
         {% if lore.last_summary %}
         <div class="cell">
-            <div class="callout bg-screen">
+            <div class="callout bg-screen" style='position:relative;'>
+                {% if lore.summary_audio %}
+                <audio controls style='position:absolute; top:10px; right:10px;'>
+                    <source src="{{lore.summary_audio.url()}}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                {% endif %}
                 {{lore.last_summary | safe}}
             </div>
         </div>
@@ -232,18 +238,39 @@
                                     <div class="cell medium-9">
                                         <strong>Verbal Response:</strong>
                                         <div class="callout">
-                                            {{lore.get_response(o.name).verbal_response}}
+                                            {% if lore.verbal_audio %}
+                                            <audio controls>
+                                                <source src="{{lore.verbal_audio.url()}}"
+                                                        type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                            {% endif %}
+                                            {{lore.get_response(o.name).verbal}}
                                         </div>
                                         <hr>
                                         <strong>Thoughts:</strong>
                                         <div class="callout">
+                                            {% if lore.thoughts_audio %}
+                                            <audio controls>
+                                                <source src="{{lore.thoughts_audio.url()}}"
+                                                        type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                            {% endif %}
                                             {{lore.get_response(o.name).thoughts}}
                                         </div>
                                     </div>
                                     <div class="cell medium-6">
                                         <strong>Actions Taken:</strong>
                                         <div class="callout">
-                                            {{lore.get_response(o.name).actions_taken}}
+                                            {% if lore.actions_audio %}
+                                            <audio controls>
+                                                <source src="{{lore.actions_audio.url()}}"
+                                                        type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                            {% endif %}
+                                            {{lore.get_response(o.name).actions}}
                                         </div>
                                     </div>
                                     {% if lore.get_response(o.name).roll_type %}

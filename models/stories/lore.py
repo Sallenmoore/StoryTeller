@@ -1,9 +1,7 @@
 import os
 import random
 
-import markdown
 import requests
-import validators
 from autonomous.model.autoattr import (
     DictAttr,
     IntAttr,
@@ -15,33 +13,98 @@ from autonomous.model.automodel import AutoModel
 from dmtoolkit import dmtools
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.calendar.date import Date
-from models.images.image import Image
+
+
+class LoreResponse(AutoModel):
+    obj = ReferenceAttr(choices=["Character"], required=True)
+    scene = ReferenceAttr(choices=["LoreScene"])
+    verbal = StringAttr(default="")
+    verbal_audio = ReferenceAttr(choices=["Audio"])
+    thoughts = StringAttr(default="")
+    thoughts_audio = ReferenceAttr(choices=["Audio"])
+    actions = StringAttr(default="")
+    actions_audio = ReferenceAttr(choices=["Audio"])
+    roll_type = StringAttr(default="")
+    roll_explanation = StringAttr(default="")
+    roll_formula = StringAttr(default="")
+    roll_bonuses = StringAttr(default="")
+    roll_result = IntAttr(default=0)
+
+    def delete(self):
+        if self.verbal_audio:
+            self.verbal_audio.delete()
+        if self.thoughts_audio:
+            self.thoughts_audio.delete()
+        if self.actions_audio:
+            self.actions_audio.delete()
+        super().delete()
+
+    def roll(self):
+        try:
+            if self.roll_formula:
+                self.roll_result = dmtools.dice_roll(self.roll_formula)
+                self.save()
+        except Exception as e:
+            log(f"Error rolling dice for formula {self.roll_formula}: {e}", _print=True)
+
+    def generate_audio(self):
+        if self.verbal and not self.verbal_audio:
+            # audio_text, voice="Algieba", pre_text="", post_text=""
+            audio = Audio.tts(
+                audio_text=self.verbal,
+                voice=self.obj.voice,
+            )
+            if audio:
+                self.verbal_audio = audio
+                self.save()
+        if self.thoughts and not self.thoughts_audio:
+            audio = Audio.tts(
+                audio_text=self.thoughts,
+                voice=self.obj.voice,
+            )
+            if audio:
+                self.thoughts_audio = audio
+                self.save()
+        if self.actions and not self.actions_audio:
+            audio = Audio.tts(
+                audio_text=self.actions,
+                voice=self.obj.voice,
+            )
+            if audio:
+                self.actions_audio = audio
+                self.save()
 
 
 class LoreScene(AutoModel):
+    party = ListAttr(ReferenceAttr(choices=["Character"]))
     prompt = StringAttr(default="")
     summary = StringAttr(default="")
+    summary_audio = ReferenceAttr(choices=["Audio"])
     situation = StringAttr(default="")
     setting = ReferenceAttr(choices=["Place"])
     date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-    responses = ListAttr(DictAttr())
+    responses = ListAttr(ReferenceAttr(choices=["LoreResponse"]))
     lore = ReferenceAttr(choices=["Lore"], require=True)
 
     def delete(self):
         if self.date:
             self.date.delete()
+        for r in self.responses:
+            if isinstance(r, LoreResponse):
+                r.delete()
         super().delete()
 
     def summarize(self):
         prompt = f"""Based on the following:
-{f"Summary of events: {self.lore.summary}" if self.lore.summary else ""}
+{f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
 
 The current situation: {self.situation}
 
 CHARACTER RESPONSES:
-{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.lore.party])}
+{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
 
 Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
@@ -53,6 +116,11 @@ Summarize the events so that that they can be added to the characters' history. 
         if summary_result:
             log(f"Generated Lore Summary: {summary_result}", _print=True)
             self.summary = summary_result
+            self.save()
+            self.summary_audio = Audio.tts(
+                audio_text=self.summary,
+                voice=random.choice(self.party).voice,
+            )
             self.save()
 
     def get_response(self, character_name):
@@ -72,7 +140,13 @@ Summarize the events so that that they can be added to the characters' history. 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+
+        #### MIGRATION CODE - REMOVE AFTERWARDS ####
+        if not document.party and document.lore and document.lore.party:
+            document.party = document.lore.party
+        #############################################
         document.pre_save_dates()
+        document.pre_save_responses()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -85,6 +159,15 @@ Summarize the events so that that they can be added to the characters' history. 
         if self.pk and self.date.obj != self:
             self.date.obj = self
             self.date.save()
+
+    def pre_save_responses(self):
+        for k, response in self.responses.items():
+            if isinstance(response, dict):
+                obj = [member for member in self.party if member.name == k][0]
+                lr = LoreResponse(obj=obj, scene=self, **response)
+                lr.roll()
+                lr.save()
+                self.responses[k] = lr
 
 
 class Lore(AutoModel):
@@ -125,7 +208,7 @@ class Lore(AutoModel):
                                 "type": "string",
                                 "description": "The full name of the character.",
                             },
-                            "verbal_response": {
+                            "verbal": {
                                 "type": "string",
                                 "description": "The character's verbal response to the situation, if any. Otherwise an empty string.",
                             },
@@ -133,7 +216,7 @@ class Lore(AutoModel):
                                 "type": "string",
                                 "description": "The character's internal thoughts regarding the situation. Any plans or considerations they have.",
                             },
-                            "actions_taken": {
+                            "actions": {
                                 "type": "string",
                                 "description": "Any actions the character takes in response to the situation, if any. Otherwise an empty string.",
                             },
@@ -176,16 +259,6 @@ class Lore(AutoModel):
     def responses(self):
         return self.scenes[-1].responses if self.scenes else []
 
-    @responses.setter
-    def responses(self, rsps):
-        if self.scenes:
-            self.scenes[-1].responses = rsps
-        else:
-            ls = LoreScene(lore=self, responses=rsps)
-            ls.save()
-            self.scenes = [ls]
-            self.save()
-
     @property
     def summary(self):
         result = ""
@@ -194,11 +267,19 @@ class Lore(AutoModel):
         return result
 
     @property
+    def summary_audio(self):
+        return self.scenes[-1].summary_audio if self.scenes else None
+
+    @property
     def last_summary(self):
         if len(self.scenes) > 1 and self.scenes[-2].summary:
             log(self.scenes[-2].summary, _print=True)
             return self.scenes[-2].summary
-        return self.summary
+        return ""
+
+    @property
+    def last_summary_audio(self):
+        return self.scenes[-2].summary_audio if len(self.scenes) > 1 else None
 
     ############# CRUD #############
 
@@ -258,18 +339,6 @@ NEXT SCENE: {self.situation}.
         )
         if result.get("responses"):
             log(f"Generated Lore: {result}", _print=True)
-            for resp in result["responses"]:
-                try:
-                    resp["roll_result"] = (
-                        dmtools.dice_roll(resp["roll_formula"])
-                        if resp.get("roll_formula")
-                        else 0
-                    )
-                except Exception as e:
-                    log(
-                        f"Error rolling dice for formula {resp.get('roll_formula')}: {e}",
-                        _print=True,
-                    )
             ls = LoreScene(
                 lore=self,
                 prompt=prompt,
@@ -277,10 +346,21 @@ NEXT SCENE: {self.situation}.
                 associations=self.associations,
                 situation=self.situation,
                 date=self.current_date.copy(self),
-                responses=result["responses"],
             )
             ls.save()
             self.scenes += [ls]
+            self.save()
+            for k, resp in result["responses"].items():
+                log(f"Response: {resp}", _print=True)
+                obj = [member for member in self.party if member.name == k][0]
+                lr = LoreResponse(obj=obj, scene=ls, **resp)
+                lr.roll()
+                lr.generate_audio()
+                lr.save()
+                if ls.responses.get(k):
+                    ls.responses[k].delete()
+                ls.responses[k] = lr
+                ls.save()
             self.situation = result.get("situation", "")
             self.save()
             requests.post(
