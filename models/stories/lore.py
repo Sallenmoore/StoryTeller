@@ -15,6 +15,7 @@ from dmtoolkit import dmtools
 from autonomous import log
 from models.audio.audio import Audio
 from models.calendar.date import Date
+from models.utility.parse_attributes import parse_text
 
 
 class LoreResponse(AutoModel):
@@ -122,7 +123,7 @@ CHARACTER RESPONSES:
         )
         if summary_result:
             log(f"Generated Lore Summary: {summary_result}", _print=True)
-            self.summary = summary_result
+            self.summary = parse_text(summary_result)
             self.save()
             self.summary_audio = Audio.tts(
                 audio_text=self.summary,
