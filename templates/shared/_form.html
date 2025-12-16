@@ -16,6 +16,7 @@
 {% endif %}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text secondary" rows="1"
           placeholder="Start typing..."
+          onload='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'
           oninput='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'>{{ content or obj[name] }}</textarea>
 {%- endmacro %}
 
@@ -26,6 +27,7 @@
         <textarea id="{{name}}-{{ loop.index }}" name='{{name}}[]'
                   class="auto-resize-text has-bg-white" rows="1"
                   placeholder="Start typing..."
+                  onload='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'
                   oninput='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'>{{ item }}</textarea>
         <hr>
     </div>
