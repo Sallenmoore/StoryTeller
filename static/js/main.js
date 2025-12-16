@@ -1,6 +1,7 @@
 // 📁 main.js
 import * as utility from "./utility.js";
 window.strip_html = utility.strip_html;
+window.autoResizeTextArea = utility.autoResizeTextArea;
 //htmx.logAll();
 //===My document.ready() handler...
 document.body.addEventListener('htmx:configRequest', utility.process_form_values);

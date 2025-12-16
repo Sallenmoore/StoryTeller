@@ -14,6 +14,20 @@ export function random_int(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
+export function autoResizeTextArea() {
+    var textareas = document.querySelectorAll('.auto-resize-text');
+    textareas.forEach(function (textarea) {
+        // Reset height to auto to correctly calculate scrollHeight
+        textarea.style.height = 'auto';
+        // Set the height to scrollHeight
+        textarea.style.height = textarea.scrollHeight + 'px';
+        // Add input event listener to adjust height on input
+        textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+};
 
 export function strip_html(html) {
     let doc = new DOMParser().parseFromString(html, 'text/html');
