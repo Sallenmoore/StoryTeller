@@ -90,23 +90,21 @@
 <h3 class='text-center'>Quick Reference</h3>
 <table class="stack scroll">
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Backstory</th>
-            <th>Sensory Detail</th>
-            <th>Encounters</th>
+        </tr>
+        <th>Backstory</th>
+        <th>Sensory Detail</th>
+        <th>Encounters</th>
         </tr>
     </thead>
     {% for a in obj.associations|sort(attribute='name') %}
-    <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
-        <td colspan='3'>
+    <tr class="bg-screen">
+        <td colspan='3' class='text-center align-middle'>
             <a href="/{{ a.path }}" target='_blank'>
                 <h5>{{ a.name }} <small>({{ a.title }})</small></h5>
             </a>
         </td>
     </tr>
-    <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
+    <tr class="bg-muted">
         <td>
             {{ a.backstory_summary | safe }}
         </td>
