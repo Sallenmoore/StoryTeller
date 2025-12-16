@@ -107,15 +107,13 @@ class LoreScene(AutoModel):
         super().delete()
 
     def summarize(self):
-        prompt = f"""Based on the following:
+        prompt = f"""in MARKDOWN, summarize the below scenario details as a detailed historical record. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 {f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
 
 The current situation: {self.situation}
 
 CHARACTER RESPONSES:
 {"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
-
-Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
         log("Generating Lore Summary with prompt: " + prompt, _print=True)
         summary_result = self.lore.world.system.generate_text(
