@@ -15,25 +15,22 @@
 <label for="{{name}}">{{label}}</label>
 {% endif %}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text secondary" rows="1"
-          placeholder="Start typing...">{{ content or obj[name] }}</textarea>
-<script>
-    var textareas = document.querySelectorAll('.auto-resize-text');
+          placeholder="Start typing..."
+          oninput='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'>{{ content or obj[name] }}</textarea>
+{%- endmacro %}
 
-    textareas.forEach(textarea => {
-        // Adjust height on input
-        function autoResize() {
-            // Reset height to 'auto' first to correctly calculate scrollHeight
-            // This allows the textarea to shrink if text is deleted
-            textarea.style.height = 'auto';
-            // Set the height to the scrollHeight, which is the minimum height
-            // required to show all content without a scrollbar.
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
-        textarea.addEventListener('input', autoResize);
-        // Adjust height on initial load (in case there's pre-filled content)
-        autoResize();
-    });
-</script>
+{% macro listarea(user, obj, name) -%}
+<div class="grid-x is-vertical" id='{{name}}-item-list'>
+    {% for item in obj[name] %}
+    <div class="cell">
+        <textarea id="{{name}}-{{ loop.index }}" name='{{name}}[]'
+                  class="auto-resize-text has-bg-white" rows="1"
+                  placeholder="Start typing..."
+                  oninput='this.style.height = "auto"; this.style.height = this.scrollHeight + "px";'>{{ item }}</textarea>
+        <hr>
+    </div>
+    {% endfor %}
+</div>
 {%- endmacro %}
 
 {% macro richtexteditor(user, obj, attr, name="", label=True) -%}
@@ -58,76 +55,15 @@
 </script>
 {%- endmacro %}
 
-{% macro listarea(user, obj, name) -%}
-<div class="grid-x is-vertical" id='{{name}}-item-list'>
-    {% for item in obj[name] %}
-    <div class="cell">
-        <textarea id="{{name}}-{{ loop.index }}" name='{{name}}[]'
-                  class="auto-resize-text has-bg-white" rows="1"
-                  placeholder="Start typing...">{{ item }}</textarea>
-        <hr>
-    </div>
+{% macro select(user, obj, name, label="", placeholder="", style="")%}
+{% if label %}
+<label for="{{name}}" style="{{style | label_style}}">{{label}}</label>
+{% endif %}
+<select>
+    <option value="">{{placeholder}}</option>
+    {% for option in obj[name] %}
+    <option value="{{option.value}}" {% if option.selected %}selected{% endif %}>{{option.label}}
+    </option>
     {% endfor %}
-</div>
-<script>
-    var textareas = document.querySelectorAll('.auto-resize-text0');
-
-    textareas.forEach(textarea => {
-        // Adjust height on input
-        function autoResize() {
-            // Reset height to 'auto' first to correctly calculate scrollHeight
-            // This allows the textarea to shrink if text is deleted
-            textarea.style.height = 'auto';
-            // Set the height to the scrollHeight, which is the minimum height
-            // required to show all content without a scrollbar.
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
-        textarea.addEventListener('input', autoResize);
-        // Adjust height on initial load (in case there's pre-filled content)
-        autoResize();
-    });
-</script>
+</select>
 {%- endmacro %}
-
-{# {% macro texteditor(user, obj, attr, content=None, limit=0, name="") -%}
-<div onmouseout="tinyMCE.triggerSave();" data-max='{{limit}}'>
-    <textarea class=" has-bg-white" id="edit-{{obj.pk}}-{{attr}}"
-              name="{{name or attr}}">
-        {% if not (content is none) %}
-            {{content | string |  safe}}
-        {% elif obj %}
-            {{obj[attr] | string | safe}}
-        {% endif %}
-    </textarea>
-    <script>
-        tinyMCE.remove('#edit-{{obj.pk}}-{{attr}}');
-        tinyMCE.init({
-            selector: '#edit-{{obj.pk}}-{{attr}}',
-            toolbar: 'undo redo searchreplace | styles | bold italic blockquote link | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist | removeformat | fullscreen',
-            toolbar_sticky: true,
-            plugins: 'wordcount autoresize fullscreen lists link searchreplace',
-            resize: 'true',
-            min_height: 20,
-            content_style: "body {font-family:Open-Sans,sans-serif;font-size:1.15rem;line-height: 1.25;}",
-            menubar: false,
-            promotion: false,
-            license_key: 'gpl',
-            setup: function (editor) {
-                var max = parseInt(htmx.find("#edit-{{obj.pk}}-{{attr}}").parentElement.dataset.max);
-                editor.on('change', function (e) {
-                    var numChars = editor.plugins.wordcount.body.getCharacterCount();
-                    if (max && numChars > max) {
-                        alert("Maximum " + numChars + "/" + max + " characters allowed.");
-                        return false;
-                    } else {
-                        tinymce.triggerSave();
-                        htmx.trigger("#edit-{{obj.pk}}-{{attr}}", 'input');
-                        htmx.trigger("#edit-{{obj.pk}}-{{attr}}", 'change');
-                    }
-                });
-            }
-        });
-    </script>
-</div>
-{%- endmacro %}
-#}
