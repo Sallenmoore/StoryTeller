@@ -50,11 +50,15 @@ class LoreResponse(AutoModel):
             log(f"Error rolling dice for formula {self.roll_formula}: {e}", _print=True)
 
     def generate_audio(self):
+        voice = self.obj.voice
+        log(
+            f"Generating audio for LoreResponse of {self.obj.name} with voice {voice}",
+            _print=True,
+        )
         if self.verbal and not self.verbal_audio:
-            # audio_text, voice="Algieba", pre_text="", post_text=""
             audio = Audio.tts(
                 audio_text=self.verbal,
-                voice=self.obj.voice,
+                voice=voice,
             )
             if audio:
                 self.verbal_audio = audio
@@ -62,7 +66,7 @@ class LoreResponse(AutoModel):
         if self.thoughts and not self.thoughts_audio:
             audio = Audio.tts(
                 audio_text=self.thoughts,
-                voice=self.obj.voice,
+                voice=voice,
             )
             if audio:
                 self.thoughts_audio = audio
@@ -70,15 +74,20 @@ class LoreResponse(AutoModel):
         if self.actions and not self.actions_audio:
             audio = Audio.tts(
                 audio_text=self.actions,
-                voice=self.obj.voice,
+                voice=voice,
             )
             if audio:
                 self.actions_audio = audio
                 self.save()
+        log(
+            f"Finished generating audio for LoreResponse of {self.obj.name}: verbal_audio={self.verbal_audio}, thoughts_audio={self.thoughts_audio}, actions_audio={self.actions_audio}",
+            _print=True,
+        )
 
 
 class LoreScene(AutoModel):
     party = ListAttr(ReferenceAttr(choices=["Character"]))
+    image = ReferenceAttr(choices=["Image"])
     prompt = StringAttr(default="")
     summary = StringAttr(default="")
     summary_audio = ReferenceAttr(choices=["Audio"])
@@ -125,7 +134,7 @@ Summarize the events so that that they can be added to the characters' history. 
 
     def get_response(self, character_name):
         for response in self.responses:
-            if response.get("character_name") == character_name:
+            if response.obj.name == character_name:
                 return response
         return None
 
@@ -161,13 +170,17 @@ Summarize the events so that that they can be added to the characters' history. 
             self.date.save()
 
     def pre_save_responses(self):
-        for k, response in self.responses.items():
+        for idx, response in enumerate(self.responses):
             if isinstance(response, dict):
-                obj = [member for member in self.party if member.name == k][0]
+                obj = [
+                    member
+                    for member in self.party
+                    if member.name == response.get("character_name")
+                ][0]
                 lr = LoreResponse(obj=obj, scene=self, **response)
                 lr.roll()
                 lr.save()
-                self.responses[k] = lr
+                self.responses[idx] = lr
 
 
 class Lore(AutoModel):
@@ -248,6 +261,18 @@ class Lore(AutoModel):
         return self.world.calendar
 
     @property
+    def events(self):
+        return [e for e in self.world.events if e.date and e.date <= self.current_date]
+
+    @property
+    def image(self):
+        return self.scenes[-1].image if self.scenes else None
+
+    @property
+    def geneology(self):
+        return [self.world, self.story]
+
+    @property
     def places(self):
         return [
             a
@@ -262,8 +287,12 @@ class Lore(AutoModel):
     @property
     def summary(self):
         result = ""
-        result = self.scenes[-1].summary if self.scenes else ""
-        log(result, _print=True)
+        i = -1
+        scenes = self.scenes[::]
+        while not result and scenes:
+            result = scenes[i].summary if scenes else ""
+            i -= 1
+            scenes = scenes[:-1]
         return result
 
     @property
@@ -273,13 +302,24 @@ class Lore(AutoModel):
     @property
     def last_summary(self):
         if len(self.scenes) > 1 and self.scenes[-2].summary:
-            log(self.scenes[-2].summary, _print=True)
             return self.scenes[-2].summary
-        return ""
+        return self.summary
 
     @property
     def last_summary_audio(self):
         return self.scenes[-2].summary_audio if len(self.scenes) > 1 else None
+
+    @property
+    def history(self):
+        return self.summary
+
+    @property
+    def system(self):
+        return self.world.system
+
+    @property
+    def path(self):
+        return f"lore/{self.pk}"
 
     ############# CRUD #############
 
@@ -350,17 +390,28 @@ NEXT SCENE: {self.situation}.
             ls.save()
             self.scenes += [ls]
             self.save()
-            for k, resp in result["responses"].items():
+            for resp in result["responses"]:
                 log(f"Response: {resp}", _print=True)
-                obj = [member for member in self.party if member.name == k][0]
-                lr = LoreResponse(obj=obj, scene=ls, **resp)
+                obj = [
+                    member
+                    for member in self.party
+                    if member.name == resp.get("character_name")
+                ][0]
+                lr = LoreResponse(obj=obj, scene=ls)
+                lr.verbal = resp.get("verbal", "")
+                lr.thoughts = resp.get("thoughts", "")
+                lr.actions = resp.get("actions", "")
+                lr.roll_type = resp.get("roll_type", "")
+                lr.roll_explanation = resp.get("roll_explanation", "")
+                lr.roll_formula = resp.get("roll_formula", "")
+                lr.roll_bonuses = resp.get("roll_bonuses", "")
                 lr.roll()
-                lr.generate_audio()
                 lr.save()
-                if ls.responses.get(k):
-                    ls.responses[k].delete()
-                ls.responses[k] = lr
+                if resp := ls.get_response(obj.name):
+                    resp.delete()
+                ls.responses += [lr]
                 ls.save()
+                lr.generate_audio()
             self.situation = result.get("situation", "")
             self.save()
             requests.post(
@@ -393,6 +444,7 @@ NEXT SCENE: {self.situation}.
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_setting()
+        document.pre_save_associations()
         document.pre_save_dates()
 
     # @classmethod
@@ -401,6 +453,10 @@ NEXT SCENE: {self.situation}.
 
     # def clean(self):
     #     super().clean()
+    def pre_save_associations(self):
+        for char in [self.setting, self.bbeg, *self.party]:
+            if char and char not in self.associations:
+                self.associations += [char]
 
     def pre_save_setting(self):
         if isinstance(self.setting, str):

@@ -75,7 +75,6 @@
             </div>
             {% endif %}
         </div>
-        <hr>
         <h5>Entrances</h5>
         {% if obj.dungeon.entrances %}
         <div class="grid-x align-spaced grid-margin-x">
@@ -106,7 +105,7 @@
                 <div class="grid-x align-justify grid-margin-x">
                     <div class="cell shrink">
                         <a class="button tiny margin-0"
-                           hx-post="{{obj.path}}/dungeon"
+                           hx-post="/{{obj.path}}/dungeon"
                            hx-target="#dungeon-container"
                            hx-select='#dungeon-container'
                            hx-indicator="#request-indicator"
@@ -117,7 +116,7 @@
                     </div>
                     <div class="cell shrink">
                         <a class="button tiny margin-0"
-                           hx-post="/create/room"
+                           hx-post="/dungeon/create/room"
                            hx-target="#dungeon-container"
                            hx-indicator="#request-indicator"
                            hx-disinherit="hx-push-url">

@@ -31,20 +31,6 @@ lore_endpoint = Blueprint("lore", __name__)
 
 
 ###########################################################
-##                    lore Routes                    ##
-###########################################################
-@lore_endpoint.route("/", methods=("POST",))
-@lore_endpoint.route("/<string:pk>", methods=("POST",))
-def index(pk=None):
-    user, obj, request_data = _loader()
-    lore = Lore.get(pk or request.json.get("lorepk"))
-    return get_template_attribute("shared/_lore.html", "lore_details")(
-        user,
-        lore,
-    )
-
-
-###########################################################
 ##                    lore CRUD Routes                  ##
 ###########################################################
 
@@ -72,7 +58,7 @@ def lore_new():
         "year": request_data.get("start_year"),
     }
     lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_world.html", "lore")(user, lore)
 
 
 @lore_endpoint.route("/<string:lore_pk>/edit", methods=("POST",))
@@ -104,6 +90,19 @@ def lore_delete(lore_pk):
     if lore := Lore.get(lore_pk):
         lore.delete()
     return get_template_attribute("shared/_lore.html", "lore")(user, obj)
+
+
+@lore_endpoint.route("/<string:lore_pk>/complete", methods=("POST",))
+def lore_complete(lore_pk):
+    user, obj, _ = _loader()
+    if lore := Lore.get(lore_pk):
+        event = Event.create_event_from_lore(lore)
+        if event:
+            lore.delete()
+    return f"""<script>
+        window.location.replace('/event/{event.pk}/manage');
+    </script>
+"""
 
 
 ###########################################################

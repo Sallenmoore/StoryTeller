@@ -6,7 +6,69 @@
 {% import "shared/_gmnotes.html" as gmnotes_components %}
 
 {% macro manage(user, episode) -%}
-<div id="episode-manage" class="grid-x grid-padding-x">
+<div id="episode-manage" class="grid-x grid-padding-x grid-margin-y">
+    <div class="main-panel cell small-12 medium-8">
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
+              hx-trigger="input delay:1s, change">
+            <div class="grid-x">
+                <div class="cell small-1">
+                    <label>No.
+                        <input type="number" name="episode_num" value="{{episode.episode_num}}">
+                    </label>
+                </div>
+                <div class="cell small-11">
+                    <label>Name
+                        <input id="model-name" type="text" name="name"
+                               value="{{episode.name}}"
+                               onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
+                               oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
+                    </label>
+                </div>
+            </div>
+        </form>
+
+        <div class="grid-x">
+            <div class="cell">
+                {{ manage_components.dates (user, episode, url="episode/"+episode.pk|string+"/update") }}
+            </div>
+            <div class="cell">
+                <h3>Report</h3>
+                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
+                      hx-trigger="input delay:250ms, change"
+                      hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
+                    {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
+                </form>
+            </div>
+        </div>
+        <div id="ai-buttons" class="grid-x grid-padding-x grid-padding-y align-right">
+            <div class="cell small-shrink large-shrink">
+                <button class='button'
+                        hx-post='/task/generate/campaign/episode/{{episode.pk}}/report'
+                        hx-target="closest .cell"
+                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
+                    Punch Up Report
+                </button>
+            </div>
+            <div class="cell small-shrink large-shrink">
+                <button class="button"
+                        hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
+                        hx-target="closest .cell"
+                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
+                    {{icon_components.ai(size="1rem")}}
+                    Update Summary
+                </button>
+            </div>
+        </div>
+        <hr>
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
+              hx-trigger="input delay:1s, change">
+            <h3>Loot</h3>
+            {{form_components.richtexteditor(user, episode, 'loot', label=False)}}
+            <hr>
+            <h3>Hooks</h3>
+            {{form_components.richtexteditor(user, episode, 'hooks', label=False)}}
+        </form>
+    </div>
     <div class="related-panel cell small-12 medium-4 bg-screen padding-1">
         <div class="callout bg-muted">
             <div id='episode-connected-stories' class="grid-x grid-margin-x">
@@ -87,6 +149,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="cell">
         <div class="callout primary">
             {{ gmnotes_components.reference(user, episode) }}
         </div>
@@ -105,68 +169,5 @@
             </div>
         </div>
     </div>
-    <div class="story cell small-12 medium-8">
-        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
-              hx-trigger="input delay:1s, change">
-            <div class="grid-x">
-                <div class="cell small-1">
-                    <label>No.
-                        <input type="number" name="episode_num" value="{{episode.episode_num}}">
-                    </label>
-                </div>
-                <div class="cell small-11">
-                    <label>Name
-                        <input id="model-name" type="text" name="name"
-                               value="{{episode.name}}"
-                               onload='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'
-                               oninput='document.title = this.value;document.getElementById("object-title").innerHTML = this.value;'>
-                    </label>
-                </div>
-            </div>
-        </form>
-
-        <div class="grid-x">
-            <div class="cell">
-                {{ manage_components.dates (user, episode, url="episode/"+episode.pk|string+"/update") }}
-            </div>
-            <div class="cell">
-                <h3>Report</h3>
-                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
-                      hx-trigger="input delay:250ms, change"
-                      hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
-                    {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
-                </form>
-            </div>
-        </div>
-        <div id="ai-buttons" class="grid-x grid-padding-x grid-padding-y align-right">
-            <div class="cell small-shrink large-shrink">
-                <button class='button'
-                        hx-post='/task/generate/campaign/episode/{{episode.pk}}/report'
-                        hx-target="closest .cell"
-                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
-                    Punch Up Report
-                </button>
-            </div>
-            <div class="cell small-shrink large-shrink">
-                <button class="button"
-                        hx-post="/task/generate/campaign/episode/{{episode.pk}}/summary"
-                        hx-target="closest .cell"
-                        hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
-                    {{icon_components.ai(size="1rem")}}
-                    Update Summary
-                </button>
-            </div>
-        </div>
-        <hr>
-        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
-              hx-trigger="input delay:1s, change">
-            <h3>Loot</h3>
-            {{form_components.richtexteditor(user, episode, 'loot', label=False)}}
-            <hr>
-            <h3>Hooks</h3>
-            {{form_components.richtexteditor(user, episode, 'hooks', label=False)}}
-        </form>
-    </div>
 </div>
-
 {%- endmacro %}

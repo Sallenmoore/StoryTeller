@@ -66,6 +66,7 @@ def update():
     request_data.pop("user", None)
     request_data.pop("model", None)
     response_url = request_data.pop("response_path", None)
+    log(response_url)
     for attr, value in request_data.items():
         ########## SECURITY: remove any javascript tags for security reasons ############
         if isinstance(value, str) and "<" in value:
@@ -80,12 +81,14 @@ def update():
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
         # log(f"Updated {obj.model_name()}:{obj.pk} - set {attr} to {value}", _print=True)
     obj.save()
-    log(response_url.split("/"))
-    path = (
-        response_url.split("/")[-1] if len(response_url.split("/")) == 4 else "manage"
-    )
+    # log(response_url.split("/"))
+    # path = (
+    #     response_url.split("/")[-1]
+    #     if response_url and len(response_url.split("/")) == 4
+    #     else "manage"
+    # )
     # log(path)
-    return get_template_attribute(f"models/_{obj.model_name().lower()}.html", path)(
+    return get_template_attribute(f"models/_{obj.model_name().lower()}.html", "manage")(
         user, obj
     )
 

@@ -50,19 +50,6 @@ def buildform():
     return get_template_attribute("home.html", "worldbuild")(user=user)
 
 
-@world_endpoint.route(
-    "/<string:pk>/lore/<string:lorepk>",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def worldlore(pk, lorepk):
-    user, obj, request_data = _loader()
-    lore = Lore.get(lorepk)
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
-
-
 @world_endpoint.route("/campaign/new", methods=("POST",))
 def campaignnew():
     user, obj, request_data = _loader()

@@ -74,7 +74,7 @@ $foundation-palette: (
     "warning": #ffae00,
     "alert": #cc4b37,
     "muted": rgba(#075285, 0.6),
-    "screen": rgba(#d4d4d4, 0.3),
+    "screen": rgba(#d4d4d4, 0.6),
 );
 
 @include add-foundation-colors; // 1. Global
@@ -85,7 +85,7 @@ $dark-gray: #8a8a8a;
 $black: #0a0a0a;
 $white: #fefefe;
 $muted: rgba($secondary-color, 0.6);
-$screen: rgba($primary-color, 0.3);
+$screen: rgba($primary-color, 0.6);
 $body-background: $white;
 $body-font-color: $black;
 $body-font-family: 'Rosarivo', serif;

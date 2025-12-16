@@ -152,19 +152,13 @@
                     <div class="date">{{a.end_date}}</div>
                     <div id='{{a.pk}}' class="content">
                         <div class="grid-x grid-margin-x">
-                            <div class="cell shrink medium-3">
+                            <div class="cell medium-3">
                                 <a href="/{{a.path}}">
                                     {% if a.image %}
-                                    <div class="image">
-                                        <img src="{{a.image.url()}}" alt="{{a.name}}">
-                                    </div>
+                                    <img class="thumbnail" src="{{a.image.url(250)}}"
+                                         alt="{{a.name}}">
                                     {% endif %}
                                 </a>
-                                <div class='callout hide'>
-                                    <label for="event-{{a.pk}}">Select</label>
-                                    <input class="new-event-checkbox" id="event-{{a.pk}}"
-                                           type="checkbox">
-                                </div>
                             </div>
                             <div class="cell auto">
                                 <a href="/{{a.path}}">

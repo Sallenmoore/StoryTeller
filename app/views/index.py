@@ -22,34 +22,29 @@ from models.stories.event import Event
 from models.ttrpgobject.faction import Faction  # required import for model loading
 from models.world import World
 
+from .api._utilities import authenticate as _authenticate
+from .api._utilities import loader as _loader
+
 index_page = Blueprint("index", __name__)
-
-
-def _authenticate(user, obj):
-    if obj and user in obj.world.users:
-        return True
-    return False
 
 
 @index_page.route("/", endpoint="index", methods=("GET", "POST"))
 @index_page.route("/home", endpoint="index", methods=("GET", "POST"))
 @auth_required()
 def index():
-    user = AutoAuth.current_user()
+    user, *_ = _loader()
     session["page"] = "/home"
     page = get_template_attribute("home.html", "home")(user)
     return render_template("index.html", user=user, page=page)
 
 
+# MARK: Base Page routes
 @index_page.route("/<string:model>/<string:pk>", methods=("GET", "POST"))
 @index_page.route("/<string:model>/<string:pk>/<path:page>", methods=("GET", "POST"))
 @auth_required(guest=True)
 def page(model, pk, page=""):
-    user = AutoAuth.current_user()
+    user, obj, *_ = _loader(model, pk)
     session["page"] = f"/{model}/{pk}{'/' + page if page else ''}"
-    if obj := AutoModel.get_model(model, pk):
-        session["model"] = model
-        session["pk"] = pk
     if "manage" in page and not _authenticate(user, obj):
         return "<p>You do not have permission to manage this object<p>"
     page = get_template_attribute(f"models/_{model}.html", page or "index")(user, obj)
@@ -63,8 +58,7 @@ def page(model, pk, page=""):
 ###########################################################
 @index_page.route("/<string:model>/<string:pk>/associations", methods=("GET", "POST"))
 def associations(model, pk):
-    user = AutoAuth.current_user()
-    obj = AutoModel.get_model(model, pk)
+    user, obj, *_ = _loader(model, pk)
     associations = obj.associations
     if request.method == "POST":
         if filter_str := request.json.get("filter"):
@@ -162,38 +156,10 @@ def audio(pk):
 @auth_required()
 def tasks(rest_path):
     log("TASK REQUEST", rest_path, request.json, _print=True)
-    if request.files:
-        files = {}
-        for key, file in request.files.items():
-            audio_content = file.read()
-            files |= {
-                key: (
-                    file.filename,
-                    audio_content,
-                    file.mimetype,
-                )
-            }
-        metadata_str = request.form.get("metadata")
-        metadata = json.loads(metadata_str)
-        user = AutoAuth.current_user(metadata.get("user"))
-        obj = AutoModel.get_model(metadata.get("model")).get(metadata.get("pk"))
-        if _authenticate(user, obj):
-            log("Sending files:", files, metadata, _print=True)
-            response = requests.post(
-                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}",
-                files=files,
-                data={
-                    "model": metadata.get("model"),
-                    "pk": metadata.get("pk"),
-                    "user": str(user.pk),
-                },
-            )
-    else:
-        user = AutoAuth.current_user()
-        obj = AutoModel.get_model(request.json.get("model")).get(request.json.get("pk"))
-        if _authenticate(user, obj):
-            response = requests.post(
-                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}",
-                json=request.json,
-            )
+    user, obj, _ = _loader()
+    if _authenticate(user, obj):
+        response = requests.post(
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/{rest_path}",
+            json=request.json,
+        )
     return response.text

@@ -20,7 +20,7 @@
 {{lifetime[event]}}
 {%- endmacro %}
 
-{% macro object_display(obj, dim="250", name=True, date=False, type=True, canon=True, pk=False) -%}
+{% macro object_display(obj, dim="500", name=True, date=False, type=True, canon=True, pk=False) -%}
 <a href="/{{obj.path}}">
     <div class="card">
         {{dsp_object_image(obj,dim)}}

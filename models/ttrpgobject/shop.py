@@ -70,7 +70,7 @@ class Shop(Place):
 
     @property
     def inventory(self):
-        return self.inventory_ + [i.name for i in self.items]
+        return self.inventory_ + [f"{i.name}: {i.description}" for i in self.items]
 
     @inventory.setter
     def inventory(self, value):
@@ -78,12 +78,9 @@ class Shop(Place):
 
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
-        prompt = (
-            prompt
-            or f"Generate a {self.genre} TTRPG {random.choice(self.categories)} establishment, {f'with the following description: {self.backstory}' if self.backstory else f'Add a backstory containing a {self.traits} history for players to discover'}."
-        )
-        if self.owner:
-            prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
+        prompt = f"""
+{f"INVENTORY: {self.inventory}" if self.inventory else ""}
+"""
         results = super().generate(prompt=prompt)
         return results
 

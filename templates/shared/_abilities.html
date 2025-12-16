@@ -63,7 +63,7 @@
     <div class="grid-x align-spaced">
         <div class="cell shrink">
             <button type="button" class="button small"
-                    hx-post='age/add/new/ability'
+                    hx-post='/manage/add/new/ability'
                     hx-target='#ability-item-list'
                     hx-select='#ability-item-list'
                     hx-swap='outerHTML' hx-trigger="click consume">
@@ -75,7 +75,7 @@
             <label for="ability-search-input">Add Existing Abilities
                 <select id="ability-search-input"
                         name="apk"
-                        hx-post='age/add/ability'
+                        hx-post='/manage/add/ability'
                         hx-target='#ability-item-list'
                         hx-select='#ability-item-list'
                         hx-swap='outerHTML'

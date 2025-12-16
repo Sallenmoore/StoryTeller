@@ -3091,11 +3091,11 @@ ul.no-bullet, ol.no-bullet {
   color: #fefefe;
 }
 .button.screen, .button.screen.disabled, .button.screen[disabled], .button.screen.disabled:hover, .button.screen[disabled]:hover, .button.screen.disabled:focus, .button.screen[disabled]:focus {
-  background-color: rgba(212, 212, 212, 0.3);
+  background-color: rgba(212, 212, 212, 0.6);
   color: #0a0a0a;
 }
 .button.screen:hover, .button.screen:focus {
-  background-color: rgba(169.6, 169.6, 169.6, 0.3);
+  background-color: rgba(169.6, 169.6, 169.6, 0.6);
   color: #0a0a0a;
 }
 .button.hollow, .button.hollow:hover, .button.hollow:focus, .button.hollow.disabled, .button.hollow.disabled:hover, .button.hollow.disabled:focus, .button.hollow[disabled], .button.hollow[disabled]:hover, .button.hollow[disabled]:focus {
@@ -3158,12 +3158,12 @@ ul.no-bullet, ol.no-bullet {
   color: rgba(3.5, 41, 66.5, 0.6);
 }
 .button.hollow.screen, .button.hollow.screen.disabled, .button.hollow.screen[disabled], .button.hollow.screen.disabled:hover, .button.hollow.screen[disabled]:hover, .button.hollow.screen.disabled:focus, .button.hollow.screen[disabled]:focus {
-  border: 1px solid rgba(212, 212, 212, 0.3);
-  color: rgba(212, 212, 212, 0.3);
+  border: 1px solid rgba(212, 212, 212, 0.6);
+  color: rgba(212, 212, 212, 0.6);
 }
 .button.hollow.screen:hover, .button.hollow.screen:focus {
-  border-color: rgba(106, 106, 106, 0.3);
-  color: rgba(106, 106, 106, 0.3);
+  border-color: rgba(106, 106, 106, 0.6);
+  color: rgba(106, 106, 106, 0.6);
 }
 .button.clear, .button.clear:hover, .button.clear:focus, .button.clear.disabled, .button.clear.disabled:hover, .button.clear.disabled:focus, .button.clear[disabled], .button.clear[disabled]:hover, .button.clear[disabled]:focus {
   border-color: transparent;
@@ -3212,10 +3212,10 @@ ul.no-bullet, ol.no-bullet {
   color: rgba(3.5, 41, 66.5, 0.6);
 }
 .button.clear.screen, .button.clear.screen.disabled, .button.clear.screen[disabled], .button.clear.screen.disabled:hover, .button.clear.screen[disabled]:hover, .button.clear.screen.disabled:focus, .button.clear.screen[disabled]:focus {
-  color: rgba(212, 212, 212, 0.3);
+  color: rgba(212, 212, 212, 0.6);
 }
 .button.clear.screen:hover, .button.clear.screen:focus {
-  color: rgba(106, 106, 106, 0.3);
+  color: rgba(106, 106, 106, 0.6);
 }
 .button.disabled, .button[disabled] {
   opacity: 0.25;
@@ -3258,7 +3258,7 @@ ul.no-bullet, ol.no-bullet {
   border-top-color: rgba(7, 82, 133, 0.6);
 }
 .button.dropdown.hollow.screen::after, .button.dropdown.clear.screen::after {
-  border-top-color: rgba(212, 212, 212, 0.3);
+  border-top-color: rgba(212, 212, 212, 0.6);
 }
 .button.arrow-only::after {
   top: -0.1em;
@@ -3360,11 +3360,11 @@ a.button:hover, a.button:focus {
   color: #fefefe;
 }
 .button-group.screen .button, .button-group.screen .button.disabled, .button-group.screen .button[disabled], .button-group.screen .button.disabled:hover, .button-group.screen .button[disabled]:hover, .button-group.screen .button.disabled:focus, .button-group.screen .button[disabled]:focus {
-  background-color: rgba(212, 212, 212, 0.3);
+  background-color: rgba(212, 212, 212, 0.6);
   color: #0a0a0a;
 }
 .button-group.screen .button:hover, .button-group.screen .button:focus {
-  background-color: rgba(169.6, 169.6, 169.6, 0.3);
+  background-color: rgba(169.6, 169.6, 169.6, 0.6);
   color: #0a0a0a;
 }
 .button-group.hollow .button, .button-group.hollow .button:hover, .button-group.hollow .button:focus, .button-group.hollow .button.disabled, .button-group.hollow .button.disabled:hover, .button-group.hollow .button.disabled:focus, .button-group.hollow .button[disabled], .button-group.hollow .button[disabled]:hover, .button-group.hollow .button[disabled]:focus {
@@ -3427,12 +3427,12 @@ a.button:hover, a.button:focus {
   color: rgba(3.5, 41, 66.5, 0.6);
 }
 .button-group.hollow.screen .button, .button-group.hollow.screen .button.disabled, .button-group.hollow.screen .button[disabled], .button-group.hollow.screen .button.disabled:hover, .button-group.hollow.screen .button[disabled]:hover, .button-group.hollow.screen .button.disabled:focus, .button-group.hollow.screen .button[disabled]:focus, .button-group.hollow .button.screen, .button-group.hollow .button.screen.disabled, .button-group.hollow .button.screen[disabled], .button-group.hollow .button.screen.disabled:hover, .button-group.hollow .button.screen[disabled]:hover, .button-group.hollow .button.screen.disabled:focus, .button-group.hollow .button.screen[disabled]:focus {
-  border: 1px solid rgba(212, 212, 212, 0.3);
-  color: rgba(212, 212, 212, 0.3);
+  border: 1px solid rgba(212, 212, 212, 0.6);
+  color: rgba(212, 212, 212, 0.6);
 }
 .button-group.hollow.screen .button:hover, .button-group.hollow.screen .button:focus, .button-group.hollow .button.screen:hover, .button-group.hollow .button.screen:focus {
-  border-color: rgba(106, 106, 106, 0.3);
-  color: rgba(106, 106, 106, 0.3);
+  border-color: rgba(106, 106, 106, 0.6);
+  color: rgba(106, 106, 106, 0.6);
 }
 .button-group.clear .button, .button-group.clear .button:hover, .button-group.clear .button:focus, .button-group.clear .button.disabled, .button-group.clear .button.disabled:hover, .button-group.clear .button.disabled:focus, .button-group.clear .button[disabled], .button-group.clear .button[disabled]:hover, .button-group.clear .button[disabled]:focus {
   border-color: transparent;
@@ -3481,10 +3481,10 @@ a.button:hover, a.button:focus {
   color: rgba(3.5, 41, 66.5, 0.6);
 }
 .button-group.clear.screen .button, .button-group.clear.screen .button.disabled, .button-group.clear.screen .button[disabled], .button-group.clear.screen .button.disabled:hover, .button-group.clear.screen .button[disabled]:hover, .button-group.clear.screen .button.disabled:focus, .button-group.clear.screen .button[disabled]:focus, .button-group.clear .button.screen, .button-group.clear .button.screen.disabled, .button-group.clear .button.screen[disabled], .button-group.clear .button.screen.disabled:hover, .button-group.clear .button.screen[disabled]:hover, .button-group.clear .button.screen.disabled:focus, .button-group.clear .button.screen[disabled]:focus {
-  color: rgba(212, 212, 212, 0.3);
+  color: rgba(212, 212, 212, 0.6);
 }
 .button-group.clear.screen .button:hover, .button-group.clear.screen .button:focus, .button-group.clear .button.screen:hover, .button-group.clear .button.screen:focus {
-  color: rgba(106, 106, 106, 0.3);
+  color: rgba(106, 106, 106, 0.6);
 }
 .button-group.no-gaps .button {
   margin-right: -0.0625rem;
@@ -3597,7 +3597,7 @@ a.button:hover, a.button:focus {
   color: #fefefe;
 }
 .label.screen {
-  background: rgba(212, 212, 212, 0.3);
+  background: rgba(212, 212, 212, 0.6);
   color: #0a0a0a;
 }
 
@@ -3626,7 +3626,7 @@ a.button:hover, a.button:focus {
   background-color: rgba(7, 82, 133, 0.6);
 }
 .progress.screen .progress-meter {
-  background-color: rgba(212, 212, 212, 0.3);
+  background-color: rgba(212, 212, 212, 0.6);
 }
 
 .progress-meter {
@@ -4006,7 +4006,7 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
   color: #fefefe;
 }
 .badge.screen {
-  background: rgba(212, 212, 212, 0.3);
+  background: rgba(212, 212, 212, 0.6);
   color: #0a0a0a;
 }
 
@@ -4088,7 +4088,7 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
   color: #0a0a0a;
 }
 .callout.screen {
-  background-color: rgba(248.55, 248.55, 248.55, 0.3);
+  background-color: rgba(248.55, 248.55, 248.55, 0.6);
   color: #0a0a0a;
 }
 .callout.small {
@@ -8138,13 +8138,13 @@ progress.muted::-moz-progress-bar {
   background: rgba(7, 82, 133, 0.6);
 }
 progress.screen {
-  color: rgba(212, 212, 212, 0.3);
+  color: rgba(212, 212, 212, 0.6);
 }
 progress.screen::-webkit-progress-value {
-  background: rgba(212, 212, 212, 0.3);
+  background: rgba(212, 212, 212, 0.6);
 }
 progress.screen::-moz-progress-bar {
-  background: rgba(212, 212, 212, 0.3);
+  background: rgba(212, 212, 212, 0.6);
 }
 progress::-ms-fill {
   border-radius: 0.25rem;
@@ -8190,7 +8190,7 @@ h6 {
 }
 
 .text-screen {
-  color: rgba(7, 82, 133, 0.3);
+  color: rgba(7, 82, 133, 0.6);
 }
 
 .text-white {
@@ -8214,7 +8214,7 @@ h6 {
 }
 
 .bg-screen {
-  background-color: rgba(7, 82, 133, 0.3);
+  background-color: rgba(7, 82, 133, 0.6);
 }
 
 .bg-white {
@@ -8285,7 +8285,7 @@ li.menu a {
   padding: 1rem;
   border-radius: 10%;
   background-color: rgba(7, 82, 133, 0.7);
-  color: rgba(7, 82, 133, 0.3);
+  color: rgba(7, 82, 133, 0.6);
 }
 
 .htmx-request .htmx-indicator {

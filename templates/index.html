@@ -11,6 +11,7 @@
         {% block head %}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta charset="utf-8">
+        <link href="{{url_for('static', filename='robots.txt')}}" rel="robots" />
         <link rel="apple-touch-icon" sizes="180x180"
               href="{{url_for('static', filename='images/apple-touch-icon.png')}}">
         <link rel="icon" type="image/png" sizes="32x32"
@@ -80,11 +81,7 @@
         {% endblock %}
     </head>
 
-    <body hx-ext='json-enc' hx-vals='{
-                "user": "{%if user%}{{user.pk}}{%endif%}",
-                "model": "{%if obj%}{{obj.model_name().lower()}}{%endif%}",
-                "pk": "{%if obj%}{{obj.pk}}{%endif%}"
-            }'>
+    <body hx-ext='json-enc'>
         {% block topnav %}
         {{nav.site_header(user)}}
         {% endblock %}
@@ -98,12 +95,12 @@
         </section>
         {% endif %}
 
-        <section class="container medium-width-85 medium-padding-2">
+        <section class="container medium-width-90 medium-padding-2">
             <div id="page-content">
                 {% if page %}
                 {{page | safe}}
                 {% elif page_url %}
-                {{page_url | safe}}
+                FIX ME: {{page_url}}
                 {% endif %}
             </div>
         </section>

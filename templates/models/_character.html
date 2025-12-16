@@ -21,7 +21,7 @@
 {% macro menu(user, obj) -%}
 
 <li>
-    <a href=="/{{obj.path}}/details">
+    <a href="/{{obj.path}}/details">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -371,6 +371,10 @@
 
 {% macro journal(user, obj)%}
 {{journal_components.journal(user, obj)}}
+{%- endmacro %}
+
+{% macro chat(user, obj)%}
+<h2>Coming Soon</h2>
 {%- endmacro %}
 
 {% macro stories(user, obj)%}

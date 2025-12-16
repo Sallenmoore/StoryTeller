@@ -247,7 +247,10 @@ The area is described as: {self.desc}.
     def generate_map(self):
         # log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
         if self.map:
-            self.map.delete()
+            if self.map == self.location.map:
+                self.map = None
+            else:
+                self.map.delete()
 
         if map := Map.generate(
             prompt=self.build_map_prompt(),

@@ -285,10 +285,10 @@ def _generate_event_summary_task(pk):
 def _generate_lore_task(pk):
     lore = Lore.get(pk)
     lore.generate()
-    return {"url": f"/world/{lore.world.pk}/lore/{lore.pk}"}
+    return {"url": f"/lore/{lore.pk}"}
 
 
 def _generate_lore_summary_task(pk):
     ls = LoreScene.get(pk)
     ls.summarize()
-    return {"url": f"/world/{ls.lore.world.pk}/lore/{ls.lore.pk}"}
+    return {"url": f"/lore/{ls.lore.pk}"}

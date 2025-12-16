@@ -97,6 +97,15 @@
 {% endif %}
 {%- endmacro %}
 
+{% macro check(size="2rem", label="") -%}
+<iconify-icon icon="mdi:check" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
 
 {% macro city(size="2rem", label="") -%}
 <iconify-icon icon="mdi:city" width="{{ size }}"></iconify-icon>

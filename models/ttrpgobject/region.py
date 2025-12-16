@@ -90,7 +90,11 @@ class Region(Place):
 
     ################### Crud Methods #####################
     def generate(self):
-        prompt = f"Generate a detailed information for a {self.genre} {self.title}. The {self.title} is primarily {self.traits}. The {self.title} should also contain a story thread for players to slowly uncover. The story thread should be connected to 1 or more additional elements in the existing world as described by the uploaded file."
+        prompt = f"""
+{f"CULTURE: {self.culture}" if self.culture else ""}
+{f"GOVERNMENT: {self.government}" if self.government else ""}
+{f"RELIGION: {self.religion}" if self.religion else ""}
+"""
         results = super().generate(prompt=prompt)
         return results
 

@@ -5,18 +5,18 @@ import json
 import random
 from datetime import datetime
 
+from autonomous.auth import AutoAuth, GoogleAuth
 from flask import (
     Blueprint,
+    get_template_attribute,
     redirect,
     render_template,
     request,
     session,
     url_for,
-    get_template_attribute,
 )
 
 from autonomous import log
-from autonomous.auth import AutoAuth, GoogleAuth
 from models.user import User
 from models.world import World
 
@@ -67,9 +67,11 @@ def authorize():
 
 @auth_page.route("/logout", methods=("POST", "GET"))
 def logout():
-    if session.get("user"):
+    if user := AutoAuth.current_user():
+        if user.state == "guest":
+            return redirect(url_for("auth.login"))
+
         try:
-            user = User.from_json(session["user"])
             user.state = "unauthenticated"
             # log(f"User {user} logged out")
             user.save()

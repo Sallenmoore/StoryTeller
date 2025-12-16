@@ -35,7 +35,7 @@ class Audio(AutoModel):
         )
 
     @classmethod
-    def tts(cls, audio_text, voice="Algieba", pre_text="", post_text=""):
+    def tts(cls, audio_text, voice="", pre_text="", post_text=""):
         from models.world import World
 
         message = f"""
@@ -65,7 +65,7 @@ class Audio(AutoModel):
     def get_voice(cls, filters=[]):
         from models.world import World
 
-        if voices := AudioAgent.available_voices(filters=filters):
+        if voices := AudioAgent().available_voices(filters=filters):
             return random.choice(voices)
         return ""
 

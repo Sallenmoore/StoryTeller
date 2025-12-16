@@ -13,7 +13,7 @@ class Vehicle(Place):
     size = StringAttr(
         default="medium", choices=["tiny", "small", "medium", "large", "huge"]
     )
-    type = StringAttr(
+    category = StringAttr(
         default="ground vehicle",
         choices=["ground vehicle", "aircraft", "watercraft", "spacecraft"],
     )
@@ -52,7 +52,7 @@ class Vehicle(Place):
                     "type": "string",
                     "description": "A short physical description that will be used to generate an evocative image of the vehicle",
                 },
-                "type": {
+                "category": {
                     "type": "string",
                     "description": "The general category of vehicle. Must be one of the following: ground vehicle, aircraft, watercraft, spacecraft.",
                 },
@@ -102,16 +102,12 @@ class Vehicle(Place):
         ]
 
     @property
-    def location_type(self):
-        return f"{self.size} {self.type}"
-
-    @property
     def image_tags(self):
-        return super().image_tags + [self.type, self.size]
+        return super().image_tags + [self.category, self.size]
 
     @property
     def image_prompt(self):
-        return f"""A full color image of a {self.genre} {self.make} {self.type} with the following description:
+        return f"""A full color image of a {self.genre} {self.make} {self.category} with the following description:
 "- NAME: {self.name}
 {"- DESCRIPTION: " + self.description if self.description else ""}
 {"- SIZE: " + self.size if self.size else ""}
@@ -119,16 +115,26 @@ class Vehicle(Place):
 
     ################### CRUD Methods #####################
     def generate(self):
-        prompt = f"""Create a {self.genre} {self.type} {self.make} that has a capacity of {self.capacity}.
-        """
+        prompt = f"""
+{f"CATEGORY: {self.category}" if self.category else ""}
+{f"MAKE: {self.make}" if self.make else ""}
+{f"SIZE: {self.size}" if self.size else ""}
+{f"SPEED: {self.speed}" if self.speed else ""}
+{f"CREW CAPACITY: {self.capacity}" if self.capacity else ""}
+{f"HITPOINTS: {self.hitpoints}" if self.hitpoints else ""}
+{f"ARMOR: {self.armor}" if self.armor else ""}
+{f"AC: {self.ac}" if self.ac else ""}
+{f"ABILITIES: {self.abilities}" if self.abilities else ""}
+"""
         super().generate(prompt=prompt)
 
-        for _ in range(random.randint(1, 6)):
-            ability = Ability(world=self.world)
-            ability.save()
-            self.abilities.append(ability)
-            self.save()
-            ability.generate(self)
+        if not self.abilities:
+            for _ in range(random.randint(1, 6)):
+                ability = Ability(world=self.world)
+                ability.save()
+                self.abilities.append(ability)
+                self.save()
+                ability.generate(self)
 
     ################### Instance Methods #####################
 
@@ -147,7 +153,7 @@ class Vehicle(Place):
             "ac": self.ac,
             "armor": self.armor,
             "speed": self.speed,
-            "type": self.type,
+            "category": self.category,
             "size": self.size,
             "hitpoints": self.hitpoints,
             "capacity": self.capacity,
@@ -163,14 +169,14 @@ class Vehicle(Place):
         super().auto_post_init(sender, document, **kwargs)
 
         ############### MIGRATION ##################
-        if document.type not in [
+        if document.category not in [
             "ground vehicle",
             "aircraft",
             "watercraft",
             "spacecraft",
         ]:
-            document.make = document.type
-            document.type = "ground vehicle"
+            document.make = document.category
+            document.category = "ground vehicle"
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):

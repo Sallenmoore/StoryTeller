@@ -253,7 +253,11 @@ class TTRPGBase(AutoModel):
         while obj.parent and obj.parent not in ancestors:
             ancestors.append(obj.parent)
             obj = obj.parent
-            self.add_association(obj)
+            ## FIX ME: Sometimes adds invalid association
+            try:
+                self.add_association(obj)
+            except Exception:
+                pass
         if self.world not in ancestors:
             ancestors.append(self.world)
         return ancestors[::-1]
@@ -335,6 +339,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Current Status: " + self.status if getattr(self, "status", None) else ""}
 {"- Description: " + self.description.strip() if self.description.strip() else ""}
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
+{f"- Controlled By: {self.owner.name}" if hasattr(self, "owner") and self.owner else ""}
 """
         prompt = f"""{base_prompt}
 {prompt}
@@ -362,6 +367,11 @@ Use and expand on the existing object data listed below for the {self.title} obj
       - Backstory: {relative.backstory_summary}
      {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
+        if hasattr(self, "stories") and self.stories:
+            prompt += f"""
+ connected to the following storyline:
+            {random.choice(self.stories).summary}
+            """
         if associations := [
             a
             for a in self.associations
@@ -378,6 +388,7 @@ Use and expand on the existing object data listed below for the {self.title} obj
     - Type: {ass.title}
     - Backstory: {ass.history or ass.backstory}
 """
+        log(prompt, _print=True)
         if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
             log(results, _print=True)
             for k, v in results.items():
