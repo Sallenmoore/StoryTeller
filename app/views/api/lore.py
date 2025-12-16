@@ -81,7 +81,7 @@ def lore_edit(lore_pk):
         else lore.setting
     )
     lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_lore.html", "lore_details")(user, lore)
 
 
 @lore_endpoint.route("/<string:lore_pk>/delete", methods=("POST",))
