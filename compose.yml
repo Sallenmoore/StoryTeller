@@ -1,5 +1,5 @@
 services:
-  stappbackdev:
+  stapp:
     image: ${APP_NAME}:latest
     build:
       context: .
@@ -18,11 +18,10 @@ services:
       - ./tests:/var/app/tests/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
-  sttasksbackdev:
+  sttasks:
     image: ${APP_NAME}_tasks:latest
     build:
       context: .
@@ -41,7 +40,6 @@ services:
       - ./templates:/var/app/templates/
       - ./logs:/var/app/logs/
       - ./vendor/package.json:/var/app/package.json
-      - ./autonomous/src/autonomous:/var/app/autonomous/
     command: ["gunicorn", "app:create_app()", "-c/var/gunicorn.conf.py"]
 networks:
   default:
