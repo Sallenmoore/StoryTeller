@@ -252,6 +252,11 @@
         </div>
     </div>
     <div class="grid-x align-spaced">
+        <div class="cell">
+            {{gmnotes_components.reference(user, lore)}}
+        </div>
+    </div>
+    <div class="grid-x align-spaced">
         <a class="cell shrink" style="cursor:pointer" hx-post="/{{lore.path}}/delete"
            hx-target="#page-content"
            hx-confirm="Are you sure you want to delete this lore entry? This action cannot be undone.">

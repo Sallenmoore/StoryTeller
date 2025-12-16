@@ -100,10 +100,13 @@
     </thead>
     {% for a in obj.associations|sort(attribute='name') %}
     <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
-        <td><a href="/{{ a.path }}" target='_blank'>{{ a.name }}</a></td>
-        <td>
-            {{ a.title }}
+        <td colspan='3'>
+            <a href="/{{ a.path }}" target='_blank'>
+                <h5>{{ a.name }} <small>({{ a.title }})</small></h5>
+            </a>
         </td>
+    </tr>
+    <tr class="{{ loop.cycle('bg-screen', 'bg-muted') }}">
         <td>
             {{ a.backstory_summary | safe }}
         </td>
