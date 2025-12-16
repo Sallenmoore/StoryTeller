@@ -98,20 +98,27 @@ class Item(TTRPGObject):
 
     ################### Crud Methods #####################
     def generate(self):
-        prompt = f"Generate a {self.genre} loot item for a {self.genre} TTRPG with detailed stats and a backstory containing {random.choices(('a common', 'a long hidden', 'a mysterious', 'a sinister and dangerous'), (10, 5, 2, 1))} origin. There is a 20% chance the item has a secret special feature or ability."
-        for i in ["rarity", "cost", "duration", "weight", "features"]:
-            if getattr(self, i):
-                prompt += f"""
-{i}: {getattr(self, i)}
+        prompt = f"""
+{f"RARITY: {self.rarity}" if self.rarity else ""}
+{f"UNIQUE ARTIFACT: {self.artifact}" if self.artifact else ""}
+{f"CONSUMABLE: {self.consumable}" if self.consumable else ""}
+{f"COST: {self.cost}" if self.cost else ""}
+{f"DURATION: {self.duration}" if self.duration else ""}
+{f"WEIGHT: {self.weight}" if self.weight else ""}
+{f"TYPE: {self.type}" if self.type else ""}
+{f"ABILITIES: {self.features}" if self.features else ""}
 """
         results = super().generate(
             prompt=prompt,
         )
-        ability = Ability(
-            world=self.world,
-        )
-        ability.generate(self)
-
+        if not self.features:
+            ability = Ability(
+                world=self.world,
+            )
+            ability.save()
+            ability.generate(self)
+            self.features += [ability]
+            self.save()
         return results
 
     @property

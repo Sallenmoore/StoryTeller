@@ -57,11 +57,19 @@ class Creature(Actor):
 
     ################### CRUD Methods #####################
     def generate(self):
-        if self.legendary:
-            prompt = f"""Generate detailed data for a unique named {self.type or "creature"} suitable for a {self.genre} TTRPG. Focus on their individual characteristics, abilities, backstory, and general disposition, suitable for a group of adventurers to encounter.
-        """
-        else:
-            prompt = f"""Generate detailed data for a common {self.type or "creature"} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual. This is a classification of creature, not a specific creature.
+        #     type = StringAttr(default="")
+        # size = StringAttr(
+        #     default="medium", choices=["tiny", "small", "medium", "large", "huge"]
+        # )
+        # legendary = BoolAttr(default=False)
+        prompt = f"""
+{f"UNIQUE LEGENDARY {self.title}" if self.legendary else f"COMMON {self.title} TYPE"}
+{f"TYPE: {self.type}" if self.type else ""}
+{f"SIZE: {self.size}" if self.size else ""}
+"""
+        if not self.legendary:
+            prompt += f"""
+Generate detailed data for a common {self.type or "creature"} type suitable for a {self.genre} TTRPG. Focus on their typical characteristics, abilities, and general disposition, suitable for a group of adventurers to encounter. Do not generate a unique named character or individual. This is a classification of creature, not a specific creature.
             """
         super().generate(prompt=prompt)
 

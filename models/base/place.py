@@ -21,6 +21,7 @@ class Place(TTRPGObject):
     map_prompt = StringAttr(default="")
     recent_events = ListAttr(StringAttr(default=""))
     encounters = ListAttr(ReferenceAttr(choices=["Encounter"]))
+    location_type = StringAttr(default="")
 
     ################### Property Methods #####################
     @property
@@ -98,7 +99,9 @@ The map should be in a {self.world.map_style} style.
             or f"Generate a {self.genre} TTRPG {self.title} with a backstory containing a {self.traits} history for players to slowly unravel."
         )
         if self.owner:
-            prompt += f" The {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
+            prompt += f"\n\nThe {self.title} is owned by {self.owner.name}. {self.owner.backstory_summary}"
+        if self.location_type:
+            prompt += f"\n\nThe {self.title} is a {self.location_type}."
         results = super().generate(prompt=prompt)
         return results
 

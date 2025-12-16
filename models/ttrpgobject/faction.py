@@ -103,17 +103,6 @@ class Faction(TTRPGObject):
 
     def generate(self):
         prompt = f"Generate a {self.genre} faction using the following trait as a motif: {self.traits}. The faction should have a backstory that gives them a goal they are working toward"
-        if self.stories:
-            prompt += f"""
-            and is somehow connected to the following storyline:
-            {random.choice(self.stories).summary}
-            """
-        if self.leader:
-            prompt += f"""
-            The current leader of the faction is:
-            - Name: {self.leader.name}
-            - Backstory: {self.leader.history}
-            """
         results = super().generate(prompt=prompt)
         self.save()
         return results

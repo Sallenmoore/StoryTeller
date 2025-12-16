@@ -37,10 +37,25 @@ import os
 from autonomous.auth import AutoAuth
 from config import Config
 from flask import Flask, json, render_template, request, url_for
-from views.admin import admin_page
-from views.auth import auth_page
-from views.foundry import foundry_page
-from views.index import index_page
+from views import (
+    auth,
+    foundry,
+    index,
+)
+from views.api import (
+    admin,
+    campaign,
+    dungeon,
+    endpoints,
+    episode,
+    event,
+    gmscreen,
+    lore,
+    manage,
+    nav,
+    story,
+    world,
+)
 from werkzeug.exceptions import HTTPException
 
 from autonomous import log
@@ -91,10 +106,25 @@ def create_app():
         # TODO: send email
         return render_template("error.html", url=request.url, error=e)
 
-    # Register Blueprints
-    app.register_blueprint(auth_page, url_prefix="/auth")
-    app.register_blueprint(admin_page, url_prefix="/admin")
-    app.register_blueprint(foundry_page, url_prefix="/foundry")
-    app.register_blueprint(index_page)
+    ######################################
+    #           Blueprints               #
+    ######################################
+    app.register_blueprint(auth.auth_page, url_prefix="/auth")
+    app.register_blueprint(foundry.foundry_page, url_prefix="/foundry")
+    app.register_blueprint(index.index_page)
+
+    #### API Blueprints ####
+    app.register_blueprint(admin.admin_endpoint, url_prefix="/admin")
+    app.register_blueprint(nav.nav_endpoint, url_prefix="/nav")
+    app.register_blueprint(manage.manage_endpoint, url_prefix="/manage")
+    app.register_blueprint(campaign.campaign_endpoint, url_prefix="/campaign")
+    app.register_blueprint(story.story_endpoint, url_prefix="/story")
+    app.register_blueprint(gmscreen.gmscreen_endpoint, url_prefix="/gmscreen")
+    app.register_blueprint(event.event_endpoint, url_prefix="/event")
+    app.register_blueprint(episode.episode_endpoint, url_prefix="/episode")
+    app.register_blueprint(endpoints.endpoints_endpoint, url_prefix="/endpoints")
+    app.register_blueprint(world.world_endpoint, url_prefix="/world")
+    app.register_blueprint(dungeon.dungeon_endpoint, url_prefix="/dungeon")
+    app.register_blueprint(lore.lore_endpoint, url_prefix="/lore")
 
     return app

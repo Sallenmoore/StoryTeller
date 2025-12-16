@@ -98,7 +98,6 @@ def delete(episodepk):
 ###########################################################
 ##             episode Story Routes                  ##
 ###########################################################
-# /api/{{episode.path}}/stories/{{story.pk}}/delete
 
 
 @episode_endpoint.route("/<string:episodepk>/story/add", methods=("POST",))
@@ -261,9 +260,9 @@ def episodeeventsearch(pk):
     query = request.json.get("event_query")
     log(query)
     results = Event.search(name=query, world=episode.world) if len(query) > 2 else []
-    log(results)
+    # log(results)
     results = [r for r in results if r not in episode.events]
-    log(results)
+    # log(results)
     return get_template_attribute("shared/_dropdown.html", "search_dropdown")(
         user, episode, f"{episode.path}/add", objs=results
     )

@@ -55,22 +55,6 @@ def index(pk=None):
     )
 
 
-@event_endpoint.route(
-    "/<string:pk>/timeline",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def timeline(pk=None):
-    user, obj, request_data = _loader()
-    event = Event.get(pk or request.json.get("eventpk"))
-    return get_template_attribute("models/_event.html", "timeline")(
-        user,
-        event.world,
-    )
-
-
 ###########################################################
 ##                    Event CRUD Routes                  ##
 ###########################################################

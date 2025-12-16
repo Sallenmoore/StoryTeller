@@ -23,10 +23,7 @@
 
 {% macro menu(user, obj) -%}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/details">
+    <a href="/{{obj.path}}/details">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -38,11 +35,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/history"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/history">
+    <a href="/{{obj.path}}/history">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.history(size="1rem")}}
@@ -54,11 +47,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/timeline"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/timeline">
+    <a href="/{{obj.path}}/timeline">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}
@@ -70,12 +59,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/campaigns"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/campaigns">
+    <a href="/{{obj.path}}/campaigns">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.campaigns(size="1rem")}}
@@ -88,12 +72,7 @@
 </li>
 {% if user.world_user(obj) %}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/stories"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/stories">
+    <a href="/{{obj.path}}/stories">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.story(size="1rem")}}
@@ -105,10 +84,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/journal" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/journal">
+    <a href="/{{obj.path}}/journal">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.journal(size="1rem")}}
@@ -121,9 +97,7 @@
 </li>
 {% endif %}
 <li>
-    <a href="" hx-get="/api/{{obj.path}}/map"
-       hx-target="#page-content" hx-indicator="#request-indicator"
-       hx-swap="innerHTML show:#page-content:top" hx-push-url="/{{obj.path}}/map">
+    <a href="/{{obj.path}}/map">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.map(size="1rem")}}
@@ -135,9 +109,7 @@
     </a>
 </li>
 <li>
-    <a href="" hx-get="/api/{{obj.path}}/players" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url=" /{{obj.path}}/players">
+    <a href="/{{obj.path}}/players">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.players(size="1rem")}}
@@ -149,10 +121,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/jobs" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/jobs">
+    <a href="/{{obj.path}}/jobs">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.jobs(size="1rem")}}
@@ -165,10 +134,7 @@
 </li>
 {% if user.world_user(obj) %}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/lore" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/lore">
+    <a href="/{{obj.path}}/lore">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.lore(size="1rem")}}
@@ -180,10 +146,7 @@
     </a>
 </li>
 {# <li>
-    <a href="" hx-post="/api/{{obj.path}}/managescreens"
-       hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url="/{{obj.path}}/managescreens">
+    <a href="/{{obj.path}}/managescreens">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.gmscreenmanage(size="1rem")}}
@@ -194,20 +157,6 @@
         </div>
     </a>
 </li> #}
-<li>
-    <a href="" hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url=" /{{obj.path}}/gmnotes">
-        <div class="grid-x">
-            <div class="cell shrink">
-                {{icon_components.gamemaster(size="1rem")}}
-            </div>
-            <div class="cell auto">
-                <span>GM Notes</span>
-            </div>
-        </div>
-    </a>
-</li>
 {% endif %}
 {%- endmacro %}
 
@@ -312,7 +261,7 @@
     {{campaigns_components.campaigns(user, obj)}}
     {% if user.world_user(obj)%}
     <div style='position:absolute; top:1rem; right:1rem;'>
-        <button class="button small" hx-post="/api/world/campaign/new"
+        <button class="button small" hx-post="/world/campaign/new"
                 hx-target="#campaigns-list"
                 hx-selector="#campaigns-list"
                 hx-swap="outerHTML">

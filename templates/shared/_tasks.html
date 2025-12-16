@@ -31,7 +31,7 @@
 {% macro completetask (url, target="page-content", select=None, swap=None) -%}
 <div id="task-loader" class="alert fade-it-out"
      hx-post="{{url}}"
-     hx-trigger="load delay:300ms"
+     hx-trigger="load delay:100ms"
      hx-disinherit="hx-confirm hx-indicator"
      hx-target="#{{target}}"
      {% if select%}

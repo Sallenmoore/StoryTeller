@@ -147,17 +147,23 @@ class TTRPGObject(TTRPGBase):
     def split_associations(self, associations=None):
         if not associations:
             associations = self.associations
-        if hasattr(self, "children") and hasattr(self, "geneology"):
-            relations = []
-            general = []
-            ancestry = [*self.children, *self.geneology]
-            for a in associations:
-                if a in ancestry:
-                    relations.append(a)
-                else:
-                    general.append(a)
-            return relations, general
-        return [], associations
+        general = []
+        ancestry = []
+        if hasattr(self, "children"):
+            ancestry += self.children
+        if hasattr(self, "geneology"):
+            ancestry += self.geneology
+        if hasattr(self, "lineage"):
+            ancestry += self.lineage
+        if hasattr(self, "faction"):
+            ancestry += [self.faction]
+        relations = []
+        for a in associations:
+            if a in ancestry:
+                relations.append(a)
+            else:
+                general.append(a)
+        return relations, general
 
     ## MARK: - Verification Methods
     ###############################################################

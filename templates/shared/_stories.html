@@ -12,7 +12,7 @@
     </div>
     {% if user.world_user(obj)%}
     <div class="cell shrink">
-        <button class="button small" hx-post="/api/story/new"
+        <button class="button small" hx-post="/story/new"
                 hx-target="#stories-list"
                 hx-selector="#stories-list"
                 hx-swap="outerHTML">

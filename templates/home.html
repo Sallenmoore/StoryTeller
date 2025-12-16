@@ -7,7 +7,7 @@
             <div class="text-center">
                 <h2 class="subheader">A place to create and explore your worlds</h2>
                 <button class="button large"
-                        hx-post="/api/world/build/form" hx-target="#create-world"
+                        hx-post="/world/build/form" hx-target="#create-world"
                         hx-swap='outerHTML show:#world-model:top'>
                     Create a World to Explore
                 </button>
@@ -35,7 +35,7 @@
                     </div>
                     <div class="cell shrink" style='position: absolute; top: 1rem; right: 1rem;'>
                         <button class="button small"
-                                hx-post="/api/world/{{w.pk}}/delete"
+                                hx-post="/world/{{w.pk}}/delete"
                                 hx-target="closest .world-entry"
                                 hx-swap="delete"
                                 hx-confirm="Are you sure you want to delete this world and all associated objects? THIS CANNOT BE UNDONE."
@@ -55,12 +55,12 @@
 <div class="callout large align-center-middle" style='position:relative;'>
     <h2 class="text-center">Give your world some details</h2>
     <a style="position:absolute; top:10px; right:10px;"
-       hx-get="/api/home" hx-target="#page-content"
+       hx-get="/home" hx-target="#page-content"
        hx-indicator="#request-indicator">
         {{icon_components.close(size="3rem")}}
     </a>
     <hr>
-    <form id="world-build-form" hx-post="/api/world/build" hx-target="#page-content"
+    <form id="world-build-form" hx-post="/world/build" hx-target="#page-content"
           hx-indicator="#request-indicator">
         <input type="hidden" name="user" value="{{user.pk}}">
         <div class="grid-x grid-margin-x">

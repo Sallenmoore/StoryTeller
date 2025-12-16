@@ -21,7 +21,6 @@ export function strip_html(html) {
 }
 
 export function process_form_values(evt) {
-    tinyMCE.triggerSave();
     var parameters = evt.detail.parameters;
     var values = {};
     console.log(parameters);

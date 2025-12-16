@@ -24,7 +24,7 @@
         </button>
     </div>
 </div>
-<form id="quest-entry-form" hx-post="/api/manage/quest/{{entry.pk}}/update"
+<form id="quest-entry-form" hx-post="/manage/quest/{{entry.pk}}/update"
       hx-target="#page-content"
       hx-indicator='#request-indicator' hx-swap='none'
       hx-trigger='input delay:750ms, change'>
@@ -79,7 +79,7 @@
         <h3 class="text-center">Add Associations</h3>
         <input autocomplete="off" type="search" name="query"
                placeholder='Search for entries to associate...'
-               hx-post="/api/manage/quest/search"
+               hx-post="/manage/quest/search"
                hx-target="#quest-entry-association-search"
                hx-trigger="input delay:750ms, change, search">
         <ul class="dropdown menu" data-dropdown-menu id="quest-entry-association-search"
@@ -90,7 +90,7 @@
             <div class="cell medium-1" style="position: relative;">
                 {{display_components.object_display(a)}}
                 <a class="text-white" style='position: absolute; top: 5px; right: 5px;'
-                   hx-post="/api/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
+                   hx-post="/manage/quest/{{entry.pk}}/association/{{a.path}}/remove"
                    hx-target="closest .cell"
                    hx-swap="delete"
                    hx-indicator='#request-indicator'>
@@ -106,7 +106,7 @@
 {% macro quest_dropdown(user, obj, objs=[]) -%}
 {% for o in objs %}
 <li class="dropdown__link">
-    <form hx-post='/api/manage/quest/entry/association/add'
+    <form hx-post='/manage/quest/entry/association/add'
           hx-target='#page-content'
           hx-trigger='click'
           hx-indicator='#request-indicator'>

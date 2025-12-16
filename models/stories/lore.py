@@ -1,9 +1,7 @@
 import os
 import random
 
-import markdown
 import requests
-import validators
 from autonomous.model.autoattr import (
     DictAttr,
     IntAttr,
@@ -15,33 +13,107 @@ from autonomous.model.automodel import AutoModel
 from dmtoolkit import dmtools
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.calendar.date import Date
-from models.images.image import Image
+
+
+class LoreResponse(AutoModel):
+    obj = ReferenceAttr(choices=["Character"], required=True)
+    scene = ReferenceAttr(choices=["LoreScene"])
+    verbal = StringAttr(default="")
+    verbal_audio = ReferenceAttr(choices=["Audio"])
+    thoughts = StringAttr(default="")
+    thoughts_audio = ReferenceAttr(choices=["Audio"])
+    actions = StringAttr(default="")
+    actions_audio = ReferenceAttr(choices=["Audio"])
+    roll_type = StringAttr(default="")
+    roll_explanation = StringAttr(default="")
+    roll_formula = StringAttr(default="")
+    roll_bonuses = StringAttr(default="")
+    roll_result = IntAttr(default=0)
+
+    def delete(self):
+        if self.verbal_audio:
+            self.verbal_audio.delete()
+        if self.thoughts_audio:
+            self.thoughts_audio.delete()
+        if self.actions_audio:
+            self.actions_audio.delete()
+        super().delete()
+
+    def roll(self):
+        try:
+            if self.roll_formula:
+                self.roll_result = dmtools.dice_roll(self.roll_formula)
+                self.save()
+        except Exception as e:
+            log(f"Error rolling dice for formula {self.roll_formula}: {e}", _print=True)
+
+    def generate_audio(self):
+        voice = self.obj.voice
+        log(
+            f"Generating audio for LoreResponse of {self.obj.name} with voice {voice}",
+            _print=True,
+        )
+        if self.verbal and not self.verbal_audio:
+            audio = Audio.tts(
+                audio_text=self.verbal,
+                voice=voice,
+            )
+            if audio:
+                self.verbal_audio = audio
+                self.save()
+        if self.thoughts and not self.thoughts_audio:
+            audio = Audio.tts(
+                audio_text=self.thoughts,
+                voice=voice,
+            )
+            if audio:
+                self.thoughts_audio = audio
+                self.save()
+        if self.actions and not self.actions_audio:
+            audio = Audio.tts(
+                audio_text=self.actions,
+                voice=voice,
+            )
+            if audio:
+                self.actions_audio = audio
+                self.save()
+        log(
+            f"Finished generating audio for LoreResponse of {self.obj.name}: verbal_audio={self.verbal_audio}, thoughts_audio={self.thoughts_audio}, actions_audio={self.actions_audio}",
+            _print=True,
+        )
 
 
 class LoreScene(AutoModel):
+    party = ListAttr(ReferenceAttr(choices=["Character"]))
+    image = ReferenceAttr(choices=["Image"])
     prompt = StringAttr(default="")
     summary = StringAttr(default="")
+    summary_audio = ReferenceAttr(choices=["Audio"])
     situation = StringAttr(default="")
     setting = ReferenceAttr(choices=["Place"])
     date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
-    responses = ListAttr(DictAttr())
+    responses = ListAttr(ReferenceAttr(choices=["LoreResponse"]))
     lore = ReferenceAttr(choices=["Lore"], require=True)
 
     def delete(self):
         if self.date:
             self.date.delete()
+        for r in self.responses:
+            if isinstance(r, LoreResponse):
+                r.delete()
         super().delete()
 
     def summarize(self):
         prompt = f"""Based on the following:
-{f"Summary of events: {self.lore.summary}" if self.lore.summary else ""}
+{f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
 
 The current situation: {self.situation}
 
 CHARACTER RESPONSES:
-{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.lore.party])}
+{"\n".join([f"\n{member.name}: {member.history or member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
 
 Summarize the events so that that they can be added to the characters' history. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 """
@@ -54,10 +126,15 @@ Summarize the events so that that they can be added to the characters' history. 
             log(f"Generated Lore Summary: {summary_result}", _print=True)
             self.summary = summary_result
             self.save()
+            self.summary_audio = Audio.tts(
+                audio_text=self.summary,
+                voice=random.choice(self.party).voice,
+            )
+            self.save()
 
     def get_response(self, character_name):
         for response in self.responses:
-            if response.get("character_name") == character_name:
+            if response.obj.name == character_name:
                 return response
         return None
 
@@ -72,7 +149,13 @@ Summarize the events so that that they can be added to the characters' history. 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
+
+        #### MIGRATION CODE - REMOVE AFTERWARDS ####
+        if not document.party and document.lore and document.lore.party:
+            document.party = document.lore.party
+        #############################################
         document.pre_save_dates()
+        document.pre_save_responses()
 
     # @classmethod
     # def auto_post_save(cls, sender, document, **kwargs):
@@ -85,6 +168,19 @@ Summarize the events so that that they can be added to the characters' history. 
         if self.pk and self.date.obj != self:
             self.date.obj = self
             self.date.save()
+
+    def pre_save_responses(self):
+        for idx, response in enumerate(self.responses):
+            if isinstance(response, dict):
+                obj = [
+                    member
+                    for member in self.party
+                    if member.name == response.get("character_name")
+                ][0]
+                lr = LoreResponse(obj=obj, scene=self, **response)
+                lr.roll()
+                lr.save()
+                self.responses[idx] = lr
 
 
 class Lore(AutoModel):
@@ -125,7 +221,7 @@ class Lore(AutoModel):
                                 "type": "string",
                                 "description": "The full name of the character.",
                             },
-                            "verbal_response": {
+                            "verbal": {
                                 "type": "string",
                                 "description": "The character's verbal response to the situation, if any. Otherwise an empty string.",
                             },
@@ -133,7 +229,7 @@ class Lore(AutoModel):
                                 "type": "string",
                                 "description": "The character's internal thoughts regarding the situation. Any plans or considerations they have.",
                             },
-                            "actions_taken": {
+                            "actions": {
                                 "type": "string",
                                 "description": "Any actions the character takes in response to the situation, if any. Otherwise an empty string.",
                             },
@@ -165,6 +261,18 @@ class Lore(AutoModel):
         return self.world.calendar
 
     @property
+    def events(self):
+        return [e for e in self.world.events if e.date and e.date <= self.current_date]
+
+    @property
+    def image(self):
+        return self.scenes[-1].image if self.scenes else None
+
+    @property
+    def geneology(self):
+        return [self.world, self.story]
+
+    @property
     def places(self):
         return [
             a
@@ -176,29 +284,42 @@ class Lore(AutoModel):
     def responses(self):
         return self.scenes[-1].responses if self.scenes else []
 
-    @responses.setter
-    def responses(self, rsps):
-        if self.scenes:
-            self.scenes[-1].responses = rsps
-        else:
-            ls = LoreScene(lore=self, responses=rsps)
-            ls.save()
-            self.scenes = [ls]
-            self.save()
-
     @property
     def summary(self):
         result = ""
-        result = self.scenes[-1].summary if self.scenes else ""
-        log(result, _print=True)
+        i = -1
+        scenes = self.scenes[::]
+        while not result and scenes:
+            result = scenes[i].summary if scenes else ""
+            i -= 1
+            scenes = scenes[:-1]
         return result
+
+    @property
+    def summary_audio(self):
+        return self.scenes[-1].summary_audio if self.scenes else None
 
     @property
     def last_summary(self):
         if len(self.scenes) > 1 and self.scenes[-2].summary:
-            log(self.scenes[-2].summary, _print=True)
             return self.scenes[-2].summary
         return self.summary
+
+    @property
+    def last_summary_audio(self):
+        return self.scenes[-2].summary_audio if len(self.scenes) > 1 else None
+
+    @property
+    def history(self):
+        return self.summary
+
+    @property
+    def system(self):
+        return self.world.system
+
+    @property
+    def path(self):
+        return f"lore/{self.pk}"
 
     ############# CRUD #############
 
@@ -258,18 +379,6 @@ NEXT SCENE: {self.situation}.
         )
         if result.get("responses"):
             log(f"Generated Lore: {result}", _print=True)
-            for resp in result["responses"]:
-                try:
-                    resp["roll_result"] = (
-                        dmtools.dice_roll(resp["roll_formula"])
-                        if resp.get("roll_formula")
-                        else 0
-                    )
-                except Exception as e:
-                    log(
-                        f"Error rolling dice for formula {resp.get('roll_formula')}: {e}",
-                        _print=True,
-                    )
             ls = LoreScene(
                 lore=self,
                 prompt=prompt,
@@ -277,10 +386,32 @@ NEXT SCENE: {self.situation}.
                 associations=self.associations,
                 situation=self.situation,
                 date=self.current_date.copy(self),
-                responses=result["responses"],
             )
             ls.save()
             self.scenes += [ls]
+            self.save()
+            for resp in result["responses"]:
+                log(f"Response: {resp}", _print=True)
+                obj = [
+                    member
+                    for member in self.party
+                    if member.name == resp.get("character_name")
+                ][0]
+                lr = LoreResponse(obj=obj, scene=ls)
+                lr.verbal = resp.get("verbal", "")
+                lr.thoughts = resp.get("thoughts", "")
+                lr.actions = resp.get("actions", "")
+                lr.roll_type = resp.get("roll_type", "")
+                lr.roll_explanation = resp.get("roll_explanation", "")
+                lr.roll_formula = resp.get("roll_formula", "")
+                lr.roll_bonuses = resp.get("roll_bonuses", "")
+                lr.roll()
+                lr.save()
+                if resp := ls.get_response(obj.name):
+                    resp.delete()
+                ls.responses += [lr]
+                ls.save()
+                lr.generate_audio()
             self.situation = result.get("situation", "")
             self.save()
             requests.post(
@@ -313,6 +444,7 @@ NEXT SCENE: {self.situation}.
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_setting()
+        document.pre_save_associations()
         document.pre_save_dates()
 
     # @classmethod
@@ -321,6 +453,10 @@ NEXT SCENE: {self.situation}.
 
     # def clean(self):
     #     super().clean()
+    def pre_save_associations(self):
+        for char in [self.setting, self.bbeg, *self.party]:
+            if char and char not in self.associations:
+                self.associations += [char]
 
     def pre_save_setting(self):
         if isinstance(self.setting, str):

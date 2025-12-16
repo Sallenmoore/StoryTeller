@@ -9,7 +9,6 @@ from models.ttrpgobject.character import Character
 
 
 class Location(Place):
-    location_type = StringAttr(default="")
     dungeon = ReferenceAttr(choices=["Dungeon"])
 
     parent_list = [
@@ -88,22 +87,16 @@ class Location(Place):
 
     def generate(self, prompt=""):
         # log(f"Generating data with AI for {self.name} ({self})...", _print=True)
-        prompt = f"Generate a {self.genre} TTRPG {self.location_type} {f'with the following description: {self.backstory}' if self.backstory else f'Generate a backstory containing a history for players to discover that follow the theme: {self.traits}'}. {prompt}"
-
+        prompt = ""
         if self.parent and self.parent.model_name() in [
             "City",
             "Region",
         ]:
-            prompt += f"""
+            prompt = f"""
 {f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
 {f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}
 {f"- GOVERNMENT: {self.parent.government}" if self.parent and self.parent.government else ""}
 """
-
-        if self.owner:
-            prompt += (
-                f" The {self.title} is owned by {self.owner.name}. {self.owner.history}"
-            )
         results = super().generate(prompt=prompt)
         return results
 

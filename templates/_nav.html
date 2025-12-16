@@ -16,7 +16,7 @@
         <div class="input-group">
             <input type="text" autocomplete="off" class="input-group-field"
                    placeholder="search"
-                   type="search" name="query" hx-post="/api/nav/search" hx-target="#nav-search"
+                   type="search" name="query" hx-post="/nav/search" hx-target="#nav-search"
                    hx-trigger="input changed delay:500ms, search"
                    hx-on:input="this.value.length < 3 ? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">
             <div class="input-group-button">
@@ -46,7 +46,7 @@
     {% if not user.is_guest %}
     <div>{{user.name | title}}</div>
     <a class="button" href="/auth/logout">Logout</a>
-    {# <button class='button' hx-post="/api/gmscreen/display" hx-target="#screen-container"
+    {# <button class='button' hx-post="/gmscreen/display" hx-target="#screen-container"
             onclick='htmx.find("#screen-container").style="transform: translateY(0%);";'>
         {{icon_components.keyboard(size="1.5rem")}}
         GM Screen
@@ -85,12 +85,7 @@
 {% macro object_menu(user, obj) -%}
 <ul class='menu padding-top-1 padding-bottom-1 align-center bg-white'>
     <li>
-        <a href=""
-           hx-get="/api/{{obj.path}}/associations"
-           hx-target="#page-content"
-           hx-indicator="#request-indicator"
-           hx-swap="innerHTML show:#page-content:top"
-           hx-push-url="/{{obj.path}}/associations">
+        <a href="/{{obj.path}}/associations">
             <div class="grid-x">
                 <div class="cell shrink align-center-middle">
                     {{icon_components.associations(size="1rem")}}
@@ -101,7 +96,7 @@
             </div>
         </a>
     </li>
-    <span hx-get="/api/nav/sidemenu/{{obj.path}}"
+    <span hx-get="/nav/sidemenu/{{obj.path}}"
           hx-trigger="load"
           hx-swap="outerHTML">
     </span>

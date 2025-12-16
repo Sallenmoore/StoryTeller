@@ -63,7 +63,7 @@
     <div class="grid-x align-spaced">
         <div class="cell shrink">
             <button type="button" class="button small"
-                    hx-post='/api/manage/add/new/ability'
+                    hx-post='/manage/add/new/ability'
                     hx-target='#ability-item-list'
                     hx-select='#ability-item-list'
                     hx-swap='outerHTML' hx-trigger="click consume">
@@ -75,7 +75,7 @@
             <label for="ability-search-input">Add Existing Abilities
                 <select id="ability-search-input"
                         name="apk"
-                        hx-post='/api/manage/add/ability'
+                        hx-post='/manage/add/ability'
                         hx-target='#ability-item-list'
                         hx-select='#ability-item-list'
                         hx-swap='outerHTML'
@@ -122,7 +122,7 @@
 {% macro ability_edit(user, ability) -%}
 <a href="#" class="accordion-title">{{ability.name}}</a>
 <div class="accordion-content" data-tab-content>
-    <form hx-post='/api/manage/ability/{{ability.pk}}/update'
+    <form hx-post='/manage/ability/{{ability.pk}}/update'
           hx-trigger="click consume, change consume, input consume"
           hx-swap='none'>
         <table class="ability">
@@ -144,7 +144,7 @@
                         </div>
                         <div class="cell shrink">
                             <div
-                                 hx-post='/api/manage/ability/{{ability.pk}}/generate'
+                                 hx-post='/manage/ability/{{ability.pk}}/generate'
                                  hx-trigger="click consume"
                                  hx-target='#ability_{{ability.pk}}'
                                  hx-swap='innerHTML'
@@ -229,7 +229,7 @@
             <tr>
                 <th>
                     <a
-                       hx-post='/api/manage/ability/{{ability.pk}}/remove'
+                       hx-post='/manage/ability/{{ability.pk}}/remove'
                        hx-target='#ability_{{ability.pk}}'
                        hx-swap='delete' hx-trigger="click consume"
                        hx-confirm='Are you sure you want to remove ability "{{ability.name}}"? This will NOT delete the ability from the world.'>
@@ -238,7 +238,7 @@
                 </th>
                 <td>
                     <a
-                       hx-post='/api/manage/ability/{{ability.pk}}/delete'
+                       hx-post='/manage/ability/{{ability.pk}}/delete'
                        hx-target='#ability_{{ability.pk}}'
                        hx-swap='delete' hx-trigger="click consume"
                        hx-confirm='Are you sure you want to permanently delete ability"{{ability.name}}"? This will remove it from all associated objects and cannot be undone.'>

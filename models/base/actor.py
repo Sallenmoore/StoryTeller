@@ -15,6 +15,7 @@ from autonomous.model.autoattr import (
 from bs4 import BeautifulSoup
 
 from autonomous import log
+from models.audio.audio import Audio
 from models.ttrpgobject.ability import Ability
 from models.ttrpgobject.ttrpgobject import TTRPGObject
 from models.utility import tasks as utility_tasks
@@ -161,41 +162,26 @@ class Actor(TTRPGObject):
     @property
     def voice(self):
         if not self.pc_voice:
-            _voices = [
-                "alloy",
-                "echo",
-                "fable",
-                "onyx",
-                "nova",
-                "shimmer",
-            ]
-            if self.gender.lower() == "male":
-                if self.age < 30:
-                    self.pc_voice = random.choice(["alloy", "echo", "fable"])
-                else:
-                    self.pc_voice = random.choice(["onyx", "echo"])
-            elif self.gender.lower() == "female":
-                if self.age < 30:
-                    self.pc_voice = random.choice(["nova", "shimmer"])
-                else:
-                    self.pc_voice = random.choice(["fable", "shimmer"])
-            else:
-                self.pc_voice = random.choice(_voices)
+            self.pc_voice = Audio.get_voice(filters=[self.gender.lower()])
             self.save()
         return self.pc_voice
 
     def generate(self, prompt=""):
         self._funcobj["parameters"]["properties"] |= Actor._funcobj
+        prompt += f"""
+{f"ABILITIES: {self.abilities}" if self.abilities else ""}
+"""
         super().generate(prompt)
-        for _ in range(random.randint(1, 6)):
-            ability = Ability(
-                world=self.world,
-                type=self.model_name().lower(),
-            )
-            ability.save()
-            self.abilities.append(ability)
-            self.save()
-            utility_tasks.start_task(f"/generate/ability/{ability.pk}")
+        if not self.abilities:
+            for _ in range(random.randint(1, 6)):
+                ability = Ability(
+                    world=self.world,
+                    type=self.model_name().lower(),
+                )
+                ability.save()
+                self.abilities.append(ability)
+                self.save()
+                utility_tasks.start_task(f"/generate/ability/{ability.pk}")
 
     def chat(self, message=""):
         # summarize conversation

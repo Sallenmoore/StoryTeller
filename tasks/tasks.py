@@ -38,7 +38,7 @@ from models.world import World
 def _generate_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         obj.generate()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_character_from_dndbeyond_task(pk):
@@ -126,25 +126,25 @@ def _generate_character_from_dndbeyond_task(pk):
                 if abilityobj and abilityobj not in obj.abilities:
                     obj.abilities += [abilityobj]
                     obj.save()
-        return {"url": f"/api/{obj.path}/manage"}
+        return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_map_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate_map()
-    return {"url": f"/api/{obj.path}/map"}
+    return {"url": f"/{obj.path}/map"}
 
 
 def _generate_history_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate_history()
-    return {"url": f"/api/{obj.path}/history"}
+    return {"url": f"/{obj.path}/history"}
 
 
 def _generate_summaries_task(model, pk):
     if obj := World.get_model(model, pk):
         obj.generate_summaries()
-    return {"url": f"/api/{obj.path}/history"}
+    return {"url": f"/{obj.path}/history"}
 
 
 def _generate_ability_task(pk):
@@ -153,7 +153,7 @@ def _generate_ability_task(pk):
     else:
         log("Ability not found", _print=True)
     return {
-        "url": f"/api/ability/{obj.pk}/manage",
+        "url": f"/ability/{obj.pk}/manage",
         "target": f"ability_{obj.pk}",
     }
 
@@ -161,49 +161,49 @@ def _generate_ability_task(pk):
 def _generate_image_task(model, pk):
     if obj := AutoModel.get_model(model, pk):
         obj.generate_image()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_campaign_summary_task(pk):
     if obj := Campaign.get(pk):
         obj.generate_history()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_session_summary_task(pk):
     if obj := Episode.get(pk):
         obj.generate_summaries()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_session_report_task(pk):
     if obj := Episode.get(pk):
         obj.regenerate_report()
-    return {"url": f"/api/{obj.path}/manage"}
+    return {"url": f"/{obj.path}/manage"}
 
 
 def _generate_episode_transcription_task(pk):
     if obj := Episode.get(pk):
         obj.transcribe()
-    return {"url": f"/api/{obj.path}/transcribe"}
+    return {"url": f"/{obj.path}/transcribe"}
 
 
 def _generate_episode_transcription_summary_task(pk):
     if obj := Episode.get(pk):
         obj.summarize_transcription()
-    return {"url": f"/api/{obj.path}/details"}
+    return {"url": f"/{obj.path}/details"}
 
 
 def _generate_episode_graphic_task(pk):
     if obj := Episode.get(pk):
         obj.generate_graphic()
-    return {"url": f"/api/{obj.path}/graphic"}
+    return {"url": f"/{obj.path}/graphic"}
 
 
 def _generate_character_chat_task(pk, chat):
     if obj := Character.get(pk) or Creature.get(pk):
         obj.chat(chat)
-    return {"url": f"/api/{obj.path}/chat"}
+    return {"url": f"/{obj.path}/chat"}
 
 
 def _generate_table_items_task(pk, worldpk, prompt):
@@ -215,55 +215,55 @@ def _generate_table_items_task(pk, worldpk, prompt):
 def _generate_dungeon_map_task(pk):
     obj = Dungeon.get(pk)
     obj.generate_map()
-    return {"url": f"/api/{obj.location.path}/dungeon"}
+    return {"url": f"/{obj.location.path}/dungeon"}
 
 
 def _generate_dungeon_rooms_task(pk):
     obj = Dungeon.get(pk)
     obj.generate_rooms()
-    return {"url": f"/api/{obj.location.path}/dungeon"}
+    return {"url": f"/{obj.location.path}/dungeon"}
 
 
 def _generate_dungeon_room_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate()
-    return {"url": f"/api/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
 
 
 def _generate_dungeon_room_map_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate_map()
-    return {"url": f"/api/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
 
 
 def _generate_dungeon_room_encounter_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate_encounter()
-    return {"url": f"/api/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
 
 
 def _generate_quest_task(pk):
     obj = Quest.get(pk)
     obj.generate_quest()
-    return {"url": f"/api/{obj.contact.path}/quests"}
+    return {"url": f"/{obj.contact.path}/quests"}
 
 
 def _generate_story_task(pk):
     story = Story.get(pk)
     story.generate()
-    return {"url": f"/api/{story.path}/manage"}
+    return {"url": f"/{story.path}/manage"}
 
 
 def _generate_story_summary_task(pk):
     if obj := Story.get(pk):
         obj.summarize()
-    return {"url": f"/api/{obj.path}/history"}
+    return {"url": f"/{obj.path}/history"}
 
 
 def _generate_event_task(pk):
     event = Event.get(pk)
     event.generate()
-    return {"url": f"/api/{event.path}/manage"}
+    return {"url": f"/{event.path}/manage"}
 
 
 def _generate_event_from_events_task(event_ids):
@@ -273,22 +273,22 @@ def _generate_event_from_events_task(event_ids):
     world = events[0].world
     new_event = Event(world=world)
     new_event.generate_from_events(events)
-    return {"url": f"/api/{new_event.path}/timeline#{new_event.pk}"}
+    return {"url": f"/{new_event.path}/timeline#{new_event.pk}"}
 
 
 def _generate_event_summary_task(pk):
     event = Event.get(pk)
     event.summarize()
-    return {"url": f"/api/{event.path}/manage"}
+    return {"url": f"/{event.path}/manage"}
 
 
 def _generate_lore_task(pk):
     lore = Lore.get(pk)
     lore.generate()
-    return {"url": f"/api/world/{lore.world.pk}/lore/{lore.pk}"}
+    return {"url": f"/lore/{lore.pk}"}
 
 
 def _generate_lore_summary_task(pk):
     ls = LoreScene.get(pk)
     ls.summarize()
-    return {"url": f"/api/world/{ls.lore.world.pk}/lore/{ls.lore.pk}"}
+    return {"url": f"/lore/{ls.lore.pk}"}

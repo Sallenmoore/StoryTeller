@@ -5,10 +5,18 @@ import json
 import random
 from datetime import datetime
 
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from autonomous.auth import AutoAuth, GoogleAuth
+from flask import (
+    Blueprint,
+    get_template_attribute,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from autonomous import log
-from autonomous.auth import AutoAuth, GoogleAuth
 from models.user import User
 from models.world import World
 
@@ -34,7 +42,10 @@ def login():
         session["authprovider_state"] = state
 
         return redirect(uri)
-    return render_template("index.html", page_url="/auth/login")
+    worlds = World.all()
+    worlds = random.sample(worlds, 4) if len(worlds) > 4 else worlds
+    page = get_template_attribute("login.html", "login")(worlds=worlds)
+    return render_template("index.html", page=page)
 
 
 @auth_page.route("/authorize", methods=("GET", "POST"))
@@ -56,9 +67,11 @@ def authorize():
 
 @auth_page.route("/logout", methods=("POST", "GET"))
 def logout():
-    if session.get("user"):
+    if user := AutoAuth.current_user():
+        if user.state == "guest":
+            return redirect(url_for("auth.login"))
+
         try:
-            user = User.from_json(session["user"])
             user.state = "unauthenticated"
             # log(f"User {user} logged out")
             user.save()

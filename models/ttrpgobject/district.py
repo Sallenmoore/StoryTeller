@@ -31,6 +31,10 @@ class District(Place):
                     "type": "string",
                     "description": "A short history of the district in 750 words or less. Only include publicly known information about the district.",
                 },
+                "location_type": {
+                    "type": "string",
+                    "description": "The type of district, such as residential, commercial, industrial, slum, noble quarter, etc.",
+                },
                 "desc": {
                     "type": "string",
                     "description": "A short physical description that will be used to generate an image of the district.",
@@ -60,10 +64,6 @@ class District(Place):
         - DESCRIPTION: {self.description}
         """
         return msg
-
-    @property
-    def location_type(self):
-        return self.title
 
     @property
     def map_pois(self):

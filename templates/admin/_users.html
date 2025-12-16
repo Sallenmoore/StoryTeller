@@ -18,14 +18,14 @@
         ADMIN: {{u.is_admin}}
         <br>
         <button class="button small"
-                hx-post="/api/admin/manage/user/delete"
+                hx-post="/admin/manage/user/delete"
                 hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
                 hx-swap="delete"
                 hx-target=' closest .cell'>
             <span>Delete</span>
         </button>
         <button class="button small"
-                hx-post="/api/admin/manage/user/toggle_admin"
+                hx-post="/admin/manage/user/toggle_admin"
                 hx-vals='{"pk": "{{ u.pk }}", "model": "User"}'
                 hx-target='#manager'>
             <span>Toggle Admin</span>

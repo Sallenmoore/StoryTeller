@@ -6,107 +6,9 @@
 {% import "shared/_gmnotes.html" as gmnotes_components %}
 
 {% macro manage(user, episode) -%}
-<div id="episode-manage" class="grid-x grid-padding-x">
-    <div class="related-panel cell small-12 medium-4 bg-screen padding-1">
-        <div class="callout bg-muted">
-            <div id='episode-connected-stories' class="grid-x grid-margin-x">
-                <div class="cell align-center-middle">
-                    <h3 class='text-center'>Connected Stories</h3>
-                    <div class="grid-x align-spaced grid-margin-x">
-                        {%for s in episode.stories%}
-                        <div class="cell medium-4">
-                            {{ display_components.object_display(s, type=False) }}
-                        </div>
-                        {%endfor%}
-                    </div>
-                    <hr>
-                </div>
-                <div class="cell shrink align-center-middle">
-                    <h6>Add Story</h6>
-                </div>
-                <div class="cell auto align-center-middle">
-                    <div class="select">
-                        <select class="has-bg-white" name='storypk'
-                                hx-post='/api/{{episode.path}}/story/add'
-                                hx-target='#episode-connected-stories'
-                                hx-select='#episode-connected-stories'
-                                hx-swap='outerHTML'
-                                hx-trigger="change">
-                            <option value="">---</option>
-                            {%for story in episode.world.stories %}
-                            {% if story not in episode.stories%}
-                            <option value="{{story.pk}}">
-                                {{story.name}}
-                            </option>
-                            {% endif %}
-                            {%endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="callout bg-muted">
-            <h3>Events</h3>
-            <div class="grid-x align-spaced">
-                <div class="cell shrink">
-                    <button class='button small'
-                            hx-post='/api/{{episode.path}}/event/generate'
-                            hx-target='#page-content'
-                            hx-confirm="Are you sure you want to generate a new event from this episode?">
-                        Generate Event From Episode
-                    </button>
-                </div>
-            </div>
-            <div class="grid-x align-spaced">
-                {% for event in episode.events %}
-                <div class="cell medium-4 episode-event-entry"
-                     style="position: relative; margin-bottom: 0.5rem;">
-                    {{display_components.object_display(event, type=False, dim=150)}}
-                    <a class="text-white" style='position:absolute; top:2px; right:5px;'
-                       hx-post="/api/{{episode.path}}/events/{{event.pk}}/delete"
-                       hx-trigger="click consume"
-                       hx-target="closest .episode-event-entry" hx-swap="delete"
-                       hx-confirm="Are you sure you want to remove this event from the episode?">
-                        {{icon_components.remove(size="1rem")}}
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="grid-x">
-                <div class="cell">
-                    <input autocomplete="off" type="search"
-                           name="event_query"
-                           placeholder='Search Events to Add'
-                           style="margin-bottom: 0;padding-bottom: 0;border-bottom: solid #000;"
-                           hx-post="/api/{{episode.path}}/events/add/search"
-                           hx-target="#episode-new-events-list"
-                           hx-trigger="input consume changed delay:500ms">
-                    <ul class="dropdown menu bg-white" data-dropdown-menu
-                        id="episode-new-events-list">
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="callout primary">
-            {{ gmnotes_components.reference(user, episode) }}
-        </div>
-        <hr>
-        <h3>Delete Episode</h3>
-        <div class="grid-x align-spaced">
-            <div class="cell shrink">
-                <button class="button alert small"
-                        hx-post="/api/episode/{{episode.pk}}/delete"
-                        hx-target="#page-content"
-                        hx-select="#page-content"
-                        hx-swap="outerHTML"
-                        hx-confirm='Are you sure you want to delete this Episode?'>
-                    {{icon_components.trash(size="1rem")}}
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="story cell small-12 medium-8">
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+<div id="episode-manage" class="grid-x grid-padding-x grid-margin-y">
+    <div class="main-panel cell small-12 medium-8">
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <div class="grid-x">
                 <div class="cell small-1">
@@ -131,7 +33,7 @@
             </div>
             <div class="cell">
                 <h3>Report</h3>
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:250ms, change"
                       hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
@@ -158,7 +60,7 @@
             </div>
         </div>
         <hr>
-        <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+        <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
               hx-trigger="input delay:1s, change">
             <h3>Loot</h3>
             {{form_components.richtexteditor(user, episode, 'loot', label=False)}}
@@ -167,6 +69,105 @@
             {{form_components.richtexteditor(user, episode, 'hooks', label=False)}}
         </form>
     </div>
+    <div class="related-panel cell small-12 medium-4 bg-screen padding-1">
+        <div class="callout bg-muted">
+            <div id='episode-connected-stories' class="grid-x grid-margin-x">
+                <div class="cell align-center-middle">
+                    <h3 class='text-center'>Connected Stories</h3>
+                    <div class="grid-x align-spaced grid-margin-x">
+                        {%for s in episode.stories%}
+                        <div class="cell medium-4">
+                            {{ display_components.object_display(s, type=False) }}
+                        </div>
+                        {%endfor%}
+                    </div>
+                    <hr>
+                </div>
+                <div class="cell shrink align-center-middle">
+                    <h6>Add Story</h6>
+                </div>
+                <div class="cell auto align-center-middle">
+                    <div class="select">
+                        <select class="has-bg-white" name='storypk'
+                                hx-post='/{{episode.path}}/story/add'
+                                hx-target='#episode-connected-stories'
+                                hx-select='#episode-connected-stories'
+                                hx-swap='outerHTML'
+                                hx-trigger="change">
+                            <option value="">---</option>
+                            {%for story in episode.world.stories %}
+                            {% if story not in episode.stories%}
+                            <option value="{{story.pk}}">
+                                {{story.name}}
+                            </option>
+                            {% endif %}
+                            {%endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="callout bg-muted">
+            <h3>Events</h3>
+            <div class="grid-x align-spaced">
+                <div class="cell shrink">
+                    <button class='button small'
+                            hx-post='/{{episode.path}}/event/generate'
+                            hx-target='#page-content'
+                            hx-confirm="Are you sure you want to generate a new event from this episode?">
+                        Generate Event From Episode
+                    </button>
+                </div>
+            </div>
+            <div class="grid-x align-spaced">
+                {% for event in episode.events %}
+                <div class="cell medium-4 episode-event-entry"
+                     style="position: relative; margin-bottom: 0.5rem;">
+                    {{display_components.object_display(event, type=False, dim=150)}}
+                    <a class="text-white" style='position:absolute; top:2px; right:5px;'
+                       hx-post="/{{episode.path}}/events/{{event.pk}}/delete"
+                       hx-trigger="click consume"
+                       hx-target="closest .episode-event-entry" hx-swap="delete"
+                       hx-confirm="Are you sure you want to remove this event from the episode?">
+                        {{icon_components.remove(size="1rem")}}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="grid-x">
+                <div class="cell">
+                    <input autocomplete="off" type="search"
+                           name="event_query"
+                           placeholder='Search Events to Add'
+                           style="margin-bottom: 0;padding-bottom: 0;border-bottom: solid #000;"
+                           hx-post="/{{episode.path}}/events/add/search"
+                           hx-target="#episode-new-events-list"
+                           hx-trigger="input consume changed delay:500ms">
+                    <ul class="dropdown menu bg-white" data-dropdown-menu
+                        id="episode-new-events-list">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cell">
+        <div class="callout primary">
+            {{ gmnotes_components.reference(user, episode) }}
+        </div>
+        <hr>
+        <h3>Delete Episode</h3>
+        <div class="grid-x align-spaced">
+            <div class="cell shrink">
+                <button class="button alert small"
+                        hx-post="/episode/{{episode.pk}}/delete"
+                        hx-target="#page-content"
+                        hx-select="#page-content"
+                        hx-swap="outerHTML"
+                        hx-confirm='Are you sure you want to delete this Episode?'>
+                    {{icon_components.trash(size="1rem")}}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-
 {%- endmacro %}

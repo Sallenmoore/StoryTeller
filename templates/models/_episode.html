@@ -15,10 +15,7 @@
 <!-- unique menu items for campaigns -->
 {% macro menu(user, obj) -%}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/details" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/details">
+    <a href="/{{obj.path}}/details">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -71,10 +68,7 @@
 </li>
 {% if user.world_user(obj) %}
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/gmnotes" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/gmnotes">
+    <a href="/{{obj.path}}/gmnotes">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.gamemaster(size="1rem")}}
@@ -86,10 +80,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{obj.path}}/transcribe" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{obj.path}}/transcribe">
+    <a href="/{{obj.path}}/transcribe">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.transcribe(size="1rem")}}
@@ -222,7 +213,7 @@
                 </div>
                 <div id="gm_planning_form" class="margin-top-2 hide">
                     <form
-                          hx-post="/api/{{obj.path}}/update/planning"
+                          hx-post="/{{obj.path}}/update/planning"
                           hx-target='#planning-notes'
                           hx-select='#planning-notes'
                           hx-swap='outerHTML'>
@@ -254,9 +245,8 @@
         {% if user.world_user(obj) %}
         <div class="cell shrink">
             <button class="button"
-                    hx-post="/api/{{obj.path}}/graphic/generate"
-                    hx-indicator="#request-indicator"
-                    hx-push-url="/{{obj.path}}/graphic">
+                    hx-post="/{{obj.path}}/graphic/generate"
+                    hx-indicator="#request-indicator">
                 Generate New Graphic
             </button>
         </div>
@@ -278,7 +268,7 @@
         <div class="cell">
             <div class="callout">
                 <h3 class='text-center'>Graphic Description</h3>
-                <form hx-post="/api/manage/update"
+                <form hx-post="/manage/update"
                       hx-swap="none"
                       hx-trigger="input delay:250ms, change">
                     {{form_components.richtexteditor(user, obj, 'graphic_description', label=False)}}
@@ -295,7 +285,7 @@
          id="session-audio-container">
         <div class="cell">
             <form id="audio-upload-form" enctype="multipart/form-data"
-                  hx-post="/api/{{episode.path}}/audio"
+                  hx-post="/{{episode.path}}/audio"
                   hx-ext="ignore:json-enc"
                   hx-target="#progress"
                   hx-swap="outerHTML"
@@ -344,7 +334,7 @@
             <div class="cell shrink">
                 <button id="transcribe-btn" class="button success"
                         {% if not episode.audio %} disabled {% endif %}
-                        hx-post="/api/{{episode.path}}/transcribe"
+                        hx-post="/{{episode.path}}/transcribe"
                         hx-confirm='Are you sure you want to transcribe the current audio?'
                         hx-target="#session-transcription-container">
                     {{icon_components.transcribe(size="1rem")}}
@@ -355,7 +345,7 @@
                 <button id="clear-btn" class="button warning"
                         {% if not episode.transcription and not episode.audio %} disabled {% endif
                         %}
-                        hx-post="/api/{{episode.path}}/transcription/clear"
+                        hx-post="/{{episode.path}}/transcription/clear"
                         hx-target="#session-transcription-container"
                         hx-select="#session-transcription-container"
                         hx-swap="outerHTML"
@@ -367,7 +357,7 @@
             <div class="cell shrink">
                 <button class="button"
                         {% if not episode.transcription %} disabled {%endif%}
-                        hx-post="/api/{{episode.path}}/transcription/summarize"
+                        hx-post="/{{episode.path}}/transcription/summarize"
                         hx-swap="outerHTML"
                         hx-prompt="Are you sure you want to summarize the transcription? This will prepend a summary to the existing report. It will not delete the original transcription.">
                     Summarize for Report
@@ -388,13 +378,13 @@
                 </div>
             </div>
             <div id="interpreted-transcription">
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
                     {{form_components.richtexteditor(user, episode, 'interpreted_transcription', label=False)}}
                 </form>
             </div>
             <div id="audio-transcription" class="hide">
-                <form hx-post="/api/episode/{{episode.pk}}/update" hx-swap="none"
+                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
                     {{form_components.richtexteditor(user, episode, 'transcription', label=False)}}
                 </form>

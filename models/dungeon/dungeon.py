@@ -69,12 +69,14 @@ Ensure logical connections between these rooms with clear doorways. Entrances ar
         for room in self.rooms:
             room.generate()
             log(f"Generated room {room.name} for dungeon", _print=True)
-        utility_tasks.start_task(f"/generate/dungeon/{self.pk}/map")
+        if self.rooms:
+            utility_tasks.start_task(f"/generate/dungeon/{self.pk}/map")
         return self.rooms
 
     def create_room(self):
         room = DungeonRoom(dungeon=self)
         room.theme = self.theme
+        room.map = self.location.map
         room.save()
         if self.rooms:
             room.connect(random.choice(self.rooms))

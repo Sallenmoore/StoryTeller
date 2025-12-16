@@ -1,4 +1,5 @@
 # Built-In Modules
+import json
 from datetime import datetime
 
 import requests
@@ -41,3 +42,35 @@ def data():
     for world in user.worlds:
         worlds_data[world.pk] = world.page_data()
     return worlds_data
+
+
+@endpoints_endpoint.route(
+    "/data/list/<string:model>",
+    methods=("GET", "POST"),
+)
+def listobjs(model):
+    objs = World.get_model(model).all()
+    result = []
+    for obj in objs:
+        objs_dict = json.loads(obj.to_json())
+        result += [objs_dict]
+        log(objs_dict)
+    return result
+
+
+@endpoints_endpoint.route(
+    "/<string:model>/<pk>/data",
+    methods=("GET", "POST"),
+)
+def obj_data(pk, model):
+    obj = World.get_model(model, pk)
+    return obj.page_data()
+
+
+@endpoints_endpoint.route(
+    "/<string:model>/<pk>/data/foundry",
+    methods=("GET", "POST"),
+)
+def foundry_export(pk, model):
+    obj = World.get_model(model, pk)
+    return obj.system.foundry_export(obj)

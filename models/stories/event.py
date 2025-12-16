@@ -115,9 +115,37 @@ class Event(AutoModel):
         event.save()
         return event
 
+    @classmethod
+    def create_event_from_lore(cls, lore):
+        event = cls(
+            name=lore.name,
+            scope=lore.scope,
+            backstory=lore.backstory,
+            desc=lore.situation,
+            outcome=lore.summary,
+            associations=lore.associations,
+            stories=[lore.story],
+            world=lore.world,
+        )
+        if lore.image:
+            event.image = lore.image
+            lore.image = None
+            lore.save()
+        event.save()
+        if start_date := lore.start_date:
+            event.start_date = start_date.copy(event)
+        if current_date := lore.current_date:
+            event.end_date = current_date.copy(event)
+        event.save()
+        return event
+
     @property
     def calendar(self):
         return self.world.calendar
+
+    @property
+    def date(self):
+        return self.end_date or self.start_date
 
     @property
     def description(self):
@@ -126,6 +154,10 @@ class Event(AutoModel):
     @description.setter
     def description(self, value):
         self.desc = value
+
+    @property
+    def events(self):
+        return [event for story in self.stories for event in story.events]
 
     @property
     def genre(self):

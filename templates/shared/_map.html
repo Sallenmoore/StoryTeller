@@ -12,7 +12,7 @@
             <div class="cell auto">
                 <div class="callout">
                     <h5 class='text-center'>Map Prompt</h5>
-                    <form hx-post="/api/manage/update" hx-trigger="change"
+                    <form hx-post="/manage/update" hx-trigger="change"
                           hx-swap='none'>
                         {{form_components.richtexteditor(user, obj, 'map_prompt', label=False)}}
                     </form>
@@ -20,7 +20,7 @@
             </div>
             <div class="cell shrink">
                 <button class="button small"
-                        hx-post="/api/manage/{{obj.path}}/map/prompt/reset"
+                        hx-post="/manage/{{obj.path}}/map/prompt/reset"
                         hx-target="#object-map-view"
                         hx-select="#object-map-view"
                         hx-swap="outerHTML"
@@ -48,7 +48,7 @@
                     a map </small>
                     {% endif %}
                     <br>
-                    <button class="button" hx-post="/api/manage/map/gallery"
+                    <button class="button" hx-post="/manage/map/gallery"
                             hx-target="#map-container"
                             hx-swap="innerHTML show:#map-container:bottom"
                             hx-indicator="false">
@@ -60,7 +60,7 @@
         <hr>
         <div class="grid-x">
             <div class="cell medium-6">
-                <form hx-post="/api/manage/update" hx-select=' #map-container'
+                <form hx-post="/manage/update" hx-select=' #map-container'
                         hx-target="#map-container"
                         hx-confirm="Are you sure you want to upload and overwrite the current map?">
                     <div class="grid-x">
@@ -79,7 +79,7 @@
                     </form>
             </div>
             <div class="cell medium-6">
-                <form hx-post="/api/manage/map/file/upload"
+                <form hx-post="/manage/map/file/upload"
                       hx-ext="ignore:json-enc"
                       hx-encoding='multipart/form-data'
                       hx-select='#map-container'
@@ -161,7 +161,7 @@
                     marker.on('dragend', function (e) {
                         var lat = e.target.getLatLng().lat;
                         var lng = e.target.getLatLng().lng;
-                        fetch(`/api/manage/{{obj.path}}/map/poi/update/${id}`, {
+                        fetch(`/manage/{{obj.path}}/map/poi/update/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -174,7 +174,7 @@
                     });
                     return marker;
                 }
-                fetch('/api/manage/{{obj.path}}/map/pois', {
+                fetch('/manage/{{obj.path}}/map/pois', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -217,7 +217,7 @@
             {{display_components.object_display(poi, type=False)}}
             {% if not obj.map.in_coordinates(poi) %}
             <button class="button small"
-                    hx-post="/api/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
+                    hx-post="/manage/{{obj.path}}/map/poi/add/{{poi.path}}"
                     hx-target="#object-map-view" hx-select="#object-map-view"
                     hx-swap="outerHTML show:#map-container:bottom">
                 {{icon_components.plus()}}
@@ -236,7 +236,7 @@
         <div class="cell shrink text-center has-centered">
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
                 <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
-                     hx-post="/api/manage/update"
+                     hx-post="/manage/update"
                      hx-target="#map-container" hx-select="#map-container"
                      hx-swap="outerHTML"
                      hx-vals='{"map":"{{image.pk}}"}'

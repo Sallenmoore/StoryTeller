@@ -86,10 +86,7 @@
 
 {% macro menu(user, event) -%}
 <li>
-    <a href=""
-       hx-get="/api/{{event.path}}" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML show:#page-content:top"
-       hx-push-url="/{{event.path}}">
+    <a href="/{{event.path}}">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.details(size="1rem")}}
@@ -101,10 +98,7 @@
     </a>
 </li>
 <li>
-    <a href=""
-       hx-get="/api/{{event.path}}/timeline#{{event.pk}}" hx-target="#page-content"
-       hx-indicator="#request-indicator" hx-swap="innerHTML"
-       hx-push-url="/{{event.path}}/timeline">
+    <a href="/{{event.path}}/timeline">
         <div class="grid-x">
             <div class="cell shrink">
                 {{icon_components.timeline(size="1rem")}}

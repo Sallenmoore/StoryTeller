@@ -7,14 +7,15 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
-<form hx-post="/api/manage/update"
+<form hx-post="/manage/update"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x grid-margin-x align-center-middle">
         <div class="cell auto">
-            <label>Type
-                <select id="type" name="type">
+            <label>Category
+                <select id="category" name="category">
                     {% for t in ["ground vehicle", "aircraft", "watercraft", "spacecraft"]%}
-                    <option value="{{t}}" {% if obj.type==t %} selected {% endif %}>{{t | title}}
+                    <option value="{{t}}" {% if obj.category==t %} selected {% endif %}>
+                        {{t | title}}
                     </option>
                     {% endfor %}
                 </select>

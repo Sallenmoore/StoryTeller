@@ -1,0 +1,341 @@
+{% import "shared/_form.html" as form_components %}
+{% import "shared/_display.html" as display_components %}
+{% import "shared/_icons.html" as icon_components %}
+{% import "shared/_history.html" as history_components %}
+{% import "shared/_details.html" as details_components %}
+{% import "shared/_timeline.html" as timeline_components %}
+{% import "shared/_journal.html" as journal_components %}
+{% import "shared/_stories.html" as stories_components %}
+{% import "shared/_campaigns.html" as campaigns_components %}
+{% import "shared/_associations.html" as associations_components %}
+{% import "shared/_map.html" as map_components %}
+{% import "shared/_jobs.html" as jobs_components %}
+{% import "manage/_world.html" as manage_world_components %}
+{% import "manage/_story.html" as manage_story_components %}
+{% import "manage/_campaign.html" as manage_campaign_components %}
+{% import "manage/_gmscreen.html" as manage_screen_components %}
+{% import "shared/_title.html" as title_components %}
+
+{% macro index(user, obj) -%}
+{{ lore_details(user, obj) }}
+{%- endmacro %}
+
+{% macro menu(user, obj) -%}
+<li>
+    <a href="/{{obj.path}}">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.details(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Details</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href="/{{obj.path}}/history">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.history(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>History</span>
+            </div>
+        </div>
+    </a>
+</li>
+<li>
+    <a href="/{{obj.path}}/timeline">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {{icon_components.timeline(size="1rem")}}
+            </div>
+            <div class="cell auto">
+                <span>Timeline</span>
+            </div>
+        </div>
+    </a>
+</li>
+{%- endmacro %}
+
+{% macro lore_details(user, lore) -%}
+<div hx-disinherit="hx-confirm hx-indicator hx-push-url">
+    <h2 class="text-center separator-center">{{lore.name}}</h2>
+    <div class="grid-x align-spaced padding-top-3">
+        {% if lore.last_summary %}
+        <div class="cell">
+            <div class="callout bg-screen">
+                {% if lore.last_summary_audio %}
+                <audio controls>
+                    <source src="{{lore.last_summary_audio.url()}}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                {% endif %}
+                <div class='lead padding-top-1'>{{lore.last_summary | safe}}</div>
+            </div>
+        </div>
+        {% endif%}
+    </div>
+    <form hx-post="/lore/{{lore.pk}}/edit"
+          hx-trigger="change delay:500ms"
+          hx-swap="none">
+        <div class="grid-x grid-margin-x align-spaced">
+            <div class="cell medium-6">
+                <h6 class=" text-center">
+                    Current Date
+                </h6>
+                <div class="grid-x align-center">
+                    <div class="cell shrink">
+                        <input type="number" name="current_day"
+                               class="inputwidth text-center"
+                               value="{{lore.current_date.day}}" min="1"
+                               max="31">
+                    </div>
+                    <div class="cell shrink">
+                        <div class='select'>
+                            <select name="current_month" class="inputwidth">
+                                <option value="" selected>=== Select Month ===</option>
+                                {% for month in lore.calendar.months %}
+                                <option value="{{loop.index0}}" {% if
+                                        lore.current_date.month==loop.index0
+                                        %}
+                                        selected {% endif %}>
+                                    {{month}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="cell auto">
+                        <input name="current_year" type="number" min="{{lore.start_date.year}}"
+                               step='1'
+                               value="{{lore.current_date.year}}">
+                    </div>
+                </div>
+            </div>
+            <div class="cell medium-6">
+                <h6 for="setting">Current Setting</h6>
+                <select name="setting">
+                    <option value="" selected>=== Select Setting ===</option>
+                    {% for place in lore.places %}
+                    <option value="{{place.path}}" {% if lore.setting and
+                            lore.setting==place %} selected {% endif %}>
+                        {{place.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+    <div id="lore-party-container" class="grid-x align-justify">
+        <div class="cell shrink">
+            <h3 class=" text-centered">Party Members</h3>
+        </div>
+        <div class="cell medium-4">
+            <input autocomplete="off" type="search" name="query"
+                   placeholder='add party member...'
+                   style="border-bottom: solid #000;"
+                   hx-post="/lore/{{lore.pk}}/party/add/search"
+                   hx-target="#lore-new-party-list"
+                   hx-trigger="input changed delay:500ms consume">
+            <ul class="dropdown menu" data-dropdown-menu id="lore-new-party-list">
+            </ul>
+        </div>
+        <div class="cell">
+            <div class="grid-x grid-margin-x">
+                {% for o in lore.party %}
+                <div class="cell medium-3" style='position:relative;'>
+                    {{display_components.object_display(o, type=False)}}
+                    <a class="text-screen"
+                       style='position:absolute; top:0px; right:5px;'
+                       hx-post="/lore/{{lore.pk}}/party/remove/{{o.pk}}"
+                       hx-target="closest .cell" hx-swap="delete"
+                       hx-confirm="Are you sure you want to remove this character from the party?">
+                        {{icon_components.remove()}}
+                    </a>
+                </div>
+                <div class="cell medium-9">
+                    <div class="callout bg-screen">
+                        <div class="callout bg-muted"
+                             onmouseover="this.classList.remove('bg-muted');"
+                             onmouseout="this.classList.add('bg-muted');">
+                            <strong>Verbal Response:
+                                [{{lore.get_response(o.name).obj.voice}}]</strong>
+                            {{lore.get_response(o.name).verbal}}
+                            {% if lore.get_response(o.name).verbal_audio %}
+                            <br>
+                            <audio controls>
+                                <source src="{{lore.get_response(o.name).verbal_audio.url()}}"
+                                        type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            {% endif %}
+                        </div>
+                        <div class="callout bg-muted"
+                             onmouseover="this.classList.remove('bg-muted');"
+                             onmouseout="this.classList.add('bg-muted');">
+                            <strong>Thoughts:</strong>
+                            {{lore.get_response(o.name).thoughts}}
+                            {% if lore.get_response(o.name).thoughts_audio %}
+                            <br>
+                            <audio controls>
+                                <source src="{{lore.get_response(o.name).thoughts_audio.url()}}"
+                                        type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+
+                            {% endif %}
+                        </div>
+
+                        <div class="callout bg-muted"
+                             onmouseover="this.classList.remove('bg-muted');"
+                             onmouseout="this.classList.add('bg-muted');">
+                            <strong>Actions Taken:</strong>
+                            {{lore.get_response(o.name).actions}}
+                            {% if lore.get_response(o.name).actions_audio %}
+                            <br>
+                            <audio controls>
+                                <source src="{{lore.get_response(o.name).actions_audio.url()}}"
+                                        type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            {% endif %}
+                        </div>
+                        {% if lore.get_response(o.name).roll_type %}
+                        <div class="callout bg-muted"
+                             onmouseover="this.classList.remove('bg-muted');"
+                             onmouseout="this.classList.add('bg-muted');">
+                            <strong>Roll Type:</strong>
+                            {{lore.get_response(o.name).roll_type}}<br>
+                            <strong>Roll Explanation:</strong>
+                            {{lore.get_response(o.name).roll_explanation | safe}}<br>
+                            <strong>Roll:</strong>
+                            {{lore.get_response(o.name).roll_formula | safe}}
+                            ({{lore.get_response(o.name).roll_bonuses | safe}}) =
+                            <span
+                                  class="stat">{{lore.get_response(o.name).roll_result}}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div id='lore-gm-prompts' class="grid-x align-center">
+        <div class="cell ">
+            <div class="callout">
+                <form hx-post="/lore/{{lore.pk}}/edit"
+                      hx-trigger="change delay:500ms"
+                      hx-swap="none">
+                    {{form_components.textarea(user, lore, name="situation",
+                                                                label="Current Situation")}}
+                    <hr>
+                    {{form_components.textarea(user, lore, name="guidance",
+                                                                label="Guidance for Responses")}}
+
+                </form>
+            </div>
+        </div>
+        <div class="cell shrink">
+            <form hx-post="/task/generate/lore/{{lore.pk}}" hx-target='#lore-gm-prompts'>
+                <div class="grid-x">
+                    <div class="cell shrink">
+                        <button type="submit"
+                                class="button large">
+                            {{icon_components.refresh(size="1rem")}}
+                            Generate Lore
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="grid-x align-spaced">
+        <a class="cell shrink" style="cursor:pointer" hx-post="/{{lore.path}}/delete"
+           hx-target="#page-content"
+           hx-confirm="Are you sure you want to delete this lore entry? This action cannot be undone.">
+            {{icon_components.delete()}}
+        </a>
+        <a class="cell shrink" style="cursor:pointer" hx-post="/{{lore.path}}/complete"
+           hx-target="#page-content"
+           hx-confirm="Are you sure you want to complete this lore entry? This will convert the lore into an event object. This action cannot be undone.">
+            {{icon_components.check()}} Complete Lore
+        </a>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro lore_party_dropdown(user, lore, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link ">
+    <a hx-post="/lore/{{lore.pk}}/party/add/{{o.pk}}"
+       hx-target='#lore-party-container'
+       hx-select='#lore-party-container'
+       hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {% if o.image %}
+                <img class="thumbnail" style="cursor: pointer"
+                     src="{{o.image.url(size=50)}}"
+                     alt="{{o.name}}" />
+                {% endif %}
+
+            </div>
+            <div class="cell">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro lore_association_dropdown(user, lore, objs=[]) -%}
+{% for o in objs %}
+<li class="dropdown__link ">
+    <a hx-post="/lore/{{lore.pk}}/association/add/{{o.path}}"
+       hx-target='#lore-associations-container'
+       hx-select='#lore-associations-container'
+       hx-swap='outerHTML'
+       onclick="this.closest('.has-dropdown').classList.remove('is-active')">
+        <div class="grid-x">
+            <div class="cell shrink">
+                {% if o.image %}
+                <img class="thumbnail" style="cursor: pointer"
+                     src="{{o.image.url(size=50)}}"
+                     alt="{{o.name}}" />
+                {% endif %}
+            </div>
+            <div class="cell">
+                {{o.name}}
+            </div>
+        </div>
+    </a>
+</li>
+{% endfor %}
+{%- endmacro%}
+
+{% macro history(user, obj) -%}
+{{history_components.history(user, obj)}}
+
+<div class="callout bg-muted">
+    <h4 class="text-center">
+        Associated Storyline:
+        {{obj.story.name}}
+    </h4>
+    <div class="ease-in-out">
+        {{obj.story.summary | safe}}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro timeline(user, obj) -%}
+{{timeline_components.timeline(user, obj)}}
+{%- endmacro %}
+
+{% macro associations(user, obj, extended_associations, direct_associations=None)%}
+{{associations_components.associations(user, obj, extended_associations, direct_associations)}}
+{%- endmacro %}

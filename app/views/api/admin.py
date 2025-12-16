@@ -63,6 +63,39 @@ tags = {
 tag_list = sorted([*tags["type"], *tags["genre"]])
 
 
+# external Modules
+import os
+
+import requests
+from autonomous.auth import AutoAuth, auth_required
+from autonomous.tasks.autotask import AutoTasks
+from flask import Blueprint, get_template_attribute, render_template, request
+
+from autonomous import log
+from models.base.actor import Actor
+from models.campaign.campaign import Campaign
+from models.campaign.episode import Episode
+from models.stories.lore import Lore
+from models.ttrpgobject.ability import Ability
+from models.ttrpgobject.character import Character
+from models.ttrpgobject.creature import Creature
+from models.ttrpgobject.item import Item
+from models.ttrpgobject.vehicle import Vehicle
+from models.world import World
+
+admin_page = Blueprint("admin", __name__)
+
+
+@admin_page.route("/", methods=("GET",))  #
+@auth_required(admin=True)
+def index():
+    return render_template(
+        "index.html",
+        user=AutoAuth.current_user().pk,
+        page_url="/admin/manage",
+    )
+
+
 @admin_endpoint.route(
     "/manage",
     methods=(
@@ -70,7 +103,7 @@ tag_list = sorted([*tags["type"], *tags["genre"]])
         "POST",
     ),
 )
-def index():
+def manage():
     user, *_ = _loader()
     return get_template_attribute("admin/_index.html", "manage")(user)
 
