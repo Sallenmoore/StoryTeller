@@ -23,6 +23,7 @@ from autonomous import log
 from models.audio.audio import Audio
 from models.base.ttrpgbase import TTRPGBase
 from models.calendar.date import Date
+from models.images.graphic import Graphic
 from models.images.image import Image
 from models.stories.event import Event
 from models.ttrpgobject.character import Character
@@ -40,8 +41,7 @@ class Episode(AutoModel):
     campaign = ReferenceAttr(choices=["Campaign"], required=True)
     _campaign_summary = StringAttr(default="")
     associations = ListAttr(ReferenceAttr(choices=[TTRPGBase]))
-    graphic = ReferenceAttr(choices=["Image"])
-    graphic_description = StringAttr(default="")
+    graphic = ReferenceAttr(choices=["Image", "Graphic"])
     episode_report = StringAttr(default="")
     loot = StringAttr(default="")
     hooks = StringAttr(default="")
@@ -118,6 +118,10 @@ class Episode(AutoModel):
     @property
     def geneology(self):
         return [self.world, self.campaign]
+
+    @property
+    def graphic_description(self):
+        return self.graphic.description if self.graphic else ""
 
     @property
     def items(self):
@@ -330,27 +334,12 @@ class Episode(AutoModel):
         self.save()
         return self.episode_report
 
-    def generate_graphic_description(self):
-        prompt = f"Create a detailed description of a paneled graphic novel page for an AI-generated image that captures the essence of the following episode in a {self.world.genre} TTRPG world. The description for each panel should include key visual elements, atmosphere, and any significant characters or locations featured in the episode. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. "
-        log(f"Graphic Prompt: {prompt}", _print=True)
-        description = self.world.system.generate_text(
-            prompt,
-            primer="Provide a vivid and detailed description for an AI-generated image that captures the essence of the episode, including key visual elements, atmosphere, and significant characters or locations.",
-        )
-        description = description.replace("```markdown", "").replace("```", "")
-        description += f"\n\nArt Style: Comic Book, Graphic Novel, Illustrated\n\n Use the attached image files as a reference for character appearances.\nPlayer character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
-        self.graphic_description = description
-        self.save()
-        # log(f"Graphic Description: {description}", _print=True)
-        return self.graphic_description
-
     def generate_graphic(self):
-        if not self.graphic_description:
-            self.generate_graphic_description()
+        prompt = f"Create a detailed description of a paneled graphic novel page that captures the essence of a the following episode in a {self.world.genre} TTRPG world. Here is some context about the world: {self.world.name}, {self.world.backstory}. Here is some context about the campaign: {self.campaign.name}, {self.campaign_summary}. Here is the episode name and summary: {self.name}, {self.summary if self.summary else self.episode_report}. Use the attached image files as a reference for character appearances.\nPlayer character descriptions:\n\n{'\n\n'.join([f'{c.name}: {c.description}' for c in self.players])}."
         # log(f"Graphic Description: {description}", _print=True)
         chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
-        if image := Image.generate(
-            prompt=self.graphic_description,
+        if image := Graphic().generate(
+            prompt=prompt,
             tags=["episode", "graphic"],
             text=True,
             files=chars,
@@ -458,10 +447,19 @@ TRANSCRIPT:
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        log("Auto Pre Save World")
+        super().auto_post_init(sender, document, **kwargs)
+
+        ###### MIGRATION: Graphic Model ######
+        if document.graphic and document.graphic.model_name() == "Image":
+            graphic = Graphic.from_image(document.graphic)
+            graphic.save()
+            document.graphic.delete()
+            document.graphic = graphic
+            document.save()
+        ######################################
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
@@ -477,9 +475,9 @@ TRANSCRIPT:
 
         #########################################
 
-    @classmethod
-    def auto_post_save(cls, sender, document, **kwargs):
-        super().auto_post_save(sender, document, **kwargs)
+    # @classmethod
+    # def auto_post_save(cls, sender, document, **kwargs):
+    #     super().auto_post_save(sender, document, **kwargs)
 
     # def clean(self):
     #     super().clean()
@@ -495,11 +493,10 @@ TRANSCRIPT:
         self.associations.sort(key=lambda x: (x.model_name(), x.name))
 
     def pre_save_dates(self):
-        if not self.world.current_date:
-            self.world.current_date = self.end_date_obj
-            self.world.save()
-        elif self.end_date_obj and self.world.current_date < self.end_date_obj:
-            self.world.current_date = self.end_date_obj
+        if not self.world.current_date or (
+            self.end_date_obj and self.world.current_date < self.end_date_obj
+        ):
+            self.world.current_date = self.end_date_obj.copy(self.world)
             self.world.save()
 
     def pre_save_text(self):

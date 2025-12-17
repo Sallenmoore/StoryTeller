@@ -128,5 +128,7 @@ def parse_date(obj, date):
 
 def sanitize(data):
     if isinstance(data, str):
+        data = data.replace("```markdown", "").replace("```", "")
+        data = markdown.markdown(data)
         data = BeautifulSoup(data, "html.parser").get_text()
     return data

@@ -73,7 +73,14 @@
                     Your browser does not support the audio element.
                 </audio>
                 {% endif %}
-                <div class='lead padding-top-1'>{{lore.last_summary | safe}}</div>
+                <div class='lead padding-top-1'>
+                    {{lore.last_summary | safe}}
+                    {% if lore.graphic %}
+                    <img class="thumbnail float-right margin-1"
+                         src="{{lore.graphic.url()}}"
+                         alt="Lore Graphic Summary" />
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endif%}

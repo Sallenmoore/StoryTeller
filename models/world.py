@@ -394,29 +394,28 @@ class World(TTRPGBase):
         return self.associations
 
     def set_current_date(self):
-        event_date = (
-            sorted(self.events, key=lambda x: x.end_date, reverse=True)[0].end_date
+        event_dates = (
+            [e.end_date for e in self.events if e.end_date and e.end_date.year > 0]
             if self.events
-            else None
+            else []
         )
-        if episode_dates := [
-            e.start_date
-            for c in self.campaigns
-            for e in c.episodes
-            if e.start_date and e.start_date.year
-        ]:
-            episode_date = sorted(
-                episode_dates,
-                reverse=True,
-            )[0]
-            self.current_date = (
-                event_date if event_date > episode_date else episode_date
-            )
-        elif event_date:
-            self.current_date = event_date
-        else:
-            self.current_date = self.start_date
-        self.save()
+
+        episode_dates = (
+            [
+                e.end_date
+                for c in self.campaigns
+                for e in c.episodes
+                if e.end_date and e.end_date.year > 0
+            ]
+            if self.campaigns
+            else []
+        )
+
+        all_dates = event_dates + episode_dates
+        if all_dates:
+            self.current_date = max(all_dates)
+            self.save()
+        return self.current_date
 
     def set_system(self, System):
         if System:
@@ -503,11 +502,12 @@ The map should be in a {self.world.map_style} style.
     ###############################################################
     ##                    VERIFICATION HOOKS                     ##
     ###############################################################
-    # @classmethod
-    # def auto_post_init(cls, sender, document, **kwargs):
-    #     # log("Auto Pre Save World")
-    #     super().auto_post_init(sender, document, **kwargs)
-    #     =
+    @classmethod
+    def auto_post_init(cls, sender, document, **kwargs):
+        # log("Auto Pre Save World")
+        super().auto_post_init(sender, document, **kwargs)
+        if not document.current_date and document.calendar:
+            document.set_current_date()
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):

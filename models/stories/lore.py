@@ -15,6 +15,7 @@ from dmtoolkit import dmtools
 from autonomous import log
 from models.audio.audio import Audio
 from models.calendar.date import Date
+from models.images.graphic import Graphic
 from models.utility.parse_attributes import parse_text
 
 
@@ -75,7 +76,7 @@ class LoreResponse(AutoModel):
 
 class LoreScene(AutoModel):
     party = ListAttr(ReferenceAttr(choices=["Character"]))
-    image = ReferenceAttr(choices=["Image"])
+    graphic = ReferenceAttr(choices=["Graphic"])
     prompt = StringAttr(default="")
     summary = StringAttr(default="")
     summary_audio = ReferenceAttr(choices=["Audio"])
@@ -85,6 +86,18 @@ class LoreScene(AutoModel):
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
     responses = ListAttr(ReferenceAttr(choices=["LoreResponse"]))
     lore = ReferenceAttr(choices=["Lore"], require=True)
+
+    @property
+    def characters(self):
+        return list(
+            set(
+                [
+                    c
+                    for c in [*self.associations, *self.party]
+                    if c.model_name() == "Character"
+                ]
+            )
+        )
 
     def delete(self):
         if self.date:
@@ -115,6 +128,13 @@ CHARACTER RESPONSES:
             self.summary_audio = Audio.tts(
                 audio_text=self.summary,
                 voice=random.choice(self.party).voice,
+            )
+            self.save()
+            chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
+            self.graphic = Graphic.generate(
+                prompt=f"""Create a detailed illustrated graphic novel style image that captures the key moments from the following scenario summary: {self.summary}. The image should be vibrant and dynamic, showcasing the main characters and significant events described in the summary. Use the uploaded images as references for character appearances.\nCharacter descriptions:\n\n{"\n\n".join([f"{c.name}: {c.description_summary}" for c in self.characters])}.""",
+                tags=["lore_summary", "graphic_novel_style"],
+                files=chars,
             )
             self.save()
 
@@ -195,7 +215,7 @@ class Lore(AutoModel):
             "properties": {
                 "situation": {
                     "type": "string",
-                    "description": "Suggest likely next scenes/scenarios based on the character's responses to the previous scenario and the setting information.",
+                    "description": "In the style of a GM responding to the characters, create the next scenes/scenarios for each the possible outcomes of their rolls based on the character's responses to previous scenarios and the setting information.",
                 },
                 "responses": {
                     "type": "array",
@@ -251,8 +271,8 @@ class Lore(AutoModel):
         return [e for e in self.world.events if e.date and e.date <= self.current_date]
 
     @property
-    def image(self):
-        return self.scenes[-1].image if self.scenes else None
+    def graphic(self):
+        return self.scenes[-1].graphic if self.scenes else None
 
     @property
     def geneology(self):
@@ -415,6 +435,14 @@ NEXT SCENE: {self.situation}.
         # log(len(self.associations), obj in self.associations)
         if obj not in self.associations:
             self.associations += [obj]
+            self.save()
+        return obj
+
+    # MARK: Associations
+    def remove_association(self, obj):
+        # log(len(self.associations), obj in self.associations)
+        if obj in self.associations:
+            self.associations.remove(obj)
             self.save()
         return obj
 

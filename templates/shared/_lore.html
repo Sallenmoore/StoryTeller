@@ -101,10 +101,10 @@
                                 </div>
                                 <div class="cell auto">
                                     <input name="start_year" type="number" id="sliderOutputDate"
-                                           value='{{obj.end_date.year // 2}}'>
+                                           value='{{obj.current_date.year // 2}}'>
                                     <div class="slider" data-slider
-                                         data-initial-start="{{obj.end_date.year // 2}}"
-                                         data-end="{{obj.end_date.year}}"
+                                         data-initial-start="{{obj.current_date.year // 2}}"
+                                         data-end="{{obj.current_date.year}}"
                                          onchange="this.previousElementSibling.innerHTML = this.lastElementChild.value + ' {{obj.calendar.age}}';">
                                         <span class="slider-handle" data-slider-handle role="slider"
                                               tabindex="1"
