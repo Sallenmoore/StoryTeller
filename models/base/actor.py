@@ -184,8 +184,13 @@ class Actor(TTRPGObject):
                 utility_tasks.start_task(f"/generate/ability/{ability.pk}")
 
     def speak(self, message):
+        message = f"""
+Say the following as the following character, who is described as {self.backstory_summary}, and speaks in a {self.voice_description} voice:
+{message}
+"""
+        log(f"Actor.speak prompt: {message}", _print=True)
         return Audio.tts(
-            audio_text=self.verbal,
+            audio_text=message,
             voice=self.voice,
         )
 
