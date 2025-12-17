@@ -88,38 +88,28 @@
 
 {% macro reference(user, obj) -%}
 <h3 class='text-center'>Quick Reference</h3>
-<table class="stack scroll">
-    <thead>
-        </tr>
-        <th>Backstory</th>
-        <th>Sensory Detail</th>
-        <th>Encounters</th>
-        </tr>
-    </thead>
+<ul class="tabs" data-tabs id="reference-tabs">
     {% for a in obj.associations|sort(attribute='name') %}
-    <tr class="bg-screen">
-        <td colspan='3' class='text-center align-middle'>
-            <a href="/{{ a.path }}" target='_blank'>
-                <h5>{{ a.name }} <small>({{ a.title }})</small></h5>
-            </a>
-        </td>
-    </tr>
-    <tr class="bg-muted">
-        <td>
-            {{ a.backstory_summary | safe }}
-        </td>
-        <td>
-            {{ a.sensory_details | random | safe }}
-        </td>
-        <td>
-            {% for e in a.encounters %}
-            <a href="/{{e.path}}" target='_blank'>{{e.name}}</a>{% if not loop.last %}
-            <hr> {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
+    <li class="tabs-title"><a href="#{{a.pk}}">{{a.name}} ({{a.title}})</a></li>
     {% endfor %}
-</table>
+</ul>
+<div class="tabs-content" data-tabs-content="reference-tabs">
+    {% for a in obj.associations|sort(attribute='name') %}
+    <div class="tabs-panel is-active" id="{{a.pk}}">
+        <ul>
+            <li><strong>Backstory</strong>: {{a.backstory_summary | safe}}</li>
+            <li><strong>Sensory Detail</strong>: {{a.sensory_details | random | safe}}</li>
+            <li>
+                <strong>Encounters</strong>:<br>
+                {% for e in a.encounters %}
+                <a href="/{{e.path}}" target='_blank'>{{e.name}}</a>{% if not loop.last %}
+                <hr> {% endif %}
+                {% endfor %}
+            </li>
+        </ul>
+    </div>
+    {% endfor %}
+</div>
 {%- endmacro %}
 
 {% macro display_encounters(user, obj, manage=True) -%}
