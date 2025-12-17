@@ -34,6 +34,9 @@ class LoreResponse(AutoModel):
     roll_bonuses = StringAttr(default="")
     roll_result = IntAttr(default=0)
 
+    def __str__(self):
+        return f"VERBAL: {self.verbal} THOUGHTS: {self.thoughts} ACTIONS: {self.actions} ROLL_EXPLANATION: {self.roll_explanation}  ROLL_RESULT: {self.roll_result}"
+
     def delete(self):
         if self.verbal_audio:
             self.verbal_audio.delete()
@@ -113,6 +116,8 @@ class LoreScene(AutoModel):
 {f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
 
 GUIDANCE: {self.guidance}
+
+CURRENT_DATE: {self.date}
 
 The current situation: {self.situation}
 
