@@ -81,13 +81,7 @@ def update():
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
         # log(f"Updated {obj.model_name()}:{obj.pk} - set {attr} to {value}", _print=True)
     obj.save()
-    # log(response_url.split("/"))
-    # path = (
-    #     response_url.split("/")[-1]
-    #     if response_url and len(response_url.split("/")) == 4
-    #     else "manage"
-    # )
-    # log(path)
+    log(obj.model_name().lower())
     return get_template_attribute(f"models/_{obj.model_name().lower()}.html", "manage")(
         user, obj
     )
