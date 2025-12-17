@@ -51,39 +51,26 @@ class LoreResponse(AutoModel):
             log(f"Error rolling dice for formula {self.roll_formula}: {e}", _print=True)
 
     def generate_audio(self):
-        voice = self.obj.voice
-        log(
-            f"Generating audio for LoreResponse of {self.obj.name} with voice {voice}",
-            _print=True,
-        )
+        # log(
+        #     f"Generating audio for LoreResponse of {self.obj.name} with voice {voice}",
+        #     _print=True,
+        # )
         if self.verbal and not self.verbal_audio:
-            audio = Audio.tts(
-                audio_text=self.verbal,
-                voice=voice,
-            )
-            if audio:
+            if audio := self.obj.speak(message=self.verbal):
                 self.verbal_audio = audio
                 self.save()
         if self.thoughts and not self.thoughts_audio:
-            audio = Audio.tts(
-                audio_text=self.thoughts,
-                voice=voice,
-            )
-            if audio:
+            if audio := self.obj.speak(message=self.thoughts):
                 self.thoughts_audio = audio
                 self.save()
         if self.actions and not self.actions_audio:
-            audio = Audio.tts(
-                audio_text=self.actions,
-                voice=voice,
-            )
-            if audio:
+            if audio := self.obj.speak(message=self.actions):
                 self.actions_audio = audio
                 self.save()
-        log(
-            f"Finished generating audio for LoreResponse of {self.obj.name}: verbal_audio={self.verbal_audio}, thoughts_audio={self.thoughts_audio}, actions_audio={self.actions_audio}",
-            _print=True,
-        )
+        # log(
+        #     f"Finished generating audio for LoreResponse of {self.obj.name}: verbal_audio={self.verbal_audio}, thoughts_audio={self.thoughts_audio}, actions_audio={self.actions_audio}",
+        #     _print=True,
+        # )
 
 
 class LoreScene(AutoModel):
@@ -123,7 +110,7 @@ CHARACTER RESPONSES:
         )
         if summary_result:
             log(f"Generated Lore Summary: {summary_result}", _print=True)
-            self.summary = parse_text(summary_result)
+            self.summary = parse_text(self, summary_result)
             self.save()
             self.summary_audio = Audio.tts(
                 audio_text=self.summary,

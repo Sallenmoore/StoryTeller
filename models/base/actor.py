@@ -183,6 +183,12 @@ class Actor(TTRPGObject):
                 self.save()
                 utility_tasks.start_task(f"/generate/ability/{ability.pk}")
 
+    def speak(self, message):
+        return Audio.tts(
+            audio_text=self.verbal,
+            voice=self.voice,
+        )
+
     def chat(self, message=""):
         # summarize conversation
         if self.chats and self.chats[-1]["pc"] and self.chats[-1]["npc"]:
