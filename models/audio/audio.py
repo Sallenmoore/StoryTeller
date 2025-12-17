@@ -15,6 +15,8 @@ from autonomous import log
 class Audio(AutoModel):
     data = FileAttr()
 
+    voices = AudioAgent().available_voices()
+
     @classmethod
     def from_file(cls, file):
         try:
@@ -29,7 +31,7 @@ class Audio(AutoModel):
 
     @classmethod
     def generate(cls, audio_text, voice="Algieba", pre_text="", post_text=""):
-        log(f"WARNING -- DEPRECATED: Audio.generate\tUse Audio.tts instead.")
+        log("WARNING -- DEPRECATED: Audio.generate\tUse Audio.tts instead.")
         return cls.tts(
             audio_text=audio_text, voice=voice, pre_text=pre_text, post_text=post_text
         )

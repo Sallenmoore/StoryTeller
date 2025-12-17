@@ -73,13 +73,14 @@
                     Your browser does not support the audio element.
                 </audio>
                 {% endif %}
+                {% if lore.graphic %}
+                <div class="float-right" style="position:relative;width:50%;">
+                    <img src="{{lore.graphic.url()}}" alt="{{lore.name}}"
+                         style="width:100%; height: 50%;" />
+                </div>
+                {% endif %}
                 <div class='lead padding-top-1'>
                     {{lore.last_summary | safe}}
-                    {% if lore.graphic %}
-                    <img class="thumbnail float-right margin-1"
-                         src="{{lore.graphic.url()}}"
-                         alt="Lore Graphic Summary" />
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -163,6 +164,7 @@
                         {{icon_components.remove()}}
                     </a>
                 </div>
+                {% if lore.scenes and lore.get_response(o.name) %}
                 <div class="cell medium-9">
                     <div class="callout bg-screen">
                         <div class="callout bg-muted"
@@ -227,6 +229,7 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -246,16 +249,25 @@
             </div>
         </div>
         <div class="cell shrink">
-            <form hx-post="/task/generate/lore/{{lore.pk}}" hx-target='#lore-gm-prompts'>
-                <div class="grid-x">
-                    <div class="cell shrink">
-                        <button type="submit"
-                                class="button large">
-                            {{icon_components.refresh(size="1rem")}}
-                            Generate Lore
-                        </button>
-                    </div>
+            <div class="grid-x grid-margin-x align-center-middle">
+                <div class="cell shrink">
+                    <button hx-post="/task/generate/lore/{{lore.pk}}" hx-target='#lore-gm-prompts'
+                            class="button large">
+                        {{icon_components.refresh(size="1rem")}}
+                        Generate Lore
+                    </button>
                 </div>
+                {% if lore.scenes %}
+                <div class="cell shrink">
+                    <button hx-post="/lore/{{lore.pk}}/summarize"
+                            hx-target='#lore-gm-prompts'
+                            class="button tiny secondary">
+                        {{icon_components.regenerate(size="0.5rem")}}
+                        resummarize
+                    </button>
+                </div>
+                {% endif %}
+            </div>
             </form>
         </div>
     </div>
@@ -332,7 +344,6 @@
 
 {% macro history(user, obj) -%}
 {{history_components.history(user, obj)}}
-
 <div class="callout bg-muted">
     <h4 class="text-center">
         Associated Storyline:

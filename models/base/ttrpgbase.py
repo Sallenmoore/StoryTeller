@@ -351,10 +351,18 @@ Use and expand on the existing object data listed below for the {self.title} obj
   - World History: {self.world.history}
   - Relevant World Events:
     - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
-  - Location Details:
 """
-        geneology = self.geneology
+
+        if hasattr(self, "stories") and self.stories:
+            prompt += f"\nIs connected to the following storyline:{random.choice(self.stories).summary}"
+
+        geneology, associations = (
+            self.split_associations()
+            if hasattr(self, "split_associations")
+            else ([], self.associations)
+        )
         if geneology and len(geneology) > 1:
+            prompt += "\n=== Direct Associations:\n"
             for relative in self.geneology:
                 if (
                     relative not in [self, self.world]
@@ -367,21 +375,9 @@ Use and expand on the existing object data listed below for the {self.title} obj
       - Backstory: {relative.backstory_summary}
      {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
-        if hasattr(self, "stories") and self.stories:
-            prompt += f"""
- connected to the following storyline:
-            {random.choice(self.stories).summary}
-            """
-        if associations := [
-            a
-            for a in self.associations
-            if a not in geneology and a.name and a.backstory
-        ]:
+        if self.model_name() not in ["Item", "Creature"] and associations:
+            prompt += "\n=== Additional Incidental Associations:\n"
             associations = random.sample(associations, k=min(10, len(associations)))
-            prompt += """
-===
-- Additional Associated Objects:
-"""
             for ass in associations:
                 prompt += f"""
   - Name: {ass.name}

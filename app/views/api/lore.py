@@ -84,6 +84,19 @@ def lore_edit(lore_pk):
     return get_template_attribute("models/_lore.html", "lore_details")(user, lore)
 
 
+@lore_endpoint.route("/<string:lore_pk>/summarize", methods=("POST",))
+def lore_summarize(lore_pk):
+    user, obj, _ = _loader()
+    if lore := Lore.get(lore_pk):
+        lore_scene_pk = (
+            lore.scenes[-2].pk if len(lore.scenes) >= 2 else lore.scenes[-1].pk
+        )
+        return requests.post(
+            f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/{lore_scene_pk}/summary"
+        ).text
+    return get_template_attribute("model/_lore.html", "index")(user, lore)
+
+
 @lore_endpoint.route("/<string:lore_pk>/delete", methods=("POST",))
 def lore_delete(lore_pk):
     user, obj, _ = _loader()
@@ -128,7 +141,7 @@ def lorepartysearch(pk):
         else []
     )
     results = [a for a in results if a not in lore.party]
-    return get_template_attribute("shared/_lore.html", "lore_party_dropdown")(
+    return get_template_attribute("models/_lore.html", "lore_party_dropdown")(
         user, lore, results
     )
 
@@ -145,7 +158,7 @@ def lorepartyadd(pk, apk=None):
         if obj not in lore.party:
             lore.party += [obj]
             lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_lore.html", "lore_details")(user, lore)
 
 
 @lore_endpoint.route(
@@ -160,7 +173,7 @@ def lorepartyremove(pk, apk=None):
         if obj in lore.party:
             lore.party.remove(obj)
             lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_lore.html", "lore_details")(user, lore)
 
 
 @lore_endpoint.route(
@@ -173,7 +186,7 @@ def loreassociationsearch(pk):
     query = request.json.get("query")
     results = obj.world.search_autocomplete(query=query) if len(query) > 2 else []
     results = [a for a in results if a not in lore.associations]
-    return get_template_attribute("shared/_lore.html", "lore_association_dropdown")(
+    return get_template_attribute("models/_lore.html", "lore_association_dropdown")(
         user, lore, results
     )
 
@@ -200,7 +213,7 @@ def loreassociationadd(pk, amodel, apk=None):
         obj.save()
         lore.associations += [obj]
         lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_lore.html", "lore_details")(user, lore)
 
 
 @lore_endpoint.route(
@@ -214,4 +227,4 @@ def loreassociationremove(pk, amodel, apk=None):
         if obj in lore.associations:
             lore.associations.remove(obj)
             lore.save()
-    return get_template_attribute("shared/_lore.html", "lore_details")(user, lore)
+    return get_template_attribute("models/_lore.html", "lore_details")(user, lore)

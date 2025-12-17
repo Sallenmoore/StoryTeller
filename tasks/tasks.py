@@ -227,19 +227,19 @@ def _generate_dungeon_rooms_task(pk):
 def _generate_dungeon_room_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate()
-    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage"}
 
 
 def _generate_dungeon_room_map_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate_map()
-    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage"}
 
 
 def _generate_dungeon_room_encounter_task(pk):
     obj = DungeonRoom.get(pk)
     obj.generate_encounter()
-    return {"url": f"/dungeon/room/{obj.pk}/manage", "target": "dungeon-container"}
+    return {"url": f"/dungeon/room/{obj.pk}/manage"}
 
 
 def _generate_quest_task(pk):

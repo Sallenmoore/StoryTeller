@@ -16,7 +16,6 @@
 {% else %}
 {% set lifetime = {"start": "Began", "end": "Ended"} %}
 {% endif %}
-
 {{lifetime[event]}}
 {%- endmacro %}
 
@@ -35,10 +34,12 @@
             {% if date and (obj.start_date or obj.end_date) %}
             <p class='text-black'>
                 {% if obj.start_date %}
+                {{dsp_object_lifetime(obj, event="start")}}
                 {{obj.start_date}}
                 {% endif %}
                 {%if obj.end_date and obj.end_date != obj.start_date %} -
                 {{obj.end_date}}
+                {{dsp_object_lifetime(obj, event="end")}}
                 {%endif%}
             </p>
             {% endif %}

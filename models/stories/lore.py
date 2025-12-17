@@ -272,7 +272,7 @@ class Lore(AutoModel):
 
     @property
     def graphic(self):
-        return self.scenes[-1].graphic if self.scenes else None
+        return self.scenes[-2].graphic if len(self.scenes) >= 2 else None
 
     @property
     def geneology(self):
@@ -297,7 +297,6 @@ class Lore(AutoModel):
         scenes = self.scenes[::]
         while not result and scenes:
             result = scenes[i].summary if scenes else ""
-            i -= 1
             scenes = scenes[:-1]
         return result
 

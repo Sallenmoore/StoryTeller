@@ -161,7 +161,7 @@ class Actor(TTRPGObject):
 
     @property
     def voice(self):
-        if not self.pc_voice:
+        if self.pc_voice not in Audio.voices:
             self.pc_voice = Audio.get_voice(filters=[self.gender.lower()])
             self.save()
         return self.pc_voice
@@ -255,7 +255,6 @@ Say the following as the following character, who is described as {self.backstor
     @classmethod
     def auto_post_init(cls, sender, document, **kwargs):
         super().auto_post_init(sender, document, **kwargs)
-        document.pre_save_ac()
 
     @classmethod
     def auto_pre_save(cls, sender, document, **kwargs):
