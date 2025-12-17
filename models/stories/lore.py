@@ -106,7 +106,7 @@ CHARACTER RESPONSES:
         log("Generating Lore Summary with prompt: " + prompt, _print=True)
         summary_result = self.lore.world.system.generate_text(
             prompt=prompt,
-            primer="Rewrite the scenario details into a cohesive narrative based on the scenario information and character responses in MARKDOWN. Feel free to embellish for dramatic effect, but keep the same narrative structure, sequence of events, and do not leave out any events that transpired.",
+            primer="Rewrite, in MARKDOWN, the scenario details  into a cohesive narrative based on the scenario information and character responses . Feel free to embellish for dramatic effect, but keep the same narrative structure, sequence of events, and do not leave out any events that transpired.",
         )
         if summary_result:
             log(f"Generated Lore Summary: {summary_result}", _print=True)
@@ -217,7 +217,7 @@ class Lore(AutoModel):
                             },
                             "actions": {
                                 "type": "string",
-                                "description": "Any actions the character takes in response to the situation, if any. Otherwise an empty string.",
+                                "description": "Any actions the character takes in response to the situation, if any. Use the first person perspective.",
                             },
                             "roll_type": {
                                 "type": "string",
