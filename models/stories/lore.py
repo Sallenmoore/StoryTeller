@@ -131,11 +131,14 @@ CHARACTER RESPONSES:
             )
             self.save()
             chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
-            self.graphic = Graphic.generate(
+            graphic = Graphic.generate(
                 prompt=f"""Create a detailed illustrated graphic novel style image that captures the key moments from the following scenario summary: {self.summary}. The image should be vibrant and dynamic, showcasing the main characters and significant events described in the summary. Use the uploaded images as references for character appearances.\nCharacter descriptions:\n\n{"\n\n".join([f"{c.name}: {c.description_summary}" for c in self.characters])}.""",
                 tags=["lore_summary", "graphic_novel_style"],
                 files=chars,
             )
+            if self.graphic:
+                self.graphic.delete()
+            self.graphic = graphic
             self.save()
 
     def get_response(self, character_name):
