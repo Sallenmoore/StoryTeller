@@ -21,8 +21,6 @@ services:
     command: ["/var/app/init.sh"]
     ports:
       - "${APP_PORT}:${COMM_PORT}"
-    depends_on:
-      - ${API_SERVICE_NAME}
   sttasks:
     image: ${APP_NAME}_tasks:latest
     build:
