@@ -81,6 +81,7 @@ class LoreScene(AutoModel):
     summary = StringAttr(default="")
     summary_audio = ReferenceAttr(choices=["Audio"])
     situation = StringAttr(default="")
+    guidance = StringAttr(default="")
     setting = ReferenceAttr(choices=["Place"])
     date = ReferenceAttr(choices=["Date"])
     associations = ListAttr(ReferenceAttr(choices=["TTRPGObject"]))
@@ -110,6 +111,8 @@ class LoreScene(AutoModel):
     def summarize(self):
         prompt = f"""In MARKDOWN, summarize the below scenario details as a detailed historical record. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
 {f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
+
+GUIDANCE: {self.guidance}
 
 The current situation: {self.situation}
 
@@ -392,6 +395,7 @@ NEXT SCENE: {self.situation}.
                 prompt=prompt,
                 setting=self.setting,
                 associations=self.associations,
+                guidance=self.guidance,
                 situation=self.situation,
                 date=self.current_date.copy(self),
             )
