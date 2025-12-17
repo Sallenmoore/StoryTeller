@@ -103,6 +103,17 @@ class LoreScene(AutoModel):
             )
         )
 
+    @property
+    def previous_summary(self):
+        prev = ""
+        if self.lore.scenes:
+            for scene in self.lore.scenes:
+                if scene.pk == self.pk:
+                    break
+                if scene.summary:
+                    prev = scene.summary
+        return prev
+
     def delete(self):
         if self.date:
             self.date.delete()
@@ -113,7 +124,7 @@ class LoreScene(AutoModel):
 
     def summarize(self):
         prompt = f"""In MARKDOWN, summarize the below scenario details as a detailed historical record. Do not include any information about the characters' internal thoughts, only what actually happened. Do not worry about conciseness. Be sure not leave out any events that transpired, not matter how small.
-{f"Summary of events up to current situation: {self.lore.last_summary}" if self.lore.last_summary else ""}
+{f"Summary of events up to current situation: {self.previous_summary}" if self.previous_summary else ""}
 
 GUIDANCE: {self.guidance}
 
