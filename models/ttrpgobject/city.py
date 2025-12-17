@@ -75,9 +75,7 @@ class City(Place):
     def generate(self):
         self._funcobj["name"] = f"generate_{self.title.lower()}"
         self._funcobj["description"] = f"completes the {self.title} data object"
-        prompt = f"""Generate a fictional {self.genre} {self.title} within the {self.world.name} {self.world.title}. The {self.title} inhabitants are {self.traits}. Write a detailed description appropriate for a {self.title}, and incorporate and emblellish on the following details into the description:
-{f"- BACKSTORY: {self.backstory}" if self.backstory else ""}
-{f"- DESCRIPTION: {self.desc}" if self.desc else ""}
+        prompt = f"""
 {f"- POPULATION: {self.population}"}
 {f"- CULTURE: {self.parent.culture}" if self.parent and self.parent.culture else ""}
 {f"- RELIGION: {self.parent.religion}" if self.parent and self.parent.religion else ""}

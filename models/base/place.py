@@ -51,10 +51,7 @@ class Place(TTRPGObject):
     def generate_map(self):
         # log(f"Generating Map with AI for {self.name} ({self})...", _print=True)
 
-        if self.backstory and self.backstory_summary:
-            if not self.map_prompt:
-                self.map_prompt = self.system.map_prompt(self)
-            # log(map_prompt)
+        if self.map_prompt:
             prompt = f"""{self.map_prompt}
 
 The map has the following features:
@@ -69,11 +66,11 @@ The map should be in a {self.world.map_style} style.
                 aspect_ratio="16:9",
                 image_size="4K",
             )
-            if self.map and map:
+            if self.map:
                 self.map.delete()
-                self.map = map
-                self.map.save()
-                self.save()
+            self.map = map
+            self.map.save()
+            self.save()
         else:
             raise AttributeError(
                 "Object must have a backstory and description to generate a map"
