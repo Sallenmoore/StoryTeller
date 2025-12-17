@@ -35,7 +35,7 @@ class LoreResponse(AutoModel):
     roll_result = IntAttr(default=0)
 
     def __str__(self):
-        return f"VERBAL: {self.verbal} THOUGHTS: {self.thoughts} ACTIONS: {self.actions} ROLL_EXPLANATION: {self.roll_explanation}  ROLL_RESULT: {self.roll_result}"
+        return f"[VERBAL] {self.verbal}; [THOUGHTS] {self.thoughts}; [ACTIONS] {self.actions}; [ROLL_EXPLANATION] {self.roll_explanation};  [ROLL_RESULT] {self.roll_result}"
 
     def delete(self):
         if self.verbal_audio:
@@ -122,7 +122,7 @@ CURRENT_DATE: {self.date}
 The current situation: {self.situation}
 
 CHARACTER RESPONSES:
-{"\n".join([f"\n{member.name}: {member.backstory}\nRESPONSE:{self.get_response(member.name)}" for member in self.party])}
+{"\n".join([f"\n{member.name}: {member.backstory}\nRESPONSE: {self.get_response(member.name)}" for member in self.party])}
 """
         log("Generating Lore Summary with prompt: " + prompt, _print=True)
         summary_result = self.lore.world.system.generate_text(
