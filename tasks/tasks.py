@@ -291,4 +291,4 @@ def _generate_lore_task(pk):
 def _generate_lore_summary_task(pk):
     ls = LoreScene.get(pk)
     ls.summarize()
-    return {"url": f"/lore/{ls.lore.pk}"}
+    return {"url": f"/lore/{ls.lore.pk}/edit"}
