@@ -1,3 +1,5 @@
+import base64
+
 from autonomous.auth import AutoAuth, auth_required
 from autonomous.model.automodel import AutoModel
 from flask import request, session
@@ -20,7 +22,12 @@ def loader(model=None, pk=None):
         request_data = request.args
         # log(f"get request: {request_data}")
     elif request.method == "POST":
-        request_data = request.json
+        if request.files:
+            request_data = dict(request.form)
+            for key, file in request.files.items():
+                request_data[key] = base64.b64encode(file.read()).decode("utf-8")
+        else:
+            request_data = dict(request.json)
         # log(f"post: {request_data}")
     user = AutoAuth.current_user()
     # log(user)

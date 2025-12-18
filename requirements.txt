@@ -14,9 +14,6 @@ pdoc
 ##### Database #####
 pymongo
 
-##### Frontend #####
-pillow
-
 ##### Network #####
 
 requests
@@ -30,6 +27,7 @@ rq-dashboard
 
 ##### Media #####
 mutagen
+pillow
 
 ##### Security #####
 

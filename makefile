@@ -5,6 +5,8 @@ UP_CMD=docker compose up --build -d
 DOWN_CMD=docker compose down --remove-orphans
 LOGS_CMD=docker compose logs -f
 APPCONTAINERS=$$(sudo docker ps --filter "name=${APP_NAME}" -q)
+# Define the production path for easier maintenance
+PROD_PATH = /root/prod/StoryTeller
 
 # **Use .ONESHELL**: By default, each line in a makefile is run in a separate shell. This can cause problems if you're trying to do something like change the current directory. You can use the `.ONESHELL:` directive to run all the commands in a target in the same shell.
 
@@ -54,7 +56,10 @@ initbackend:
 devdeploy:
 	-git commit -am "Updated"
 	-git push
-	-cd /root/prod/StoryTeller/;make clean;git checkout main;git pull;make prod
+	# 2. Update and restart Prod in the background
+	# We use 'sh -c' so nohup applies to the entire sequence of commands
+	@nohup sh -c "cd $(PROD_PATH) && make clean && git checkout main && git pull && make prod" > /dev/null 2>&1 &
+	-make backend
 
 
 ###### TESTING #######

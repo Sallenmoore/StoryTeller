@@ -279,6 +279,68 @@
 {%- endmacro %}
 
 {% macro transcribe(user, episode)%}
+{# <div class="callout">
+    <div class="cell medium-7">
+        <div class="callout">
+            <!-- Timer & Status Display -->
+            <h5 class="text-center font-weight-bold secondary padding-y-1">Session
+                Recorder Tool
+            </h5>
+            <div class="grid-x align-center">
+                <div class="cell shrink text-center">
+                    <span id="recording-status"
+                          class="label secondary rounded">Ready</span>
+                </div>
+                <div class="cell shrink text-center align-center-middle">
+                    <span id="recording-timer"
+                          class="h3 primary text-bold margin-left-1">00:00</span>
+                </div>
+            </div>
+            <!-- Volume Meter -->
+            <div class="grid-x align-center">
+                <div class="cell medium-8 small-10">
+                    <div id="volume-meter" class="progress primary margin-bottom-0"
+                         role="progressbar"
+                         tabindex="0" aria-valuenow="0" aria-valuemin="0"
+                         aria-valuemax="100">
+                        <div id="volume-bar" class="progress-meter"
+                             style="width: 0%">
+                            <p id="meter-text"
+                               class="progress-meter-text text-center text-secondary">
+                                Speak Now</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-x grid-margin-x grid-padding-y align-center-middle">
+                <!-- 1. Start Button -->
+                <div class="cell shrink">
+                    <button id="record-btn"
+                            class="button primary small margin-bottom-0"
+                            onclick="startRecording()">
+                        <iconify-icon icon="lucide:mic"
+                                      class="margin-right-1"></iconify-icon>
+                        Start
+                    </button>
+                </div>
+
+                <!-- 2. Stop & Save Audio Button -->
+                <div class="cell shrink">
+                    <button id="stop-btn" class="button alert small margin-bottom-0"
+                            disabled
+                            onclick="manualStopAndSave()">
+                        <iconify-icon icon="lucide:square"
+                                      class="margin-right-1"></iconify-icon>
+                        Stop & Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cell medium-2">
+        <h2 class='separator-center'>OR</h2>
+    </div>
+</div> #}
 <div class="callout">
     </h5>
     <div class="grid-x grid-margin-x grid-margin-y align-center"
@@ -292,70 +354,10 @@
                   hx-encoding="multipart/form-data"
                   hx-trigger="change from:#audio-upload"
                   hx-confirm='This will append to the current audio. If you want to replace the audio, clear it first. Proceed?'>
-                <div class="grid-x grid-margin-x align-center-middle text-center">
-                    <div class="cell medium-7">
-                        <div class="callout">
-                            <!-- Timer & Status Display -->
-                            <h5 class="text-center font-weight-bold secondary padding-y-1">Session
-                                Recorder Tool
-                            </h5>
-                            <div class="grid-x align-center">
-                                <div class="cell shrink text-center">
-                                    <span id="recording-status"
-                                          class="label secondary rounded">Ready</span>
-                                </div>
-                                <div class="cell shrink text-center align-center-middle">
-                                    <span id="recording-timer"
-                                          class="h3 primary text-bold margin-left-1">00:00</span>
-                                </div>
-                            </div>
-                            <!-- Volume Meter -->
-                            <div class="grid-x align-center">
-                                <div class="cell medium-8 small-10">
-                                    <div id="volume-meter" class="progress primary margin-bottom-0"
-                                         role="progressbar"
-                                         tabindex="0" aria-valuenow="0" aria-valuemin="0"
-                                         aria-valuemax="100">
-                                        <div id="volume-bar" class="progress-meter"
-                                             style="width: 0%">
-                                            <p id="meter-text"
-                                               class="progress-meter-text text-center text-secondary">
-                                                Speak Now</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="grid-x grid-margin-x grid-padding-y align-center-middle">
-                                <!-- 1. Start Button -->
-                                <div class="cell shrink">
-                                    <button id="record-btn"
-                                            class="button primary small margin-bottom-0"
-                                            onclick="startRecording()">
-                                        <iconify-icon icon="lucide:mic"
-                                                      class="margin-right-1"></iconify-icon>
-                                        Start
-                                    </button>
-                                </div>
-
-                                <!-- 2. Stop & Save Audio Button -->
-                                <div class="cell shrink">
-                                    <button id="stop-btn" class="button alert small margin-bottom-0"
-                                            disabled
-                                            onclick="manualStopAndSave()">
-                                        <iconify-icon icon="lucide:square"
-                                                      class="margin-right-1"></iconify-icon>
-                                        Stop & Save
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cell medium-2">
-                        <h2 class='separator-center'>OR</h2>
-                    </div>
-                    <div class="cell medium-3">
+                <div class="grid-x grid-margin-x grid-margin-y align-center-middle text-center">
+                    <div class="cell auto">
                         <label for="audio-upload"
-                               class="button large expanded secondary margin-bottom-0">
+                               class="button large expanded secondary">
                             <iconify-icon icon="lucide:upload"
                                           class="margin-right-1"></iconify-icon>
                             Upload Audio
