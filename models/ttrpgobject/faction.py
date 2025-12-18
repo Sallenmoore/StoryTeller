@@ -89,7 +89,7 @@ class Faction(TTRPGObject):
 
     @property
     def players(self):
-        return [c for c in self.characters if c.is_player]
+        return [c for c in self.members if hasattr(c, "is_player") and c.is_player]
 
     @property
     def members(self):

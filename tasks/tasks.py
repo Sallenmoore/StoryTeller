@@ -153,7 +153,7 @@ def _generate_ability_task(pk):
     else:
         log("Ability not found", _print=True)
     return {
-        "url": f"/ability/{obj.pk}/manage",
+        "url": f"/ability/{obj.pk}/ability_edit",
         "target": f"ability_{obj.pk}",
     }
 

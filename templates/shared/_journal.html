@@ -10,7 +10,7 @@
     </div>
     <div class="cell shrink">
         <div class="cell shrink align-center-middle">
-            <button class="button small" hx-post="/manage/journal/entry/edit"
+            <button class="button small" hx-post="/journal/entry/edit"
                     hx-target="#page-content">
                 {{icon_components.journal()}}
                 New Entry
@@ -60,7 +60,7 @@
                 </div>
                 <div class="cell shrink align-center-middle">
                     <button class="button small"
-                            hx-post="/manage/journal/entry/edit/{{entry.pk}}"
+                            hx-post="/journal/entry/edit/{{entry.pk}}"
                             hx-target="#page-content"
                             hx-push-url='false'>
                         Edit
@@ -69,7 +69,7 @@
                 <div
                      class="cell shrink align-center-middle">
                     <button class="button small"
-                            hx-post="/manage/journal/entry/delete/{{entry.pk}}"
+                            hx-post="/journal/entry/delete/{{entry.pk}}"
                             hx-target='closest li'
                             hx-swap="delete"
                             hx-confirm='Are you sure you want to delete this entry?'>
@@ -114,7 +114,7 @@
         </a>
     </div>
 </div>
-<form id="journal-entry-form" hx-post="/manage/journal/entry/update/{{entry.pk}}"
+<form id="journal-entry-form" hx-post="/journal/entry/update/{{entry.pk}}"
       hx-target="#page-content"
       hx-swap='none'
       hx-trigger='input delay:750ms, change'
@@ -157,7 +157,7 @@
     <div class="cell">
         <h3 class="text-center">Add Associations</h3>
         <input autocomplete="off" type="search" name="query"
-               hx-post="/manage/journal/entry/{{entry.pk}}/search"
+               hx-post="/journal/entry/{{entry.pk}}/search"
                hx-target="#journal-entry-association-search"
                hx-trigger="input delay:750ms consume, change consume, search"
                hx-on:input="this.value.length <= 1? this.closest('.has-dropdown').classList.remove('is-active'):this.closest('.has-dropdown').classList.add('is-active')">

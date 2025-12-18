@@ -42,6 +42,8 @@ class Ability(AutoModel):
     duration = StringAttr(default="")
     dice_roll = StringAttr(default="")
     mechanics = StringAttr(default="")
+    foundry_id = StringAttr(default="")
+    foundry_client_id = StringAttr(default="")
 
     _funcobj = {
         "name": "generate_ability",
@@ -152,7 +154,11 @@ TONE: {self.world.tone_description}.
         )
         log(f"Response: {response}", _print=True)
         if response:
-            self.name = self.name or response.get("name", "")
+            self.name = (
+                self.name
+                if self.name and self.name != "New Ability"
+                else response.get("name", "")
+            )
             self.action = response.get("action", self.action)
             self.category = response.get("category", self.category)
             for text in [

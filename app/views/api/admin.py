@@ -109,7 +109,7 @@ def manage():
 
 
 @admin_endpoint.route(
-    "/manage/images",
+    "/media/images",
     methods=(
         "GET",
         "POST",

@@ -42,7 +42,7 @@
     <div class="grid-x grid-margin-x align-spaced">
         {% for campaign in obj.campaigns %}
         <div
-             class="cell medium-4 {% if campaign.one_shot %} one-shot {% endif %} campaign-container">
+             class="cell medium-4 {% if campaign.one_shot %} one-shot hide {% endif %} campaign-container">
             <div class="callout">
                 <a href="/{{campaign.path}}">
                     <h3 class=' text-center'>{{campaign.name}}</h3>
@@ -60,7 +60,7 @@
                     </div>
                     <div class="cell">
                         <div class="callout has-text-justified bg-screen">
-                            {{campaign.description | safe}}
+                            {{campaign.description | striptags | safe}}
                         </div>
                     </div>
                 </div>

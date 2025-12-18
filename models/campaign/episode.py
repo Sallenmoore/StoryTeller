@@ -449,7 +449,6 @@ TRANSCRIPT:
     ###############################################################
     @classmethod
     def auto_post_init(cls, sender, document, **kwargs):
-        log("Auto Pre Save World")
         super().auto_post_init(sender, document, **kwargs)
 
         ###### MIGRATION: Graphic Model ######

@@ -29,14 +29,6 @@ macro = "campaigns"
 ###########################################################
 
 
-@campaign_endpoint.route("/manage", methods=("POST",))
-@campaign_endpoint.route("/<string:pk>/manage", methods=("POST",))
-def manage(pk=None):
-    user, *_ = _loader()
-    campaign = Campaign.get(pk or request.json.get("campaignpk"))
-    return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
-
-
 @campaign_endpoint.route("/<string:pk>/delete", methods=("POST",))
 def campaigndelete(pk):
     user, obj, request_data = _loader()
@@ -72,27 +64,13 @@ def addparty(pk):
     return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 
-@campaign_endpoint.route(
-    "/<string:pk>/associations",
-    methods=(
-        "GET",
-        "POST",
-    ),
-)
-def associations(pk):
+@campaign_endpoint.route("/<string:pk>/removeplayer/<string:cpk>", methods=("POST",))
+def removeplayer(pk, cpk):
     user, obj, request_data = _loader()
     campaign = Campaign.get(pk)
-    return get_template_attribute("models/_campaign.html", "associations")(
-        user, campaign
-    )
-
-
-@campaign_endpoint.route("/<string:pk>/removeplayer", methods=("POST",))
-def removeparty(pk):
-    user, obj, request_data = _loader()
-    campaign = Campaign.get(pk)
-    campaign.party = None
-    campaign.save()
+    character = Character.get(cpk)
+    character.faction = None
+    character.save()
     return get_template_attribute("models/_campaign.html", "manage")(user, campaign)
 
 

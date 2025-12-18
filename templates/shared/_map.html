@@ -48,7 +48,7 @@
                     a map </small>
                     {% endif %}
                     <br>
-                    <button class="button" hx-post="/manage/map/gallery"
+                    <button class="button" hx-post="/media/map/gallery"
                             hx-target="#map-container"
                             hx-swap="innerHTML show:#map-container:bottom"
                             hx-indicator="false">
@@ -79,7 +79,7 @@
                     </form>
             </div>
             <div class="cell medium-6">
-                <form hx-post="/manage/map/file/upload"
+                <form hx-post="/media/map/file/upload"
                       hx-ext="ignore:json-enc"
                       hx-encoding='multipart/form-data'
                       hx-select='#map-container'

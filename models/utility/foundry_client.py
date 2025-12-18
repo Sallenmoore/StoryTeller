@@ -86,7 +86,6 @@ class FoundryClient:
     def get_worlds(self):
         """Retrieves a list of available worlds."""
         response = self._request("GET", "clients")
-        log(response)
         return response.get("clients", [])
 
     def upload_image(self, image_url, image_path):
@@ -110,17 +109,17 @@ class FoundryClient:
         # log(response)
         return image_path
 
-    def get_scene(self, scene_id):
-        """Retrieves a specific scene within a specific world."""
-        return self._request("GET", f"get?clientId={self.client_id}", uuid=scene_id)
+    # def get_scene(self, scene_id):
+    #     """Retrieves a specific scene within a specific world."""
+    #     return self._request("GET", f"get?clientId={self.client_id}", uuid=scene_id)
 
-    def get_actor(self, actor_id):
-        """Retrieves a specific actor within a specific world."""
-        return self._request("GET", f"get?clientId={self.client_id}", uuid=actor_id)
+    # def get_actor(self, actor_id):
+    #     """Retrieves a specific actor within a specific world."""
+    #     return self._request("GET", f"get?clientId={self.client_id}", uuid=actor_id)
 
-    def get_item(self, item_id):
-        """Retrieves a specific item within a specific world."""
-        return self._request("GET", f"get?clientId={self.client_id}", uuid=item_id)
+    # def get_item(self, item_id):
+    #     """Retrieves a specific item within a specific world."""
+    #     return self._request("GET", f"get?clientId={self.client_id}", uuid=item_id)
 
     def push_actor(self, obj):
         """Creates a new Foundry actor (character)."""
@@ -128,6 +127,19 @@ class FoundryClient:
             "entityType": "Actor",
             "data": obj.to_foundry(),
         }
+
+        items = []
+        for item in obj.items:
+            self.push_item(obj)
+            if item.foundry_id:
+                log("Adding item:", item.name)
+                items += [{"_id": item.foundry_id}]
+        for ability in obj.abilities:
+            self.push_item(obj)
+            if ability.foundry_id:
+                log("Adding ability:", ability.name)
+                items += [{"_id": ability.foundry_id}]
+        actor_data["data"]["items"] = items
 
         if obj.image:
             actor_data["data"]["img"] = self.upload_image(
@@ -159,18 +171,21 @@ class FoundryClient:
             "entityType": "Item",
             "data": obj.to_foundry(),
         }
+        item_data["type"] = obj.type if obj.model_name() == "Item" else "feature"
         if obj.image:
             item_data["data"]["img"] = self.upload_image(
                 obj.image.url(), f"/assets/images/items/{obj.pk}.webp"
             )
 
-        if obj.foundry_id:
+        try:
             response = self._request(
                 "PUT",
                 f"update?clientId={self.client_id}&uuid={obj.foundry_id}",
                 **item_data,
             )
-        else:
+            log(response)
+        except Exception as e:
+            log("Error updating item:", e)
             response = self._request(
                 "POST", f"create?clientId={self.client_id}", **item_data
             )

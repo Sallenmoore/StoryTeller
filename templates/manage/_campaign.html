@@ -18,26 +18,18 @@
                 <h5>Ended: {{campaign.end_date}}</h5>
                 {% endif %}
             </div>
-        </div>
-    </div>
-    <div class="callout " style='position:relative;'>
-        {{campaign.summary | safe}}
-        <div style='position: absolute; bottom:0px; right:0px;'>
-            <div class="grid-x">
-                <div class="cell">
-                    <button class='button small' class="button"
-                            hx-post="/task/generate/campaign/{{campaign.pk}}/summary"
-                            hx-target='closest .cell'>
-                        Update Summary
-                    </button>
-                </div>
+            <div class="cell shrink">
+                <button class='button small' class="button"
+                        hx-post="/task/generate/campaign/{{campaign.pk}}/summary"
+                        hx-target='closest .cell'>
+                    Update Summary
+                </button>
             </div>
         </div>
     </div>
     <form hx-post="/campaign/{{campaign.pk}}/update" hx-swap='none'
           hx-trigger='input delay:0.5s'>
-        <div class="grid-x grid-margin-x align-center-middle align-spaced"
-             id="current-campaign-name">
+        <div class="grid-x grid-margin-x align-center-middle" id="current-campaign-name">
             <div class="cell shrink align-center-middle">
                 <h4>Name</h4>
             </div>
@@ -46,6 +38,8 @@
             </div>
             <div class="cell shrink align-center-middle">
                 <h4>One-Shot</h4>
+            </div>
+            <div class="cell shrink align-center-middle">
                 <select name="one_shot">
                     <option value="False" {% if not campaign.one_shot %} selected
                             {% endif %}>
@@ -59,64 +53,66 @@
             </div>
             <hr>
         </div>
-        <div class="grid-x" id="current-campaign-description">
-            <div class="cell">
-                <h3 class='text-center'>Description</h>
-                    {{form_components.richtexteditor(user, campaign, 'description', label=False)}}
+        <div class="callout">
+            <div class="grid-x" id="current-campaign-description">
+                <div class="cell">
+                    <h3 class='text-center'>Description</h>
+                        {{form_components.richtexteditor(user, campaign, 'description', label=False)}}
+                </div>
             </div>
         </div>
     </form>
-    <hr>
-    <div class="grid-x" id='campaign-players'>
-        <div class="cell medium-4">
-            <h5>Add Party</h5>
-            <div class="callout ">
-                <div class="is-multiple-select">
-                    <select
-                            name='party'
+    <div class="callout">
+        <h2>Party</h2>
+        <div class="grid-x" id='campaign-players'>
+            <div class="cell medium-3">
+                <h4>Add Party</h4>
+                <div class=" callout ">
+                    <select name='party'
                             style='max-height: 20rem;'
-                            hx-post="/campaign/{{campaign.pk}}/add/party"
+                            hx-post=" /campaign/{{campaign.pk}}/add/party"
                             hx-target="#campaign-players" hx-select="#campaign-players"
                             hx-swap="outerHTML" hx-indicator='#request-indicator'>
                         <option value=''>
                             ---
                         </option>
-                        {% for faction in campaign.world.factions%}
-                        {% if faction.is_player_faction %}
-                        <option value='{{faction.pk}}' {% if faction==campaign.party %} selected {%
+                        {% for faction in campaign.world.parties%}
+                        <option value='{{faction.pk}}' {% if faction==campaign.party %} selected
+                                {%
                                 endif %}
-                                style='height:3rem; text-align: end; {% if faction.image %} background:
-                            left / contain no-repeat url({{faction.image.url(size=50)}});{% endif %}
-                            font: 1.25rem "Rosarivo", cursive;'>
+                                style='height:3rem; text-align: end; font: 1.25rem "Rosarivo", cursive;'>
                             {{faction.name}}
                         </option>
-                        {%endif%}
                         {% endfor %}
                     </select>
+                    {% if campaign.party %}
+                    <hr>
+                    <h4 class='text-center'> Current Party </h4>
+                    <div class="grid-x align-center">
+                        <div class="cell medium-6">
+                            {{display_components.object_display(campaign.party, dim=250, type=False)}}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-        </div>
-        <div class="cell shrink">
-            {% if campaign.party %}
-            {{display_components.object_display(campaign.party, dim=250, type=False)}}
-            {% endif %}
-        </div>
-        <div class="cell">
-            <div class="callout">
-                <h3 class='text-center'> Players </h3>
-                <div class="grid-x align-spaced">
-                    {% for p in campaign.players %}
-                    <div class="cell medium-2 text-center">
-                        {{display_components.object_display(p, dim=250, type=False)}}
-                        <a
-                           hx-post="/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
-                           hx-target="#campaign-players" hx-select="#campaign-players"
-                           hx-swap="outerHTML" hx-indicator=' #request-indicator'
-                           hx-confirm="Are you sure you want to remove this player from the campaign?">
-                            {{icon_components.remove(size="1.5rem")}}
-                        </a>
+            <div class="cell medium-9">
+                <div class="callout">
+                    <h5 class='text-center'>Players</h5>
+                    <div class="grid-x align-spaced">
+                        {% for p in campaign.players %}
+                        <div class="cell medium-2 text-center">
+                            {{display_components.object_display(p, dim=250, type=False)}}
+                            <a
+                               hx-post="/campaign/{{campaign.pk}}/removeplayer/{{p.pk}}"
+                               hx-target="#campaign-players" hx-select="#campaign-players"
+                               hx-swap="outerHTML" hx-indicator=' #request-indicator'
+                               hx-confirm="Are you sure you want to remove this player from the campaign?">
+                                {{icon_components.remove(size="1.5rem")}}
+                            </a>
+                        </div>
+                        {% endfor%}
                     </div>
-                    {% endfor%}
                 </div>
             </div>
         </div>
@@ -129,14 +125,11 @@
             {% if campaign[obj_key] %}
             <hr>
             <h3 class='text-center'> {{title}} </h3>
-            <div class="grid-x align-spaced" id="episode-encounters">
+            <div class="grid-x grid-margin-x grid-margin-y align-spaced"
+                 id="episode-encounters">
                 {% for a in campaign[obj_key] %}
                 <div class="cell medium-2 episode-association-entry">
-                    <div class="grid-x">
-                        <div class="cell">
-                            {{display_components.object_display(a)}}
-                        </div>
-                    </div>
+                    {{display_components.object_display(a)}}
                 </div>
                 {% endfor %}
             </div>

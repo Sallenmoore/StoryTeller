@@ -54,11 +54,12 @@ initbackend:
 	cp -rf envs/backend/gunicorn.conf.py ./vendor
 
 devdeploy:
+	# 1. Commit and push local changes
 	-git commit -am "Updated"
 	-git push
 	# 2. Update and restart Prod in the background
-	# We use 'sh -c' so nohup applies to the entire sequence of commands
 	@nohup sh -c "cd $(PROD_PATH) && make clean && git checkout main && git pull && make prod" > /dev/null 2>&1 &
+	# 3. Restart Dev Backend
 	-make backend
 
 

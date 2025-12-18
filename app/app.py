@@ -43,6 +43,7 @@ from views import (
     index,
 )
 from views.api import (
+    ability,
     admin,
     campaign,
     dungeon,
@@ -50,8 +51,10 @@ from views.api import (
     episode,
     event,
     gmscreen,
+    journal,
     lore,
     manage,
+    media,
     nav,
     story,
     world,
@@ -117,6 +120,7 @@ def create_app():
     app.register_blueprint(admin.admin_endpoint, url_prefix="/admin")
     app.register_blueprint(nav.nav_endpoint, url_prefix="/nav")
     app.register_blueprint(manage.manage_endpoint, url_prefix="/manage")
+    app.register_blueprint(journal.journal_endpoint, url_prefix="/journal")
     app.register_blueprint(campaign.campaign_endpoint, url_prefix="/campaign")
     app.register_blueprint(story.story_endpoint, url_prefix="/story")
     app.register_blueprint(gmscreen.gmscreen_endpoint, url_prefix="/gmscreen")
@@ -126,5 +130,6 @@ def create_app():
     app.register_blueprint(world.world_endpoint, url_prefix="/world")
     app.register_blueprint(dungeon.dungeon_endpoint, url_prefix="/dungeon")
     app.register_blueprint(lore.lore_endpoint, url_prefix="/lore")
-
+    app.register_blueprint(ability.ability_endpoint, url_prefix="/ability")
+    app.register_blueprint(media.media_endpoint, url_prefix="/media")
     return app

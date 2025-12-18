@@ -160,6 +160,8 @@ class TTRPGObject(TTRPGBase):
         for a in associations:
             if a not in ancestry:
                 general.append(a)
+        if self.world in ancestry:
+            ancestry.remove(self.world)
         log("ASSOCIATIONS SPLIT", ancestry, general)
         return ancestry, general
 

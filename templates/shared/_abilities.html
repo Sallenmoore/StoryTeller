@@ -18,52 +18,13 @@
 </div>
 {%- endmacro %}
 
-{% macro ability_display(ability) -%}
-<a href="#" class="accordion-title">{{ability.name}}</a>
-<div class="accordion-content" data-tab-content>
-    <table class="ability">
-        <tr>
-            <th>Description</th>
-            <td>{{ability.description | safe}}</td>
-        </tr>
-        <tr>
-            <th>Details</th>
-            <td>
-                <table class="ability-subtable margin-0">
-                    <tr>
-                        <th>Category</th>
-                        <td>{{ability.category | safe}}</td>
-                        <th>Action</th>
-                        <td>{{ability.action | safe}}</td>
-                        <th>Duration</th>
-                        <td>{{ability.duration | striptags}}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <th>Roll</th>
-            <td>{{ability.dice_roll | safe}}</td>
-        </tr>
-        <tr>
-            <th>Mechanics</th>
-            <td>{{ability.mechanics | safe}}</td>
-        </tr>
-        <tr>
-            <th>Effects</th>
-            <td>{{ability.effects | safe}}</td>
-        </tr>
-    </table>
-</div>
-{%- endmacro %}
-
 {% macro manage(user, obj) -%}
 <div class="callout">
     {% if obj.model_name() != "World" %}
     <div class="grid-x align-spaced">
         <div class="cell shrink">
             <button type="button" class="button small"
-                    hx-post='/manage/add/new/ability'
+                    hx-post='/ability/new'
                     hx-target='#ability-item-list'
                     hx-select='#ability-item-list'
                     hx-swap='outerHTML' hx-trigger="click consume">
@@ -75,7 +36,7 @@
             <label for="ability-search-input">Add Existing Abilities
                 <select id="ability-search-input"
                         name="apk"
-                        hx-post='/manage/add/ability'
+                        hx-post='/ability/add'
                         hx-target='#ability-item-list'
                         hx-select='#ability-item-list'
                         hx-swap='outerHTML'
@@ -94,159 +55,27 @@
             </label>
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
-    {% for category in ["offensive", "defensive", "social", "support", "control", "movement"]%}
-    {# {% if obj.abilities | selectattr('category', 'equalto',
-    category) %} #}
-    <div class="cell">
-        <hr>
-        <h6>{{category | title}} </h6>
-        <ul class="accordion abilities" data-accordion data-multi-expand="true"
-            data-allow-all-closed="true">
-            {%for ability in obj.abilities | selectattr('category', 'equalto',
-            category)%}
-            <li id="ability_{{ability.pk}}" class="accordion-item" data-accordion-item>
-                {{ability_edit(user, ability)}}
-            </li>
-            {% endfor %}
-        </ul>
+    <div class="grid-x grid-margin-x align-spaced" id='ability-item-list'>
+        {% for category in ["offensive", "defensive", "social", "support", "control", "movement"]%}
+        {# {% if obj.abilities | selectattr('category', 'equalto',
+        category) %} #}
+        <div class="cell">
+            <hr>
+            <h6>{{category | title}} </h6>
+            <ul class="accordion abilities" data-accordion data-multi-expand="true"
+                data-allow-all-closed="true">
+                {%for ability in obj.abilities | selectattr('category', 'equalto',
+                category)%}
+                <li id="ability_{{ability.pk}}" class="accordion-item" data-accordion-item>
+                    {{ability_model.ability_edit(user, ability)}}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {# {% endif%} #}
+        {%endfor %}
     </div>
-    {# {% endif%} #}
-    {%endfor %}
-</div>
-{%- endmacro %}
-
-{% macro ability_edit(user, ability) -%}
-<a href="#" class="accordion-title">{{ability.name}}</a>
-<div class="accordion-content" data-tab-content>
-    <form hx-post='/manage/ability/{{ability.pk}}/update'
-          hx-trigger="click consume, change consume, input consume"
-          hx-swap='none'>
-        <table class="ability">
-            <tr>
-                <th>Name</th>
-                <td>
-                    <div class="grid-x grid-margin-x align-center-middle">
-                        <div class="cell auto">
-                            {{form_components.text_input("name", label=False, value=ability.name, style=ability.genre)}}
-                        </div>
-                        <div class="cell auto">
-                            <select name='type'>
-                                {%for t in ability.ABILITY_TYPES %}
-                                <option value="{{t}}" {% if ability.type==t %} selected {% endif %}>
-                                    {{t| title}}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="cell shrink">
-                            <div
-                                 hx-post='/manage/ability/{{ability.pk}}/generate'
-                                 hx-trigger="click consume"
-                                 hx-target='#ability_{{ability.pk}}'
-                                 hx-swap='innerHTML'
-                                 {% if ability.description %}
-                                 hx-prompt='Regenerate ability "{{ability.name}}"? This will replace all of the existing information.'
-                                 {% endif %}>
-                                {{icon_components.regenerate(size="1rem")}}
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>
-                    {{form_components.richtexteditor(user, ability, "description", name="description", label=False)}}
-                </td>
-            </tr>
-            <tr>
-                <th>Details</th>
-                <td>
-                    <table class="ability-subtable margin-0">
-                        <tr>
-                            <td>
-                                <label for="ability.category">Action Category</label>
-                                <div class="select">
-                                    <select name='category'
-                                            value="{{ability.category}}">
-                                        {%for a in [
-                                        "offensive",
-                                        "defensive",
-                                        "social",
-                                        "support",
-                                        "control",
-                                        "movement",
-                                        "utility",
-                                        ] %}
-                                        <option value="{{a}}" {% if ability.category==a %} selected
-                                                {% endif %}>{{a}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </td>
-                            <td>
-                                <label for="ability.action">Action Type</label>
-                                <div class="select">
-                                    <select name='action'
-                                            value="{{ability.action}}">
-                                        {%for a in ["main action", "bonus action", "reaction",
-                                        "free action", "passive"] %}
-                                        <option value="{{a}}" {% if ability.action==a %} selected {%
-                                                endif %}>{{a}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </td>
-                            <td>
-                                {{form_components.richtexteditor(user, ability, "duration", name="duration", label=False)}}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <th>Roll</th>
-                <td>
-                    {{form_components.richtexteditor(user, ability, "dice_roll", name="dice_roll", label=False)}}
-                </td>
-            </tr>
-            <tr>
-                <th>Mechanics</th>
-                <td>
-                    {{form_components.richtexteditor(user, ability, "mechanics", name="mechanics", label=False)}}
-                </td>
-            </tr>
-            <tr>
-                <th>Effects</th>
-                <td>
-                    {{form_components.richtexteditor(user, ability, "effects", name="effects", label=False)}}
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    <a
-                       hx-post='/manage/ability/{{ability.pk}}/remove'
-                       hx-target='#ability_{{ability.pk}}'
-                       hx-swap='delete' hx-trigger="click consume"
-                       hx-confirm='Are you sure you want to remove ability "{{ability.name}}"? This will NOT delete the ability from the world.'>
-                        {{icon_components.remove(size="1.5rem")}}
-                    </a>
-                </th>
-                <td>
-                    <a
-                       hx-post='/manage/ability/{{ability.pk}}/delete'
-                       hx-target='#ability_{{ability.pk}}'
-                       hx-swap='delete' hx-trigger="click consume"
-                       hx-confirm='Are you sure you want to permanently delete ability"{{ability.name}}"? This will remove it from all associated objects and cannot be undone.'>
-                        {{icon_components.delete(size="1.5rem")}}
-                    </a>
-                </td>
-            </tr>
-        </table>
-    </form>
 </div>
 {%- endmacro %}

@@ -30,32 +30,6 @@ story_endpoint = Blueprint("story", __name__)
 
 
 ###########################################################
-##                    Story Routes                    ##
-###########################################################
-@story_endpoint.route("/", methods=("POST",))
-@story_endpoint.route("/<string:pk>", methods=("POST",))
-def index(pk=None):
-    user, obj, request_data = _loader()
-    story = Story.get(pk or request.json.get("storypk"))
-    return get_template_attribute("models/_story.html", "index")(
-        user,
-        story,
-    )
-
-
-@story_endpoint.route("/manage", methods=("POST",))
-@story_endpoint.route("/<string:pk>/manage", methods=("POST",))
-def manage(pk=None):
-    user, obj, request_data = _loader()
-    obj.world.save()
-    story = Story.get(pk or request.json.get("storypk"))
-    return get_template_attribute("models/_story.html", "manage")(
-        user,
-        story,
-    )
-
-
-###########################################################
 ##                    Story CRUD Routes                  ##
 ###########################################################
 @story_endpoint.route("/new", methods=("POST",))
