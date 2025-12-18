@@ -60,7 +60,7 @@ devdeploy:
 	# 2. Update and restart Prod in the background
 	@nohup sh -c "cd $(PROD_PATH) && make clean && git checkout main && git pull && make prod" > /dev/null 2>&1 &
 	# 3. Restart Dev Backend
-	-make backend
+	-make cleanbackend
 
 
 ###### TESTING #######
