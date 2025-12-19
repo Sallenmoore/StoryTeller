@@ -1,16 +1,9 @@
 import io
-import random
 
-import requests
 from autonomous.ai.imageagent import ImageAgent
 from autonomous.model.autoattr import (
-    ListAttr,
-    ReferenceAttr,
     StringAttr,
 )
-from autonomous.model.automodel import AutoModel
-from bs4 import BeautifulSoup
-from PIL import Image as ImageTools
 
 from autonomous import log
 from models.utility import parse_attributes, tasks
@@ -19,8 +12,6 @@ from .image import Image
 
 
 class Graphic(Image):
-    description = StringAttr(default="")
-
     @classmethod
     def generate(cls, prompt, **kwargs):
         graphic_obj = cls(prompt=prompt, tags=["graphic", *kwargs.get("tags", [])])
@@ -60,22 +51,10 @@ class Graphic(Image):
         graphic_obj.data.put(image.data.read(), content_type="image/webp")
         return graphic_obj
 
-    def generate_graphic(self):
-        if not self.graphic_description:
-            self.generate_graphic_description()
-        # log(f"Graphic Description: {description}", _print=True)
-        chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
-        if image := Image.generate(
-            prompt=self.graphic_description,
-            tags=["episode", "graphic"],
-            text=True,
-            files=chars,
-        ):
-            if self.graphic:
-                self.graphic.delete()
-            self.graphic = image
-            self.graphic.save()
-            self.save()
-        else:
-            log("Image generation failed.", _print=True)
-        return self.graphic
+    @property
+    def description(self):
+        return self.prompt
+
+    @description.setter
+    def description(self, value):
+        self.prompt = value

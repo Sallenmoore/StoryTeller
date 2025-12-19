@@ -27,6 +27,15 @@
 {% endif %}
 {%- endmacro %}
 
+{% macro area(size="2rem", label="") -%}
+<iconify-icon icon="ph:map-pin-simple-area" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
+
 
 {% macro apple(size="2rem", label="") -%}
 <iconify-icon icon="devicon:apple" width="{{ size }}"></iconify-icon>
@@ -67,6 +76,15 @@
 {% endif %}
 {%- endmacro %}
 
+
+{% macro campaign(size="2rem", label="") -%}
+<iconify-icon icon="gis:bus-map" width="{{ size }}"></iconify-icon>
+{% if label %}
+<label>
+    {{ label }}
+</label>
+{% endif %}
+{%- endmacro %}
 
 {% macro campaigns(size="2rem", label="") -%}
 <iconify-icon icon="gis:bus-map" width="{{ size }}"></iconify-icon>
