@@ -29,7 +29,7 @@
                 {{icon_components.details(size="1rem")}}
             </div>
             <div class="cell auto">
-                <span>Details</span>
+                <span>Builder</span>
             </div>
         </div>
     </a>
@@ -67,18 +67,36 @@
         {% if lore.last_summary %}
         <div class="cell">
             <div class="callout bg-screen">
-                {% if lore.last_summary_audio %}
-                <audio controls>
-                    <source src="{{lore.last_summary_audio.url()}}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
-                {% endif %}
-                {% if lore.graphic %}
-                <div class="float-right" style="position:relative;width:50%;">
+                <div id='lore-summary-audio'>
+                    {% if lore.last_summary_audio %}
+                    <audio controls>
+                        <source src="{{lore.last_summary_audio.url()}}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    {%else%}
+                    <span class="label secondary" hx-get="/lore/{{lore.pk}}"
+                          hx-target="#lore-summary-audio"
+                          hx-select="#lore-summary-audio" hx-swap="outerHTML"
+                          hx-trigger="load delay:1s">
+                        Generating audio...</span>
+                    <img src="/static/images/gear-spinner.svg" alt="Loading..."
+                         style="width:1rem; height:1rem; vertical-align: middle;" />
+                    {% endif %}
+                </div>
+
+                <div id="lore-graphic" class="float-right" style="position:relative;width:50%;">
+                    {% if lore.graphic %}
                     <img src="{{lore.graphic.url()}}" alt="{{lore.name}}"
                          style="width:100%; height: 50%;" />
+                    {%else%}
+                    <span class="label secondary" hx-get="/lore/{{lore.pk}}"
+                          hx-target="#lore-graphic"
+                          hx-select="#lore-graphic" hx-swap="outerHTML" hx-trigger="load delay:1s">
+                        Generating graphic...</span>
+                    <img src="/static/images/gear-spinner.svg" alt="Loading..."
+                         style="width:1rem; height:1rem; vertical-align: middle;" />
+                    {% endif %}
                 </div>
-                {% endif %}
                 <div class='lead padding-top-1'>
                     {{lore.last_summary | safe}}
                 </div>
@@ -172,29 +190,46 @@
                              onmouseout="this.classList.add('bg-muted');">
                             <strong>Verbal Response:</strong>
                             {{lore.get_response(o.name).verbal}}
-                            {% if lore.get_response(o.name).verbal_audio %}
-                            <br>
-                            <audio controls>
-                                <source src="{{lore.get_response(o.name).verbal_audio.url()}}"
-                                        type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                            {% endif %}
+                            <div id='lore-response-{{o.pk}}-verbal-audio'>
+                                {% if lore.get_response(o.name).verbal_audio %}
+                                <audio controls>
+                                    <source src="{{lore.get_response(o.name).verbal_audio.url()}}"
+                                            type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                {%else%}
+                                <span class="label secondary" hx-get="/lore/{{lore.pk}}"
+                                      hx-target="#lore-response-{{o.pk}}-verbal-audio"
+                                      hx-select="#lore-response-{{o.pk}}-verbal-audio"
+                                      hx-swap="outerHTML" hx-trigger="load delay:1s">
+                                    Generating audio...</span>
+                                <img src="/static/images/gear-spinner.svg" alt="Loading..."
+                                     style="width:1rem; height:1rem; vertical-align: middle;" />
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="callout bg-muted"
                              onmouseover="this.classList.remove('bg-muted');"
                              onmouseout="this.classList.add('bg-muted');">
                             <strong>Thoughts:</strong>
                             {{lore.get_response(o.name).thoughts}}
-                            {% if lore.get_response(o.name).thoughts_audio %}
-                            <br>
-                            <audio controls>
-                                <source src="{{lore.get_response(o.name).thoughts_audio.url()}}"
-                                        type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-
-                            {% endif %}
+                            <div id='lore-response-{{o.pk}}-thoughts-audio'>
+                                {% if lore.get_response(o.name).thoughts_audio %}
+                                <audio controls>
+                                    <source src="{{lore.get_response(o.name).thoughts_audio.url()}}"
+                                            type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                {% else %}
+                                <span class="label secondary" hx-get="/lore/{{lore.pk}}"
+                                      hx-target="#lore-response-{{o.pk}}-thoughts-audio"
+                                      hx-select="#lore-response-{{o.pk}}-thoughts-audio"
+                                      hx-swap="outerHTML" hx-trigger="load delay:1s">
+                                    Generating audio...</span>
+                                <img src="/static/images/gear-spinner.svg" alt="Loading..."
+                                     style="width:1rem; height:1rem; vertical-align: middle;" />
+                                {% endif %}
+                            </div>
                         </div>
 
                         <div class="callout bg-muted"
@@ -202,14 +237,23 @@
                              onmouseout="this.classList.add('bg-muted');">
                             <strong>Actions Taken:</strong>
                             {{lore.get_response(o.name).actions}}
-                            {% if lore.get_response(o.name).actions_audio %}
-                            <br>
-                            <audio controls>
-                                <source src="{{lore.get_response(o.name).actions_audio.url()}}"
-                                        type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                            {% endif %}
+                            <div id='lore-response-{{o.pk}}-actions-audio'>
+                                {% if lore.get_response(o.name).actions_audio %}
+                                <audio controls>
+                                    <source src="{{lore.get_response(o.name).actions_audio.url()}}"
+                                            type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                {% else %}
+                                <span class="label secondary" hx-get="/lore/{{lore.pk}}"
+                                      hx-target="#lore-response-{{o.pk}}-actions-audio"
+                                      hx-select="#lore-response-{{o.pk}}-actions-audio"
+                                      hx-swap="outerHTML" hx-trigger="load delay:1s">
+                                    Generating audio...</span>
+                                <img src="/static/images/gear-spinner.svg" alt="Loading..."
+                                     style="width:1rem; height:1rem; vertical-align: middle;" />
+                                {% endif %}
+                            </div>
                         </div>
                         {% if lore.get_response(o.name).roll_type %}
                         <div class="callout bg-muted"

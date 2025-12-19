@@ -23,7 +23,7 @@
         <div class="cell shrink">
             <div class="grid-x grid-margin-y">
                 {% for entry in obj.lore%}
-                <div class="cell">
+                <div class="cell position-relative">
                     <a href="/lore/{{entry.pk}}">
                         <div class="callout">
                             <div class="grid-x grid-margin-x">
@@ -39,6 +39,16 @@
                             </div>
                         </div>
                     </a>
+                    <div class="position-absolute padding-1" style='bottom:0;right:0;'>
+                        <button class="button small" hx-post="/lore/{{entry.pk}}/delete"
+                                hx-target="#lore-container"
+                                hx-select="#lore-container"
+                                hx-swap='outerHTML'
+                                hx-confirm='Are you sure you want to delete this lore? This cannot be undone.'
+                                hx-indicator='#request-indicator'>
+                            {{icon_components.delete(size="1rem")}}
+                        </button>
+                    </div>
                 </div>
                 {% endfor %}
             </div>

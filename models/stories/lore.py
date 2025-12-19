@@ -21,7 +21,7 @@ from models.utility.parse_attributes import parse_text
 
 class LoreResponse(AutoModel):
     obj = ReferenceAttr(choices=["Character"], required=True)
-    scene = ReferenceAttr(choices=["LoreScene"])
+    scene = ReferenceAttr(choices=["LoreScene"], required=True)
     verbal = StringAttr(default="")
     verbal_audio = ReferenceAttr(choices=["Audio"])
     thoughts = StringAttr(default="")
@@ -37,6 +37,10 @@ class LoreResponse(AutoModel):
     def __str__(self):
         return f"[VERBAL] {self.verbal}; [THOUGHTS] {self.thoughts}; [ACTIONS] {self.actions}; [ROLL_EXPLANATION] {self.roll_explanation};  [ROLL_RESULT] {self.roll_result}"
 
+    @property
+    def lore(self):
+        return self.scene.lore
+
     def delete(self):
         if self.verbal_audio:
             self.verbal_audio.delete()
@@ -44,6 +48,7 @@ class LoreResponse(AutoModel):
             self.thoughts_audio.delete()
         if self.actions_audio:
             self.actions_audio.delete()
+        log("deleteing LoreResponse")
         super().delete()
 
     def roll(self):
@@ -117,6 +122,10 @@ class LoreScene(AutoModel):
     def delete(self):
         if self.date:
             self.date.delete()
+        if self.graphic:
+            self.graphic.delete()
+        if self.summary_audio:
+            self.summary_audio.delete()
         for r in self.responses:
             if isinstance(r, LoreResponse):
                 r.delete()
@@ -144,21 +153,32 @@ CHARACTER RESPONSES:
             log(f"Generated Lore Summary: {summary_result}", _print=True)
             self.summary = parse_text(self, summary_result)
             self.save()
-            self.summary_audio = Audio.tts(
-                audio_text=self.summary,
-                voice=random.choice(self.party).voice,
+            requests.post(
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/scene/{self.pk}/summary/audio"
             )
-            self.save()
-            chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
-            graphic = Graphic.generate(
-                prompt=f"""Create a detailed illustrated graphic novel style image that captures the key moments from the following scenario summary: {self.summary}. The image should be vibrant and dynamic, showcasing the main characters and significant events described in the summary. Use the uploaded images as references for character appearances.\nCharacter descriptions:\n\n{"\n\n".join([f"{c.name}: {c.description_summary}" for c in self.characters])}.""",
-                tags=["lore_summary", "graphic_novel_style"],
-                files=chars,
+            requests.post(
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/scene/{self.pk}/summary/graphic"
             )
-            if self.graphic:
-                self.graphic.delete()
-            self.graphic = graphic
-            self.save()
+
+    def generate_summary_audio(self):
+        self.summary_audio = Audio.tts(
+            audio_text=self.summary,
+            voice=random.choice(self.party).voice,
+        )
+        self.save()
+
+    def generate_graphic(self):
+        chars = {f"{c.slug}.webp": c.image for c in self.characters if c.image}
+        graphic = Graphic.generate(
+            prompt=f"""Create a detailed illustrated graphic novel style image that captures the key moments from the following scenario summary: {self.summary}. The image should be vibrant and dynamic, showcasing the main characters and significant events described in the summary. Use the uploaded images as references for character appearances.\nCharacter descriptions:\n\n{"\n\n".join([f"{c.name}: {c.description_summary}" for c in self.characters])}.""",
+            tags=["lore_summary", "graphic_novel_style"],
+            files=chars,
+        )
+        if self.graphic:
+            self.graphic.delete()
+        self.graphic = graphic
+        log(f"Generated graphic for LoreScene: {self.graphic}", _print=True)
+        self.save()
 
     def get_response(self, character_name):
         for response in self.responses:
@@ -315,10 +335,9 @@ class Lore(AutoModel):
     @property
     def summary(self):
         result = ""
-        i = -1
         scenes = self.scenes[::]
         while not result and scenes:
-            result = scenes[i].summary if scenes else ""
+            result = scenes[-1].summary if scenes else ""
             scenes = scenes[:-1]
         return result
 
@@ -356,6 +375,7 @@ class Lore(AutoModel):
         if self.current_date:
             self.current_date.delete()
         for scene in self.scenes:
+            log("deleting scene")
             scene.delete()
         super().delete()
 
@@ -391,11 +411,11 @@ LORE SCENARIO CURRENT DATE: {self.current_date}
         prompt += f"""
 The party should respond to the following:
 
-{f"CURRENT SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory}" if self.setting else ""}.
-
 {f"CONTEXT GUIDANCE: {self.guidance}" if self.guidance else ""}
 
-NEXT SCENE: {self.situation}.
+{f"CURRENT SETTING:{self.setting.name}:  {self.setting.description} {self.setting.backstory_summary}" if self.setting else ""}.
+
+SCENE: {self.situation}.
 """
 
         log("Generating Expanded Lore with prompt: " + prompt, _print=True)
@@ -419,12 +439,16 @@ NEXT SCENE: {self.situation}.
             self.scenes += [ls]
             self.save()
             for resp in result["responses"]:
-                log(f"Response: {resp}", _print=True)
-                obj = [
-                    member
-                    for member in self.party
-                    if member.name == resp.get("character_name")
-                ][0]
+                obj = None
+                for member in self.party:
+                    if member.name == resp.get("character_name"):
+                        obj = member
+                        break
+                if not obj:
+                    log(
+                        f"No matching character found for response: {resp}", _print=True
+                    )
+                    continue
                 lr = LoreResponse(obj=obj, scene=ls)
                 lr.verbal = resp.get("verbal", "")
                 lr.thoughts = resp.get("thoughts", "")
@@ -439,12 +463,14 @@ NEXT SCENE: {self.situation}.
                     resp.delete()
                 ls.responses += [lr]
                 ls.save()
-                lr.generate_audio()
+                requests.post(
+                    f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/response/{lr.pk}/audio"
+                )
+            requests.post(
+                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/scene/{ls.pk}/summary"
+            )
             self.situation = result.get("situation", "")
             self.save()
-            requests.post(
-                f"http://{os.environ.get('TASKS_SERVICE_NAME')}:{os.environ.get('COMM_PORT')}/generate/lore/{ls.pk}/summary"
-            )
         else:
             log("Failed to generate Lore", _print=True)
 

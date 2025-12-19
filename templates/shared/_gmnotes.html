@@ -95,7 +95,7 @@
 </ul>
 <div class="tabs-content" data-tabs-content="reference-tabs">
     {% for a in obj.associations|sort(attribute='name') %}
-    <div class="tabs-panel is-active" id="{{a.pk}}">
+    <div class="tabs-panel" id="{{a.pk}}">
         <ul>
             <li><strong>Backstory</strong>: {{a.backstory_summary | safe}}</li>
             <li><strong>Sensory Detail</strong>: {{a.sensory_details | random | safe}}</li>

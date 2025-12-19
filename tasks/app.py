@@ -318,9 +318,21 @@ def create_app():
     def generate_lore(pk):
         return _generate_task(tasks._generate_lore_task, pk=pk)
 
-    @app.route("/generate/lore/<string:pk>/summary", methods=("POST",))
-    def generate_lore_summary(pk):
-        return _generate_task(tasks._generate_lore_summary_task, pk=pk)
+    @app.route("/generate/lore/scene/<string:pk>/summary", methods=("POST",))
+    def generate_lore_scene_summary(pk):
+        return _generate_task(tasks._generate_lore_scene_summary_task, pk=pk)
+
+    @app.route("/generate/lore/scene/<string:pk>/summary/audio", methods=("POST",))
+    def generate_lore_scene_summary_audio(pk):
+        return _generate_task(tasks._generate_lore_scene_summary_audio_task, pk=pk)
+
+    @app.route("/generate/lore/scene/<string:pk>/summary/graphic", methods=("POST",))
+    def generate_lore_scene_summary_graphic(pk):
+        return _generate_task(tasks._generate_lore_scene_summary_graphic_task, pk=pk)
+
+    @app.route("/generate/lore/response/<string:pk>/audio", methods=("POST",))
+    def generate_lore_response_audio(pk):
+        return _generate_task(tasks._generate_lore_response_audio_task, pk=pk)
 
     ###############################################################################
     # Story Generation Endpoints

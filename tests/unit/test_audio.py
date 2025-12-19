@@ -26,13 +26,8 @@ class TestAudioModel:
         return b"fake audio content"
 
     @pytest.fixture
-    def mock_audio_agent(self):
-        with patch("app.models.audio.AudioAgent") as mock:
-            yield mock
-
-    @pytest.fixture
     def mock_requests(self):
-        with patch("app.models.audio.requests") as mock:
+        with patch("models.audio.requests") as mock:
             yield mock
 
     def test_from_file_success(self, mock_file_content, mock_db):

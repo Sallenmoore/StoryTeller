@@ -67,7 +67,7 @@ from filters.utils import bonus, get_icon, roll_dice
 from models.user import User
 
 
-def create_app():
+def create_app(config=None):
     """
     Create and configure the Flask application.
 
@@ -75,7 +75,7 @@ def create_app():
         Flask: The configured Flask app object.
     """
     app = Flask(os.getenv("APP_NAME", __name__))
-    app.config.from_object(Config)
+    app.config.from_object(config or Config)
     AutoAuth.user_class = User
 
     # Configure Extensions

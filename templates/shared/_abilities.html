@@ -11,7 +11,7 @@
         data-allow-all-closed="true">
         {%for ability in obj.abilities %}
         <li class="accordion-item" data-accordion-item>
-            {{ability_display(ability)}}
+            {{ability_model.ability_display(ability)}}
         </li>
         {% endfor %}
     </ul>

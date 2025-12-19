@@ -15,7 +15,7 @@ from models.dungeon.dungeon import Dungeon
 from models.dungeon.dungeonroom import DungeonRoom
 from models.gmscreen.gmscreentable import GMScreenTable
 from models.stories.event import Event
-from models.stories.lore import Lore, LoreScene
+from models.stories.lore import Lore, LoreResponse, LoreScene
 from models.stories.quest import Quest
 from models.stories.story import Story
 from models.ttrpgobject.ability import Ability
@@ -282,13 +282,37 @@ def _generate_event_summary_task(pk):
     return {"url": f"/{event.path}/manage"}
 
 
+###############################################################################
+# Lore Generation Endpoints
+# MARK: LORE
+###############################################################################
+
+
 def _generate_lore_task(pk):
     lore = Lore.get(pk)
     lore.generate()
     return {"url": f"/lore/{lore.pk}"}
 
 
-def _generate_lore_summary_task(pk):
+def _generate_lore_scene_summary_task(pk):
     ls = LoreScene.get(pk)
     ls.summarize()
     return {"url": f"/lore/{ls.lore.pk}"}
+
+
+def _generate_lore_scene_summary_audio_task(pk):
+    ls = LoreScene.get(pk)
+    ls.generate_summary_audio()
+    return {"url": f"/lore/{ls.lore.pk}"}
+
+
+def _generate_lore_scene_summary_graphic_task(pk):
+    ls = LoreScene.get(pk)
+    ls.generate_graphic()
+    return {"url": f"/lore/{ls.lore.pk}"}
+
+
+def _generate_lore_response_audio_task(pk):
+    lr = LoreResponse.get(pk)
+    lr.generate_audio()
+    return {"url": f"/lore/{lr.lore.pk}"}

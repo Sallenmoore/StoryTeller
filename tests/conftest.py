@@ -24,12 +24,6 @@ def client(app):
     return app.test_client()
 
 
-@pytest.fixture(scope="session")
-def runner(app):
-    """A test runner for the app's click commands."""
-    return app.test_cli_runner()
-
-
 @pytest.fixture(scope="function")
 def mock_db(app):
     """
