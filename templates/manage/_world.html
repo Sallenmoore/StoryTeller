@@ -172,16 +172,17 @@
         </form>
     </div>
 </div>
-<div class="grid-x">
+<div id="users-container" class="grid-x">
     <div class="cell auto">
         <h4>Add Users</h4>
-        <form id="add_user_form" hx-post="/manage/{{obj.path}}/user/add"
-              hx-target="closest .row"
+        <form id="add_user_form" hx-post="/{{obj.path}}/user/add"
+              hx-target="#users-container"
+              hx-select="#users-container"
               hx-swap="outerHTML"
               hx-confirm="By adding this user, they will be able to make changes to the world. Are you sure?">
             <div class="grid-x is-vertical">
                 <div class="cell">
-                    <input type="email" name="new_user" id="new_user"
+                    <input type="email" name="email" id="email" required
                            placeholder="enter user email">
                 </div>
                 <div class="cell">
@@ -195,7 +196,7 @@
                     <h4>Users</h4>
                     <ul class="has-no-list-style" id="userlist">
                         {% for u in obj.users %}
-                        <li>{{u.name}}</li>
+                        <li>{{u.name}} [{{u.email}}]</li>
                         {% endfor %}
                     </ul>
                 </div>

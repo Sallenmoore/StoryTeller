@@ -20,8 +20,10 @@ from models.stories.lore import Lore
 from models.stories.quest import Quest  # for the importer
 from models.stories.story import Story
 from models.ttrpgobject.character import Character
+from models.user import User
 from models.world import World
 
+from ._utilities import email as _email
 from ._utilities import loader as _loader
 
 world_endpoint = Blueprint("world", __name__)
@@ -48,6 +50,33 @@ def build():
 def buildform():
     user, obj, request_data = _loader()
     return get_template_attribute("home.html", "worldbuild")(user=user)
+
+
+@world_endpoint.route("/<string:pk>/user/add", methods=("POST",))
+def useradd(pk):
+    user, world, request_data = _loader()
+    log(request_data.get("email"))
+    if request_data.get("email"):
+        if new_user := User.search(email=request_data["email"]):
+            new_user = new_user[0]
+        else:
+            new_user = User(email=request_data["email"], role="user")
+            new_user.save()
+            # # Send invitation email
+            # from utilities.email import send_email
+
+            # send_email(
+            #     subject="You're invited to join a world",
+            #     recipients=[new_user.email],
+            #     template="email/invitation.html",
+            #     context={"world": world, "user": new_user},
+            # )
+        world.add_user(new_user)
+        world.save()
+    return get_template_attribute("models/_world.html", "manage")(
+        user,
+        world,
+    )
 
 
 @world_endpoint.route("/campaign/new", methods=("POST",))

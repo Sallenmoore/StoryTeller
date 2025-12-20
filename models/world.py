@@ -351,7 +351,7 @@ class World(TTRPGBase):
     def world(self):
         return self
 
-    ########################## Override Methods #############################
+    ########################## CRUD Methods #############################
 
     def delete(self):
         objs = [
@@ -388,6 +388,13 @@ class World(TTRPGBase):
         return self
 
     ###################### Setter Methods ########################
+    def add_user(self, user):
+        user.save()
+        if user not in self.users:
+            self.users += [user]
+            self.save()
+        return self.users
+
     def add_association(self, obj):
         obj.world = self
         obj.save()
