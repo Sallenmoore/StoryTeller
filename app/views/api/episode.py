@@ -43,10 +43,10 @@ def edit_episode(pk=None):
     pk = pk or request_data.get("episodepk")
     log(request_data)
     if episode := Episode.get(pk):
-        start_date = request_data.get("start_date", episode.start_date)
+        start_date = request_data.get("start_date")
         if start_date and start_date["year"]:
             episode.start_date = start_date
-        end_date = request_data.get("end_date", episode.end_date)
+        end_date = request_data.get("end_date")
         if end_date and end_date["year"]:
             episode.end_date = end_date
         for field in [

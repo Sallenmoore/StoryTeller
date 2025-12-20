@@ -458,10 +458,13 @@ The image should be in a {self.world.image_style} style.
         if obj not in self.associations:
             self.associations += [obj]
             self.save()
-        # log(len(self.associations), obj in self.associations)
-        # if not obj.parent and obj.in_parent_list(self):
-        #     obj.parent = self
-        #     obj.save()
+
+        self.associations = sorted(
+            set(self.associations),
+            key=lambda a: (a.model_name(), getattr(a, "name", "")),
+        )
+        self.save()
+
         return obj
 
     def add_associations(self, objs):

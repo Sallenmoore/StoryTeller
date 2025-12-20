@@ -29,7 +29,7 @@ from models.stories.event import Event
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
-from models.utility.parse_attributes import parse_text
+from models.utility.parse_attributes import parse_attributes
 
 
 class Episode(AutoModel):
@@ -67,6 +67,10 @@ class Episode(AutoModel):
             except Exception as e:
                 print(f"Error reading file: {e}")
         return "00:00"
+
+    @property
+    def calendar(self):
+        return self.world.calendar
 
     @property
     def campaign_summary(self):
@@ -122,6 +126,12 @@ class Episode(AutoModel):
     @property
     def graphic_description(self):
         return self.graphic.description if self.graphic else ""
+
+    @graphic_description.setter
+    def graphic_description(self, value):
+        if self.graphic:
+            self.graphic.description = value
+            self.graphic.save()
 
     @property
     def items(self):
@@ -206,22 +216,7 @@ class Episode(AutoModel):
 
     @start_date.setter
     def start_date(self, value):
-        if isinstance(value, Date):
-            if value != self.start_date_obj:
-                if self.start_date_obj:
-                    self.start_date_obj.delete()
-                self.start_date_obj = value
-        elif not value:
-            self.start_date_obj = None
-            return
-        elif isinstance(value, dict):
-            if self.start_date_obj:
-                self.start_date_obj.delete()
-            self.start_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
-        else:
-            log(f"Invalid start_date value: {value}")
-            raise ValueError("start_date must be a Date instance or dict")
-        self.start_date_obj.save()
+        self.start_date_obj = value
 
     @property
     def end_date(self):
@@ -229,23 +224,7 @@ class Episode(AutoModel):
 
     @end_date.setter
     def end_date(self, value):
-        if isinstance(value, Date):
-            if value != self.end_date_obj:
-                if self.end_date_obj:
-                    self.end_date_obj.delete()
-                self.end_date_obj = value
-                self.end_date_obj.save()
-        elif isinstance(value, dict):
-            if self.end_date_obj:
-                self.end_date_obj.delete()
-            self.end_date_obj = Date(obj=self, calendar=self.world.calendar, **value)
-            self.end_date_obj.save()
-        elif not value:
-            self.end_date_obj = None
-            return
-        else:
-            log(f"Invalid start_date value: {value}")
-            raise ValueError("start_date must be a Date instance or dict")
+        self.end_date_obj = value
 
     @property
     def world(self):
@@ -356,18 +335,13 @@ class Episode(AutoModel):
     def get_scene(self, pk):
         return Location.get(pk) or District.get(pk)
 
-    def set_as_current(self):
-        self.campaign.current_episode = self
-        self.campaign.save()
-        return self.campaign
-
     def add_association(self, obj):
         if not obj:
             raise ValueError("obj must be a valid object")
         if obj not in self.associations:
             self.associations += [obj]
+            self.associations.sort(key=lambda x: (x.model_name(), x.name))
             self.save()
-            obj.save()
         return obj
 
     def add_event(self, event):
@@ -464,9 +438,7 @@ TRANSCRIPT:
     def auto_pre_save(cls, sender, document, **kwargs):
         super().auto_pre_save(sender, document, **kwargs)
         document.pre_save_campaign()
-        document.pre_save_associations()
-        document.pre_save_dates()
-        document.pre_save_text()
+        document.pre_save_attributes()
         ##### MIGRATION: Encounters #######
         document.associations = [
             a for a in document.associations if a and a.model_name() != "Encounter"
@@ -487,18 +459,7 @@ TRANSCRIPT:
             self.campaign.episodes += [self]
             self.campaign.save()
 
-    def pre_save_associations(self):
-        # self.associations = list(set([self.associations]))
-        self.associations.sort(key=lambda x: (x.model_name(), x.name))
-
-    def pre_save_dates(self):
-        if not self.world.current_date or (
-            self.end_date_obj and self.world.current_date < self.end_date_obj
-        ):
-            self.world.current_date = self.end_date_obj.copy(self.world)
-            self.world.save()
-
-    def pre_save_text(self):
+    def pre_save_attributes(self):
         """
         Checks for a full name (obj.name) in a block of text and replaces it
         with a link, while respecting existing anchor tags.
@@ -511,13 +472,26 @@ TRANSCRIPT:
         Returns:
             str: The modified text with the name parts linked.
         """
-        for text in [
-            "episode_report",
-            "loot",
-            "hooks",
-            "transcription",
-            "interpreted_transcription",
-            "graphic_description",
-        ]:
-            if getattr(self, text):
-                setattr(self, text, parse_text(self, getattr(self, text)))
+
+        parse_attributes(
+            self,
+            [
+                "start_date_obj",
+                "end_date_obj",
+                "episode_report",
+                "description",
+                "loot",
+                "hooks",
+                "transcription",
+                "interpreted_transcription",
+                "graphic_description",
+            ],
+        )
+
+        if self.end_date_obj and (
+            not self.world.current_date or self.world.current_date < self.end_date_obj
+        ):
+            if self.world.current_date:
+                self.world.current_date.delete()
+            self.world.current_date = self.end_date_obj.copy(self.world)
+            self.world.save()

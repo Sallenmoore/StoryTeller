@@ -196,12 +196,6 @@ class TTRPGObject(TTRPGBase):
         if self in self.associations:
             self.associations.remove(self)
 
-        # Remove duplicates and sort associations by model_name, then by name
-        self.associations = sorted(
-            set(self.associations),
-            key=lambda a: (a.model_name(), getattr(a, "name", "")),
-        )
-
     def pre_save_world(self):
         if not self.world:
             raise ValidationError("Must be associated with a World object")

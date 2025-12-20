@@ -88,7 +88,6 @@ def episodenew(pk):
         "Episode Created",
         f"Episode {episode.name} ({episode.episode_num}) created in campaign {episode.campaign.name}",
     )
-    campaign.current_episode = episode
     campaign.save()
     return get_template_attribute("models/_campaign.html", "episodes")(
         user,

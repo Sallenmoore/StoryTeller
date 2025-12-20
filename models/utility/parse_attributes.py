@@ -9,6 +9,20 @@ from autonomous import log
 from models.calendar.date import Date
 
 
+def parse_attributes(obj, attributes):
+    for key in attributes:
+        value = getattr(obj, key)
+        if "_date" in key:
+            if new_value := parse_date(obj, value):
+                if isinstance(value, Date):
+                    value.delete()
+                value = new_value
+        elif isinstance(value, str):
+            value = parse_text(obj, value)
+        setattr(obj, key, value)
+    return obj
+
+
 def parse_text(obj, text):
     text = (
         markdown.markdown(text.strip().replace("```markdown", "").replace("```", ""))
@@ -107,15 +121,15 @@ def parse_date(obj, date):
             new_date.year = int(new_date.year) if new_date.year else -1
             new_date.save()
             date = new_date
-        elif not obj.start_date or not isinstance(obj.start_date, Date):
-            new_date = Date(
+        elif not isinstance(date, Date):
+            date = Date(
                 obj=obj,
                 calendar=obj.calendar,
                 day=random.randint(1, 28),
                 month=random.randrange(len(obj.calendar.months) or 12),
                 year=-1,
             )
-            date = new_date
+            date.save()
     return date
 
     # log(
