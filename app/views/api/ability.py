@@ -7,6 +7,7 @@ import os
 import requests
 from flask import Blueprint, get_template_attribute, request
 
+from autonomous import log
 from models.ttrpgobject.ability import Ability
 
 from ._utilities import loader as _loader
@@ -33,10 +34,14 @@ def addnewability():
 @ability_endpoint.route("/add", methods=("POST",))
 def addability():
     user, obj, request_data = _loader()
+    log(request_data)
     ab = Ability.get(request_data.get("apk"))
     if ab not in obj.abilities:
+        log(obj.abilities)
         obj.abilities += [ab]
+        log(obj.abilities)
         obj.save()
+        log(obj.abilities)
     return get_template_attribute("shared/_abilities.html", "manage")(user, obj)
 
 

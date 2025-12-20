@@ -15,6 +15,7 @@
         </li>
         {% endfor %}
     </ul>
+    </ul>
 </div>
 {%- endmacro %}
 
@@ -57,10 +58,12 @@
     </div>
     {% endif %}
 
-    <div class="grid-x grid-margin-x grid-margin-y">
-        {% for category in ["offensive", "defensive", "social", "support", "control", "movement"]%}
+    <div class="grid-x grid-margin-x">
+        {% for category in ["offensive", "defensive", "social", "support", "control", "movement",
+        "utility"]%}
+        {% if obj.abilities | selectattr('category', 'equalto', category) | list %}
         <div class="cell">
-            <div class="callout bg-muted">
+            <div class="callout bg-muted small">
                 <h6>{{category | title}} </h6>
                 <ul class="accordion abilities" data-accordion data-multi-expand="true"
                     data-allow-all-closed="true">
@@ -73,6 +76,7 @@
                 </ul>
             </div>
         </div>
+        {% endif %}
         {%endfor %}
     </div>
 </div>

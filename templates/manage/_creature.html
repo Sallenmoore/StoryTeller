@@ -80,6 +80,20 @@
                 document.querySelector('select[name="legendary"]').addEventListener('change', toggleVisibility);
             </script>
         </div>
+        <div class="cell shrink ">
+            <h4 class='text-center'>Faction</h4>
+            <div class="is-select">
+                <select class="has-no-border" name="faction">
+                    <option value="">No Faction</option>
+                    {% for faction in obj.factions %}
+                    <option value="{{faction.pk}}" {%if obj.faction and faction==obj.faction
+                            %}selected {%endif%}>
+                        {{faction.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
         <div class="cell shrink">
             <label for="model-hitpoints" class="is-subheading">HP</label>
             <input id="model-hitpoints" type="text" value="{{obj.hitpoints}}" name="hitpoints">
