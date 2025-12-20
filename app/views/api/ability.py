@@ -33,7 +33,7 @@ def addnewability():
 @ability_endpoint.route("/add", methods=("POST",))
 def addability():
     user, obj, request_data = _loader()
-    ab = Ability.get(request.json.get("apk"))
+    ab = Ability.get(request_data.get("apk"))
     if ab not in obj.abilities:
         obj.abilities += [ab]
         obj.save()
