@@ -56,14 +56,15 @@ def getability(pk):
 def updateability(pk):
     user, obj, request_data = _loader()
     if a := Ability.get(pk):
-        a.name = request.json.get("name", a.name)
-        a.action = request.json.get("action", a.action)
-        a.category = request.json.get("category", a.category)
-        a.description = request.json.get("description", a.description)
-        a.effects = request.json.get("effects", a.effects)
-        a.duration = request.json.get("duration", a.duration)
-        a.dice_roll = request.json.get("dice_roll", a.dice_roll)
-        a.mechanics = request.json.get("mechanics", a.mechanics)
+        log(a, request_data)
+        a.name = request_data.get("name", a.name)
+        a.action = request_data.get("action", a.action)
+        a.category = request_data.get("category", a.category)
+        a.description = request_data.get("description", a.description)
+        a.effects = request_data.get("effects", a.effects)
+        a.duration = request_data.get("duration", a.duration)
+        a.dice_roll = request_data.get("dice_roll", a.dice_roll)
+        a.mechanics = request_data.get("mechanics", a.mechanics)
         a.save()
     return get_template_attribute("models/_ability.html", "ability_edit")(user, a)
 

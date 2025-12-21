@@ -5,30 +5,42 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
-<form hx-post="/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
-    <div class="grid-x">
-        <div id="model-slogan" class="cell">
-            <h4>Slogan</h4>
-            <input type="text" name="slogan" value="{{obj.slogan}}">
-        </div>
-        <div class="cell shrink ">
-            <div class="callout">
-                <h4 class='text-center '>Adventuring Party?</h4>
-                <div class="is-select">
-                    <select class="has-no-border" name="is_player_faction">
-                        <option value="False">---</option>
-                        <option value="True" {%if obj.is_player_faction %} selected {%endif%}>
-                            Adventuring Party</option>
-                    </select>
+<div class="grid-x grid-margin-y">
+    <div class="cell">
+        <form hx-post="/manage/update" hx-swap="none" hx-trigger="input delay:1s, change">
+            <div class="grid-x">
+                <div id="model-slogan" class="cell">
+                    <h4>Slogan</h4>
+                    <input type="text" name="slogan" value="{{obj.slogan}}">
+                </div>
+                <div class="cell shrink ">
+                    <div class="callout">
+                        <h4 class='text-center '>Adventuring Party?</h4>
+                        <div class="is-select">
+                            <select class="has-no-border" name="is_player_faction">
+                                <option value="False">---</option>
+                                <option value="True" {%if obj.is_player_faction %} selected
+                                        {%endif%}>
+                                    Adventuring Party</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="model-goal" class="cell">
+                    <h4 class='text-center'>Goals and Secrets</h4>
+                    {{form_components.richtexteditor(user, obj, "goal", label=False)}}
                 </div>
             </div>
-        </div>
-        <div id="model-goal" class="cell">
-            <h4 class='text-center'>Goals and Secrets</h4>
-            {{form_components.richtexteditor(user, obj, "goal", label=False)}}
-        </div>
+        </form>
     </div>
-</form>
-{{manage_components.backstory(user, obj)}}
-{{manage_components.image(user, obj)}}
+    <div class="cell">
+        {{manage_components.backstory(user, obj)}}
+    </div>
+    <div class="cell">
+        {{manage_components.image(user, obj)}}
+    </div>
+</div>
+
+
+
 {%- endmacro %}

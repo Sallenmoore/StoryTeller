@@ -20,6 +20,8 @@
                         <td>{{ability.category | safe}}</td>
                         <th>Action</th>
                         <td>{{ability.action | safe}}</td>
+                        <th>Type</th>
+                        <td>{{ability.type | safe}}</td>
                         <th>Duration</th>
                         <td>{{ability.duration | striptags}}</td>
                     </tr>
@@ -44,9 +46,9 @@
 
 {% macro ability_edit(user, ability) -%}
 <a href="#" class="accordion-title">{{ability.name}}</a>
-<div id="ability_{obj.pk}" class="accordion-content" data-tab-content>
+<div id="ability_{ability.pk}" class="accordion-content" data-tab-content>
     <form hx-post='/ability/{{ability.pk}}/update'
-          hx-trigger="click consume"
+          hx-trigger="input delay:500ms, change"
           hx-swap='none'>
         <table class="ability">
             <tr>
@@ -54,14 +56,13 @@
                 <td>
                     <div class="grid-x grid-margin-x align-center-middle">
                         <div class="cell auto">
-                            {{form_components.text_input("abilities[].name", label=False, value=ability.name, style=ability.genre)}}
+                            {{form_components.text_input("name", value=ability.name, label=False)}}
                         </div>
                         <div class="cell shrink">
                             <div
                                  hx-post='/ability/{{ability.pk}}/generate'
-                                 hx-trigger="click consume"
+                                 hx-trigger="click"
                                  hx-target='#ability_{{ability.pk}}'
-                                 hx-swap='innerHTML'
                                  {% if ability.description %}
                                  hx-prompt='Regenerate ability "{{ability.name}}"? This will replace all of the existing information.'
                                  {% endif %}>
@@ -74,7 +75,7 @@
             <tr>
                 <th>Description</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "description", name="abilities[].description", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "description", label=False)}}
                 </td>
             </tr>
             <tr>
@@ -83,40 +84,36 @@
                     <table class="ability-subtable margin-0">
                         <tr>
                             <td>
-                                <label for="abilities[].category">Action Category</label>
-                                <div class="select">
-                                    <select name='abilities[].category'
-                                            value="{{ability.category}}">
-                                        {%for a in [
-                                        "offensive",
-                                        "defensive",
-                                        "social",
-                                        "support",
-                                        "control",
-                                        "movement",
-                                        "utility",
-                                        ] %}
-                                        <option value="{{a}}" {% if ability.category==a %} selected
-                                                {% endif %}>{{a}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                <label for="category">Action Category</label>
+                                <select name='category'
+                                        value="{{ability.category}}">
+                                    {%for a in [
+                                    "offensive",
+                                    "defensive",
+                                    "social",
+                                    "support",
+                                    "control",
+                                    "movement",
+                                    "utility",
+                                    ] %}
+                                    <option value="{{a}}" {% if ability.category==a %} selected
+                                            {% endif %}>{{a}}</option>
+                                    {% endfor %}
+                                </select>
                             </td>
                             <td>
-                                <label for="abilities[].action">Action Type</label>
-                                <div class="select">
-                                    <select name='abilities[].action'
-                                            value="{{ability.action}}">
-                                        {%for a in ["main action", "bonus action", "reaction",
-                                        "free action", "passive"] %}
-                                        <option value="{{a}}" {% if ability.action==a %} selected {%
-                                                endif %}>{{a}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                <label for="action">Action</label>
+                                <select name='action'
+                                        value="{{ability.action}}">
+                                    {%for a in ["main action", "bonus action", "reaction",
+                                    "free action", "passive"] %}
+                                    <option value="{{a}}" {% if ability.action==a %} selected {%
+                                            endif %}>{{a}}</option>
+                                    {% endfor %}
+                                </select>
                             </td>
                             <td>
-                                {{form_components.richtexteditor(user, ability, "duration", name="abilities[].duration", label=False)}}
+                                {{form_components.richtexteditor(user, ability, "duration", name="duration")}}
                             </td>
                         </tr>
                     </table>
@@ -125,19 +122,18 @@
             <tr>
                 <th>Roll</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "dice_roll", name="abilities[].dice_roll", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "dice_roll", name="dice_roll", label=False)}}
                 </td>
             </tr>
             <tr>
                 <th>Mechanics</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "mechanics", name="abilities[].mechanics", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "mechanics", name="mechanics", label=False)}}
                 </td>
             </tr>
             <tr>
                 <th>Effects</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "effects", name="abilities[].effects", label=False)}}
                 </td>
             </tr>
             <tr>
