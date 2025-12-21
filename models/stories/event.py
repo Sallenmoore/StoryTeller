@@ -102,7 +102,7 @@ class Event(AutoModel):
             world=episode.world,
             name=episode.name,
             associations=episode.associations,
-            story=episode.story,
+            stories=episode.stories,
             outcome=episode.episode_report,
             backstory=episode.campaign.summary,
             impact=episode.summary,
