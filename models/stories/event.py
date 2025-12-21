@@ -110,7 +110,15 @@ class Event(AutoModel):
         event.save()
         event.scope = "Local"
         event.start_date = episode.start_date.copy(event)
-        event.end_date = episode.end_date.copy(event)
+        event.end_date = (
+            episode.end_date.copy(event)
+            if episode.end_date
+            else episode.start_date.copy(event)
+        )
+        event.start_date.day -= 1
+        event.start_date.save()
+        event.end_date.save()
+        event.save()
         event.episodes = [episode]
         event.save()
         return event
