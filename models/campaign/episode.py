@@ -29,7 +29,7 @@ from models.stories.event import Event
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
-from models.utility.parse_attributes import parse_attributes, parse_date
+from models.utility.parse_attributes import parse_text, parse_date
 
 
 class Episode(AutoModel):
@@ -478,18 +478,16 @@ TRANSCRIPT:
         """
         self.start_date_obj = parse_date(self, self.start_date_obj)
         self.end_date_obj = parse_date(self, self.end_date_obj)
-        parse_attributes(
-            self,
-            [
-                "episode_report",
-                "description",
-                "loot",
-                "hooks",
-                "transcription",
-                "interpreted_transcription",
-                "graphic_description",
-            ],
+        self.episode_report = parse_text(self, self.episode_report)
+        self.description = parse_text(self, self.description)
+        self.loot = parse_text(self, self.loot)
+        self.hooks = parse_text(self, self.hooks)
+        self.transcription = parse_text(self, self.transcription)
+        self.interpreted_transcription = parse_text(
+            self, self.interpreted_transcription
         )
+        self.graphic_description = parse_text(self, self.graphic_description)
+
         if self.end_date_obj and (
             not self.world.current_date or self.world.current_date < self.end_date_obj
         ):

@@ -9,23 +9,6 @@ from autonomous import log
 from models.calendar.date import Date
 
 
-def parse_attributes(obj, attributes):
-    for key in attributes:
-        value = getattr(obj, key)
-        # log(getattr(obj.get(obj.pk), key))
-        if "_date" in key:
-            if new_value := parse_date(obj, value):
-                if isinstance(value, Date):
-                    value.delete()
-                value = new_value
-        elif isinstance(value, str):
-            value = parse_text(obj, value)
-        # log(value, getattr(obj.get(obj.pk), key))
-        setattr(obj, key, value)
-        # log(getattr(obj.get(obj.pk), key))
-    return obj
-
-
 def parse_text(obj, text):
     text = (
         markdown.markdown(text.strip().replace("```markdown", "").replace("```", ""))
