@@ -43,11 +43,9 @@ def edit_episode(pk=None):
     pk = pk or request_data.get("episodepk")
     log(request_data)
     if episode := Episode.get(pk):
-        start_date = request_data.get("start_date")
-        if start_date and start_date["year"]:
+        if start_date := request_data.get("start_date"):
             episode.start_date = start_date
-        end_date = request_data.get("end_date")
-        if end_date and end_date["year"]:
+        if end_date := request_data.get("end_date"):
             episode.end_date = end_date
         for field in [
             "name",
@@ -59,10 +57,9 @@ def edit_episode(pk=None):
             "interpreted_transcription",
         ]:
             setattr(episode, field, request_data.get(field, getattr(episode, field)))
-        episode.episode_report = request_data.get(
-            "episode_report", episode.episode_report
-        )
+        # log(episode.start_date, episode.end_date)
         episode.save()
+        log(Episode.get(pk).start_date, Episode.get(pk).end_date)
     return get_template_attribute("manage/_episode.html", "manage")(
         user,
         episode,

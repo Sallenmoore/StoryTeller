@@ -33,8 +33,8 @@
             </div>
             <div class="cell">
                 <h3>Report</h3>
-                <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
-                      hx-trigger="input delay:300ms, change"
+                <form hx-post="/{{episode.path}}/update" hx-swap="none"
+                      hx-trigger="input delay:100ms, change"
                       hx-disinherit="hx-confirm, hx-indicator, hx-push-url">
                     {{form_components.richtexteditor(user, episode, 'episode_report', label=False)}}
                 </form>
@@ -61,7 +61,7 @@
         </div>
         <hr>
         <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
-              hx-trigger="input delay:300ms, change">
+              hx-trigger="input delay:100ms, change">
             <h3>Loot</h3>
             {{form_components.richtexteditor(user, episode, 'loot', label=False)}}
             <hr>

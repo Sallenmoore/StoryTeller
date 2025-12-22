@@ -29,7 +29,7 @@ from models.stories.event import Event
 from models.ttrpgobject.character import Character
 from models.ttrpgobject.district import District
 from models.ttrpgobject.location import Location
-from models.utility.parse_attributes import parse_attributes
+from models.utility.parse_attributes import parse_attributes, parse_date
 
 
 class Episode(AutoModel):
@@ -446,9 +446,13 @@ TRANSCRIPT:
 
         #########################################
 
-    # @classmethod
-    # def auto_post_save(cls, sender, document, **kwargs):
-    #     super().auto_post_save(sender, document, **kwargs)
+    @classmethod
+    def auto_post_save(cls, sender, document, **kwargs):
+        super().auto_post_save(sender, document, **kwargs)
+        log(
+            document.get(document.pk).start_date_obj,
+            document.get(document.pk).end_date_obj,
+        )
 
     # def clean(self):
     #     super().clean()
@@ -472,12 +476,11 @@ TRANSCRIPT:
         Returns:
             str: The modified text with the name parts linked.
         """
-
+        self.start_date_obj = parse_date(self, self.start_date_obj)
+        self.end_date_obj = parse_date(self, self.end_date_obj)
         parse_attributes(
             self,
             [
-                "start_date_obj",
-                "end_date_obj",
                 "episode_report",
                 "description",
                 "loot",
@@ -487,7 +490,6 @@ TRANSCRIPT:
                 "graphic_description",
             ],
         )
-
         if self.end_date_obj and (
             not self.world.current_date or self.world.current_date < self.end_date_obj
         ):

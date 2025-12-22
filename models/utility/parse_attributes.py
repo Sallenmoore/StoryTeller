@@ -12,6 +12,7 @@ from models.calendar.date import Date
 def parse_attributes(obj, attributes):
     for key in attributes:
         value = getattr(obj, key)
+        # log(getattr(obj.get(obj.pk), key))
         if "_date" in key:
             if new_value := parse_date(obj, value):
                 if isinstance(value, Date):
@@ -19,7 +20,9 @@ def parse_attributes(obj, attributes):
                 value = new_value
         elif isinstance(value, str):
             value = parse_text(obj, value)
+        # log(value, getattr(obj.get(obj.pk), key))
         setattr(obj, key, value)
+        # log(getattr(obj.get(obj.pk), key))
     return obj
 
 
@@ -32,7 +35,8 @@ def parse_text(obj, text):
         .replace("h4>", "h6>")
     )
     if text.count("<") < 3 or len(text) < 100:
-        text = sanitize(text)
+        return sanitize(text)
+
     if hasattr(obj, "associations"):
         LINK_PATTERN = re.compile(r'href="/([a-zA-Z]+)/([a-fA-F0-9]+)"')
         # Use re.findall to get all tuples of (model, pk) from the report string
@@ -99,10 +103,13 @@ def parse_text(obj, text):
 
                 # Use re.sub to replace the name occurrences with the link template
                 text = full_name_pattern.sub(replacer, text)
+    if "<a" not in text and text.count("<") < 3:
+        return sanitize(text)
     return text
 
 
 def parse_date(obj, date):
+    # log(date)
     if obj.pk and obj.calendar:
         # log(f"Pre-saving dates for {obj}", obj.start_date, obj.end_date)
         if isinstance(date, dict):
@@ -130,6 +137,7 @@ def parse_date(obj, date):
                 year=-1,
             )
             date.save()
+    # log(date)
     return date
 
     # log(
