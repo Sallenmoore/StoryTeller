@@ -182,7 +182,7 @@ CHARACTER RESPONSES:
 
     def get_response(self, character_name):
         for response in self.responses:
-            if response.obj.name == character_name:
+            if response.obj and response.obj.name == character_name:
                 return response
         return None
 
