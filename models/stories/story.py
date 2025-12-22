@@ -5,7 +5,6 @@ from autonomous.model.autoattr import DictAttr, ListAttr, ReferenceAttr, StringA
 from autonomous.model.automodel import AutoModel
 
 from autonomous import log
-from models.base.ttrpgbase import TTRPGBase
 from models.images.image import Image
 from models.stories.encounter import Encounter
 from models.stories.event import Event
@@ -14,7 +13,7 @@ from models.utility import parse_attributes
 
 
 class Story(AutoModel):
-    name = StringAttr(default="")
+    name = StringAttr(default="New Story")
     scope = StringAttr(default="Local")
     situation = StringAttr(default="")
     current_status = StringAttr(default="")

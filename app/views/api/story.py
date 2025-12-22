@@ -39,7 +39,7 @@ def add_story():
     if obj.model_name() != "World":
         story.associations += [obj]
     story.save()
-    obj.world.stories += [story]
+    obj.world.stories = [story, *obj.world.stories]
     obj.world.save()
     return f"""<script>
         window.location.replace('/story/{story.pk}/manage');

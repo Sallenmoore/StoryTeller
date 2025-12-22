@@ -15,6 +15,7 @@
         <button class="button small" hx-post="/story/new"
                 hx-target="#stories-list"
                 hx-selector="#stories-list"
+                hx-indicator='#request-indicator'
                 hx-swap="outerHTML">
             {{icon_components.plus(size="1rem")}}
             New Story
@@ -27,22 +28,20 @@
             <div class="cell">
                 <div class="callout ">
                     <a href="/story/{{story.pk}}">
-                        <h3 class='text-center'>{{story.name}}</h3>
-                    </a>
-                    <div class="grid-x">
-                        <div class="cell">
-                            {% if story.image %}
-                            <div class="float-left" style='margin: 1.5rem;'>
-                                <img src='{{story.image.url(500)}}' alt='{{story.name}}'>
-                            </div>
-                            {% endif %}
-                            <a href="/story/{{story.pk}}">
+                        <h3 class='text-center'>{{story.name or "New Story"}}</h3>
+                        <div class="grid-x">
+                            <div class="cell">
+                                {% if story.image %}
+                                <div class="float-left" style='margin: 1.5rem;'>
+                                    <img src='{{story.image.url(500)}}' alt='{{story.name}}'>
+                                </div>
+                                {% endif %}
                                 <div class='has-text-justified has-text-black'>
                                     {{story.summary | safe}}
                                 </div>
-                            </a>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     <div class="callout">
                         <div class="grid-x align-spaced">
                             {%for ass in story.associations %}
