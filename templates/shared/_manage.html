@@ -53,7 +53,7 @@
 </div>
 <hr>
 <form hx-post="/manage/update/{{obj.path}}" hx-swap="none"
-      hx-trigger="input delay:100ms consume, change consume"
+      hx-trigger="input delay:100ms, change"
       hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <div class="grid-x grid-margin-x">
         <div class="cell auto">
@@ -70,7 +70,7 @@
         </div>
         <div id="model-status" class="cell">
             <h4 class='text-center'>Status</h4>
-            {{form_components.richtexteditor(user, obj, "status", label=False)}}
+            {{form_components.richtexteditor(user, obj, "status")}}
         </div>
     </div>
 </form>
@@ -79,17 +79,19 @@
 {%macro backstory(user, obj) -%}
 <div class="callout">
     <form hx-post="/manage/update/{{obj.path}}"
-          hx-swap="none" hx-trigger="input delay:250ms consume, change consume"
+          hx-swap="none" hx-trigger="input delay:100ms consume, change consume"
           hx-disinherit="hx-indicator hx-confirm hx-push-url">
         <h3 class='text-center'>Backstory</h3>
-        {{form_components.richtexteditor(user, obj, 'backstory', label=False)}}
+        {{form_components.richtexteditor(user, obj, 'backstory')}}
     </form>
 </div>
 {% endmacro %}
 
-{%macro dates(user, obj, stacked=False, url="manage/update/{{obj.path}}") -%}
-<form id="manage-obj-dates" hx-post="/{{url}}" hx-swap="none"
-      hx-trigger="input delay:250ms consume, change consume"
+{%macro dates(user, obj, stacked=False, url="") -%}
+<form id="manage-obj-dates"
+      hx-post="/{% if url %}{{url}}{%else%}manage/update/{{obj.path}}{% endif %}"
+      hx-swap="none"
+      hx-trigger="input delay:100ms consume, change consume"
       hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <div class="grid-x grid-margin-x align-center" style='position:relative;'>
         <div class="cell small-12 {% if not stacked %} medium-6 {% endif %}  align-center-middle">

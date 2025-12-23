@@ -222,7 +222,7 @@
                                 Save
                             </button>
                         </div>
-                        {{form_components.richtexteditor(user, obj, 'description', label=False)}}
+                        {{form_components.richtexteditor(user, obj, 'description')}}
                     </form>
                 </div>
             </div>
@@ -271,7 +271,7 @@
                 <form hx-post="/manage/update/{{obj.path}}"
                       hx-swap="none"
                       hx-trigger="input delay:250ms, change">
-                    {{form_components.richtexteditor(user, obj, 'graphic_description', label=False)}}
+                    {{form_components.richtexteditor(user, obj, 'graphic_description')}}
             </div>
         </div>
     </div>
@@ -442,13 +442,13 @@
             <div id="interpreted-transcription">
                 <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
-                    {{form_components.richtexteditor(user, episode, 'interpreted_transcription', label=False)}}
+                    {{form_components.richtexteditor(user, episode, 'interpreted_transcription')}}
                 </form>
             </div>
             <div id="audio-transcription" class="hide">
                 <form hx-post="/episode/{{episode.pk}}/update" hx-swap="none"
                       hx-trigger="input delay:1s, change">
-                    {{form_components.richtexteditor(user, episode, 'transcription', label=False)}}
+                    {{form_components.richtexteditor(user, episode, 'transcription')}}
                 </form>
             </div>
             {% else %}

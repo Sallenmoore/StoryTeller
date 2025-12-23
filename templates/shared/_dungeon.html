@@ -512,7 +512,7 @@
             <h5 class='text-center'>Map Prompt</h5>
             <form hx-post="/dungeon/room/{{obj.pk}}/manage" hx-trigger="input delay:1s, change"
                   hx-swap='none'>
-                {{form_components.textarea(user, obj, 'map_prompt', label=False)}}
+                {{form_components.textarea(user, obj, 'map_prompt')}}
             </form>
         </div>
         <div class="cell shrink">

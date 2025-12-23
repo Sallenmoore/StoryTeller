@@ -341,18 +341,16 @@ Use and expand on the existing object data listed below for the {self.title} obj
 {"- Backstory: " + self.backstory.strip() if self.backstory.strip() else ""}
 {f"- Controlled By: {self.owner.name}" if hasattr(self, "owner") and self.owner else ""}
 """
-        prompt = f"""{base_prompt}
-{prompt}
-===
-- Setting:
+        final_prompt = f"""
+- Setting Information:
   - Genre: {self.genre}
   - World Tone: {self.world.tone}
   - World Theme: {self.world.theme}
-  - World History: {self.world.history}
+  - World History: {self.world.backstory}
 """
 
         if hasattr(self, "stories") and self.stories:
-            prompt += f"\nIs connected to the following storyline:{random.choice(self.stories).summary}"
+            final_prompt += f"\nIs connected to the following storyline:{random.choice(self.stories).summary}"
 
         geneology, associations = (
             self.split_associations()
@@ -360,30 +358,38 @@ Use and expand on the existing object data listed below for the {self.title} obj
             else ([], self.associations)
         )
         if geneology and len(geneology) > 1:
-            prompt += "\n=== Direct Associations:\n"
+            final_prompt += "\n=== Direct Relationships:\n"
             for relative in self.geneology:
                 if (
                     relative not in [self, self.world]
                     and relative.name
                     and relative.backstory
                 ):
-                    prompt += f"""
+                    final_prompt += f"""
     - Name: {relative.name}
       - Type: {relative.title}
       - Backstory: {relative.backstory_summary}
      {f"- Controlled By: {relative.owner.name}" if hasattr(relative, "owner") and relative.owner else ""}
 """
         if self.model_name() not in ["Item", "Creature"] and associations:
-            prompt += "\n=== Additional Incidental Associations:\n"
+            final_prompt += "\n=== Additional Incidental Relationships:\n"
             associations = random.sample(associations, k=min(10, len(associations)))
             for ass in associations:
-                prompt += f"""
+                final_prompt += f"""
   - Name: {ass.name}
     - Type: {ass.title}
-    - Backstory: {ass.history or ass.backstory}
+    - Backstory: {ass.backstory_summary}
+
+Use the following information as a guide. You may expand on the provided details, but do not change the fundamental facts.
 """
-        log(prompt, _print=True)
-        if results := self.system.generate(self, prompt=prompt, funcobj=self.funcobj):
+        final_prompt += f"""
+{base_prompt}
+{prompt}
+"""
+        log(final_prompt, _print=True)
+        if results := self.system.generate(
+            self, prompt=final_prompt, funcobj=self.funcobj
+        ):
             log(results, _print=True)
             for k, v in results.items():
                 if isinstance(v, str) and "#" in v:

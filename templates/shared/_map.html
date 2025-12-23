@@ -14,13 +14,13 @@
                     <h5 class='text-center'>Map Prompt</h5>
                     <form hx-post="/manage/update/{{obj.path}}" hx-trigger="change"
                           hx-swap='none'>
-                        {{form_components.richtexteditor(user, obj, 'map_prompt', label=False)}}
+                        {{form_components.richtexteditor(user, obj, 'map_prompt')}}
                     </form>
                 </div>
             </div>
             <div class="cell shrink">
                 <button class="button small"
-                        hx-post="/manage/{{obj.path}}/map/prompt/reset"
+                        hx-post="/media/{{obj.path}}/map/prompt/reset"
                         hx-target="#object-map-view"
                         hx-select="#object-map-view"
                         hx-swap="outerHTML"

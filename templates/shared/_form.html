@@ -10,10 +10,7 @@
        placeholder='{{placeholder}}' />
 {%- endmacro %}
 
-{% macro textarea(user, obj, name="", content="", label="") -%}
-{% if label %}
-<label for="{{name}}">{{label}}</label>
-{% endif %}
+{% macro textarea(user, obj, name="", content="") -%}
 <textarea id="{{name}}" name='{{name}}' class="auto-resize-text secondary" rows="1"
           placeholder="Start typing...">{{ content or obj[name] }}</textarea>
 <script>

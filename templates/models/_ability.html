@@ -56,7 +56,7 @@
                 <td>
                     <div class="grid-x grid-margin-x align-center-middle">
                         <div class="cell auto">
-                            {{form_components.text_input("name", value=ability.name, label=False)}}
+                            {{form_components.text_input("name", value=ability.name)}}
                         </div>
                         <div class="cell shrink">
                             <div
@@ -75,7 +75,7 @@
             <tr>
                 <th>Description</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "description", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "description")}}
                 </td>
             </tr>
             <tr>
@@ -122,13 +122,13 @@
             <tr>
                 <th>Roll</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "dice_roll", name="dice_roll", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "dice_roll", name="dice_roll")}}
                 </td>
             </tr>
             <tr>
                 <th>Mechanics</th>
                 <td>
-                    {{form_components.richtexteditor(user, ability, "mechanics", name="mechanics", label=False)}}
+                    {{form_components.richtexteditor(user, ability, "mechanics", name="mechanics")}}
                 </td>
             </tr>
             <tr>
