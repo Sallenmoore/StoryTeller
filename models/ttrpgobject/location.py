@@ -11,13 +11,7 @@ from models.ttrpgobject.character import Character
 class Location(Place):
     dungeon = ReferenceAttr(choices=["Dungeon"])
 
-    parent_list = [
-        "Location",
-        "District",
-        "City",
-        "Region",
-        "Vehicle",
-    ]
+    parent_list = ["Location", "District", "City", "Region", "Vehicle", "Shop"]
 
     _funcobj = {
         "name": "generate_location",
