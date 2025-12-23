@@ -52,8 +52,8 @@
     </div>
 </div>
 <hr>
-<form hx-post="/manage/update" hx-swap="none"
-      hx-trigger="input delay:1s consume, change consume"
+<form hx-post="/manage/update/{{obj.path}}" hx-swap="none"
+      hx-trigger="input delay:100ms consume, change consume"
       hx-disinherit="hx-indicator hx-confirm hx-push-url">
     <div class="grid-x grid-margin-x">
         <div class="cell auto">
@@ -78,7 +78,7 @@
 
 {%macro backstory(user, obj) -%}
 <div class="callout">
-    <form hx-post="/manage/update"
+    <form hx-post="/manage/update/{{obj.path}}"
           hx-swap="none" hx-trigger="input delay:250ms consume, change consume"
           hx-disinherit="hx-indicator hx-confirm hx-push-url">
         <h3 class='text-center'>Backstory</h3>
@@ -87,7 +87,7 @@
 </div>
 {% endmacro %}
 
-{%macro dates(user, obj, stacked=False, url="manage/update") -%}
+{%macro dates(user, obj, stacked=False, url="manage/update/{{obj.path}}") -%}
 <form id="manage-obj-dates" hx-post="/{{url}}" hx-swap="none"
       hx-trigger="input delay:250ms consume, change consume"
       hx-disinherit="hx-indicator hx-confirm hx-push-url">
@@ -176,7 +176,7 @@
                     </h5>
                     <div class="callout">
                         <p id="model-desc" contentEditable="true"
-                           hx-post="/manage/update" hx-trigger="input delay:1s"
+                           hx-post="/manage/update/{{obj.path}}" hx-trigger="input delay:1s"
                            hx-vals="js:{description:strip_html(htmx.find('#model-desc').innerHTML)}"
                            hx-swap="none">
                             {{obj.desc | striptags}}
@@ -204,7 +204,7 @@
                     </button>
                 </div>
             </div>
-            <form hx-post="/manage/update" hx-select='#image-manage-container'
+            <form hx-post="/manage/update/{{obj.path}}" hx-select='#image-manage-container'
                   hx-target="#image-manage-container" hx-swap="outerHTML"
                   hx-confirm="Are you sure you want to upload and overwrite the current image?">
                 <div class="grid-x align-center">
@@ -234,7 +234,7 @@
         <div class="cell shrink text-center has-centered">
             <div class="image is-medium is-thumbnail is-margin-center" style="cursor: pointer">
                 <img src="{{image.url(size=100)}}" alt="{{image.tags | join(', ')}}"
-                     hx-post="/manage/update"
+                     hx-post="/manage/update/{{obj.path}}"
                      hx-target="#image-manage-container" hx-select="#image-manage-container"
                      hx-swap="outerHTML"
                      hx-vals='{"image":"{{image.pk}}"}'

@@ -49,24 +49,22 @@ def add(model):
     new_obj.save()
     # log(new_obj.pk)
     obj.add_association(new_obj)
-    associations = obj.associations
-    relations = [a for a in associations if a in obj.children]
-    relations += [
-        a for a in obj.geneology if a.model_name() not in ["World", "Campaign"]
-    ]
-    associations = [a for a in associations if a not in relations]
+    if hasattr(obj, "split_associations"):
+        relations, associations = obj.split_associations(associations=obj.associations)
+    else:
+        relations = []
+        associations = obj.associations
     return get_template_attribute(f"models/_{model}.html", "associations")(
         user, obj, extended_associations=associations, direct_associations=relations
     )
 
 
 @manage_endpoint.route("/update", methods=("POST",))
-def update():
-    user, obj, request_data = _loader()
+@manage_endpoint.route("/update/<string:model>/<string:pk>", methods=("POST",))
+def update(model=None, pk=None):
+    user, obj, request_data = _loader(model=model, pk=pk)
     request_data.pop("user", None)
     request_data.pop("model", None)
-    response_url = request_data.pop("response_path", None)
-    log(response_url)
     for attr, value in request_data.items():
         ########## SECURITY: remove any javascript tags for security reasons ############
         if isinstance(value, str) and "<" in value:
@@ -79,7 +77,7 @@ def update():
             setattr(obj, attr, value)
         else:
             log(f"Attribute or property for {obj.model_name()} not found: {attr}")
-        # log(f"Updated {obj.model_name()}:{obj.pk} - set {attr} to {value}", _print=True)
+        log(f"Updated {obj.model_name()}:{obj.pk} - set {attr} to {value}", _print=True)
     obj.save()
     log(obj.model_name().lower())
     return get_template_attribute(f"models/_{obj.model_name().lower()}.html", "manage")(

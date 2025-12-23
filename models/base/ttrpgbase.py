@@ -349,8 +349,6 @@ Use and expand on the existing object data listed below for the {self.title} obj
   - World Tone: {self.world.tone}
   - World Theme: {self.world.theme}
   - World History: {self.world.history}
-  - Relevant World Events:
-    - {"\n    - ".join([s.summary for s in self.world.stories if s.summary]) if self.world.stories else "N/A"}
 """
 
         if hasattr(self, "stories") and self.stories:

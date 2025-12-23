@@ -4,7 +4,7 @@
 {% macro manage(user, obj) -%}
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
-<form hx-post="/manage/update"
+<form hx-post="/manage/update/{{obj.path}}"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="cell shrink">
         <label>Owner

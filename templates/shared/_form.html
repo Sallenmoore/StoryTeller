@@ -43,19 +43,17 @@
 
 {% macro richtexteditor(user, obj, attr, name="", label=True) -%}
 {% if label %}
-<label style="{{obj.genre | label_style}}">{{attr | replace("_", " ") | title}}
+<label>{{attr | replace("_", " ") | title}}
 </label>
 {% endif %}
 <textarea id="edit-{{obj.pk}}-{{attr}}"
           name="{{name or attr}}"
-          data-model="{{obj.__class__.__name__.lower()}}"
+          data-model="{{obj.model_name().lower()}}"
           data-user="{{user.pk}}"
           data-pk="{{obj.pk}}"
           class="rich-text">
-        {% if obj %}
-            {{obj[attr] | string | safe}}
-        {% endif %}
-    </textarea>
+{{obj[attr] | string | safe}}
+</textarea>
 <script>
     $(function () {
         createCK('edit-{{obj.pk}}-{{attr}}');

@@ -23,7 +23,7 @@
             <label for="image_style">Image Style
                 <input list="image_styles" type="text" name="image_style"
                        value="{{obj.image_style}}"
-                       hx-post="/manage/update"
+                       hx-post="/manage/update/{{obj.path}}"
                        hx-trigger="change"
                        hx-swap="none"
                        placeholder="Image Style (e.g., illustrated, realistic, cartoon)">
@@ -41,7 +41,7 @@
         <div class="cell medium-6">
             <label for="map_style">Map Style
                 <input list="map_styles" type="text" name="map_style" value="{{obj.map_style}}"
-                       hx-post="/manage/update"
+                       hx-post="/manage/update/{{obj.path}}"
                        hx-trigger="change"
                        hx-swap="none"
                        placeholder="Map Style (e.g., isometric, top-down, hand-drawn)">

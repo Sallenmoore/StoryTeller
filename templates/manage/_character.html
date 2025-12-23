@@ -81,7 +81,7 @@
 {{manage_components.manage(user, obj)}}
 {{manage_components.dates(user, obj)}}
 <hr>
-<form hx-post="/manage/update"
+<form hx-post="/manage/update/{{obj.path}}"
       hx-swap="none" hx-trigger="input delay:1s, change">
     <div class="grid-x align-spaced">
         <div class="cell shrink ">

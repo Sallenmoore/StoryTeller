@@ -38,7 +38,7 @@
         </div>
     </div>
     <div class="cell medium-6">
-        <form hx-post="/manage/update"
+        <form hx-post="/manage/update/{{obj.path}}"
               hx-swap="none" hx-trigger="input delay:1s, change">
             <h4>Inventory</h4>
             {%for i in obj.inventory %}
